@@ -1,5 +1,5 @@
 /*
-	Copyright the ATK Community and Joseph Anderson, 2011
+	Copyright the ATK Community and Joseph Anderson, 2011-2016
 		J Anderson	j.anderson[at]ambisonictoolkit.net
 
 
@@ -200,6 +200,10 @@ FoaDecoderMatrix {
 
 	*newBtoA { arg orientation = 'flu', weight = 'dec';
 		^super.newCopyArgs('BtoA').initBtoA(orientation, weight);
+	}
+
+	*newBtoHoa1 { arg ordering = 'acn', normalisation = 'n3d';
+		^super.newCopyArgs('BtoHoa1').initBtoHoa1(ordering, normalisation);
 	}
 
 	initK2D { arg k;
@@ -600,6 +604,49 @@ FoaDecoderMatrix {
 		})
 	}
 
+	initBtoHoa1 { arg ordering, normalisation;
+
+		var sqrt2 = 2.sqrt;
+		var sqrt3 = 3.sqrt;
+
+		matrix = switch ( (ordering ++ normalisation).asSymbol,
+
+			// 0 - acn-n3d (aka Hoa1)
+			'acnn3d', {[
+				[ sqrt2, 0.0, 0.0, 0.0 ],
+				[ 0.0, 0.0, sqrt3, 0.0 ],
+				[ 0.0, 0.0, 0.0, sqrt3 ],
+				[ 0.0, sqrt3, 0.0, 0.0 ]
+			]},
+			// 1 - acn-sn3d (aka Ambix1)
+			'acnsn3d', {[
+				[ sqrt2, 0.0, 0.0, 0.0 ],
+				[ 0.0, 0.0, 1.0, 0.0 ],
+				[ 0.0, 0.0, 0.0, 1.0 ],
+				[ 0.0, 1.0, 0.0, 0.0 ]
+			]},
+			// 2 - sid-n3d
+			'sidn3d', {[
+				[ sqrt2, 0.0, 0.0, 0.0 ],
+				[ 0.0, sqrt3, 0.0, 0.0 ],
+				[ 0.0, 0.0, sqrt3, 0.0 ],
+				[ 0.0, 0.0, 0.0, sqrt3 ]
+			]},
+			// 3 - sid-sn3d
+			'sidsn3d', {[
+				[ sqrt2, 0.0, 0.0, 0.0 ],
+				[ 0.0, 1.0, 0.0, 0.0 ],
+				[ 0.0, 0.0, 1.0, 0.0 ],
+				[ 0.0, 0.0, 0.0, 1.0 ]
+			]},
+
+		);
+		matrix = Matrix.with(matrix);
+
+		// set output channel (speaker) directions for instance
+		dirOutputs = matrix.rows.collect({ inf });
+	}
+
 	dirInputs { ^this.numInputs.collect({ inf }) }
 
 	dirChannels { ^this.dirOutputs }
@@ -629,6 +676,10 @@ FoaEncoderMatrix {
 
 	*newAtoB { arg orientation = 'flu', weight = 'dec';
 		^super.newCopyArgs('AtoB').initAtoB(orientation, weight);
+	}
+
+	*newHoa1toB { arg ordering = 'acn', normalisation = 'n3d';
+		^super.newCopyArgs('BtoHoa1').initHoa1toB(ordering, normalisation);
 	}
 
 	*newOmni {
@@ -793,6 +844,19 @@ FoaEncoderMatrix {
 
 		// build encoder matrix, and set for instance
 	    matrix = bToAMatrix.matrix.inverse
+	}
+
+	initHoa1toB { arg ordering, normalisation;
+		var bToHoa1Matrix;
+
+		// retrieve corresponding Hoa1 decoder
+		bToHoa1Matrix = FoaDecoderMatrix.newBtoHoa1(ordering, normalisation);
+
+	    // set input channel directions for instance
+	    dirInputs = bToHoa1Matrix.dirInputs;
+
+		// build encoder matrix, and set for instance
+	    matrix = bToHoa1Matrix.matrix.inverse
 	}
 
 	initOmni {

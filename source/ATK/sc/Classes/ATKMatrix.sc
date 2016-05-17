@@ -206,6 +206,166 @@ FoaDecoderMatrix {
 		^super.newCopyArgs('BtoHoa1').initBtoHoa1(ordering, normalisation);
 	}
 
+	*newFromFile { arg filePathOrName;
+		var usrPN, srcPath, relPath, mtxDirPath;
+		var hasExtension, hasRelPath;
+
+		usrPN = PathName( filePathOrName ); // as PathName
+
+		if (usrPN.isFile, {
+			srcPath = usrPN;  // valid absolute path, easy!
+		}, {
+			hasExtension = usrPN.extension.size > 0;
+			hasRelPath = usrPN.colonIndices.size > 0;
+
+			mtxDirPath = Atk.initMatrixExtPath('decoder');
+			postf("matrix path: %\n", mtxDirPath); // debug
+
+			relPath = mtxDirPath +/+ usrPN;
+			postf("relative path: %\n", relPath); // debug
+
+			if (hasRelPath,
+				{	// search specific path within matrix directory
+					if (hasExtension, {
+
+						if( relPath.isFile, {
+							srcPath = relPath;  // valid relative path, with file extension
+						},{
+							Error(format("No file found at\n\t%\n", relPath)).throw;
+						});
+
+					}, { // user gives a path, but no file extension
+						var relWithoutLast;
+
+						relWithoutLast = PathName( relPath.fullPath.copyRange(0, relPath.colonIndices.last) );
+
+						if ( relWithoutLast.isFolder, // test enclosing folder
+							{
+								var name;
+								name = usrPN.fileNameWithoutExtension;
+								relWithoutLast.filesDo{
+									|file, i|
+									if (file.fileNameWithoutExtension == name, {
+										srcPath = file;
+									})
+								};
+							},{
+								"HERE".postln;
+								Error( format("Parent directory isn't a folder:\n\t%\n",
+									relWithoutLast.fullPath )
+								).throw;
+							}
+						)
+					}
+					);
+				}, {	// single filename, no other path
+					var name, matches = [];
+
+					name = usrPN.fileNameWithoutExtension;
+
+					// recursively search whole directory
+					mtxDirPath.filesDo{
+						|file|
+						if (file.fileNameWithoutExtension == name, {
+							matches  = matches.add(file)
+						})
+					};
+
+					case
+					{ matches.size == 1 } { srcPath = matches[0] }
+					{ matches.size == 0 } { Error( format("No file found for %", name) ).throw }
+					{ matches.size   > 1 } {
+						var str;
+						str = format( "Multiple matches found for filename: %\n", usrPN.fileNameWithoutExtension);
+						matches.do{|file| str = str ++ "\t" ++ file.asRelativePath( mtxDirPath ) ++ "\n" };
+						str = str ++ format("Provide either an absolute path to the matrix, or one relative to\n\t%\n", mtxDirPath);
+						Error( str ).throw;
+					};
+			});
+		}
+		);
+
+		if( srcPath.notNil, {
+			postf("Found matrix file: \n\t%\n", srcPath.asRelativePath(mtxDirPath));
+			Matrix.with( FileReader.read(srcPath.fullPath).asFloat ).postln;
+		},{warn("no matrix file found")}
+		);
+
+	}
+
+
+	/*{ arg filePathOrName;
+		var usrPN, srcPath, relPath, mtxDirPath;
+
+		usrPN = PathName( filePathOrName ); // as PathName
+
+		if (usrPN.isFile)
+		{	// found valid full path
+			srcPath = usrPN;
+		}
+		{	// check path relative to user-matrixes/FOA/decoders/
+			mtxDirPath = Atk.initMatrixExtPath('decoder');
+			postf("matrix path: %\n", mtxDirPath); // debug
+
+			relPath = mtxDirPath +/+ usrPN;
+			postf("relative path: %\n", relPath); // debug
+
+			if (relPath.isFile)
+			{	// found relative path, with file extension
+				srcPath = relPath
+			}
+			{
+				var relWithoutLast;
+				// check for relative path, without file extension
+				relWithoutLast = PathName( relPath.fullPath.copyRange(0, relPath.colonIndices.last) );
+				if (relWithoutLast.isFolder) // test enclosing folder
+				{
+					name = usrPN.fileNameWithoutExtension;
+					relWithoutLast.filesDo{
+						|file|
+						if (file.fileNameWithoutExtension == name, {
+							srcPath = file;
+						})
+					};
+
+					{ Error( format("No file found for %", name) ).throw }
+				}
+				{
+				// check for file name match
+				var name, matches = [];
+
+				name = usrPN.fileNameWithoutExtension;
+
+				mtxDirPath.filesDo{
+					|file|
+					if (file.fileNameWithoutExtension == name, {
+						matches  = matches.add(file)
+					})
+				};
+
+				case
+				{ matches.size == 1 } { srcPath = matches[0] }
+				{ matches.size == 0 } { Error( format("No file found for %", name) ).throw }
+				{ matches.size   > 1 } {
+					var str;
+					str = format( "Multiple matches found for filename: %\n", usrPN.fileNameWithoutExtension);
+					matches.do{|file| str = str ++ "\t" ++ file.asRelativePath( mtxDirPath ) ++ "\n" };
+					str = str ++ format("Provide either an absolute path to the matrix, or one relative to\n\t%\n", mtxDirPath);
+					Error( str ).throw;
+				};
+			}
+		};
+
+		if( srcPath.notNil, {
+			postf("Found matrix file: \n\t%\n", srcPath.asRelativePath(mtxDirPath));
+			Matrix.with( FileReader.read(srcPath.fullPath).asFloat ).postln;
+		},{warn("no matrix file found")}
+		);
+
+		// ^super.newCopyArgs('userSupplied').initDiametric(directions, k);
+		}*/
+
+
 	initK2D { arg k;
 
 		if ( k.isNumber, {

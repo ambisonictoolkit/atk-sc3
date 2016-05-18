@@ -1,21 +1,21 @@
 /*
 	Copyright the ATK Community, Joseph Anderson, and Josh Parmenter, 2011
-		J Anderson	j.anderson[at]ambisonictoolkit.net 
-		J Parmenter	j.parmenter[at]ambisonictoolkit.net 
-	
-	
+		J Anderson	j.anderson[at]ambisonictoolkit.net
+		J Parmenter	j.parmenter[at]ambisonictoolkit.net
+
+
 	This file is part of SuperCollider3 version of the Ambisonic Toolkit (ATK).
-	
+
 	The SuperCollider3 version of the Ambisonic Toolkit (ATK) is free software:
 	you can redistribute it and/or modify it under the terms of the GNU General
 	Public License as published by the Free Software Foundation, either version 3
 	of the License, or (at your option) any later version.
-	
+
 	The SuperCollider3 version of the Ambisonic Toolkit (ATK) is distributed in
 	the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the
 	implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See
 	the GNU General Public License for more details.
-	
+
 	You should have received a copy of the GNU General Public License along with the
 	SuperCollider3 version of the Ambisonic Toolkit (ATK). If not, see
 	<http://www.gnu.org/licenses/>.
@@ -78,45 +78,52 @@
 //	methods for working with Ambisonic surround sound. The intention is for the toolset
 //	to be both ergonomic and comprehensive, providing both classic and novel algorithms
 //	to creatively manipulate and synthesise complex Ambisonic soundfields.
-//	
+//
 //	The tools are framed for the user to think in terms of the soundfield kernel. By
 //	this, it is meant the ATK addresses the holistic problem of creatively controlling a
 //	complete soundfield, allowing and encouraging the composer to think beyond the placement
 //	of sounds in a sound-space and instead attend to the impression and image of a soundfield.
 //	This approach takes advantage of the model the Ambisonic technology presents, and is
 //	viewed to be the idiomatic mode for working with the Ambisonic technique.
-//	
-//	
+//
+//
 //	We hope you enjoy the ATK!
-//	
+//
 //	For more information visit http://ambisonictoolkit.net/ or
 //	email info[at]ambisonictoolkit.net
 //
 //---------------------------------------------------------------------
 
 Atk {
-	classvar <userSupportDir, <userSoundsDir, <userKernelDir;
-	classvar <systemSupportDir, <systemSoundsDir, <systemKernelDir;
+	classvar <userSupportDir, <userSoundsDir, <userKernelDir, <userExtensionsDir;
+	classvar <systemSupportDir, <systemSoundsDir, <systemKernelDir, <systemExtensionsDir;
 
 	*initClass {
-		userSupportDir = Platform.userAppSupportDir.dirname ++ "/ATK";		userSoundsDir = userSupportDir ++ "/sounds";
+		userSupportDir = Platform.userAppSupportDir.dirname ++ "/ATK";
+		userSoundsDir = userSupportDir ++ "/sounds";
 		userKernelDir = userSupportDir ++ "/kernels";
-		systemSupportDir = Platform.systemAppSupportDir.dirname ++ "/ATK";		systemSoundsDir = systemSupportDir ++ "/sounds";
+		userExtensionsDir = userSupportDir ++ "/extensions";
+
+		systemSupportDir = Platform.systemAppSupportDir.dirname ++ "/ATK";
+		systemSoundsDir = systemSupportDir ++ "/sounds";
 		systemKernelDir = systemSupportDir ++ "/kernels";
+		systemExtensionsDir = systemSupportDir ++ "/extensions";
 	}
-	
+
 	*userSupportDir_ {arg userSupportDirIn;
 		userSupportDir = userSupportDirIn;
 		userSoundsDir = userSupportDir ++ "/sounds";
 		userKernelDir = userSupportDir ++ "/kernels";
+		userExtensionsDir = userSupportDir ++ "/extensions";
 	}
-	
+
 	*systemSupportDir_ {arg systemSupportDurIn;
 		systemSupportDir = systemSupportDurIn;
 		systemSoundsDir = systemSupportDir ++ "/sounds";
 		systemKernelDir = systemSupportDir ++ "/kernels";
+		systemExtensionsDir = systemSupportDir ++ "/extensions";
 	}
-		
+
 	*openUserSupportDir {
 		File.exists(Atk.userSupportDir).if({
 			Atk.userSupportDir.openOS;
@@ -127,26 +134,179 @@ Atk {
 
 	*createUserSupportDir {
 		File.mkdir(Atk.userSupportDir);
-//		("mkdir \"" ++ Atk.userSupportDir ++ "\"").unixCmd;
+		//		("mkdir \"" ++ Atk.userSupportDir ++ "\"").unixCmd;
 	}
-	
+
 	*openSystemSupportDir {
 		File.exists(Atk.systemSupportDir).if({
 			Atk.systemSupportDir.openOS;
 		}, {
 			"System Support Dir may not exist.".warn
 		})
-	}	
+	}
+
+	// NOTE: could be generalized for other user extensions, e.g. kernels, etc.
+	//  kind: 'decoder', 'encoder', 'xformer'
+	*initMatrixExtensionPath { |kind|
+		var matrixLibPath, kindPath, fullPath;
+
+		matrixLibPath = PathName.new(
+			Atk.userExtensionsDir ++ "/user_matrices"
+		);
+
+		if ( matrixLibPath.isFolder.not, {	// is kernel lib installed for all users?
+			matrixLibPath = PathName.new(					// no? set for single user
+				Atk.systemExtensionsDir ++ "/user_matrices"
+			)
+		});
+
+		if ( matrixLibPath.isFolder.not, {
+			Error(
+				format("No user matrix folder found in\n\t%\nor\n\t%\n",
+					Atk.userExtensionsDir ++ "/user_matrices",
+					Atk.systemExtensionsDir ++ "/user_matrices"
+				)
+			).throw;
+		});
+
+		kindPath = PathName.new( "FOA/" ++
+			switch( kind,
+				'decoder', {"decoders"},
+				'encoder', {"encoders"},
+				'xformer', {"xformers"}
+			);
+		);
+
+		fullPath = matrixLibPath +/+ kindPath;
+
+		if ( fullPath.isFolder.not, {
+			Error(
+				format("No % directory folder found at\n\t%\n", kindPath.fullPath, fullPath.fullPath)
+			).throw
+		});
+
+		^fullPath
+	}
+
+	// NOTE: could be generalized for other user extensions, e.g. kernels, etc.
+	*resolveMtxPath { arg filePathOrName, mtxKind;
+		var usrPN, srcPath, relPath, mtxDirPath;
+		var hasExtension, hasRelPath;
+
+		usrPN = PathName( filePathOrName ); // as PathName
+
+		if (usrPN.isFile,
+			{	// valid absolute path, easy!
+				srcPath = usrPN;
+			}, {
+				hasExtension = usrPN.extension.size > 0;
+				hasRelPath = usrPN.colonIndices.size > 0;
+
+				mtxDirPath = Atk.initMatrixExtensionPath(mtxKind);
+				relPath = mtxDirPath +/+ usrPN;
+
+				// debug
+				postf("matrix path: %\nrelative path: %\n", mtxDirPath, relPath);
+
+				if (hasRelPath,
+					{	// search specific path within matrix directory
+						if (hasExtension, {
+
+							if( relPath.isFile, {
+								srcPath = relPath;  // valid relative path, with file extension
+							},{
+								Error(format("No file found at\n\t%\n", relPath)).throw;
+							});
+
+						}, { // user gives a path, but no file extension
+							var relWithoutLast;
+
+							// relWithoutLast = PathName( relPath.fullPath.copyRange(0, relPath.colonIndices.last) );
+							relWithoutLast = PathName( relPath.fullPath.dirname );
+
+							postf("relWithoutLast %\n",	relWithoutLast);
+
+							if ( relWithoutLast.isFolder, // test enclosing folder
+								{
+									var name, foundCnt=0;
+									name = usrPN.fileNameWithoutExtension;
+									// NOTE: filesDo searches recursively in the parent folder,
+									// so keep track of matches in case there are multiple
+									relWithoutLast.filesDo{
+										|file|
+										if (file.fileNameWithoutExtension == name, {
+											srcPath = file;
+											foundCnt = foundCnt+1;
+										});
+									};
+
+									if (foundCnt >1) {
+										Error( format(
+											"Found multiple matches in recursive search of\n\t%\nPlease provide a more specific path",
+											relWithoutLast.fullPath
+										) ).throw;
+									};
+
+								},{
+									Error( format(
+										"Parent directory isn't a folder:\n\t%\n",
+										relWithoutLast.fullPath )
+									).throw;
+								}
+							)
+						}
+						);
+					}, {	// single filename, no other path
+						var name, matches = [];
+
+						name = usrPN.fileNameWithoutExtension;
+
+						// recursively search whole directory
+						mtxDirPath.filesDo{
+							|file|
+							if (file.fileNameWithoutExtension == name, {
+								matches  = matches.add(file)
+							})
+						};
+
+						case
+						{ matches.size == 1 } { srcPath = matches[0] }
+						{ matches.size == 0 } { Error( format("No file found for %", name) ).throw }
+						{ matches.size   > 1 } {
+							var str;
+							str = format(
+								"Multiple matches found for filename: %\n",
+								usrPN.fileNameWithoutExtension);
+							matches.do{|file| str = str ++ "\t" ++ file.asRelativePath( mtxDirPath ) ++ "\n" };
+							str = str ++ format(
+								"Provide either an absolute path to the matrix, or one relative to\n\t%\n",
+								mtxDirPath);
+							Error( str ).throw;
+						};
+				});
+			}
+		);
+
+		if( srcPath.notNil,
+			{
+				postf("Found matrix file: \n\t%\n", srcPath.asRelativePath(mtxDirPath));
+				// matrix = Matrix.with( FileReader.read(srcPath.fullPath).asFloat ).postln;
+				^srcPath
+			},{ Error("No matrix file found!").throw }
+		);
+	}
+
 }
 
+
 FoaPanB : MultiOutUGen {
-	
+
 	*ar { arg in, azimuth=0, elevation=0, mul = 1, add = 0;
 		^this.multiNew('audio', in, azimuth, elevation ).madd(mul, add);
 	}
-	
+
 	init { arg ... theInputs;
-		inputs = theInputs;		
+		inputs = theInputs;
 		channels = [ OutputProxy(\audio,this,0), OutputProxy(\audio,this,1),
 					OutputProxy(\audio,this,2), OutputProxy(\audio,this,3) ];
 		^channels
@@ -156,14 +316,14 @@ FoaPanB : MultiOutUGen {
 }
 
 Foa : MultiOutUGen {
-		
+
 	init { arg ... theInputs;
-		inputs = theInputs;	
+		inputs = theInputs;
 		channels = [ OutputProxy(\audio,this,0), OutputProxy(\audio,this,1),
 					OutputProxy(\audio,this,2), OutputProxy(\audio,this,3) ];
 		^channels
 	}
-	
+
  	checkInputs { ^this.checkNInputs(4) }
 
 	*checkChans {arg in;
@@ -173,9 +333,9 @@ Foa : MultiOutUGen {
 			^in
 		});
 	}
- 	
+
  }
-	
+
 FoaDirectO : Foa {
 	*ar { arg in, angle = pi/2, mul = 1, add = 0;
 		var w, x, y, z;
@@ -198,14 +358,14 @@ FoaDirectX : Foa {
 FoaDirectY : FoaDirectX { }
 FoaDirectZ : FoaDirectX { }
 
-FoaRotate : Foa { 
+FoaRotate : Foa {
 	*ar { arg in, angle = 0, mul = 1, add = 0;
 		var w, x, y, z;
 		in = this.checkChans(in);
 		#w, x, y, z = in;
 		^this.multiNew('audio', w, x, y, z, angle).madd(mul, add);
 	}
-} 
+}
 FoaTilt : FoaRotate { }
 FoaTumble : FoaRotate { }
 
@@ -213,7 +373,7 @@ FoaFocusX : FoaRotate { }
 FoaFocusY : FoaRotate { }
 FoaFocusZ : FoaRotate { }
 
-FoaPushX : FoaRotate { } 
+FoaPushX : FoaRotate { }
 FoaPushY : FoaRotate { }
 FoaPushZ : FoaRotate { }
 
@@ -225,23 +385,23 @@ FoaZoomX : FoaRotate { }
 FoaZoomY : FoaRotate { }
 FoaZoomZ : FoaRotate { }
 
-FoaBalance { 
+FoaBalance {
 	*ar { arg in, angle = 0, mul = 1, add = 0;
 		var w, x, y, z;
 		in = this.checkChans(in);
 		#w, x, y, z = in;
 		^FoaZoomY.ar(w, x, y, z, angle, mul, add);
 	}
-} 
+}
 
 
-FoaDominateX : Foa {	
+FoaDominateX : Foa {
 	*ar { arg in, gain = 0, mul = 1, add = 0;
 		var w, x, y, z;
 		in = this.checkChans(in);
 		#w, x, y, z = in;
 		^this.multiNew('audio', w, x, y, z, gain).madd(mul, add);
-	}	
+	}
 }
 
 FoaDominateY : FoaDominateX { }
@@ -250,15 +410,15 @@ FoaDominateZ : FoaDominateX { }
 FoaAsymmetry : FoaRotate { }
 
 
-FoaRTT { 
+FoaRTT {
 	*ar { arg in, rotAngle = 0, tilAngle = 0, tumAngle = 0, mul = 1, add = 0;
 		in = FoaRotate.ar(in, rotAngle);
 		in = FoaTilt.ar(in, tilAngle);
 		^FoaTumble.ar(in, tumAngle, mul, add);
 	}
-} 
+}
 
-FoaMirror { 
+FoaMirror {
 	*ar { arg in, theta = 0, phi = 0, mul = 1, add = 0;
 		in = FoaRotate.ar(in, theta.neg);
 		in = FoaTumble.ar(in, phi.neg);
@@ -266,9 +426,9 @@ FoaMirror {
 		in = FoaTumble.ar(in, phi);
 		^FoaRotate.ar(in, theta, mul, add);
 	}
-} 
+}
 
-FoaDirect { 
+FoaDirect {
 	*ar { arg in, angle = 0, theta = 0, phi = 0, mul = 1, add = 0;
 
 		in = FoaRotate.ar(in, theta.neg);
@@ -277,9 +437,9 @@ FoaDirect {
 		in = FoaTumble.ar(in, phi);
 		^FoaRotate.ar(in, theta, mul, add);
 	}
-} 
+}
 
-FoaDominate { 
+FoaDominate {
 	*ar { arg in, gain = 0, theta = 0, phi = 0, mul = 1, add = 0;
 
 		in = FoaRotate.ar(in, theta.neg);
@@ -288,9 +448,9 @@ FoaDominate {
 		in = FoaTumble.ar(in, phi);
 		^FoaRotate.ar(in, theta, mul, add);
 	}
-} 
+}
 
-FoaZoom { 
+FoaZoom {
 	*ar { arg in, angle = 0, theta = 0, phi = 0, mul = 1, add = 0;
 
 		in = FoaRotate.ar(in, theta.neg);
@@ -299,9 +459,9 @@ FoaZoom {
 		in = FoaTumble.ar(in, phi);
 		^FoaRotate.ar(in, theta, mul, add);
 	}
-} 
+}
 
-FoaFocus { 
+FoaFocus {
 	*ar { arg in, angle = 0, theta = 0, phi = 0, mul = 1, add = 0;
 
 		in = FoaRotate.ar(in, theta.neg);
@@ -310,9 +470,9 @@ FoaFocus {
 		in = FoaTumble.ar(in, phi);
 		^FoaRotate.ar(in, theta, mul, add);
 	}
-} 
+}
 
-FoaPush { 
+FoaPush {
 	*ar { arg in, angle = 0, theta = 0, phi = 0, mul = 1, add = 0;
 
 		in = FoaRotate.ar(in, theta.neg);
@@ -321,9 +481,9 @@ FoaPush {
 		in = FoaTumble.ar(in, phi);
 		^FoaRotate.ar(in, theta, mul, add);
 	}
-} 
+}
 
-FoaPress { 
+FoaPress {
 	*ar { arg in, angle = 0, theta = 0, phi = 0, mul = 1, add = 0;
 
 		in = FoaRotate.ar(in, theta.neg);
@@ -332,13 +492,13 @@ FoaPress {
 		in = FoaTumble.ar(in, phi);
 		^FoaRotate.ar(in, theta, mul, add);
 	}
-} 
+}
 
 
 //------------------------------------------------------------------------
 // Filters
 
-FoaProximity : Foa { 
+FoaProximity : Foa {
 	*ar { arg in, distance = 1, mul = 1, add = 0;
 		var w, x, y, z;
 		in = this.checkChans(in);
@@ -348,24 +508,24 @@ FoaProximity : Foa {
 
 }
 
-FoaNFC : Foa { 
+FoaNFC : Foa {
 	*ar { arg in, distance = 1, mul = 1, add = 0;
 		var w, x, y, z;
 		in = this.checkChans(in);
 		#w, x, y, z = in;
 		^this.multiNew('audio', w, x, y, z, distance).madd(mul, add);
 	}
-		
+
 }
 
-FoaPsychoShelf : Foa { 
+FoaPsychoShelf : Foa {
 	*ar { arg in, freq = 400, k0 = (3/2).sqrt, k1 = 3.sqrt/2, mul = 1, add = 0;
 		var w, x, y, z;
 		in = this.checkChans(in);
 		#w, x, y, z = in;
 		^this.multiNew('audio', w, x, y, z, freq, k0, k1).madd(mul, add);
 	}
-		
+
 }
 
 
@@ -374,12 +534,12 @@ FoaPsychoShelf : Foa {
 
 AtkMatrixMix {
 	*ar { arg in, matrix, mul = 1, add = 0;
-		
+
 		var out;
 
 		// wrap input as array if needed, for mono inputs
 		in.isArray.not.if({ in = [in] });
-		
+
 		out = Mix.fill( matrix.cols, { arg i; // fill input
 			UGen.replaceZeroesWithSilence(
 				matrix.flop.asArray.at(i) * in.at(i)
@@ -392,12 +552,12 @@ AtkMatrixMix {
 
 AtkKernelConv {
 	*ar { arg in, kernel, mul = 1, add = 0;
-		
+
 		var out;
 
 		// wrap input as array if needed, for mono inputs
 		in.isArray.not.if({ in = [in] });
-		
+
 		out = Mix.new(
 			kernel.shape.at(0).collect({ arg i;
 				kernel.shape.at(1).collect({ arg j;
@@ -426,19 +586,19 @@ FoaUGen {
 			^in
 		});
 	}
-	
+
 	*argDict { arg ugen, args, argDefaults;
 			var index, userDict;
 			var ugenKeys;
 			var ugenDict;
 			// find index dividing ordered and named args
 			index = args.detectIndex({arg item; item.isKindOf(Symbol)});
-		
+
 			// find ugen args, drop [ 'this', sig]
 			ugenKeys = ugen.class.findRespondingMethodFor(\ar).argNames.drop(2);
 			ugenDict = Dictionary.new;
 			ugenKeys.do({arg key, i; ugenDict.put(key, argDefaults.at(i))});
-			
+
 			// build user dictionary
 			userDict = Dictionary.new(ugenKeys.size);
 			(index == nil).not.if({
@@ -448,7 +608,7 @@ FoaUGen {
 			});
 			userDict = userDict.putAll(Dictionary.newFrom((index).collect({arg i;
 				[ugenKeys.at(i), args.at(i)]}).flat));
-				
+
 			// merge
 			^ugenDict.merge(userDict, {
 				arg ugenArg, userArg; (userArg != nil).if({userArg})
@@ -459,7 +619,7 @@ FoaUGen {
 FoaDecode : FoaUGen {
 	*ar { arg in, decoder, mul = 1, add = 0;
 		in = this.checkChans(in);
-		switch ( decoder.class, 
+		switch ( decoder.class,
 
 			FoaDecoderMatrix, {
 
@@ -470,7 +630,7 @@ FoaDecode : FoaUGen {
 
 				^AtkMatrixMix.ar(in, decoder.matrix, mul, add)
 			},
-			
+
 			FoaDecoderKernel, {
 				^AtkKernelConv.ar(in, decoder.kernel, mul, add)
 			}
@@ -484,22 +644,22 @@ FoaDecode : FoaUGen {
 
 FoaEncode : FoaUGen {
 	*ar { arg in, encoder, mul = 1, add = 0;
-		
+
 		var out;
 
-		switch ( encoder.class, 
+		switch ( encoder.class,
 
 			FoaEncoderMatrix, {
 				out = AtkMatrixMix.ar(in, encoder.matrix, mul, add)
 			},
-			
+
 			FoaEncoderKernel, {
 				out = AtkKernelConv.ar(in, encoder.kernel, mul, add)
 			}
 		);
 
 //		if ( out.size < 4, {			// 1st order, fill missing harms with zeros
-//			
+//
 //			out = out ++ Silent.ar(4 - out.size)
 //		});
 		out = this.checkChans(out);
@@ -513,16 +673,16 @@ FoaEncode : FoaUGen {
 
 FoaXform : FoaUGen {
 	*ar { arg in, xformer, mul = 1, add = 0;
-		
+
 		var out;
 		in = this.checkChans(in);
-		
+
 //		switch ( xformer.class,
 //
 //			FoaXformerMatrix, {
 //				out = AtkMatrixMix.ar(in, xformer.matrix, mul, add)
 //			},
-//			
+//
 //			FoaXformerKernel, {
 //				out = AtkKernelConv.ar(in, xformer.kernel, mul, add)
 //			}
@@ -538,7 +698,7 @@ FoaXform : FoaUGen {
 
 //------------------------------------------------------------------------
 // Transformer: UGen wrapper
-/* 
+/*
 argument key - see helpfile for reasonable values
 'rtt' - angle
 
@@ -546,11 +706,11 @@ argument key - see helpfile for reasonable values
 
 FoaTransform : FoaUGen {
 	*ar { arg in, kind ... args;
-		
+
 		var argDict, argDefaults;
 		var ugen;
 		in = this.checkChans(in);
-		
+
 //		argDict = { arg ugen, args, argDefaults;
 //			var index, userDict;
 //			var ugenKeys;
@@ -558,12 +718,12 @@ FoaTransform : FoaUGen {
 //			[ugen, args, argDefaults].postln;
 //			// find index dividing ordered and named args
 //			index = args.detectIndex({arg item; item.isKindOf(Symbol)});
-//		
+//
 //			// find ugen args, drop [ 'this', w, x, y, z ]
 //			ugenKeys = ugen.class.findRespondingMethodFor(\ar).argNames.drop(2);
 //			ugenDict = Dictionary.new;
 //			ugenKeys.do({arg key, i; ugenDict.put(key, argDefaults.at(i))});
-//			
+//
 //			// build user dictionary
 //			userDict = Dictionary.new(ugenKeys.size);
 //			(index == nil).not.if({
@@ -573,62 +733,62 @@ FoaTransform : FoaUGen {
 //			});
 //			userDict = userDict.putAll(Dictionary.newFrom((index).collect({arg i;
 //				[ugenKeys.at(i), args.at(i)]}).flat));
-//				
+//
 //			// merge
 //			ugenDict.merge(userDict, {
 //				arg ugenArg, userArg; (userArg != nil).if({userArg})
 //			})
 //		};
-//				
+//
 
-		switch ( kind, 
+		switch ( kind,
 
 			'rotate', {
 
 				ugen = FoaRotate;
 				argDefaults = [0, 1, 0];
-				
+
 				argDict = this.argDict(ugen, args, argDefaults);
-				
+
 				^ugen.ar(
 					in,
 					argDict.at(\angle), argDict.at(\mul), argDict.at(\add)
 				)
 			},
-			
+
 			'tilt', {
 
 				ugen = FoaTilt;
 				argDefaults = [0, 1, 0];
-				
+
 				argDict = this.argDict(ugen, args, argDefaults);
-				
+
 				^ugen.ar(
 					in,
 					argDict.at(\angle), argDict.at(\mul), argDict.at(\add)
 				)
 			},
-			
+
 			'tumble', {
 
 				ugen = FoaTumble;
 				argDefaults = [0, 1, 0];
-				
+
 				argDict = this.argDict(ugen, args, argDefaults);
-				
+
 				^ugen.ar(
 					in,
 					argDict.at(\angle), argDict.at(\mul), argDict.at(\add)
 				)
 			},
-				
+
 			'directO', {
 
 				ugen = FoaDirectO;
 				argDefaults = [0, 1, 0];
-				
+
 				argDict = this.argDict(ugen, args, argDefaults);
-				
+
 				^ugen.ar(
 					in,
 					argDict.at(\angle), argDict.at(\mul), argDict.at(\add)
@@ -639,9 +799,9 @@ FoaTransform : FoaUGen {
 
 				ugen = FoaDirectX;
 				argDefaults = [0, 1, 0];
-				
+
 				argDict = this.argDict(ugen, args, argDefaults);
-				
+
 				^ugen.ar(
 					in,
 					argDict.at(\angle), argDict.at(\mul), argDict.at(\add)
@@ -652,9 +812,9 @@ FoaTransform : FoaUGen {
 
 				ugen = FoaDirectY;
 				argDefaults = [0, 1, 0];
-				
+
 				argDict = this.argDict(ugen, args, argDefaults);
-				
+
 				^ugen.ar(
 					in,
 					argDict.at(\angle), argDict.at(\mul), argDict.at(\add)
@@ -665,9 +825,9 @@ FoaTransform : FoaUGen {
 
 				ugen = FoaDirectZ;
 				argDefaults = [0, 1, 0];
-				
+
 				argDict = this.argDict(ugen, args, argDefaults);
-				
+
 				^ugen.ar(
 					in,
 					argDict.at(\angle), argDict.at(\mul), argDict.at(\add)
@@ -678,22 +838,22 @@ FoaTransform : FoaUGen {
 
 				ugen = FoaDominateX;
 				argDefaults = [0, 1, 0];
-				
+
 				argDict = this.argDict(ugen, args, argDefaults);
-				
+
 				^ugen.ar(
 					in,
 					argDict.at(\gain), argDict.at(\mul), argDict.at(\add)
 				)
 			},
-			
+
 			'dominateY', {
 
 				ugen = FoaDominateY;
 				argDefaults = [0, 1, 0];
-				
+
 				argDict = this.argDict(ugen, args, argDefaults);
-				
+
 				^ugen.ar(
 					in,
 					argDict.at(\gain), argDict.at(\mul), argDict.at(\add)
@@ -704,9 +864,9 @@ FoaTransform : FoaUGen {
 
 				ugen = FoaDominateZ;
 				argDefaults = [0, 1, 0];
-				
+
 				argDict = this.argDict(ugen, args, argDefaults);
-				
+
 				^ugen.ar(
 					in,
 					argDict.at(\gain), argDict.at(\mul), argDict.at(\add)
@@ -717,22 +877,22 @@ FoaTransform : FoaUGen {
 
 				ugen = FoaZoomX;
 				argDefaults = [0, 1, 0];
-				
+
 				argDict = this.argDict(ugen, args, argDefaults);
-				
+
 				^ugen.ar(
 					in,
 					argDict.at(\angle), argDict.at(\mul), argDict.at(\add)
 				)
 			},
-			
+
 			'zoomY', {
 
 				ugen = FoaZoomY;
 				argDefaults = [0, 1, 0];
-				
+
 				argDict = this.argDict(ugen, args, argDefaults);
-				
+
 				^ugen.ar(
 					in,
 					argDict.at(\angle), argDict.at(\mul), argDict.at(\add)
@@ -743,22 +903,22 @@ FoaTransform : FoaUGen {
 
 				ugen = FoaZoomZ;
 				argDefaults = [0, 1, 0];
-				
+
 				argDict = this.argDict(ugen, args, argDefaults);
-				
+
 				^ugen.ar(
 					in,
 					argDict.at(\angle), argDict.at(\mul), argDict.at(\add)
 				)
 			},
-			
+
 			'focusX', {
 
 				ugen = FoaFocusX;
 				argDefaults = [0, 1, 0];
-				
+
 				argDict = this.argDict(ugen, args, argDefaults);
-				
+
 				^ugen.ar(
 					in,
 					argDict.at(\angle), argDict.at(\mul), argDict.at(\add)
@@ -769,9 +929,9 @@ FoaTransform : FoaUGen {
 
 				ugen = FoaFocusY;
 				argDefaults = [0, 1, 0];
-				
+
 				argDict = this.argDict(ugen, args, argDefaults);
-				
+
 				^ugen.ar(
 					in,
 					argDict.at(\angle), argDict.at(\mul), argDict.at(\add)
@@ -782,7 +942,7 @@ FoaTransform : FoaUGen {
 
 				ugen = FoaFocusZ;
 				argDefaults = [0, 1, 0];
-				
+
 				argDict = this.argDict(ugen, args, argDefaults);
 
 				^ugen.ar(
@@ -795,7 +955,7 @@ FoaTransform : FoaUGen {
 
 				ugen = FoaPushX;
 				argDefaults = [0, 1, 0];
-				
+
 				argDict = this.argDict(ugen, args, argDefaults);
 
 				^ugen.ar(
@@ -808,9 +968,9 @@ FoaTransform : FoaUGen {
 
 				ugen = FoaPushY;
 				argDefaults = [0, 1, 0];
-				
+
 				argDict = this.argDict(ugen, args, argDefaults);
-				
+
 				^ugen.ar(
 					in,
 					argDict.at(\angle), argDict.at(\mul), argDict.at(\add)
@@ -821,9 +981,9 @@ FoaTransform : FoaUGen {
 
 				ugen = FoaPushZ;
 				argDefaults = [0, 1, 0];
-				
+
 				argDict = this.argDict(ugen, args, argDefaults);
-				
+
 				^ugen.ar(
 					in,
 					argDict.at(\angle), argDict.at(\mul), argDict.at(\add)
@@ -834,9 +994,9 @@ FoaTransform : FoaUGen {
 
 				ugen = FoaPressX;
 				argDefaults = [0, 1, 0];
-				
+
 				argDict = this.argDict(ugen, args, argDefaults);
-				
+
 				^ugen.ar(
 					in,
 					argDict.at(\angle), argDict.at(\mul), argDict.at(\add)
@@ -847,9 +1007,9 @@ FoaTransform : FoaUGen {
 
 				ugen = FoaPressY;
 				argDefaults = [0, 1, 0];
-				
+
 				argDict = this.argDict(ugen, args, argDefaults);
-				
+
 				^ugen.ar(
 					in,
 					argDict.at(\angle), argDict.at(\mul), argDict.at(\add)
@@ -860,9 +1020,9 @@ FoaTransform : FoaUGen {
 
 				ugen = FoaPressZ;
 				argDefaults = [0, 1, 0];
-				
+
 				argDict = this.argDict(ugen, args, argDefaults);
-				
+
 				^ugen.ar(
 					in,
 					argDict.at(\angle), argDict.at(\mul), argDict.at(\add)
@@ -873,9 +1033,9 @@ FoaTransform : FoaUGen {
 
 				ugen = FoaAsymmetry;
 				argDefaults = [0, 1, 0];
-				
+
 				argDict = this.argDict(ugen, args, argDefaults);
-				
+
 				^ugen.ar(
 					in,
 					argDict.at(\angle), argDict.at(\mul), argDict.at(\add)
@@ -886,9 +1046,9 @@ FoaTransform : FoaUGen {
 
 				ugen = FoaZoomY;
 				argDefaults = [0, 1, 0];
-				
+
 				argDict = this.argDict(ugen, args, argDefaults);
-				
+
 				^ugen.ar(
 					in,
 					argDict.at(\angle), argDict.at(\mul), argDict.at(\add)
@@ -899,23 +1059,23 @@ FoaTransform : FoaUGen {
 
 				ugen = FoaRTT;
 				argDefaults = [0, 0, 0, 1, 0];
-				
+
 				argDict = this.argDict(ugen, args, argDefaults);
-				
+
 				^ugen.ar(
 					in,
 					argDict.at(\rotAngle), argDict.at(\tilAngle), argDict.at(\tumAngle),
 					argDict.at(\mul), argDict.at(\add)
 				)
 			},
-			
+
 			'mirror', {
 
 				ugen = FoaMirror;
 				argDefaults = [0, 0, 1, 0];
-				
+
 				argDict = this.argDict(ugen, args, argDefaults);
-				
+
 				^ugen.ar(
 					in,
 					argDict.at(\theta), argDict.at(\phi),
@@ -927,9 +1087,9 @@ FoaTransform : FoaUGen {
 
 				ugen = FoaDirect;
 				argDefaults = [0, 0, 0, 1, 0];
-				
+
 				argDict = this.argDict(ugen, args, argDefaults);
-				
+
 				^ugen.ar(
 					in,
 					argDict.at(\angle), argDict.at(\theta), argDict.at(\phi),
@@ -941,9 +1101,9 @@ FoaTransform : FoaUGen {
 
 				ugen = FoaDominate;
 				argDefaults = [0, 0, 0, 1, 0];
-				
+
 				argDict = this.argDict(ugen, args, argDefaults);
-				
+
 				^ugen.ar(
 					in,
 					argDict.at(\gain), argDict.at(\theta), argDict.at(\phi),
@@ -955,9 +1115,9 @@ FoaTransform : FoaUGen {
 
 				ugen = FoaZoom;
 				argDefaults = [0, 0, 0, 1, 0];
-				
+
 				argDict = this.argDict(ugen, args, argDefaults);
-				
+
 				^ugen.ar(
 					in,
 					argDict.at(\angle), argDict.at(\theta), argDict.at(\phi),
@@ -969,9 +1129,9 @@ FoaTransform : FoaUGen {
 
 				ugen = FoaFocus;
 				argDefaults = [0, 0, 0, 1, 0];
-				
+
 				argDict = this.argDict(ugen, args, argDefaults);
-				
+
 				^ugen.ar(
 					in,
 					argDict.at(\angle), argDict.at(\theta), argDict.at(\phi),
@@ -983,9 +1143,9 @@ FoaTransform : FoaUGen {
 
 				ugen = FoaPush;
 				argDefaults = [0, 0, 0, 1, 0];
-				
+
 				argDict = this.argDict(ugen, args, argDefaults);
-				
+
 				^ugen.ar(
 					in,
 					argDict.at(\angle), argDict.at(\theta), argDict.at(\phi),
@@ -997,23 +1157,23 @@ FoaTransform : FoaUGen {
 
 				ugen = FoaPress;
 				argDefaults = [0, 0, 0, 1, 0];
-				
+
 				argDict = this.argDict(ugen, args, argDefaults);
-				
+
 				^ugen.ar(
 					in,
 					argDict.at(\angle), argDict.at(\theta), argDict.at(\phi),
 					argDict.at(\mul), argDict.at(\add)
 				)
 			},
-			
+
 			'nfc', {
 
 				ugen = FoaNFC;
 				argDefaults = [1, 1, 0];
-				
+
 				argDict = this.argDict(ugen, args, argDefaults);
-				
+
 				^ugen.ar(
 					in,
 					argDict.at(\distance),
@@ -1025,9 +1185,9 @@ FoaTransform : FoaUGen {
 
 				ugen = FoaProximity;
 				argDefaults = [1, 1, 0];
-				
+
 				argDict = this.argDict(ugen, args, argDefaults);
-				
+
 				^ugen.ar(
 					in,
 					argDict.at(\distance),

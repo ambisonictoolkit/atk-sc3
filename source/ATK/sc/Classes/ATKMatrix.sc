@@ -160,50 +160,70 @@ FoaSpeakerMatrix {
 	}
 }
 
-
-FoaDecoderMatrix {
-	var <kind;
+AtkMatrix {
+	var <kind;		// copyArgs
 	var <matrix;
+	var <filePath;	// matrices from files only
+
+	*new { |mtxKind|
+		^super.newCopyArgs(mtxKind)
+	}
+
+	initFromFile { arg filePathOrName, mtxKind;
+		var resolvedPathName = Atk.resolveMtxPath(filePathOrName, mtxKind);
+		// instance vars
+		filePath = resolvedPathName.fullPath;
+		matrix = Matrix.with( FileReader.read(filePath).asFloat );
+		kind = resolvedPathName.fileNameWithoutExtension.asSymbol;
+	}
+
+}
+
+FoaDecoderMatrix : AtkMatrix {
 	var <dirOutputs;
 	var <>shelfFreq, <shelfK;
 
 
 	*newDiametric { arg directions = [ pi/4, 3*pi/4 ], k = 'single';
-		^super.newCopyArgs('diametric').initDiametric(directions, k);
+		^super.new('diametric').initDiametric(directions, k);
 	}
 
 	*newPanto { arg numChans = 4, orientation = 'flat', k = 'single';
-		^super.newCopyArgs('panto').initPanto(numChans, orientation, k);
+		^super.new('panto').initPanto(numChans, orientation, k);
 	}
 
 	*newPeri { arg numChanPairs = 4, elevation = 0.61547970867039,
 				orientation = 'flat', k = 'single';
-		^super.newCopyArgs('peri').initPeri(numChanPairs, elevation,
+		^super.new('peri').initPeri(numChanPairs, elevation,
 			orientation, k);
 	}
 
 	*newQuad { arg angle = pi/4, k = 'single';
-		^super.newCopyArgs('quad').initQuad(angle, k);
+		^super.new('quad').initQuad(angle, k);
 	}
 
 	*newStereo { arg angle = pi/2, pattern = 0.5;
-		^super.newCopyArgs('stereo').initStereo(angle, pattern);
+		^super.new('stereo').initStereo(angle, pattern);
 	}
 
 	*newMono { arg theta = 0, phi = 0, pattern = 0;
-		^super.newCopyArgs('mono').initMono(theta, phi, pattern);
+		^super.new('mono').initMono(theta, phi, pattern);
 	}
 
 	*new5_0 { arg irregKind = 'focused';
-		^super.newCopyArgs('5.0').init5_0(irregKind);
+		^super.new('5.0').init5_0(irregKind);
 	}
 
 	*newBtoA { arg orientation = 'flu', weight = 'dec';
-		^super.newCopyArgs('BtoA').initBtoA(orientation, weight);
+		^super.new('BtoA').initBtoA(orientation, weight);
 	}
 
 	*newBtoHoa1 { arg ordering = 'acn', normalisation = 'n3d';
-		^super.newCopyArgs('BtoHoa1').initBtoHoa1(ordering, normalisation);
+		^super.new('BtoHoa1').initBtoHoa1(ordering, normalisation);
+	}
+
+	*newFromFile { arg filePathOrName;
+		^super.new.initFromFile(filePathOrName, 'decoder').initVarsForFiles
 	}
 
 	initK2D { arg k;
@@ -251,7 +271,7 @@ FoaDecoderMatrix {
 		var positions, positions2;
 		var speakerMatrix, n;
 
-		switch (directions.rank,					// 2D or 3D?
+		switch (directions.rank,			// 2D or 3D?
 			1, {									// 2D
 
 				// find positions
@@ -644,7 +664,14 @@ FoaDecoderMatrix {
 		matrix = Matrix.with(matrix);
 
 		// set output channel (speaker) directions for instance
+		// still in b-format in this case, so 'inf' directions
 		dirOutputs = matrix.rows.collect({ inf });
+	}
+
+	initVarsForFiles {
+		// initialize vars that aren't available when loading matrix from file...
+		// output directions are "implicit" in the provided matrix
+		dirOutputs = matrix.rows.collect({ 'implicit' });
 	}
 
 	dirInputs { ^this.numInputs.collect({ inf }) }
@@ -662,66 +689,69 @@ FoaDecoderMatrix {
 	printOn { arg stream;
 		stream << this.class.name << "(" <<* [this.kind, this.dim, this.numChannels] <<")";
 	}
-
 }
 
 
 //-----------------------------------------------------------------------
 // martrix encoders
 
-FoaEncoderMatrix {
+FoaEncoderMatrix : AtkMatrix {
 	var <kind;
 	var <matrix;
 	var <dirInputs;
 
 	*newAtoB { arg orientation = 'flu', weight = 'dec';
-		^super.newCopyArgs('AtoB').initAtoB(orientation, weight);
+		^super.new('AtoB').initAtoB(orientation, weight);
 	}
 
 	*newHoa1toB { arg ordering = 'acn', normalisation = 'n3d';
-		^super.newCopyArgs('BtoHoa1').initHoa1toB(ordering, normalisation);
+		^super.new('BtoHoa1').initHoa1toB(ordering, normalisation);
 	}
 
 	*newOmni {
-		^super.newCopyArgs('omni').initOmni;
+		^super.new('omni').initOmni;
 	}
 
 	*newDirection { arg theta = 0, phi = 0;
-		^super.newCopyArgs('dir').initDirection(theta, phi);
+		^super.new('dir').initDirection(theta, phi);
 	}
 
 	*newStereo { arg angle = 0;
-		^super.newCopyArgs('stereo').initStereo(angle);
+		^super.new('stereo').initStereo(angle);
 	}
 
 	*newQuad {
-		^super.newCopyArgs('quad').initQuad;
+		^super.new('quad').initQuad;
 	}
 
 	*new5_0 {
-		^super.newCopyArgs('5.0').init5_0;
+		^super.new('5.0').init5_0;
 	}
 
 	*new7_0 {
-		^super.newCopyArgs('7.0').init7_0;
+		^super.new('7.0').init7_0;
 	}
 
 	*newDirections { arg directions, pattern = nil;
-		^super.newCopyArgs('dirs').initDirections(directions, pattern);
+		^super.new('dirs').initDirections(directions, pattern);
 	}
 
 	*newPanto { arg numChans = 4, orientation = 'flat';
-		^super.newCopyArgs('panto').initPanto(numChans, orientation);
+		^super.new('panto').initPanto(numChans, orientation);
 	}
 
 	*newPeri { arg numChanPairs = 4, elevation = 0.61547970867039,
 				orientation = 'flat';
-		^super.newCopyArgs('peri').initPeri(numChanPairs, elevation,
+		^super.new('peri').initPeri(numChanPairs, elevation,
 			orientation);
 	}
 
 	*newZoomH2 { arg angles = [pi/3, 3/4*pi], pattern = 0.5857, k = 1;
-		^super.newCopyArgs('zoomH2').initZoomH2(angles, pattern, k);
+		^super.new('zoomH2').initZoomH2(angles, pattern, k);
+	}
+
+	*newFromFile { arg filePathOrName;
+		^super.new.initFromFile(filePathOrName, 'encoder').initVarsForFiles
 	}
 
 	init2D {
@@ -1011,6 +1041,13 @@ FoaEncoderMatrix {
 		matrix = matrix.putRow(2, matrix.getRow(2) * k); // scale Y
 	}
 
+	initVarsForFiles {
+		// initialize vars that aren't available when loading matrix from file...
+		// input directions are "implicit" in the provided matrix
+		dirInputs = matrix.cols.collect({ 'implicit' });
+	}
+
+
 	dirOutputs { ^this.numOutputs.collect({ inf }) }
 
 	dirChannels { ^this.dirInputs }
@@ -1029,157 +1066,158 @@ FoaEncoderMatrix {
 }
 
 
-
 //-----------------------------------------------------------------------
 // martrix transforms
 
 
-FoaXformerMatrix {
-	var <kind;
-	var <matrix;
+FoaXformerMatrix : AtkMatrix {
 
 	*newMirrorX {
-		^super.newCopyArgs('mirrorX').initMirrorX;
+		^super.new('mirrorX').initMirrorX;
 	}
 
 	*newMirrorY {
-		^super.newCopyArgs('mirrorY').initMirrorY;
+		^super.new('mirrorY').initMirrorY;
 	}
 
 	*newMirrorZ {
-		^super.newCopyArgs('mirrorZ').initMirrorZ;
+		^super.new('mirrorZ').initMirrorZ;
 	}
 
 	*newMirrorO {
-		^super.newCopyArgs('mirrorO').initMirrorO;
+		^super.new('mirrorO').initMirrorO;
 	}
 
 	*newRotate { arg angle = 0;
-		^super.newCopyArgs('rotate').initRotate(angle);
+		^super.new('rotate').initRotate(angle);
 	}
 
 	*newTilt { arg angle = 0;
-		^super.newCopyArgs('tilt').initTilt(angle);
+		^super.new('tilt').initTilt(angle);
 	}
 
 	*newTumble { arg angle = 0;
-		^super.newCopyArgs('tumble').initTumble(angle);
+		^super.new('tumble').initTumble(angle);
 	}
 
 	*newDirectO { arg angle = 0;
-		^super.newCopyArgs('directO').initDirectO(angle);
+		^super.new('directO').initDirectO(angle);
 	}
 
 	*newDirectX { arg angle = 0;
-		^super.newCopyArgs('directX').initDirectX(angle);
+		^super.new('directX').initDirectX(angle);
 	}
 
 	*newDirectY { arg angle = 0;
-		^super.newCopyArgs('directY').initDirectY(angle);
+		^super.new('directY').initDirectY(angle);
 	}
 
 	*newDirectZ { arg angle = 0;
-		^super.newCopyArgs('directZ').initDirectZ(angle);
+		^super.new('directZ').initDirectZ(angle).prSetKind;
 	}
 
 	*newDominateX { arg gain = 0;
-		^super.newCopyArgs('dominateX').initDominateX(gain);
+		^super.new('dominateX').initDominateX(gain);
 	}
 
 	*newDominateY { arg gain = 0;
-		^super.newCopyArgs('dominateY').initDominateY(gain);
+		^super.new('dominateY').initDominateY(gain);
 	}
 
 	*newDominateZ { arg gain = 0;
-		^super.newCopyArgs('dominateZ').initDominateZ(gain);
+		^super.new('dominateZ').initDominateZ(gain);
 	}
 
 	*newZoomX { arg angle = 0;
-		^super.newCopyArgs('zoomX').initZoomX(angle);
+		^super.new('zoomX').initZoomX(angle);
 	}
 
 	*newZoomY { arg angle = 0;
-		^super.newCopyArgs('zoomY').initZoomY(angle);
+		^super.new('zoomY').initZoomY(angle);
 	}
 
 	*newZoomZ { arg angle = 0;
-		^super.newCopyArgs('zoomZ').initZoomZ(angle);
+		^super.new('zoomZ').initZoomZ(angle);
 	}
 
 	*newFocusX { arg angle = 0;
-		^super.newCopyArgs('focusX').initFocusX(angle);
+		^super.new('focusX').initFocusX(angle);
 	}
 
 	*newFocusY { arg angle = 0;
-		^super.newCopyArgs('focusY').initFocusY(angle);
+		^super.new('focusY').initFocusY(angle);
 	}
 
 	*newFocusZ { arg angle = 0;
-		^super.newCopyArgs('focusZ').initFocusZ(angle);
+		^super.new('focusZ').initFocusZ(angle);
 	}
 
 	*newPushX { arg angle = 0;
-		^super.newCopyArgs('pushX').initPushX(angle);
+		^super.new('pushX').initPushX(angle);
 	}
 
 	*newPushY { arg angle = 0;
-		^super.newCopyArgs('pushY').initPushY(angle);
+		^super.new('pushY').initPushY(angle);
 	}
 
 	*newPushZ { arg angle = 0;
-		^super.newCopyArgs('pushZ').initPushZ(angle);
+		^super.new('pushZ').initPushZ(angle);
 	}
 
 	*newPressX { arg angle = 0;
-		^super.newCopyArgs('pressX').initPressX(angle);
+		^super.new('pressX').initPressX(angle);
 	}
 
 	*newPressY { arg angle = 0;
-		^super.newCopyArgs('pressY').initPressY(angle);
+		^super.new('pressY').initPressY(angle);
 	}
 
 	*newPressZ { arg angle = 0;
-		^super.newCopyArgs('pressZ').initPressZ(angle);
+		^super.new('pressZ').initPressZ(angle);
 	}
 
 	*newAsymmetry { arg angle = 0;
-		^super.newCopyArgs('asymmetry').initAsymmetry(angle);
+		^super.new('asymmetry').initAsymmetry(angle);
 	}
 
 	*newBalance { arg angle = 0;
-		^super.newCopyArgs('zoomY').initZoomY(angle);
+		^super.new('zoomY').initZoomY(angle);
 	}
 
 	*newRTT { arg rotAngle = 0, tilAngle = 0, tumAngle = 0;
-		^super.newCopyArgs('rtt').initRTT(rotAngle, tilAngle, tumAngle);
+		^super.new('rtt').initRTT(rotAngle, tilAngle, tumAngle);
 	}
 
 	*newMirror { arg theta = 0, phi = 0;
-		^super.newCopyArgs('mirror').initMirror(theta, phi);
+		^super.new('mirror').initMirror(theta, phi);
 	}
 
 	*newDirect { arg angle = 0, theta = 0, phi = 0;
-		^super.newCopyArgs('direct').initDirect(angle, theta, phi);
+		^super.new('direct').initDirect(angle, theta, phi);
 	}
 
 	*newDominate { arg gain = 0, theta = 0, phi = 0;
-		^super.newCopyArgs('dominate').initDominate(gain, theta, phi);
+		^super.new('dominate').initDominate(gain, theta, phi);
 	}
 
 	*newZoom { arg angle = 0, theta = 0, phi = 0;
-		^super.newCopyArgs('zoom').initZoom(angle, theta, phi);
+		^super.new('zoom').initZoom(angle, theta, phi);
 	}
 
 	*newFocus { arg angle = 0, theta = 0, phi = 0;
-		^super.newCopyArgs('focus').initFocus(angle, theta, phi);
+		^super.new('focus').initFocus(angle, theta, phi);
 	}
 
 	*newPush { arg angle = 0, theta = 0, phi = 0;
-		^super.newCopyArgs('push').initPush(angle, theta, phi);
+		^super.new('push').initPush(angle, theta, phi);
 	}
 
 	*newPress { arg angle = 0, theta = 0, phi = 0;
-		^super.newCopyArgs('press').initPress(angle, theta, phi);
+		^super.new('press').initPress(angle, theta, phi);
+	}
+
+	*newFromFile { arg filePathOrName;
+		^super.new.initFromFile(filePathOrName, 'xformer');
 	}
 
 	initMirrorChan { arg chan;

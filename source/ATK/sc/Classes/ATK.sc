@@ -151,20 +151,20 @@ Atk {
 		var matrixLibPath, kindPath, fullPath;
 
 		matrixLibPath = PathName.new(
-			Atk.userExtensionsDir ++ "/user-matrices"
+			Atk.userExtensionsDir ++ "/user_matrices"
 		);
 
 		if ( matrixLibPath.isFolder.not, {	// is kernel lib installed for all users?
 			matrixLibPath = PathName.new(					// no? set for single user
-				Atk.systemExtensionsDir ++ "/user-matrices"
+				Atk.systemExtensionsDir ++ "/user_matrices"
 			)
 		});
 
 		if ( matrixLibPath.isFolder.not, {
 			Error(
 				format("No user matrix folder found in\n\t%\nor\n\t%\n",
-					Atk.userExtensionsDir ++ "/user-matrices",
-					Atk.systemExtensionsDir ++ "/user-matrices"
+					Atk.userExtensionsDir ++ "/user_matrices",
+					Atk.systemExtensionsDir ++ "/user_matrices"
 				)
 			).throw;
 		});

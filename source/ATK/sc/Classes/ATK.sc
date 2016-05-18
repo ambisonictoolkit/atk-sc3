@@ -145,6 +145,7 @@ Atk {
 		})
 	}
 
+	// NOTE: could be generalized for other user extensions, e.g. kernels, etc.
 	//  kind: 'decoder', 'encoder', 'xformer'
 	*initMatrixExtensionPath { |kind|
 		var matrixLibPath, kindPath, fullPath;
@@ -187,7 +188,7 @@ Atk {
 		^fullPath
 	}
 
-	// *newFromFile { arg filePathOrName, mtxKind;
+	// NOTE: could be generalized for other user extensions, e.g. kernels, etc.
 	*resolveMtxPath { arg filePathOrName, mtxKind;
 		var usrPN, srcPath, relPath, mtxDirPath;
 		var hasExtension, hasRelPath;
@@ -202,10 +203,10 @@ Atk {
 				hasRelPath = usrPN.colonIndices.size > 0;
 
 				mtxDirPath = Atk.initMatrixExtensionPath(mtxKind);
-				postf("matrix path: %\n", mtxDirPath); // debug
-
 				relPath = mtxDirPath +/+ usrPN;
-				postf("relative path: %\n", relPath); // debug
+
+				// debug
+				postf("matrix path: %\nrelative path: %\n", mtxDirPath, relPath);
 
 				if (hasRelPath,
 					{	// search specific path within matrix directory
@@ -220,7 +221,8 @@ Atk {
 						}, { // user gives a path, but no file extension
 							var relWithoutLast;
 
-							relWithoutLast = PathName( relPath.fullPath.copyRange(0, relPath.colonIndices.last) );
+							// relWithoutLast = PathName( relPath.fullPath.copyRange(0, relPath.colonIndices.last) );
+							relWithoutLast = PathName( relPath.fullPath.dirname );
 
 							postf("relWithoutLast %\n",	relWithoutLast);
 
@@ -228,7 +230,6 @@ Atk {
 								{
 									var name, foundCnt=0;
 									name = usrPN.fileNameWithoutExtension;
-									"searching enclosing folder".postln;
 									// NOTE: filesDo searches recursively in the parent folder,
 									// so keep track of matches in case there are multiple
 									relWithoutLast.filesDo{
@@ -240,14 +241,15 @@ Atk {
 									};
 
 									if (foundCnt >1) {
-										srcPath = nil;
 										Error( format(
 											"Found multiple matches in recursive search of\n\t%\nPlease provide a more specific path",
 											relWithoutLast.fullPath
 										) ).throw;
 									};
+
 								},{
-									Error( format("Parent directory isn't a folder:\n\t%\n",
+									Error( format(
+										"Parent directory isn't a folder:\n\t%\n",
 										relWithoutLast.fullPath )
 									).throw;
 								}
@@ -272,9 +274,13 @@ Atk {
 						{ matches.size == 0 } { Error( format("No file found for %", name) ).throw }
 						{ matches.size   > 1 } {
 							var str;
-							str = format( "Multiple matches found for filename: %\n", usrPN.fileNameWithoutExtension);
+							str = format(
+								"Multiple matches found for filename: %\n",
+								usrPN.fileNameWithoutExtension);
 							matches.do{|file| str = str ++ "\t" ++ file.asRelativePath( mtxDirPath ) ++ "\n" };
-							str = str ++ format("Provide either an absolute path to the matrix, or one relative to\n\t%\n", mtxDirPath);
+							str = str ++ format(
+								"Provide either an absolute path to the matrix, or one relative to\n\t%\n",
+								mtxDirPath);
 							Error( str ).throw;
 						};
 				});

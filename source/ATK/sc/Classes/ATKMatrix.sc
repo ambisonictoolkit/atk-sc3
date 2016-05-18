@@ -166,6 +166,7 @@ FoaDecoderMatrix {
 	var <matrix;
 	var <dirOutputs;
 	var <>shelfFreq, <shelfK;
+	var <filePath;
 
 
 	*newDiametric { arg directions = [ pi/4, 3*pi/4 ], k = 'single';
@@ -207,164 +208,8 @@ FoaDecoderMatrix {
 	}
 
 	*newFromFile { arg filePathOrName;
-		var usrPN, srcPath, relPath, mtxDirPath;
-		var hasExtension, hasRelPath;
-
-		usrPN = PathName( filePathOrName ); // as PathName
-
-		if (usrPN.isFile, {
-			srcPath = usrPN;  // valid absolute path, easy!
-		}, {
-			hasExtension = usrPN.extension.size > 0;
-			hasRelPath = usrPN.colonIndices.size > 0;
-
-			mtxDirPath = Atk.initMatrixExtPath('decoder');
-			postf("matrix path: %\n", mtxDirPath); // debug
-
-			relPath = mtxDirPath +/+ usrPN;
-			postf("relative path: %\n", relPath); // debug
-
-			if (hasRelPath,
-				{	// search specific path within matrix directory
-					if (hasExtension, {
-
-						if( relPath.isFile, {
-							srcPath = relPath;  // valid relative path, with file extension
-						},{
-							Error(format("No file found at\n\t%\n", relPath)).throw;
-						});
-
-					}, { // user gives a path, but no file extension
-						var relWithoutLast;
-
-						relWithoutLast = PathName( relPath.fullPath.copyRange(0, relPath.colonIndices.last) );
-
-						if ( relWithoutLast.isFolder, // test enclosing folder
-							{
-								var name;
-								name = usrPN.fileNameWithoutExtension;
-								relWithoutLast.filesDo{
-									|file, i|
-									if (file.fileNameWithoutExtension == name, {
-										srcPath = file;
-									})
-								};
-							},{
-								"HERE".postln;
-								Error( format("Parent directory isn't a folder:\n\t%\n",
-									relWithoutLast.fullPath )
-								).throw;
-							}
-						)
-					}
-					);
-				}, {	// single filename, no other path
-					var name, matches = [];
-
-					name = usrPN.fileNameWithoutExtension;
-
-					// recursively search whole directory
-					mtxDirPath.filesDo{
-						|file|
-						if (file.fileNameWithoutExtension == name, {
-							matches  = matches.add(file)
-						})
-					};
-
-					case
-					{ matches.size == 1 } { srcPath = matches[0] }
-					{ matches.size == 0 } { Error( format("No file found for %", name) ).throw }
-					{ matches.size   > 1 } {
-						var str;
-						str = format( "Multiple matches found for filename: %\n", usrPN.fileNameWithoutExtension);
-						matches.do{|file| str = str ++ "\t" ++ file.asRelativePath( mtxDirPath ) ++ "\n" };
-						str = str ++ format("Provide either an absolute path to the matrix, or one relative to\n\t%\n", mtxDirPath);
-						Error( str ).throw;
-					};
-			});
-		}
-		);
-
-		if( srcPath.notNil, {
-			postf("Found matrix file: \n\t%\n", srcPath.asRelativePath(mtxDirPath));
-			Matrix.with( FileReader.read(srcPath.fullPath).asFloat ).postln;
-		},{warn("no matrix file found")}
-		);
-
+		^super.new.initFromFile(filePathOrName);
 	}
-
-
-	/*{ arg filePathOrName;
-		var usrPN, srcPath, relPath, mtxDirPath;
-
-		usrPN = PathName( filePathOrName ); // as PathName
-
-		if (usrPN.isFile)
-		{	// found valid full path
-			srcPath = usrPN;
-		}
-		{	// check path relative to user-matrixes/FOA/decoders/
-			mtxDirPath = Atk.initMatrixExtPath('decoder');
-			postf("matrix path: %\n", mtxDirPath); // debug
-
-			relPath = mtxDirPath +/+ usrPN;
-			postf("relative path: %\n", relPath); // debug
-
-			if (relPath.isFile)
-			{	// found relative path, with file extension
-				srcPath = relPath
-			}
-			{
-				var relWithoutLast;
-				// check for relative path, without file extension
-				relWithoutLast = PathName( relPath.fullPath.copyRange(0, relPath.colonIndices.last) );
-				if (relWithoutLast.isFolder) // test enclosing folder
-				{
-					name = usrPN.fileNameWithoutExtension;
-					relWithoutLast.filesDo{
-						|file|
-						if (file.fileNameWithoutExtension == name, {
-							srcPath = file;
-						})
-					};
-
-					{ Error( format("No file found for %", name) ).throw }
-				}
-				{
-				// check for file name match
-				var name, matches = [];
-
-				name = usrPN.fileNameWithoutExtension;
-
-				mtxDirPath.filesDo{
-					|file|
-					if (file.fileNameWithoutExtension == name, {
-						matches  = matches.add(file)
-					})
-				};
-
-				case
-				{ matches.size == 1 } { srcPath = matches[0] }
-				{ matches.size == 0 } { Error( format("No file found for %", name) ).throw }
-				{ matches.size   > 1 } {
-					var str;
-					str = format( "Multiple matches found for filename: %\n", usrPN.fileNameWithoutExtension);
-					matches.do{|file| str = str ++ "\t" ++ file.asRelativePath( mtxDirPath ) ++ "\n" };
-					str = str ++ format("Provide either an absolute path to the matrix, or one relative to\n\t%\n", mtxDirPath);
-					Error( str ).throw;
-				};
-			}
-		};
-
-		if( srcPath.notNil, {
-			postf("Found matrix file: \n\t%\n", srcPath.asRelativePath(mtxDirPath));
-			Matrix.with( FileReader.read(srcPath.fullPath).asFloat ).postln;
-		},{warn("no matrix file found")}
-		);
-
-		// ^super.newCopyArgs('userSupplied').initDiametric(directions, k);
-		}*/
-
 
 	initK2D { arg k;
 
@@ -411,7 +256,7 @@ FoaDecoderMatrix {
 		var positions, positions2;
 		var speakerMatrix, n;
 
-		switch (directions.rank,					// 2D or 3D?
+		switch (directions.rank,			// 2D or 3D?
 			1, {									// 2D
 
 				// find positions
@@ -807,6 +652,24 @@ FoaDecoderMatrix {
 		dirOutputs = matrix.rows.collect({ inf });
 	}
 
+	initFromFile { arg filePathOrName;
+		var resolvedPathName;
+
+		resolvedPathName = Atk.resolveMtxPath(filePathOrName, 'decoder');
+
+		filePath = resolvedPathName.fullPath;
+
+		matrix = Matrix.with( FileReader.read(filePath).asFloat );
+		matrix.postln; // debug
+
+		// set kind to file name
+		kind = resolvedPathName.fileNameWithoutExtension.asSymbol;
+
+		// set output channel (speaker) directions for instance
+		dirOutputs = matrix.rows.collect({ 'implicit' }); // TBD
+	}
+
+
 	dirInputs { ^this.numInputs.collect({ inf }) }
 
 	dirChannels { ^this.dirOutputs }
@@ -822,7 +685,6 @@ FoaDecoderMatrix {
 	printOn { arg stream;
 		stream << this.class.name << "(" <<* [this.kind, this.dim, this.numChannels] <<")";
 	}
-
 }
 
 
@@ -833,6 +695,7 @@ FoaEncoderMatrix {
 	var <kind;
 	var <matrix;
 	var <dirInputs;
+	var <filePath;
 
 	*newAtoB { arg orientation = 'flu', weight = 'dec';
 		^super.newCopyArgs('AtoB').initAtoB(orientation, weight);
@@ -882,6 +745,10 @@ FoaEncoderMatrix {
 
 	*newZoomH2 { arg angles = [pi/3, 3/4*pi], pattern = 0.5857, k = 1;
 		^super.newCopyArgs('zoomH2').initZoomH2(angles, pattern, k);
+	}
+
+	*newFromFile { arg filePathOrName;
+		^super.new.initFromFile(filePathOrName);
 	}
 
 	init2D {
@@ -1171,6 +1038,22 @@ FoaEncoderMatrix {
 		matrix = matrix.putRow(2, matrix.getRow(2) * k); // scale Y
 	}
 
+	initFromFile { arg filePathOrName;
+		var resolvedPathName;
+
+		resolvedPathName = Atk.resolveMtxPath(filePathOrName,  'encoder');
+
+		filePath = resolvedPathName.fullPath;
+
+		matrix = Matrix.with( FileReader.read(filePath).asFloat );
+		matrix.postln; // debug
+
+		// set kind to file name
+		kind = resolvedPathName.fileNameWithoutExtension.asSymbol;
+
+		dirInputs = matrix.cols.collect({ 'implicit' }); //TBD
+	}
+
 	dirOutputs { ^this.numOutputs.collect({ inf }) }
 
 	dirChannels { ^this.dirInputs }
@@ -1189,157 +1072,192 @@ FoaEncoderMatrix {
 }
 
 
+FoaMatrix {
+	var <matrix, <kind;
+	var <filePath;
+
+	initFromFile { arg filePathOrName, mtxKind;
+		var filePath, resolvedPathName;
+
+		resolvedPathName = Atk.resolveMtxPath(filePathOrName, mtxKind);
+
+		filePath = resolvedPathName.fullPath;
+
+		matrix = Matrix.with( FileReader.read(filePath).asFloat );
+		matrix.postln; // debug
+
+		// set kind to file name
+		// kind = ;
+
+		this.prSetKind( resolvedPathName.fileNameWithoutExtension.asSymbol );
+
+		// vars specific to subclasses
+		dirOutputs
+		dirInputs
+		xformermatrix vars?
+
+		// set output channel (speaker) directions for instance
+		// dirOutputs = matrix.rows.collect({ 'implicit' }); // TBD
+	}
+
+	prSetKind { |k| kind = k }
+
+}
 
 //-----------------------------------------------------------------------
 // martrix transforms
 
 
-FoaXformerMatrix {
-	var <kind;
-	var <matrix;
+FoaXformerMatrix : FoaMatrix {
+	// var <kind;
+	// var <matrix;
 
 	*newMirrorX {
-		^super.newCopyArgs('mirrorX').initMirrorX;
+		^super.new.initMirrorX.prSetKind('mirrorX');
 	}
 
 	*newMirrorY {
-		^super.newCopyArgs('mirrorY').initMirrorY;
+		^super.new.initMirrorY.prSetKind('mirrorY');
 	}
 
 	*newMirrorZ {
-		^super.newCopyArgs('mirrorZ').initMirrorZ;
+		^super.new.initMirrorZ.prSetKind('mirrorZ');
 	}
 
 	*newMirrorO {
-		^super.newCopyArgs('mirrorO').initMirrorO;
+		^super.new.initMirrorO.prSetKind('mirrorO');
 	}
 
 	*newRotate { arg angle = 0;
-		^super.newCopyArgs('rotate').initRotate(angle);
+		^super.new.initRotate(angle).prSetKind('rotate');
 	}
 
 	*newTilt { arg angle = 0;
-		^super.newCopyArgs('tilt').initTilt(angle);
+		^super.new.initTilt(angle).prSetKind('tilt');
 	}
 
 	*newTumble { arg angle = 0;
-		^super.newCopyArgs('tumble').initTumble(angle);
+		^super.new.initTumble(angle).prSetKind('tumble');
 	}
 
 	*newDirectO { arg angle = 0;
-		^super.newCopyArgs('directO').initDirectO(angle);
+		^super.new.initDirectO(angle).prSetKind('directO');
 	}
 
 	*newDirectX { arg angle = 0;
-		^super.newCopyArgs('directX').initDirectX(angle);
+		^super.new.initDirectX(angle).prSetKind('directX');
 	}
 
 	*newDirectY { arg angle = 0;
-		^super.newCopyArgs('directY').initDirectY(angle);
+		^super.new.initDirectY(angle).prSetKind('directY');
 	}
 
 	*newDirectZ { arg angle = 0;
-		^super.newCopyArgs('directZ').initDirectZ(angle);
+		^super.new.initDirectZ(angle).prSetKind('directZ');
 	}
 
 	*newDominateX { arg gain = 0;
-		^super.newCopyArgs('dominateX').initDominateX(gain);
+		^super.new.initDominateX(gain).prSetKind('dominateX');
 	}
 
 	*newDominateY { arg gain = 0;
-		^super.newCopyArgs('dominateY').initDominateY(gain);
+		^super.new.initDominateY(gain).prSetKind('dominateY');
 	}
 
 	*newDominateZ { arg gain = 0;
-		^super.newCopyArgs('dominateZ').initDominateZ(gain);
+		^super.new.initDominateZ(gain).prSetKind('dominateZ');
 	}
 
 	*newZoomX { arg angle = 0;
-		^super.newCopyArgs('zoomX').initZoomX(angle);
+		^super.new.initZoomX(angle).prSetKind('zoomX');
 	}
 
 	*newZoomY { arg angle = 0;
-		^super.newCopyArgs('zoomY').initZoomY(angle);
+		^super.new.initZoomY(angle).prSetKind('zoomY');
 	}
 
 	*newZoomZ { arg angle = 0;
-		^super.newCopyArgs('zoomZ').initZoomZ(angle);
+		^super.new.initZoomZ(angle).prSetKind('zoomZ');
 	}
 
 	*newFocusX { arg angle = 0;
-		^super.newCopyArgs('focusX').initFocusX(angle);
+		^super.new.initFocusX(angle).prSetKind('focusX');
 	}
 
 	*newFocusY { arg angle = 0;
-		^super.newCopyArgs('focusY').initFocusY(angle);
+		^super.new.initFocusY(angle).prSetKind('focusY');
 	}
 
 	*newFocusZ { arg angle = 0;
-		^super.newCopyArgs('focusZ').initFocusZ(angle);
+		^super.new.initFocusZ(angle).prSetKind('focusZ');
 	}
 
 	*newPushX { arg angle = 0;
-		^super.newCopyArgs('pushX').initPushX(angle);
+		^super.new.initPushX(angle).prSetKind('pushX');
 	}
 
 	*newPushY { arg angle = 0;
-		^super.newCopyArgs('pushY').initPushY(angle);
+		^super.new.initPushY(angle).prSetKind('pushY');
 	}
 
 	*newPushZ { arg angle = 0;
-		^super.newCopyArgs('pushZ').initPushZ(angle);
+		^super.new.initPushZ(angle).prSetKind('pushZ');
 	}
 
 	*newPressX { arg angle = 0;
-		^super.newCopyArgs('pressX').initPressX(angle);
+		^super.new.initPressX(angle).prSetKind('pressX');
 	}
 
 	*newPressY { arg angle = 0;
-		^super.newCopyArgs('pressY').initPressY(angle);
+		^super.new.initPressY(angle).prSetKind('pressY');
 	}
 
 	*newPressZ { arg angle = 0;
-		^super.newCopyArgs('pressZ').initPressZ(angle);
+		^super.new.initPressZ(angle).prSetKind('pressZ');
 	}
 
 	*newAsymmetry { arg angle = 0;
-		^super.newCopyArgs('asymmetry').initAsymmetry(angle);
+		^super.new.initAsymmetry(angle).prSetKind('asymmetry');
 	}
 
 	*newBalance { arg angle = 0;
-		^super.newCopyArgs('zoomY').initZoomY(angle);
+		^super.new.initZoomY(angle).prSetKind('zoomY');
 	}
 
 	*newRTT { arg rotAngle = 0, tilAngle = 0, tumAngle = 0;
-		^super.newCopyArgs('rtt').initRTT(rotAngle, tilAngle, tumAngle);
+		^super.new.initRTT(rotAngle, tilAngle, tumAngle).prSetKind('rtt');
 	}
 
 	*newMirror { arg theta = 0, phi = 0;
-		^super.newCopyArgs('mirror').initMirror(theta, phi);
+		^super.new.initMirror(theta, phi).prSetKind('mirror');
 	}
 
 	*newDirect { arg angle = 0, theta = 0, phi = 0;
-		^super.newCopyArgs('direct').initDirect(angle, theta, phi);
+		^super.new.initDirect(angle, theta, phi).prSetKind('direct');
 	}
 
 	*newDominate { arg gain = 0, theta = 0, phi = 0;
-		^super.newCopyArgs('dominate').initDominate(gain, theta, phi);
+		^super.new.initDominate(gain, theta, phi).prSetKind('dominate');
 	}
 
 	*newZoom { arg angle = 0, theta = 0, phi = 0;
-		^super.newCopyArgs('zoom').initZoom(angle, theta, phi);
+		^super.new.initZoom(angle, theta, phi).prSetKind('zoom');
 	}
 
 	*newFocus { arg angle = 0, theta = 0, phi = 0;
-		^super.newCopyArgs('focus').initFocus(angle, theta, phi);
+		^super.new.initFocus(angle, theta, phi).prSetKind('focus');
 	}
 
 	*newPush { arg angle = 0, theta = 0, phi = 0;
-		^super.newCopyArgs('push').initPush(angle, theta, phi);
+		^super.new.initPush(angle, theta, phi).prSetKind('push');
 	}
 
 	*newPress { arg angle = 0, theta = 0, phi = 0;
-		^super.newCopyArgs('press').initPress(angle, theta, phi);
+		^super.new.initPress(angle, theta, phi).prSetKind('press');
+	}
+
+	*newFromFile { arg filePathOrName;
+		^super.new.initFromFile(filePathOrName, 'xformer');
 	}
 
 	initMirrorChan { arg chan;
@@ -1848,6 +1766,23 @@ FoaXformerMatrix {
 		    	FoaXformerMatrix.newRotate(theta.neg).matrix
 	    	)
 	}
+
+	// initFromFile { arg filePathOrName;
+	// 	var resolvedPathName;
+	//
+	// 	resolvedPathName = Atk.resolveMtxPath(filePathOrName, 'xformer');
+	//
+	// 	filePath = resolvedPathName.fullPath;
+	//
+	// 	matrix = Matrix.with( FileReader.read(filePath).asFloat );
+	// 	matrix.postln; // debug
+	//
+	// 	// set kind to file name
+	// 	kind = resolvedPathName.fileNameWithoutExtension.asSymbol;
+	//
+	// 	// set output channel (speaker) directions for instance
+	// 	dirOutputs = matrix.rows.collect({ 'implicit' }); // TBD
+	// }
 
 	dirInputs { ^this.numInputs.collect({ inf }) }
 

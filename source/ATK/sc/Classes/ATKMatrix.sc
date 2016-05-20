@@ -206,6 +206,11 @@ FoaDecoderMatrix {
 		^super.newCopyArgs('BtoHoa1').initBtoHoa1(ordering, normalisation);
 	}
 
+	*newBtoAmbix1 {
+		var ordering = 'acn', normalisation = 'sn3d';
+		^super.newCopyArgs('BtoHoa1').initBtoHoa1(ordering, normalisation);
+	}
+
 	initK2D { arg k;
 
 		if ( k.isNumber, {
@@ -679,7 +684,12 @@ FoaEncoderMatrix {
 	}
 
 	*newHoa1toB { arg ordering = 'acn', normalisation = 'n3d';
-		^super.newCopyArgs('BtoHoa1').initHoa1toB(ordering, normalisation);
+		^super.newCopyArgs('Hoa1toB').initHoa1toB(ordering, normalisation);
+	}
+
+	*newAmbix1toB {
+		var ordering = 'acn', normalisation = 'sn3d';
+		^super.newCopyArgs('Hoa1toB').initHoa1toB(ordering, normalisation);
 	}
 
 	*newOmni {

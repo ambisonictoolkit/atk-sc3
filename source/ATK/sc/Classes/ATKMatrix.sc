@@ -692,6 +692,11 @@ FoaEncoderMatrix {
 		^super.newCopyArgs('Hoa1toB').initHoa1toB(ordering, normalisation);
 	}
 
+	*newZoomH2n{
+		var ordering = 'acn', normalisation = 'sn3d';
+		^super.newCopyArgs('Hoa1toB').initHoa1toB(ordering, normalisation);
+	}
+
 	*newOmni {
 		^super.newCopyArgs('omni').initOmni;
 	}

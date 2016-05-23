@@ -840,7 +840,7 @@ FoaEncoderMatrix {
 		bToAMatrix = FoaDecoderMatrix.newBtoA(orientation, weight);
 
 	    // set input channel directions for instance
-	    dirInputs = bToAMatrix.dirInputs;
+	    dirInputs = bToAMatrix.dirOutputs;
 
 		// build encoder matrix, and set for instance
 	    matrix = bToAMatrix.matrix.inverse

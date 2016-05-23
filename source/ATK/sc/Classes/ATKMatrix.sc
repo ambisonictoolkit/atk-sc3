@@ -164,6 +164,7 @@ AtkMatrix {
 	var <kind;		// copyArgs
 	var <matrix;
 	var <filePath;	// matrices from files only
+	var <metadata; // YAML data parse only
 
 	*new { |mtxKind|
 		^super.newCopyArgs(mtxKind)
@@ -173,8 +174,22 @@ AtkMatrix {
 		var resolvedPathName = Atk.resolveMtxPath(filePathOrName, mtxKind);
 		// instance vars
 		filePath = resolvedPathName.fullPath;
-		matrix = Matrix.with( FileReader.read(filePath).asFloat );
-		kind = resolvedPathName.fileNameWithoutExtension.asSymbol;
+
+		case
+		{ resolvedPathName.extension == "txt"}
+		{
+			// .txt file: expected to me matrix only, cols separated by spaces, rows by newlines
+			matrix = Matrix.with( FileReader.read(filePath).asFloat );
+			kind = resolvedPathName.fileNameWithoutExtension.asSymbol;
+		}
+		{ resolvedPathName.extension == "yml"}
+		{
+			metadata = filePath.parseYAMLFile;
+			matrix = Matrix.with(metadata["matrix"].asFloat);
+			kind = resolvedPathName.fileNameWithoutExtension.asSymbol;
+		}
+		{ true }
+		{ Error("Unsupported file extension.").thow };
 	}
 
 }
@@ -669,9 +684,19 @@ FoaDecoderMatrix : AtkMatrix {
 	}
 
 	initVarsForFiles {
-		// initialize vars that aren't available when loading matrix from file...
-		// output directions are "implicit" in the provided matrix
-		dirOutputs = matrix.rows.collect({ 'implicit' });
+		if (metadata.notNil) {
+			dirOutputs = if (metadata["dirOutputs"].notNil) {
+				metadata["dirOutputs"].asFloat
+			} { // unspecified, so output directions are "implicit" in the provided matrix
+				matrix.rows.collect({ 'implicit' })
+			};
+			shelfK = metadata["shelfK"];
+			shelfFreq = metadata["shelfFreq"] !? {metadata["shelfFreq"].asFloat};
+		} { // txt file provided, no metadata
+			dirOutputs = matrix.rows.collect({ 'implicit' });
+		};
+
+
 	}
 
 	dirInputs { ^this.numInputs.collect({ inf }) }
@@ -696,8 +721,8 @@ FoaDecoderMatrix : AtkMatrix {
 // martrix encoders
 
 FoaEncoderMatrix : AtkMatrix {
-	var <kind;
-	var <matrix;
+	// var <kind;
+	// var <matrix;
 	var <dirInputs;
 
 	*newAtoB { arg orientation = 'flu', weight = 'dec';
@@ -1042,9 +1067,15 @@ FoaEncoderMatrix : AtkMatrix {
 	}
 
 	initVarsForFiles {
-		// initialize vars that aren't available when loading matrix from file...
-		// input directions are "implicit" in the provided matrix
-		dirInputs = matrix.cols.collect({ 'implicit' });
+		dirInputs = if (metadata.notNil) {
+			if (metadata["dirInputs"].notNil) {
+				metadata["dirInputs"].asFloat
+			} { // unspecified, so input directions are "implicit" in the provided matrix
+				matrix.cols.collect({ 'implicit' })
+			};
+		} { // txt file provided, no metadata
+			matrix.cols.collect({ 'implicit' });
+		};
 	}
 
 

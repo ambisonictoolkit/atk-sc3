@@ -259,14 +259,14 @@ Atk {
 					}, {	// single filename, no other path
 						var name, matches = [];
 
-						name = usrPN.fileNameWithoutExtension;
+						// name = usrPN.fileNameWithoutExtension;
+						name = usrPN.fileName;
 
 						// recursively search whole directory
-						mtxDirPath.filesDo{
-							|file|
-							if (file.fileNameWithoutExtension == name, {
-								matches  = matches.add(file)
-							})
+						mtxDirPath.filesDo{ |file|
+							var test;
+							test = if (hasExtension) {file.fileName} {file.fileNameWithoutExtension};
+							if (test == name, { matches  = matches.add(file) });
 						};
 
 						case
@@ -274,9 +274,7 @@ Atk {
 						{ matches.size == 0 } { Error( format("No file found for %", name) ).throw }
 						{ matches.size   > 1 } {
 							var str;
-							str = format(
-								"Multiple matches found for filename: %\n",
-								usrPN.fileNameWithoutExtension);
+							str = format("Multiple matches found for filename:\t%\n", usrPN.fileName);
 							matches.do{|file| str = str ++ "\t" ++ file.asRelativePath( mtxDirPath ) ++ "\n" };
 							str = str ++ format(
 								"Provide either an absolute path to the matrix, or one relative to\n\t%\n",

@@ -134,7 +134,6 @@ Atk {
 
 	*createUserSupportDir {
 		File.mkdir(Atk.userSupportDir);
-		//		("mkdir \"" ++ Atk.userSupportDir ++ "\"").unixCmd;
 	}
 
 	*openSystemSupportDir {
@@ -151,29 +150,29 @@ Atk {
 		var matrixLibPath, kindPath, fullPath;
 
 		matrixLibPath = PathName.new(
-			Atk.userExtensionsDir ++ "/user_matrices"
+			Atk.userExtensionsDir ++ "/user_matrices/"
 		);
 
-		if ( matrixLibPath.isFolder.not, {	// is kernel lib installed for all users?
-			matrixLibPath = PathName.new(					// no? set for single user
-				Atk.systemExtensionsDir ++ "/user_matrices"
+		if ( matrixLibPath.isFolder.not, {		// is  lib installed for all users?
+			matrixLibPath = PathName.new(	// no? set for single user
+				Atk.systemExtensionsDir ++ "/user_matrices/"
 			)
 		});
 
 		if ( matrixLibPath.isFolder.not, {
 			Error(
 				format("No user matrix folder found in\n\t%\nor\n\t%\n",
-					Atk.userExtensionsDir ++ "/user_matrices",
-					Atk.systemExtensionsDir ++ "/user_matrices"
+					Atk.userExtensionsDir ++ "/user_matrices/",
+					Atk.systemExtensionsDir ++ "/user_matrices/"
 				)
 			).throw;
 		});
 
 		kindPath = PathName.new( "FOA/" ++
 			switch( kind,
-				'decoder', {"decoders"},
-				'encoder', {"encoders"},
-				'xformer', {"xformers"}
+				'decoder', {"decoders/"},
+				'encoder', {"encoders/"},
+				'xformer', {"xformers/"}
 			);
 		);
 

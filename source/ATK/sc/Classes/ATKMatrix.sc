@@ -238,17 +238,17 @@ AtkMatrix {
 		};
 	}
 
-	// .writeToFile( fileNameOrPath, kind, note, attributeDictionary )
-	writeToFile { arg fileNameOrPath, kind, note, attributeDictionary, overwrite=false;
-		var mKind, pn, writer, ext;
+	// .writeToFile( fileNameOrPath, type, note, attributeDictionary )
+	writeToFile { arg fileNameOrPath, type, note, attributeDictionary, overwrite=false;
+		var mtype, pn, writer, ext;
 1.postln;
-		mKind = kind.asSymbol;
+		mtype = type.asSymbol;
 
 		// TODO: this could be inferred if called on, e.g., FOAEncoderMatrix
 		// This is only needed for relative file paths
-		// check valid kind arg
-		['encoder', 'decoder', 'xformer'].includes(mKind).not.if{
-			Error("'kind' argument must be 'encoder', 'decoder', or 'xformer'").throw
+		// check valid type arg
+		['encoder', 'decoder', 'xformer'].includes(mtype).not.if{
+			Error("'type' argument must be 'encoder', 'decoder', or 'xformer'").throw
 		};
 
 		pn = PathName(fileNameOrPath);
@@ -258,12 +258,12 @@ AtkMatrix {
 		{PathName(pn.parentPath).isFolder} {
 			/* do nothing, provided path is absolute*/
 		} { pn.colonIndices.size == 0} {
-			// only filename provided, writer to dir matching mKind
-			pn = Atk.initMatrixExtensionPath(mKind) +/+ pn;
+			// only filename provided, writer to dir matching mtype
+			pn = Atk.initMatrixExtensionPath(mtype) +/+ pn;
 		} { pn.colonIndices.size > 0} {
 			// relative path given, look for it
 			var mtxPath, relPath;
-			mtxPath = Atk.initMatrixExtensionPath(mKind);
+			mtxPath = Atk.initMatrixExtensionPath(mtype);
 			relPath = (mtxPath +/+ PathName(pn.parentPath));
 			if (relPath.isFolder) {
 				// relative path confirmed
@@ -286,7 +286,7 @@ AtkMatrix {
 4.postln;
 		case
 		{ext == "txt"} {this.prWriteMatrixToTXT(pn)}
-		{ext == "yml"} {this.prWriteMatrixToYML(pn, kind, note, attributeDictionary)}
+		{ext == "yml"} {this.prWriteMatrixToYML(pn, mtype, note, attributeDictionary)}
 		{Error("Invalid file extension: provide '.txt' for writing matrix only, or '.yml' or no extension to write matrix with metadata (as YAML)").throw};
 	}
 
@@ -300,7 +300,7 @@ AtkMatrix {
 		writer.close
 	}
 
-	prWriteMatrixToYML { arg pn, kind, note, attributeDictionary;
+	prWriteMatrixToYML { arg pn, type, note, attributeDictionary;
 		var writer;
 
 		// TODO: rewrite or include FileWriter
@@ -320,17 +320,17 @@ AtkMatrix {
 		writer.writeLine(["]"]);
 
 		// write standard attributes
-		[ \kind, \dirOutputs, \dirInputs, \shelfK,\shelfFreq].do{ |attribute|
+		[ \type, \dirOutputs, \dirInputs, \shelfK,\shelfFreq].do{ |attribute|
 			writer.writeLine([]); //newline for more readability
 			writer.writeLine( [attribute, ":", this.tryPerform(attribute)] )
 		};
 
-		// TODO: choose different var name, kind already used by AtkMatrix,
+		// TODO: choose different var name, type already used by AtkMatrix,
 		// and it's ambiguous: kind = 'dual', kind = 'encoder', etc.
 		// Maybe "name"?, in which case, what is 'kind' for loaded files?
-		kind !? {
+		type !? {
 			writer.writeLine([]); //newline for more readability
-			writer.writeLine( ["kind", ":", kind] )
+			writer.writeLine( ["type", ":", type] )
 		};
 
 		note !? {

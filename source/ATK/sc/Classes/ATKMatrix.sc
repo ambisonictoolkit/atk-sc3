@@ -85,7 +85,7 @@ FoaSpeakerMatrix {
 	*new { arg directions, k;
 		var positions;
 
-		switch (directions.rank,					// 2D or 3D?
+		switch (directions.rank,						// 2D or 3D?
 			1, { positions = Matrix.with(			// 2D
 					directions.collect({ arg item;
 						Polar.new(1, item).asPoint.asArray
@@ -133,23 +133,23 @@ FoaSpeakerMatrix {
 		n.do({ arg i;
 
 			// allow entry of positions as
-	    		// transpose for convenience
-	    		// e.g., output channel (speaker) positions are now in columns
-	    		// rather than rows, then
-	        	// get the i'th output channel (speaker) position
-	        	// e.g., select the i'th column
-        		pos = positions.flop.getCol(i);
+			// transpose for convenience
+			// e.g., output channel (speaker) positions are now in columns
+			// rather than rows, then
+			// get the i'th output channel (speaker) position
+			// e.g., select the i'th column
+			pos = positions.flop.getCol(i);
 
-        		// normalize to get direction cosines
-        		dir = pos /  pos.squared.sum.sqrt;
+			// normalize to get direction cosines
+			dir = pos /  pos.squared.sum.sqrt;
 
-        		// form scatter matrix and accumulate
-        		s = s + Matrix.with(dir * dir.flop);
+			// form scatter matrix and accumulate
+			s = s + Matrix.with(dir * dir.flop);
 
-        		// form matrix of output channel (speaker) directions
-        		directions.putCol(i, dir)
+			// form matrix of output channel (speaker) directions
+			directions.putCol(i, dir)
 
-			});
+		});
 
 		// return resulting matrix
 	 	^sqrt(1/2) * n * k * ( s.inverse * directions);
@@ -159,6 +159,7 @@ FoaSpeakerMatrix {
 		stream << this.class.name << "(" <<* [this.dim, this.numChannels] <<")";
 	}
 }
+
 
 AtkMatrix {
 	var <kind;  // copyArgs
@@ -207,6 +208,7 @@ AtkMatrix {
 		{ true } { Error("Unsupported file extension.").throw; ^this };
 	}
 
+
 	// post readable matrix information
 	info {
 		var attributes;
@@ -246,7 +248,7 @@ AtkMatrix {
 		};
 	}
 
-	// .writeToFile( fileNameOrPath, type, note, attributeDictionary )
+
 	writeToFile { arg fileNameOrPath, type, note, attributeDictionary, overwrite=false;
 		var mtype, pn, writer, ext;
 
@@ -286,7 +288,6 @@ AtkMatrix {
 			};
 		}; // otherwise, provided path is absolute
 
-
 		ext = pn.extension;
 		if (ext == "") {pn = pn +/+ PathName(".yml")};
 
@@ -316,7 +317,6 @@ AtkMatrix {
 	prWriteMatrixToYML { arg pn, type, note, attributeDictionary;
 		var writer;
 
-		// TODO: rewrite or include FileWriter
 		writer = FileWriter( pn.fullPath );
 		// writer.writeLine(["matrix :"] ++ m.asArray.asString.split($ )); // all one line
 
@@ -339,18 +339,18 @@ AtkMatrix {
 		};
 
 		type !? {
-			writer.writeLine([]); //newline for more readability
+			writer.writeLine([]);
 			writer.writeLine( ["type", ":", type] )
 		};
 
 		note !? {
-			writer.writeLine([]); //newline for more readability
+			writer.writeLine([]);
 			writer.writeLine( ["note", ":", note] )
 		};
 
 		attributeDictionary !? {
 			attributeDictionary.keysValuesDo{ |k,v|
-				writer.writeLine([]); //newline for more readability
+				writer.writeLine([]);
 				writer.writeLine( [k.asString, ":", v] )
 			}
 		};
@@ -358,7 +358,8 @@ AtkMatrix {
 		writer.close;
 	}
 
-	fileName {^PathName(filePath).fileName}
+
+	fileName { ^PathName(filePath).fileName }
 
 }
 
@@ -405,7 +406,7 @@ FoaDecoderMatrix : AtkMatrix {
 	}
 
 	*newFromFile { arg filePathOrName;
-		^super.new.initFromFile(filePathOrName, 'decoder').initVarsForFiles
+		^super.new.initFromFile(filePathOrName, 'decoder').initDecoderVarsForFiles
 	}
 
 	initK2D { arg k;
@@ -850,7 +851,7 @@ FoaDecoderMatrix : AtkMatrix {
 		dirOutputs = matrix.rows.collect({ inf });
 	}
 
-	initVarsForFiles {
+	initDecoderVarsForFiles {
 		if (fileParse.notNil) {
 			dirOutputs = if (fileParse.dirOutputs.notNil) {
 				fileParse.dirOutputs.asFloat
@@ -862,8 +863,6 @@ FoaDecoderMatrix : AtkMatrix {
 		} { // txt file provided, no fileParse
 			dirOutputs = matrix.rows.collect({ 'implicit' });
 		};
-
-
 	}
 
 	dirInputs { ^this.numInputs.collect({ inf }) }
@@ -888,8 +887,6 @@ FoaDecoderMatrix : AtkMatrix {
 // martrix encoders
 
 FoaEncoderMatrix : AtkMatrix {
-	// var <kind;
-	// var <matrix;
 	var <dirInputs;
 
 	*newAtoB { arg orientation = 'flu', weight = 'dec';
@@ -943,7 +940,7 @@ FoaEncoderMatrix : AtkMatrix {
 	}
 
 	*newFromFile { arg filePathOrName;
-		^super.new.initFromFile(filePathOrName, 'encoder').initVarsForFiles
+		^super.new.initFromFile(filePathOrName, 'encoder').initEncoderVarsForFiles
 	}
 
 	init2D {
@@ -1233,7 +1230,7 @@ FoaEncoderMatrix : AtkMatrix {
 		matrix = matrix.putRow(2, matrix.getRow(2) * k); // scale Y
 	}
 
-	initVarsForFiles {
+	initEncoderVarsForFiles {
 		dirInputs = if (fileParse.notNil) {
 			if (fileParse.dirInputs.notNil) {
 				fileParse.dirInputs.asFloat

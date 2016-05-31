@@ -293,6 +293,40 @@ Atk {
 		);
 	}
 
+	// type: 'decoder', 'encoder', 'xformer'
+	*postMyMatrixDir { |type|
+		var postContents;
+
+		postContents = { |folderPN, depth=1|
+			var offset;
+			offset = ("\t"!depth).join;
+			postf("%[ % ]\n", offset, folderPN.folderName);
+
+			// folderPN.fileName.postln;
+			folderPN.entries.do{ |entry|
+
+				offset = ("\t"!depth).join;
+				offset.post;
+				entry.isFolder.if(
+					{ postContents.(entry, depth+1) },
+					{ postf("%%\n", offset, entry.fileName) }
+				)
+			};
+		};
+
+		postContents.(
+			type.isNil.if(
+				{ PathName(Atk.userExtensionsDir ++ "/user_matrices/FOA/") },
+				{
+					if ( ['decoder', 'encoder', 'xformer'].includes(type.asSymbol) )
+					{ Atk.initMatrixExtensionPath(type) }
+					{ Error("'type' must be 'decoder', 'encoder', 'xformer', or nil (to see all matrix directories)").throw; ^this };
+				}
+			);
+
+		);
+	}
+
 }
 
 

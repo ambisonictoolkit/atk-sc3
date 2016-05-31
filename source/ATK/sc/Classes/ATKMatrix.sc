@@ -401,13 +401,17 @@ FoaDecoderMatrix : AtkMatrix {
 		^super.new('BtoA').initBtoA(orientation, weight);
 	}
 
-	*newBtoHoa1 { arg ordering = 'acn', normalisation = 'n3d';
-		^super.new('BtoHoa1').initBtoHoa1(ordering, normalisation);
+	*newHoa1 { arg ordering = 'acn', normalisation = 'n3d';
+		^super.newCopyArgs('Hoa1').initHoa1(ordering, normalisation);
+	}
+
+	*newAmbix1 {
+		var ordering = 'acn', normalisation = 'sn3d';
+		^super.newCopyArgs('Hoa1').initHoa1(ordering, normalisation);
 	}
 
 	*newFromFile { arg filePathOrName;
 		^super.new.initFromFile(filePathOrName, 'decoder').initDecoderVarsForFiles
-	}
 
 	initK2D { arg k;
 
@@ -807,7 +811,7 @@ FoaDecoderMatrix : AtkMatrix {
 		})
 	}
 
-	initBtoHoa1 { arg ordering, normalisation;
+	initHoa1 { arg ordering, normalisation;
 
 		var sqrt2 = 2.sqrt;
 		var sqrt3 = 3.sqrt;
@@ -893,8 +897,18 @@ FoaEncoderMatrix : AtkMatrix {
 		^super.new('AtoB').initAtoB(orientation, weight);
 	}
 
-	*newHoa1toB { arg ordering = 'acn', normalisation = 'n3d';
-		^super.new('BtoHoa1').initHoa1toB(ordering, normalisation);
+	*newHoa1 { arg ordering = 'acn', normalisation = 'n3d';
+		^super.newCopyArgs('Hoa1').initHoa1(ordering, normalisation);
+	}
+
+	*newAmbix1 {
+		var ordering = 'acn', normalisation = 'sn3d';
+		^super.newCopyArgs('Hoa1').initHoa1(ordering, normalisation);
+	}
+
+	*newZoomH2n{
+		var ordering = 'acn', normalisation = 'sn3d';
+		^super.newCopyArgs('Hoa1').initHoa1(ordering, normalisation);
 	}
 
 	*newOmni {
@@ -1059,17 +1073,17 @@ FoaEncoderMatrix : AtkMatrix {
 		bToAMatrix = FoaDecoderMatrix.newBtoA(orientation, weight);
 
 	    // set input channel directions for instance
-	    dirInputs = bToAMatrix.dirInputs;
+	    dirInputs = bToAMatrix.dirOutputs;
 
 		// build encoder matrix, and set for instance
 	    matrix = bToAMatrix.matrix.inverse
 	}
 
-	initHoa1toB { arg ordering, normalisation;
+	initHoa1 { arg ordering, normalisation;
 		var bToHoa1Matrix;
 
 		// retrieve corresponding Hoa1 decoder
-		bToHoa1Matrix = FoaDecoderMatrix.newBtoHoa1(ordering, normalisation);
+		bToHoa1Matrix = FoaDecoderMatrix.newHoa1(ordering, normalisation);
 
 	    // set input channel directions for instance
 	    dirInputs = bToHoa1Matrix.dirInputs;

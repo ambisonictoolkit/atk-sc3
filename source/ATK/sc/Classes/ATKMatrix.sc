@@ -172,7 +172,7 @@ AtkMatrix {
 	}
 
 	*newFromMatrix { |aMatrix|
-		^super.newCopyArgs('fromMatrix').initFromMatrix(aMatrix)
+		^super.newCopyArgs('loaded_from_Matrix').initFromMatrix(aMatrix)
 	}
 
 	initFromMatrix { |aMatrix|
@@ -411,7 +411,8 @@ FoaDecoderMatrix : AtkMatrix {
 	}
 
 	*newFromFile { arg filePathOrName;
-		^super.new.initFromFile(filePathOrName, 'decoder').initDecoderVarsForFiles
+		^super.new.initFromFile(filePathOrName, 'decoder').initDecoderVarsForFiles;
+	}
 
 	initK2D { arg k;
 

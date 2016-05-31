@@ -164,10 +164,18 @@ AtkMatrix {
 	var <kind;  // copyArgs
 	var <matrix;
 	var <filePath;  // matrices from files only
-	var <yamlParse;  // YAML data parse only       TEMP getter
+	var <fileParse;  // YAML data parse only
 
 	*new { |mtxKind|
 		^super.newCopyArgs(mtxKind)
+	}
+
+	*newFromMatrix { |aMatrix|
+		^super.newCopyArgs('fromMatrix').initFromMatrix(aMatrix)
+	}
+
+	initFromMatrix { |aMatrix|
+		matrix = aMatrix;
 	}
 
 	initFromFile { arg filePathOrName, mtxKind;
@@ -179,24 +187,24 @@ AtkMatrix {
 		{ resolvedPathName.extension == "txt"} {
 			// .txt file: expected to me matrix only, cols separated by spaces, rows by newlines
 			matrix = Matrix.with( FileReader.read(filePath).asFloat );
-			kind = resolvedPathName.fileNameWithoutExtension.asSymbol;
+			kind = resolvedPathName.fileName.asSymbol;
 		}
 		{ resolvedPathName.extension == "yml"} {
 			var dict = filePath.parseYAMLFile;
-			yamlParse = IdentityDictionary(know: true);
+			fileParse = IdentityDictionary(know: true);
 
 			// replace String keys with Symbol keys, make "knowable"
 			dict.keysValuesDo{
 				|k,v|
-				yamlParse.put( k.asSymbol,
+				fileParse.put( k.asSymbol,
 					if (v=="nil", {nil},{v}) // so .info parsing doesn't see nil as array
 				)
 			};
 
-			matrix = Matrix.with(yamlParse.matrix.asFloat);
-			kind = resolvedPathName.fileNameWithoutExtension.asSymbol;
+			matrix = Matrix.with(fileParse.matrix.asFloat);
+			kind = fileParse.kind ?? resolvedPathName.fileNameWithoutExtension.asSymbol;
 		}
-		{ true } { Error("Unsupported file extension.").thow };
+		{ true } { Error("Unsupported file extension.").throw; ^this };
 	}
 
 	// post readable matrix information
@@ -209,8 +217,8 @@ AtkMatrix {
 		filePath !? { attributes = attributes ++ [\fileName, \filePath] };
 
 		// other non-standard metadata provided in yml file
-		yamlParse !? {
-			yamlParse.keys.do{|key|
+		fileParse !? {
+			fileParse.keys.do{|key|
 				attributes.includes(key.asSymbol).not.if{
 					attributes = attributes ++ key.asSymbol;
 				}
@@ -220,8 +228,8 @@ AtkMatrix {
 		attributes.do{ |attribute|
 			var value;
 			value = this.tryPerform(attribute);
-			if (value.isNil and: yamlParse.notNil) {
-				value = yamlParse[attribute] // this can still return nil
+			if (value.isNil and: fileParse.notNil) {
+				value = fileParse[attribute] // this can still return nil
 			};
 
 			if (value.isKindOf(Array)) {
@@ -241,39 +249,44 @@ AtkMatrix {
 	// .writeToFile( fileNameOrPath, type, note, attributeDictionary )
 	writeToFile { arg fileNameOrPath, type, note, attributeDictionary, overwrite=false;
 		var mtype, pn, writer, ext;
-1.postln;
-		mtype = type.asSymbol;
 
-		// TODO: this could be inferred if called on, e.g., FOAEncoderMatrix
-		// This is only needed for relative file paths
-		// check valid type arg
-		['encoder', 'decoder', 'xformer'].includes(mtype).not.if{
-			Error("'type' argument must be 'encoder', 'decoder', or 'xformer'").throw
-		};
+		mtype = if (type.isNil) {
+			switch( this.class,
+				FoaEncoderMatrix, {'encoder'},
+				FoaDecoderMatrix, {'decoder'},
+				FoaXformerMatrix, {'xformer'}
+			);
+		} { type.asSymbol };
 
 		pn = PathName(fileNameOrPath);
 
-2.postln;
-		case
-		{PathName(pn.parentPath).isFolder} {
-			/* do nothing, provided path is absolute*/
-		} { pn.colonIndices.size == 0} {
-			// only filename provided, writer to dir matching mtype
-			pn = Atk.initMatrixExtensionPath(mtype) +/+ pn;
-		} { pn.colonIndices.size > 0} {
-			// relative path given, look for it
-			var mtxPath, relPath;
-			mtxPath = Atk.initMatrixExtensionPath(mtype);
-			relPath = (mtxPath +/+ PathName(pn.parentPath));
-			if (relPath.isFolder) {
-				// relative path confirmed
-				pn = mtxPath +/+ pn;
-			} {
-				Error(
-					format("Specified relative folder path was not found in %\n", relPath.fullPath)).throw
-			}
-		};
-3.postln;
+		if (PathName(pn.parentPath).isFolder.not) {
+			// This is only needed for relative file paths in user-matrices directory
+			['encoder', 'decoder', 'xformer'].includes(mtype).not.if{
+				Error("'type' argument must be 'encoder', 'decoder', or 'xformer'").throw; ^this
+			};
+
+			case
+			{ pn.colonIndices.size == 0} {
+				// only filename provided, writer to dir matching mtype
+				pn = Atk.initMatrixExtensionPath(mtype) +/+ pn;
+
+			} { pn.colonIndices.size > 0} {
+				// relative path given, look for it
+				var mtxPath, relPath;
+				mtxPath = Atk.initMatrixExtensionPath(mtype);
+				relPath = (mtxPath +/+ PathName(pn.parentPath));
+				if (relPath.isFolder) {
+					// valid relative path confirmed
+					pn = mtxPath +/+ pn;
+				} {
+					Error(
+						format("Specified relative folder path was not found in %\n", relPath.fullPath)).throw; ^this
+				}
+			};
+		}; // otherwise, provided path is absolute
+
+
 		ext = pn.extension;
 		if (ext == "") {pn = pn +/+ PathName(".yml")};
 
@@ -281,13 +294,13 @@ AtkMatrix {
 			pn.isFile.if{
 				Error(format(
 					"File already exists:\n\t%\nChoose another name or location, or set overwrite:true", pn.fullPath
-			)).throw}
+			)).throw; ^this}
 		};
-4.postln;
+
 		case
 		{ext == "txt"} {this.prWriteMatrixToTXT(pn)}
 		{ext == "yml"} {this.prWriteMatrixToYML(pn, mtype, note, attributeDictionary)}
-		{Error("Invalid file extension: provide '.txt' for writing matrix only, or '.yml' or no extension to write matrix with metadata (as YAML)").throw};
+		{Error("Invalid file extension: provide '.txt' for writing matrix only, or '.yml' or no extension to write matrix with metadata (as YAML)").throw; ^this};
 	}
 
 
@@ -307,7 +320,7 @@ AtkMatrix {
 		writer = FileWriter( pn.fullPath );
 		// writer.writeLine(["matrix :"] ++ m.asArray.asString.split($ )); // all one line
 
-		// overkill on formatting, but more human readable...
+		// overkill on formatting, but more readable...
 		writer.writeLine(["matrix : ["]);
 		matrix.rows.do{ |i|
 			var line, row;
@@ -320,14 +333,11 @@ AtkMatrix {
 		writer.writeLine(["]"]);
 
 		// write standard attributes
-		[ \type, \dirOutputs, \dirInputs, \shelfK,\shelfFreq].do{ |attribute|
+		[ \kind, \dirOutputs, \dirInputs, \shelfK,\shelfFreq].do{ |attribute|
 			writer.writeLine([]); //newline for more readability
 			writer.writeLine( [attribute, ":", this.tryPerform(attribute)] )
 		};
 
-		// TODO: choose different var name, type already used by AtkMatrix,
-		// and it's ambiguous: kind = 'dual', kind = 'encoder', etc.
-		// Maybe "name"?, in which case, what is 'kind' for loaded files?
 		type !? {
 			writer.writeLine([]); //newline for more readability
 			writer.writeLine( ["type", ":", type] )
@@ -841,15 +851,15 @@ FoaDecoderMatrix : AtkMatrix {
 	}
 
 	initVarsForFiles {
-		if (yamlParse.notNil) {
-			dirOutputs = if (yamlParse.dirOutputs.notNil) {
-				yamlParse.dirOutputs.asFloat
+		if (fileParse.notNil) {
+			dirOutputs = if (fileParse.dirOutputs.notNil) {
+				fileParse.dirOutputs.asFloat
 			} { // unspecified, so output directions are "implicit" in the provided matrix
 				matrix.rows.collect({ 'implicit' })
 			};
-			shelfK = yamlParse.shelfK !? {yamlParse.shelfK.asFloat};
-			shelfFreq = yamlParse.shelfFreq !? {yamlParse.shelfFreq.asFloat};
-		} { // txt file provided, no yamlParse
+			shelfK = fileParse.shelfK !? {fileParse.shelfK.asFloat};
+			shelfFreq = fileParse.shelfFreq !? {fileParse.shelfFreq.asFloat};
+		} { // txt file provided, no fileParse
 			dirOutputs = matrix.rows.collect({ 'implicit' });
 		};
 
@@ -1224,13 +1234,13 @@ FoaEncoderMatrix : AtkMatrix {
 	}
 
 	initVarsForFiles {
-		dirInputs = if (yamlParse.notNil) {
-			if (yamlParse.dirInputs.notNil) {
-				yamlParse.dirInputs.asFloat
+		dirInputs = if (fileParse.notNil) {
+			if (fileParse.dirInputs.notNil) {
+				fileParse.dirInputs.asFloat
 			} { // unspecified, so input directions are "implicit" in the provided matrix
 				matrix.cols.collect({ 'implicit' })
 			};
-		} { // txt file provided, no yamlParse
+		} { // txt file provided, no fileParse
 			matrix.cols.collect({ 'implicit' });
 		};
 	}

@@ -194,9 +194,6 @@ AtkMatrix {
 			var dict = filePath.parseYAMLFile;
 			fileParse = IdentityDictionary(know: true);
 
-			matrix = Matrix.with(fileParse.matrix.asFloat);
-			kind = fileParse.kind ?? resolvedPathName.fileNameWithoutExtension.asSymbol;
-
 			// replace String keys with Symbol keys, make "knowable"
 			dict.keysValuesDo{
 				|k,v|
@@ -204,6 +201,9 @@ AtkMatrix {
 					if (v=="nil", {nil},{v}) // so .info parsing doesn't see nil as array
 				)
 			};
+
+			matrix = Matrix.with(fileParse.matrix.asFloat);
+			kind = fileParse.kind ?? resolvedPathName.fileNameWithoutExtension.asSymbol;
 		}
 		{ Error("Unsupported file extension.").throw };
 	}
@@ -213,7 +213,7 @@ AtkMatrix {
 	info {
 		var attributes;
 		// gather attributes in order of posting
-		attributes = [ \kind, \dirInputs, \dirOutputs, \matrix ];
+		attributes = [ \kind, \dirInputs, \dirOutputs, \dim, \matrix ];
 		if (this.isKindOf(FoaDecoderMatrix)) { attributes = attributes ++ [\shelfK, \shelfFreq] };
 		filePath !? { attributes = attributes ++ [\fileName, \filePath] };
 
@@ -224,6 +224,11 @@ AtkMatrix {
 					attributes = attributes ++ key.asSymbol;
 				}
 			}
+		};
+
+		if (attributes.includes(\type)) {
+			// bump 'type' to the top of the post
+			attributes.remove(\type); attributes.addFirst(\type);
 		};
 
 		attributes.do{ |attribute|
@@ -242,7 +247,8 @@ AtkMatrix {
 					postf("\t% : \n\t\t%\n", attribute, value);
 				}
 			} {
-				postf("\t% : \n\t\t%\n", attribute, value);
+				// postf("\t% : \n\t\t%\n", attribute, value);
+				postf("\t% : %\n", attribute, value);
 			};
 		};
 	}
@@ -252,15 +258,15 @@ AtkMatrix {
 	writeToFile { arg fileNameOrPath, type, family, note, attributeDictionary, overwrite=false;
 		var mtype, pn, writer, ext;
 
-		family ?? {Error("Unspecified family argument. Choose 'foa', 'hoa1', 'hoa2', etc.").throw};
-
-		mtype = if (type.isNil) {
+		if (type.isNil) {
 			switch( this.class,
-				FoaEncoderMatrix,	{'encoder'},
-				FoaDecoderMatrix,	{'decoder'},
-				FoaXformerMatrix,	{'xformer'}
+				FoaEncoderMatrix,	{mtype = 'encoder'; family = 'foa'},
+				FoaDecoderMatrix,	{mtype = 'decoder'; family = 'foa'},
+				FoaXformerMatrix,	{mtype = 'xformer'; family = 'foa'}
 			);
 		} { type.asSymbol };
+
+		family ?? {Error("Unspecified family argument. Choose 'foa', 'hoa1', 'hoa2', etc.").throw};
 
 		pn = PathName(fileNameOrPath);
 

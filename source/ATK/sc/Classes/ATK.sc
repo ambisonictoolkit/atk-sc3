@@ -144,43 +144,63 @@ Atk {
 		})
 	}
 
-	// NOTE: could be generalized for other user extensions, e.g. kernels, etc.
-	//  kind: 'decoder', 'encoder', 'xformer'
-	*initMatrixExtensionPath { |kind|
-		var matrixLibPath, kindPath, fullPath;
+	// which: matrices, kernels, etc
+	*getExtensionsSubPath { arg which;
+		var str, subPath, kindPath, fullPath;
 
-		matrixLibPath = PathName.new(
-			Atk.userExtensionsDir ++ "/user_matrices/"
+		str = switch (which.asSymbol,
+			'matrices', {"/matrices/"},
+			'kernels', {"/kernels/"},
 		);
 
-		if ( matrixLibPath.isFolder.not, {		// is  lib installed for all users?
-			matrixLibPath = PathName.new(	// no? set for single user
-				Atk.systemExtensionsDir ++ "/user_matrices/"
+		subPath = PathName.new(
+			Atk.userExtensionsDir ++ str
+		);
+
+		if ( subPath.isFolder.not, {		// is  lib installed for all users?
+			subPath = PathName.new(	// no? set for single user
+				Atk.systemExtensionsDir ++ str
 			)
 		});
 
-		if ( matrixLibPath.isFolder.not, {
+		if ( subPath.isFolder.not, {
 			Error(
 				format("No user matrix folder found in\n\t%\nor\n\t%\n",
-					Atk.userExtensionsDir ++ "/user_matrices/",
-					Atk.systemExtensionsDir ++ "/user_matrices/"
+					Atk.userExtensionsDir ++ str,
+					Atk.systemExtensionsDir ++ str
 				)
 			).throw;
 		});
 
-		kindPath = PathName.new( "FOA/" ++
-			switch( kind,
+		^subPath
+	}
+
+	//  kind: 'decoders', 'encoders', 'xformers'
+	//  family: "FOA", "HOA1", "HOA2", etc
+	*getMatrixExtensionPath { arg kind, family="FOA";
+		var matrixSubPath, kindPath, fullPath;
+
+		matrixSubPath = Atk.getExtensionsSubPath('matrices');
+
+		kindPath = PathName.new( family ++ "/" ++
+			switch( kind.asSymbol,
+				'decoders', {"decoders/"},
+				'encoders', {"encoders/"},
+				'xformers', {"xformers/"},
+				// include singular
 				'decoder', {"decoders/"},
 				'encoder', {"encoders/"},
 				'xformer', {"xformers/"}
 			);
 		);
 
-		fullPath = matrixLibPath +/+ kindPath;
+		fullPath = matrixSubPath +/+ kindPath;
 
 		if ( fullPath.isFolder.not, {
 			Error(
-				format("No % directory folder found at\n\t%\n", kindPath.fullPath, fullPath.fullPath)
+				format( "No % directory folder found at\n\t%\n",
+					kindPath.fullPath, fullPath.fullPath
+				)
 			).throw
 		});
 
@@ -201,7 +221,7 @@ Atk {
 				hasExtension = usrPN.extension.size > 0;
 				hasRelPath = usrPN.colonIndices.size > 0;
 
-				mtxDirPath = Atk.initMatrixExtensionPath(mtxKind);
+				mtxDirPath = Atk.getMatrixExtensionPath(mtxKind);
 				relPath = mtxDirPath +/+ usrPN;
 
 				// debug
@@ -293,7 +313,8 @@ Atk {
 		);
 	}
 
-	// type: 'decoder', 'encoder', 'xformer'
+	// NOTE: could be generalized for other user extensions, e.g. kernels, etc.
+	// type: 'decoders', 'encoders', 'xformers'
 	*postMyMatrixDir { |type|
 		var postContents;
 
@@ -316,10 +337,13 @@ Atk {
 
 		postContents.(
 			type.isNil.if(
-				{ PathName(Atk.userExtensionsDir ++ "/user_matrices/FOA/") },
+				{  Atk.getExtensionsSubPath(\matrices) +/+ "FOA" },
 				{
-					if ( ['decoder', 'encoder', 'xformer'].includes(type.asSymbol) )
-					{ Atk.initMatrixExtensionPath(type) }
+					if ( [
+						'decoders', 'encoders', 'xformers',
+						'decoder', 'encoder', 'xformer'		// include singular
+					].includes(type.asSymbol) )
+					{ Atk.getMatrixExtensionPath(type) }
 					{ Error("'type' must be 'decoder', 'encoder', 'xformer', or nil (to see all matrix directories)").throw; ^this };
 				}
 			);

@@ -271,12 +271,12 @@ AtkMatrix {
 			case
 			{ pn.colonIndices.size == 0} {
 				// only filename provided, writer to dir matching mtype
-				pn = Atk.initMatrixExtensionPath(mtype) +/+ pn;
+				pn = Atk.getMatrixExtensionPath(mtype) +/+ pn;
 
 			} { pn.colonIndices.size > 0} {
 				// relative path given, look for it
 				var mtxPath, relPath;
-				mtxPath = Atk.initMatrixExtensionPath(mtype);
+				mtxPath = Atk.getMatrixExtensionPath(mtype);
 				relPath = (mtxPath +/+ PathName(pn.parentPath));
 				if (relPath.isFolder) {
 					// valid relative path confirmed
@@ -357,7 +357,6 @@ AtkMatrix {
 
 		writer.close;
 	}
-
 
 	fileName { ^PathName(filePath).fileName }
 

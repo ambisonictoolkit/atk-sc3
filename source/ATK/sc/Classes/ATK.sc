@@ -144,6 +144,51 @@ Atk {
 		})
 	}
 
+	*createExtensionsDir {
+		var exists=false, dir, categories, families, mtxTypes, makeDirs;
+
+		categories = ["kernels", "matrices"];
+		families = ["FOA", "HOA1", "HOA2", "HOA3", "HOA4", "HOA5", "HOA6", "HOA7"];
+		mtxTypes = ["encoders", "decoders", "xformers"];
+
+		makeDirs = { |baseDir|
+			families.do{ |family|
+				var path;
+				categories.do{ |category|
+					mtxTypes.do{ |mtxType|
+						path = baseDir +/+ category +/+ family +/+ mtxType;
+						File.mkdir( path );
+					}
+				}
+			}
+		};
+
+		if( File.exists(userExtensionsDir) ) {
+			exists = true;
+			dir = userExtensionsDir;
+		};
+
+		if( File.exists(systemExtensionsDir) ) {
+			exists = true;
+			dir = userExtensionsDir;
+		};
+
+		if (exists) { ^format("ATK extensions directory already found at: %\n", dir).warn; };
+
+		if (File.exists( userSupportDir )) { // try user dir first
+			makeDirs.(Atk.userExtensionsDir);
+		} {
+			if (File.exists( systemSupportDir )) { // then system dir
+				makeDirs.(systemExtensionsDir);
+			} {
+				format("No /ATK directory found in\n\t%\nor\n\t%\n",
+					Platform.userAppSupportDir.dirname,
+					Platform.systemAppSupportDir.dirname
+				).throw
+			};
+		};
+	}
+
 	// which: matrices, kernels, etc
 	*getExtensionsSubPath { arg which;
 		var str, subPath, kindPath, fullPath;
@@ -157,8 +202,8 @@ Atk {
 			Atk.userExtensionsDir ++ str
 		);
 
-		if ( subPath.isFolder.not, {		// is  lib installed for all users?
-			subPath = PathName.new(	// no? set for single user
+		if ( subPath.isFolder.not, {		// is  lib installed for user?
+			subPath = PathName.new(	// no? check for system wide install
 				Atk.systemExtensionsDir ++ str
 			)
 		});
@@ -176,13 +221,14 @@ Atk {
 	}
 
 	//  kind: 'decoders', 'encoders', 'xformers'
-	//  family: "FOA", "HOA1", "HOA2", etc
-	*getMatrixExtensionPath { arg kind, family="FOA";
-		var matrixSubPath, kindPath, fullPath;
+	//  family: "foa", "hoa1", "hoa2", etc
+	*getMatrixExtensionPath { arg kind, family="foa";
+		var matrixSubPath, fam, kindPath, fullPath;
 
 		matrixSubPath = Atk.getExtensionsSubPath('matrices');
+		fam = family.asString.toUpper; // folder structure is uppercase
 
-		kindPath = PathName.new( family ++ "/" ++
+		kindPath = PathName.new( fam ++ "/" ++
 			switch( kind.asSymbol,
 				'decoders', {"decoders/"},
 				'encoders', {"encoders/"},

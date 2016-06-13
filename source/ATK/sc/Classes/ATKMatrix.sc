@@ -160,12 +160,11 @@ FoaSpeakerMatrix {
 	}
 }
 
-
 AtkMatrix {
 	var <kind;  // copyArgs
 	var <matrix;
 	var <filePath;  // matrices from files only
-	var <fileParse;  // YAML data parse only
+	var <fileParse;  // data parsed from YAML file
 
 	*new { |mtxKind|
 		^super.newCopyArgs(mtxKind)
@@ -181,18 +180,22 @@ AtkMatrix {
 
 	initFromFile { arg filePathOrName, mtxKind;
 		var resolvedPathName = Atk.resolveMtxPath(filePathOrName, mtxKind);
+
 		// instance vars
 		filePath = resolvedPathName.fullPath;
 
 		case
 		{ resolvedPathName.extension == "txt"} {
-			// .txt file: expected to me matrix only, cols separated by spaces, rows by newlines
+			// .txt file: expected to be matrix only, cols separated by spaces, rows by newlines
 			matrix = Matrix.with( FileReader.read(filePath).asFloat );
-			kind = resolvedPathName.fileName.asSymbol;
+			kind = resolvedPathName.fileName.asSymbol; // kind defaults to filename
 		}
 		{ resolvedPathName.extension == "yml"} {
 			var dict = filePath.parseYAMLFile;
 			fileParse = IdentityDictionary(know: true);
+
+			matrix = Matrix.with(fileParse.matrix.asFloat);
+			kind = fileParse.kind ?? resolvedPathName.fileNameWithoutExtension.asSymbol;
 
 			// replace String keys with Symbol keys, make "knowable"
 			dict.keysValuesDo{
@@ -201,18 +204,14 @@ AtkMatrix {
 					if (v=="nil", {nil},{v}) // so .info parsing doesn't see nil as array
 				)
 			};
-
-			matrix = Matrix.with(fileParse.matrix.asFloat);
-			kind = fileParse.kind ?? resolvedPathName.fileNameWithoutExtension.asSymbol;
 		}
-		{ true } { Error("Unsupported file extension.").throw; ^this };
+		{ Error("Unsupported file extension.").throw };
 	}
 
 
 	// post readable matrix information
 	info {
 		var attributes;
-
 		// gather attributes in order of posting
 		attributes = [ \kind, \dirInputs, \dirOutputs, \matrix ];
 		if (this.isKindOf(FoaDecoderMatrix)) { attributes = attributes ++ [\shelfK, \shelfFreq] };
@@ -248,15 +247,18 @@ AtkMatrix {
 		};
 	}
 
-
-	writeToFile { arg fileNameOrPath, type, note, attributeDictionary, overwrite=false;
+	// type: /encoder, \decoder, \xformer
+	// family: foa, hoa1, hoa2, etc
+	writeToFile { arg fileNameOrPath, type, family, note, attributeDictionary, overwrite=false;
 		var mtype, pn, writer, ext;
+
+		family ?? {Error("Unspecified family argument. Choose 'foa', 'hoa1', 'hoa2', etc.").throw};
 
 		mtype = if (type.isNil) {
 			switch( this.class,
-				FoaEncoderMatrix, {'encoder'},
-				FoaDecoderMatrix, {'decoder'},
-				FoaXformerMatrix, {'xformer'}
+				FoaEncoderMatrix,	{'encoder'},
+				FoaDecoderMatrix,	{'decoder'},
+				FoaXformerMatrix,	{'xformer'}
 			);
 		} { type.asSymbol };
 
@@ -271,12 +273,12 @@ AtkMatrix {
 			case
 			{ pn.colonIndices.size == 0} {
 				// only filename provided, writer to dir matching mtype
-				pn = Atk.getMatrixExtensionPath(mtype) +/+ pn;
+				pn = Atk.getMatrixExtensionPath(mtype, family) +/+ pn;
 
 			} { pn.colonIndices.size > 0} {
 				// relative path given, look for it
 				var mtxPath, relPath;
-				mtxPath = Atk.getMatrixExtensionPath(mtype);
+				mtxPath = Atk.getMatrixExtensionPath(mtype, family);
 				relPath = (mtxPath +/+ PathName(pn.parentPath));
 				if (relPath.isFolder) {
 					// valid relative path confirmed
@@ -294,30 +296,31 @@ AtkMatrix {
 		overwrite.not.if{
 			pn.isFile.if{
 				Error(format(
-					"File already exists:\n\t%\nChoose another name or location, or set overwrite:true", pn.fullPath
+					"File already exists:\n\t%\nChoose another name or location, or set overwrite:true",
+					pn.fullPath
 			)).throw; ^this}
 		};
 
 		case
 		{ext == "txt"} {this.prWriteMatrixToTXT(pn)}
-		{ext == "yml"} {this.prWriteMatrixToYML(pn, mtype, note, attributeDictionary)}
+		{ext == "yml"} {this.prWriteMatrixToYML(pn, mtype, family, note, attributeDictionary)}
 		{Error("Invalid file extension: provide '.txt' for writing matrix only, or '.yml' or no extension to write matrix with metadata (as YAML)").throw; ^this};
 	}
 
 
 	prWriteMatrixToTXT { arg pn; // a PathName
 		var writer;
-		// TODO: rewrite or include FileWriter
 		writer = FileWriter( pn.fullPath );
 		// write the matrix into it by row, and close
 		matrix.rows.do{ |i| writer.writeLine( matrix.getRow(i) ) };
 		writer.close
 	}
 
-	prWriteMatrixToYML { arg pn, type, note, attributeDictionary;
-		var writer;
+	prWriteMatrixToYML { arg pn, type, family, note, attributeDictionary;
+		var writer, defAttributes;
 
 		writer = FileWriter( pn.fullPath );
+
 		// writer.writeLine(["matrix :"] ++ m.asArray.asString.split($ )); // all one line
 
 		// overkill on formatting, but more readable...
@@ -332,15 +335,28 @@ AtkMatrix {
 		};
 		writer.writeLine(["]"]);
 
-		// write standard attributes
-		[ \kind, \dirOutputs, \dirInputs, \shelfK,\shelfFreq].do{ |attribute|
-			writer.writeLine([]); //newline for more readability
-			writer.writeLine( [attribute, ":", this.tryPerform(attribute)] )
-		};
-
 		type !? {
 			writer.writeLine([]);
 			writer.writeLine( ["type", ":", type] )
+		};
+
+		// write default attributes
+		defAttributes = [\kind, \dirOutputs, \dirInputs];
+		if (type=='decoder') { defAttributes = defAttributes ++ [\shelfK,\shelfFreq] };
+
+		if (attributeDictionary.notNil) {
+			// make sure attribute dict doesn't explicitly set the attribute first
+			defAttributes.do{ |attribute|
+				attributeDictionary[attribute] ?? {
+					writer.writeLine([]); //newline for readability
+					writer.writeLine( [attribute, ":", this.tryPerform(attribute)] )
+				}
+			};
+		} {
+			defAttributes.do{ |attribute|
+				writer.writeLine([]); //newline for readability
+				writer.writeLine( [attribute, ":", this.tryPerform(attribute)] )
+			};
 		};
 
 		note !? {

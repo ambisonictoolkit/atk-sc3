@@ -178,8 +178,8 @@ AtkMatrix {
 		matrix = aMatrix;
 	}
 
-	initFromFile { arg filePathOrName, mtxKind;
-		var resolvedPathName = Atk.resolveMtxPath(filePathOrName, mtxKind);
+	initFromFile { arg filePathOrName, mtxType;
+		var resolvedPathName = Atk.resolveMtxPath(filePathOrName, mtxType);
 
 		// instance vars
 		filePath = resolvedPathName.fullPath;

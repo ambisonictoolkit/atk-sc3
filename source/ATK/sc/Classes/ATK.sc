@@ -189,8 +189,8 @@ Atk {
 		};
 	}
 
-	// which: matrices, kernels, etc
-	*getExtensionsSubPath { arg which;
+	// which: matrices, kernels
+	*getExtensionSubPath { arg which;
 		var str, subPath, kindPath, fullPath;
 
 		str = switch (which.asSymbol,
@@ -220,16 +220,13 @@ Atk {
 		^subPath
 	}
 
-	//  kind: 'decoders', 'encoders', 'xformers'
-	//  family: "foa", "hoa1", "hoa2", etc
-	*getMatrixExtensionPath { arg kind, family="foa";
-		var matrixSubPath, fam, kindPath, fullPath;
+	*getTypeSubPath { arg type, family="foa";
+		var fam, typePath;
 
-		matrixSubPath = Atk.getExtensionsSubPath('matrices');
 		fam = family.asString.toUpper; // folder structure is uppercase
 
-		kindPath = PathName.new( fam ++ "/" ++
-			switch( kind.asSymbol,
+		typePath = PathName.new( fam ++ "/" ++
+			switch( type.asSymbol,
 				'decoders', {"decoders/"},
 				'encoders', {"encoders/"},
 				'xformers', {"xformers/"},
@@ -240,21 +237,43 @@ Atk {
 			);
 		);
 
-		fullPath = matrixSubPath +/+ kindPath;
+		^typePath
+	}
 
-		if ( fullPath.isFolder.not, {
-			Error(
-				format( "No % directory folder found at\n\t%\n",
-					kindPath.fullPath, fullPath.fullPath
-				)
-			).throw
-		});
+	//  which: 'matrices', 'kernels'
+	//  type: 'decoders', 'encoders', 'xformers'
+	//  family: "foa", "hoa1", "hoa2", etc
+	*getExtensionPath { arg which, type, family="foa";
+		var subPath, typePath, fullPath;
 
+		subPath = Atk.getExtensionSubPath(which);
+		typePath = Atk.getTypeSubPath(type, family);
+		fullPath = subPath +/+ typePath;
+		Atk.folderExists(fullPath); // throws on fail
 		^fullPath
+	}
+	// shortcuts for matrices and kernels
+	*getMatrixExtensionPath { arg type, family="foa";
+		^Atk.getExtensionPath('matrices', type, family);
+	}
+	*getKernelsExtensionPath { arg type, family="foa";
+		^Atk.getExtensionPath('kernels', type, family);
+	}
+
+	*folderExists { |folderPathName, throwOnFail=true|
+		if (folderPathName.isFolder) {
+			^true
+		} {
+			if (throwOnFail) {
+				Error(
+					format("No directory found at\n\t%\n", folderPathName.fullPath)
+				).throw
+			} { ^false }
+		};
 	}
 
 	// NOTE: could be generalized for other user extensions, e.g. kernels, etc.
-	*resolveMtxPath { arg filePathOrName, mtxKind;
+	*resolveMtxPath { arg filePathOrName, mtxType;
 		var usrPN, srcPath, relPath, mtxDirPath;
 		var hasExtension, hasRelPath;
 
@@ -267,7 +286,7 @@ Atk {
 				hasExtension = usrPN.extension.size > 0;
 				hasRelPath = usrPN.colonIndices.size > 0;
 
-				mtxDirPath = Atk.getMatrixExtensionPath(mtxKind);
+				mtxDirPath = Atk.getMatrixExtensionPath(mtxType);
 				relPath = mtxDirPath +/+ usrPN;
 
 				// debug
@@ -361,8 +380,10 @@ Atk {
 
 	// NOTE: could be generalized for other user extensions, e.g. kernels, etc.
 	// type: 'decoders', 'encoders', 'xformers'
-	*postMyMatrixDir { |type|
+	*postMyMatrixDir { |type, family="foa"|
 		var postContents;
+
+		postf("~ % % ~\n", family.toUpper, type);
 
 		postContents = { |folderPN, depth=1|
 			var offset;
@@ -383,14 +404,14 @@ Atk {
 
 		postContents.(
 			type.isNil.if(
-				{  Atk.getExtensionsSubPath(\matrices) +/+ "FOA" },
+				{  Atk.getExtensionSubPath('matrices') +/+ family.asString.toUpper },
 				{
 					if ( [
 						'decoders', 'encoders', 'xformers',
 						'decoder', 'encoder', 'xformer'		// include singular
 					].includes(type.asSymbol) )
-					{ Atk.getMatrixExtensionPath(type) }
-					{ Error("'type' must be 'decoder', 'encoder', 'xformer', or nil (to see all matrix directories)").throw; ^this };
+					{ Atk.getMatrixExtensionPath(type, family) }
+					{ Error("'type' must be 'decoder', 'encoder', 'xformer', or nil (to see all matrix directories)").throw; };
 				}
 			);
 

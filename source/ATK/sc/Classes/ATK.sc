@@ -97,6 +97,7 @@
 Atk {
 	classvar <userSupportDir, <userSoundsDir, <userKernelDir, <userExtensionsDir;
 	classvar <systemSupportDir, <systemSoundsDir, <systemKernelDir, <systemExtensionsDir;
+	classvar <families;
 
 	*initClass {
 		userSupportDir = Platform.userAppSupportDir.dirname ++ "/ATK";
@@ -108,6 +109,8 @@ Atk {
 		systemSoundsDir = systemSupportDir ++ "/sounds";
 		systemKernelDir = systemSupportDir ++ "/kernels";
 		systemExtensionsDir = systemSupportDir ++ "/extensions";
+
+		families = [ 'foa', 'hoa1', 'hoa2', 'hoa3', 'hoa4', 'hoa5', 'hoa6', 'hoa7' ];
 	}
 
 	*userSupportDir_ {arg userSupportDirIn;
@@ -145,18 +148,17 @@ Atk {
 	}
 
 	*createExtensionsDir {
-		var exists=false, dir, categories, families, mtxTypes, makeDirs;
+		var exists=false, dir, categories, mtxTypes, makeDirs;
 
-		categories = ["kernels", "matrices"];
-		families = ["FOA", "HOA1", "HOA2", "HOA3", "HOA4", "HOA5", "HOA6", "HOA7"];
-		mtxTypes = ["encoders", "decoders", "xformers"];
+		categories =	["kernels", "matrices"];
+		mtxTypes =	["encoders", "decoders", "xformers"];
 
 		makeDirs = { |baseDir|
-			families.do{ |family|
+			Atk.families.do{ |family|
 				var path;
 				categories.do{ |category|
 					mtxTypes.do{ |mtxType|
-						path = baseDir +/+ category +/+ family +/+ mtxType;
+						path = baseDir +/+ category +/+ family.asString.toUpper +/+ mtxType;
 						File.mkdir( path );
 					}
 				}
@@ -189,7 +191,7 @@ Atk {
 		};
 	}
 
-	// which: matrices, kernels
+	// which: 'matrices', 'kernels'
 	*getExtensionSubPath { arg which;
 		var str, subPath, kindPath, fullPath;
 
@@ -210,7 +212,7 @@ Atk {
 
 		if ( subPath.isFolder.not, {
 			Error(
-				format("No user matrix folder found in\n\t%\nor\n\t%\n",
+				format("\nNo user matrix folder found in\n\t%\nor\n\t%\nIf you've not yet made your Atk /extensions folder, please run\n\tAtk.createExtensionsDir\n",
 					Atk.userExtensionsDir ++ str,
 					Atk.systemExtensionsDir ++ str
 				)
@@ -220,9 +222,15 @@ Atk {
 		^subPath
 	}
 
-	*getTypeSubPath { arg type, family="foa";
-		var fam, typePath;
+	//  which: 'matrices', 'kernels'
+	//  type: 'decoders', 'encoders', 'xformers'
+	//  family: 'foa', "hoa1", "hoa2", etc
+	*getExtensionPath { arg which, type, family='foa';
+		var subPath, fam, typePath, fullPath;
 
+		Atk.checkFamily(family);
+
+		subPath = Atk.getExtensionSubPath(which);
 		fam = family.asString.toUpper; // folder structure is uppercase
 
 		typePath = PathName.new( fam ++ "/" ++
@@ -237,26 +245,15 @@ Atk {
 			);
 		);
 
-		^typePath
-	}
-
-	//  which: 'matrices', 'kernels'
-	//  type: 'decoders', 'encoders', 'xformers'
-	//  family: "foa", "hoa1", "hoa2", etc
-	*getExtensionPath { arg which, type, family="foa";
-		var subPath, typePath, fullPath;
-
-		subPath = Atk.getExtensionSubPath(which);
-		typePath = Atk.getTypeSubPath(type, family);
 		fullPath = subPath +/+ typePath;
 		Atk.folderExists(fullPath); // throws on fail
 		^fullPath
 	}
 	// shortcuts for matrices and kernels
-	*getMatrixExtensionPath { arg type, family="foa";
+	*getMatrixExtensionPath { arg type, family='foa';
 		^Atk.getExtensionPath('matrices', type, family);
 	}
-	*getKernelsExtensionPath { arg type, family="foa";
+	*getKernelsExtensionPath { arg type, family='foa';
 		^Atk.getExtensionPath('kernels', type, family);
 	}
 
@@ -289,9 +286,6 @@ Atk {
 				mtxDirPath = Atk.getMatrixExtensionPath(mtxType);
 				relPath = mtxDirPath +/+ usrPN;
 
-				// debug
-				postf("matrix path: %\nrelative path: %\n", mtxDirPath, relPath);
-
 				if (hasRelPath,
 					{	// search specific path within matrix directory
 						if (hasExtension, {
@@ -304,11 +298,7 @@ Atk {
 
 						}, { // user gives a path, but no file extension
 							var relWithoutLast;
-
-							// relWithoutLast = PathName( relPath.fullPath.copyRange(0, relPath.colonIndices.last) );
 							relWithoutLast = PathName( relPath.fullPath.dirname );
-
-							postf("relWithoutLast %\n",	relWithoutLast);
 
 							if ( relWithoutLast.isFolder, // test enclosing folder
 								{
@@ -378,12 +368,19 @@ Atk {
 		);
 	}
 
+	*checkFamily { |fam|
+		Atk.families.includes(fam.asString.toLower.asSymbol).not.if {"Invalid family".throw};
+	}
+
+
 	// NOTE: could be generalized for other user extensions, e.g. kernels, etc.
 	// type: 'decoders', 'encoders', 'xformers'
-	*postMyMatrixDir { |type, family="foa"|
+	*postMyMatrixDir { |type, family='foa'|
 		var postContents;
 
-		postf("~ % % ~\n", family.toUpper, type);
+		Atk.checkFamily(family);
+
+		postf("~ % % ~\n", family.asString.toUpper, type ?? "");
 
 		postContents = { |folderPN, depth=1|
 			var offset;

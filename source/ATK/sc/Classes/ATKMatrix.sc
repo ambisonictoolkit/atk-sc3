@@ -264,7 +264,7 @@ AtkMatrix {
 				FoaDecoderMatrix,	{mtype = 'decoder'; family = 'foa'},
 				FoaXformerMatrix,	{mtype = 'xformer'; family = 'foa'}
 			);
-		} { type.asSymbol };
+		} { mtype = type.asSymbol };
 
 		family ?? {Error("Unspecified family argument. Choose 'foa', 'hoa1', 'hoa2', etc.").throw};
 

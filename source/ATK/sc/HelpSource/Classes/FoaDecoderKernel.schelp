@@ -6,7 +6,7 @@ related:: Classes/FoaDecoderMatrix, Classes/FoaDecode
 DESCRIPTION::
 Generates decoding kernels required by the Ambisonic Toolkit's first order decoder, link::Classes/FoaDecode::.
 
-note:: The ATK kernels are required for kernel decoding. Please see the instructions link::http://www.ambisonictoolkit.net/wiki/tiki-index.php?page=Downloads#ATK_Kernels#here:: for installation. ::
+note:: The ATK kernels are required for kernel decoding. Please see the instructions link::http://www.ambisonictoolkit.net/download/kernels/#ATK_Kernels#here:: for installation. ::
 
 
 CLASSMETHODS::
@@ -20,6 +20,12 @@ argument:: kernelSize
 argument:: server
 link::Classes/Server:: on which to load kernel.
 
+argument:: sampleRate
+The sample rate defaults to code::nil:: and is usually supplied by the running server.  In NRT, you can specify a sampleRate to avoid booting a server.
+
+argument:: score
+Default is code::nil:: for most real time usages.  When using NRT, you can supply a score (a link::Classes/Score:: or a link::Classes/CtkScore::) onto which the kernels will be added, which lets you bypass booting a server. note::See link::Guides/ATK_Workshop_Help/ATK-SynthDef-Examples:: for usage::.
+
 discussion:: For production work targeting stereo output, the authors advise using UHJ, as Ambisonic UHJ stereo is the native Ambisonic stereo format.
 
 
@@ -32,6 +38,12 @@ argument:: subjectID
 
 argument:: server
 link::Classes/Server:: on which to load kernel.
+
+argument:: sampleRate
+The sample rate defaults to code::nil:: and is usually supplied by the running server.  In NRT, you can specify a sampleRate to avoid booting a server.
+
+argument:: score
+Default is code::nil:: for most real time usages.  When using NRT, you can supply a score (a link::Classes/Score:: or a link::Classes/CtkScore::) onto which the kernels will be added, which lets you bypass booting a server. note::See link::Guides/ATK_Workshop_Help/ATK-SynthDef-Examples:: for usage.::
 
 discussion::
 link::#-newSpherical:: models a sphere only, and is equivalent to placing a pair of spaced, sphere baffled microphones in the soundfield. With no pinnae and no body, elevation cues are not present.
@@ -48,6 +60,12 @@ argument:: subjectID
 
 argument:: server
 link::Classes/Server:: on which to load kernel.
+
+argument:: sampleRate
+The sample rate defaults to code::nil:: and is usually supplied by the running server.  In NRT, you can specify a sampleRate to avoid booting a server.
+
+argument:: score
+Default is code::nil:: for most real time usages.  When using NRT, you can supply a score (a link::Classes/Score:: or a link::Classes/CtkScore::) onto which the kernels will be added, which lets you bypass booting a server. note::See link::Guides/ATK_Workshop_Help/ATK-SynthDef-Examples:: for usage.::
 
 discussion::
 The user is advised to audition strong::subjectID::s to find a suitable choice. If an invalid strong::subjectID:: is chosen, valid choices are returned.
@@ -73,6 +91,12 @@ argument:: subjectID
 
 argument:: server
 link::Classes/Server:: on which to load kernel.
+
+argument:: sampleRate
+The sample rate defaults to code::nil:: and is usually supplied by the running server.  In NRT, you can specify a sampleRate to avoid booting a server.
+
+argument:: score
+Default is code::nil:: for most real time usages.  When using NRT, you can supply a score (a link::Classes/Score:: or a link::Classes/CtkScore::) onto which the kernels will be added, which lets you bypass booting a server. note::See link::Guides/ATK_Workshop_Help/ATK-SynthDef-Examples:: for usage.::
 
 
 discussion::

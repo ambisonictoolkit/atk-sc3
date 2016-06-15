@@ -1,94 +1,182 @@
 title:: SynthDef and NRT examples for ATK
 summary:: Introduction to the Ambisonic Toolkit
-categories:: Libraries>Ambisonic Toolkit
+categories:: Libraries>Ambisonic Toolkit>FOA>SynthDef and NRT Examples
 keyword::Atk
 
-section:: Usage with SynthDef and Synth
+section:: ATK with SynthDef and Synth
 
 For a more in-depth overview of the paradigm of ATK and a complete presentation of its capabilities, see link::Guides/Intro-to-the-ATK::. These examples show a limited set of the ATK's functionality, but illustrate how to work with the library when using SynthDefs, a single decoder that reads the Ambisonic signal through audio bus routing as well as examples for NRT processing.
 
+subsection:: Mono Encoder Using FoaPanB
+
+link::Classes/FoaPanB:: Encode a monophonic input to a first order ambisonic signal (B-format), as a planewave. PanB is the SuperCollider inbuilt equivalent.
+
+In our first example will encode Pink Noise as a planewave and decode to stereo.
+
+
+
 code::
 
-// ATK SynthDef / Synth examples
-Server.default = s = Server.internal.boot;
+Server.default = s = Server.local.boot;
+
+(
+var decoder;
+
+// First we will define our decoder
+// stereo decoder
+decoder = FoaDecoderMatrix.newStereo((131/2).degrad, 0.5);
 
 
-/* ENCODERS */
-/* FoaPanB - similar to PanB - theta and phi can change dynamically */
-
+// next we define a synth using FoaPanB and decoder using FoaDecode
 SynthDef(\foaEncode1, {
-	var src, theta, phi, foa, decoderMatrix, out;
+	var src, theta, phi, foa, out;
+
+	// our source: pink noise
 	src = PinkNoise.ar(-6.dbamp);
-	theta = MouseX.kr(-pi, pi);
+
+	// theta is our angle on the X-Y plane and phi is our elevation
+	// use a MouseX to control theta in real time, from pi to -pi
+	theta = MouseX.kr(pi, -pi);
 	phi = 0;
+
 	// Encode into our foa signal
 	foa = FoaPanB.ar(src, theta, phi);
-	// Cardioids at 131 deg
-	decoderMatrix = FoaDecoderMatrix.newStereo(131/2 * pi/180, 0.5);
-	out = FoaDecode.ar(foa, decoderMatrix);
+
+	// decode our signal using our decoder defined above
+	out = FoaDecode.ar(foa, decoder);
+
  	Out.ar(0, out);
 }).add;
 
+)
+
+// play the synth
 a = Synth(\foaEncode1);
+
+//free the synth
 a.free;
+::
 
-/* Encoding signals as plane waves that are then manipulated through transforms using the FoaTransform UGen wrapper */
+subsection:: Omni Encoder Using FoaEncoderMatrix, Transfroms using FoaTransform
 
+Encoding signals as plane waves that are then manipulated through transforms using the FoaTransform UGen wrapper
+
+code::
+
+(
+var decoder, encoder;
+// First we will define our decoder and encoder
+// stereo decoder
+decoder = FoaDecoderMatrix.newStereo((131/2).degrad, 0.5);
+
+// a matrix for an omni image
+encoder = FoaEncoderMatrix.newOmni;
+
+// define a synth using FoaEncode and FoaDecode
 SynthDef(\foaEncode2, {
-	var src, angle, azim, encoderMatrix, foa, decoderMatrix, out;
+	var src, angle, azim, foa, out;
+
+	// our source:  Pink Noise (could be any mono signal)
 	src = PinkNoise.ar(-6.dbamp);
+
+
 	// for the 'push' transform later
+	// see FoaPush help for details
 	// angle ---> top           = push to plane wave
 	//            bottom        = omni-directional
 	angle = MouseY.kr(pi/2, 0);
+
+
+	// for 'rotate' transform
 	// azimuth -> hard left     = back
 	//            centre        = centre
 	//            hard right    = back
 	azim = MouseX.kr(pi, -pi);
-	// a matrix for an omni image
-	encoderMatrix = FoaEncoderMatrix.newOmni;
+
+
 	// Encode into our foa signal
-	foa = FoaEncode.ar(src, encoderMatrix);
-	// transform for angle and azim
+	foa = FoaEncode.ar(src, encoder);
+
+
+	// push transform using angle
 	foa = FoaTransform.ar(foa, 'pushX', angle);
-//	foa = FoaPushX.ar(foa, angle);
-	// Cardioids at 131 deg
-	decoderMatrix = FoaDecoderMatrix.newStereo(131/2 * pi/180, 0.5);
-	out = FoaDecode.ar(foa, decoderMatrix);
+
+	// rotate transform using azim
+	foa = FoaTransform.ar(foa, 'rotate', azim);
+
+
+	// decode our signal
+	out = FoaDecode.ar(foa, decoder);
+
+
  	Out.ar(0, out);
 }).add;
 
+)
+
+// play the synth
 a = Synth(\foaEncode2);
+
+// free the synth
 a.free;
 
-/* encoding a plane wave, and routing to a single decoder: */
+::
 
-a = Bus.audio(s, 4); // allocate four channels for routing
 
+subsection::  Routing Encoding Synth to a separate Decoding Synth
+
+Encode a plane wave, and route to a single decoder:
+
+code::
+
+(
+var decoder;
+
+// define our deocder
+decoder = FoaDecoderMatrix.newStereo((131/2).degrad, 0.5);
+
+// allocate four channels for routing
+a = Bus.audio(s, 4);
+
+// Encoding Synth
 SynthDef(\foaEncode3, {arg outBus, duration = 0.05, theta, phi;
-    var src, foa;
-    src = PinkNoise.ar(-6.dbamp) *
-        EnvGen.kr(
+    var src, foa, env;
+
+	// our mono source
+    src = PinkNoise.ar(-6.dbamp);
+
+	// amplitude scaling envelope
+	env = EnvGen.kr(
             Env([0, 1, 0], [0.5, 0.5], \sin),
             timeScale: duration,
             doneAction: 2);
+
     // Encode into our foa signal
-    foa = FoaPanB.ar(src, theta, phi);
-     Out.ar(outBus, foa);
+    foa = FoaPanB.ar(src, theta, phi, env);
+
+    Out.ar(outBus, foa);
 }).add;
 
+// Decoding Synth
 SynthDef(\foaDecode, {arg inBus;
-	var foa, decoderMatrix, out;
+	var foa, out;
+
+	// read in 4 channels (B-format) from inBus
 	foa = In.ar(inBus, 4);
-	// Cardioids at 131 deg
-	decoderMatrix = FoaDecoderMatrix.newStereo(131/2 * pi/180, 0.5);
-	out = FoaDecode.ar(foa, decoderMatrix);
+
+	// decode to stereo
+	out = FoaDecode.ar(foa, decoder);
+
  	Out.ar(0, out);
 }).add;
+
+)
+
 
 // start the decoder, reading bus 'a' at the \tail
 b = Synth(\foaDecode, [\inBus, a], 1, \addToTail);
 
+// use a Routine to start many encoded signals at random angles
 Routine.run({
 	20.do({
 		Synth(\foaEncode3, [\outBus, a, \theta, pi.rand2, \phi, 0]);
@@ -96,128 +184,262 @@ Routine.run({
 	})
 });
 
+
 b.free; // free the decoder
 a.free; // free the audio bus
 
+::
 
-/* using the kernel encoder and decoder methods */
+section:: Kernel Decoders and Encoders
 
-// decoding B-format file through an HRTF decoder
+subsection:: B-format Sound File and HRTF Decoder
+
+In this section we will use a B-format sound file, so we do not need encoding.  We will then decode to an HRTF decoder.  The HRTF decoder takes a subjectID as an argument.  It would be wise to experiment with various numbers to find out which one suits your own head.
+
+code::
+
+
 (
-var cond;
+var cond, decoder, sndbuf, synth;
+
+// boot the server
 s.boot;
+
+// wait for the server to boot
 cond = Condition.new;
 s.waitForBoot({
+
+
 	Routine.run({
-		~decoder = FoaDecoderKernel.newListen(1013);
-		~sndbuf = Buffer.read(s, Atk.userSoundsDir ++ "/b-format/Pampin-On_Space.wav");
+
+		// define a HRTF decoder
+		decoder = FoaDecoderKernel.newListen(1013);
+
+		// load sound file into a buffer
+		sndbuf = Buffer.read(s, Atk.userSoundsDir ++ "/b-format/Pampin-On_Space.wav");
+
 		s.sync(cond);
+
+		// synth to decode our B-format sound file
 		SynthDef(\kernelDecode, {arg buffer;
 			var out, src;
-			src = PlayBuf.ar(4, buffer);
-			out = FoaDecode.ar(src, ~decoder);
+
+			// play B-format sound file
+			src = PlayBuf.ar(sndbuf.numChannels, buffer, BufRateScale.kr(buffer), loop: 1);
+
+			// decode using decoder
+			out = FoaDecode.ar(src, decoder);
+
+
 			Out.ar(0, out);
 		}).add;
+
 		s.sync(cond);
-		Synth(\kernelDecode, [\buffer, ~sndbuf]);
+
+		synth = Synth(\kernelDecode, [\buffer, sndbuf]);
+
 		// press command period when done
-		CmdPeriod.add({~decoder.free; ~sndbuf.free});
+		CmdPeriod.doOnce({
+			synth.free;
+			decoder.free;
+			sndbuf.free
+		});
 	})
 })
 )
 
-// encoding a UHJ file to B-format, then decoding through an HRTF decoder
+::
+
+subsection:: Encode a UHJ Stereo File, Decode to HRTF
+
+In this section we will encode a UHJ stereo file to B-format.  We will then decode to an HRTF decoder.  The HRTF decoder takes a subjectID as an argument.  It would be wise to experiment with various numbers to find out which one suits your own head.
+
+code::
 (
-var cond;
+var cond, encoder, decoder, sndbuf, synth;
+
+// boot the server
 s.boot;
+
+// wait for the server to boot
 cond = Condition.new;
 s.waitForBoot({
+
 	Routine.run({
-		~encoder = FoaEncoderKernel.newUHJ;
-		~decoder = FoaDecoderKernel.newListen(1013);
-		~sndbuf = Buffer.read(s, Atk.userSoundsDir ++ "/uhj/Palestrina-O_Bone.wav");
+
+		// define an UHJ encoder
+		encoder = FoaEncoderKernel.newUHJ;
+
+		// define an HRTF decoder
+		decoder = FoaDecoderKernel.newListen(1013);
+
+		// load a UHJ sound file into a buffer
+		sndbuf = Buffer.read(s, Atk.userSoundsDir ++ "/uhj/Palestrina-O_Bone.wav");
+
 		s.sync(cond);
+
+		// synth to encode a UHJ file and decode using an HRTF
 		SynthDef(\kernelEncodeDecode, {arg buffer;
 			var out, src, encode;
-			src = PlayBuf.ar(2, buffer);
-			encode = FoaEncode.ar(src, ~encoder);
-			out = FoaDecode.ar(encode, ~decoder);
+
+			// our stereo source signal
+			src = PlayBuf.ar(sndbuf.numChannels, buffer, BufRateScale.kr(buffer));
+
+			// encode using a UHJ encoder
+			encode = FoaEncode.ar(src, encoder);
+
+			//  decode using an HRTF decoder
+			out = FoaDecode.ar(encode, decoder);
+
 			Out.ar(0, out);
 		}).add;
+
 		s.sync(cond);
-		Synth(\kernelEncodeDecode, [\buffer, ~sndbuf]);
+
+		// play the synth
+		synth = Synth(\kernelEncodeDecode, [\buffer, sndbuf]);
+
 		// press command period when done
-		CmdPeriod.add({~encoder.free; ~decoder.free; ~sndbuf.free});
+		CmdPeriod.doOnce({
+			synth.free;
+			encoder.free;
+			decoder.free;
+			sndbuf.free});
 	})
 })
 )
+::
 
 
-// examples with Score - trickier because of the need for bundles, etc.
-// since the Kernels also pass in hardcoded buffer IDs, we need to make sure those
-// are referenced as well
+section:: ATK with Score in non-real time
 
+In our next example, we will look at ATK using Score.  Examples with Score are trickier because of the need for bundles, etc.  Since the Kernels also pass in hardcoded buffer IDs, we need to make sure those are referenced as well.
+
+
+code::
 (
-var cond, score, sndfile, sndbufBundle, sndbufDuration, noteBundle;
+var cond, score, sndfile, sndbufBundle, sndbufDuration, noteBundle, sndbuf, encoder, decoder, sampleRate, headerFormat, sampleFormat;
+
+// deinfe our score
 score = Score.new;
+
+sampleRate = 44100;
+
+headerFormat = 'WAV';
+
+sampleFormat = 'float32';
+
+// boot the server
 s.boot;
 cond = Condition.new;
+
 // get some info about the soundfile we are decoding for the Score requirements
 sndfile = SoundFile.new;
 sndfile.openRead(Atk.userSoundsDir ++ "/uhj/Palestrina-O_Bone.wav");
 sndfile.close;
+
 // we still need to boot the Server for now to allocate ids for the kernels
 s.waitForBoot({
+
+	// add buffer to score
 	sndbufBundle = s.makeBundle(false, {
-		~sndbuf = Buffer.read(s, sndfile.path);
+		sndbuf = Buffer.read(s, sndfile.path);
 		});
 	sndbufBundle = sndbufBundle.addFirst(0.0);
 	score.add(sndbufBundle);
-	~encoder = FoaEncoderKernel.newUHJ;
-	~decoder = FoaDecoderKernel.newListen(1013);
+
+	// define an encoder, in this case our sond file is UHJ so we want a UHJ encoder
+	encoder = FoaEncoderKernel.newUHJ;
+
+	// define a decoder of your choosing
+	decoder = FoaDecoderKernel.newListen(1013);
+
 	s.sync(cond);
+
 	// the FoaEncoderKernel and FoaDecoderKernel classes will return
 	// bundles that can be added to Score
-	score.add(~encoder.kernelBundle);
-	score.add(~decoder.kernelBundle);
+	score.add(encoder.kernelBundle);
+	score.add(decoder.kernelBundle);
+
 	s.sync(cond);
+
+	// define an encoding and decoding synth
 	SynthDef(\kernelEncodeDecode, {arg buffer;
 		var out, src, encode;
-		src = PlayBuf.ar(2, buffer);
-		encode = FoaEncode.ar(src, ~encoder);
-		out = FoaDecode.ar(encode, ~decoder);
+
+		// play UHJ sound file from a buffer
+		src = PlayBuf.ar(encoder.numInputs, buffer, BufRateScale.kr(buffer));
+
+		// encode using our UHJ encoder
+		encode = FoaEncode.ar(src, encoder);
+
+		// decode our B-format signal
+		out = FoaDecode.ar(encode, decoder);
+
 		Out.ar(0, out);
 	}).load(s);
+
 	s.sync(cond);
-	noteBundle = s.makeBundle(false, {Synth(\kernelEncodeDecode, [\buffer, ~sndbuf])});
+
+	// add synth note to our score
+	noteBundle = s.makeBundle(false, {Synth(\kernelEncodeDecode, [\buffer, sndbuf])});
 	noteBundle = noteBundle.addFirst(1.0);
 	score.add(noteBundle);
-	score.add([2.0 + sndfile.duration, [0]]  ); // add the needed dummy command to stop NRT
+
+	// add the needed dummy command to stop NRT
+	score.add([2.0 + sndfile.duration, [0]]  );
+
+	// render our score to a sound file
 	score.recordNRT("/tmp/trashme", "~/Desktop/myDecode.wav".standardizePath,
-		sampleRate: 44100,
-		headerFormat: "WAVE",
-		sampleFormat: "float",
-		options: ServerOptions.new.numOutputBusChannels_(2)
+		sampleRate: sampleRate,
+		headerFormat: headerFormat,
+		sampleFormat: sampleFormat,
+		options: ServerOptions.new.numOutputBusChannels_(decoder.numChannels)
 		);
-	~encoder.free;
-	~decoder.free;
+
+	// free our encoder and decoder
+	encoder.free;
+	decoder.free;
 })
 )
+::
 
-// using the Ctk quark.
+section:: ATK with CTK
 
+In this final section we will look at using ATK with CTK.  CTK (Composers ToolKit) is available as a quark.
+
+
+code::
 (
-var cond, score, sndbuf, kernelInfo, sd, encoder, decoder;
+var cond, score, sndbuf, kernelInfo, sd, encoder, decoder, synth, synthnote, sampleRate, headerFormat, sampleFormat;
+
+// define our CtkScore
 score = CtkScore.new;
+
+sampleRate = 44100;
+
+headerFormat = 'WAV';
+
+sampleFormat = 'float32';
+
+// boot the server
 s.boot;
 
 // we still need to boot the Server for now to allocate ids for the kernels /* FIX THIS */
 s.waitForBoot({
+
+	// define a CtkBuffer and add it to our score
 	sndbuf = CtkBuffer.playbuf(Atk.userSoundsDir ++ "/uhj/Palestrina-O_Bone.wav");
 	score.add(sndbuf);
+
+	// define our UHJ encoder
 	encoder = FoaEncoderKernel.newUHJ;
+
+	// define a decoder of your choosing
 	decoder = FoaDecoderKernel.newListen(1013);
+
 	s.sync(cond);
+
 	// the FoaEncoderKernel and FoaDecoderKernel classes will return info that can be
 	// used to make CtkBuffers for the CtkScore. An array of [path, bufnum, channel] is
 	// returned that will line up with the kernel info that the FoaEncode and FoaDecode
@@ -229,23 +451,43 @@ s.waitForBoot({
 		buf = CtkBuffer(path, bufnum: bufnum, channels: channel);
 		score.add(buf);
 	});
-	sd = CtkSynthDef(\kernelEncodeDecode, {arg buffer;
+
+	// define a CtkSynthDef
+	synth = CtkSynthDef(\kernelEncodeDecode, {arg buffer;
 		var out, src, encode;
-		src = PlayBuf.ar(2, buffer);
+
+		// play a sound file from a buffer
+		src = PlayBuf.ar(encoder.numInputs, buffer, BufRateScale.kr(buffer));
+
+		// encode our UHJ sound file to B-format
 		encode = FoaEncode.ar(src, encoder);
+
+		// decode our B-format sound file
 		out = FoaDecode.ar(encode, decoder);
+
 		Out.ar(0, out);
 	});
-	score.add(sd.note(1.0, sndbuf.duration).buffer_(sndbuf));
+
+	// create a synth note and add it to the score
+	synthnote = synth.note(1.0, sndbuf.duration).buffer_(sndbuf);
+	score.add(synthnote);
+
+	// write our score to disk
 	score.write("~/Desktop/myDecode.wav".standardizePath,
-		sampleRate: 44100,
-		headerFormat: "WAVE",
-		sampleFormat: "float",
-		options: ServerOptions.new.numOutputBusChannels_(2)
+		sampleRate: sampleRate,
+		headerFormat: headerFormat,
+		sampleFormat: sampleFormat,
+		options: ServerOptions.new.numOutputBusChannels_(decoder.numChannels)
 		);
+
+	// free our encoder and decoder
 	encoder.free;
 	decoder.free;
 })
 )
 
 ::
+
+Joshua Parmenter, 2012
+
+Daniel Peterson, 2015, 2016

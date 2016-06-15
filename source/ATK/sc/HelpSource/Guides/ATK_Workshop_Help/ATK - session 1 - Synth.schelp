@@ -1,0 +1,201 @@
+title:: Session 1 - Ambisonics & the ATK
+summary:: The Ambisonic Toolkit: Ambisonics & the ATK
+categories:: Libraries>Ambisonic Toolkit>FOA>A Guide to Getting Started With ATK>Synth Object, Tutorials>Ambisonic Toolkit>FOA>A Guide to Getting Started With ATK>Synth Object
+keyword::Atk
+
+
+Before we really start we'll need to look briefly at decoding... and issues surrounding. The examples in the ATK help files uses two global variable: ~decoder, ~sndBuf. These must be defined before any ATK help examples can be auditioned.
+
+
+section:: Choosing a Decoder
+
+The ATK has two types of decoders: Matrix and Kernel.
+
+subsection:: Matrix Decoders
+
+Matrix decoders use matrix multiplication to generate speaker feeds from the encoded b-format (ambisonic) soundfield signal. FoaDecoderMatrix.newStereo is a useful 'virtual microphone' stereo decoder--allowing us to select a virtual microphone pair, specifying microphone response pattern and microphone angle.
+
+code::
+// stereophonic: matrix
+~decoder = FoaDecoderMatrix.newStereo((131/2).degrad, 0.5) // Cardioids at 131 deg
+~decoder = FoaDecoderMatrix.newStereo(5/9 * pi, 0.5)       // Cardioids at Duda angle
+::
+
+See: link::Classes/FoaDecoderMatrix::
+
+subsection:: Kernel Decoders
+
+Kernel decoders use FIR filters to decode an ambisonic signal. *newUHJ returns an Ambisonic UHJ decoder--this the 'native' format for stereo. UHJ has an added advantage in that it a horizontal (pantophonic) ambisonic signal can be recovered from UHJ. There are many published recordings in Ambisonic UHJ. (All Nimbus recordings are published in UHJ: http://www.wyastone.co.uk/all-labels/nimbus.html)
+
+The binaural decoders in the ATK are kernel decoders. These are what you should use for listening over headphones. At the moment the ATK includes three binaural libraries: Spherical, CIPIC and Listen. The Spherical is a synthetic model of a spherical head (rendered in 2D). This one has 'no ears', so is a general approximation. (I find it works pretty well for me!) CIPIC and Listen are two measured libraries from UC Davis and IRCAM, respectively. The CIPIC library contains two KEMAR head measurements. For binaural decoding to sound good, you'll need to find a decoder that matches your head well.
+
+A good HRTF match will have the following characteristics:
+
+list::
+## Clearly Imaged
+## Outside the Head
+## Wide Perspective
+::
+
+Kernel decoders also take a little bit of special care, because buffers are loaded with the appropriate FIR filters, these need to be freed after final use.
+
+See: link::Classes/FoaDecoderKernel::
+
+code::
+// stereophonic/binaural: kernel
+~decoder = FoaDecoderKernel.newUHJ                         // UHJ (kernel) - native ambisonic!
+
+~decoder = FoaDecoderKernel.newSpherical                   // synthetic binaural
+~decoder = FoaDecoderKernel.newSpherical(0002)
+~decoder = FoaDecoderKernel.newSpherical(0007)
+
+~decoder = FoaDecoderKernel.newCIPIC                       // CIPIC binaural
+~decoder = FoaDecoderKernel.newCIPIC(0021)
+~decoder = FoaDecoderKernel.newCIPIC(0165)
+~decoder = FoaDecoderKernel.newCIPIC(0012)
+
+~decoder = FoaDecoderKernel.newListen                      // Listen binaural
+~decoder = FoaDecoderKernel.newListen(1003)
+~decoder = FoaDecoderKernel.newListen(1004)
+~decoder = FoaDecoderKernel.newListen(1005)
+
+::
+
+subsection:: Inspecting a Decoder
+
+code::
+// inspect
+~decoder.kind
+~decoder.subjectID // only for kernel decoders!
+~decoder.dim
+~decoder.numChannels
+~decoder.dirChannels.raddeg // output (stereo: +/-30deg; binaural: +/-100deg)
+::
+
+
+section:: Decoding a Sound File
+
+Suggested Listening (files are included in ~/Library/Application Support/ATK/sounds/b-format):
+
+list::
+## Pampin-On_Space.wav: the percussion instruments surround the microphone
+## Anderson-Pacific_Slope: a synthetic soundfield, completely surrounding
+## Leonard-Orfeo_Trio.wav: string trio, in front
+::
+
+Read a B-format soundfile read from disk using code:: Buffer.read :: into memory.  Be sure to free the buffer once finished.
+
+code::
+// boot the server
+s = Server.local.boot;
+
+
+
+// this example uses Buffer.read... as do the examples in the help file
+
+
+// B-format examples, produced via the ATK
+~sndbuf = Buffer.read(s, Atk.userSoundsDir ++ "/b-format/Anderson-Pacific_Slope.wav")
+~sndbuf = Buffer.read(s, Atk.userSoundsDir ++ "/b-format/Howle-Calling_Tunes.wav")
+~sndbuf = Buffer.read(s, Atk.userSoundsDir ++ "/b-format/Pampin-On_Space.wav")
+
+
+// B-format examples, natural soundfield recordings
+~sndbuf = Buffer.read(s, Atk.userSoundsDir ++ "/b-format/Hodges-Purcell.wav")
+~sndbuf = Buffer.read(s, Atk.userSoundsDir ++ "/b-format/Leonard-Orfeo_Trio.wav")
+~sndbuf = Buffer.read(s, Atk.userSoundsDir ++ "/b-format/Courville-Dialogue.wav")
+~sndbuf = Buffer.read(s, Atk.userSoundsDir ++ "/b-format/Leonard-Chinook.wav")
+~sndbuf = Buffer.read(s, Atk.userSoundsDir ++ "/b-format/Leonard-Fireworks.wav")
+~sndbuf = Buffer.read(s, Atk.userSoundsDir ++ "/b-format/Anderson-Nearfield.wav")
+
+(
+SynthDef(\atkDecode, {arg buffer, outbus;
+    var sig, out;                            // audio signal
+
+
+    // display encoder and decoder
+    "Ambisonic decoding via % decoder".format(~decoder.kind).postln;
+
+    // ------------------------------------------------------------
+    // test sig
+	// make sure ~sndBuf is b-format 4 channel (1st order) file
+	sig = PlayBuf.ar(~sndbuf.numChannels, buffer, BufRateScale.kr(buffer), doneAction:2);   // soundfile
+
+
+    // ------------------------------------------------------------
+    // decode (via FoaDecode)
+	out = FoaDecode.ar(sig, ~decoder);
+
+	Out.ar(outbus, out)
+}).send(s);
+)
+
+// play the synth
+~synth = Synth(\atkDecode, [buffer: ~sndbuf, outbus: 0]);
+
+// free the synth
+~synth.free;
+
+// free buffer
+~sndbuf.free
+
+// if using a kernel decoder
+// free kernel (before you choose another one & when we're done!)
+~decoder.free
+
+// ------------------------------------------------------------
+s.quit; //... and quit
+
+::
+
+note:: strong::Soundfile Credits::
+
+list::
+## Joseph Anderson, "Pacific Slope," Epiphanie Sequence, Sargasso SCD28056
+## Tim Howle, "Calling Tunes," 20 Odd Years, FMR FMRCD316-0711
+## Juan Pampin, "On Space," Les Percussions de Strasbourg 50th Anniversary Edition, Classics Jazz France 480 6512
+## P. Hodges, "Purcell - Passacaglia (King Arthur)," Sound of Space:
+ambisonic surround sound. [Online]. Available:
+http://soundofspace.com/ambisonic_files/52 [Accessed: 03-Nov-2011].
+## J. Leonard, "The Orfeo Trio & TetraMic," Sound of Space:
+ambisonic surround sound. [Online]. Available:
+http://soundofspace.com/ambisonic_files/41 [Accessed: 03-Nov-2011].
+## D. Courville, "Comparative Surround Recording," Ambisonic Studio |
+Comparative Surround Recording, 2007. [Online]. Available:
+http://www.radio.uqam.ca/ambisonic/comparative_recording.html
+[Accessed: 26-Jul-2011].
+## J. Leonard, "A couple of Chinook helicopters," Sound of Space:
+ambisonic surround sound, 20-Mar-2008. [Online]. Available:
+http://soundofspace.com/ambisonic_files/47. [Accessed: 03-Nov-2011].
+## J. Leonard, "Fireworks," Sound of Space: ambisonic surround sound,
+25-Aug-2009. [Online]. Available:
+http://soundofspace.com/ambisonic_files/37. [Accessed: 03-Nov-2011].
+## Joseph Anderson, "Nearfield source," [unpublished recording]
+::
+
+::
+
+section:: Further Reading
+
+3-D acoustic space and its simulation using Ambisonics
+Dave Malham Music Research Centre University of York, UK
+http://wiki.dxarts.washington.edu/groups/general/wiki/111c7/attachments/61e42/malham_3d.pdf
+
+3-D Sound Spatialization using Ambisonic Techniques
+Author(s): David G. Malham and Anthony Myatt
+Source: Computer Music Journal, Vol. 19, No. 4 (Winter, 1995), pp. 58-70 Published by: The MIT Press
+Stable URL: http://www.jstor.org/stable/3680991
+
+A 3-D Sound Primer: Directional Hearing and Stereo Reproduction
+Gary S. Kendall
+Computer Music Journal, Vol. 19, No. 4. (Winter, 1995), pp. 23-46. Stable URL:
+http://links.jstor.org/sici?sici=0148-9267%28199524%2919%3A4%3C23%3AA3SPDH%3E2.0.CO%3B2-8
+
+section:: Review
+
+link::Guides/Intro-to-the-ATK::
+
+
+Joseph Anderson, 2012, 2013
+
+Daniel Peterson, 2015, 2016

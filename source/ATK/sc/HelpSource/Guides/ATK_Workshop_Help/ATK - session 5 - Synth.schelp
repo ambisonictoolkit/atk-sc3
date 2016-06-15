@@ -1,0 +1,738 @@
+title:: Session 5 - Signal Processing
+summary:: The Ambisonic Toolkit: Signal Processing
+categories:: Libraries>Ambisonic Toolkit>FOA>A Guide to Getting Started With ATK>Synth Object, Tutorials>Ambisonic Toolkit>FOA>A Guide to Getting Started With ATK>Synth Object
+keyword::Atk
+
+
+
+section:: Decoding
+
+
+Choose and set up the (HRTF) decoder that works best for you!
+
+code::
+
+// First boot the server!
+Server.default = s = Server.local.boot;
+
+// ------------------------------------------------------------
+// choose a decoder
+
+// stereophonic: matrix
+~decoder = FoaDecoderMatrix.newStereo((131/2).degrad, 0.5) // Cardioids at 131 deg
+~decoder = FoaDecoderMatrix.newStereo(5/9 * pi, 0.5)       // Cardioids at Duda angle
+
+
+// stereophonic/binaural: kernel
+~decoder = FoaDecoderKernel.newUHJ                         // UHJ (kernel) - native ambisonic!
+
+~decoder = FoaDecoderKernel.newSpherical                   // synthetic binaural
+~decoder = FoaDecoderKernel.newSpherical(0002)
+~decoder = FoaDecoderKernel.newSpherical(0007)
+
+~decoder = FoaDecoderKernel.newCIPIC                       // CIPIC binaural
+~decoder = FoaDecoderKernel.newCIPIC(0021)
+~decoder = FoaDecoderKernel.newCIPIC(0165)
+~decoder = FoaDecoderKernel.newCIPIC(0012)
+
+~decoder = FoaDecoderKernel.newListen                      // Listen binaural
+~decoder = FoaDecoderKernel.newListen(1003)
+~decoder = FoaDecoderKernel.newListen(1004)
+~decoder = FoaDecoderKernel.newListen(1005)
+
+// My hexagonal decoder:
+~decoder = FoaDecoderMatrix.newPanto(6, k: 'dual')         // psycho optimised hex
+
+
+// inspect
+~decoder.kind
+~decoder.subjectID // only for kernel decoders!
+~decoder.dim
+~decoder.numChannels
+~decoder.dirChannels.raddeg // output (stereo: +/-30deg; binaural: +/-100deg)
+
+
+// free kernel (before you choose another one & when we're done!)
+~decoder.free
+
+
+
+
+
+// define decoder SynthDef
+(
+// POST some info about the decoder if you want to...
+// the decoder object can be polled for different information that
+// may be useful:
+("\nInfo about ambisonic decoder").postln;
+("    Kind:"+ ~decoder.kind).postln;
+("    Dimensions: " + ~decoder.dim).postln;
+("    Num Channels" + ~decoder.numChannels).postln;
+("    Dir Channels" + ~decoder.dirChannels.raddeg).postln;
+// if(~decoder.kind != 'stereo', {("    Subject ID" + ~decoder.subjectID).postln});
+// "\n".post;
+
+SynthDef(\foaDecode, {arg inBus, gate = 1;
+	var foa, env, out;
+
+	foa = In.ar(inBus, 4);
+
+	// this envelope will HOLD at the releaseNode--this is like holding a key down
+	env = EnvGen.kr(
+		Env([0, 1, 0], [0.2, 0.2], \sin, 1), gate, doneAction: 2);
+
+	out = FoaDecode.ar(foa, ~decoder);
+
+
+	Out.ar(0, out * env);
+}).send(s);
+)
+
+~foaBus = Bus.audio(s, 4); // allocate four channels for routing
+
+
+// start the decoder note (no duration!), reading bus ~foaBus at the \tail
+~decoderNote = Synth(\foaDecode, [inBus: ~foaBus], 1, \addToTail);
+
+::
+
+
+
+section:: Signal Processing
+
+We've seen how to record natural soundfields, synthesise synthetic ones, and then shape them to our needs via imaging and spatial filtering techniques. The one thing we're missing in our mastery of the art is the application of signal processing (dafx) to our soundfields...
+
+subsection:: B-format Processing
+
+Let's start with something very simple to begin to get a sense of what happens when we process a b-format signal. To begin with, we'll make a very simple flanger, processing a planewave encoded at Front-Left (+45deg)
+
+code::
+(
+SynthDef(\foaFLFla, {arg outBus, dur = 0.05, amp = 0.25, freq = 0.5, del = 0.001;
+	var src, foa;
+
+	src = PinkNoise.ar(amp) *
+	EnvGen.kr(
+		Env([0, 1, 0], [0.5, 0.5], \sin),
+	timeScale: dur,
+	doneAction: 2
+	);
+
+	// Encode into our foa signal
+	foa = FoaEncode.ar(src, FoaEncoderMatrix.newDirection(45.degrad));
+
+	// Flange
+	foa = 0.5 * (foa + DelayC.ar(foa, del, SinOsc.kr(freq, -pi/2).range(0, del)));
+
+	Out.ar(outBus, foa);
+}).send(s);
+)
+
+
+Synth.new(\foaFLFla, [outBus: ~foaBus, dur: 5.0]); // located at front left
+Synth.new(\foaFLFla, [outBus: ~foaBus, dur: 5.0, freq: 1.0/10.0]); // located at front left
+::
+
+
+
+For the result we're getting, planewave source, the above synthDef is not the most efficient. But, since we're doing the exact same thing to [w, x, y, z], the imaging of the flanged signal is staying the exact same as the encoded signal.
+
+The lesson is... if you do the same thing to all b-format channels, you preserve the imaging.
+
+What happens if we do something different?
+
+
+
+code::
+
+(
+// flange in quadrature
+SynthDef(\foaFLFlaQ, {arg outBus, dur = 0.05, amp = 0.25, freq = 0.5, del = 0.001;
+	var src, foa;
+
+	src = PinkNoise.ar(amp) *
+	EnvGen.kr(
+		Env([0, 1, 0], [0.5, 0.5], \sin),
+	timeScale: dur,
+	doneAction: 2
+	);
+
+	// Encode into our foa signal
+	foa = FoaEncode.ar(src, FoaEncoderMatrix.newDirection(45.degrad));
+
+	// Flange
+	foa = 0.5 * (foa + DelayC.ar(foa, del, SinOsc.kr(freq, [-pi/2, 0, pi/2, pi]).range(0, del)));
+
+	Out.ar(outBus, foa);
+}).send(s);
+)
+
+
+Synth(\foaFLFlaQ, [outBus: ~foaBus, dur: 5.0]); // located at ??
+Synth(\foaFLFlaQ, [outBus: ~foaBus, dur: 5.0, freq: 1.0/10.0]); // located at ??
+
+::
+
+
+The results are interesing... what we've done here is to process [w,x,y,z] with separate flangers (in quadrature). The sweeping notches are no longer aligned between the b-format channels. Most importantly, however, the phase relationships between [w,x,y,z] are disrupted. With Ambisonics, spatialisation is partially encoded via phase--as soon as we disrupt that, we disrupt the encoded phase, we disrupt the encoded space.
+
+While this may not necessarily be a 'bad thing' from a creative point of view, the results are not always easily predictable.
+
+Let's have a quick look at what happens with natural soundfields:
+
+
+code::
+// B-format examples, natural soundfield recordings
+~sndBuf = Buffer.read(s, Atk.userSoundsDir ++ "/b-format/Hodges-Purcell.wav");
+~sndBuf = Buffer.read(s, Atk.userSoundsDir ++ "/b-format/Leonard-Orfeo_Trio.wav");
+~sndBuf = Buffer.read(s, Atk.userSoundsDir ++ "/b-format/Courville-Dialogue.wav");
+~sndBuf = Buffer.read(s, Atk.userSoundsDir ++ "/b-format/Leonard-Chinook.wav");
+~sndBuf = Buffer.read(s, Atk.userSoundsDir ++ "/b-format/Leonard-Fireworks.wav");
+~sndBuf = Buffer.read(s, Atk.userSoundsDir ++ "/b-format/Anderson-Nearfield.wav");
+
+// when we swap...
+~sndBuf.free;
+
+(
+// define (playBuf) encoder with flange
+SynthDef(\bufFlange, {arg outBus, buffer, dur = 1.0, amp = 0.25, freq = 0.5, del = 0.001;
+	var env, foa;
+
+	env = EnvGen.kr(
+		Env([0, 1, 1, 0], [0.1, dur - 0.2, 0.1], \sin), doneAction: 2) * amp;
+
+	foa = PlayBuf.ar(
+		~sndBuf.numChannels, // ambisonic b-format
+		buffer, // the buffer you created above
+		BufRateScale.kr(buffer) // play back at the correct sampling rate
+	);
+
+	// Flange
+	foa = 0.5 * (foa + DelayC.ar(foa, del, SinOsc.kr(freq, -pi/2).range(0, del)));
+
+	Out.ar(outBus, env * foa);
+}).send(s);
+)
+
+
+
+Synth.new(\bufFlange, [dur: 15.0, outBus: ~foaBus, buffer: ~sndBuf, amp: 6.dbamp, freq: 0.5]); // no change
+
+::
+
+
+Try a few of the soundfiles above to get a sense of the imaging....
+
+Sounds good... in that we've got a flanged ambisonic signal.
+
+
+Now what happens when we flange without keeping the channels aligned?
+
+code::
+
+(
+// define (playBuf) encoder with flange
+SynthDef(\bufFlangeQ, {arg outBus, buffer, dur = 1.0, amp = 0.25, freq = 0.5, del = 0.001;
+	var env, foa;
+
+	env = EnvGen.kr(
+		Env([0, 1, 1, 0], [0.1, dur - 0.2, 0.1], \sin), doneAction: 2) * amp;
+
+	foa = PlayBuf.ar(
+		4, // ambisonic b-format
+		buffer, // the buffer you created above
+		BufRateScale.kr(buffer) // play back at the correct sampling rate
+	);
+
+	// Flange
+	foa = 0.5 * (foa + DelayC.ar(foa, del, SinOsc.kr(freq, [-pi/2, 0, pi/2, pi]).range(0, del)));
+
+	Out.ar(outBus, env * foa);
+}).send(s);
+)
+
+
+
+Synth.new(\bufFlangeQ, [dur: 15.0, outBus: ~foaBus, buffer: ~sndBuf, amp: 6.dbamp, freq: 0.5]); // change!
+
+// compare... [w,x,y,z] sync'd
+Synth.new(\bufFlange, [dur: 15.0, outBus: ~foaBus, buffer: ~sndBuf, amp: 6.dbamp, freq: 0.5]); // no change
+
+::
+
+Again, the results are somewhat interesting, but the resulting spatial aspects are very distorted. This is much more apparent with
+the natural soundfields.
+
+subsection:: A-format Processing
+
+Ideally we want to be able to preserve the space we've encoded, but add the desired dafx. IF we process [w,x,y,z] exactly the same,
+the imaging IS preserved. BUT, there are many dafx that rely on processing different input channels differently. The key is to do
+our desired dafx in A-format!
+
+Let's go back to our quadrature flanger, and do this in A-format:
+
+code::
+// B-format examples, natural soundfield recordings
+~sndBuf = Buffer.read(s, Atk.userSoundsDir ++ "/b-format/Hodges-Purcell.wav");
+~sndBuf = Buffer.read(s, Atk.userSoundsDir ++ "/b-format/Leonard-Orfeo_Trio.wav");
+~sndBuf = Buffer.read(s, Atk.userSoundsDir ++ "/b-format/Courville-Dialogue.wav");
+~sndBuf = Buffer.read(s, Atk.userSoundsDir ++ "/b-format/Leonard-Chinook.wav");
+~sndBuf = Buffer.read(s, Atk.userSoundsDir ++ "/b-format/Leonard-Fireworks.wav");
+~sndBuf = Buffer.read(s, Atk.userSoundsDir ++ "/b-format/Anderson-Nearfield.wav");
+
+
+// when we swap...
+~sndBuf.free;
+
+(
+// define (playBuf) encoder with flange
+SynthDef(\bufFlangeQA, {arg outBus, buffer, dur = 1.0, amp = 0.25, freq = 0.5, del = 0.001;
+	var env, foa, afo;
+
+	env = EnvGen.kr(
+		Env([0, 1, 1, 0], [0.1, dur - 0.2, 0.1], \sin), doneAction: 2) * amp;
+
+	foa = PlayBuf.ar(
+		~sndBuf.numChannels, // ambisonic b-format
+		buffer, // the buffer you created above
+		BufRateScale.kr(buffer) // play back at the correct sampling rate
+	);
+
+	// Flange... in a-format
+	afo = FoaDecode.ar(foa, FoaDecoderMatrix.newBtoA);
+	afo = 0.5 * (afo + DelayC.ar(afo, del, SinOsc.kr(freq, [-pi/2, 0, pi/2, pi]).range(0, del)));
+	foa = FoaEncode.ar(afo, FoaEncoderMatrix.newAtoB);
+
+	Out.ar(outBus, env * foa);
+}).send(s);
+)
+
+
+
+// 'preserves imaging'
+Synth.new(\bufFlangeQA, [dur: 15.0, outBus: ~foaBus, buffer: ~sndBuf, amp: 6.dbamp, freq: 0.5]); // no change
+
+// compare... [w,x,y,z] sync'd, also preserves imaging
+Synth.new(\bufFlange, [dur: 15.0, outBus: ~foaBus, buffer: ~sndBuf, amp: 6.dbamp, freq: 0.5]); // no change
+
+// compare... imaging knacked!
+Synth.new(\bufFlangeQ, [dur: 15.0, outBus: ~foaBus, buffer: ~sndBuf, amp: 6.dbamp, freq: 0.5]); // knacked!
+
+::
+
+I've put 'preserves imaging' in quotes above, because we're only preserving imaging as much as doing the same thing in stereo would do. We're still introducing 'spatial distortions', but these are distributed in the same way as they would be with stereo. Using this B -> A -> DAFX -> B signal chain allows us to adapt known dafx algorithms into an ambisonic context,
+with predictable results.
+
+
+subsection:: B-format Pitch Shifting
+
+Let's look at adapting the above synthDefs algorithms to get a greater sense of what is going on...
+
+
+code::
+
+// B-format examples, natural soundfield recordings
+~sndBuf = Buffer.read(s, Atk.userSoundsDir ++ "/b-format/Hodges-Purcell.wav");
+~sndBuf = Buffer.read(s, Atk.userSoundsDir ++ "/b-format/Leonard-Orfeo_Trio.wav");
+~sndBuf = Buffer.read(s, Atk.userSoundsDir ++ "/b-format/Courville-Dialogue.wav");
+~sndBuf = Buffer.read(s, Atk.userSoundsDir ++ "/b-format/Leonard-Chinook.wav");
+~sndBuf = Buffer.read(s, Atk.userSoundsDir ++ "/b-format/Leonard-Fireworks.wav");
+~sndBuf = Buffer.read(s, Atk.userSoundsDir ++ "/b-format/Anderson-Nearfield.wav");
+
+// when we swap...
+~sndBuf.free;
+
+(
+// define (playBuf) encoder -- (very!) simple random pitch shifter
+SynthDef(\bufPMod, {arg outBus, buffer, dur = 1.0, amp = 0.25, freq = 0.5, del = 0.03;
+	var env, foa;
+
+	env = EnvGen.kr(
+		Env([0, 1, 1, 0], [0.1, dur - 0.2, 0.1], \sin), doneAction: 2) * amp;
+
+	foa = PlayBuf.ar(
+		~sndBuf.numChannels, // ambisonic b-format
+		buffer, // the buffer you created above
+		BufRateScale.kr(buffer) // play back at the correct sampling rate
+	);
+
+	// pitch shift
+	foa = DelayC.ar(foa, 2 * del, (SinOsc.kr(freq, LFNoise2.kr(freq, pi))).range(del/2, 1.5 * del));
+
+	Out.ar(outBus, env * foa);
+}).send(s);
+)
+
+// preserves imaging
+Synth.new(\bufPMod, [dur: 15.0, outBus: ~foaBus, buffer: ~sndBuf, amp: 6.dbamp, freq: 2.0, del: 0.005]);
+Synth.new(\bufPMod, [dur: 15.0, outBus: ~foaBus, buffer: ~sndBuf, amp: 6.dbamp, freq: 1.1, del: 0.010]);
+Synth.new(\bufPMod, [dur: 15.0, outBus: ~foaBus, buffer: ~sndBuf, amp: 6.dbamp, freq: 3.1, del: 0.003]);
+
+(
+// define (playBuf) encoder -- (very!) simple random pitch shifter
+SynthDef(\bufPModM, {arg outBus, buffer, dur = 1.0, amp = 0.25, freq = 0.5, del = 0.03;
+	var env, foa;
+
+	env = EnvGen.kr(
+		Env([0, 1, 1, 0], [0.1, dur - 0.2, 0.1], \sin), doneAction: 2) * amp;
+
+	foa = PlayBuf.ar(
+		~sndBuf.numChannels, // ambisonic b-format
+		buffer, // the buffer you created above
+		BufRateScale.kr(buffer) // play back at the correct sampling rate
+	);
+
+	// pitch shift
+	foa = DelayC.ar(foa, 2 * del, (SinOsc.kr(freq, LFNoise2.kr(freq * [1,1,1,1], pi))).range(del/2, 1.5 * del));
+
+	Out.ar(outBus, env * foa);
+}).send(s);
+)
+
+
+// kancks imaging!
+Synth.new(\bufPModM, [dur: 15.0, outBus: ~foaBus, buffer: ~sndBuf, amp: 6.dbamp, freq: 2.0, del: 0.005]);
+Synth.new(\bufPModM, [dur: 15.0, outBus: ~foaBus, buffer: ~sndBuf, amp: 6.dbamp, freq: 1.1, del: 0.010]);
+Synth.new(\bufPModM, [dur: 15.0, outBus: ~foaBus, buffer: ~sndBuf, amp: 6.dbamp, freq: 3.1, del: 0.003]);
+
+::
+
+
+Strangely enough, when W, X, Y, Z are modulated separately, the result doesn't necessarily result in a 'wider' sounding image!
+subsection:: A-format Pitch Shifting
+Now... if we do the right thing...
+
+code::
+
+(
+// define (playBuf) encoder -- (very!) simple random pitch shifter
+SynthDef(\bufPModMA, {arg outBus, buffer, dur = 1.0, amp = 0.25, freq = 0.5, del = 0.03;
+	var env, foa, afo;
+
+	env = EnvGen.kr(
+		Env([0, 1, 1, 0], [0.1, dur - 0.2, 0.1], \sin), doneAction: 2) * amp;
+
+	foa = PlayBuf.ar(
+		~sndBuf.numChannels, // ambisonic b-format
+		buffer, // the buffer you created above
+		BufRateScale.kr(buffer) // play back at the correct sampling rate
+	);
+
+	// pitch shift... in a-format
+	afo = FoaDecode.ar(foa, FoaDecoderMatrix.newBtoA);
+	afo = DelayC.ar(afo, 2 * del, (SinOsc.kr(freq, LFNoise2.kr(freq * [1,1,1,1], pi))).range(del/2, 1.5 * del));
+	foa = FoaEncode.ar(afo, FoaEncoderMatrix.newAtoB);
+
+
+	Out.ar(outBus, env * foa);
+}).send(s);
+)
+
+
+// preserves imaging!
+Synth.new(\bufPModMA, [dur: 15.0, outBus: ~foaBus, buffer: ~sndBuf, amp: 6.dbamp, freq: 2.0, del: 0.005]);
+Synth.new(\bufPModMA, [dur: 15.0, outBus: ~foaBus, buffer: ~sndBuf, amp: 6.dbamp, freq: 1.1, del: 0.010]);
+Synth.new(\bufPModMA, [dur: 15.0, outBus: ~foaBus, buffer: ~sndBuf, amp: 6.dbamp, freq: 3.1, del: 0.003]);
+
+::
+
+
+
+Ok, so the above is fairly simple pitch shifting. SuperCollider has an inbuilt time domain pitch shifter. Let's have
+a look at using that...
+
+Now... remember, if we do the same thing to all b-format channels, the imaging is preserved. Can we use SC's multi-channel
+expansion to do everything nicely?
+
+
+code::
+// B-format examples, natural soundfield recordings
+~sndBuf = Buffer.read(s, Atk.userSoundsDir ++ "/b-format/Hodges-Purcell.wav");
+~sndBuf = Buffer.read(s, Atk.userSoundsDir ++ "/b-format/Leonard-Orfeo_Trio.wav");
+~sndBuf = Buffer.read(s, Atk.userSoundsDir ++ "/b-format/Courville-Dialogue.wav");
+~sndBuf = Buffer.read(s, Atk.userSoundsDir ++ "/b-format/Leonard-Chinook.wav");
+~sndBuf = Buffer.read(s, Atk.userSoundsDir ++ "/b-format/Leonard-Fireworks.wav");
+~sndBuf = Buffer.read(s, Atk.userSoundsDir ++ "/b-format/Anderson-Nearfield.wav");
+
+// when we swap...
+~sndBuf.free;
+
+(
+// define (playBuf) encoder -- with PitchShift
+SynthDef(\bufPShift, {arg outBus, buffer, dur = 1.0, amp = 0.25, winSize = 0.2, pchRat = 1.0, pchDisp = 0, timDisp = 0;
+	var env, foa;
+
+	env = EnvGen.kr(
+		Env([0, 1, 1, 0], [0.1, dur - 0.2, 0.1], \sin), doneAction: 2) * amp;
+
+	foa = PlayBuf.ar(
+		~sndBuf.numChannels, // ambisonic b-format
+		buffer, // the buffer you created above
+		BufRateScale.kr(buffer) // play back at the correct sampling rate
+	);
+
+	// pitch shift
+	foa = PitchShift.ar(foa, winSize, pchRat, pchDisp, timDisp);
+
+	Out.ar(outBus, env * foa);
+}).send(s);
+)
+
+
+
+Synth.new(\bufPShift, [dur: 15.0, outBus: ~foaBus, buffer: ~sndBuf, amp: 6.dbamp, pchRat: 2**(2/12)]);
+Synth.new(\bufPShift, [dur: 15.0, outBus: ~foaBus, buffer: ~sndBuf, amp: 6.dbamp, pchRat: 2**(-6/12)]);
+::
+
+
+Ok, the above preserves the imaging... which is good... but, we're hearing frequency domain effects caused by
+the time domain pitch shifting process. (Overlapped windows.) To reduce these, we need to allow some variance
+in the time domain by adding either pitchDispersion or timeDispersion.
+
+
+code::
+// time dispersion
+Synth.new(\bufPShift, [dur: 15.0, outBus: ~foaBus, buffer: ~sndBuf, amp: 6.dbamp, pchRat: 2**(2/12), timDisp: 0.05]);
+Synth.new(\bufPShift, [dur: 15.0, outBus: ~foaBus, buffer: ~sndBuf, amp: 6.dbamp, pchRat: 2**(-6/12), timDisp: 0.05]);
+
+// pitch dispersion
+Synth.new(\bufPShift, [dur: 15.0, outBus: ~foaBus, buffer: ~sndBuf, amp: 6.dbamp, pchRat: 2**(2/12), pchDisp: 0.05]);
+Synth.new(\bufPShift, [dur: 15.0, outBus: ~foaBus, buffer: ~sndBuf, amp: 6.dbamp, pchRat: 2**(-6/12), pchDisp: 0.05]);
+
+::
+
+
+Interestingly enough, both of these destroy the encoded imaging. Doh! Why does this happen? We're using parallel channels (via SC's multi-channel expansion) of the same effect....
+
+The problem is that the added time / pitch dispersion aren't synced across the channels. [w,x,y,z] are being modulated so that they're out of sync! The way to fix this is to go into the a-format domain.
+
+
+code::
+
+(
+// define (playBuf) encoder -- with PitchShift in a-format
+SynthDef(\bufPShiftA, {arg outBus, buffer, dur = 1.0, amp = 0.25, winSize = 0.2, pchRat = 1.0, pchDisp = 0, timDisp = 0;
+	var env, foa, afo;
+
+	env = EnvGen.kr(
+		Env([0, 1, 1, 0], [0.1, dur - 0.2, 0.1], \sin), doneAction: 2) * amp;
+
+	foa = PlayBuf.ar(
+		~sndBuf.numChannels, // ambisonic b-format
+		buffer, // the buffer you created above
+		BufRateScale.kr(buffer) // play back at the correct sampling rate
+	);
+
+	// pitch shift... in a-format
+	afo = FoaDecode.ar(foa, FoaDecoderMatrix.newBtoA);
+	afo = PitchShift.ar(afo, winSize, pchRat, pchDisp, timDisp);
+	foa = FoaEncode.ar(afo, FoaEncoderMatrix.newAtoB);
+
+
+	Out.ar(outBus, env * foa);
+}).send(s);
+)
+
+
+
+// time dispersion
+Synth.new(\bufPShiftA, [dur: 15.0, outBus: ~foaBus, buffer: ~sndBuf, amp: 6.dbamp, pchRat: 2**(2/12), timDisp: 0.05]);
+Synth.new(\bufPShiftA, [dur: 15.0, outBus: ~foaBus, buffer: ~sndBuf, amp: 6.dbamp, pchRat: 2**(-6/12), timDisp: 0.05]);
+
+// pitch dispersion
+Synth.new(\bufPShiftA, [dur: 15.0, outBus: ~foaBus, buffer: ~sndBuf, amp: 6.dbamp, pchRat: 2**(2/12), pchDisp: 0.05]);
+Synth.new(\bufPShiftA, [dur: 15.0, outBus: ~foaBus, buffer: ~sndBuf, amp: 6.dbamp, pchRat: 2**(-6/12), pchDisp: 0.05]);
+
+
+// more time dispersion
+Synth.new(\bufPShiftA, [dur: 15.0, outBus: ~foaBus, buffer: ~sndBuf, amp: 6.dbamp, winSize: 0.5, timDisp: 0.3]);
+Synth.new(\bufPShiftA, [dur: 15.0, outBus: ~foaBus, buffer: ~sndBuf, amp: 6.dbamp, winSize: 1.0, timDisp: 0.5]);
+Synth.new(\bufPShiftA, [dur: 15.0, outBus: ~foaBus, buffer: ~sndBuf, amp: 6.dbamp, winSize: 1.0, timDisp: 1.5]);
+
+::
+
+
+As we'd expect... this fixes things. Hurrah!
+
+We have PitchShift behaving as expected AND we've preserved the ambisonic imaging. Yes!
+
+subsection:: Pitch Shifting with Rotation
+
+Before with finish looking at this example, it is worth adding one more trick to the toolbox. Listening carefully to the final three time dispersion examples above, we can notice that the windows (grains) of our sound are locked firmly to their various a-format positions. While this doesn't necessarily 'sound bad' in many cases it is often beneficial to try to reduce this artefact.
+
+Or, saying it another way, it is often best to try to spread time domain effects throughout the soundfield. This way the soundfield ends up sounding 'active', with time domain effects appearing everywhere.
+
+To do this, we'll use the approach we saw earlier when synthesising granular streams in a-format, and use rotations.
+
+
+code::
+
+(
+// define (playBuf) encoder -- with PitchShift in a-format, and rotation
+SynthDef(\bufPShiftARot, {arg outBus, buffer, dur = 1.0, amp = 0.25,
+	winSize = 0.2, pchRat = 1.0, pchDisp = 0, timDisp = 0, rotRate = 0.25;
+
+	var env, foa, afo;
+	var rotAngle, tilAngle;
+
+	env = EnvGen.kr(
+		Env([0, 1, 1, 0], [0.1, dur - 0.2, 0.1], \sin), doneAction: 2) * amp;
+
+	rotAngle = LFNoise2.kr(rotRate, 2pi);
+	tilAngle = LFNoise2.kr(rotRate, 2pi);
+
+	foa = PlayBuf.ar(
+		~sndBuf.numChannels, // ambisonic b-format
+		buffer, // the buffer you created above
+		BufRateScale.kr(buffer) // play back at the correct sampling rate
+	);
+
+	// randomly rotate-tilt
+	foa = FoaTransform.ar(foa, 'rotate', rotAngle);
+	foa = FoaTransform.ar(foa, 'tilt', tilAngle);
+
+	// pitch shift... in a-format
+	afo = FoaDecode.ar(foa, FoaDecoderMatrix.newBtoA);
+	afo = PitchShift.ar(afo, winSize, pchRat, pchDisp, timDisp);
+	foa = FoaEncode.ar(afo, FoaEncoderMatrix.newAtoB);
+
+	// un-tilt, un-rotate
+	foa = FoaTransform.ar(foa, 'tilt', -1 * tilAngle);
+	foa = FoaTransform.ar(foa, 'rotate', -1 * rotAngle);
+
+
+	Out.ar(outBus, env * foa);
+}).send(s);
+)
+
+
+// time dispersion
+Synth.new(\bufPShiftARot, [dur: 15.0, outBus: ~foaBus, buffer: ~sndBuf, amp: 6.dbamp, pchRat: 2**(2/12), timDisp: 0.05, rotRate: 1.2]);
+Synth.new(\bufPShiftARot, [dur: 15.0, outBus: ~foaBus, buffer: ~sndBuf, amp: 6.dbamp, pchRat: 2**(-6/12), timDisp: 0.05, rotRate: 2.0]);
+
+// pitch dispersion
+Synth.new(\bufPShiftARot, [dur: 15.0, outBus: ~foaBus, buffer: ~sndBuf, amp: 6.dbamp, pchRat: 2**(2/12), pchDisp: 0.05]);
+Synth.new(\bufPShiftARot, [dur: 15.0, outBus: ~foaBus, buffer: ~sndBuf, amp: 6.dbamp, pchRat: 2**(-6/12), pchDisp: 0.05]);
+
+// more time dispersion
+Synth.new(\bufPShiftARot, [dur: 15.0, outBus: ~foaBus, buffer: ~sndBuf, amp: 6.dbamp, winSize: 0.5, timDisp: 0.3]);
+Synth.new(\bufPShiftARot, [dur: 15.0, outBus: ~foaBus, buffer: ~sndBuf, amp: 6.dbamp, winSize: 1.0, timDisp: 0.5]);
+Synth.new(\bufPShiftARot, [dur: 15.0, outBus: ~foaBus, buffer: ~sndBuf, amp: 6.dbamp, winSize: 1.0, timDisp: 1.5]);
+
+~sndBuf.free;
+::
+
+
+
+Let's finish off by having a look at generating ambience.
+
+
+code::
+
+// B-format examples, natural soundfield recordings
+~sndBuf = Buffer.read(s, Atk.userSoundsDir ++ "/b-format/Hodges-Purcell.wav");
+~sndBuf = Buffer.read(s, Atk.userSoundsDir ++ "/b-format/Leonard-Orfeo_Trio.wav");
+~sndBuf = Buffer.read(s, Atk.userSoundsDir ++ "/b-format/Courville-Dialogue.wav");
+~sndBuf = Buffer.read(s, Atk.userSoundsDir ++ "/b-format/Leonard-Chinook.wav");
+~sndBuf = Buffer.read(s, Atk.userSoundsDir ++ "/b-format/Leonard-Fireworks.wav");
+~sndBuf = Buffer.read(s, Atk.userSoundsDir ++ "/b-format/Anderson-Nearfield.wav");
+
+// when we swap...
+~sndBuf.free;
+
+(
+// define (playBuf) -- with cascade allpass filters (ambience)
+SynthDef(\bufAmbient, {arg outBus, buffer, dur = 1.0, amp = 0.25, mix = 1.0;
+
+	var env, foa, foaAP;
+	// var delaytime = 1.0, decaytime = 2.0, apOrder = 6;
+	// var delaytime = 1.0, decaytime = 0.5, apOrder = 6;
+	// var delaytime = 1.0, decaytime = 0.125, apOrder = 6;
+	var delaytime = 1.0, decaytime = 0.0625, apOrder = 6;
+	// var delaytime = 0.25, decaytime = 0.25, apOrder = 6;
+	// var delaytime = 0.0625, decaytime = 0.0625, apOrder = 6;
+	var orient = ['flu', 'fld', 'flr', 'fud', 'fbd', 'fbu', 'flru', 'flrd'];
+
+	env = EnvGen.kr(
+		Env([0, 1, 1, 0], [0.1, dur - 0.2, 0.1], \sin), doneAction: 2) * amp;
+
+
+	foa = PlayBuf.ar(
+		4, // ambisonic b-format
+		buffer, // the buffer you created above
+		BufRateScale.kr(buffer) // play back at the correct sampling rate
+	);
+
+	// cascade allpass filters
+	foaAP = foa;
+	apOrder.do({arg i;
+		var orientation = orient.at(7.rand);
+
+		foaAP = FoaEncode.ar(
+			AllpassL.ar(
+				FoaDecode.ar(foaAP, FoaDecoderMatrix.newBtoA(orientation)),
+				delaytime,
+				Array.fill(4, delaytime).rand,
+				decaytime
+			),
+			FoaEncoderMatrix.newAtoB(orientation)
+		)
+	});
+
+	foa = (sqrt(mix) * foa) + (sqrt(1-mix) * foaAP);
+
+	Out.ar(outBus, env * foa);
+}).send(s);
+)
+
+
+Synth.new(\bufAmbient, [dur: 30.0, outBus: ~foaBus, buffer: ~sndBuf, amp: 6.dbamp, mix: 0.0]);
+
+
+
+
+
+// .. and do some more clean-up
+~decoderNote.set(\gate, 0); // set gate to '0' ... envelope finishes, note frees
+~foaBus.free; // free the audio bus
+~decoder.free; // free the decoder
+~sndBuf.free; // free the buffer
+
+s.quit
+
+::
+
+note:: strong::Soundfile Credits::
+
+list::
+## P. Hodges, "Purcell - Passacaglia (King Arthur)," Sound of Space:
+ambisonic surround sound. [Online]. Available:
+http://soundofspace.com/ambisonic_files/52 [Accessed: 03-Nov-2011].
+## J. Leonard, "The Orfeo Trio & TetraMic," Sound of Space:
+ambisonic surround sound. [Online]. Available:
+http://soundofspace.com/ambisonic_files/41 [Accessed: 03-Nov-2011].
+## D. Courville, "Comparative Surround Recording," Ambisonic Studio |
+Comparative Surround Recording, 2007. [Online]. Available:
+http://www.radio.uqam.ca/ambisonic/comparative_recording.html
+[Accessed: 26-Jul-2011].
+## J. Leonard, "A couple of Chinook helicopters," Sound of Space:
+ambisonic surround sound, 20-Mar-2008. [Online]. Available:
+http://soundofspace.com/ambisonic_files/47. [Accessed: 03-Nov-2011].
+## J. Leonard, "Fireworks," Sound of Space: ambisonic surround sound,
+25-Aug-2009. [Online]. Available:
+http://soundofspace.com/ambisonic_files/37. [Accessed: 03-Nov-2011].
+## Joseph Anderson, "Nearfield source," [unpublished recording]
+::
+
+::
+
+section:: Reading
+
+Costello, S. & Anderson, J., 2009. Adapting Artificial Reverberation Architectures for B-format Signal Processing. In Proceedings of the Ambisonics Symposium 2009. Ambisonics Symposium 2009. Graz. Available at: http://ambisonics.iem.at/symposium2009/proceedings/ambisym09-josephandersonseancostello-ambireverbarch.pdf
+
+
+
+Joseph Anderson, 2012, 2013
+
+Daniel Peterson, 2015, 2016
+

@@ -1,0 +1,651 @@
+title:: Session 3a - Consolidate Recordings
+summary:: The Ambisonic Toolkit: Consolidate Recordings
+categories:: Libraries>Ambisonic Toolkit>FOA>A Guide to Getting Started With ATK>Synth Object, Tutorials>Ambisonic Toolkit>FOA>A Guide to Getting Started With ATK>Synth Object
+keyword::Atk
+
+section:: Decoding
+
+Choose and set up the (HRTF) decoder that works best for you!
+
+code::
+
+Server.default = s = Server.local.boot;
+s.quit;
+
+
+// ------------------------------------------------------------
+// choose a decoder
+
+// stereophonic: matrix
+~decoder = FoaDecoderMatrix.newStereo((131/2).degrad, 0.5) // Cardioids at 131 deg
+~decoder = FoaDecoderMatrix.newStereo(5/9 * pi, 0.5)       // Cardioids at Duda angle
+
+
+// stereophonic/binaural: kernel
+~decoder = FoaDecoderKernel.newUHJ                         // UHJ (kernel) - native ambisonic!
+
+~decoder = FoaDecoderKernel.newSpherical                   // synthetic binaural
+~decoder = FoaDecoderKernel.newSpherical(0002)
+~decoder = FoaDecoderKernel.newSpherical(0007)
+
+~decoder = FoaDecoderKernel.newCIPIC                       // CIPIC binaural
+~decoder = FoaDecoderKernel.newCIPIC(0021)
+~decoder = FoaDecoderKernel.newCIPIC(0165)
+~decoder = FoaDecoderKernel.newCIPIC(0012)
+
+~decoder = FoaDecoderKernel.newListen                      // Listen binaural
+~decoder = FoaDecoderKernel.newListen(1003)
+~decoder = FoaDecoderKernel.newListen(1004)
+~decoder = FoaDecoderKernel.newListen(1005)
+
+// My hexagonal decoder:
+~decoder = FoaDecoderMatrix.newPanto(6, k: 'dual')         // psycho optimised hex
+
+
+// inspect
+~decoder.kind
+~decoder.subjectID // only for kernel decoders! (file as bug for matrix decoders!!!!)
+~decoder.dim
+~decoder.numChannels
+~decoder.dirChannels.raddeg // output (stereo: +/-30deg; binaural: +/-100deg)
+
+
+// free kernel (before you choose another one & when we're done!)
+~decoder.free
+::
+
+
+section:: Encoding
+
+In our previous session we looked at a few matrix encoders and then made some recordings with varying types of microphones and arrays.
+
+As a reminder these were:
+list::
+## link::#Soundfield Microphone:: - no encoding needed!
+## link::#Double M/S:: - inverting encoder
+## link::#Spaced Omnidirectional Microphones:: - AtoB encoder
+## link::#Zoom H2::
+::
+
+
+For this session we'll have a listen to some of the varying types of recordings we've made using the varying arrays (and encoders).
+
+We're going to make the assumption that we're dealing with interleaved soundfiles, as this is the easiest (and least cluttered!) way to work.
+
+Scott Wilson has written an easy to use interleaver / deinterleaver, found here:
+
+http://www.birmingham.ac.uk/facilities/BEAST/research/mulch.aspx
+
+Or directly at this link:
+
+http://www.download.bham.ac.uk/beast/De-Interleaver.zip
+
+
+Also, for ease of use, my code below uses Josh Parmenter's Composer's Tool Kit Quark. (Josh is the ATK's principal co-author!) If you haven't installed it yet, do so now.
+
+anchor::Soundfield Microphone::
+subsection:: Soundfield Microphone
+
+Soundfield mic - no encoding needed!
+
+For the Soundfield mic, we don't have to do anything. All encoding is done within the microphone itself.
+
+Load B-format sound file into buffer:
+
+code::
+(
+var fileName;
+var fileStartTime, bufferDur;
+
+//fileName = Atk.userSoundsDir ++ "/b-format/Pampin-On_Space.wav";
+fileName = Atk.userSoundsDir ++ "/b-format/St_Alphonsus_Organ_MidField.wav";
+
+
+fileStartTime = 0.0; // for an ATK file... i.e., Pampin-On_Space
+
+bufferDur = 30.0;
+
+~sndBuf = Buffer.read(
+	s,
+	fileName,
+	fileStartTime * s.sampleRate,
+	bufferDur * s.sampleRate
+);
+
+
+)
+::
+
+Playback of B-format sound file (use Cmd-period to free buffers):
+
+code::
+(
+var soundfile, cmdPeriod;
+var playBuffer;
+
+Server.default = s = Server.local.boot;
+
+s.waitForBoot({
+	Routine.run({
+
+		// free buffer!
+		cmdPeriod = {
+			~sndBuf.free;
+			"Command Period freed soundfile buffer!".postln;
+		};
+
+		CmdPeriod.doOnce(cmdPeriod);
+
+		// POST some info about the sound if you want to...
+		// the CtkBuffer object can be polled for different information that
+		// may be useful:
+		("\nInfo about soundfile at" + ~sndBuf.path).postln;
+		("    Duration:"+ ~sndBuf.duration).postln;
+		("    SampleRate: " + ~sndBuf.sampleRate).postln;
+		("    Num Channels" + ~sndBuf.numChannels).postln;
+
+		// POST some info about the decoder if you want to...
+		// the decoder object can be polled for different information that
+		// may be useful:
+		("\nInfo about ambisonic decoder").postln;
+		("    Kind:"+ ~decoder.kind).postln;
+		("    Dimensions: " + ~decoder.dim).postln;
+		("    Num Channels" + ~decoder.numChannels).postln;
+		("    Dir Channels" + ~decoder.dirChannels.raddeg).postln;
+		// if(~decoder.kind != 'stereo', {("    Subject ID" + ~decoder.subjectID).postln});
+		// "\n".post;
+
+		/* now - using it. For our immediate purposes, PlayBuf is the way to go. */
+
+		// define a synthDef
+		SynthDef(\bFormatPlay, {arg buffer, dur;
+			var src, env;
+
+			env = EnvGen.kr(
+				Env([0, 1, 1, 0], [0.1, dur - 0.2, 0.1], \sin), doneAction: 2);
+
+			// PlayBuf expects the number of channels to match those in the buffer
+			// So, need to query...
+			src = PlayBuf.ar(
+				~sndBuf.numChannels, // ambisonic b-format (4)
+				buffer, // the buffer you created above
+				BufRateScale.kr(buffer), // play back at the correct sampling rate
+			);
+			Out.ar(0, env * FoaDecode.ar(src, ~decoder));
+		}).send(s);
+
+		s.sync;
+
+		// play one time
+		Synth.new(\bFormatPlay, [buffer: ~sndBuf, dur: ~sndBuf.duration]);
+
+	})
+})
+)
+
+
+::
+
+note:: strong::Soundfile Credits::
+
+list::
+## Juan Pampin, "On Space," Les Percussions de Strasbourg 50th Anniversary Edition, Classics Jazz France 480 6512
+## Daniel Peterson, "St_Alphonsus_Organ_MidField.wav," [unpublished recording]
+::
+
+::
+
+anchor::Double M/S::
+subsection:: Double M/S
+
+Double M/S - inverting encoder
+
+The Double M/S system uses three microphones, usually a front facing cardioid, a side facing bi-directional and a rear facing cardioid.
+
+This will give us horizontal-only (pantophonic) b-format. The Soundfield mic has some filtering at high-frequencies that compensates for the spatial aliasing caused by capsule spacing up to around 10kHz. With our spaced mics, the aliasing will begin lower down--but we still can get good results.
+
+Compare the results of this and the Soundfield recordings!
+
+code::
+
+(
+~directions = [ 0, pi/2, pi ]; // front, side, rear
+~patterns = [ 0.5, 1.0, 0.5 ]; // cardioid, bi-dir, cardioid
+~encoder = FoaEncoderMatrix.newDirections(~directions, ~patterns);
+)
+
+::
+
+Now, let's inspect the encoder matrix...
+
+code::
+
+~encoder.kind;
+~encoder.dim;
+
+~encoder.numChannels; // inputs
+~encoder.numInputs; // inputs (same!)
+~encoder.numOutputs; // outputs (3 = horizontal only!)
+
+~encoder.dirChannels.raddeg ; // answers input directions
+~encoder.dirInputs.raddeg ; // answers input directions (same!)
+~encoder.dirOutputs.raddeg ; // answers [inf] -- encodes to b-format
+
+~encoder.matrix; // answers encoding matrix [ W, X, Y ]
+::
+
+Load sound into a buffer:
+
+code::
+(
+var fileName;
+var fileStartTime, bufferDur;
+
+fileName = Atk.userSoundsDir ++ "/double_m_s/St_Alphonsus_Organ_MidField.wav";
+
+fileStartTime = 0.0;
+bufferDur = 30.0;
+
+~sndBuf = Buffer.read(
+	s,
+	fileName,
+	fileStartTime * s.sampleRate,
+	bufferDur * s.sampleRate
+);
+
+)
+
+::
+
+
+Playback of encoded B-format sound file (use Cmd-period to free buffers):
+
+code::
+(
+var soundfile, cmdPeriod;
+var playBuffer;
+
+Server.default = s = Server.local.boot;
+
+s.waitForBoot({
+	Routine.run({
+
+		// free buffer!
+		cmdPeriod = {
+			~sndBuf.free;
+			"Command Period freed soundfile buffer!".postln;
+		};
+
+		CmdPeriod.doOnce(cmdPeriod);
+
+		// POST some info about the sound if you want to...
+		// the CtkBuffer object can be polled for different information that
+		// may be useful:
+		("\nInfo about soundfile at" + ~sndBuf.path).postln;
+		("    Duration:"+ ~sndBuf.duration).postln;
+		("    SampleRate: " + ~sndBuf.sampleRate).postln;
+		("    Num Channels" + ~sndBuf.numChannels).postln;
+
+		// POST some info about the decoder if you want to...
+		// the decoder object can be polled for different information that
+		// may be useful:
+		("\nInfo about ambisonic decoder").postln;
+		("    Kind:"+ ~decoder.kind).postln;
+		("    Dimensions: " + ~decoder.dim).postln;
+		("    Num Channels" + ~decoder.numChannels).postln;
+		("    Dir Channels" + ~decoder.dirChannels.raddeg).postln;
+		// if(~decoder.kind != 'stereo', {("    Subject ID" + ~decoder.subjectID).postln});
+		// "\n".post;
+
+		/* now - using it. For our immediate purposes, PlayBuf is the way to go. */
+
+		// define a synthDef
+		SynthDef(\encodePlay, {arg buffer, dur;
+			var src, env;
+
+			env = EnvGen.kr(
+				Env([0, 1, 1, 0], [0.1, dur - 0.2, 0.1], \sin), doneAction: 2);
+
+			// PlayBuf expects the number of channels to match those in the buffer
+			// So, need to query
+			src = PlayBuf.ar(
+				~sndBuf.numChannels, //
+				buffer, // the buffer you created above
+				BufRateScale.kr(buffer), // play back at the correct sampling rate
+			);
+
+			// encode!
+			src = FoaEncode.ar(src, ~encoder);
+
+			// src = src * 18.dbamp; // double ms
+			// src = src * 0.dbamp; // ZoomH2
+			src = src * 12.dbamp; // AtoB
+
+			Out.ar(0, env * FoaDecode.ar(src, ~decoder));
+		}).send(s);
+
+		s.sync;
+
+		// play one time
+		Synth.new(\encodePlay, [buffer: ~sndBuf, dur: ~sndBuf.duration]);
+
+
+	})
+})
+)
+
+::
+
+note:: strong::Soundfile Credits::
+
+list::
+## Juan Pampin, "On Space," Les Percussions de Strasbourg 50th Anniversary Edition, Classics Jazz France 480 6512
+## Daniel Peterson, "St_Alphonsus_Organ_MidField.wav," [unpublished recording]
+::
+
+::
+anchor::Spaced Omnidirectional Microphones::
+subsection:: Spaced Omnidirectional Microphones - AtoB Encoder
+
+We'll go ahead and try the A to B encoder. The A to B encoder is rather 'creative' in our use here. Essentially what we're doing is creating an 'artificial' soundfield from recorded signals, using the observation that we can do so with four related signals placed at the vertices of a tetrahedron.
+
+This approach has similar results as to using spaced omnis in stereo recording. The resulting image tends to be rather diffuse and inexact, but we can later use imaging transforms to shape the image.
+
+
+
+code::
+// define encoder matrix
+// ~encoder = FoaEncoderMatrix.newAtoB('flrd')   // for Thomas
+// ~encoder = FoaEncoderMatrix.newAtoB('flr')    // for Cross
+~encoder = FoaEncoderMatrix.newAtoB('flr')    // for Karlsruhe
+
+
+// inspect
+~encoder.kind;
+~encoder.dim;
+
+~encoder.numChannels; // inputs
+~encoder.numOutputs; // outputs (4 = full 3D!)
+
+~encoder.dirChannels.raddeg ; // should answer input directions (looks like a bug!!)
+~encoder.dirOutputs.raddeg ; // answers [inf] -- encodes to b-format
+
+~encoder.matrix; // answers encoding matrix [ W, X, Y, Z ]
+::
+
+
+Load sound into a buffer:
+
+code::
+(
+var fileName;
+var fileStartTime, bufferDur;
+
+fileName = Atk.userSoundsDir ++ "/a-format/Thomas_Mackay.wav";
+// fileName = Atk.userSoundsDir ++ "/a-format/Cross_Tenor_Sax.wav";
+
+fileStartTime = 0.0;
+bufferDur = 30.0;
+
+~sndBuf = Buffer.read(
+	s,
+	fileName,
+	fileStartTime * s.sampleRate,
+	bufferDur * s.sampleRate
+);
+
+)
+::
+
+
+Playback of encoded B-format sound file (use Cmd-period to free buffers):
+
+code::
+(
+var soundfile, cmdPeriod;
+var playBuffer;
+
+Server.default = s = Server.local.boot;
+
+s.waitForBoot({
+	Routine.run({
+
+		// free buffer!
+		cmdPeriod = {
+			~sndBuf.free;
+			"Command Period freed soundfile buffer!".postln;
+		};
+
+		CmdPeriod.doOnce(cmdPeriod);
+
+		// POST some info about the sound if you want to...
+		// the CtkBuffer object can be polled for different information that
+		// may be useful:
+		("\nInfo about soundfile at" + ~sndBuf.path).postln;
+		("    Duration:"+ ~sndBuf.duration).postln;
+		("    SampleRate: " + ~sndBuf.sampleRate).postln;
+		("    Num Channels" + ~sndBuf.numChannels).postln;
+
+		// POST some info about the decoder if you want to...
+		// the decoder object can be polled for different information that
+		// may be useful:
+		("\nInfo about ambisonic decoder").postln;
+		("    Kind:"+ ~decoder.kind).postln;
+		("    Dimensions: " + ~decoder.dim).postln;
+		("    Num Channels" + ~decoder.numChannels).postln;
+		("    Dir Channels" + ~decoder.dirChannels.raddeg).postln;
+		// if(~decoder.kind != 'stereo', {("    Subject ID" + ~decoder.subjectID).postln});
+		// "\n".post;
+
+		/* now - using it. For our immediate purposes, PlayBuf is the way to go. */
+
+		// define a synthDef
+		SynthDef(\encodePlay, {arg buffer, dur;
+			var src, env;
+
+			env = EnvGen.kr(
+				Env([0, 1, 1, 0], [0.1, dur - 0.2, 0.1], \sin), doneAction: 2);
+
+			// PlayBuf expects the number of channels to match those in the buffer
+			// So, need to query
+			src = PlayBuf.ar(
+				~sndBuf.numChannels, //
+				buffer, // the buffer you created above
+				BufRateScale.kr(buffer), // play back at the correct sampling rate
+			);
+
+			// encode!
+			src = FoaEncode.ar(src, ~encoder);
+
+			// src = src * 18.dbamp; // double ms
+			// src = src * 0.dbamp; // ZoomH2
+			src = src * 12.dbamp; // AtoB
+
+			Out.ar(0, env * FoaDecode.ar(src, ~decoder));
+		}).send(s);
+
+		s.sync;
+
+		// play one time
+		Synth.new(\encodePlay, [buffer: ~sndBuf, dur: ~sndBuf.duration]);
+
+	})
+})
+)
+::
+note:: strong::Soundfile Credits::
+
+list::
+## David Cross, "Tenor saxophone improvisations," [unpublished recording]
+## Niall Thomas, "Rob Mackay: flute improvisations," [unpublished recording]
+::
+
+::
+
+anchor::Zoom H2::
+subsection:: Zoom H2
+
+'Cheap and cheerful'... not as good as the Soundfield, but we can later use imaging transforms to shape the image as need be.
+
+code::
+
+
+// define encoder matrix
+~encoder = FoaEncoderMatrix.newZoomH2(k: 1.7378)
+
+
+// inspect
+~encoder.kind;
+~encoder.dim;
+
+~encoder.numChannels; // inputs
+~encoder.numOutputs; // outputs (3 = horizontal only!)
+
+~encoder.dirChannels.raddeg ; // directions of inputs
+~encoder.dirOutputs.raddeg ; // answers [inf] -- encodes to b-format
+
+~encoder.matrix; // answers encoding matrix [ W, X, Y, Z ]
+::
+
+
+Load sound into a buffer:
+
+code::
+(
+var fileName;
+var fileStartTime, bufferDur;
+
+fileName = Atk.userSoundsDir ++ "/zoomh2/Anderson-Waltz.wav";
+// fileName = Atk.userSoundsDir ++ "/zoomh2/Anderson-Steam.wav";
+// fileName = Atk.userSoundsDir ++ "/zoomh2/Anderson-Stape_Silver.wav";
+// fileName = Atk.userSoundsDir ++ "/zoomh2/Anderson-St_Peter_&_St_Paul.wav";
+
+fileStartTime = 0.0;
+bufferDur = 30.0;
+
+~sndBuf = Buffer.read(
+	s,
+	fileName,
+	fileStartTime * s.sampleRate,
+	bufferDur * s.sampleRate
+);
+
+)
+::
+
+
+Playback of encoded B-format sound file (use Cmd-period to free buffers):
+
+code::
+(
+var soundfile, cmdPeriod;
+var playBuffer;
+
+Server.default = s = Server.local.boot;
+
+s.waitForBoot({
+	Routine.run({
+
+		// free buffer!
+		cmdPeriod = {
+			~sndBuf.free;
+			"Command Period freed soundfile buffer!".postln;
+		};
+
+		CmdPeriod.doOnce(cmdPeriod);
+
+		// POST some info about the sound if you want to...
+		// the CtkBuffer object can be polled for different information that
+		// may be useful:
+		("\nInfo about soundfile at" + ~sndBuf.path).postln;
+		("    Duration:"+ ~sndBuf.duration).postln;
+		("    SampleRate: " + ~sndBuf.sampleRate).postln;
+		("    Num Channels" + ~sndBuf.numChannels).postln;
+
+		// POST some info about the decoder if you want to...
+		// the decoder object can be polled for different information that
+		// may be useful:
+		("\nInfo about ambisonic decoder").postln;
+		("    Kind:"+ ~decoder.kind).postln;
+		("    Dimensions: " + ~decoder.dim).postln;
+		("    Num Channels" + ~decoder.numChannels).postln;
+		("    Dir Channels" + ~decoder.dirChannels.raddeg).postln;
+		// if(~decoder.kind != 'stereo', {("    Subject ID" + ~decoder.subjectID).postln});
+		// "\n".post;
+
+		/* now - using it. For our immediate purposes, PlayBuf is the way to go. */
+
+		// define a synthDef
+		SynthDef(\encodePlay, {arg buffer, dur;
+			var src, env;
+
+			env = EnvGen.kr(
+				Env([0, 1, 1, 0], [0.1, dur - 0.2, 0.1], \sin), doneAction: 2);
+
+			// PlayBuf expects the number of channels to match those in the buffer
+			// So, need to query
+			src = PlayBuf.ar(
+				~sndBuf.numChannels, //
+				buffer, // the buffer you created above
+				BufRateScale.kr(buffer), // play back at the correct sampling rate
+			);
+
+			// encode!
+			src = FoaEncode.ar(src, ~encoder);
+
+			// src = src * 18.dbamp; // double ms
+			// src = src * 0.dbamp; // ZoomH2
+			src = src * 12.dbamp; // AtoB
+
+			Out.ar(0, env * FoaDecode.ar(src, ~decoder));
+		}).send(s);
+
+		s.sync;
+
+		// play one time
+		Synth.new(\encodePlay, [buffer: ~sndBuf, dur: ~sndBuf.duration]);
+
+	})
+})
+)
+
+
+// ------------------------------------------------------------
+~decoder.free;
+s.quit; //... and quit
+::
+
+note:: strong::Soundfile Credits::
+
+list::
+## Joseph Anderson, "Pickering Steam Fair: Engine," [unpublished recording]
+## Joseph Anderson, "Pickering Steam Fair: Waltz," [unpublished recording]
+## Joseph Anderson, "St Peter & St Paul," [unpublished recording]
+## Joseph Anderson, "Stape Silver Band: March," [unpublished recording]
+::
+
+::
+
+section:: Reading
+
+Schoeps Double M/S
+
+http://www.schoeps.de/en/products/categories/doublems
+
+Batke, J.-M., 2009. The B-Format Microphone Revised. In Proceedings of the Ambisonics Symposium 2009. Ambisonics Symposium 2009. Graz. Available at:
+
+http://ambisonics.iem.at/symposium2009/proceedings/ambisym09-batke-bambimicrevised.pdf.
+
+Farrar, K., 1979. Soundfield microphone: design and development of microphone and control unit. Wireless World, pp.48–50 (Oct.), 99–103 (Nov.).
+
+section: Review
+
+link::Classes/FoaEncode:: --> See: A to B encoder (soundfile) AND ZoomH2 encoder (soundfile)
+link::Classes/FoaEncoderMatrix::
+
+
+
+Joseph Anderson, 2012, 2013
+
+Daniel Peterson, 2015, 2016
+

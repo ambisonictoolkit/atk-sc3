@@ -1,0 +1,1033 @@
+title:: Session 4 - Imaging & Spatial Filtering
+summary:: The Ambisonic Toolkit: Imaging & Spatial Filtering
+categories:: Libraries>Ambisonic Toolkit>FOA>A Guide to Getting Started With ATK>Synth Object, Tutorials>Ambisonic Toolkit>FOA>A Guide to Getting Started With ATK>Synth Object
+keyword::Atk
+
+section:: Decoding
+
+Choose and set up the (HRTF) decoder that works best for you!
+code::
+
+// First boot the server!
+Server.default = s = Server.local.boot;
+
+
+// ------------------------------------------------------------
+// choose a decoder
+
+// stereophonic: matrix
+~decoder = FoaDecoderMatrix.newStereo((131/2).degrad, 0.5) // Cardioids at 131 deg
+~decoder = FoaDecoderMatrix.newStereo(5/9 * pi, 0.5)       // Cardioids at Duda angle
+
+
+// stereophonic/binaural: kernel
+~decoder = FoaDecoderKernel.newUHJ                         // UHJ (kernel) - native ambisonic!
+
+~decoder = FoaDecoderKernel.newSpherical                   // synthetic binaural
+~decoder = FoaDecoderKernel.newSpherical(0002)
+~decoder = FoaDecoderKernel.newSpherical(0007)
+
+~decoder = FoaDecoderKernel.newCIPIC                       // CIPIC binaural
+~decoder = FoaDecoderKernel.newCIPIC(0021)
+~decoder = FoaDecoderKernel.newCIPIC(0165)
+~decoder = FoaDecoderKernel.newCIPIC(0012)
+
+~decoder = FoaDecoderKernel.newListen                      // Listen binaural
+~decoder = FoaDecoderKernel.newListen(1003)
+~decoder = FoaDecoderKernel.newListen(1004)
+~decoder = FoaDecoderKernel.newListen(1005)
+
+// My hexagonal decoder:
+~decoder = FoaDecoderMatrix.newPanto(6, k: 'dual')         // psycho optimised hex
+
+
+// inspect
+~decoder.kind
+~decoder.subjectID // only for kernel decoders!
+~decoder.dim
+~decoder.numChannels
+~decoder.dirChannels.raddeg // output (stereo: +/-30deg; binaural: +/-100deg)
+
+
+// free kernel (before you choose another one & when we're done!)
+~decoder.free
+
+
+// define decoder SynthDef
+(
+// POST some info about the decoder if you want to...
+// the decoder object can be polled for different information that
+// may be useful:
+("\nInfo about ambisonic decoder").postln;
+("    Kind:"+ ~decoder.kind).postln;
+("    Dimensions: " + ~decoder.dim).postln;
+("    Num Channels" + ~decoder.numChannels).postln;
+("    Dir Channels" + ~decoder.dirChannels.raddeg).postln;
+// if(~decoder.kind != 'stereo', {("    Subject ID" + ~decoder.subjectID).postln});
+// "\n".post;
+
+SynthDef(\foaDecode, {arg inBus, gate = 1;
+	var foa, env, out;
+
+	foa = In.ar(inBus, 4);
+
+	// this envelope will HOLD at the releaseNode--this is like holding a key down
+	env = EnvGen.kr(
+		Env([0, 1, 0], [0.2, 0.2], \sin, 1), gate, doneAction: 2);
+
+	out = FoaDecode.ar(foa, ~decoder);
+
+
+	Out.ar(0, out * env);
+}).send(s);
+)
+
+~foaBus = Bus.audio(s, 4); // allocate four channels for routing
+
+
+// start the decoder note (no duration!), reading bus ~foaBus at the \tail
+~decoderNote = Synth(\foaDecode, [inBus: ~foaBus], 0, \addToTail);
+
+::
+
+
+
+
+section:: Spatial Filtering
+
+Following up from the techniques we looked at to synthesise a soundfield, we'll now have a look at spatial filtering techniques.
+
+This is where we gain control of the soundfield and can shape it to our ends artists.
+
+We've seen how to use the bussing idiom, separating the encoder from the decoder. From now on, we'll continue to use this approach. We'll only need to set up one decoder and then focus on the synth. Choose the decoder that worked best for you (over headphones).
+
+subsection:: Transforms
+
+From the link::Guides/Intro-to-the-ATK:::
+
+For the artist, the real power of the ATK is found in the imaging transforms. These are spatial domain filters which reorient, reshape or otherwise spatially filter an input soundfield. Many users will be familiar with the soundfield rotation transform, as SuperCollider provides the inbuilt Rotate2.
+
+The ATK provides a much wider and comprehensive toolset, including:
+
+list::
+## Rotation: soundfield rotation about an axis
+## Mirror: soundfield reflection across an axis
+## Directivity: soundfield directivity
+## Dominance: adjust directional gain of soundfield
+## Focus: focus on a region of a soundfield
+## Push: push a soundfield in a direction
+::
+
+The imaging tools are provided in two forms: static and dynamic implementations. While most transforms are provided in both categories, a number are found in only one guise.
+
+See: link::Classes/FoaTransform::, link::Classes/FoaXform:: and link::Classes/FoaXformerMatrix:: for more details about imaging.
+
+
+We'll start by looking at the dynamic transforms available through FoaTransform.ar. These can be changed in time, whereas FoaXform.ar is fixed. (These are good to use in feedback networks, or in other circumstances where changes values aren't required.)
+
+In our last session we looked at encoding an omni directional signal, which is encoded with 'no direction'. For spatial music, that may not seem immediately useful--but it is at one end of a scale, and music is built of scales. Spatial music uses spatial scales.
+
+subsection:: Push
+
+code::
+
+(
+SynthDef(\foaOmniPush, {arg outBus, dur = 0.05, amp = 0.25, angle = 0, theta = 0, phi = 0;
+	var src, foa, env;
+
+	env =  EnvGen.kr(
+		Env([0, 1, 0], [0.5, 0.5], \sin),
+		timeScale: dur,
+		doneAction: 2
+		);
+
+	src = PinkNoise.ar(amp);
+
+	// Encode into our foa signal
+	foa = FoaEncode.ar(src, FoaEncoderMatrix.newOmni);
+
+	// Transform!
+	foa = FoaTransform.ar(foa, 'push', angle, theta, phi);
+
+
+	Out.ar(outBus, foa * env);
+}).send(s);
+)
+
+Synth.new(\foaOmniPush, [outBus: ~foaBus, dur: 1.0, angle: 0, theta: 0]); // located in centre of head!
+Synth.new(\foaOmniPush, [outBus: ~foaBus, dur: 1.0, angle: pi/2, theta: 0]); // located in front
+Synth.new(\foaOmniPush, [outBus: ~foaBus, dur: 1.0, angle: pi/2, theta: pi]); // located in back
+
+
+
+Synth.new(\foaOmniPush, [outBus: ~foaBus, dur: 1.0, angle: pi/2, theta: pi/2]); // located left
+Synth.new(\foaOmniPush, [outBus: ~foaBus, dur: 1.0, angle: pi/2, theta: -pi/2]); // located right
+
+
+(
+// more notes... all over the place!
+Routine.run({
+	20.do({
+		Synth.new(\foaOmniPush, [outBus: ~foaBus, angle: (pi/2).rand2, theta: pi.rand2, phi: pi.rand2]);
+		0.1.wait;
+	})
+});
+)
+::
+
+Let's have a closer look at what's happening with the imaging. See: link::Classes/FoaPushX::
+
+Push gives us the ability to push a complete soundfield in one direction. With our omni source above, we end up applying direction to what was directionless. Push can be called via the FoaPush UGen, but using FoaTransform allows us the convenience of passing an encoded B-format signal. Push also exists in versions that only push along a single axis: PushX, PushY, PushZ. See: [FoaTransform]
+
+We can apply push to natural soundfields, too:
+
+
+code::
+
+// define encoder matrix
+// ~encoder = FoaEncoderMatrix.newAtoB('flrd')   // for Thomas
+// ~encoder = FoaEncoderMatrix.newAtoB('flr')    // for Cross
+~encoder = FoaEncoderMatrix.newAtoB('flr')    // for DXARTS
+
+
+// inspect
+~encoder.kind;
+
+
+// load sound into a buffer
+(
+var fileName;
+var fileStartTime, bufferDur;
+
+fileName = Atk.userSoundsDir ++ "/a-format/Thomas_Mackay.wav";
+// fileName = Atk.userSoundsDir ++ "/a-format/Cross_Tenor_Sax.wav";
+
+fileStartTime = 0.0;
+bufferDur = 30.0;
+
+~sndBuf = Buffer.read(
+	s,
+	fileName,
+	fileStartTime * s.sampleRate,
+	bufferDur * s.sampleRate
+);
+
+)
+
+
+(
+// define (playBuf) encoder with Push
+SynthDef(\encodePushPlay, {arg outBus, buffer, dur = 1.0, amp = 0.25, angle = 0, theta = 0, phi = 0;
+	var src, env, foa;
+
+	env = amp * EnvGen.kr(
+	Env([0, 1, 1, 0], [0.1, dur - 0.2, 0.1], \sin), doneAction: 2);
+
+	// PlayBuf expects the number of channels to match those in the buffer
+	// So, need to query
+	src = PlayBuf.ar(
+		~sndBuf.numChannels, //
+		buffer, // the buffer you created above
+		BufRateScale.kr(buffer), // play back at the correct sampling rate
+	);
+
+	// encode!
+	foa = FoaEncode.ar(src, ~encoder);
+
+	// Transform!
+	foa = FoaTransform.ar(foa, 'push', angle, theta, phi);
+
+	Out.ar(outBus, env * foa);
+}).send(s);
+)
+
+
+// play one time
+Synth.new(\encodePushPlay, [outBus: ~foaBus, buffer: ~sndBuf, dur: 10.0, amp: 12.dbamp]); // no change
+Synth.new(\encodePushPlay, [outBus: ~foaBus, buffer: ~sndBuf, dur: 10.0, amp: 12.dbamp, angle: pi/2]); // front centre
+Synth.new(\encodePushPlay, [outBus: ~foaBus, buffer: ~sndBuf, dur: 10.0, amp: 12.dbamp, angle: pi/2, theta: pi/2]); // side left
+Synth.new(\encodePushPlay, [outBus: ~foaBus, buffer: ~sndBuf, dur: 10.0, amp: 12.dbamp, angle: 45.degrad, theta: 30.degrad]); // side left (mostly)
+Synth.new(\encodePushPlay, [outBus: ~foaBus, buffer: ~sndBuf, dur: 10.0, amp: 12.dbamp, angle: 45.degrad, theta: -30.degrad]); // side right (mostly)
+::
+
+note:: strong::Soundfile Credits::
+
+list::
+## David Cross, "Tenor saxophone improvisations," [unpublished recording]
+## Niall Thomas, "Rob Mackay: flute improvisations," [unpublished recording]
+::
+
+::
+
+
+subsection:: Focus
+
+We can now gain control over the imaging of the sounds we recorded earlier, and push the material to appear in various directions as needed.
+
+We have another very useful imager called Focus, which as you might expect focuses on a certain portion of the soundfield. The args to Focus are the same as push, so is easy to just swap.
+
+The imaging is illustrated here: link::Classes/FoaFocusX::
+
+code::
+
+(
+// define (playBuf) encoder with Focus
+SynthDef(\encodeFocPlay, {arg outBus, buffer, dur = 1.0, amp = 0.25, angle = 0, theta = 0, phi = 0;
+	var src, env, foa;
+
+	env = amp * EnvGen.kr(
+	Env([0, 1, 1, 0], [0.1, dur - 0.2, 0.1], \sin), doneAction: 2);
+
+	// PlayBuf expects the number of channels to match those in the buffer
+	// So, need to query
+	src = PlayBuf.ar(
+		~sndBuf.numChannels, //
+		buffer, // the buffer you created above
+		BufRateScale.kr(buffer), // play back at the correct sampling rate
+	);
+
+	// encode!
+	foa = FoaEncode.ar(src, ~encoder);
+
+	// Transform!
+	foa = FoaTransform.ar(foa, 'focus', angle, theta, phi);
+
+	Out.ar(outBus, env * foa);
+}).send(s);
+)
+
+
+// play one time
+Synth.new(\encodeFocPlay, [outBus: ~foaBus, buffer: ~sndBuf, dur: 10.0, amp: 12.dbamp]); // no change
+
+Synth.new(\encodeFocPlay, [outBus: ~foaBus, buffer: ~sndBuf, dur: 10.0, amp: 12.dbamp, angle: pi/2]); // front centre
+
+Synth.new(\encodeFocPlay, [outBus: ~foaBus, buffer: ~sndBuf, dur: 10.0, amp: 12.dbamp, angle: pi/2, theta: pi/2]); // side left
+
+Synth.new(\encodeFocPlay, [outBus: ~foaBus, buffer: ~sndBuf, dur: 10.0, amp: 12.dbamp, angle: 45.degrad, theta: 30.degrad]); // side left (mostly)
+
+Synth.new(\encodeFocPlay, [outBus: ~foaBus, buffer: ~sndBuf, dur: 10.0, amp: 12.dbamp, angle: 45.degrad, theta: -30.degrad]); // side right (mostly)
+
+
+// don't forget to clear soundfile buffers when finished with them!
+~sndBuf.free;
+::
+
+note:: strong::Soundfile Credits::
+
+list::
+## David Cross, "Tenor saxophone improvisations," [unpublished recording]
+## Niall Thomas, "Rob Mackay: flute improvisations," [unpublished recording]
+::
+
+::
+
+
+Depending on the imaging found in the original recordings, these may or may not sound very similar.... There can be dramatic difference when the soundfield has different sounds in different locations. I.e., performer in front, reverb in back. See: link::Guides/Intro-to-the-ATK:::
+
+subsection:: Proximity
+
+Let's step back momentarily for a moment and go back to looking at encoding a mono source again. While we've seen that we can use an omni source and push to move a sound, we have another interesting option through the use of the proximity filter, which synthesises the proximity effect--giving a sense of nearness.
+
+NOTE: In most cases the b-format signal should be precoditioned with a high-pass filter before proximity is applied. This is because proximity generates a LF boost. Also, distance != 0 meters. This would be equivalent to being superimposed with the microphone!
+
+code::
+
+(
+SynthDef(\foaPanBProx, {arg outBus, dur = 0.05, amp = 0.25, theta = 0, phi = 0, distance = 1.0;
+	var src, foa, env;
+	var freq = 20.0;
+
+	env = EnvGen.kr(
+		Env([0, 1, 0], [0.5, 0.5], \sin),
+	timeScale: dur,
+	doneAction: 2
+	);
+
+	src = PinkNoise.ar(amp);
+
+	// Encode into our foa signal
+	foa = FoaPanB.ar(src, theta, phi);
+
+	// Transform!
+	foa = HPF.ar(foa, freq); // precondition for proximity filter!
+	foa = FoaTransform.ar(foa, 'proximity', distance);
+
+	Out.ar(outBus, foa * env);
+}).send(s);
+)
+
+Synth.new(\foaPanBProx, [outBus: ~foaBus, dur: 1.0, theta: pi/2, distance: 1.0]); // side left, 1m
+Synth.new(\foaPanBProx, [outBus: ~foaBus, dur: 1.0, theta: pi/2, distance: 0.5]); // side left, 0.5m
+Synth.new(\foaPanBProx, [outBus: ~foaBus, dur: 1.0, theta: pi/2, distance: 0.25]); // side left, 0.25m
+Synth.new(\foaPanBProx, [outBus: ~foaBus, dur: 1.0, theta: pi/2, distance: 0.125]); // side left, 0.125m
+Synth.new(\foaPanBProx, [outBus: ~foaBus, dur: 1.0, theta: pi/2, distance: 0.0625]); // side left, 0.0625m
+
+(
+// more notes... all over the place, between 0.0625 and 1.0 meters
+Routine.run({
+	20.do({
+		Synth.new(\foaPanBProx, [outBus: ~foaBus, theta: pi.rand2, phi: pi.rand2, distance: 1.0.exprand(0.0625)]);
+		0.1.wait;
+	})
+});
+)
+
+::
+
+
+The proximity filter has an inverse called 'nearfield compensation' (NFC). This exactly removes the proximity effect. For our immediate purposes it is most useful to remove the proximity effect from the soundfield recordings we've made. I'll leave that to you to play with on your own.
+
+
+subsection:: Diffusion
+
+Bringing what we know for synthetic soundfields all together now, let's look at generating a diffuse soundfield, and then use focus and proximity to further control the imaging!
+
+
+code::
+
+(
+SynthDef(\foaDecorFP, {arg outBus, dur = 0.05, amp = 0.25, angle = 0, theta = 0, phi = 0, distance = 1.0;
+	var src, foa, env;
+	var freq = 20.0;
+
+	env =  EnvGen.kr(
+		Env([0, 1, 0], [0.5, 0.5], \sin),
+		timeScale: dur,
+		doneAction: 2
+		);
+
+	src = PinkNoise.ar(amp * [1,1,1,1]);
+
+	// Encode into our foa signal
+	foa = FoaEncode.ar(src, FoaEncoderMatrix.newAtoB);
+
+	// Transform!
+	foa = FoaTransform.ar(foa, 'focus', angle, theta, phi);
+
+	// Transform!
+	foa = HPF.ar(foa, freq); // precondition for proximity filter!
+	foa = FoaTransform.ar(foa, 'proximity', distance);
+
+	Out.ar(outBus, foa * env);
+}).send(s);
+)
+
+
+// focus only
+Synth.new(\foaDecorFP, [outBus: ~foaBus, dur: 1.0, amp: -15.dbamp, angle: 90.degrad]); // 90deg
+Synth.new(\foaDecorFP, [outBus: ~foaBus, dur: 1.0, amp: -15.dbamp, angle: 60.degrad]); // 60deg
+Synth.new(\foaDecorFP, [outBus: ~foaBus, dur: 1.0, amp: -15.dbamp, angle: 30.degrad]); // 30deg
+Synth.new(\foaDecorFP, [outBus: ~foaBus, dur: 1.0, amp: -15.dbamp, angle: 0.degrad]); // 0deg
+
+// proximity only
+Synth.new(\foaDecorFP, [outBus: ~foaBus, dur: 1.0, amp: -15.dbamp, distance: 1.0]); // decorrelated, 1m
+Synth.new(\foaDecorFP, [outBus: ~foaBus, dur: 1.0, amp: -15.dbamp, distance: 0.25]); // decorrelated, 0.25m
+Synth.new(\foaDecorFP, [outBus: ~foaBus, dur: 1.0, amp: -15.dbamp, distance: 0.125]); // decorrelated, 0.125m
+Synth.new(\foaDecorFP, [outBus: ~foaBus, dur: 1.0, amp: -15.dbamp, distance: 0.0625]); // decorrelated, 0.0625m
+
+// lets make this more realistic, controlling both the apparent width and the proximity, and the gain..
+Synth.new(\foaDecorFP, [outBus: ~foaBus, dur: 1.0, amp: -15.dbamp, angle: 90.degrad, distance: 1.0]); // 1m
+Synth.new(\foaDecorFP, [outBus: ~foaBus, dur: 1.0, amp: -13.dbamp, angle: 60.degrad, distance: 0.25]); // 0.25m
+Synth.new(\foaDecorFP, [outBus: ~foaBus, dur: 1.0, amp: -11.dbamp, angle: 30.degrad, distance: 0.125]); // 0.125m
+Synth.new(\foaDecorFP, [outBus: ~foaBus, dur: 1.0, amp: -9.dbamp, angle: 0.degrad, distance: 0.0625]);// 0.0625m
+
+::
+
+Clearly gain, the focus angle (image spread) and proximity distance can be mapped together or varied independently..
+
+code::
+
+(
+// more notes... all over the place, between 0.0625 and 1.0 meters, mapped to distance
+Routine.run({
+	20.do({
+		var distance, angle, amp;
+
+		distance = 1.0.exprand(0.0625);
+		angle = (distance) * pi/2;
+		amp = (-9 - (6 * distance)).dbamp;
+
+		("distance = " ++ distance.asString ++ " | ").post;
+		("angle = " ++ angle.raddeg.asString ++ " | ").post;
+		("gain = " ++ amp.ampdb.asString ++ " | ").postln;
+
+		Synth(\foaDecorFP, [outBus: ~foaBus, dur: 0.1, amp: amp, angle: angle, theta: pi.rand2, phi: pi.rand2, distance: distance]);
+		0.2.wait;
+	})
+});
+)
+
+::
+
+
+We can do something similar using the diffusion or spreading encoder and follow with Push or Focus and Proximity!
+
+subsection:: Rotation
+
+So far we haven't looked at the most commonly used ambisonic transform, rotation. This is often used with natural (recorded) soundfields to reorient the soundfield as desired. A common use is to correct microphone placement, centering performers in the centre of a recorded image. We can use rotation to creative effect, adding motion to a soundfield where none was present before, or further enlivening a soundfield.
+
+Let's start with a natural soundfield
+
+code::
+
+
+// load sound into a buffer
+(
+var fileName;
+var fileStartTime, bufferDur;
+
+fileName = Atk.userSoundsDir ++ "/b-format/Pampin-On_Space.wav";
+
+fileStartTime = 0.0; // for an ATK file... i.e., Pampin-On_Space
+bufferDur = 30.0;
+
+~sndBuf = Buffer.read(
+	s,
+	fileName,
+	fileStartTime * s.sampleRate,
+	bufferDur * s.sampleRate
+);
+
+)
+
+
+(
+// define (playBuf) with rotation
+SynthDef(\bFormatRot, {arg outBus, buffer, dur = 1.0, amp = 0.25, rotRate = 1.0;
+	var src, env, foa;
+	var rotAngle, tilAngle, tumAngle;
+
+	env = amp * EnvGen.kr(
+	Env([0, 1, 1, 0], [0.1, dur - 0.2, 0.1], \sin), doneAction: 2);
+
+	rotAngle = LFNoise2.kr(rotRate, 2pi);
+	tilAngle = LFNoise2.kr(rotRate, 2pi);
+	tumAngle = LFNoise2.kr(rotRate, 2pi);
+
+	// PlayBuf...
+	src = PlayBuf.ar(
+		~sndBuf.numChannels, //
+		buffer, // the buffer you created above
+		BufRateScale.kr(buffer), // play back at the correct sampling rate
+	);
+
+	// already in B-format
+	foa = src;
+
+	// Transform!
+	foa = FoaTransform.ar(foa, 'rtt', rotAngle, tilAngle, tumAngle);
+
+	Out.ar(outBus, env * foa);
+}).send(s);
+)
+
+
+
+
+// play one time
+Synth.new(\bFormatRot, [outBus: ~foaBus, buffer: ~sndBuf, dur: 20.0, amp: 9.dbamp, rotRate: 0.5]); // 0.5 Hz random rotation
+Synth.new(\bFormatRot, [outBus: ~foaBus, buffer: ~sndBuf, dur: 20.0, amp: 9.dbamp, rotRate: 1.0]); // 1.0 Hz random rotation
+Synth.new(\bFormatRot, [outBus: ~foaBus, buffer: ~sndBuf, dur: 20.0, amp: 9.dbamp, rotRate: 2.0]); // 2.0 Hz random rotation
+Synth.new(\bFormatRot, [outBus: ~foaBus, buffer: ~sndBuf, dur: 20.0, amp: 9.dbamp, rotRate: 4.0]); // 4.0 Hz random rotation
+Synth.new(\bFormatRot, [outBus: ~foaBus, buffer: ~sndBuf, dur: 20.0, amp: 9.dbamp, rotRate: 10.0]); // 10.0 Hz random rotation
+
+Synth.new(\bFormatRot, [outBus: ~foaBus, buffer: ~sndBuf, dur: 20.0, amp: 9.dbamp, rotRate: 100.0]); // 100.0 Hz random rotation
+
+
+
+// don't forget to clear soundfile buffers when finished with them!
+~sndBuf.free;
+::
+
+note:: strong::Soundfile Credits::
+
+list::
+## Juan Pampin, "On Space," Les Percussions de Strasbourg 50th Anniversary Edition, Classics Jazz France 480 6512
+::
+
+::
+
+Now let's go back to the synthetic granular dust example and add rotation....
+
+code::
+
+(
+SynthDef(\foaDustRot, {arg outBus, dur = 0.05, amp = 0.125, density = 10.0, rotRate = 5.0;
+	var src, foa, env;
+	var loFreq = 100.0, hiFreq = 5000, klankArgs;
+	var rotAngle, tilAngle, tumAngle;
+
+
+	klankArgs = Ref([[800, 1071, 1153, 1723], nil, dur/20 * [1, 1, 1, 1]]);
+
+	env = EnvGen.kr(
+		Env([0, 1, 0], [0.1, 0.9], \sin),
+		timeScale: dur,
+		doneAction: 2
+		);
+
+	rotAngle = LFNoise2.kr(rotRate, 2pi);
+	tilAngle = LFNoise2.kr(rotRate, 2pi);
+	tumAngle = LFNoise2.kr(rotRate, 2pi);
+
+	src = Dust.ar(density * [1,1,1,1] / 4, amp);
+
+	src = Klank.ar(klankArgs, src);
+
+	src = LPF.ar(
+		src,
+		EnvGen.kr(
+			Env([loFreq, hiFreq, loFreq], [0.1, 0.9], \exp),
+		timeScale: dur),
+	);
+
+
+	// Encode into our foa signal
+	foa = FoaEncode.ar(src, FoaEncoderMatrix.newAtoB('fbd'));
+
+	// Transform!
+	foa = FoaTransform.ar(foa, 'rtt', rotAngle, tilAngle, tumAngle);
+
+
+	Out.ar(outBus, foa * env);
+}).send(s);
+)
+
+
+Synth.new(\foaDustRot, [outBus: ~foaBus, dur: 5.0, amp: -18.dbamp, density: 5.0, rotRate: 5.0]);
+Synth.new(\foaDustRot, [outBus: ~foaBus, dur: 5.0, amp: -18.dbamp, density: 10.0, rotRate: 5.0]);
+Synth.new(\foaDustRot, [outBus: ~foaBus, dur: 5.0, amp: -18.dbamp, density: 20.0, rotRate: 10.0]);
+Synth.new(\foaDustRot, [outBus: ~foaBus, dur: 5.0, amp: -18.dbamp, density: 100.0, rotRate: 10.0]);
+
+
+// if we start rotating 'too fast', we start getting frequency domain effects
+// try this:
+Synth.new(\foaDustRot, [outBus: ~foaBus, dur: 5.0, amp: -18.dbamp, density: 100.0, rotRate: 10.0]);
+Synth.new(\foaDustRot, [outBus: ~foaBus, dur: 5.0, amp: -18.dbamp, density: 100.0, rotRate: 20.0]);
+Synth.new(\foaDustRot, [outBus: ~foaBus, dur: 5.0, amp: -18.dbamp, density: 100.0, rotRate: 50.0]);
+Synth.new(\foaDustRot, [outBus: ~foaBus, dur: 5.0, amp: -18.dbamp, density: 100.0, rotRate: 200.0]);
+
+
+// denser textures
+Synth.new(\foaDustRot, [outBus: ~foaBus, dur: 15.0, amp: -28.dbamp, density: 100.0, rotRate: 10.0]);
+Synth.new(\foaDustRot, [outBus: ~foaBus, dur: 2.0, amp: -20.dbamp, density: 500.0, rotRate: 10.0]);
+
+Synth.new(\foaDustRot, [outBus: ~foaBus, dur: 15.0, amp: -28.dbamp, density: 100.0, rotRate: 100.0]);
+
+::
+
+
+
+For more control, let's add focus, too! This gives us the ability to generate a granular texture that we can focus in a certain direction, with a certain 'size'.
+
+code::
+
+(
+SynthDef(\foaDustRotFoc, {arg outBus, dur = 0.05, amp = 0.125, density = 10.0, rotRate = 5.0,
+	angle = 0, theta = 0, phi = 0;
+
+	var src, foa, env;
+	var loFreq = 100.0, hiFreq = 5000, klankArgs;
+	var rotAngle, tilAngle, tumAngle;
+
+
+	klankArgs = Ref([[800, 1071, 1153, 1723], nil, dur/20 * [1, 1, 1, 1]]);
+
+	env = EnvGen.kr(
+		Env([0, 1, 0], [0.1, 0.9], \sin),
+		timeScale: dur,
+		doneAction: 2
+		);
+
+	rotAngle = LFNoise2.kr(rotRate, 2pi);
+	tilAngle = LFNoise2.kr(rotRate, 2pi);
+	tumAngle = LFNoise2.kr(rotRate, 2pi);
+
+	src = Dust.ar(density * [1,1,1,1] / 4, amp);
+
+	src = Klank.ar(klankArgs, src);
+
+	src = LPF.ar(
+		src,
+		EnvGen.kr(
+			Env([loFreq, hiFreq, loFreq], [0.1, 0.9], \exp),
+		timeScale: dur),
+	);
+
+
+	// Encode into our foa signal
+	foa = FoaEncode.ar(src, FoaEncoderMatrix.newAtoB('fbd'));
+
+	// Transform!
+	foa = FoaTransform.ar(foa, 'rtt', rotAngle, tilAngle, tumAngle);
+	foa = FoaTransform.ar(foa, 'focus', angle, theta, phi);
+
+	Out.ar(outBus, foa * env);
+}).send(s))
+
+
+Synth.new(\foaDustRotFoc, [outBus: ~foaBus, dur: 5.0, amp: -18.dbamp, density: 100.0, rotRate: 10.0, angle: 90.degrad, theta: 90.degrad]);
+Synth.new(\foaDustRotFoc, [outBus: ~foaBus, dur: 5.0, amp: -18.dbamp, density: 100.0, rotRate: 10.0, angle: 60.degrad, theta: 90.degrad]);
+Synth.new(\foaDustRotFoc, [outBus: ~foaBus, dur: 5.0, amp: -18.dbamp, density: 100.0, rotRate: 10.0, angle: 30.degrad, theta: 90.degrad]);
+Synth.new(\foaDustRotFoc, [outBus: ~foaBus, dur: 5.0, amp: -18.dbamp, density: 100.0, rotRate: 10.0]);
+
+
+
+::
+
+
+
+Before leaving the spatial transforms, let's have a look at using what we know now to build a 'poshed-up' granulator using Warp1. We'll use *newAtoB along with rotation AND focus (changing dynamically!)
+
+code::
+
+
+(
+SynthDef(\foaWarp1Dyn, {arg outBus, dur = 0.05, amp = 0.125, buffer, start, end, curve, windowSize = 0.5,
+	winOverlaps = 8, randWin = 0.3, theta = 0, phi = 0;
+
+	var src, foa;
+	var env, pointer;
+	var rotRate;
+	var rotAngle, tilAngle, tumAngle, angle;
+
+	// assign rotation rate to window size
+	rotRate = 1/windowSize;
+
+	rotAngle = LFNoise2.kr(rotRate, 2pi);
+	tilAngle = LFNoise2.kr(rotRate, 2pi);
+	tumAngle = LFNoise2.kr(rotRate, 2pi);
+
+
+	env = EnvGen.kr(Env([0, 1, 1, 0], [0.1, 0.8, 0.1], \sin), levelScale: amp, timeScale: dur, doneAction: 2);
+	angle = EnvGen.kr(Env([1, 1, 0, 0], [0.1, 0.7, 0.2], \lin), levelScale: pi/2, timeScale: dur);
+
+	pointer = EnvGen.kr(Env([start, end], [dur], curve)) * Array.fill(4, {1.0}) + LFNoise2.kr(0.1).range(-0.1, 0.1);
+
+	src = Warp1.ar(1, buffer, pointer, 1, windowSize, overlaps: winOverlaps, windowRandRatio: randWin);
+
+
+	// Encode into our foa signal
+	foa = FoaEncode.ar(src, FoaEncoderMatrix.newAtoB('flr'));
+
+	// Transform!
+	foa = FoaTransform.ar(foa, 'rtt', rotAngle, tilAngle, tumAngle);
+	foa = FoaTransform.ar(foa, 'focus', angle, theta, phi);
+
+	Out.ar(outBus, foa * env);
+}).send(s);
+)
+
+// define a buffer to read!
+b = Buffer.read(s, "~/Sound/femaleVoxEx.wav".standardizePath);
+
+// starting in front
+Synth.new(\foaWarp1Dyn, [outBus: ~foaBus, dur: 10.0, amp: -12.dbamp, buffer: b, start: 0.1, end: 0.8, curve: 0]);
+Synth.new(\foaWarp1Dyn, [outBus: ~foaBus, dur: 10.0, amp: -12.dbamp, buffer: b, start: 0.22, end: 0.22, curve: 0]);
+Synth.new(\foaWarp1Dyn, [outBus: ~foaBus, dur: 10.0, amp: -12.dbamp, buffer: b, start: 0.42, end: 0.42, curve: 0]);
+Synth.new(\foaWarp1Dyn, [outBus: ~foaBus, dur: 10.0, amp: -12.dbamp, buffer: b, start: 0.8, end: 0.1, curve: 5]);
+
+
+// starting from the left
+Synth.new(\foaWarp1Dyn, [outBus: ~foaBus, dur: 10.0, amp: -12.dbamp, buffer: b, start: 0.42, end: 0.42, theta: pi/2, curve: 0]);
+Synth.new(\foaWarp1Dyn, [outBus: ~foaBus, dur: 10.0, amp: -12.dbamp, buffer: b, windowSize: 0.25, start: 0.42, end: 0.42, theta: pi/2, curve: 0]);
+Synth.new(\foaWarp1Dyn, [outBus: ~foaBus, dur: 10.0, amp: -12.dbamp, buffer: b, windowSize: 0.125, start: 0.42, end: 0.42, theta: pi/2, curve: 0]);
+
+Synth.new(\foaWarp1Dyn, [outBus: ~foaBus, dur: 30.0, amp: -12.dbamp, buffer: b, windowSize: 0.125, start: 0.42, end: 0.42, theta: pi/2, curve: 0]);
+::
+subsection:: Doppler Shift
+
+Using a moving delay line, we can simulate the doppler shift.  For a b-format sound source, we can treat the entire soundfield as a single moving object and use link::Classes/FoaZoom:: and link::Classes/FoaRotate:: to move the soundfield along a desired path.  We can set the proportion of the Zoom as it passes the listener based on a minimum distance and width, both supplied as parameters to the synth.  The sound will pass from the left, then in front, then to the right.  If other paths are desired, take a look at link::Classes/FoaMirror:: or link::Classes/FoaTransform::.  In this synth, other cues are used to make the movement sound as natural as possible.  These cues include high frequency damping, amplitude and local and global reverb (see John Chowning https://ccrma.stanford.edu/courses/220a-fall-2001/chowning.pdf).
+
+Our doppler synth takes the following arguments:
+
+list::
+## Inbus: the virtual buss for the bformat source material
+## Outbus: an output buss to send the doppler sound, for instance to send to a decoder
+## Dur: a duration, which is set up so sound will pass the listener at half the duration
+## Width: a width in meters of how large the sound will be when passing the listener
+## ReverbWidth: a width of the rever portion of the sound similar to width
+## StartSpeed: a starting velocity for the moving sound source
+## Acceleration: the acceleration of the moving sound source
+## MinRadius: the distance in meters where the sound will pass the listener
+## Gain: a gain on the sound source in dB
+## RevMix: the amount of reverb on the signal
+::
+
+code::
+(
+// first we need to define a source material - for this example we are using enveloped diffuse pink noise
+~source = SynthDef(\source, {arg outbus, dur;
+	var out, srcEnv, env;
+	env = EnvGen.kr(Env([0, 1, 1, 0], [0.01, 0.98, 0.01], \sin), timeScale: dur, doneAction: 2);
+	srcEnv = EnvGen.kr(Env([0, 0, 1, 0, 0], [0, 0.01, 0.1, 0.1], \sin, 3, 0));
+	out = FoaEncode.ar(PinkNoise.ar([1.0, 1.0, 1.0, 1.0]), FoaEncoderMatrix.newAtoB) * srcEnv;
+	Out.ar(outbus, out * env)
+}).send(s);
+
+// this is our doppler synth that takes a bformat input.
+~synthDoppler = SynthDef(\doppler, { arg inbus, outbus, dur = 1.0, width, reverbWidth, startSpeed = 10, acceleration = 0, minRadius = 5, gain = -12, revMix;
+	var masterX, masterY, src, amplitude, out, freq, radialDistance, pushPct, amp, env, reverbZoom;
+	var startDistance, phi, theta, time, chain, reverb, hiFreqAttenCoeff, minAttenDist, lpfDB, speedOfSound;
+
+	// lets set a few variables first
+	hiFreqAttenCoeff = 100000;
+	minAttenDist = 30;
+	lpfDB = 3.0;
+	speedOfSound = 344;
+
+	// create an envelope to fade beginning and ending
+	env = EnvGen.kr(Env([0, 1, 1, 0], [0.01, 0.98, 0.01], \sin), timeScale: dur);
+
+	//convert gain to amplitude scalar
+	amp = gain.dbamp;
+
+	// B Format input
+	src = In.ar(inbus, 4);
+
+	// calculate a startDistance based on startSpeed, acceleration and duration
+	// this ensures that the object will pass at half the duration
+	startDistance = ((0.5 * acceleration) * (0.5 * dur).squared) + (0.5 * startSpeed * dur);
+
+	// set a time variable to change from zero to the duration over the duration
+	time = EnvGen.kr(Env([0, dur], [dur]), doneAction: 2);
+
+	// the horizontal left-right distance, y this will be the center of the object
+	masterY = -1*(((0.5 * acceleration) * time.squared) + (startSpeed * time) - startDistance);
+
+	masterX = minRadius;
+
+	radialDistance = hypot(masterX, masterY);
+
+	// calculate the horizontal rotation angle theta
+	theta = atan2(masterY, masterX);
+
+	// calculate the attenuation of high frequencies based on radial distance
+	// dB/m = freq/100000
+	freq = lpfDB/radialDistance.clip(minAttenDist, startDistance) * hiFreqAttenCoeff;
+
+	// the amplitude based on a starting amplitude, amp
+	amplitude = amp / radialDistance;
+
+	// lowpass the src and apply envelope and amplitude
+	chain = LPF.ar(src * amplitude * env, freq);
+
+	// use a delay line based on the distance to simulate a doppler shift
+	chain = DelayC.ar(chain, startDistance/speedOfSound, radialDistance/speedOfSound);
+
+	// create a reverb version of the signal, with user defined wetness
+	// Zoom reverb in direction of motion to create local and global reverbs (Chowning)
+	// instead of using proportional amplitudes for local and global reverbs, we can set up
+	// a full reverb and control the distortion angle on zoom to have the reverb be local and global
+	reverb = FoaReverb.ar(chain * revMix, t60low: 4.2, t60high: 3.2);
+	reverbZoom = FoaZoom.ar(reverb, radialDistance.atan2(reverbWidth));
+
+	// zoom in on the center of the sound-field based on the arctangent of the distance and a user-defined width
+	chain = FoaZoom.ar(chain, radialDistance.atan2(width));
+
+	// use proximity filters based on the distance
+	chain = FoaProximity.ar(HPF.ar(HPF.ar(chain + reverbZoom, 20.0), 20.0), radialDistance);
+
+	// rotate the sound field properly
+	chain = FoaRotate.ar(chain, theta);
+
+	// send out signal
+	Out.ar(outbus, chain)
+
+}).send(s);
+)
+
+// we need to set up a buss to route our source sound to
+~route = Bus.audio(s, 4);
+(
+Synth.new(\source, [outbus: ~route, dur: 30.0], 1, \addToHead);
+
+// doppler shifter
+Synth.new(\doppler, [
+inbus: ~route,
+outbus: ~foaBus,
+dur: 30.0,
+width: 1.0,
+reverbWidth: 1.0,
+startSpeed: 27,
+acceleration: 0,
+minRadius: 10.0,
+gain: 24,
+revMix: 0.25,
+], 1, \addToTail);
+)
+
+// free the buss when done
+~route.free;
+
+
+
+::
+
+	Now, let's look at creating a moving sound source with a path from a lissajous function.  We can use the function from John Chowning's Turenas https://ccrma.stanford.edu/sites/default/files/user/jc/turenas-_the_realization_of_a_dream-3.pdf.  The math to create this path involves combining sinusoids.
+
+list::
+## y = 2 * (sin(2pi * t) + sin(6pi * t));
+## x = 2 * (cos(3pi * t) + cos(7pi * t)) + 1.0;
+::
+
+	Note that this math is a little different from the paper, but it produces the figure above it (see page 9).  We are setting the sinusoidal path inside the synth, so we do not need a starting speed nor an accelration:
+
+list::
+## Inbus: the virtual buss for the bformat source material
+## Outbus: an output buss to send the doppler sound, for instance to send to a decoder
+## Dur: a duration, which is set up so sound will pass the listener at half the duration
+## Width: a width in meters of how large the sound will be when passing the listener
+## ReverbWidth: a width of the rever portion of the sound similar to width
+## MinRadius: the distance in meters where the sound will pass the listener
+## Gain: a gain on the sound source in dB
+## RevMix: the amount of reverb on the signal
+::
+
+code::
+
+
+(
+
+// first we need to define a source material - for this example we are using enveloped diffuse pink noise
+~source = SynthDef(\source, {arg outbus, dur;
+	var out, srcEnv, env;
+	env = EnvGen.kr(Env([0, 1, 1, 0], [0.01, 0.98, 0.01], \sin), timeScale: dur, doneAction: 2);
+	srcEnv = EnvGen.kr(Env([0, 0, 1, 0, 0], [0, 0.01, 0.1, 0.1], \sin, 3, 0));
+	out = FoaEncode.ar(PinkNoise.ar([1.0, 1.0, 1.0, 1.0]), FoaEncoderMatrix.newAtoB) * srcEnv;
+	Out.ar(outbus, out * env)
+}).send(s);
+
+// this is our doppler synth that takes a bformat input.
+~synthDoppler = SynthDef(\dopplerLissajous, { arg inbus, outbus, dur = 1.0, width, reverbWidth, minRadius = 5, gain, revMix;
+	var x, y, z, centerY, halfWidth, src, amplitude, out, freq, radialDistance, amp;
+	var startDistance, phi, theta, time, reverb, reverbZoom, chain;
+	var masterX, masterY, env, thetaMod = 1.0;
+	var hiFreqAttenCoeff, minAttenDist, lpfDB, speedOfSound, maxDistance;
+
+	// lets set a few variables first
+	hiFreqAttenCoeff = 100000;
+	minAttenDist = 30;
+	lpfDB = 3.0;
+	speedOfSound = 344;
+	maxDistance = 1000;
+
+	//convert gain to amplitude scalar
+	amp = gain.dbamp;
+
+	// B Format input
+	src = In.ar(inbus, 4);
+
+	env = EnvGen.kr(Env([0, 1, 1, 0], [0.01, 0.98, 0.01], \sin), timeScale: dur, doneAction: 2);
+
+	// set up a parameter to control the sine, go from zero to one over the duration
+	// this means that our path will follow the exact graph in Chowning's paper
+	// if we want the full lissajous figure, we would go from zero to two here
+	// Or we can even go as high as we want and the movement will repeat!!!
+	time = Line.ar(0, 1, dur);
+
+	// lissajous function from John Chowning's turenas
+	// see https://ccrma.stanford.edu/sites/default/files/user/jc/turenas-_the_realization_of_a_dream-3.pdf
+	masterY = 2 * (SinOsc.ar(0, (2pi * time).mod(2pi)) + SinOsc.ar(0, (6pi * time).mod(2pi)));
+	masterX = 2 * (SinOsc.ar(0, (3pi * time).mod(2pi) + 0.5pi) + SinOsc.ar(0, (7pi * time).mod(2pi) + 0.5pi)) + 1.0;
+	thetaMod = -1.0;
+
+	// other lissajous function
+	/*
+	masterY = 5 * SinOsc.ar(0, (4pi * time).mod(2pi));
+	masterX = 5 * SinOsc.ar(0, (5pi * time).mod(2pi) + 0.5pi) + 2;
+	*/
+
+	// calculate the distance using the hypotenuse function
+	radialDistance = hypot(masterX, masterY);
+
+	// calculate the horizontal rotation angle theta
+	theta = atan2(masterY, masterX) * thetaMod;
+
+	// calculate the attenuation of high frequencies based on radial distance
+	freq = lpfDB/radialDistance.clip(minAttenDist, maxDistance) * hiFreqAttenCoeff;
+
+	// the amplitude based on a starting amplitude, amp
+	amplitude = amp / radialDistance;
+
+	// lowpass the src and apply amplitude
+	chain = LPF.ar(src * amplitude, freq);
+
+	// use a delay line based on the distance to simulate a doppler shift
+	chain = DelayC.ar(chain, maxDistance/speedOfSound, radialDistance/speedOfSound);
+
+	// create a reverb version of the signal, with user defined wetness
+	// Zoom reverb in direction of motion to create local and global reverbs (Chowning)
+	// instead of using proportional amplitudes for local and global reverbs, we can set up
+	// a full reverb and control the distortion angle on zoom to have the reverb be local and global
+	reverb = FoaReverb.ar(chain * revMix, t60low: 1.2, t60high: 1.2);
+	reverbZoom = FoaZoom.ar(reverb, radialDistance.atan2(reverbWidth));
+
+	// apply zoom to center of sound field
+	chain = FoaZoom.ar(chain, radialDistance.atan2(width));
+
+	// use proximity to give signals a sense of nearness when they pass through the center
+	chain = FoaProximity.ar(HPF.ar(HPF.ar(chain + reverbZoom, 20.0), 20.0), radialDistance);
+
+	// rotate sound field
+	chain = FoaRotate.ar(chain, theta);
+
+	// send out signal
+	Out.ar(outbus, chain * env)
+
+}).send(s);
+)
+
+// we need to set up a buss to route our source
+~route = Bus.audio(s, 4);
+
+(
+Synth.new(\source, [outbus: ~route, dur: 30.0], 1, \addToHead);
+
+// doppler shifter
+Synth.new(\dopplerLissajous, [
+inbus: ~route,
+outbus: ~foaBus,
+dur: 30.0,
+width: 1.0,
+reverbWidth: 1.0,
+minRadius: 10.0,
+gain: 0,
+revMix: 0.25,
+], 1, \addToTail);
+)
+
+// free the buss when done
+~route.free;
+
+
+// free buffer when done!
+b.free;
+
+// .. and do some more clean-up
+~decoderNote.set(\gate, 0); // set gate to '0' ... envelope finishes, note frees
+~foaBus.free; // free the audio bus
+~decoder.free; // free the decoder
+
+s.quit
+
+::
+
+
+
+
+
+section:: Review
+
+link::Classes/FoaTransform::
+
+link::Classes/FoaXform::
+
+(Follow the links for the individual transforms!)
+
+
+Joseph Anderson, 2012, 2013
+
+Daniel Peterson, 2015, 2016
+

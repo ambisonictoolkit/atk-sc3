@@ -1,0 +1,268 @@
+title:: Session 2 - Acquisition (recording) Techniques
+summary:: The Ambisonic Toolkit: Acquisition (recording) Techniques
+categories:: Libraries>Ambisonic Toolkit>FOA>A Guide to Getting Started With ATK>Synth Object, Tutorials>Ambisonic Toolkit>FOA>A Guide to Getting Started With ATK>Synth Object
+keyword::Atk
+
+section:: Decoding
+
+Choose and set up the (HRTF) decoder that works best for you!
+
+code::
+s = Server.local.boot;
+
+// ------------------------------------------------------------
+// choose a decoder
+
+// stereophonic: matrix
+~decoder = FoaDecoderMatrix.newStereo((131/2).degrad, 0.5) // Cardioids at 131 deg
+~decoder = FoaDecoderMatrix.newStereo(5/9 * pi, 0.5)       // Cardioids at Duda angle
+
+
+// stereophonic/binaural: kernel
+~decoder = FoaDecoderKernel.newUHJ                         // UHJ (kernel) - native ambisonic!
+
+~decoder = FoaDecoderKernel.newSpherical                   // synthetic binaural
+~decoder = FoaDecoderKernel.newSpherical(0002)
+~decoder = FoaDecoderKernel.newSpherical(0007)
+
+~decoder = FoaDecoderKernel.newCIPIC                       // CIPIC binaural
+~decoder = FoaDecoderKernel.newCIPIC(0021)
+~decoder = FoaDecoderKernel.newCIPIC(0165)
+~decoder = FoaDecoderKernel.newCIPIC(0012)
+
+~decoder = FoaDecoderKernel.newListen                      // Listen binaural
+~decoder = FoaDecoderKernel.newListen(1003)
+~decoder = FoaDecoderKernel.newListen(1004)
+~decoder = FoaDecoderKernel.newListen(1005)
+
+// My hexagonal decoder:
+~decoder = FoaDecoderMatrix.newPanto(6, k: 'dual')         // psycho optimised hex
+
+
+// inspect
+~decoder.kind
+~decoder.subjectID // only for kernel decoders!
+~decoder.dim
+~decoder.numChannels
+~decoder.dirChannels.raddeg // output (stereo: +/-30deg; binaural: +/-100deg)
+
+
+// free kernel (before you choose another one & when we're done!)
+~decoder.free
+::
+
+
+section::  Encoding
+
+As with decoders, the ATK has two types of encoders: Matrix and Kernel.
+
+Matrix decoders use matrix multiplication to encode recorded or synthesised signals into a b-format (ambisonic) soundfield signal. For today, we'll be using several types of microphon arrays to record sound, and will be most interested in using 'matrix inversion' type encoders.
+
+The arrays of interest are:
+
+1) Soundfield mic - no encoding needed!
+2) Double M/S - inverting encoder
+3) Spaced omnidirectional mics - AtoB encoder
+4) ZoomH2
+
+For the Soundfield mic, we don't have to do anything. All encoding is done within the microphone itself. But for the others, we'll need to use encoders. Let's look at how each of these is defined, starting with:
+
+subsection:: Double M/S
+
+The Double M/S system uses three microphones, usually a front facing cardioid, a side facing bi-directional and a rear facing cardioid. Let's define:
+
+
+code::
+~directions = [ 0, pi/2, pi ]; // front, side, rear
+~patterns = [ 0.5, 1.0, 0.5 ]; // cardioid, bi-dir, cardioid
+~encoder = FoaEncoderMatrix.newDirections(~directions, ~patterns);
+
+
+// inspect the encoder
+~encoder.kind;
+~encoder.dim;
+
+~encoder.numChannels; // inputs
+~encoder.numInputs; // inputs (same!)
+~encoder.numOutputs; // outputs (3 = horizontal only!)
+
+~encoder.dirChannels.raddeg ; // answers input directions
+~encoder.dirInputs.raddeg ; // answers input directions (same!)
+~encoder.dirOutputs.raddeg ; // answers [inf] -- encodes to b-format
+
+~encoder.matrix; // answers encoding matrix [ W, X, Y ]
+
+::
+
+By inspecting the matrix closer, we can see how much each microphone contributes to the resulting b-format signal:
+
+code::
+
+~encoder.matrix.asArray.at(0); // answers [ W ]
+~encoder.matrix.asArray.at(1); // answers [ X ]
+~encoder.matrix.asArray.at(2); // answers [ Y ]
+
+::
+
+It is useful to know that the *newDirections encoder assumes that all microphone elements coincident. Of course, this isn't the case at all. We'll have some spatial aliasing at high frequencies. (Which is the case with all microphone arrays, even in stereo!) The Soundfield microphone does include filtering to reduce spatial aliasing and correct frequency response.
+
+For our use as artists, we can later minimise any aliasing with the spatial transforms included in the ATK.
+
+subsection:: AtoB Encoder
+
+Spaced omnidirectional mics - AtoB encoder
+
+The *newAtoB encoder assumes perfectly coincident microphone elements. For us, this isn't easily possible, however! Also, 'proper' A to B encoding assumes cardioid microphones, so that all FOA harmonics can be generated from the microphone feeds.
+
+Gerzon, et al., 1st experiments used closely spaced cardioids, giving reasonable results (w/ spatial aliasing at high frequencies).
+
+Instead, we're going to be creative and 'abuse' the A to B matrix, in the same way that spaced omnis 'abuse' coincident stereo panning laws. We make the observation that we need four different but related signals, in the orientation of a tetrahedron.
+
+Let's look at help link::Classes/FoaEncoderMatrix:: to see:
+
+We can choose varying orientations and weights. (For our use, we'll stick with the default weights.)
+
+code::
+
+
+~encoder = FoaEncoderMatrix.newAtoB; // default, Soundfield mic (but for weight)
+~encoder = FoaEncoderMatrix.newAtoB('flr'); // front, left, back-up, back-down
+~encoder = FoaEncoderMatrix.newAtoB('fbd'); // front, back-down, back-left-up, back-right-up
+
+/*
+
+Now, let's inspect the encoder matrix...
+
+*/
+
+~encoder.kind;
+~encoder.dim;
+
+~encoder.numChannels; // inputs
+~encoder.numOutputs; // outputs (4 = full 3D!)
+
+~encoder.dirChannels.raddeg ; // should answer input directions (looks like a bug!!)
+~encoder.dirOutputs.raddeg ; // answers [inf] -- encodes to b-format
+
+~encoder.matrix; // answers encoding matrix [ W, X, Y, Z ]
+
+::
+
+By inspecting the matrix closer, we can see how much each microphone contributes to the resulting b-format signal:
+
+code::
+
+~encoder.matrix.asArray.at(0); // answers [ W ]
+~encoder.matrix.asArray.at(1); // answers [ X ]
+~encoder.matrix.asArray.at(2); // answers [ Y ]
+~encoder.matrix.asArray.at(3); // answers [ Z ]
+::
+
+subsection::  NewDirections
+
+code::
+~directions = [ [0, 0], [120, 0], [-120, 0], [0, 90] ].degrad; // front, back left, back right, up
+~patterns = [ 0.5, 0.5, 0.5 , 0.5 ]; // cardioid
+~encoder = FoaEncoderMatrix.newDirections(~directions, ~patterns);
+
+
+~encoder.kind;
+~encoder.dim;
+
+~encoder.numChannels; // inputs
+~encoder.numOutputs; // outputs (4 = full 3D!)
+
+~encoder.dirChannels.raddeg ; // should answer input directions
+~encoder.dirOutputs.raddeg ; // answers [inf] -- encodes to b-format
+
+~encoder.matrix; // answers encoding matrix [ W, X, Y, Z ]
+
+~encoder.matrix.asArray.at(0); // answers [ W ]
+~encoder.matrix.asArray.at(1); // answers [ X ]
+~encoder.matrix.asArray.at(2); // answers [ Y ]
+~encoder.matrix.asArray.at(3); // answers [ Z ]
+
+::
+
+subsection:: ZoomH2
+
+The ZoomH2 encoder is a 'cheap and cheerful' portable multichannel recorder. As you should expect, it doesn't exactly give the same results as the the Soundfield microphone! However, for the artist working in the field, it is an affordable way to start.
+
+Also, it should be mentioned that there are two ZoomH2s currently on the market. These are the 'old' ZoomH2 (http://www.samsontech.com/zoom/products/handheld-audio-recorders/h2/) and the 'new' ZoomH2n (http://www.samsontech.com/zoom/products/handheld-audio-recorders/h2n/). At the moment the ATK only includes an encoder for the ZoomH2.
+
+
+Let's look at help link::Classes/FoaEncoderMatrix:: to have a look:
+
+Default values are a good place to start. Although, setting k ~= 1.7378 is a useful thing to do.
+
+code::
+~encoder = FoaEncoderMatrix.newZoomH2; // default
+~encoder = FoaEncoderMatrix.newZoomH2(k: 1.7378); // default
+
+/*
+
+Now, let's inspect the encoder matrix...
+
+*/
+
+~encoder.kind;
+~encoder.dim;
+
+~encoder.numChannels; // inputs
+~encoder.numOutputs; // outputs (3 = horizontal only!)
+
+~encoder.dirChannels.raddeg; // direction of inputs
+~encoder.dirOutputs.raddeg; // answers [inf] -- encodes to b-format
+
+~encoder.matrix; // answers encoding matrix [ W, X, Y]
+
+::
+
+By inspecting the matrix closer, we can see how much each microphone contributes to the resulting b-format signal:
+
+code::
+
+~encoder.matrix.asArray.at(0); // answers [ W ]
+~encoder.matrix.asArray.at(1); // answers [ X ]
+~encoder.matrix.asArray.at(2); // answers [ Y ]
+
+
+
+// ------------------------------------------------------------
+~decoder.free;
+s.quit; //... and quit
+::
+
+
+
+section:: Reading
+
+Schoeps Double M/S:
+
+http://www.schoeps.de/en/products/categories/doublems
+
+Zoom H2:
+
+http://www.samsontech.com/zoom/products/handheld-audio-recorders/h2
+
+http://www.samsontech.com/site_media/legacy_docs/H2_user_manual.pdf
+
+Soundfield:
+
+http://www.soundfield.com/downloads/b_format.pdf
+
+http://www.soundfield.com/soundfield/soundfield.php
+
+
+section:: Review
+
+link::Classes/FoaEncode:: --> See: A to B encoder (soundfile) AND ZoomH2 encoder (soundfile)
+
+link::Classes/FoaEncoderMatrix::
+
+See also: link::Classes/FoaEncoderKernel::
+
+
+Joseph Anderson, 2012, 2013
+
+Daniel Peterson, 2015, 2016

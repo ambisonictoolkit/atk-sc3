@@ -1,0 +1,468 @@
+title:: Session 6 - Decoding
+summary:: The Ambisonic Toolkit: Decoding
+categories:: Libraries>Ambisonic Toolkit>FOA>A Guide to Getting Started With ATK>Synth Object, Tutorials>Ambisonic Toolkit>FOA>A Guide to Getting Started With ATK>Synth Object
+keyword::Atk
+
+Once we've managed to author and then image an ambisonic soundfield, the final step is to render the results out to some sort of loudspeaker array so we can hear it. This is called decoding, and can be thought of as implementing the final stage of the ambisonic panning laws for a particular loudspeaker setup.
+
+As with encoding, we have both matrix and kernel decoders.
+
+section:: Stereo Decoders
+
+We've alread seen that for stereo we have a few choices, and for binaural, another few. Let's look at these in a bit more detail... starting with stereo.
+
+For stereo decoding, you should think of the UHJ decoder as the ambisonic 'native' stereo output... so that when you plan to distribute or otherwise monitor in stereo, this should be your first choice. UHJ gives a broad image beyound the edges of the stereo pair with a natural sounding depth into the image.
+
+
+subsection:: Kernel UHJ Stereo Decoder
+
+UHJ is also interesting in that we can go back and forth between UHJ and horizontal only b-format. (The ATK includes a UHJ encoder!) We do lose information in this process--decoding to UHJ 'compresses' three channels [W, X, Y] down to two [L, R], so it shouldn't be surprising that some information is lost.
+
+
+code::
+
+// First boot the server!
+Server.default = s = Server.local.boot;
+
+
+~decoder = FoaDecoderKernel.newUHJ                         // UHJ (kernel)
+
+
+
+// inspect
+~decoder.kind
+~decoder.subjectID // only for kernel decoders!
+~decoder.dim
+~decoder.numChannels
+~decoder.dirChannels.raddeg // output (stereo: +/-30deg; binaural: +/-100deg)
+
+// let's look at the kernel...
+~decoder.kernel
+~decoder.kernel.at(0) // W for L & R
+~decoder.kernel.at(1) // X for L & R
+~decoder.kernel.at(2) // Y for L & R
+
+(
+~decoder.kernel.at(0).at(0).plot; // W for L
+~decoder.kernel.at(0).at(1).plot; // W for R
+)
+
+
+// free kernel (before you choose another one & when we're done!)
+~decoder.free
+
+::
+
+It should be noted that the kernel decoders add a delay to the signal of approximately kernelSize/2 samples.
+
+subsection:: Matrix Stereo Decoder
+
+The ATK also includes a matrix decoder for stereo. This can be useful to explore varying coincident microphone techniques. Here we can synthesise varying stereo microphone arrays.
+
+From the link::Classes/FoaDecoderMatrix:: help file:
+
+code::
+// Default: Cardioids at 180 deg
+~decoder = FoaDecoderMatrix.newStereo
+
+
+// inspect
+~decoder.kind
+~decoder.dim
+~decoder.numChannels
+~decoder.dirChannels.raddeg // output (stereo: +/-30deg; binaural: +/-100deg)
+~decoder.matrix
+
+
+
+// Blumlein
+~angle = pi/4 // bug in help file!!!
+~pattern = 1.0
+~decoder = FoaDecoderMatrix.newStereo(~angle, ~pattern)
+
+// inspect
+~decoder.kind
+~decoder.dim
+~decoder.numChannels
+~decoder.dirChannels.raddeg // output (stereo: +/-30deg; binaural: +/-100deg)
+~decoder.matrix
+
+
+
+// Cardioids at 131 deg
+~angle = 131/2 * pi/180
+~pattern = 0.5
+~decoder = FoaDecoderMatrix.newStereo(~angle, ~pattern)
+
+// inspect
+~decoder.kind
+~decoder.dim
+~decoder.numChannels
+~decoder.dirChannels.raddeg // output (stereo: +/-30deg; binaural: +/-100deg)
+~decoder.matrix
+
+
+
+// Super-cardioids at 115 deg
+~angle = 115/2 * pi/180
+~pattern = 0.63
+~decoder = FoaDecoderMatrix.newStereo(~angle, ~pattern)
+
+// inspect
+~decoder.kind
+~decoder.dim
+~decoder.numChannels
+~decoder.dirChannels.raddeg // output (stereo: +/-30deg; binaural: +/-100deg)
+~decoder.matrix
+
+
+
+// Hyper-cardioids at 105 deg
+~angle = 105/2 * pi/180
+~pattern = 0.75
+~decoder = FoaDecoderMatrix.newStereo(~angle, ~pattern)
+
+// inspect
+~decoder.kind
+~decoder.dim
+~decoder.numChannels
+~decoder.dirChannels.raddeg // output (stereo: +/-30deg; binaural: +/-100deg)
+~decoder.matrix
+::
+
+subsection:: HRTF Decoders
+
+From our use of the ATK so far, we already have some experience of using the binaural decoders. There are three of them, with many subjectIDs. We've already discussed notions of finding a good HRTF match... so I won't repeat them here.
+
+At the moment the ATK includes two measured libraries, *newListen and *newCIPIC, and one synthetic library, *newSpherical. The first two are 'full 3D' while the last is horizontal only
+
+All these are equalised flat for the diffuse field--so for best results you should use headphones that are too!
+
+code::
+
+~decoder = FoaDecoderKernel.newCIPIC                        // CIPIC (kernel)
+
+
+
+// inspect
+~decoder.kind
+~decoder.subjectID // only for kernel decoders!
+~decoder.dim
+~decoder.numChannels
+~decoder.dirChannels.raddeg // output (stereo: +/-30deg; binaural: +/-100deg)
+
+// let's look at the kernel...
+~decoder.kernel
+~decoder.kernel.at(0) // W for L & R
+~decoder.kernel.at(1) // X for L & R
+~decoder.kernel.at(2) // Y for L & R
+~decoder.kernel.at(3) // Z for L & R
+
+(
+~decoder.kernel.at(0).at(0).plot; // W for L
+~decoder.kernel.at(0).at(1).plot; // W for R
+)
+
+(
+~decoder.kernel.at(2).at(0).plot; // Y for L
+~decoder.kernel.at(2).at(1).plot; // Y for R
+)
+
+
+
+// free kernel (before you choose another one & when we're done!)
+~decoder.free
+
+
+::
+
+Many subjectIDs are available. You can get a list by choosing one that doesn't exist (scroll up the post window to see the list):
+
+code::
+
+~decoder = FoaDecoderKernel.newCIPIC(9999)                 // CIPIC (kernel)
+~decoder = FoaDecoderKernel.newListen(9999)                 // Listen (kernel)
+~decoder = FoaDecoderKernel.newSpherical(9999)                 // Spher (kernel)
+
+// is there a feature request in the ATK tracker for higher SRs for CIPIC/Listen?
+
+
+::
+
+Ok... so... we've got quite a lot of choice here for just decoding to two outputs!!
+
+When you're working on something, it is useful to check things across a few of these just to see what you're getting. I tend to go between a binaural decode and UHJ to see where I am with stereo.
+
+section:: Surround Decoders
+
+subsection:: Quad Decoder
+
+Speaking of 'ambisonic surround sound', it would be useful to look at some 'surround' arrays. We'll start with a quad system, perhaps the simplest, something that a hacker/artist can easily arrange.
+
+Interestingly enough, Gerzon's development of ambisonics came from an interest in optimising the quad systems on the market in the 70s.
+
+The 'standard' arrangement is a square, but with ambisonics, we have greater flexibility(!) and can make rectangles, too!
+
+code::
+
+// quad (square, 'single')
+~decoder = FoaDecoderMatrix.newQuad
+
+// inspect
+~decoder.kind
+~decoder.dim
+~decoder.numChannels
+~decoder.dirChannels.raddeg // output, anti-clockwise: FL, BL, BR, FR
+~decoder.matrix
+
+
+
+// quad (rectangle, 'single')
+~angle = 30.degrad // 1/2 angle for front
+~decoder = FoaDecoderMatrix.newQuad(~angle)
+
+// inspect
+~decoder.kind
+~decoder.dim
+~decoder.numChannels
+~decoder.dirChannels.raddeg // output, anti-clockwise: FL, BL, BR, FR
+~decoder.matrix
+
+::
+
+This above arrangement (~angle = 30.degrad) is what I have set up at home. The reason it is useful for me is that I can also monitor standard stereo without moving my loudspeakers around!
+
+Also, at HF, the image is made sharper in front (and back) by moving the loudspeakers closer together.
+
+subsection:: Decoder Types
+
+You'll have noticed there is an argument called 'k'... it is worth discussing that now.
+
+Gerzon designed ambisonics as a system with a number of optimisations where the soundfield isn't reconstructed exactly. At LFs, (up to around 500-700Hz or so) the soundfield can be reconstructed in a 'reasonably sized' area with FOA. Gerzon uses a metric called rV at LF (velocity vector).
+
+At HFs, the soundfield reconstruction area becomes increasingly small--to a single point! Instead, for HFs Gerzon uses a psychoacoustic metric named rE (energy vector)--and the decoder attempts to maximise this value.
+
+The 'k' arg gives us different choices:
+
+'single', 'dual', 'velocity', 'energy', 'controlled'
+
+
+See decoder k in help link::Classes/FoaDecoderMatrix::
+
+
+For small scale listening, the best decoder to use is 'dual', for mid-scale, try 'single' and for concert hall, Malham advises 'controlled'. I tend to adjust k by hand in the concert hall until I'm happy--usually some place between k = 1/sqrt(2) and k = 1/2.
+
+
+Here's what I use at home:
+
+code::
+
+// quad (rectangle, 'single')
+~angle = 30.degrad // 1/2 angle for front
+// ~decoder = FoaDecoderMatrix.newQuad(~angle, 'velocity') // strict
+// ~decoder = FoaDecoderMatrix.newQuad(~angle, 'single') // energy
+~decoder = FoaDecoderMatrix.newQuad(~angle, 'dual') // optimised
+// ~decoder = FoaDecoderMatrix.newQuad(~angle, 'controlled')
+::
+
+
+
+There's a further optimisation for small to mid sized decoding, and this is near-field distance compensation. We can use the NFC filter to remove proximity from a recording, but it is also used to compensate for near-field loudspeakers. NFC is found in FoaTransform.
+
+
+section:: Decoding of a Sound File
+
+Let's audition some of these!!
+
+
+code::
+// My hexagonal decoder:
+~decoder = FoaDecoderMatrix.newPanto(6, k: 'dual')         // psycho optimised hex
+~decoder = FoaDecoderMatrix.newPanto(6, k: 'velocity')
+~decoder = FoaDecoderMatrix.newPanto(6, k: 'energy')
+~decoder = FoaDecoderMatrix.newPanto(6, k: 'controlled')
+
+
+
+
+// define decoder SynthDef
+(
+// POST some info about the decoder if you want to...
+// the decoder object can be polled for different information that
+// may be useful:
+("\nInfo about ambisonic decoder").postln;
+("    Kind:"+ ~decoder.kind).postln;
+("    Dimensions: " + ~decoder.dim).postln;
+("    Num Channels" + ~decoder.numChannels).postln;
+("    Dir Channels" + ~decoder.dirChannels.raddeg).postln;
+// if(~decoder.kind != 'stereo', {("    Subject ID" + ~decoder.subjectID).postln});
+// "\n".post;
+
+SynthDef(\foaDecode, {arg inBus, gate = 1;
+	var foa, env, out;
+
+	foa = In.ar(inBus, 4);
+
+	// this envelope will HOLD at the releaseNode--this is like holding a key down
+	env = EnvGen.kr(
+		Env([0, 1, 0], [0.2, 0.2], \sin, 1), gate, doneAction: 2);
+
+	out = FoaDecode.ar(foa, ~decoder);
+
+
+	Out.ar(0, out * env);
+}).send(s);
+)
+
+~foaBus = Bus.audio(s, 4); // allocate four channels for routing
+
+
+// start the decoder note (no duration!), reading bus ~foaBus at the \tail
+~decoderNote = Synth(\foaDecode, [inBus: ~foaBus], 1, \addToTail);
+
+
+// load sound into a buffer
+(
+var fileName;
+var fileStartTime, bufferDur;
+
+fileName = Atk.userSoundsDir ++ "/b-format/Pampin-On_Space.wav";
+
+fileStartTime = 0.0; // for an ATK file... i.e., Pampin-On_Space
+bufferDur = 30.0;
+
+~sndBuf = Buffer.read(
+	s,
+	fileName,
+	fileStartTime * s.sampleRate,
+	bufferDur * s.sampleRate
+);
+
+)
+
+// this is set-up just to play b-format only
+// remember to do cmd-. to clear buffers
+(
+var soundfile, cmdPeriod;
+var playBuffer;
+
+Server.default = s = Server.local.boot;
+
+s.waitForBoot({
+	Routine.run({
+
+		// free buffer!
+		cmdPeriod = {
+			~sndBuf.free;
+			"Command Period freed soundfile buffer!".postln;
+		};
+
+		CmdPeriod.doOnce(cmdPeriod);
+
+		// POST some info about the sound if you want to...
+		// the CtkBuffer object can be polled for different information that
+		// may be useful:
+		("\nInfo about soundfile at" + ~sndBuf.path).postln;
+		("    Duration:"+ ~sndBuf.duration).postln;
+		("    SampleRate: " + ~sndBuf.sampleRate).postln;
+		("    Num Channels" + ~sndBuf.numChannels).postln;
+
+		// POST some info about the decoder if you want to...
+		// the decoder object can be polled for different information that
+		// may be useful:
+		("\nInfo about ambisonic decoder").postln;
+		("    Kind:"+ ~decoder.kind).postln;
+		("    Dimensions: " + ~decoder.dim).postln;
+		("    Num Channels" + ~decoder.numChannels).postln;
+		("    Dir Channels" + ~decoder.dirChannels.raddeg).postln;
+		// if(~decoder.kind != 'stereo', {("    Subject ID" + ~decoder.subjectID).postln});
+		// "\n".post;
+
+		/* now - using it. For our immediate purposes, PlayBuf is the way to go. */
+
+		// define a synthDef
+		SynthDef(\bFormatPlay, {arg buffer, dur, outBus;
+			var src, env;
+
+			env = EnvGen.kr(
+				Env([0, 1, 1, 0], [0.1, dur - 0.2, 0.1], \sin), doneAction: 2);
+
+			// PlayBuf expects the number of channels to match those in the buffer
+			// So, need to query...
+			src = PlayBuf.ar(
+				~sndBuf.numChannels, // ambisonic b-format (4)
+				buffer, // the buffer you created above
+				BufRateScale.kr(buffer), // play back at the correct sampling rate
+			);
+			src = 6.dbamp * src;
+			Out.ar(outBus, env * src);
+		}).send(s);
+		s.sync;
+
+		// play one time
+		Synth.new(\bFormatPlay, [outBus: ~foaBus, buffer: ~sndBuf, dur:~sndBuf.duration]);
+	})
+})
+)
+
+
+
+
+// .. and do some more clean-up
+~decoderNote.set(\gate, 0); // set gate to '0' ... envelope finishes, note frees
+~foaBus.free; // free the audio bus
+~decoder.free; // free the decoder
+
+s.quit
+
+::
+
+note:: strong::Soundfile Credits::
+
+list::
+## Juan Pampin, "On Space," Les Percussions de Strasbourg 50th Anniversary Edition, Classics Jazz France 480 6512
+::
+
+::
+
+
+
+
+section:: Reading
+
+Algazi, V.R. et al., 2001. The CIPIC HRTF Database. In Proceedings of the 2001 IEEE ASSP Workshop on Applications of Signal Processing to Audio and Acoustics. WASSAP  ’01. New Paltz, NY: IEEE Signal Processing Society.
+
+*Benjamin, E., 2008. Ambisonic Loudspeaker Arrays. In Proceedings of the 125th Audio Engineering Society Convention. 125th Audio Engineering Society Convention. San Francisco: Audio Engineering Society.
+
+Benjamin, E., Lee, R. & Heller, A., 2008. Is My Decoder Ambisonic? In Proceedings of the 125th Audio Engineering Society Convention. 125th Audio Engineering Society Convention. San Francisco.
+
+*Benjamin, E., Lee, R. & Heller, A., 2006. Localization in Horizontal-Only Ambisonic Systems. In Proceedings of the 121st Audio Engineering Society Convention. 121st Audio Engineering Society Convention. San Francisco.
+
+Brown, C.P. & Duda, R.O., 1997. An efficient HRTF model for 3-D sound. In Proceedings of the 1997 IEEE ASSP Workshop on Applications of Signal Processing to Audio and Acoustics. WASPAA  ’97. New Paltz, NY: IEEE Signal Processing Society.
+
+*Daniel, J., 2001. Représentation de champs acoustiques, application à la transmission et à la reproduction de scènes sonores complexes dans un contexte multimédia. PhD Thesis. Paris: Université Paris 6.
+
+Duda, R.O., 1993. Modeling head related transfer functions. In Proceedings of the Twenty-Seventh Annual Asilomar Conference on Signals, Systems and Computers. Twenty-Seventh Annual Asilomar Conference on Signals, Systems and Computers. Asilomar, CA.
+
+*Gerzon, M.A., 1985. Ambisonics in Multichannel Broadcasting and Video. Journal of the Audio Engineering Society, 33(11), pp.859–871.
+
+Gerzon, M.A., 1973. Periphony: With-Height Sound Reproduction. Journal of the Audio Engineering Society, 21(1), pp.2–10.
+
+Gerzon, M.A., 1980. Practical Periphony: The Reproduction of Full-Sphere Sound. In Proceedings of the 65th Audio Engineering Engineering Society Convention. 1571. 65th Audio Engineering Engineering Society Convention. London: Audio Engineering Society, p. 10. Available at: http://www.aes.org/e-lib/browse.cfm?elib=3794.
+
+Gerzon, M.A. & Barton, G.J., 1992. Ambisonic Decoders for HDTV. In Preprint 3345 of the 92nd Audio Engineering Society Convention. 92nd Audio Engineering Society Convention.
+
+*Heller, A., Benjamin, E. & Lee, R., 2010. Design of Ambisonic Decoders for Irregular Arrays of Loudspeakers by Non-Linear Optimization. In Proceedings of the 129th Audio Engineering Society Convention. 129th Audio Engineering Society Convention. San Francisco: AES.
+
+Heller, A.J., Benjamin, E.M. & Lee, R., 2012. A Toolkit for the Design of Ambisonic Decoders. In Proceedings of the Linux Audio Conference 2012. Linux Audio Conference 2012. Stanford, CA.
+
+Noisternig, M. et al., 2003. 3D Binarual Sound Reproduction using a Virtual Ambisonic Approach. In Proceedings of VECIMS 2003 - International Symposium on Virtual Environments, Human-Computer Interfaces, and Measurement Systems. VECIMS 2003 - International Symposium on Virtual Environments, Human-Computer Interfaces, and Measurement Systems. Lugano, Switzerland. Available at: http://iem.at/projekte/publications/paper/binaural/VE-3031.
+
+*Wiggins, B. et al., 2003. The design and optimisation of surround sound decoders using heuristic methods. In Proceedings of UKSIM 2003: Conference on Computer Simulation. UKSIM 2003: Conference on Computer Simulation. Cambridge, England. Available at: http://sparg.derby.ac.uk/SPARG/PDFs/SPARG_UKSIM_Paper.pdf.
+
+
+Joseph Anderson, 2012, 2013
+
+Daniel Peterson, 2015, 2016
+
+

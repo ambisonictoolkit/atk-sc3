@@ -1,0 +1,761 @@
+title:: Session 3b - Synthesis Techniques
+summary:: The Ambisonic Toolkit: Synthesis Techniques
+categories:: Libraries>Ambisonic Toolkit>FOA>A Guide to Getting Started With ATK>Synth Object, Tutorials>Ambisonic Toolkit>FOA>A Guide to Getting Started With ATK>Synth Object
+keyword::Atk
+
+For this session we're going to move towards a more 'Ambisonic' approach, completely separating the encoding from the decoding into two separate synthDefs. One synthDef will generate b-format and another will generate the channel feeds for us to listen to.
+
+As you might expect, this gives us great flexibility--so that I don't actually need to decide upon my target for mixdown until I'm ready to have my piece played. AND, this also gives the opportunity to play in varying circumstances.
+
+We still want to listen to what we're doing... so we'll use SC's bussing idiom...
+
+section::  Defining a Decoder Synth
+
+code::
+
+// First boot the server!
+Server.default = s = Server.local.boot;
+
+// choose a decoder
+~decoder = FoaDecoderMatrix.newStereo((131/2).degrad, 0.5);
+
+// define decoder SynthDef
+(
+// POST some info about the decoder if you want to...
+// the decoder object can be polled for different information that
+// may be useful:
+("\nInfo about ambisonic decoder").postln;
+("    Kind:"+ ~decoder.kind).postln;
+("    Dimensions: " + ~decoder.dim).postln;
+("    Num Channels" + ~decoder.numChannels).postln;
+("    Dir Channels" + ~decoder.dirChannels.raddeg).postln;
+// if(~decoder.kind != 'stereo', {("    Subject ID" + ~decoder.subjectID).postln});
+// "\n".post;
+
+SynthDef(\foaDecode, {arg inBus, gate = 1;
+	var foa, env, out;
+
+	foa = In.ar(inBus, 4);
+
+	// this envelope will HOLD at the releaseNode--this is like holding a key down
+	env = EnvGen.kr(
+		Env([0, 1, 0], [0.2, 0.2], \sin, 1), gate, doneAction: 2);
+
+	out = FoaDecode.ar(foa, ~decoder);
+
+
+	Out.ar(0, out * env);
+}).send(s);
+)
+
+~foaBus = Bus.audio(s, 4); // allocate four channels for routing
+
+
+// start the decoder note (no duration!), reading bus ~foaBus at the \tail
+~decoderNote = Synth(\foaDecode, [inBus: ~foaBus], 1, \addToTail);
+
+::
+
+section:: Defining an Encoder Synth
+
+The ATK has a number of different ways to encode audio signals into B-format. We've seen a few from the previous session, in our work with microphones.
+
+As with decoders there are two types of encoders, matrix and kernel.
+
+See: link::Classes/FoaEncode::, link::Classes/FoaEncoderMatrix::, link::Classes/FoaEncoderKernel::
+
+subsection:: Omni Encoder
+
+To get started with encoding, we'll begin with the simplest encoder, the omnidirectional encoder FoaEncoderMatrix.newOmni. Interestingly enough, this encoder doesn't actually encode any directional information. Or another way of thinking of it, a sound is encoded coming from everywhere at once (in phase)! In a dry studio or over headphones, it tends to sound as located 'in the head'. In a wet concert hall, 'coming from everywhere' is a useful description.
+
+While for now, this may not be particularly useful, when we get to imaging (spatial filtering) we'll see the omni encoder can be quite powerful.
+
+code::
+
+(
+SynthDef(\foaOmni, {arg outBus, dur = 0.05, amp = 0.25;
+	var src, foa;
+
+	src = PinkNoise.ar(amp) *
+	EnvGen.kr(
+		Env([0, 1, 0], [0.5, 0.5], \sin),
+	timeScale: dur,
+	doneAction: 2
+	);
+
+	// Encode into our foa signal
+	foa = FoaEncode.ar(src, FoaEncoderMatrix.newOmni);
+
+	Out.ar(outBus, foa);
+}).send(s);
+)
+
+Synth.new(\foaOmni, [outBus: ~foaBus, dur: 1.0, amp: -12.dbamp]); // located in centre of head!
+
+Synth.new(\foaOmni, [outBus: ~foaBus, dur: 5.0, amp: -12.dbamp]); // located in centre of head!
+
+
+::
+
+subsection:: Planewave Encoder
+
+The next simplest encoder is the planewave encoder. This is the encoder usually shown in papers describing ambisonics.
+
+There are actually two versions available in the ATK, FoaEncoderMatrix.newDirection and FoaPanB.ar. The matrix encoders are 'fixed' while the ugen version is variable in real-time. Let's have a look at the *newDirection first.
+
+code::
+
+(
+SynthDef(\foaFrontCentre, {arg outBus, dur = 0.05, amp = 0.25;
+	var src, foa, theta, phi;
+
+	theta = 0.0;
+	phi = 0.0;
+
+	src = PinkNoise.ar(amp) *
+	EnvGen.kr(
+		Env([0, 1, 0], [0.5, 0.5], \sin),
+	timeScale: dur,
+	doneAction: 2
+	);
+
+	// Encode into our foa signal
+	foa = FoaEncode.ar(src, FoaEncoderMatrix.newDirection(theta, phi));
+
+	Out.ar(outBus, foa);
+}).send(s);
+
+
+SynthDef(\foaSideLeft, {arg outBus, dur = 0.05, amp = 0.25;
+	var src, foa, theta, phi;
+
+	theta = pi/2;
+	phi = 0.0;
+
+	src = PinkNoise.ar(amp) *
+	EnvGen.kr(
+		Env([0, 1, 0], [0.5, 0.5], \sin),
+	timeScale: dur,
+	doneAction: 2
+	);
+
+	// Encode into our foa signal
+	foa = FoaEncode.ar(src, FoaEncoderMatrix.newDirection(theta, phi));
+
+	Out.ar(outBus, foa);
+}).send(s);
+)
+
+// a note or two
+Synth.new(\foaSideLeft, [outBus: ~foaBus, dur: 1.0, amp: -12.dbamp]); // side left
+Synth.new(\foaFrontCentre, [outBus: ~foaBus, dur: 1.0, amp: -12.dbamp]); // front centre
+
+// compare to:
+Synth.new(\foaOmni, [outBus: ~foaBus, dur: 1.0, amp: -12.dbamp]); // located in centre of head!
+
+
+::
+
+(Notice much difference between front-centre and omni??)
+
+You'll have noticed that theta and phi, the direction of the incoming planewave is written directly inside our SynthDef, and we can't change it through the SynthDef args. If we try to, we'll get an error. This is because we need to define the encoder (and decoder!!) before the SynthDef is defined. If we were doing this inside a routine, that would be one thing, and we could pass the encoder in (like we've done previously with decoders).
+
+Now... it may be argued that a fixed direction encoder isn't that much use. However, as with the omni encoder, when we start adding soundfield transforms (spatial filtering) we get much more flexibility.
+
+The easiest way to encode a planewave with variable incident angles is to use the FoaPanB UGen. Here's an example:
+
+
+code::
+
+(
+SynthDef(\foaPanB, {arg outBus, dur = 0.05, amp = 0.25, theta, phi;
+	var src, foa;
+
+	src = PinkNoise.ar(amp) *
+	EnvGen.kr(
+		Env([0, 1, 0], [0.5, 0.5], \sin),
+	timeScale: dur,
+	doneAction: 2
+	);
+
+	// Encode into our foa signal
+	foa = FoaPanB.ar(src, theta, phi);
+
+	Out.ar(outBus, foa);
+}).send(s);
+)
+
+Synth.new(\foaPanB, [outBus: ~foaBus, dur: 1.0, theta: 0.0, amp: -12.dbamp]); // 0 deg, front centre
+Synth.new(\foaPanB, [outBus: ~foaBus, dur: 1.0, theta: 90.degrad, amp: -12.dbamp]); // 90 deg, hard left
+Synth.new(\foaPanB, [outBus: ~foaBus, dur: 1.0, theta: -90.degrad, amp: -12.dbamp]); // -90 deg, hard right
+Synth.new(\foaPanB, [outBus: ~foaBus, dur: 1.0, theta: 180.0.degrad, amp: -12.dbamp]); // 180 deg, back centre
+
+// compare front centre and back centre to:
+Synth.new(\foaOmni, [outBus: ~foaBus, dur: 1.0, amp: -12.dbamp]); // located in centre of head!
+::
+
+
+
+When listening over headphones without head-tracking, there is a fair amount of ambiguity between front-centre, 'in the head', and back-centre. Played back over loudspeakers, we can use head motions to resolve the ambiguities.
+
+It is also worth noting that our synthetic sound is synthesised without any acoustic context. I.e., there are no early reflections or other acoustic cues to help resolve front / back.
+
+
+code::
+// more notes... all over the place!
+(
+Routine.run({
+	20.do({
+		Synth.new(\foaPanB, [outBus: ~foaBus, theta: pi.rand2, phi: pi.rand2]);
+		0.1.wait;
+	})
+});
+)
+::
+
+subsection:: Decorrelated Signals
+
+So far we've seen an encoder that has 'no direction' (omni) and one with a single direction (planewave). Another very import encoder is the AtoB encoder. This one samples the sphere (soundfield) as a tetrahedron, and can be used to simulate
+'diffuse' and/or 'active' soundfields.
+
+We'll need to synthesise or otherwise generate four signals. If these are very closely related, the resulting soundfield will sound 'diffuse'. This is the same spatial quality as happens in real soundfields--at the end of reverberation.
+
+In SC decorrelated signals can easily be generated by the noise UGens. We'll start here.
+
+code::
+
+(
+SynthDef(\foaDecor, {arg outBus, dur = 0.05, amp = 0.25;
+	var src, foa;
+
+	src = PinkNoise.ar(amp * [1,1,1,1]) *
+	EnvGen.kr(
+		Env([0, 1, 0], [0.5, 0.5], \sin),
+	timeScale: dur,
+	doneAction: 2
+	);
+
+	// Encode into our foa signal
+	foa = FoaEncode.ar(src, FoaEncoderMatrix.newAtoB);
+
+	Out.ar(outBus, foa);
+}).send(s);
+)
+
+
+Synth.new(\foaDecor, [outBus: ~foaBus, dur: 1.0]); // located around the head!
+
+// compare :
+Synth.new(\foaOmni, [outBus: ~foaBus, dur: 1.0, amp: -6.dbamp]); // located in centre of head!
+
+::
+
+
+Let's add some sense of pitch to this, using comb filters...
+
+code::
+
+(
+SynthDef(\foaDecorPch, {arg outBus, dur = 0.05, amp = 0.125, freq = 440.0;
+	var src, foa;
+	var k, dectime, hiFreq = 10000;
+
+
+	// decay time
+	dectime = dur * 2**(-3);
+
+	// normalise gain factor
+	k = (1 - ((10**(-4))**(1.0/(freq * dectime))));
+
+
+	src = WhiteNoise.ar(amp * [1,1,1,1]);
+
+	src = CombC.ar(src, 1.0/freq, 1.0/freq, dectime, k);
+
+	src = LPF.ar(
+		src,
+		EnvGen.kr(
+			Env([freq, hiFreq, freq], [0.1, 0.9], \exp),
+			timeScale: dur
+			),
+		EnvGen.kr(
+			Env([0, 1, 0], [0.1, 0.9], \sin),
+			timeScale: dur,
+			doneAction: 2
+			)
+	);
+
+
+	// Encode into our foa signal
+	foa = FoaEncode.ar(src, FoaEncoderMatrix.newAtoB);
+
+	Out.ar(outBus, foa);
+}).send(s);
+)
+
+Synth.new(\foaDecorPch, [outBus: ~foaBus, dur: 1.0, freq: 220.0, amp: -15.dbamp]);
+Synth.new(\foaDecorPch, [outBus: ~foaBus, dur: 1.0, freq: 110.0, amp: -15.dbamp]);
+
+::
+
+
+We can also do something similar with slightly detuned oscillators:
+
+
+
+code::
+
+(
+SynthDef(\foaDetunPch, {arg outBus, dur = 0.05, amp = 0.125, freq = 440.0, detune = 1.0;
+	var src, foa;
+	var hiFreq = 18000, rndFreq;
+
+	rndFreq = Array.new(4);
+	4.do({
+		rndFreq.add(Rand.new(-1 * detune/2.0, detune/2.0))
+	});
+
+	src = Saw.ar(freq + rndFreq, amp);
+
+	src = LPF.ar(
+		src,
+		EnvGen.kr(
+			Env([freq, hiFreq, freq], [0.1, 0.9], \exp),
+			timeScale: dur
+			),
+		EnvGen.kr(
+			Env([0, 1, 0], [0.1, 0.9], \sin),
+			timeScale: dur,
+			doneAction: 2
+			)
+	);
+
+
+	// Encode into our foa signal
+	foa = FoaEncode.ar(src, FoaEncoderMatrix.newAtoB);
+
+	Out.ar(outBus, foa);
+}).send(s);
+)
+
+Synth.new(\foaDetunPch, [outBus: ~foaBus, dur: 1.0, freq: 220.0, amp: -24.dbamp]);
+Synth.new(\foaDetunPch, [outBus: ~foaBus, dur: 1.0, freq: 110.0, amp: -24.dbamp]);
+
+::
+
+In contrast, compare to summing all to omni (mono).
+
+code::
+
+(
+SynthDef(\foaOmniPch, {arg outBus, dur = 0.05, amp = 0.125, freq = 440.0, detune = 1.0;
+	var src, foa;
+	var hiFreq = 18000, rndFreq;
+
+	rndFreq = Array.new(4);
+	4.do({
+		rndFreq.add(Rand.new(-1 * detune/2.0, detune/2.0))
+	});
+
+	src = Saw.ar(freq + rndFreq, amp).sum;
+
+	src = LPF.ar(
+		src,
+		EnvGen.kr(
+			Env([freq, hiFreq, freq], [0.1, 0.9], \exp),
+			timeScale: dur
+			),
+		EnvGen.kr(
+			Env([0, 1, 0], [0.1, 0.9], \sin),
+			timeScale: dur,
+			doneAction: 2
+			)
+	);
+
+
+	// Encode into our foa signal
+	foa = FoaEncode.ar(src, FoaEncoderMatrix.newOmni);
+
+	Out.ar(outBus, foa);
+}).send(s);
+)
+
+Synth.new(\foaOmniPch, [outBus: ~foaBus, dur: 1.0, freq: 220.0, amp: -24.dbamp]);
+Synth.new(\foaOmniPch, [outBus: ~foaBus, dur: 1.0, freq: 110.0, amp: -24.dbamp]);
+
+// compare to:
+Synth.new(\foaDetunPch, [outBus: ~foaBus, dur: 1.0, freq: 220.0, amp: -24.dbamp]);
+Synth.new(\foaDetunPch, [outBus: ~foaBus, dur: 1.0, freq: 110.0, amp: -24.dbamp]);
+
+
+::
+
+
+
+In most cases, the preferred way to work is to encode a decorrelated soundfield using the AtoB encoder. This gives us a broad image that can then be reshaped later. The synthesis example directly above is fairly simple, but the thing to remember is to synthesise four closely related signals and encode
+from A-format.
+
+
+
+
+subsection:: Spreading Filter
+
+Two new kernel encoders have been recently added to the ATK. These are spreading filters and diffusion filters. The spreading filter spreads the spectrum of an input sound across the soundfield, as if wrapping a piece of string around a sphere.
+
+code::
+
+
+// spreader
+~encoder = FoaEncoderKernel.newSpread;
+~encoder = FoaEncoderKernel.newSpread(0000);
+~encoder = FoaEncoderKernel.newSpread(0002);
+~encoder = FoaEncoderKernel.newSpread(0004);
+~encoder = FoaEncoderKernel.newSpread(0006);
+~encoder = FoaEncoderKernel.newSpread(0008);
+~encoder = FoaEncoderKernel.newSpread(0010);
+~encoder = FoaEncoderKernel.newSpread(0012);
+
+// free when choosing a new encoder
+~encoder.free;
+
+
+
+// inspect
+~encoder.kind;
+~encoder.numChannels;
+~encoder.dirChannels;
+
+
+(
+SynthDef(\foaSpread, {arg outBus, dur = 0.05, amp = 0.25;
+	var src, foa;
+
+	src = PinkNoise.ar(amp);
+
+	// Encode into our foa signal
+	foa = FoaEncode.ar(src, ~encoder);
+
+	// envelope after encoder.. as is kernel encoder
+	foa = foa * EnvGen.kr(
+		Env([0, 1, 0], [0.5, 0.5], \sin),
+	timeScale: dur,
+	doneAction: 2
+	);
+
+	Out.ar(outBus, foa);
+}).send(s);
+)
+
+Synth.new(\foaSpread, [outBus: ~foaBus, dur: 1.0]); // located around the head!
+Synth.new(\foaSpread, [outBus: ~foaBus, dur: 5.0]); // located around the head!
+
+
+// compare to, decorrelated:
+Synth.new(\foaDecor, [outBus: ~foaBus, dur: 1.0, amp: -15.dbamp]); // located around the head!
+
+
+(
+SynthDef(\foaSpreadPch, {arg outBus, dur = 0.05, amp = 0.125, freq = 440.0, detune = 1.0;
+	var src, foa;
+	var hiFreq = 18000, rndFreq;
+
+	src = Saw.ar(freq, amp);
+
+	src = LPF.ar(
+		src,
+		EnvGen.kr(
+			Env([freq, hiFreq, freq], [0.1, 0.9], \exp),
+			timeScale: dur)
+	);
+
+
+	// Encode into our foa signal
+	foa = FoaEncode.ar(src, ~encoder);
+
+	foa = foa * EnvGen.kr(
+		Env([0, 1, 0], [0.1, 0.9], \sin),
+		timeScale: dur,
+		doneAction: 2
+		);
+
+	Out.ar(outBus, foa);
+}).send(s);
+)
+
+Synth.new(\foaSpreadPch, [outBus: ~foaBus, dur: 1.0, freq: 220.0, amp: -12.dbamp]);
+Synth.new(\foaSpreadPch, [outBus: ~foaBus, dur: 1.0, freq: 110.0, amp: -12.dbamp]);
+
+// s.scope;
+
+
+// free when done!
+~encoder.free;
+::
+
+anchor::Diffusion Filter::
+subsection:: Diffusion Filter
+
+code::
+
+// diffuse
+~encoder = FoaEncoderKernel.newDiffuse;
+~encoder = FoaEncoderKernel.newDiffuse(0000);
+~encoder = FoaEncoderKernel.newDiffuse(0001);
+~encoder = FoaEncoderKernel.newDiffuse(0002);
+~encoder = FoaEncoderKernel.newDiffuse(0003);
+~encoder = FoaEncoderKernel.newDiffuse(0004);
+~encoder = FoaEncoderKernel.newDiffuse(0005);
+
+// free when choosing a new encoder
+~encoder.free;
+
+
+
+// inspect
+~encoder.kind;
+~encoder.numChannels;
+~encoder.dirChannels;
+
+
+(
+SynthDef(\foaDiffuse, {arg outBus, dur = 0.05, amp = 0.25;
+	var src, foa;
+
+	src = PinkNoise.ar(amp);
+
+	// Encode into our foa signal
+	foa = FoaEncode.ar(src, ~encoder);
+
+	// envelope after encoder.. as is kernel encoder
+	foa = foa * EnvGen.kr(
+		Env([0, 1, 0], [0.5, 0.5], \sin),
+	timeScale: dur,
+	doneAction: 2
+	);
+
+	Out.ar(outBus, foa);
+}).send(s);
+)
+
+Synth.new(\foaDiffuse, [outBus: ~foaBus, dur: 1.0]); // located around the head!
+Synth.new(\foaDiffuse, [outBus: ~foaBus, dur: 5.0]); // located around the head!
+
+
+// compare to, decorrelated:
+Synth.new(\foaDecor, [outBus: ~foaBus, dur: 1.0]); // located around the head!
+
+
+(
+SynthDef(\foaDiffusePch, {arg outBus, dur = 0.05, amp = 0.125, freq = 440.0, detune = 1.0;
+	var src, foa;
+	var hiFreq = 18000, rndFreq;
+
+	src = Saw.ar(freq, amp);
+
+	src = LPF.ar(
+		src,
+		EnvGen.kr(
+			Env([freq, hiFreq, freq], [0.1, 0.9], \exp),
+			timeScale: dur)
+	);
+
+
+	// Encode into our foa signal
+	foa = FoaEncode.ar(src, ~encoder);
+
+	foa = foa * EnvGen.kr(
+		Env([0, 1, 0], [0.1, 0.9], \sin),
+		timeScale: dur,
+		doneAction: 2
+		);
+
+	Out.ar(outBus, foa);
+}).send(s);
+)
+
+Synth.new(\foaDiffusePch, [outBus: ~foaBus, dur: 1.0, freq: 220.0, amp: -12.dbamp]);
+Synth.new(\foaDiffusePch, [outBus: ~foaBus, dur: 1.0, freq: 110.0, amp: -12.dbamp]);
+
+// s.scope;
+
+
+// free when done!
+~encoder.free;
+
+::
+
+
+subsection:: AtoB Encoder
+
+The new kernel encoders are useful in a variety of contexts--and give different ways of spreading a mono input signal across the soundfield.
+
+Often, however, it often makes sense just to work in A-format...
+
+Now, when we look at the help file for *newAtoB, we'll see that there are many different orientations of the tetrahedron available. When we encoded our sound with the microphone array, we used one of these alternate arrangements. They can also be useful in other contexts.
+
+Here's a 'granular' example....
+
+code::
+
+(
+SynthDef(\foaDust, {arg outBus, dur = 0.05, amp = 0.125, density = 10.0;
+	var src, foa;
+	var loFreq = 100.0, hiFreq = 5000, klankArgs;
+
+
+	klankArgs = Ref([[800, 1071, 1153, 1723], nil, dur/20 * [1, 1, 1, 1]]);
+
+	src = Dust.ar(density * [1,1,1,1] / 4, amp);
+
+	src = Klank.ar(klankArgs, src);
+
+	src = LPF.ar(
+		src,
+		EnvGen.kr(
+			Env([loFreq, hiFreq, loFreq], [0.1, 0.9], \exp),
+		timeScale: dur),
+		EnvGen.kr(
+			Env([0, 1, 0], [0.1, 0.9], \sin),
+		timeScale: dur,
+		doneAction: 2
+		)
+	);
+
+
+	// Encode into our foa signal
+	foa = FoaEncode.ar(src, FoaEncoderMatrix.newAtoB('fbd'));
+
+	Out.ar(outBus, foa);
+}).send(s);
+)
+
+Synth.new(\foaDust, [outBus: ~foaBus, dur: 5.0, amp: -24.dbamp, density: 5.0]);
+Synth.new(\foaDust, [outBus: ~foaBus, dur: 5.0, amp: -24.dbamp, density: 10.0]);
+Synth.new(\foaDust, [outBus: ~foaBus, dur: 5.0, amp: -24.dbamp, density: 20.0]);
+Synth.new(\foaDust, [outBus: ~foaBus, dur: 5.0, amp: -24.dbamp, density: 100.0]);
+
+Synth.new(\foaDust, [outBus: ~foaBus, dur: 15.0, amp: -28.dbamp, density: 100.0]);
+
+Synth.new(\foaDust, [outBus: ~foaBus, dur: 2.0, amp: -20.dbamp, density: 500.0]);
+
+Synth.new(\foaDust, [outBus: ~foaBus, dur: 20.0, amp: -24.dbamp, density: 500.0]);
+
+
+::
+
+This last example shows how a granular texture (an 'active' soundfield) can easily be made using the AtoB encoder. If the soundfield is further modulated (using rotations or other spatial transforms--we'll look at that later), we can synthesise a soundfield that has activity everywhere.
+
+With this current SynthDef, ther is a 'limitation', though, in that each of our granular streams is fixed to an A-format location.
+
+If we need (or want) to encode more than four inputs into our soundfield, we can use the ATK's most flexible encoder *newDirections. Below we place 12 separate streams in random directions.
+
+code::
+
+
+(
+SynthDef(\foaDust12, {arg outBus, dur = 0.05, amp = 0.125, density = 10.0;
+	var src, foa;
+	var loFreq = 100.0, hiFreq = 5000, klankArgs, streams = 12;
+
+
+	klankArgs = Ref([[800, 1071, 1153, 1723], nil, dur/20 * [1, 1, 1, 1]]);
+
+	src = Dust.ar(density * Array.fill(streams, {1}) / streams, amp);
+
+	src = Klank.ar(klankArgs, src);
+
+	src = LPF.ar(
+		src,
+		EnvGen.kr(
+			Env([loFreq, hiFreq, loFreq], [0.1, 0.9], \exp),
+		timeScale: dur),
+		EnvGen.kr(
+			Env([0, 1, 0], [0.1, 0.9], \sin),
+		timeScale: dur,
+		doneAction: 2
+		)
+	);
+
+
+	// Encode into our foa signal
+	foa = FoaEncode.ar(src, FoaEncoderMatrix.newDirections(Array.fill(streams, {[pi.rand2, pi.rand2]}), nil));
+
+	Out.ar(outBus, foa);
+}).send(s);
+)
+
+
+Synth.new(\foaDust12, [outBus: ~foaBus, dur: 5.0, amp: -24.dbamp, density: 5.0]);
+Synth.new(\foaDust12, [outBus: ~foaBus, dur: 5.0, amp: -24.dbamp, density: 10.0]);
+Synth.new(\foaDust12, [outBus: ~foaBus, dur: 5.0, amp: -24.dbamp, density: 20.0]);
+Synth.new(\foaDust12, [outBus: ~foaBus, dur: 5.0, amp: -24.dbamp, density: 100.0]);
+
+Synth.new(\foaDust12, [outBus: ~foaBus, dur: 15.0, amp: -28.dbamp, density: 100.0]);
+
+Synth.new(\foaDust12, [outBus: ~foaBus, dur: 2.0, amp: -20.dbamp, density: 500.0]);
+
+
+::
+
+*newDirections can be used to encode either 'virtual speaker' positions, or microphone positions, for microphone
+array.... See: link::Classes/FoaEncoderMatrix::
+
+Before we leave *newAtoB, let's have a look at another use. Encoding granular streams via *newAtoB is
+a very idiomatic use of the ATK. The results are very interesting if we use soundfiles....
+
+code::
+
+(
+SynthDef(\foaWarp1, {arg outBus, dur = 0.05, amp = 0.125, buffer, start, end, curve, windowSize = 0.5, winOverlaps = 8, randWin = 0.3;
+	var src, foa;
+	var env, pointer;
+
+
+	env = EnvGen.kr(Env([0, 1, 1, 0], [0.1, 0.8, 0.1], \sin), levelScale: amp, timeScale: dur, doneAction: 2);
+
+	pointer = EnvGen.kr(Env([start, end], [dur], curve)) * Array.fill(4, {1.0}) + LFNoise2.kr(0.1).range(-0.1, 0.1);
+
+	src = Warp1.ar(1, buffer, pointer, 1, windowSize, overlaps: winOverlaps, windowRandRatio: randWin);
+
+
+	// Encode into our foa signal
+	foa = FoaEncode.ar(src, FoaEncoderMatrix.newAtoB('flr'));
+
+	Out.ar(outBus, foa * env);
+}).send(s);
+)
+
+// define a buffer to read!
+b = Buffer.read(s, "~/Sound/femaleVoxEx.wav".standardizePath);
+
+Synth.new(\foaWarp1, [outBus: ~foaBus, dur: 10.0, amp: -12.dbamp, buffer: b, start: 0.1, end: 0.8, curve: 0]);
+Synth.new(\foaWarp1, [outBus: ~foaBus, dur: 10.0, amp: -12.dbamp, buffer: b, start: 0.22, end: 0.22, curve: 0]);
+Synth.new(\foaWarp1, [outBus: ~foaBus, dur: 10.0, amp: -12.dbamp, buffer: b, start: 0.42, end: 0.42, curve: 0]);
+Synth.new(\foaWarp1, [outBus: ~foaBus, dur: 10.0, amp: -12.dbamp, buffer: b, start: 0.8, end: 0.1, curve: 5])
+
+// free buffer when done!
+b.free;
+
+// .. and do some more clean-up
+~decoderNote.set(\gate, 0) // set gate to '0' ... envelope finishes, note frees
+~foaBus.free; // free the audio bus
+~decoder.free; // free the decoder
+
+s.quit
+
+::
+
+
+section:: Review
+
+link::Classes/FoaEncode::
+
+link::Classes/FoaEncoderMatrix::
+
+link::Classes/FoaEncoderKernel::
+
+
+Joseph Anderson, 2012, 2013
+
+Daniel Peterson, 2015, 2016
+

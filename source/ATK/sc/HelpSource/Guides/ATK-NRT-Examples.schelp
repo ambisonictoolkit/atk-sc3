@@ -2,8 +2,8 @@ title:: Non-Realtime Examples with the ATK
 summary:: Introduction to the Ambisonic Toolkit
 categories:: Libraries>Ambisonic Toolkit>FOA>A Comprehensive Guide to the ATK
 keyword::Atk
-"/Users/dan/atk-sounds/double_m_s/Peterson-St_Alphonsus_Organ_MidField.wav"
-For a more in-depth overview of the paradigm of ATK and a complete presentation of its capabilities, see link::Guides/Intro-to-the-ATK:: and link::Guides/ATK Workshop::. These examples show a limited set of the ATK's functionality, but illustrate how to work with the library when using SynthDefs, a single decoder that reads the Ambisonic signal through audio bus routing for NRT processing.
+
+For a more in-depth overview of the paradigm of ATK and a complete presentation of its capabilities, see link::Guides/Intro-to-the-ATK:: and link::Guides/ATK-Workshop-Master::. These examples show a limited set of the ATK's functionality, but illustrate how to work with the library when using SynthDefs, a single decoder that reads the Ambisonic signal through audio bus routing for NRT processing.
 
 section:: ATK with Score
 
@@ -13,7 +13,7 @@ Examples with Score are trickier because of the need for bundles, etc.  Since th
 code::
 (
 var score, bufnum, sndPath, duration, decoder, sampleRate, headerFormat, sampleFormat;
-var offset = 0.0;
+var offset = 0.1;
 
 // deinfe our score
 score = Score.new;
@@ -64,7 +64,8 @@ score.add(
 );
 
 // add commands to free the synth and buffer
-score.add([ duration + 0.1, [ 'n_free', 1001 ], [ 'b_free', bufnum ] ],);
+score.add([ duration, [ 'n_free', 1001 ] ],);
+score.add([ duration + 0.1, [ 'b_free', bufnum ] ],);
 
 // free the kernel buffers
 decoder.kernel.do({arg bufs;
@@ -75,7 +76,7 @@ decoder.kernel.do({arg bufs;
 });
 
 // add the needed dummy command to stop NRT
-score.add([offset + duration + 0.1, [0]] );
+score.add([offset + duration + 0.2, [0]] );
 
 // render our score to a sound file
 score.recordNRT("/tmp/trashme", "~/Desktop/myDecode.wav".standardizePath,
@@ -84,8 +85,6 @@ score.recordNRT("/tmp/trashme", "~/Desktop/myDecode.wav".standardizePath,
 	sampleFormat: sampleFormat,
 	options: ServerOptions.new.numOutputBusChannels_(decoder.numChannels)
 );
-
-score.saveToFile("~/Desktop/test.sc".standardizePath);
 
 )
 ::
@@ -144,7 +143,7 @@ synth = CtkSynthDef(\kernelEncodeDecode, {arg buffer;
 
 // create a synth note and add it to the score
 score.add(
-	synth.note(1.0, duration).buffer_(sndbuf)
+	synth.note(0.0, duration).buffer_(sndbuf)
 );
 
 // write our score to disk

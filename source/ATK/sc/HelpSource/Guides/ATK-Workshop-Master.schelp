@@ -1,0 +1,1765 @@
+title:: ATK Workshop
+summary:: Decoding, Recording, Encoding, Transforming, Synthesis
+categories:: Libraries>Ambisonic Toolkit>FOA>A Comprehensive Guide to the ATK
+keyword::Atk
+
+The examples in the ATK help files uses two global variables: code::~decoder::, code::~sndBuf::. These must be defined before any ATK help examples can be auditioned.
+
+In order to get up and running, we need to decide how we'll be listening to our soundfields—we need to choose a decoder. A decoder takes your b-format signal (4 channels), and generates the channel feeds you'll send to your speakers or headphones. The ATK has many built-in decoders (and methods of construncting your own). We'll touch on this later in the tutorial.
+
+section:: Decoders
+
+The ATK has two types of decoders: Matrix and Kernel.
+
+subsection:: Matrix Decoders
+
+Matrix decoders use matrix multiplication to generate speaker feeds from the encoded b-format (ambisonic) soundfield signal. code::FoaDecoderMatrix.newStereo:: is a useful 'virtual microphone' stereo decoder--allowing us to select a virtual microphone pair, specifying microphone response pattern and microphone angle.
+
+code::
+// stereophonic: matrix
+~decoder = FoaDecoderMatrix.newStereo((131/2).degrad, 0.5) // Cardioids at 131 deg
+~decoder = FoaDecoderMatrix.newStereo(5/9 * pi, 0.5)       // Cardioids at Duda angle
+::
+
+See: link::Classes/FoaDecoderMatrix::
+
+subsection:: Kernel Decoders
+
+Kernel decoders use FIR filters to decode an ambisonic signal. code::*newUHJ:: returns an Ambisonic UHJ decoder--this is the 'native' format for stereo. UHJ has an added advantage in that it a horizontal (pantophonic) ambisonic signal can be recovered from UHJ. There are many published recordings in Ambisonic UHJ. (All Nimbus recordings are published in UHJ: http://www.wyastone.co.uk/all-labels/nimbus.html)
+
+The binaural decoders in the ATK are kernel decoders. These are what you should use for listening over headphones. At the moment the ATK includes three binaural libraries: Spherical, CIPIC and Listen. The Spherical is a synthetic model of a spherical head (rendered in 2D). This one has 'no ears', so is a general approximation. (I find it works pretty well for me!) CIPIC and Listen are two measured libraries from UC Davis and IRCAM, respectively. The CIPIC library contains two KEMAR head measurements. For binaural decoding to sound good, you'll need to find a decoder that matches your head well.
+
+A good HRTF match will have the following characteristics:
+
+list::
+## Clearly Imaged
+## Outside the Head
+## Wide Perspective
+::
+
+Kernel decoders also take a little bit of special care, because buffers are loaded with the appropriate FIR filters, these need to be freed after final use.
+
+See: link::Classes/FoaDecoderKernel::
+
+section:: Stereo Decoders
+
+For stereo decoding, you should think of the UHJ decoder as the ambisonic 'native' stereo output... so that when you plan to distribute or otherwise monitor in stereo, this should be your first choice. UHJ gives a broad image beyound the edges of the stereo pair with a natural sounding depth into the image.
+
+
+subsection:: Kernel UHJ Stereo Decoder
+
+UHJ is also interesting in that we can go back and forth between UHJ and horizontal only b-format. (The ATK includes a UHJ encoder!) We do lose information in this process--decoding to UHJ 'compresses' three channels [W, X, Y] down to two [L, R], so it shouldn't be surprising that some information is lost.
+
+
+code::
+
+// First boot the server!
+Server.default = s = Server.local.boot;
+
+
+~decoder = FoaDecoderKernel.newUHJ                         // UHJ (kernel)
+
+
+
+// inspect
+~decoder.kind
+~decoder.subjectID // only for kernel decoders!
+~decoder.dim
+~decoder.numChannels
+~decoder.dirChannels.raddeg // output (stereo: +/-30deg; binaural: +/-100deg)
+
+// let's look at the kernel...
+~decoder.kernel
+~decoder.kernel.at(0) // W for L & R
+~decoder.kernel.at(1) // X for L & R
+~decoder.kernel.at(2) // Y for L & R
+
+(
+~decoder.kernel.at(0).at(0).plot; // W for L
+~decoder.kernel.at(0).at(1).plot; // W for R
+)
+
+
+// free kernel (before you choose another one & when we're done!)
+~decoder.free
+
+::It should be noted that the kernel decoders add a delay to the signal of approximately kernelSize/2 samples.
+
+subsection:: Matrix Stereo Decoder
+
+The ATK also includes a matrix decoder for stereo. This can be useful to explore varying coincident microphone techniques. Here we can synthesise varying stereo microphone arrays.
+
+From the link::Classes/FoaDecoderMatrix:: help file:
+
+code::
+// Default: Cardioids at 180 deg
+~decoder = FoaDecoderMatrix.newStereo
+
+
+// inspect
+~decoder.kind
+~decoder.dim
+~decoder.numChannels
+~decoder.dirChannels.raddeg // output (stereo: +/-30deg; binaural: +/-100deg)
+~decoder.matrix
+
+
+
+// Blumlein
+~angle = pi/4 // bug in help file!!!
+~pattern = 1.0
+~decoder = FoaDecoderMatrix.newStereo(~angle, ~pattern)
+
+// inspect
+~decoder.kind
+~decoder.dim
+~decoder.numChannels
+~decoder.dirChannels.raddeg // output (stereo: +/-30deg; binaural: +/-100deg)
+~decoder.matrix
+
+
+
+// Cardioids at 131 deg
+~angle = 131/2 * pi/180
+~pattern = 0.5
+~decoder = FoaDecoderMatrix.newStereo(~angle, ~pattern)
+
+// inspect
+~decoder.kind
+~decoder.dim
+~decoder.numChannels
+~decoder.dirChannels.raddeg // output (stereo: +/-30deg; binaural: +/-100deg)
+~decoder.matrix
+
+
+
+// Super-cardioids at 115 deg
+~angle = 115/2 * pi/180
+~pattern = 0.63
+~decoder = FoaDecoderMatrix.newStereo(~angle, ~pattern)
+
+// inspect
+~decoder.kind
+~decoder.dim
+~decoder.numChannels
+~decoder.dirChannels.raddeg // output (stereo: +/-30deg; binaural: +/-100deg)
+~decoder.matrix
+
+
+
+// Hyper-cardioids at 105 deg
+~angle = 105/2 * pi/180
+~pattern = 0.75
+~decoder = FoaDecoderMatrix.newStereo(~angle, ~pattern)
+
+// inspect
+~decoder.kind
+~decoder.dim
+~decoder.numChannels
+~decoder.dirChannels.raddeg // output (stereo: +/-30deg; binaural: +/-100deg)
+~decoder.matrix
+::
+
+subsection:: HRTF Decoders
+
+From our use of the ATK so far, we already have some experience of using the binaural decoders. There are three of them, with many subjectIDs. We've already discussed notions of finding a good HRTF match... so I won't repeat them here.
+
+At the moment the ATK includes two measured libraries, *newListen and *newCIPIC, and one synthetic library, *newSpherical. The first two are 'full 3D' while the last is horizontal only
+
+All these are equalised flat for the diffuse field--so for best results you should use headphones that are too!
+
+code::
+
+~decoder = FoaDecoderKernel.newCIPIC                        // CIPIC (kernel)
+
+
+
+// inspect
+~decoder.kind
+~decoder.subjectID // only for kernel decoders!
+~decoder.dim
+~decoder.numChannels
+~decoder.dirChannels.raddeg // output (stereo: +/-30deg; binaural: +/-100deg)
+
+// let's look at the kernel...
+~decoder.kernel
+~decoder.kernel.at(0) // W for L & R
+~decoder.kernel.at(1) // X for L & R
+~decoder.kernel.at(2) // Y for L & R
+~decoder.kernel.at(3) // Z for L & R
+
+(
+~decoder.kernel.at(0).at(0).plot; // W for L
+~decoder.kernel.at(0).at(1).plot; // W for R
+)
+
+(
+~decoder.kernel.at(2).at(0).plot; // Y for L
+~decoder.kernel.at(2).at(1).plot; // Y for R
+)
+
+
+
+// free kernel (before you choose another one & when we're done!)
+~decoder.free
+
+
+::
+
+Many subjectIDs are available. You can get a list by choosing one that doesn't exist (scroll up the post window to see the list):
+
+code::
+
+~decoder = FoaDecoderKernel.newCIPIC(9999)                 // CIPIC (kernel)
+~decoder = FoaDecoderKernel.newListen(9999)                 // Listen (kernel)
+~decoder = FoaDecoderKernel.newSpherical(9999)                 // Spher (kernel)
+
+// is there a feature request in the ATK tracker for higher SRs for CIPIC/Listen?
+
+
+::
+
+Ok... so... we've got quite a lot of choice here for just decoding to two outputs!!
+
+When you're working on something, it is useful to check things across a few of these just to see what you're getting. I tend to go between a binaural decode and UHJ to see where I am with stereo.
+
+section:: Surround Decoders
+
+subsection:: Quad Decoder
+
+Speaking of 'ambisonic surround sound', it would be useful to look at some 'surround' arrays. We'll start with a quad system, perhaps the simplest, something that a hacker/artist can easily arrange.
+
+Interestingly enough, Gerzon's development of ambisonics came from an interest in optimising the quad systems on the market in the 70s.
+
+The 'standard' arrangement is a square, but with ambisonics, we have greater flexibility(!) and can make rectangles, too!
+
+code::
+
+// quad (square, 'single')
+~decoder = FoaDecoderMatrix.newQuad
+
+// inspect
+~decoder.kind
+~decoder.dim
+~decoder.numChannels
+~decoder.dirChannels.raddeg // output, anti-clockwise: FL, BL, BR, FR
+~decoder.matrix
+
+
+
+// quad (rectangle, 'single')
+~angle = 30.degrad // 1/2 angle for front
+~decoder = FoaDecoderMatrix.newQuad(~angle)
+
+// inspect
+~decoder.kind
+~decoder.dim
+~decoder.numChannels
+~decoder.dirChannels.raddeg // output, anti-clockwise: FL, BL, BR, FR
+~decoder.matrix
+
+::
+
+This above arrangement (~angle = 30.degrad) is what I have set up at home. The reason it is useful for me is that I can also monitor standard stereo without moving my loudspeakers around!
+
+Also, at HF, the image is made sharper in front (and back) by moving the loudspeakers closer together.
+
+subsection:: Decoder Types
+
+You'll have noticed there is an argument called 'k'... it is worth discussing that now.
+
+Gerzon designed ambisonics as a system with a number of optimisations where the soundfield isn't reconstructed exactly. At LFs, (up to around 500-700Hz or so) the soundfield can be reconstructed in a 'reasonably sized' area with FOA. Gerzon uses a metric called rV at LF (velocity vector).
+
+At HFs, the soundfield reconstruction area becomes increasingly small--to a single point! Instead, for HFs Gerzon uses a psychoacoustic metric named rE (energy vector)--and the decoder attempts to maximise this value.
+
+The 'k' arg gives us different choices:
+
+'single', 'dual', 'velocity', 'energy', 'controlled'
+
+
+See decoder k in help link::Classes/FoaDecoderMatrix::
+
+
+For small scale listening, the best decoder to use is 'dual', for mid-scale, try 'single' and for concert hall, Malham advises 'controlled'. I tend to adjust k by hand in the concert hall until I'm happy--usually some place between k = 1/sqrt(2) and k = 1/2.
+
+
+Here's what I use at home:
+
+code::
+
+// quad (rectangle, 'single')
+~angle = 30.degrad // 1/2 angle for front
+// ~decoder = FoaDecoderMatrix.newQuad(~angle, 'velocity') // strict
+// ~decoder = FoaDecoderMatrix.newQuad(~angle, 'single') // energy
+~decoder = FoaDecoderMatrix.newQuad(~angle, 'dual') // optimised
+// ~decoder = FoaDecoderMatrix.newQuad(~angle, 'controlled')
+::
+
+
+
+There's a further optimisation for small to mid sized decoding, and this is near-field distance compensation. We can use the NFC filter to remove proximity from a recording, but it is also used to compensate for near-field loudspeakers. NFC is found in FoaTransform.
+
+
+section:: Decoding of a Sound File
+
+Let's audition some of these!!
+
+
+code::
+// My hexagonal decoder:
+~decoder = FoaDecoderMatrix.newPanto(6, k: 'dual')         // psycho optimised hex
+~decoder = FoaDecoderMatrix.newPanto(6, k: 'velocity')
+~decoder = FoaDecoderMatrix.newPanto(6, k: 'energy')
+~decoder = FoaDecoderMatrix.newPanto(6, k: 'controlled')
+
+
+
+
+// define decoder SynthDef
+(
+// POST some info about the decoder if you want to...
+// the decoder object can be polled for different information that
+// may be useful:
+("\nInfo about ambisonic decoder").postln;
+("    Kind:"+ ~decoder.kind).postln;
+("    Dimensions: " + ~decoder.dim).postln;
+("    Num Channels" + ~decoder.numChannels).postln;
+("    Dir Channels" + ~decoder.dirChannels.raddeg).postln;
+// if(~decoder.kind != 'stereo', {("    Subject ID" + ~decoder.subjectID).postln});
+// "\n".post;
+
+SynthDef(\foaDecode, {arg inBus, gate = 1;
+	var foa, env, out;
+
+	foa = In.ar(inBus, 4);
+
+	// this envelope will HOLD at the releaseNode--this is like holding a key down
+	env = EnvGen.kr(
+		Env([0, 1, 0], [0.2, 0.2], \sin, 1), gate, doneAction: 2);
+
+	out = FoaDecode.ar(foa, ~decoder);
+
+
+	Out.ar(0, out * env);
+}).send(s);
+)
+
+~foaBus = Bus.audio(s, 4); // allocate four channels for routing
+
+
+// start the decoder note (no duration!), reading bus ~foaBus at the \tail
+~decoderNote = Synth(\foaDecode, [inBus: ~foaBus], 1, \addToTail);
+
+
+// load sound into a buffer
+(
+var fileName;
+var fileStartTime, bufferDur;
+
+fileName = Atk.userSoundsDir ++ "/b-format/Pampin-On_Space.wav";
+
+fileStartTime = 0.0; // for an ATK file... i.e., Pampin-On_Space
+bufferDur = 30.0;
+
+~sndBuf = Buffer.read(
+	s,
+	fileName,
+	fileStartTime * s.sampleRate,
+	bufferDur * s.sampleRate
+);
+
+)
+
+// this is set-up just to play b-format only
+// remember to do cmd-. to clear buffers
+(
+var soundfile, cmdPeriod;
+var playBuffer;
+
+Server.default = s = Server.local.boot;
+
+s.waitForBoot({
+	Routine.run({
+
+		// free buffer!
+		cmdPeriod = {
+			~sndBuf.free;
+			"Command Period freed soundfile buffer!".postln;
+		};
+
+		CmdPeriod.doOnce(cmdPeriod);
+
+		// POST some info about the sound if you want to...
+		// the CtkBuffer object can be polled for different information that
+		// may be useful:
+		("\nInfo about soundfile at" + ~sndBuf.path).postln;
+		("    Duration:"+ ~sndBuf.duration).postln;
+		("    SampleRate: " + ~sndBuf.sampleRate).postln;
+		("    Num Channels" + ~sndBuf.numChannels).postln;
+
+		// POST some info about the decoder if you want to...
+		// the decoder object can be polled for different information that
+		// may be useful:
+		("\nInfo about ambisonic decoder").postln;
+		("    Kind:"+ ~decoder.kind).postln;
+		("    Dimensions: " + ~decoder.dim).postln;
+		("    Num Channels" + ~decoder.numChannels).postln;
+		("    Dir Channels" + ~decoder.dirChannels.raddeg).postln;
+		// if(~decoder.kind != 'stereo', {("    Subject ID" + ~decoder.subjectID).postln});
+		// "\n".post;
+
+		/* now - using it. For our immediate purposes, PlayBuf is the way to go. */
+
+		// define a synthDef
+		SynthDef(\bFormatPlay, {arg buffer, dur, outBus;
+			var src, env;
+
+			env = EnvGen.kr(
+				Env([0, 1, 1, 0], [0.1, dur - 0.2, 0.1], \sin), doneAction: 2);
+
+			// PlayBuf expects the number of channels to match those in the buffer
+			// So, need to query...
+			src = PlayBuf.ar(
+				~sndBuf.numChannels, // ambisonic b-format (4)
+				buffer, // the buffer you created above
+				BufRateScale.kr(buffer), // play back at the correct sampling rate
+			);
+			src = 6.dbamp * src;
+			Out.ar(outBus, env * src);
+		}).send(s);
+		s.sync;
+
+		// play one time
+		Synth.new(\bFormatPlay, [outBus: ~foaBus, buffer: ~sndBuf, dur:~sndBuf.duration]);
+	})
+})
+)
+
+
+
+
+// .. and do some more clean-up
+~decoderNote.set(\gate, 0); // set gate to '0' ... envelope finishes, note frees
+~foaBus.free; // free the audio bus
+~decoder.free; // free the decoder
+
+s.quit
+
+::
+
+note:: strong::Soundfile Credits::
+
+list::
+## Juan Pampin, "On Space," Les Percussions de Strasbourg 50th Anniversary Edition, Classics Jazz France 480 6512
+::
+
+::
+
+
+
+
+section:: Reading
+
+Algazi, V.R. et al., 2001. The CIPIC HRTF Database. In Proceedings of the 2001 IEEE ASSP Workshop on Applications of Signal Processing to Audio and Acoustics. WASSAP  ’01. New Paltz, NY: IEEE Signal Processing Society.
+
+*Benjamin, E., 2008. Ambisonic Loudspeaker Arrays. In Proceedings of the 125th Audio Engineering Society Convention. 125th Audio Engineering Society Convention. San Francisco: Audio Engineering Society.
+
+Benjamin, E., Lee, R. & Heller, A., 2008. Is My Decoder Ambisonic? In Proceedings of the 125th Audio Engineering Society Convention. 125th Audio Engineering Society Convention. San Francisco.
+
+*Benjamin, E., Lee, R. & Heller, A., 2006. Localization in Horizontal-Only Ambisonic Systems. In Proceedings of the 121st Audio Engineering Society Convention. 121st Audio Engineering Society Convention. San Francisco.
+
+Brown, C.P. & Duda, R.O., 1997. An efficient HRTF model for 3-D sound. In Proceedings of the 1997 IEEE ASSP Workshop on Applications of Signal Processing to Audio and Acoustics. WASPAA  ’97. New Paltz, NY: IEEE Signal Processing Society.
+
+*Daniel, J., 2001. Représentation de champs acoustiques, application à la transmission et à la reproduction de scènes sonores complexes dans un contexte multimédia. PhD Thesis. Paris: Université Paris 6.
+
+Duda, R.O., 1993. Modeling head related transfer functions. In Proceedings of the Twenty-Seventh Annual Asilomar Conference on Signals, Systems and Computers. Twenty-Seventh Annual Asilomar Conference on Signals, Systems and Computers. Asilomar, CA.
+
+*Gerzon, M.A., 1985. Ambisonics in Multichannel Broadcasting and Video. Journal of the Audio Engineering Society, 33(11), pp.859–871.
+
+Gerzon, M.A., 1973. Periphony: With-Height Sound Reproduction. Journal of the Audio Engineering Society, 21(1), pp.2–10.
+
+Gerzon, M.A., 1980. Practical Periphony: The Reproduction of Full-Sphere Sound. In Proceedings of the 65th Audio Engineering Engineering Society Convention. 1571. 65th Audio Engineering Engineering Society Convention. London: Audio Engineering Society, p. 10. Available at: http://www.aes.org/e-lib/browse.cfm?elib=3794.
+
+Gerzon, M.A. & Barton, G.J., 1992. Ambisonic Decoders for HDTV. In Preprint 3345 of the 92nd Audio Engineering Society Convention. 92nd Audio Engineering Society Convention.
+
+*Heller, A., Benjamin, E. & Lee, R., 2010. Design of Ambisonic Decoders for Irregular Arrays of Loudspeakers by Non-Linear Optimization. In Proceedings of the 129th Audio Engineering Society Convention. 129th Audio Engineering Society Convention. San Francisco: AES.
+
+Heller, A.J., Benjamin, E.M. & Lee, R., 2012. A Toolkit for the Design of Ambisonic Decoders. In Proceedings of the Linux Audio Conference 2012. Linux Audio Conference 2012. Stanford, CA.
+
+Noisternig, M. et al., 2003. 3D Binarual Sound Reproduction using a Virtual Ambisonic Approach. In Proceedings of VECIMS 2003 - International Symposium on Virtual Environments, Human-Computer Interfaces, and Measurement Systems. VECIMS 2003 - International Symposium on Virtual Environments, Human-Computer Interfaces, and Measurement Systems. Lugano, Switzerland. Available at: http://iem.at/projekte/publications/paper/binaural/VE-3031.
+
+*Wiggins, B. et al., 2003. The design and optimisation of surround sound decoders using heuristic methods. In Proceedings of UKSIM 2003: Conference on Computer Simulation. UKSIM 2003: Conference on Computer Simulation. Cambridge, England. Available at: http://sparg.derby.ac.uk/SPARG/PDFs/SPARG_UKSIM_Paper.pdf.
+
+3-D acoustic space and its simulation using Ambisonics
+Dave Malham Music Research Centre University of York, UK
+http://wiki.dxarts.washington.edu/groups/general/wiki/111c7/attachments/61e42/malham_3d.pdf
+
+3-D Sound Spatialization using Ambisonic Techniques
+Author(s): David G. Malham and Anthony Myatt
+Source: Computer Music Journal, Vol. 19, No. 4 (Winter, 1995), pp. 58-70 Published by: The MIT Press
+Stable URL: http://www.jstor.org/stable/3680991
+
+A 3-D Sound Primer: Directional Hearing and Stereo Reproduction
+Gary S. Kendall
+Computer Music Journal, Vol. 19, No. 4. (Winter, 1995), pp. 23-46. Stable URL:
+http://links.jstor.org/sici?sici=0148-9267%28199524%2919%3A4%3C23%3AA3SPDH%3E2.0.CO%3B2-8
+
+section::  Encoders
+
+As with decoders, the ATK has two types of encoders: Matrix and Kernel.
+
+	Matrix decoders use matrix multiplication to encode recorded or synthesised signals into a b-format (ambisonic) soundfield signal. First, we will look at types of microphone arrays to record sound, and will be most interested in using 'matrix inversion' type encoders.
+
+The arrays of interest are:
+
+list::
+## link::#Soundfield Microphone:: - no encoding needed!
+## link::#Double M/S:: - inverting encoder
+## link::#Spaced Omnidirectional Microphones:: - AtoB encoder
+## link::#Zoom H2::
+::
+
+anchor::Soundfield Microphone::
+subsection:: Soundfield Microphone
+
+Soundfield mic - no encoding needed!
+
+For the Soundfield mic, we don't have to do anything. All encoding is done within the microphone itself.
+
+Load B-format sound file into buffer:
+
+code::
+(
+var fileName;
+var fileStartTime, bufferDur;
+
+//fileName = Atk.userSoundsDir ++ "/b-format/Pampin-On_Space.wav";
+fileName = Atk.userSoundsDir ++ "/b-format/St_Alphonsus_Organ_MidField.wav";
+
+
+fileStartTime = 0.0; // for an ATK file... i.e., Pampin-On_Space
+
+bufferDur = 30.0;
+
+~sndBuf = Buffer.read(
+	s,
+	fileName,
+	fileStartTime * s.sampleRate,
+	bufferDur * s.sampleRate
+);
+
+
+)
+::
+
+Playback of B-format sound file (use Cmd-period to free buffers):
+
+code::
+(
+var soundfile, cmdPeriod;
+var playBuffer;
+
+Server.default = s = Server.local.boot;
+
+s.waitForBoot({
+	Routine.run({
+
+		// free buffer!
+		cmdPeriod = {
+			~sndBuf.free;
+			"Command Period freed soundfile buffer!".postln;
+		};
+
+		CmdPeriod.doOnce(cmdPeriod);
+
+		// POST some info about the sound if you want to...
+		// the CtkBuffer object can be polled for different information that
+		// may be useful:
+		("\nInfo about soundfile at" + ~sndBuf.path).postln;
+		("    Duration:"+ ~sndBuf.duration).postln;
+		("    SampleRate: " + ~sndBuf.sampleRate).postln;
+		("    Num Channels" + ~sndBuf.numChannels).postln;
+
+		// POST some info about the decoder if you want to...
+		// the decoder object can be polled for different information that
+		// may be useful:
+		("\nInfo about ambisonic decoder").postln;
+		("    Kind:"+ ~decoder.kind).postln;
+		("    Dimensions: " + ~decoder.dim).postln;
+		("    Num Channels" + ~decoder.numChannels).postln;
+		("    Dir Channels" + ~decoder.dirChannels.raddeg).postln;
+		// if(~decoder.kind != 'stereo', {("    Subject ID" + ~decoder.subjectID).postln});
+		// "\n".post;
+
+		/* now - using it. For our immediate purposes, PlayBuf is the way to go. */
+
+		// define a synthDef
+		SynthDef(\bFormatPlay, {arg buffer, dur;
+			var src, env;
+
+			env = EnvGen.kr(
+				Env([0, 1, 1, 0], [0.1, dur - 0.2, 0.1], \sin), doneAction: 2);
+
+			// PlayBuf expects the number of channels to match those in the buffer
+			// So, need to query...
+			src = PlayBuf.ar(
+				~sndBuf.numChannels, // ambisonic b-format (4)
+				buffer, // the buffer you created above
+				BufRateScale.kr(buffer), // play back at the correct sampling rate
+			);
+			Out.ar(0, env * FoaDecode.ar(src, ~decoder));
+		}).send(s);
+
+		s.sync;
+
+		// play one time
+		Synth.new(\bFormatPlay, [buffer: ~sndBuf, dur: ~sndBuf.duration]);
+
+	})
+})
+)
+
+
+::
+
+note:: strong::Soundfile Credits::
+
+list::
+## Juan Pampin, "On Space," Les Percussions de Strasbourg 50th Anniversary Edition, Classics Jazz France 480 6512
+## Daniel Peterson, "St_Alphonsus_Organ_MidField.wav," [unpublished recording]
+::
+
+::
+
+anchor::Double M/S::
+subsection:: Double M/S
+
+Double M/S - inverting encoder
+
+The Double M/S system uses three microphones, usually a front facing cardioid, a side facing bi-directional and a rear facing cardioid.
+
+This will give us horizontal-only (pantophonic) b-format. The Soundfield mic has some filtering at high-frequencies that compensates for the spatial aliasing caused by capsule spacing up to around 10kHz. With our spaced mics, the aliasing will begin lower down--but we still can get good results.
+
+Compare the results of this and the Soundfield recordings!
+
+code::
+
+(
+~directions = [ 0, pi/2, pi ]; // front, side, rear
+~patterns = [ 0.5, 1.0, 0.5 ]; // cardioid, bi-dir, cardioid
+~encoder = FoaEncoderMatrix.newDirections(~directions, ~patterns);
+)
+
+::
+
+Now, let's inspect the encoder matrix...
+
+code::
+
+~encoder.kind;
+~encoder.dim;
+
+~encoder.numChannels; // inputs
+~encoder.numInputs; // inputs (same!)
+~encoder.numOutputs; // outputs (3 = horizontal only!)
+
+~encoder.dirChannels.raddeg ; // answers input directions
+~encoder.dirInputs.raddeg ; // answers input directions (same!)
+~encoder.dirOutputs.raddeg ; // answers [inf] -- encodes to b-format
+
+~encoder.matrix; // answers encoding matrix [ W, X, Y ]
+::
+
+Load sound into a buffer:
+
+code::
+(
+var fileName;
+var fileStartTime, bufferDur;
+
+fileName = Atk.userSoundsDir ++ "/double_m_s/St_Alphonsus_Organ_MidField.wav";
+
+fileStartTime = 0.0;
+bufferDur = 30.0;
+
+~sndBuf = Buffer.read(
+	s,
+	fileName,
+	fileStartTime * s.sampleRate,
+	bufferDur * s.sampleRate
+);
+
+)
+
+::
+
+
+Playback of encoded B-format sound file (use Cmd-period to free buffers):
+
+code::
+(
+var soundfile, cmdPeriod;
+var playBuffer;
+
+Server.default = s = Server.local.boot;
+
+s.waitForBoot({
+	Routine.run({
+
+		// free buffer!
+		cmdPeriod = {
+			~sndBuf.free;
+			"Command Period freed soundfile buffer!".postln;
+		};
+
+		CmdPeriod.doOnce(cmdPeriod);
+
+		// POST some info about the sound if you want to...
+		// the CtkBuffer object can be polled for different information that
+		// may be useful:
+		("\nInfo about soundfile at" + ~sndBuf.path).postln;
+		("    Duration:"+ ~sndBuf.duration).postln;
+		("    SampleRate: " + ~sndBuf.sampleRate).postln;
+		("    Num Channels" + ~sndBuf.numChannels).postln;
+
+		// POST some info about the decoder if you want to...
+		// the decoder object can be polled for different information that
+		// may be useful:
+		("\nInfo about ambisonic decoder").postln;
+		("    Kind:"+ ~decoder.kind).postln;
+		("    Dimensions: " + ~decoder.dim).postln;
+		("    Num Channels" + ~decoder.numChannels).postln;
+		("    Dir Channels" + ~decoder.dirChannels.raddeg).postln;
+		// if(~decoder.kind != 'stereo', {("    Subject ID" + ~decoder.subjectID).postln});
+		// "\n".post;
+
+		/* now - using it. For our immediate purposes, PlayBuf is the way to go. */
+
+		// define a synthDef
+		SynthDef(\encodePlay, {arg buffer, dur;
+			var src, env;
+
+			env = EnvGen.kr(
+				Env([0, 1, 1, 0], [0.1, dur - 0.2, 0.1], \sin), doneAction: 2);
+
+			// PlayBuf expects the number of channels to match those in the buffer
+			// So, need to query
+			src = PlayBuf.ar(
+				~sndBuf.numChannels, //
+				buffer, // the buffer you created above
+				BufRateScale.kr(buffer), // play back at the correct sampling rate
+			);
+
+			// encode!
+			src = FoaEncode.ar(src, ~encoder);
+
+			// src = src * 18.dbamp; // double ms
+			// src = src * 0.dbamp; // ZoomH2
+			src = src * 12.dbamp; // AtoB
+
+			Out.ar(0, env * FoaDecode.ar(src, ~decoder));
+		}).send(s);
+
+		s.sync;
+
+		// play one time
+		Synth.new(\encodePlay, [buffer: ~sndBuf, dur: ~sndBuf.duration]);
+
+
+	})
+})
+)
+
+::
+
+note:: strong::Soundfile Credits::
+
+list::
+## Daniel Peterson, "St_Alphonsus_Organ_MidField.wav," [unpublished recording]
+::
+
+::
+anchor::Spaced Omnidirectional Microphones::
+subsection:: Spaced Omnidirectional Microphones - AtoB Encoder
+
+We'll go ahead and try the A to B encoder. The A to B encoder is rather 'creative' in our use here. Essentially what we're doing is creating an 'artificial' soundfield from recorded signals, using the observation that we can do so with four related signals placed at the vertices of a tetrahedron.
+
+This approach has similar results as to using spaced omnis in stereo recording. The resulting image tends to be rather diffuse and inexact, but we can later use imaging transforms to shape the image.
+
+
+
+code::
+// define encoder matrix
+// ~encoder = FoaEncoderMatrix.newAtoB('flrd')   // for Thomas
+// ~encoder = FoaEncoderMatrix.newAtoB('flr')    // for Cross
+~encoder = FoaEncoderMatrix.newAtoB('flr')    // for Karlsruhe
+
+
+// inspect
+~encoder.kind;
+~encoder.dim;
+
+~encoder.numChannels; // inputs
+~encoder.numOutputs; // outputs (4 = full 3D!)
+
+~encoder.dirChannels.raddeg ; // should answer input directions (looks like a bug!!)
+~encoder.dirOutputs.raddeg ; // answers [inf] -- encodes to b-format
+
+~encoder.matrix; // answers encoding matrix [ W, X, Y, Z ]
+::
+
+
+Load sound into a buffer:
+
+code::
+(
+var fileName;
+var fileStartTime, bufferDur;
+
+fileName = Atk.userSoundsDir ++ "/a-format/Thomas_Mackay.wav";
+// fileName = Atk.userSoundsDir ++ "/a-format/Cross_Tenor_Sax.wav";
+
+fileStartTime = 0.0;
+bufferDur = 30.0;
+
+~sndBuf = Buffer.read(
+	s,
+	fileName,
+	fileStartTime * s.sampleRate,
+	bufferDur * s.sampleRate
+);
+
+)
+::
+
+
+Playback of encoded B-format sound file (use Cmd-period to free buffers):
+
+code::
+(
+var soundfile, cmdPeriod;
+var playBuffer;
+
+Server.default = s = Server.local.boot;
+
+s.waitForBoot({
+	Routine.run({
+
+		// free buffer!
+		cmdPeriod = {
+			~sndBuf.free;
+			"Command Period freed soundfile buffer!".postln;
+		};
+
+		CmdPeriod.doOnce(cmdPeriod);
+
+		// POST some info about the sound if you want to...
+		// the CtkBuffer object can be polled for different information that
+		// may be useful:
+		("\nInfo about soundfile at" + ~sndBuf.path).postln;
+		("    Duration:"+ ~sndBuf.duration).postln;
+		("    SampleRate: " + ~sndBuf.sampleRate).postln;
+		("    Num Channels" + ~sndBuf.numChannels).postln;
+
+		// POST some info about the decoder if you want to...
+		// the decoder object can be polled for different information that
+		// may be useful:
+		("\nInfo about ambisonic decoder").postln;
+		("    Kind:"+ ~decoder.kind).postln;
+		("    Dimensions: " + ~decoder.dim).postln;
+		("    Num Channels" + ~decoder.numChannels).postln;
+		("    Dir Channels" + ~decoder.dirChannels.raddeg).postln;
+		// if(~decoder.kind != 'stereo', {("    Subject ID" + ~decoder.subjectID).postln});
+		// "\n".post;
+
+		/* now - using it. For our immediate purposes, PlayBuf is the way to go. */
+
+		// define a synthDef
+		SynthDef(\encodePlay, {arg buffer, dur;
+			var src, env;
+
+			env = EnvGen.kr(
+				Env([0, 1, 1, 0], [0.1, dur - 0.2, 0.1], \sin), doneAction: 2);
+
+			// PlayBuf expects the number of channels to match those in the buffer
+			// So, need to query
+			src = PlayBuf.ar(
+				~sndBuf.numChannels, //
+				buffer, // the buffer you created above
+				BufRateScale.kr(buffer), // play back at the correct sampling rate
+			);
+
+			// encode!
+			src = FoaEncode.ar(src, ~encoder);
+
+			// src = src * 18.dbamp; // double ms
+			// src = src * 0.dbamp; // ZoomH2
+			src = src * 12.dbamp; // AtoB
+
+			Out.ar(0, env * FoaDecode.ar(src, ~decoder));
+		}).send(s);
+
+		s.sync;
+
+		// play one time
+		Synth.new(\encodePlay, [buffer: ~sndBuf, dur: ~sndBuf.duration]);
+
+	})
+})
+)
+::
+note:: strong::Soundfile Credits::
+
+list::
+## David Cross, "Tenor saxophone improvisations," [unpublished recording]
+## Niall Thomas, "Rob Mackay: flute improvisations," [unpublished recording]
+::
+
+::
+
+anchor::Zoom H2::
+subsection:: Zoom H2
+
+'Cheap and cheerful'... not as good as the Soundfield, but we can later use imaging transforms to shape the image as need be.
+
+code::
+
+
+// define encoder matrix
+~encoder = FoaEncoderMatrix.newZoomH2(k: 1.7378)
+
+
+// inspect
+~encoder.kind;
+~encoder.dim;
+
+~encoder.numChannels; // inputs
+~encoder.numOutputs; // outputs (3 = horizontal only!)
+
+~encoder.dirChannels.raddeg ; // directions of inputs
+~encoder.dirOutputs.raddeg ; // answers [inf] -- encodes to b-format
+
+~encoder.matrix; // answers encoding matrix [ W, X, Y, Z ]
+::
+
+
+Load sound into a buffer:
+
+code::
+(
+var fileName;
+var fileStartTime, bufferDur;
+
+fileName = Atk.userSoundsDir ++ "/zoomh2/Anderson-Waltz.wav";
+// fileName = Atk.userSoundsDir ++ "/zoomh2/Anderson-Steam.wav";
+// fileName = Atk.userSoundsDir ++ "/zoomh2/Anderson-Stape_Silver.wav";
+// fileName = Atk.userSoundsDir ++ "/zoomh2/Anderson-St_Peter_&_St_Paul.wav";
+
+fileStartTime = 0.0;
+bufferDur = 30.0;
+
+~sndBuf = Buffer.read(
+	s,
+	fileName,
+	fileStartTime * s.sampleRate,
+	bufferDur * s.sampleRate
+);
+
+)
+::
+
+
+Playback of encoded B-format sound file (use Cmd-period to free buffers):
+
+code::
+(
+var soundfile, cmdPeriod;
+var playBuffer;
+
+Server.default = s = Server.local.boot;
+
+s.waitForBoot({
+	Routine.run({
+
+		// free buffer!
+		cmdPeriod = {
+			~sndBuf.free;
+			"Command Period freed soundfile buffer!".postln;
+		};
+
+		CmdPeriod.doOnce(cmdPeriod);
+
+		// POST some info about the sound if you want to...
+		// the CtkBuffer object can be polled for different information that
+		// may be useful:
+		("\nInfo about soundfile at" + ~sndBuf.path).postln;
+		("    Duration:"+ ~sndBuf.duration).postln;
+		("    SampleRate: " + ~sndBuf.sampleRate).postln;
+		("    Num Channels" + ~sndBuf.numChannels).postln;
+
+		// POST some info about the decoder if you want to...
+		// the decoder object can be polled for different information that
+		// may be useful:
+		("\nInfo about ambisonic decoder").postln;
+		("    Kind:"+ ~decoder.kind).postln;
+		("    Dimensions: " + ~decoder.dim).postln;
+		("    Num Channels" + ~decoder.numChannels).postln;
+		("    Dir Channels" + ~decoder.dirChannels.raddeg).postln;
+		// if(~decoder.kind != 'stereo', {("    Subject ID" + ~decoder.subjectID).postln});
+		// "\n".post;
+
+		/* now - using it. For our immediate purposes, PlayBuf is the way to go. */
+
+		// define a synthDef
+		SynthDef(\encodePlay, {arg buffer, dur;
+			var src, env;
+
+			env = EnvGen.kr(
+				Env([0, 1, 1, 0], [0.1, dur - 0.2, 0.1], \sin), doneAction: 2);
+
+			// PlayBuf expects the number of channels to match those in the buffer
+			// So, need to query
+			src = PlayBuf.ar(
+				~sndBuf.numChannels, //
+				buffer, // the buffer you created above
+				BufRateScale.kr(buffer), // play back at the correct sampling rate
+			);
+
+			// encode!
+			src = FoaEncode.ar(src, ~encoder);
+
+			// src = src * 18.dbamp; // double ms
+			// src = src * 0.dbamp; // ZoomH2
+			src = src * 12.dbamp; // AtoB
+
+			Out.ar(0, env * FoaDecode.ar(src, ~decoder));
+		}).send(s);
+
+		s.sync;
+
+		// play one time
+		Synth.new(\encodePlay, [buffer: ~sndBuf, dur: ~sndBuf.duration]);
+
+	})
+})
+)
+
+
+// ------------------------------------------------------------
+~decoder.free;
+s.quit; //... and quit
+::
+
+note:: strong::Soundfile Credits::
+
+list::
+## Joseph Anderson, "Pickering Steam Fair: Engine," [unpublished recording]
+## Joseph Anderson, "Pickering Steam Fair: Waltz," [unpublished recording]
+## Joseph Anderson, "St Peter & St Paul," [unpublished recording]
+## Joseph Anderson, "Stape Silver Band: March," [unpublished recording]
+::
+
+::
+
+subsection:: Omni Encoder
+
+To get started with encoding, we'll begin with the simplest encoder, the omnidirectional encoder FoaEncoderMatrix.newOmni. Interestingly enough, this encoder doesn't actually encode any directional information. Or another way of thinking of it, a sound is encoded coming from everywhere at once (in phase)! In a dry studio or over headphones, it tends to sound as located 'in the head'. In a wet concert hall, 'coming from everywhere' is a useful description.
+
+While for now, this may not be particularly useful, when we get to imaging (spatial filtering) we'll see the omni encoder can be quite powerful.
+
+code::
+
+(
+SynthDef(\foaOmni, {arg outBus, dur = 0.05, amp = 0.25;
+	var src, foa;
+
+	src = PinkNoise.ar(amp) *
+	EnvGen.kr(
+		Env([0, 1, 0], [0.5, 0.5], \sin),
+	timeScale: dur,
+	doneAction: 2
+	);
+
+	// Encode into our foa signal
+	foa = FoaEncode.ar(src, FoaEncoderMatrix.newOmni);
+
+	Out.ar(outBus, foa);
+}).send(s);
+)
+
+Synth.new(\foaOmni, [outBus: ~foaBus, dur: 1.0, amp: -12.dbamp]); // located in centre of head!
+
+Synth.new(\foaOmni, [outBus: ~foaBus, dur: 5.0, amp: -12.dbamp]); // located in centre of head!
+
+
+::
+
+subsection:: Planewave Encoder
+
+The next simplest encoder is the planewave encoder. This is the encoder usually shown in papers describing ambisonics.
+
+There are actually two versions available in the ATK, FoaEncoderMatrix.newDirection and FoaPanB.ar. The matrix encoders are 'fixed' while the ugen version is variable in real-time. Let's have a look at the *newDirection first.
+
+code::
+
+(
+SynthDef(\foaFrontCentre, {arg outBus, dur = 0.05, amp = 0.25;
+	var src, foa, theta, phi;
+
+	theta = 0.0;
+	phi = 0.0;
+
+	src = PinkNoise.ar(amp) *
+	EnvGen.kr(
+		Env([0, 1, 0], [0.5, 0.5], \sin),
+	timeScale: dur,
+	doneAction: 2
+	);
+
+	// Encode into our foa signal
+	foa = FoaEncode.ar(src, FoaEncoderMatrix.newDirection(theta, phi));
+
+	Out.ar(outBus, foa);
+}).send(s);
+
+
+SynthDef(\foaSideLeft, {arg outBus, dur = 0.05, amp = 0.25;
+	var src, foa, theta, phi;
+
+	theta = pi/2;
+	phi = 0.0;
+
+	src = PinkNoise.ar(amp) *
+	EnvGen.kr(
+		Env([0, 1, 0], [0.5, 0.5], \sin),
+	timeScale: dur,
+	doneAction: 2
+	);
+
+	// Encode into our foa signal
+	foa = FoaEncode.ar(src, FoaEncoderMatrix.newDirection(theta, phi));
+
+	Out.ar(outBus, foa);
+}).send(s);
+)
+
+// a note or two
+Synth.new(\foaSideLeft, [outBus: ~foaBus, dur: 1.0, amp: -12.dbamp]); // side left
+Synth.new(\foaFrontCentre, [outBus: ~foaBus, dur: 1.0, amp: -12.dbamp]); // front centre
+
+// compare to:
+Synth.new(\foaOmni, [outBus: ~foaBus, dur: 1.0, amp: -12.dbamp]); // located in centre of head!
+
+
+::
+
+(Notice much difference between front-centre and omni??)
+
+You'll have noticed that theta and phi, the direction of the incoming planewave is written directly inside our SynthDef, and we can't change it through the SynthDef args. If we try to, we'll get an error. This is because we need to define the encoder (and decoder!!) before the SynthDef is defined. If we were doing this inside a routine, that would be one thing, and we could pass the encoder in (like we've done previously with decoders).
+
+Now... it may be argued that a fixed direction encoder isn't that much use. However, as with the omni encoder, when we start adding soundfield transforms (spatial filtering) we get much more flexibility.
+
+The easiest way to encode a planewave with variable incident angles is to use the FoaPanB UGen. Here's an example:
+
+
+code::
+
+(
+SynthDef(\foaPanB, {arg outBus, dur = 0.05, amp = 0.25, theta, phi;
+	var src, foa;
+
+	src = PinkNoise.ar(amp) *
+	EnvGen.kr(
+		Env([0, 1, 0], [0.5, 0.5], \sin),
+	timeScale: dur,
+	doneAction: 2
+	);
+
+	// Encode into our foa signal
+	foa = FoaPanB.ar(src, theta, phi);
+
+	Out.ar(outBus, foa);
+}).send(s);
+)
+
+Synth.new(\foaPanB, [outBus: ~foaBus, dur: 1.0, theta: 0.0, amp: -12.dbamp]); // 0 deg, front centre
+Synth.new(\foaPanB, [outBus: ~foaBus, dur: 1.0, theta: 90.degrad, amp: -12.dbamp]); // 90 deg, hard left
+Synth.new(\foaPanB, [outBus: ~foaBus, dur: 1.0, theta: -90.degrad, amp: -12.dbamp]); // -90 deg, hard right
+Synth.new(\foaPanB, [outBus: ~foaBus, dur: 1.0, theta: 180.0.degrad, amp: -12.dbamp]); // 180 deg, back centre
+
+// compare front centre and back centre to:
+Synth.new(\foaOmni, [outBus: ~foaBus, dur: 1.0, amp: -12.dbamp]); // located in centre of head!
+::
+
+
+
+When listening over headphones without head-tracking, there is a fair amount of ambiguity between front-centre, 'in the head', and back-centre. Played back over loudspeakers, we can use head motions to resolve the ambiguities.
+
+It is also worth noting that our synthetic sound is synthesised without any acoustic context. I.e., there are no early reflections or other acoustic cues to help resolve front / back.
+
+
+code::
+// more notes... all over the place!
+(
+Routine.run({
+	20.do({
+		Synth.new(\foaPanB, [outBus: ~foaBus, theta: pi.rand2, phi: pi.rand2]);
+		0.1.wait;
+	})
+});
+)
+::
+
+subsection:: Decorrelated Signals
+
+So far we've seen an encoder that has 'no direction' (omni) and one with a single direction (planewave). Another very import encoder is the AtoB encoder. This one samples the sphere (soundfield) as a tetrahedron, and can be used to simulate
+'diffuse' and/or 'active' soundfields.
+
+We'll need to synthesise or otherwise generate four signals. If these are very closely related, the resulting soundfield will sound 'diffuse'. This is the same spatial quality as happens in real soundfields--at the end of reverberation.
+
+In SC decorrelated signals can easily be generated by the noise UGens. We'll start here.
+
+code::
+
+(
+SynthDef(\foaDecor, {arg outBus, dur = 0.05, amp = 0.25;
+	var src, foa;
+
+	src = PinkNoise.ar(amp * [1,1,1,1]) *
+	EnvGen.kr(
+		Env([0, 1, 0], [0.5, 0.5], \sin),
+	timeScale: dur,
+	doneAction: 2
+	);
+
+	// Encode into our foa signal
+	foa = FoaEncode.ar(src, FoaEncoderMatrix.newAtoB);
+
+	Out.ar(outBus, foa);
+}).send(s);
+)
+
+
+Synth.new(\foaDecor, [outBus: ~foaBus, dur: 1.0]); // located around the head!
+
+// compare :
+Synth.new(\foaOmni, [outBus: ~foaBus, dur: 1.0, amp: -6.dbamp]); // located in centre of head!
+
+::
+
+
+Let's add some sense of pitch to this, using comb filters...
+
+code::
+
+(
+SynthDef(\foaDecorPch, {arg outBus, dur = 0.05, amp = 0.125, freq = 440.0;
+	var src, foa;
+	var k, dectime, hiFreq = 10000;
+
+
+	// decay time
+	dectime = dur * 2**(-3);
+
+	// normalise gain factor
+	k = (1 - ((10**(-4))**(1.0/(freq * dectime))));
+
+
+	src = WhiteNoise.ar(amp * [1,1,1,1]);
+
+	src = CombC.ar(src, 1.0/freq, 1.0/freq, dectime, k);
+
+	src = LPF.ar(
+		src,
+		EnvGen.kr(
+			Env([freq, hiFreq, freq], [0.1, 0.9], \exp),
+			timeScale: dur
+			),
+		EnvGen.kr(
+			Env([0, 1, 0], [0.1, 0.9], \sin),
+			timeScale: dur,
+			doneAction: 2
+			)
+	);
+
+
+	// Encode into our foa signal
+	foa = FoaEncode.ar(src, FoaEncoderMatrix.newAtoB);
+
+	Out.ar(outBus, foa);
+}).send(s);
+)
+
+Synth.new(\foaDecorPch, [outBus: ~foaBus, dur: 1.0, freq: 220.0, amp: -15.dbamp]);
+Synth.new(\foaDecorPch, [outBus: ~foaBus, dur: 1.0, freq: 110.0, amp: -15.dbamp]);
+
+::
+
+
+We can also do something similar with slightly detuned oscillators:
+
+
+
+code::
+
+(
+SynthDef(\foaDetunPch, {arg outBus, dur = 0.05, amp = 0.125, freq = 440.0, detune = 1.0;
+	var src, foa;
+	var hiFreq = 18000, rndFreq;
+
+	rndFreq = Array.new(4);
+	4.do({
+		rndFreq.add(Rand.new(-1 * detune/2.0, detune/2.0))
+	});
+
+	src = Saw.ar(freq + rndFreq, amp);
+
+	src = LPF.ar(
+		src,
+		EnvGen.kr(
+			Env([freq, hiFreq, freq], [0.1, 0.9], \exp),
+			timeScale: dur
+			),
+		EnvGen.kr(
+			Env([0, 1, 0], [0.1, 0.9], \sin),
+			timeScale: dur,
+			doneAction: 2
+			)
+	);
+
+
+	// Encode into our foa signal
+	foa = FoaEncode.ar(src, FoaEncoderMatrix.newAtoB);
+
+	Out.ar(outBus, foa);
+}).send(s);
+)
+
+Synth.new(\foaDetunPch, [outBus: ~foaBus, dur: 1.0, freq: 220.0, amp: -24.dbamp]);
+Synth.new(\foaDetunPch, [outBus: ~foaBus, dur: 1.0, freq: 110.0, amp: -24.dbamp]);
+
+::
+
+In contrast, compare to summing all to omni (mono).
+
+code::
+
+(
+SynthDef(\foaOmniPch, {arg outBus, dur = 0.05, amp = 0.125, freq = 440.0, detune = 1.0;
+	var src, foa;
+	var hiFreq = 18000, rndFreq;
+
+	rndFreq = Array.new(4);
+	4.do({
+		rndFreq.add(Rand.new(-1 * detune/2.0, detune/2.0))
+	});
+
+	src = Saw.ar(freq + rndFreq, amp).sum;
+
+	src = LPF.ar(
+		src,
+		EnvGen.kr(
+			Env([freq, hiFreq, freq], [0.1, 0.9], \exp),
+			timeScale: dur
+			),
+		EnvGen.kr(
+			Env([0, 1, 0], [0.1, 0.9], \sin),
+			timeScale: dur,
+			doneAction: 2
+			)
+	);
+
+
+	// Encode into our foa signal
+	foa = FoaEncode.ar(src, FoaEncoderMatrix.newOmni);
+
+	Out.ar(outBus, foa);
+}).send(s);
+)
+
+Synth.new(\foaOmniPch, [outBus: ~foaBus, dur: 1.0, freq: 220.0, amp: -24.dbamp]);
+Synth.new(\foaOmniPch, [outBus: ~foaBus, dur: 1.0, freq: 110.0, amp: -24.dbamp]);
+
+// compare to:
+Synth.new(\foaDetunPch, [outBus: ~foaBus, dur: 1.0, freq: 220.0, amp: -24.dbamp]);
+Synth.new(\foaDetunPch, [outBus: ~foaBus, dur: 1.0, freq: 110.0, amp: -24.dbamp]);
+
+
+::
+
+
+
+In most cases, the preferred way to work is to encode a decorrelated soundfield using the AtoB encoder. This gives us a broad image that can then be reshaped later. The synthesis example directly above is fairly simple, but the thing to remember is to synthesise four closely related signals and encode
+from A-format.
+
+
+
+
+subsection:: Spreading Filter
+
+Two new kernel encoders have been recently added to the ATK. These are spreading filters and diffusion filters. The spreading filter spreads the spectrum of an input sound across the soundfield, as if wrapping a piece of string around a sphere.
+
+code::
+
+
+// spreader
+~encoder = FoaEncoderKernel.newSpread;
+~encoder = FoaEncoderKernel.newSpread(0000);
+~encoder = FoaEncoderKernel.newSpread(0002);
+~encoder = FoaEncoderKernel.newSpread(0004);
+~encoder = FoaEncoderKernel.newSpread(0006);
+~encoder = FoaEncoderKernel.newSpread(0008);
+~encoder = FoaEncoderKernel.newSpread(0010);
+~encoder = FoaEncoderKernel.newSpread(0012);
+
+// free when choosing a new encoder
+~encoder.free;
+
+
+
+// inspect
+~encoder.kind;
+~encoder.numChannels;
+~encoder.dirChannels;
+
+
+(
+SynthDef(\foaSpread, {arg outBus, dur = 0.05, amp = 0.25;
+	var src, foa;
+
+	src = PinkNoise.ar(amp);
+
+	// Encode into our foa signal
+	foa = FoaEncode.ar(src, ~encoder);
+
+	// envelope after encoder.. as is kernel encoder
+	foa = foa * EnvGen.kr(
+		Env([0, 1, 0], [0.5, 0.5], \sin),
+	timeScale: dur,
+	doneAction: 2
+	);
+
+	Out.ar(outBus, foa);
+}).send(s);
+)
+
+Synth.new(\foaSpread, [outBus: ~foaBus, dur: 1.0]); // located around the head!
+Synth.new(\foaSpread, [outBus: ~foaBus, dur: 5.0]); // located around the head!
+
+
+// compare to, decorrelated:
+Synth.new(\foaDecor, [outBus: ~foaBus, dur: 1.0, amp: -15.dbamp]); // located around the head!
+
+
+(
+SynthDef(\foaSpreadPch, {arg outBus, dur = 0.05, amp = 0.125, freq = 440.0, detune = 1.0;
+	var src, foa;
+	var hiFreq = 18000, rndFreq;
+
+	src = Saw.ar(freq, amp);
+
+	src = LPF.ar(
+		src,
+		EnvGen.kr(
+			Env([freq, hiFreq, freq], [0.1, 0.9], \exp),
+			timeScale: dur)
+	);
+
+
+	// Encode into our foa signal
+	foa = FoaEncode.ar(src, ~encoder);
+
+	foa = foa * EnvGen.kr(
+		Env([0, 1, 0], [0.1, 0.9], \sin),
+		timeScale: dur,
+		doneAction: 2
+		);
+
+	Out.ar(outBus, foa);
+}).send(s);
+)
+
+Synth.new(\foaSpreadPch, [outBus: ~foaBus, dur: 1.0, freq: 220.0, amp: -12.dbamp]);
+Synth.new(\foaSpreadPch, [outBus: ~foaBus, dur: 1.0, freq: 110.0, amp: -12.dbamp]);
+
+// s.scope;
+
+
+// free when done!
+~encoder.free;
+::
+
+anchor::Diffusion Filter::
+subsection:: Diffusion Filter
+
+code::
+
+// diffuse
+~encoder = FoaEncoderKernel.newDiffuse;
+~encoder = FoaEncoderKernel.newDiffuse(0000);
+~encoder = FoaEncoderKernel.newDiffuse(0001);
+~encoder = FoaEncoderKernel.newDiffuse(0002);
+~encoder = FoaEncoderKernel.newDiffuse(0003);
+~encoder = FoaEncoderKernel.newDiffuse(0004);
+~encoder = FoaEncoderKernel.newDiffuse(0005);
+
+// free when choosing a new encoder
+~encoder.free;
+
+
+
+// inspect
+~encoder.kind;
+~encoder.numChannels;
+~encoder.dirChannels;
+
+
+(
+SynthDef(\foaDiffuse, {arg outBus, dur = 0.05, amp = 0.25;
+	var src, foa;
+
+	src = PinkNoise.ar(amp);
+
+	// Encode into our foa signal
+	foa = FoaEncode.ar(src, ~encoder);
+
+	// envelope after encoder.. as is kernel encoder
+	foa = foa * EnvGen.kr(
+		Env([0, 1, 0], [0.5, 0.5], \sin),
+	timeScale: dur,
+	doneAction: 2
+	);
+
+	Out.ar(outBus, foa);
+}).send(s);
+)
+
+Synth.new(\foaDiffuse, [outBus: ~foaBus, dur: 1.0]); // located around the head!
+Synth.new(\foaDiffuse, [outBus: ~foaBus, dur: 5.0]); // located around the head!
+
+
+// compare to, decorrelated:
+Synth.new(\foaDecor, [outBus: ~foaBus, dur: 1.0]); // located around the head!
+
+
+(
+SynthDef(\foaDiffusePch, {arg outBus, dur = 0.05, amp = 0.125, freq = 440.0, detune = 1.0;
+	var src, foa;
+	var hiFreq = 18000, rndFreq;
+
+	src = Saw.ar(freq, amp);
+
+	src = LPF.ar(
+		src,
+		EnvGen.kr(
+			Env([freq, hiFreq, freq], [0.1, 0.9], \exp),
+			timeScale: dur)
+	);
+
+
+	// Encode into our foa signal
+	foa = FoaEncode.ar(src, ~encoder);
+
+	foa = foa * EnvGen.kr(
+		Env([0, 1, 0], [0.1, 0.9], \sin),
+		timeScale: dur,
+		doneAction: 2
+		);
+
+	Out.ar(outBus, foa);
+}).send(s);
+)
+
+Synth.new(\foaDiffusePch, [outBus: ~foaBus, dur: 1.0, freq: 220.0, amp: -12.dbamp]);
+Synth.new(\foaDiffusePch, [outBus: ~foaBus, dur: 1.0, freq: 110.0, amp: -12.dbamp]);
+
+// s.scope;
+
+
+// free when done!
+~encoder.free;
+
+::
+
+
+subsection:: AtoB Encoder
+
+The new kernel encoders are useful in a variety of contexts--and give different ways of spreading a mono input signal across the soundfield.
+
+Often, however, it often makes sense just to work in A-format...
+
+Now, when we look at the help file for *newAtoB, we'll see that there are many different orientations of the tetrahedron available. When we encoded our sound with the microphone array, we used one of these alternate arrangements. They can also be useful in other contexts.
+
+Here's a 'granular' example....
+
+code::
+
+(
+SynthDef(\foaDust, {arg outBus, dur = 0.05, amp = 0.125, density = 10.0;
+	var src, foa;
+	var loFreq = 100.0, hiFreq = 5000, klankArgs;
+
+
+	klankArgs = Ref([[800, 1071, 1153, 1723], nil, dur/20 * [1, 1, 1, 1]]);
+
+	src = Dust.ar(density * [1,1,1,1] / 4, amp);
+
+	src = Klank.ar(klankArgs, src);
+
+	src = LPF.ar(
+		src,
+		EnvGen.kr(
+			Env([loFreq, hiFreq, loFreq], [0.1, 0.9], \exp),
+		timeScale: dur),
+		EnvGen.kr(
+			Env([0, 1, 0], [0.1, 0.9], \sin),
+		timeScale: dur,
+		doneAction: 2
+		)
+	);
+
+
+	// Encode into our foa signal
+	foa = FoaEncode.ar(src, FoaEncoderMatrix.newAtoB('fbd'));
+
+	Out.ar(outBus, foa);
+}).send(s);
+)
+
+Synth.new(\foaDust, [outBus: ~foaBus, dur: 5.0, amp: -24.dbamp, density: 5.0]);
+Synth.new(\foaDust, [outBus: ~foaBus, dur: 5.0, amp: -24.dbamp, density: 10.0]);
+Synth.new(\foaDust, [outBus: ~foaBus, dur: 5.0, amp: -24.dbamp, density: 20.0]);
+Synth.new(\foaDust, [outBus: ~foaBus, dur: 5.0, amp: -24.dbamp, density: 100.0]);
+
+Synth.new(\foaDust, [outBus: ~foaBus, dur: 15.0, amp: -28.dbamp, density: 100.0]);
+
+Synth.new(\foaDust, [outBus: ~foaBus, dur: 2.0, amp: -20.dbamp, density: 500.0]);
+
+Synth.new(\foaDust, [outBus: ~foaBus, dur: 20.0, amp: -24.dbamp, density: 500.0]);
+
+
+::
+
+This last example shows how a granular texture (an 'active' soundfield) can easily be made using the AtoB encoder. If the soundfield is further modulated (using rotations or other spatial transforms--we'll look at that later), we can synthesise a soundfield that has activity everywhere.
+
+With this current SynthDef, ther is a 'limitation', though, in that each of our granular streams is fixed to an A-format location.
+
+If we need (or want) to encode more than four inputs into our soundfield, we can use the ATK's most flexible encoder *newDirections. Below we place 12 separate streams in random directions.
+
+code::
+
+
+(
+SynthDef(\foaDust12, {arg outBus, dur = 0.05, amp = 0.125, density = 10.0;
+	var src, foa;
+	var loFreq = 100.0, hiFreq = 5000, klankArgs, streams = 12;
+
+
+	klankArgs = Ref([[800, 1071, 1153, 1723], nil, dur/20 * [1, 1, 1, 1]]);
+
+	src = Dust.ar(density * Array.fill(streams, {1}) / streams, amp);
+
+	src = Klank.ar(klankArgs, src);
+
+	src = LPF.ar(
+		src,
+		EnvGen.kr(
+			Env([loFreq, hiFreq, loFreq], [0.1, 0.9], \exp),
+		timeScale: dur),
+		EnvGen.kr(
+			Env([0, 1, 0], [0.1, 0.9], \sin),
+		timeScale: dur,
+		doneAction: 2
+		)
+	);
+
+
+	// Encode into our foa signal
+	foa = FoaEncode.ar(src, FoaEncoderMatrix.newDirections(Array.fill(streams, {[pi.rand2, pi.rand2]}), nil));
+
+	Out.ar(outBus, foa);
+}).send(s);
+)
+
+
+Synth.new(\foaDust12, [outBus: ~foaBus, dur: 5.0, amp: -24.dbamp, density: 5.0]);
+Synth.new(\foaDust12, [outBus: ~foaBus, dur: 5.0, amp: -24.dbamp, density: 10.0]);
+Synth.new(\foaDust12, [outBus: ~foaBus, dur: 5.0, amp: -24.dbamp, density: 20.0]);
+Synth.new(\foaDust12, [outBus: ~foaBus, dur: 5.0, amp: -24.dbamp, density: 100.0]);
+
+Synth.new(\foaDust12, [outBus: ~foaBus, dur: 15.0, amp: -28.dbamp, density: 100.0]);
+
+Synth.new(\foaDust12, [outBus: ~foaBus, dur: 2.0, amp: -20.dbamp, density: 500.0]);
+
+
+::
+
+*newDirections can be used to encode either 'virtual speaker' positions, or microphone positions, for microphone
+array.... See: link::Classes/FoaEncoderMatrix::
+
+Before we leave *newAtoB, let's have a look at another use. Encoding granular streams via *newAtoB is
+a very idiomatic use of the ATK. The results are very interesting if we use soundfiles....
+
+code::
+
+(
+SynthDef(\foaWarp1, {arg outBus, dur = 0.05, amp = 0.125, buffer, start, end, curve, windowSize = 0.5, winOverlaps = 8, randWin = 0.3;
+	var src, foa;
+	var env, pointer;
+
+
+	env = EnvGen.kr(Env([0, 1, 1, 0], [0.1, 0.8, 0.1], \sin), levelScale: amp, timeScale: dur, doneAction: 2);
+
+	pointer = EnvGen.kr(Env([start, end], [dur], curve)) * Array.fill(4, {1.0}) + LFNoise2.kr(0.1).range(-0.1, 0.1);
+
+	src = Warp1.ar(1, buffer, pointer, 1, windowSize, overlaps: winOverlaps, windowRandRatio: randWin);
+
+
+	// Encode into our foa signal
+	foa = FoaEncode.ar(src, FoaEncoderMatrix.newAtoB('flr'));
+
+	Out.ar(outBus, foa * env);
+}).send(s);
+)
+
+// define a buffer to read!
+b = Buffer.read(s, "~/Sound/femaleVoxEx.wav".standardizePath);
+
+Synth.new(\foaWarp1, [outBus: ~foaBus, dur: 10.0, amp: -12.dbamp, buffer: b, start: 0.1, end: 0.8, curve: 0]);
+Synth.new(\foaWarp1, [outBus: ~foaBus, dur: 10.0, amp: -12.dbamp, buffer: b, start: 0.22, end: 0.22, curve: 0]);
+Synth.new(\foaWarp1, [outBus: ~foaBus, dur: 10.0, amp: -12.dbamp, buffer: b, start: 0.42, end: 0.42, curve: 0]);
+Synth.new(\foaWarp1, [outBus: ~foaBus, dur: 10.0, amp: -12.dbamp, buffer: b, start: 0.8, end: 0.1, curve: 5])
+
+// free buffer when done!
+b.free;
+
+// .. and do some more clean-up
+~decoderNote.set(\gate, 0) // set gate to '0' ... envelope finishes, note frees
+~foaBus.free; // free the audio bus
+~decoder.free; // free the decoder
+
+s.quit
+
+::
+
+section:: Reading
+
+Schoeps Double M/S
+
+http://www.schoeps.de/en/products/categories/doublems
+
+Batke, J.-M., 2009. The B-Format Microphone Revised. In Proceedings of the Ambisonics Symposium 2009. Ambisonics Symposium 2009. Graz. Available at:
+
+http://ambisonics.iem.at/symposium2009/proceedings/ambisym09-batke-bambimicrevised.pdf.
+
+Farrar, K., 1979. Soundfield microphone: design and development of microphone and control unit. Wireless World, pp.48–50 (Oct.), 99–103 (Nov.).
+
+section: Review
+
+link::Classes/FoaEncode:: --> See: A to B encoder (soundfile) AND ZoomH2 encoder (soundfile)
+link::Classes/FoaEncoderMatrix::
+
+
+Joseph Anderson, 2012, 2013
+
+Daniel Peterson, 2015, 2016

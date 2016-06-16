@@ -1,0 +1,164 @@
+title:: Non-Realtime Examples with the ATK
+summary:: Introduction to the Ambisonic Toolkit
+categories:: Libraries>Ambisonic Toolkit>FOA>A Comprehensive Guide to the ATK
+keyword::Atk
+"/Users/dan/atk-sounds/double_m_s/Peterson-St_Alphonsus_Organ_MidField.wav"
+For a more in-depth overview of the paradigm of ATK and a complete presentation of its capabilities, see link::Guides/Intro-to-the-ATK:: and link::Guides/ATK Workshop::. These examples show a limited set of the ATK's functionality, but illustrate how to work with the library when using SynthDefs, a single decoder that reads the Ambisonic signal through audio bus routing for NRT processing.
+
+section:: ATK with Score
+
+Examples with Score are trickier because of the need for bundles, etc.  Since the Kernels also pass in hardcoded buffer IDs, we need to make sure those are referenced as well.
+
+
+code::
+(
+var score, bufnum, sndPath, duration, decoder, sampleRate, headerFormat, sampleFormat;
+var offset = 0.0;
+
+// deinfe our score
+score = Score.new;
+
+// get a buffer number from the server
+bufnum = Server.default.bufferAllocator.alloc(1);
+
+// the path to our B-Format sound file
+sndPath = Atk.userSoundsDir ++ "/b-format/Peterson-St_Alphonsus_Organ_MidField.wav";
+
+// for our chosen decoder (Listen) we only have 44100
+sampleRate = 44100;
+
+// get some info about the soundfile we are decoding for the Score requirements
+SoundFile.use(
+	sndPath,
+	{arg soundFile;
+		headerFormat = soundFile.headerFormat;
+		sampleFormat = soundFile.sampleFormat;
+		duration = soundFile.duration;
+	}
+);
+
+// define a decoder of your choosing
+// the decoder takes a score argument so that it will add the kernels to the score for you
+decoder = FoaDecoderKernel.newListen(
+	1013,
+	sampleRate: sampleRate,
+	score: score
+);
+
+// define an encoding and decoding synth
+SynthDef(\kernelDecode, {arg buffer;
+	var out, src;
+
+	// play UHJ sound file from a buffer
+	src = PlayBuf.ar(4, buffer, BufRateScale.kr(buffer));
+
+	// decode our B-format signal
+	out = FoaDecode.ar(src, decoder);
+
+	Out.ar(0, out);
+}).load;
+
+score.add(
+	[ 0.0, [ 'b_allocRead', bufnum, sndPath, 0, 0 ],
+		[ 's_new', 'kernelDecode', 1001, 0, 1, 'buffer', bufnum ] ],
+);
+
+// add commands to free the synth and buffer
+score.add([ duration + 0.1, [ 'n_free', 1001 ], [ 'b_free', bufnum ] ],);
+
+// free the kernel buffers
+decoder.kernel.do({arg bufs;
+	bufs.do({arg buf;
+		offset = offset + 0.1;
+		score.add([ duration  + offset, [ 'b_free', buf.bufnum ]])
+	});
+});
+
+// add the needed dummy command to stop NRT
+score.add([offset + duration + 0.1, [0]] );
+
+// render our score to a sound file
+score.recordNRT("/tmp/trashme", "~/Desktop/myDecode.wav".standardizePath,
+	sampleRate: sampleRate,
+	headerFormat: headerFormat,
+	sampleFormat: sampleFormat,
+	options: ServerOptions.new.numOutputBusChannels_(decoder.numChannels)
+);
+
+score.saveToFile("~/Desktop/test.sc".standardizePath);
+
+)
+::
+
+section:: ATK with CTK
+
+In this last section we will look at using ATK with CTK.  CTK (Composers ToolKit) is available as a quark.
+
+
+code::
+(
+var score, sndbuf, sndPath, decoder, synth, duration, sampleRate, headerFormat, sampleFormat;
+
+// define our CtkScore
+score = CtkScore.new;
+
+// for our chosen decoder (Listen) we only have 44100
+sampleRate = 44100;
+
+// the path to our B-Format sound file
+sndPath = Atk.userSoundsDir ++ "/b-format/Peterson-St_Alphonsus_Organ_MidField.wav";
+
+// get some info about the soundfile we are decoding for the Score requirements
+SoundFile.use(
+	sndPath,
+	{arg soundFile;
+		headerFormat = soundFile.headerFormat;
+		sampleFormat = soundFile.sampleFormat;
+		duration = soundFile.duration;
+	}
+);
+
+// define a CtkBuffer and add it to our score
+sndbuf = CtkBuffer.playbuf(sndPath).addTo(score);
+
+// define a decoder of your choosing
+// the decoder takes a score argument so that it will add the kernels to the score for you
+decoder = FoaDecoderKernel.newListen(
+	1013,
+	sampleRate: sampleRate,
+	score: score
+);
+
+// define a CtkSynthDef
+synth = CtkSynthDef(\kernelEncodeDecode, {arg buffer;
+	var out, src;
+
+	// play a sound file from a buffer
+	src = PlayBuf.ar(4, buffer, BufRateScale.kr(buffer));
+
+	// decode our B-format sound file
+	out = FoaDecode.ar(src, decoder);
+
+	Out.ar(0, out);
+});
+
+// create a synth note and add it to the score
+score.add(
+	synth.note(1.0, duration).buffer_(sndbuf)
+);
+
+// write our score to disk
+score.write("~/Desktop/myDecode.wav".standardizePath,
+	sampleRate: sampleRate,
+	headerFormat: headerFormat,
+	sampleFormat: sampleFormat,
+	options: ServerOptions.new.numOutputBusChannels_(decoder.numChannels)
+);
+
+)
+
+::
+
+Joshua Parmenter, 2012
+
+Daniel Peterson, 2015, 2016

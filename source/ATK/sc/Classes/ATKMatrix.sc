@@ -1949,7 +1949,8 @@ FoaDecoderKernel {
 						kernelInfo = kernelInfo.add([kernelPath.fullPath, buf.bufnum, [chan]]);
 						buf;
 					})
-				})
+				});
+				score.add(kernelBundle)
 			});
 
 			(score.isKindOf(CtkScore).not && score.isKindOf(Score).not && score.notNil).if( {
@@ -2272,7 +2273,8 @@ FoaEncoderKernel {
 						kernelInfo = kernelInfo.add([kernelPath.fullPath, buf.bufnum, [chan]]);
 						buf;
 					})
-				})
+				});
+				score.add(kernelBundle)
 			});
 
 			(score.isKindOf(CtkScore).not && score.isKindOf(Score).not && score.notNil).if({

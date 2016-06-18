@@ -214,9 +214,9 @@ Version 3.5
 
 __A note on the ATK's version numbers__: As part of the
 [sc3-plugins](https://github.com/supercollider/sc3-plugins) project, the
-SuperCollider3 ATK's versioning is synced to the numbers assigned to
-[sc3-plugins](https://github.com/supercollider/sc3-plugins) releases. As a
-result, at this time the versioning for
+SuperCollider3 ATK's versioning is synced to the release numbers assigned to
+[sc3-plugins releases](https://github.com/supercollider/sc3-plugins/releases).
+As a result, at this time the versioning for
 [atk-sc3](https://github.com/ambisonictoolkit/atk-sc3) does not adhere to the
 familiar system known as [Semantic Versioning](http://semver.org/).
 

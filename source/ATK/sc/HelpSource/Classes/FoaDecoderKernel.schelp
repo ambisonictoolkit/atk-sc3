@@ -232,7 +232,7 @@ code::
 ~decoder = FoaDecoderKernel.newUHJ
 
 // inspect
-~decoder.dirChannels * 180/pi
+~decoder.dirChannels.raddeg
 
 // don't forget to free!!
 ~decoder.free
@@ -243,7 +243,7 @@ code::
 ~decoder = FoaDecoderKernel.newCIPIC
 
 // inspect
-~decoder.dirChannels * 180/pi
+~decoder.dirChannels.raddeg
 
 // don't forget to free!!
 ~decoder.free

@@ -471,7 +471,7 @@ code::
 ~encoder
 ~encoder.kind
 ~encoder.numChannels
-~encoder.dirChannels * 180/pi
+~encoder.dirChannels.raddeg
 
 
 // read a whole sound into memory

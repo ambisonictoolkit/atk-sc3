@@ -1939,7 +1939,7 @@ FoaDecoderKernel {
 
 				errorMsg = "Samplerate = % is not available for".format(sampleRate)
 				+
-				"% kernel encoder.".format(kind)
+							"% kernel decoder.".format(kind)
 			}
 
 			// --> unsupported kernelSize
@@ -1953,7 +1953,7 @@ FoaDecoderKernel {
 
 				errorMsg = "Kernel size = % is not available for".format(kernelSize)
 				+
-				"% kernel encoder.".format(kind)
+						"% kernel decoder.".format(kind)
 			}
 
 			// --> unsupported subject
@@ -1967,7 +1967,7 @@ FoaDecoderKernel {
 
 				errorMsg = "Subject % is not available for".format(subjectID)
 				+
-				"% kernel encoder.".format(kind)
+						"% kernel decoder.".format(kind)
 			};
 
 			// throw error!

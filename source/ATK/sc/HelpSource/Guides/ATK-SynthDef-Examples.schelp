@@ -339,96 +339,96 @@ section:: ATK in Non-Realtime
 
 subsection:: ATK and Score
 
-In our next example, we will look at ATK using Score.  Examples with Score are trickier because of the need for bundles, etc.  Since the Kernels also pass in hardcoded buffer IDs, we need to make sure those are referenced as well.
+In many cases, examples using link::Classes/Score:: are often trickier due to
+the need for the use of link::Guides/Bundled-Messages##bundles::. Since the
+Kernels footnote::
+link::Classes/FoaEncoderKernel:: and link::Classes/FoaDecoderKernel::
+:: also pass in hardcoded buffer IDs, we need to make sure those are referenced,
+as well.
 
+The example below decodes a B-format input file to Stereo Ambisonic UHJ using
+the ATK's link::Classes/FoaDecoderKernel#*newUHJ:: decoder.
 
 code::
 (
-var cond, score, sndfile, sndbufBundle, sndbufDuration, noteBundle, sndbuf, encoder, decoder, sampleRate, headerFormat, sampleFormat;
+var score, bufnum, sndPath, duration, decoder, sampleRate, headerFormat, sampleFormat;
+var offset = 0.1;
 
 // deinfe our score
 score = Score.new;
 
-sampleRate = 44100;
+// get a buffer number from the server
+bufnum = Server.default.bufferAllocator.alloc(1);
 
-headerFormat = 'WAV';
-
-sampleFormat = 'float32';
-
-// boot the server
-s.boot;
-cond = Condition.new;
+// the path to our B-Format sound file
+sndPath = Atk.userSoundsDir ++ "/b-format/Pampin-On_Space.wav";
 
 // get some info about the soundfile we are decoding for the Score requirements
-sndfile = SoundFile.new;
-sndfile.openRead(Atk.userSoundsDir ++ "/uhj/Palestrina-O_Bone.wav");
-sndfile.close;
+SoundFile.use(
+	sndPath,
+	{arg soundFile;
+		headerFormat = soundFile.headerFormat;
+		sampleFormat = soundFile.sampleFormat;
+		sampleRate = soundFile.sampleRate;
+		duration = soundFile.duration;
+	}
+);
 
-// we still need to boot the Server for now to allocate ids for the kernels
-s.waitForBoot({
+// define a decoder of your choosing
+// the decoder takes a score argument so that it will add the kernels to the score for you
+decoder = FoaDecoderKernel.newUHJ(
+	sampleRate: sampleRate,
+	score: score
+);
 
-	// add buffer to score
-	sndbufBundle = s.makeBundle(false, {
-		sndbuf = Buffer.read(s, sndfile.path);
-		});
-	sndbufBundle = sndbufBundle.addFirst(0.0);
-	score.add(sndbufBundle);
+// define an encoding and decoding synth
+SynthDef(\kernelDecode, {arg buffer;
+	var out, src;
 
-	// define an encoder, in this case our sond file is UHJ so we want a UHJ encoder
-	encoder = FoaEncoderKernel.newUHJ;
+	// play B-format sound file from a buffer
+	src = PlayBuf.ar(4, buffer, BufRateScale.kr(buffer));
 
-	// define a decoder of your choosing
-	decoder = FoaDecoderKernel.newListen(1013);
+	// decode our B-format signal
+	out = FoaDecode.ar(src, decoder);
 
-	s.sync(cond);
+	Out.ar(0, out);
+}).load;
 
-	// the FoaEncoderKernel and FoaDecoderKernel classes will return
-	// bundles that can be added to Score
-	score.add(encoder.kernelBundle);
-	score.add(decoder.kernelBundle);
+score.add(
+	[ 0.0,
+		[ 'b_allocRead', bufnum, sndPath, 0, 0 ],
+		[ 's_new', 'kernelDecode', 1001, 0, 1, 'buffer', bufnum ]
+	],
+);
 
-	s.sync(cond);
+// add commands to free the synth and buffer
+score.add([ duration, [ 'n_free', 1001 ] ],);
+score.add([ duration + 0.1, [ 'b_free', bufnum ] ],);
 
-	// define an encoding and decoding synth
-	SynthDef(\kernelEncodeDecode, {arg buffer;
-		var out, src, encode;
+// free the kernel buffers
+decoder.kernel.do({arg bufs;
+	bufs.do({arg buf;
+		offset = offset + 0.1;
+		score.add([ duration  + offset, [ 'b_free', buf.bufnum ]])
+	});
+});
 
-		// play UHJ sound file from a buffer
-		src = PlayBuf.ar(encoder.numInputs, buffer, BufRateScale.kr(buffer));
+// add the needed dummy command to stop NRT
+score.add([offset + duration + 0.2, [0]] );
 
-		// encode using our UHJ encoder
-		encode = FoaEncode.ar(src, encoder);
+// render our score to a sound file
+score.recordNRT(
+	"/tmp/trashme",
+	"~/Desktop/myDecode.wav".standardizePath,
+	sampleRate: sampleRate,
+	headerFormat: headerFormat,
+	sampleFormat: sampleFormat,
+	options: ServerOptions.new.numOutputBusChannels_(decoder.numChannels)
+);
 
-		// decode our B-format signal
-		out = FoaDecode.ar(encode, decoder);
-
-		Out.ar(0, out);
-	}).load(s);
-
-	s.sync(cond);
-
-	// add synth note to our score
-	noteBundle = s.makeBundle(false, {Synth(\kernelEncodeDecode, [\buffer, sndbuf])});
-	noteBundle = noteBundle.addFirst(1.0);
-	score.add(noteBundle);
-
-	// add the needed dummy command to stop NRT
-	score.add([2.0 + sndfile.duration, [0]]  );
-
-	// render our score to a sound file
-	score.recordNRT("/tmp/trashme", "~/Desktop/myDecode.wav".standardizePath,
-		sampleRate: sampleRate,
-		headerFormat: headerFormat,
-		sampleFormat: sampleFormat,
-		options: ServerOptions.new.numOutputBusChannels_(decoder.numChannels)
-		);
-
-	// free our encoder and decoder
-	encoder.free;
-	decoder.free;
-})
 )
 ::
+
 
 subsection:: ATK and the Composer's Toolkit (Ctk)
 

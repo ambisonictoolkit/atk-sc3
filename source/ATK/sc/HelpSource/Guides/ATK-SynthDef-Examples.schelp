@@ -64,9 +64,11 @@ a = Synth(\foaEncode1);
 a.free;
 ::
 
-subsection:: Omni Encoder ussing FoaEncoderMatrix, Transforms using FoaTransform
+subsection:: Omni Encoder using FoaEncoderMatrix, Transforms using FoaTransform
 
-Encoding signals as plane waves that are then manipulated through transforms using the FoaTransform UGen wrapper
+Encodes a monophonic input as an
+link::Classes/FoaEncoderMatrix#*newOmni#omnidirectional:: soundfield, then
+re-image via two transforms using the link::Classes/FoaTransform:: UGen wrapper.
 
 code::
 

@@ -14,7 +14,7 @@ signal through audio bus routing. Additionally, examples for
 link::Guides/Non-Realtime-Synthesis##Non-Realtime (NRT):: processing are found
 in this guide.
 
-subsection:: Mono Encoder Using FoaPanB
+subsection:: Mono Encoder using FoaPanB
 
 link::Classes/FoaPanB:: Encode a monophonic input to a first order ambisonic signal (B-format), as a planewave. PanB is the SuperCollider inbuilt equivalent.
 
@@ -64,7 +64,7 @@ a = Synth(\foaEncode1);
 a.free;
 ::
 
-subsection:: Omni Encoder Using FoaEncoderMatrix, Transfroms using FoaTransform
+subsection:: Omni Encoder ussing FoaEncoderMatrix, Transforms using FoaTransform
 
 Encoding signals as plane waves that are then manipulated through transforms using the FoaTransform UGen wrapper
 
@@ -317,8 +317,9 @@ s.waitForBoot({
 )
 ::
 
+section:: ATK in Non-Realtime
 
-section:: ATK with Score in non-real time
+subsection:: ATK and Score
 
 In our next example, we will look at ATK using Score.  Examples with Score are trickier because of the need for bundles, etc.  Since the Kernels also pass in hardcoded buffer IDs, we need to make sure those are referenced as well.
 
@@ -411,7 +412,7 @@ s.waitForBoot({
 )
 ::
 
-section:: ATK with CTK
+subsection:: ATK and the Composer's Toolkit (Ctk)
 
 In this final section we will look at using ATK with CTK.  CTK (Composers ToolKit) is available as a quark.
 

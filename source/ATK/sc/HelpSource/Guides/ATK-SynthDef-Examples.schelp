@@ -263,9 +263,21 @@ s.waitForBoot({
 
 ::
 
-subsection:: Encode a UHJ Stereo File, Decode to HRTF
+subsection:: Encode an Ambisonic UHJ Stereo File, Decode to HRTF
 
-In this section we will encode a UHJ stereo file to B-format.  We will then decode to an HRTF decoder.  The HRTF decoder takes a subjectID as an argument.  It would be wise to experiment with various numbers to find out which one suits your own head.
+link::https://en.wikipedia.org/wiki/Ambisonic_UHJ_format##Ambisonic UHJ:: is
+the stereo compatible Ambisonic format, and a suitable Ambisonic B-format
+signal can be retrieved from UHJ encoded signals. footnote::
+See further discussion
+link::https://en.wikipedia.org/wiki/Ambisonic_UHJ_format##here::.
+::
+
+Here we will encode (emphasis::transcode::, actually!) a UHJ Stereo file to
+B-format. For audition, a
+link::Classes/FoaDecoderKernel#*newListen#binaural (HRTF) decoder:: is used.
+This decoder takes a subjectID as an argument. It would be wise to experiment
+with various subjectIDs to discover which suits your own head. suits your own
+head.
 
 code::
 (

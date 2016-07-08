@@ -132,9 +132,9 @@ a.free;
 ::
 
 
-subsection::  Routing Encoding Synth to a separate Decoding Synth
+subsection::  Route Encoding Synth to a separate Decoding Synth
 
-Encode a plane wave, and route to a single decoder:
+Encode a planewave, and route to a single decoder:
 
 code::
 

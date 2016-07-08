@@ -1,6 +1,6 @@
 title:: SynthDef and NRT examples for ATK
-summary:: Introduction to the Ambisonic Toolkit
-categories:: Libraries>Ambisonic Toolkit>FOA>SynthDef and NRT Examples
+summary:: SynthDef and NRT examples for ATK
+categories:: Libraries>Ambisonic Toolkit
 keyword::Atk
 
 section:: ATK with SynthDef and Synth

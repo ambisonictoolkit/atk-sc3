@@ -201,9 +201,13 @@ a.free; // free the audio bus
 
 section:: Kernel Decoders and Encoders
 
-subsection:: B-format Sound File and HRTF Decoder
+subsection:: B-format Sound File and Binaural Decoder
 
-In this section we will use a B-format sound file, so we do not need encoding.  We will then decode to an HRTF decoder.  The HRTF decoder takes a subjectID as an argument.  It would be wise to experiment with various numbers to find out which one suits your own head.
+In this example we're working with a B-format sound file. As the source is
+already encoded, an encoding stage is not needed. For audition, a
+link::Classes/FoaDecoderKernel#*newListen#binaural (HRTF) decoder:: is used.
+This decoder takes a subjectID as an argument. It would be wise to experiment
+with various subjectIDs to discover which suits your own head.
 
 code::
 

@@ -225,7 +225,7 @@ s.waitForBoot({
 
 	Routine.run({
 
-		// define a HRTF decoder
+		// define a binaural decoder
 		decoder = FoaDecoderKernel.newListen(1013);
 
 		// load sound file into a buffer

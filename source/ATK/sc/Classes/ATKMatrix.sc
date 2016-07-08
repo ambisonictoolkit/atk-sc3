@@ -300,15 +300,7 @@ FoaDecoderMatrix {
 
 				// initialise k
 				k = this.initK3D(k);
-			};
-
-			Server.default.serverRunning.if({
-			(matrix.rows > Server.default.options.numOutputBusChannels).if({
-				"Number of output bus channels is less than the number of outputs from the decoder.  Please set the output bus channels to: %".format(
-					matrix.rows.asString
-				).warn
-			})
-		})
+			}
 		);
 
 
@@ -333,14 +325,6 @@ FoaDecoderMatrix {
 		//       we may regard this call as redundant.
 		// res = sqrt(2)/n * decoder_matrix.conj().transpose()
 		matrix = 2.sqrt/n * matrix.flop;
-
-		Server.default.serverRunning.if({
-			(matrix.rows > Server.default.options.numOutputBusChannels).if({
-				"Number of output bus channels is less than the number of outputs from the decoder.  Please set the output bus channels to: %".format(
-					matrix.rows.asString
-				).warn
-			})
-		})
 	}
 
 	initPanto { arg numChans, orientation, k;
@@ -377,15 +361,7 @@ FoaDecoderMatrix {
 	              k * g1 * theta.at(i).sin
 			])
 			});
-		matrix = 2.sqrt/numChans * matrix;
-
-		Server.default.serverRunning.if({
-			(matrix.rows > Server.default.options.numOutputBusChannels).if({
-				"Number of output bus channels is less than the number of outputs from the decoder.  Please set the output bus channels to: %".format(
-					matrix.rows.asString
-				).warn
-			})
-		})
+		matrix = 2.sqrt/numChans * matrix
 	}
 
 	initPeri { arg numChanPairs, elevation, orientation, k;
@@ -443,14 +419,6 @@ FoaDecoderMatrix {
 		dirOutputs = upDirs ++ downDirs;		// set output channel (speaker) directions
 		matrix = upMatrix ++ downMatrix;			// set matrix
 
-		Server.default.serverRunning.if({
-			(matrix.rows > Server.default.options.numOutputBusChannels).if({
-				"Number of output bus channels is less than the number of outputs from the decoder.  Please set the output bus channels to: %".format(
-					matrix.rows.asString
-				).warn
-			})
-		})
-
 	}
 
 	initQuad { arg angle, k;
@@ -475,15 +443,7 @@ FoaDecoderMatrix {
 	        	[ g0, g1.neg, g2 		],
 	        	[ g0, g1.neg, g2.neg	],
 	        	[ g0, g1, 	g2.neg	]
-	    ]);
-
-		Server.default.serverRunning.if({
-			(matrix.rows > Server.default.options.numOutputBusChannels).if({
-				"Number of output bus channels is less than the number of outputs from the decoder.  Please set the output bus channels to: %".format(
-					matrix.rows.asString
-				).warn
-			})
-		})
+	    ])
 	}
 
 	initStereo { arg angle, pattern;
@@ -502,15 +462,7 @@ FoaDecoderMatrix {
 	    matrix = Matrix.with([
 	    		[ g0, g1, g2		],
 	        	[ g0, g1, g2.neg	]
-	    ]);
-
-		Server.default.serverRunning.if({
-			(matrix.rows > Server.default.options.numOutputBusChannels).if({
-				"Number of output bus channels is less than the number of outputs from the decoder.  Please set the output bus channels to: %".format(
-					matrix.rows.asString
-				).warn
-			})
-		})
+	    ])
 	}
 
 	initMono { arg theta, phi, pattern;
@@ -526,15 +478,7 @@ FoaDecoderMatrix {
 	    			pattern * theta.sin * phi.cos,
 	    			pattern * phi.sin
 	    		]
-	    ]);
-
-		Server.default.serverRunning.if({
-			(matrix.rows > Server.default.options.numOutputBusChannels).if({
-				"Number of output bus channels is less than the number of outputs from the decoder.  Please set the output bus channels to: %".format(
-					matrix.rows.asString
-				).warn
-			})
-		})
+	    ])
 	}
 
 	init5_0 { arg irregKind;
@@ -567,15 +511,7 @@ FoaDecoderMatrix {
 		        	[ 0.4250,  0.3850, -0.3300 ]
 		    ]}
 		);
-		matrix = Matrix.with(matrix);
-
-		Server.default.serverRunning.if({
-			(matrix.rows > Server.default.options.numOutputBusChannels).if({
-				"Number of output bus channels is less than the number of outputs from the decoder.  Please set the output bus channels to: %".format(
-					matrix.rows.asString
-				).warn
-			})
-		})
+		matrix = Matrix.with(matrix)
 	}
 
 	initBtoA { arg orientation, weight;
@@ -670,14 +606,6 @@ FoaDecoderMatrix {
 	    // set output channel (speaker) directions for instance
 	    dirOutputs = matrix.removeCol(0).asArray.collect({arg item;
 			item.asCartesian.asSpherical.angles
-		});
-
-		Server.default.serverRunning.if({
-			(matrix.rows > Server.default.options.numOutputBusChannels).if({
-				"Number of output bus channels is less than the number of outputs from the decoder.  Please set the output bus channels to: %".format(
-					matrix.rows.asString
-				).warn
-			})
 		})
 	}
 
@@ -722,14 +650,6 @@ FoaDecoderMatrix {
 
 		// set output channel (speaker) directions for instance
 		dirOutputs = matrix.rows.collect({ inf });
-
-		Server.default.serverRunning.if({
-			(matrix.rows > Server.default.options.numOutputBusChannels).if({
-				"Number of output bus channels is less than the number of outputs from the decoder.  Please set the output bus channels to: %".format(
-					matrix.rows.asString
-				).warn
-			})
-		})
 	}
 
 	dirInputs { ^this.numInputs.collect({ inf }) }
@@ -2000,14 +1920,6 @@ FoaDecoderKernel {
 									).postln
 								}
 							)
-						})
-					});
-
-					Server.default.serverRunning.if({
-						(kernel.shape.at(1) > Server.default.options.numOutputBusChannels).if({
-							"Number of output bus channels is less than the number of outputs from the decoder.  Please set the output bus channels to: %".format(
-								kernel.shape.at(1).asString
-							).warn
 						})
 					})
 				})

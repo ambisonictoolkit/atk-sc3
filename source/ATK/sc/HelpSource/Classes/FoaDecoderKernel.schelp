@@ -24,7 +24,7 @@ argument:: sampleRate
 The sample rate defaults to code::nil:: and is usually supplied by the running server.  In NRT, you can specify a sampleRate to avoid booting a server.
 
 argument:: score
-Default is code::nil:: for most real time usages.  When using NRT, you can supply a score (a link::Classes/Score:: or a link::Classes/CtkScore::) onto which the kernels will be added, which lets you bypass booting a server. note::See link::Guides/ATK_Workshop_Help/ATK-SynthDef-Examples:: for usage::.
+Default is code::nil:: for most real time usages.  When using NRT, you can supply a score (a link::Classes/Score:: or a link::Classes/CtkScore::) onto which the kernels will be added, which lets you bypass booting a server.
 
 discussion:: For production work targeting stereo output, the authors advise using UHJ, as Ambisonic UHJ stereo is the native Ambisonic stereo format.
 

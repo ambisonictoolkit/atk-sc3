@@ -351,7 +351,7 @@ the ATK's link::Classes/FoaDecoderKernel#*newUHJ:: decoder.
 
 code::
 (
-var score, bufnum, sndPath, duration, decoder, sampleRate, headerFormat, sampleFormat;
+var score, bufnum, sndPath, duration, decoder, sampleRate, headerFormat, sampleFormat, numChannels;
 var offset = 0.1;
 
 // deinfe our score
@@ -370,6 +370,7 @@ SoundFile.use(
 		headerFormat = soundFile.headerFormat;
 		sampleFormat = soundFile.sampleFormat;
 		sampleRate = soundFile.sampleRate;
+		numChannels = soundFile.numChannels;
 		duration = soundFile.duration;
 	}
 );
@@ -386,7 +387,7 @@ SynthDef(\kernelDecode, {arg buffer;
 	var out, src;
 
 	// play B-format sound file from a buffer
-	src = PlayBuf.ar(4, buffer, BufRateScale.kr(buffer));
+	src = PlayBuf.ar(numChannels, buffer, BufRateScale.kr(buffer));
 
 	// decode our B-format signal
 	out = FoaDecode.ar(src, decoder);
@@ -444,7 +445,7 @@ link::Classes/FoaDecoderKernel#*newUHJ:: decoder.
 
 code::
 (
-var score, sndbuf, sndPath, decoder, synth, duration, sampleRate, headerFormat, sampleFormat;
+var score, sndbuf, sndPath, decoder, synth, duration, sampleRate, headerFormat, sampleFormat, numChannels;
 
 // define our CtkScore
 score = CtkScore.new;
@@ -459,6 +460,7 @@ SoundFile.use(
 		headerFormat = soundFile.headerFormat;
 		sampleFormat = soundFile.sampleFormat;
 		sampleRate = soundFile.sampleRate;
+		numChannels = soundFile.numChannels;
 		duration = soundFile.duration;
 	}
 );
@@ -478,7 +480,7 @@ synth = CtkSynthDef(\kernelDecode, {arg buffer;
 	var out, src;
 
 	// play a sound file from a buffer
-	src = PlayBuf.ar(4, buffer, BufRateScale.kr(buffer));
+	src = PlayBuf.ar(numChannels, buffer, BufRateScale.kr(buffer));
 
 	// decode our B-format sound file
 	out = FoaDecode.ar(src, decoder);
@@ -510,7 +512,7 @@ link::Classes/FoaDecoderKernel#*newListen#binaural (HRTF) decoder:: decoder.
 
 code::
 (
-var score, sndbuf, sndPath, encoder, decoder, synth, duration, sampleRate, headerFormat, sampleFormat;
+var score, sndbuf, sndPath, encoder, decoder, synth, duration, sampleRate, headerFormat, sampleFormat, numChannels;
 
 // define our CtkScore
 score = CtkScore.new;
@@ -525,6 +527,7 @@ SoundFile.use(
         headerFormat = soundFile.headerFormat;
         sampleFormat = soundFile.sampleFormat;
         sampleRate = soundFile.sampleRate;
+				numChannels = soundFile.numChannels;
         duration = soundFile.duration;
     }
 );
@@ -552,7 +555,7 @@ synth = CtkSynthDef(\kernelEncodeDecode, {arg buffer;
     var out, encoded, src;
 
     // play a sound file from a buffer
-    src = PlayBuf.ar(2, buffer, BufRateScale.kr(buffer));
+    src = PlayBuf.ar(numChannels, buffer, BufRateScale.kr(buffer));
 
     // encode our UHJ sound file
     encoded = FoaEncode.ar(src, encoder);

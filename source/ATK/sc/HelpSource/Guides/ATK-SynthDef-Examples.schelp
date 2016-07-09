@@ -432,84 +432,148 @@ score.recordNRT(
 
 subsection:: ATK and the Composer's Toolkit (Ctk)
 
-In this final section we will look at using ATK with CTK.  CTK (Composers ToolKit) is available as a quark.
+The
+link::https://github.com/supercollider-quarks/Ctk##Composer's Toolkit:: (Ctk)
+link::Guides/UsingQuarks##quark:: offers a convenient model for working in a
+score based paradigm in both Realtime and Non-Realtime.
+
+The example here, link::#ATK and Score#as above::, decodes a B-format input
+file to Stereo Ambisonic UHJ using the ATK's
+link::Classes/FoaDecoderKernel#*newUHJ:: decoder.
 
 
 code::
 (
-var cond, score, sndbuf, kernelInfo, sd, encoder, decoder, synth, synthnote, sampleRate, headerFormat, sampleFormat;
+var score, sndbuf, sndPath, decoder, synth, duration, sampleRate, headerFormat, sampleFormat;
 
 // define our CtkScore
 score = CtkScore.new;
 
-sampleRate = 44100;
+// the path to our B-Format sound file
+sndPath = Atk.userSoundsDir ++ "/b-format/Pampin-On_Space.wav";
 
-headerFormat = 'WAV';
+// get some info about the soundfile we are decoding for the Score requirements
+SoundFile.use(
+	sndPath,
+	{arg soundFile;
+		headerFormat = soundFile.headerFormat;
+		sampleFormat = soundFile.sampleFormat;
+		sampleRate = soundFile.sampleRate;
+		duration = soundFile.duration;
+	}
+);
 
-sampleFormat = 'float32';
+// define a CtkBuffer and add it to our score
+sndbuf = CtkBuffer.playbuf(sndPath).addTo(score);
 
-// boot the server
-s.boot;
+// define a decoder of your choosing
+// the decoder takes a score argument so that it will add the kernels to the score for you
+decoder = FoaDecoderKernel.newUHJ(
+	sampleRate: sampleRate,
+	score: score
+);
 
-// we still need to boot the Server for now to allocate ids for the kernels /* FIX THIS */
-s.waitForBoot({
+// define a CtkSynthDef
+synth = CtkSynthDef(\kernelDecode, {arg buffer;
+	var out, src;
 
-	// define a CtkBuffer and add it to our score
-	sndbuf = CtkBuffer.playbuf(Atk.userSoundsDir ++ "/uhj/Palestrina-O_Bone.wav");
-	score.add(sndbuf);
+	// play a sound file from a buffer
+	src = PlayBuf.ar(4, buffer, BufRateScale.kr(buffer));
 
-	// define our UHJ encoder
-	encoder = FoaEncoderKernel.newUHJ;
+	// decode our B-format sound file
+	out = FoaDecode.ar(src, decoder);
 
-	// define a decoder of your choosing
-	decoder = FoaDecoderKernel.newListen(1013);
+	Out.ar(0, out);
+});
 
-	s.sync(cond);
+// create a synth note and add it to the score
+score.add(
+	synth.note(0.0, duration).buffer_(sndbuf)
+);
 
-	// the FoaEncoderKernel and FoaDecoderKernel classes will return info that can be
-	// used to make CtkBuffers for the CtkScore. An array of [path, bufnum, channel] is
-	// returned that will line up with the kernel info that the FoaEncode and FoaDecode
-	// classes expect
-	kernelInfo = encoder.kernelInfo ++ decoder.kernelInfo;
-	kernelInfo.do({arg thisInfo;
-		var path, bufnum, channel, buf;
-		#path, bufnum, channel = thisInfo;
-		buf = CtkBuffer(path, bufnum: bufnum, channels: channel);
-		score.add(buf);
-	});
-
-	// define a CtkSynthDef
-	synth = CtkSynthDef(\kernelEncodeDecode, {arg buffer;
-		var out, src, encode;
-
-		// play a sound file from a buffer
-		src = PlayBuf.ar(encoder.numInputs, buffer, BufRateScale.kr(buffer));
-
-		// encode our UHJ sound file to B-format
-		encode = FoaEncode.ar(src, encoder);
-
-		// decode our B-format sound file
-		out = FoaDecode.ar(encode, decoder);
-
-		Out.ar(0, out);
-	});
-
-	// create a synth note and add it to the score
-	synthnote = synth.note(1.0, sndbuf.duration).buffer_(sndbuf);
-	score.add(synthnote);
-
-	// write our score to disk
-	score.write("~/Desktop/myDecode.wav".standardizePath,
-		sampleRate: sampleRate,
-		headerFormat: headerFormat,
-		sampleFormat: sampleFormat,
-		options: ServerOptions.new.numOutputBusChannels_(decoder.numChannels)
-		);
-
-	// free our encoder and decoder
-	encoder.free;
-	decoder.free;
-})
+// write our score to disk
+score.write("~/Desktop/myDecode.wav".standardizePath,
+	sampleRate: sampleRate,
+	headerFormat: headerFormat,
+	sampleFormat: sampleFormat,
+	options: ServerOptions.new.numOutputBusChannels_(decoder.numChannels)
+);
 )
+::
 
+And, this example uses both a Kernel
+link::Classes/FoaEncoderKernel##Encoder:: and
+link::Classes/FoaDecoderKernel##Decoder::. First an
+link::https://en.wikipedia.org/wiki/Ambisonic_UHJ_format##Ambisonic UHJ:: soundfile
+is encode to B-format. Then, it is decoded using the ATK's
+link::Classes/FoaDecoderKernel#*newListen#binaural (HRTF) decoder:: decoder.
+
+code::
+(
+var score, sndbuf, sndPath, encoder, decoder, synth, duration, sampleRate, headerFormat, sampleFormat;
+
+// define our CtkScore
+score = CtkScore.new;
+
+// the path to our B-Format sound file
+sndPath = Atk.userSoundsDir ++  "/uhj/Palestrina-O_Bone.wav";
+
+// get some info about the soundfile we are decoding for the Score requirements
+SoundFile.use(
+    sndPath,
+    {arg soundFile;
+        headerFormat = soundFile.headerFormat;
+        sampleFormat = soundFile.sampleFormat;
+        sampleRate = soundFile.sampleRate;
+        duration = soundFile.duration;
+    }
+);
+
+// define a CtkBuffer and add it to our score
+sndbuf = CtkBuffer.playbuf(sndPath).addTo(score);
+
+// define the UHJ encoder
+// the decoder takes a score argument so that it will add the kernels to the score for you
+encoder = FoaEncoderKernel.newUHJ(
+    sampleRate: sampleRate,
+    score: score
+);
+
+// define a decoder of your choosing
+// the decoder takes a score argument so that it will add the kernels to the score for you
+decoder = FoaDecoderKernel.newListen(
+	subjectID: 1013,
+    sampleRate: sampleRate,
+    score: score
+);
+
+// define a CtkSynthDef
+synth = CtkSynthDef(\kernelEncodeDecode, {arg buffer;
+    var out, encoded, src;
+
+    // play a sound file from a buffer
+    src = PlayBuf.ar(2, buffer, BufRateScale.kr(buffer));
+
+    // encode our UHJ sound file
+    encoded = FoaEncode.ar(src, encoder);
+
+    // decode our B-format sound file
+    out = FoaDecode.ar(encoded, decoder);
+
+    Out.ar(0, out);
+});
+
+// create a synth note and add it to the score
+score.add(
+    synth.note(0.0, duration).buffer_(sndbuf)
+);
+
+// write our score to disk
+score.write("~/Desktop/myDecode.wav".standardizePath,
+    sampleRate: sampleRate,
+    headerFormat: headerFormat,
+    sampleFormat: sampleFormat,
+    options: ServerOptions.new.numOutputBusChannels_(decoder.numChannels)
+);
+)
 ::

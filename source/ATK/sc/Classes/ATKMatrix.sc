@@ -178,6 +178,55 @@ AtkMatrix {
 		matrix = aMatrix;
 	}
 
+	prParseMOSL { |pn|
+		var file, numRows, numCols, mtx, row;
+		file = FileReader.read(pn.fullPath);
+		numRows = nil;
+		numCols = nil;
+		mtx = [];
+		row = [];
+		file.do{ |line|
+			var val = line[0];
+			switch( val,
+				"//",	{}, // ignore comments
+				"",		{},	// ignore blank line
+				{	// found valid line
+					case
+					{numRows.isNil} { numRows = val.asInt }
+					{numCols.isNil} { numCols = val.asInt }
+					{
+						row = row.add(val.asFloat);
+						if (row.size==numCols) {
+							mtx = mtx.add(row);
+							row = [];
+						}
+					}
+				}
+			)
+		};
+		// test matrix dimensions
+		(mtx.size==numRows).not.if{
+			Error(
+				format(
+					"Mismatch in matrix dimensions: rows specified [%], rows parsed from file [%]",
+					numRows, mtx.size
+				)
+			).throw
+		};
+		mtx.do{ |row, i|
+			(row.size==numCols).not.if{
+				Error(
+					format(
+						"Mismatch in matrix dimensions: rows % has % columns, but file species %",
+						i, row.size, numCols
+					)
+				).throw
+			}
+		};
+
+		^mtx
+	}
+
 	initFromFile { arg filePathOrName, mtxType;
 		var resolvedPathName = Atk.resolveMtxPath(filePathOrName, mtxType);
 
@@ -186,8 +235,15 @@ AtkMatrix {
 
 		case
 		{ resolvedPathName.extension == "txt"} {
-			// .txt file: expected to be matrix only, cols separated by spaces, rows by newlines
-			matrix = Matrix.with( FileReader.read(filePath).asFloat );
+			if (resolvedPathName.fileName.contains(".mosl")) {
+				// .mosl.txt file: expected to be matrix only,
+				// single values on each line, by rows
+				matrix = Matrix.with( this.prParseMOSL(resolvedPathName) );
+			} {
+				// .txt file: expected to be matrix only, cols separated by spaces,
+				// rows by newlines
+				matrix = Matrix.with( FileReader.read(filePath).asFloat );
+			};
 			kind = resolvedPathName.fileName.asSymbol; // kind defaults to filename
 		}
 		{ resolvedPathName.extension == "yml"} {
@@ -308,7 +364,13 @@ AtkMatrix {
 		};
 
 		case
-		{ext == "txt"} {this.prWriteMatrixToTXT(pn)}
+		{ext == "txt"} {
+			if (pn.fileName.contains(".mosl")) {
+				this.prWriteMatrixToMOSL(pn)
+			} {
+				this.prWriteMatrixToTXT(pn)
+			}
+		}
 		{ext == "yml"} {this.prWriteMatrixToYML(pn, mtype, family, note, attributeDictionary)}
 		{Error("Invalid file extension: provide '.txt' for writing matrix only, or '.yml' or no extension to write matrix with metadata (as YAML)").throw; ^this};
 	}
@@ -320,6 +382,26 @@ AtkMatrix {
 		// write the matrix into it by row, and close
 		matrix.rows.do{ |i| writer.writeLine( matrix.getRow(i) ) };
 		writer.close
+	}
+
+	prWriteMatrixToMOSL { arg pn; // a PathName
+		var writer;
+		writer = FileWriter( pn.fullPath );
+
+		// write num rows and cols to first 2 lines
+		writer.writeLine(["// Dimensions: rows, columns"]);
+		writer.writeLine(matrix.rows.asArray);
+		writer.writeLine(matrix.cols.asArray);
+		// write the matrix into it by row, and close
+		matrix.rows.do{ |i|
+			var row;
+			writer.writeLine([""]); // blank line
+			writer.writeLine([format("// Row %", i)]);
+
+			row = matrix.getRow(i);
+			row.do{ |j| writer.writeLine( j.asArray ) };
+		};
+		writer.close;
 	}
 
 	prWriteMatrixToYML { arg pn, type, family, note, attributeDictionary;
@@ -2153,7 +2235,7 @@ FoaDecoderKernel {
 							action: { arg buf;
 								(
 									kernelBundle = kernelBundle.add(
-										buf.allocReadChannelMsg(kernelPath.fullPath, 0, -1, [chan]));
+									buf.allocReadChannelMsg(kernelPath.fullPath, 0, -1, [chan]));
 									kernelInfo = kernelInfo.add([kernelPath.fullPath, buf.bufnum, [chan]]);
 									"Kernel %, channel % loaded.".format(
 										kernelPath.fileName, chan

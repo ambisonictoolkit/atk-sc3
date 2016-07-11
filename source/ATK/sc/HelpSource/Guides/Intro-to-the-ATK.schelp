@@ -129,12 +129,12 @@ See link::Classes/FoaDecode::, link::Classes/FoaDecoderMatrix:: and link::Classe
 
 section:: Installation
 
-The ATK library for SuperCollider3 is distributed via the link::http://sc3-plugins.sourceforge.net##sc3-plugins:: project. If you're reading this document, these extensions have most likely been corectly installed.
+The ATK library for SuperCollider3 is distributed via the link::https://github.com/supercollider/sc3-plugins/##sc3-plugins:: project. If you're reading this document, these extensions have most likely been corectly installed.
 
 Additionally, the ATK has a number of dependencies. Please install the following:
 
 list::
-##link::http://quarks.svn.sourceforge.net/viewvc/quarks/MathLib/##MathLib:: Quark. See: link::Guides/UsingQuarks::
+##link::https://github.com/supercollider-quarks/MathLib/##MathLib:: Quark. See: link::Guides/UsingQuarks:: and the link::https://github.com/supercollider-quarks/quarks/##Quarks for SuperCollider:: project.
 
 ##link::http://www.ambisonictoolkit.net/download/kernels/##ATK Kernels::
 
@@ -167,7 +167,7 @@ code::
 // choose a decoder
 
 // stereophonic / binaural
-~decoder = FoaDecoderMatrix.newStereo(131/2 * pi/180, 0.5) // Cardioids at 131 deg
+~decoder = FoaDecoderMatrix.newStereo((131/2).degrad, 0.5) // Cardioids at 131 deg
 ~decoder = FoaDecoderKernel.newUHJ                         // UHJ (kernel)
 ~decoder = FoaDecoderKernel.newSpherical                   // synthetic binaural (kernel)
 ~decoder = FoaDecoderKernel.newCIPIC                       // KEMAR binaural (kernel)
@@ -183,7 +183,7 @@ code::
 // periphonic (3D)
 ~decoder = FoaDecoderMatrix.newPeri(k: 'dual')             // psycho optimised cube
 ~decoder = FoaDecoderMatrix.newDiametric(                  // psycho optimised bi-rectangle
-    pi/180 * [[30, 0], [-30, 0], [90, 35.3], [-90, 35.3]],
+    [[30, 0], [-30, 0], [90, 35.3], [-90, 35.3]].degrad,
     'dual'
 )
 
@@ -295,7 +295,7 @@ code::
 
     // ------------------------------------------------------------
     // test sig
-    sig = PlayBuf.ar(~sndbuf.numChannels, ~sndbuf, doneAction:2);   // soundfile
+    sig = PlayBuf.ar(~sndbuf.numChannels, ~sndbuf, BufRateScale.kr(~sndbuf), doneAction:2);   // soundfile
 
 
     // ------------------------------------------------------------
@@ -371,7 +371,7 @@ code::
 
     // ------------------------------------------------------------
     // test sig
-    sig = PlayBuf.ar(~sndbuf.numChannels, ~sndbuf, doneAction:2);   // soundfile
+    sig = PlayBuf.ar(~sndbuf.numChannels, ~sndbuf, BufRateScale.kr(~sndbuf), doneAction:2);   // soundfile
 
     // ------------------------------------------------------------
     // transform

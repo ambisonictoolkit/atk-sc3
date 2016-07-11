@@ -60,13 +60,13 @@ code::
 
 // define xformer matrix
 ~xformer = FoaXformerMatrix.newRotate           // no rotation --> try this 1st
-~xformer = FoaXformerMatrix.newRotate(110/180 * pi.neg) // by -110deg   --> try this 2nd
+~xformer = FoaXformerMatrix.newRotate(-110.degrad) // by -110deg   --> try this 2nd
 
 
 // inspect
 ~encoder.kind
 ~encoder.numChannels
-~encoder.dirChannels * 180/pi
+~encoder.dirChannels.raddeg
 
 
 // read a whole sound into memory
@@ -86,7 +86,7 @@ code::
 
     // ------------------------------------------------------------
     // test sig
-    sig = PlayBuf.ar(~sndbuf.numChannels, ~sndbuf, doneAction:2);   // soundfile
+    sig = PlayBuf.ar(~sndbuf.numChannels, ~sndbuf, BufRateScale.kr(~sndbuf), doneAction:2);   // soundfile
 
     // ------------------------------------------------------------
     // transform
@@ -137,7 +137,7 @@ code::
 // inspect
 ~encoder.kind
 ~encoder.numChannels
-~encoder.dirChannels * 180/pi
+~encoder.dirChannels.raddeg
 
 
 // read a whole sound into memory
@@ -166,7 +166,7 @@ code::
 
     // ------------------------------------------------------------
     // test sig
-    sig = PlayBuf.ar(~sndbuf.numChannels, ~sndbuf, doneAction:2);   // soundfile
+    sig = PlayBuf.ar(~sndbuf.numChannels, ~sndbuf, BufRateScale.kr(~sndbuf), doneAction:2);   // soundfile
 
     // ------------------------------------------------------------
     // delay, lp and gain
@@ -226,7 +226,7 @@ code::
 // inspect
 ~encoder.kind
 ~encoder.numChannels
-~encoder.dirChannels * 180/pi
+~encoder.dirChannels.raddeg
 
 
 // read a whole sound into memory
@@ -245,7 +245,7 @@ code::
 
     // ------------------------------------------------------------
     // test sig
-    sig = PlayBuf.ar(~sndbuf.numChannels, ~sndbuf, doneAction:2);   // soundfile
+    sig = PlayBuf.ar(~sndbuf.numChannels, ~sndbuf, BufRateScale.kr(~sndbuf), doneAction:2);   // soundfile
 
     // ------------------------------------------------------------
     // transform
@@ -272,5 +272,3 @@ list::
 ::
 
 ::
-
-

@@ -6,13 +6,13 @@ related:: Classes/FoaEncoderMatrix, Classes/FoaEncode
 DESCRIPTION::
 Generates encoding kernels required by the Ambisonic Toolkit's first order encoder, link::Classes/FoaEncode::.
 
-note:: The ATK kernels are required for kernel encoding. Please see the instructions link::http://www.ambisonictoolkit.net/wiki/tiki-index.php?page=Downloads#ATK_Kernels#here:: for installation. ::
+note:: The ATK kernels are required for kernel encoding. Please see the instructions link::http://www.ambisonictoolkit.net/download/kernels/#ATK_Kernels#here:: for installation. ::
 
 
 CLASSMETHODS::
 
 METHOD:: newSuper
-Ambisonic Super Stereo encoder. footnote::See: link::http://en.wikipedia.org/wiki/Ambisonics#Super_stereo::::
+Ambisonic Super Stereo encoder. footnote::See: link::https://en.wikipedia.org/wiki/Ambisonic_UHJ_format#Super_stereo::::
 
 argument:: kernelSize
 256, 512, 1024, 2048, 4096, 8192
@@ -20,7 +20,13 @@ argument:: kernelSize
 argument:: server
 link::Classes/Server:: on which to load kernel.
 
-discussion:: The Super Stereo encoding technique is the classic method for encoding stereophonic signals into B-format. 
+argument:: sampleRate
+The sample rate defaults to code::nil:: and is usually supplied by the running server.  In NRT, you can specify a sampleRate to avoid booting a server.
+
+argument:: score
+Default is code::nil:: for most real time usages.  When using NRT, you can supply a score (a link::Classes/Score:: or a link::Classes/CtkScore::) onto which the kernels will be added, which lets you bypass booting a server.
+
+discussion:: The Super Stereo encoding technique is the classic method for encoding stereophonic signals into B-format.
 
 
 METHOD:: newUHJ
@@ -31,6 +37,12 @@ argument:: kernelSize
 
 argument:: server
 link::Classes/Server:: on which to load kernel.
+
+argument:: sampleRate
+The sample rate defaults to code::nil:: and is usually supplied by the running server.  In NRT, you can specify a sampleRate to avoid booting a server.
+
+argument:: score
+Default is code::nil:: for most real time usages.  When using NRT, you can supply a score (a link::Classes/Score:: or a link::Classes/CtkScore::) onto which the kernels will be added, which lets you bypass booting a server.
 
 discussion:: The UHJ encoder offers access to numerous published recordings footnote:: Nimbus Records' primary output is in Ambisonic UHJ. See: http://en.wikipedia.org/wiki/Nimbus_Records And: http://www.wyastone.co.uk/index.php :: for periphonic (2D) audition.
 
@@ -49,6 +61,12 @@ argument:: kernelSize
 argument:: server
 link::Classes/Server:: on which to load kernel.
 
+argument:: sampleRate
+The sample rate defaults to code::nil:: and is usually supplied by the running server.  In NRT, you can specify a sampleRate to avoid booting a server.
+
+argument:: score
+Default is code::nil:: for most real time usages.  When using NRT, you can supply a score (a link::Classes/Score:: or a link::Classes/CtkScore::) onto which the kernels will be added, which lets you bypass booting a server.
+
 discussion:: The frequency spreading technique encodes a monophonic signal into B-format by smoothly rotating the signal across the soundfield sphere, by frequency.
 
 note:: As the number of bands per octaves increases, more time domain artefacts are introduced. This is usually heard as smearing in time.::
@@ -65,6 +83,12 @@ argument:: kernelSize
 
 argument:: server
 link::Classes/Server:: on which to load kernel.
+
+argument:: sampleRate
+The sample rate defaults to code::nil:: and is usually supplied by the running server.  In NRT, you can specify a sampleRate to avoid booting a server.
+
+argument:: score
+Default is code::nil:: for most real time usages.  When using NRT, you can supply a score (a link::Classes/Score:: or a link::Classes/CtkScore::) onto which the kernels will be added, which lets you bypass booting a server.
 
 discussion:: The frequency diffusion technique encodes a monophonic signal into B-format by randomising the phase of the signal across the soundfield sphere, by frequency.
 
@@ -157,7 +181,7 @@ code::
 ~encoder = FoaEncoderKernel.newSuper
 
 // inspect
-~encoder.dirChannels * 180/pi
+~encoder.dirChannels.raddeg
 
 // don't forget to free!!
 ~encoder.free
@@ -168,7 +192,7 @@ code::
 ~encoder = FoaEncoderKernel.newUHJ
 
 // inspect
-~encoder.dirChannels * 180/pi
+~encoder.dirChannels.raddeg
 
 // don't forget to free!!
 ~encoder.free

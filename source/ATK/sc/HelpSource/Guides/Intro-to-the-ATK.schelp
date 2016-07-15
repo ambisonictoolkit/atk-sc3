@@ -155,11 +155,29 @@ note:: If you choose a kernel decoder, link::Classes/FoaDecoderKernel::, be sure
 
 code::
 // ------------------------------------------------------------
-// switch to internal server, and boot
+// boot server
 (
-        s = Server.internal;
-        Server.default = s;
+        s = Server.default;
         s.boot;
+)
+
+
+// ------------------------------------------------------------
+// define convenience function to verify number of server outputs
+(
+~checkMyServerOutputs = { arg server, decoder;
+	server.serverRunning.if({
+		(decoder.numOutputs > server.options.numOutputBusChannels).if({
+			"Number of Server output bus channels is less than number required by Decoder!".warn;
+			"Server Outputs: %\n".postf(server.options.numOutputBusChannels);
+			"Decoder Outputs: %\n\n".postf(decoder.numOutputs);
+			"Update number of Server outputs as illustrated here: ".post;
+			"http://doc.sccode.org/Classes/ServerOptions.html#examples".postln;
+		}, {
+			"Server has an adequate number of output bus channels for use with this Decoder!".postln;
+		})
+	})
+}
 )
 
 
@@ -190,6 +208,7 @@ code::
 
 // inspect
 ~decoder.kind
+~checkMyServerOutputs.value(s, ~decoder)
 
 
 // ------------------------------------------------------------
@@ -267,7 +286,7 @@ subsection:: Produced via the Ambisonic Toolkit
 
 The following three sound examples are excerpts from recordings produced via the ATK.
 
-If you haven't already choosen a code:: ~decoder:: and defined code:: ~renderDecode ::, do so link::#choose_a_decoder#now::.
+If you haven't already choosen a code:: ~decoder:: and defined code:: ~renderDecode ::, do so link::#Choose a decoder#now::.
 
 
 code::
@@ -327,7 +346,7 @@ This example illustrates the application of various spatial filtering transforms
 
 The soundfield is controlled by link::Classes/MouseY::, which specifies the transform strong::angle:: argument (90 deg to 0 deg; top to bottom of display). With the mouse at the bottom of the display, the recorded soundfield is unchanged. At the top, the transform is at its most extreme.
 
-If you haven't already choosen a code:: ~decoder:: and defined code:: ~renderDecode ::, do so link::#choose_a_decoder#now::.
+If you haven't already choosen a code:: ~decoder:: and defined code:: ~renderDecode ::, do so link::#Choose a decoder#now::.
 
 note:: See link::Classes/FoaTransform:: for further details.::
 

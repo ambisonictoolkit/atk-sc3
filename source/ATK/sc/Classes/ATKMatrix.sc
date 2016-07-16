@@ -214,7 +214,7 @@ AtkMatrix {
 			).throw
 		};
 		mtx.do{ |row, i|
-			(row.size==numCols).not.if{
+			if (row.size!=numCols) {
 				Error(
 					format(
 						"Mismatch in matrix dimensions: rows % has % columns, but file species %",
@@ -462,7 +462,7 @@ AtkMatrix {
 		writer.close;
 	}
 
-	fileName { ^PathName(filePath).fileName }
+	fileName { ^ try {PathName(filePath).fileName} }
 
 }
 

@@ -1,0 +1,115 @@
+TITLE:: AtkMatrix
+summary:: A superclass to the Atk's various matrix classes.
+categories:: Undocumented classes
+related:: Classes/FoaEncoderMatrix, Classes/FoaDecoderMatrix, Classes/FoaXformerMatrix, Classes/Matrix
+
+DESCRIPTION::
+A superclass to link::Classes/FoaEncoderMatrix::,  link::Classes/FoaDecoderMatrix::, and link::Classes/FoaXformerMatrix::.
+Typically its methods are called from the subclasses that inherit them, and most methods are utilities used internally by the class.
+
+
+CLASSMETHODS::
+
+METHOD:: newFromMatrix
+Create an AtkMatrix from a raw 2D link::Classes/Matrix::.
+
+ARGUMENT:: aMatrix
+A link::Classes/Matrix:: in the form of code::Matrix.with([[row1],[row2],...[rowN]])::.
+
+returns:: An AtkMatrix in the form of the subclass that called the method, e.g. an link::Classes/FoaEncoderMatrix::, for subsequent use in a SynthDef, writing to a file, etc.
+
+
+INSTANCEMETHODS::
+
+METHOD:: filePath
+Answers the path of the file used to create the instance, or code::nil:: if not created by loading a matrix from a file.
+
+METHOD:: fileParse
+If the instance was created by loading a code::.yml:: file, this method returns
+the link::Classes/IdentityDictionary:: containing the parsed metadata. This can
+be useful if anything was stored in the metadata that can be subsequently used
+once reloaded, such as encoding directions, rotations, etc.
+Note:: For simply a quick glance at the metadata, it's recommended to use link::#-info::.::
+
+
+METHOD:: writeToFile
+Write the matrix to a file
+
+ARGUMENT:: fileNameOrPath
+A String of the file name. The file extension determines the format:
+list::
+## code::.yml:: allows for additional user-specified metadata (recommended).
+## code::.txt:: writes the matrix coefficients only, in rows.
+## code::.mosl.txt:: creates basic matrix files compatible with the ATK's JS
+plugins for Reaper DAW.
+::
+You may provide a full path if you would like to save the file somewhere other
+than the default location in the Atk code::extensions:: folder. See the
+Discussion below for more information.
+
+ARGUMENT:: type
+A Symbol specifying whether the matrix is an code::'encoder'::, code::'decoder'::, code::'xformer'::. If callded from a subclass of AtkMatrix, this will default to the type of that subclass, e.g. code::'decoder'::, for an link::Classes/FoaDecoderMatrix::.
+
+ARGUMENT:: family
+A Symbol specifying the Ambisonic family: code::'foa'::, code::'hoa1'::, code::'hoa2'::, etc.
+
+ARGUMENT:: note
+A String that is a short description or bit of info about the matrix to store for future reference.
+
+ARGUMENT:: attributeDictionary
+A Dictionary containing any information that's useful to store in key:value pairs. Keys that match getters in the AtkMatrix will take precedence over the defaults. See the Discussion for more details.
+
+ARGUMENT:: overwrite
+A boolean specifying whether you'd like to force overwriting an existing file of the same name and extension.
+
+DISCUSSION::
+For example, if you're creating a custom FoaEncoderMatrix, you might consider creating a Dictionary with such useful information as:
+code::
+~myInfo = (
+	author: "Me, Myself, I",
+	dateCreated: Date.getDate.stamp,
+	inputOrdering: 'acn',
+	outputOrdering: 'fuMa',
+	weighting: 'n3d',
+	dirInputs: [ 0, 0.5235987755983, 1.5707963267949, 2.3561944901923, -2.3561944901923, -1.5707963267949, -0.5235987755983 ]
+)
+::
+
+Because there is no way to infer channel ordering, normalization, input/output
+directions, etc. from a raw matrix (in some cases), it is useful to store some
+of this information for future use.
+
+Note that link::#-dirInputs:: is also a method of (subclasses of) AtkMatrix.
+Had dirInputs not been specified in the strong::attributeDictionary::, the
+default dirInputs method of ForEncoderMatrix would only have returned
+code::['implicit','implicit','implicit','implicit','implicit','implicit','implicit']::.
+This is because the number of inputs can be inferred from the matrix, but the
+"incoming" directions are only "implicit" in the matrix encoding.  Specifying a
+dirInputs attribute helps avoid this ambiguity for future use of the matrix.
+
+The Guide to ATK Matrix Files offers examples and more discussion regarding
+writing and reading matrices and metadata, including how to generate
+matrices for use in Reaper.
+
+
+
+METHOD:: info
+A convenience method to post the properties of the matrix, including metadata
+if the matrix was loaded from a file.
+
+
+PRIVATE:: prWriteMatrixToMOSL
+
+PRIVATE:: prWriteMatrixToYML
+
+PRIVATE:: prWriteMatrixToTXT
+
+PRIVATE:: prParseMOSL
+
+PRIVATE:: initFromMatrix
+
+PRIVATE:: initFromFile
+
+
+EXAMPLES::
+See

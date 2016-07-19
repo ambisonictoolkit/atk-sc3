@@ -1912,7 +1912,7 @@ FoaDecoderKernel {
 								action: { arg buf;
 									(
 										kernelBundle = kernelBundle.add(
-											buf.allocReadChannelMsg(kernelPath.fullPath, 0, -1, [chan]));
+											buf.allocReadChannelMsg(kernelPath.fullPath, 0, kernelSize, [chan]));
 										kernelInfo = kernelInfo.add([kernelPath.fullPath, buf.bufnum, [chan]]);
 										"Kernel %, channel % loaded.".format(
 											kernelPath.fileName, chan
@@ -1946,7 +1946,7 @@ FoaDecoderKernel {
 						});
 						buf = Buffer(server, numFrames, numChannels);
 						kernelBundle = kernelBundle.add(
-							buf.allocReadChannelMsg(kernelPath.fullPath, 0, -1, [chan]));
+							buf.allocReadChannelMsg(kernelPath.fullPath, 0, kernelSize, [chan]));
 						kernelInfo = kernelInfo.add([kernelPath.fullPath, buf.bufnum, [chan]]);
 						buf;
 					})
@@ -2238,7 +2238,7 @@ FoaEncoderKernel {
 								action: { arg buf;
 									(
 										kernelBundle = kernelBundle.add(
-											buf.allocReadChannelMsg(kernelPath.fullPath, 0, -1, [chan]));
+											buf.allocReadChannelMsg(kernelPath.fullPath, 0, kernelSize.postln, [chan]));
 										kernelInfo = kernelInfo.add([kernelPath.fullPath, buf.bufnum, [chan]]);
 										"Kernel %, channel % loaded.".format(
 											kernelPath.fileName, chan
@@ -2271,7 +2271,7 @@ FoaEncoderKernel {
 						});
 						buf = Buffer(server, numFrames, numChannels);
 						kernelBundle = kernelBundle.add(
-											buf.allocReadChannelMsg(kernelPath.fullPath, 0, -1, [chan]));
+											buf.allocReadChannelMsg(kernelPath.fullPath, 0, kernelSize, [chan]));
 						kernelInfo = kernelInfo.add([kernelPath.fullPath, buf.bufnum, [chan]]);
 						buf;
 					})

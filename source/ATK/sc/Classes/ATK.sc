@@ -361,7 +361,7 @@ Atk {
 
 		if( srcPath.notNil,
 			{
-				postf("Found matrix file: \n\t%\n", srcPath.asRelativePath(mtxDirPath));
+				postf("Found matrix file: \n\t> %\n", srcPath.asRelativePath(mtxDirPath));
 				// matrix = Matrix.with( FileReader.read(srcPath.fullPath).asFloat ).postln;
 				^srcPath
 			},{ Error("No matrix file found!").throw }
@@ -385,7 +385,7 @@ Atk {
 		postContents = { |folderPN, depth=1|
 			var offset;
 			offset = ("\t"!depth).join;
-			postf("%[ % ]\n", offset, folderPN.folderName);
+			postf("%> % <\n", offset, folderPN.folderName);
 
 			// folderPN.fileName.postln;
 			folderPN.entries.do{ |entry|

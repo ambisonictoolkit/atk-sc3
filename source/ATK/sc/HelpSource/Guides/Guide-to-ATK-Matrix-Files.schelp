@@ -76,10 +76,10 @@ Each of the folders (strong::FOA>encoders::, strong::HOA5>decoders::, etc.) are 
 
 You can view this structure and any files you've stored there using the following method:
 code::
-Atk.postMyMatrixDir;              // the whole foa matrices hierarchy
-Atk.postMyMatrixDir('encoders');  // foa encoders only
-Atk.postMyMatrixDir('decoders');  // foa decoders only
-Atk.postMyMatrixDir('xformers');  // foa xformers only
+Atk.postMyMatrixDir;					// the whole foa matrices hierarchy
+Atk.postMyMatrixDir('encoders');	// foa encoders only
+Atk.postMyMatrixDir('decoders');	// foa decoders only
+Atk.postMyMatrixDir('xformers');	// foa xformers only
 ::
 
 Each of these matrix subdirectories can have further subdirectories at your discretion, e.g. for particular projects or categories of matrices.
@@ -88,7 +88,7 @@ SECTION::Writing Matrices
 
 We'll start by writing a matrix file.
 
-Let's create a first order encoder matrix from a nine-point t-design: a collection of points on a sphere thyat are uniformly distributed.
+Let's create a first order encoder matrix from a nine-point t-design. A t-design is a collection of points on a sphere thyat are uniformly distributed.
 
 code::
 (
@@ -106,19 +106,22 @@ code::
 ];
 
 // convert to Spherical coordinates
-~directions = ~cartCoords.collect{
-  |xyz|
-  var toSphere;
-  toSphere = Cartesian(*xyz).asSpherical;
-  [toSphere.theta, toSphere.phi] // discard rho, the points are normalized
-};
+~directions = ~cartCoords.collect({ |xyz|
+  var spherical;
+  spherical = Cartesian(*xyz).asSpherical;
+  [spherical.theta, spherical.phi] // discard rho, we just need directions
+});
 
-// here's our (velocity) matrix
+// here's our (velocity) encoder matrix
 ~encoderMtx = FoaEncoderMatrix.newDirections(~directions);
 )
 ::
 
-This link::Classes/FoaEncoderMatrix:: is now ready to be used for encoding planewaves at those 9 uniformly distributed positions.  After all that work, I want to store my matrix to file for quick use in the future, and to use in my Atk-Reaper plugins! So let's write it to a file.  There are three available file formats, each with a special purpose:
+This link::Classes/FoaEncoderMatrix:: is now ready to be used for encoding planewaves at those
+niine uniformly distributed positions.  After all that work, I want to store my matrix to file for
+use in the future, and to use in my ATK-Reaper plugins!
+
+There are three available file formats, each with a special purpose:
 
 list::
 ##code::.txt:: : the most basic text file, writing the raw matrix only.
@@ -126,15 +129,24 @@ list::
 ##code::.mosl.txt:: : a text file formatted for use with Atk-Reaper JS-plugins.
 ::
 
-Let's write this matrix out in all three formats:
+Let's write this encoder matrix out in all three formats:
 
 code::
-~encoderMtx.writeToFile("my9PointEncoder.txt");    // .txt extension writes the matrix only
-~encoderMtx.writeToFile("my9PointEncoder.yml");    // .yml writes metadata as well
-~encoderMtx.writeToFile("my9PointEncoder.mosl.txt");    // .mosl.txt writes matrix only, single lines for Reaper to read
+// .txt extension writes the matrix only
+~encoderMtx.writeToFile("my9PointEncoder.txt");
+
+// .yml writes metadata as well
+~encoderMtx.writeToFile("my9PointEncoder.yml");
+
+// .mosl.txt writes matrix only, single lines for Reaper to read
+~encoderMtx.writeToFile("my9PointEncoder.mosl.txt");
 ::
 
-Because I only specified a file name, it will store the matrix in the default location.  We're writing an strong::FoaEncoderMatrix::, which is first order, ATK knows to put it in strong::../extensions/matrices/FOA/encoders::. Had I specified a full path instead, it would have saved to that location.
+Because I only specified a file name, not a full path, it will store the matrix in the default location.
+We're writing an link::Classes/FoaEncoderMatrix::, ATK can infer that it's an strong::encoder:: in the strong::FOA:: family.
+Therefore, the ATK knows to put it in: code::../extensions/matrices/FOA/encoders::.
+
+Had I specified a full path instead, it would have saved to that location.
 
 code::
 Atk.postMyMatrixDir('encoders');  // Here are my encoders (defaults to showing the FOA family)
@@ -142,7 +154,13 @@ Atk.postMyMatrixDir('encoders');  // Here are my encoders (defaults to showing t
 
 SUBSECTION::Writing Metadata
 
-Because this matrix is somewhat unique, it would be helpful to provide a bit more information about it for future reference. This is where the code::.yml:: file format comes in.  Note that the link::Classes/AtkMatrix/#-writeToFile:: method has some optional arguments: strong::note:: and strong::attributeDictionary::. A strong::note:: can be a brief description, while an strong::attributeDictionary:: is a Dictionary for storing any info you'd like in the form of key:value pairs. So let's include a bit more info about our matrix and store it in the code::.yml:: format.
+Because this matrix is somewhat unique, it would be helpful to provide a bit more information
+about it for future reference. This is where the code::.yml:: file format comes in.
+
+Note that the link::Classes/AtkMatrix/#-writeToFile:: method has some optional
+arguments: code::note:: and code::attributeDictionary::. A code::note:: can be a
+brief description, while an code::attributeDictionary:: is a Dictionary for storing any
+info you'd like in the form of key:value pairs.
 
 code::
 (
@@ -160,9 +178,16 @@ code::
 )
 ::
 
+NOTE::
+If keys in the strong::attributeDictionary:: match instance variables of FoaEncoderMatrix,
+they can be retrieved with getters once loaded from the file. This is the case for
+strong::dirInputs:: specified in the code::~properties:: dictionary above. We'll see the effect this has below.
+::
+
 Now write this matrix and metadata to file...
 Be sure to specify the code::.yml:: extension in order to write the metadata.
-Set strong::overwrite = true:: to force overwrite the previous file of the same name and extension.
+Set strong::overwrite = true:: to force overwrite the file we wrote before with
+the same name and extension.
 
 code::
 (
@@ -174,25 +199,28 @@ code::
 )
 ::
 
-NOTE::
-If keys in the strong::attributeDictionary:: match instance variables of FoaEncoderMatrix, they can be retrieved with getters once loaded from the file. This is the case of strong::dirInputs:: in this example, which will be see below.
-::
-
 SUBSECTION:: Writing Raw Matrices
-In the above examples, we've been reading/writing matrices encapsulated in the Foa***Matrix classes. When writing from these objects, some of the information can be inferred from them, such as order and type of matrix.  In the case of a raw matrix, you'll want to explicitly set the type of matrix, it's order, etc.
-
-For example, if we take the nine-point encoder from earlier and turn it into a emphasis::decoder::, we'll need to perform a matrix operation that will leave us with only a link::Classes/Matrix::, not an object explicitly in the ATK library.
+In the above examples, we've been reading/writing matrices encapsulated in the AtkMatrix classes.
+When writing from these objects, some the information can be inferred from them,
+such as the strong::family:: (order, e.g. code::'FOA'::, code::'HOA3'::, etc.) and strong::type::
+of matrix (e.g. code::'encoder', 'decoder', 'xformer'::).
+In the case of a raw matrix, this information can't be inferred and should be explicitly set when writing to file.
 
 code::
-// use the 9-point FoaEncoderMatrix from before to make a decoder
-~matrix = ~encoderMtx.matrix.pseudoInverse;
+// here's a raw A-to-B encoder matrix
+~matrix = Matrix.with([
+	[ 0.61237243569579, 0.61237243569579, 0.61237243569579, 0.61237243569579 ],
+	[ 0.5, 0.5, -0.5, -0.5 ],
+	[ 0.5, -0.5, 0.5, -0.5 ],
+	[ 0.5, -0.5, -0.5, 0.5 ]
+])
 ::
 
-Because this is only a Matrix, metadata is useful to tell us more about the matrix.
+Metadata is useful to record more information about the matrix:
 
 code::
 (
-~note = "This is a 9-point t-design velocity decoder, created through a matrix inversion of the encoder used in the Guide To ATK Matrix Files.";
+~note = "A 4-channel A-to-B encoder matrix, in Front-Left-Up orientation.";
 
 // A Dictionary of more metadata to add.
 ~properties =  (
@@ -200,7 +228,7 @@ code::
 	dateCreated: Date.getDate.stamp,
 	channelOrdering: 'FuMa',
 	weighting: 'maxN',
-	dirOutputs: ~directions
+	dirInputs: [ [ 0.78539816339745, 0.61547970867039 ], [ -0.78539816339745, -0.61547970867039 ], [ 2.3561944901923, -0.61547970867039 ], [ -2.3561944901923, 0.61547970867039 ] ]
 );
 )
 ::
@@ -209,9 +237,9 @@ Now be sure to list the proper info for the arguments when writing it to file.  
 
 code::
 (
-~matrix.writeToFile( "my9PointDecoder.yml", // be sure to use .yml for metadata
-  'decoder',  // type
-  'foa',  // family
+~matrix.writeToFile( "myA2B_flu_Matrix.yml", // be sure to use .yml for metadata
+  'encoder',	// type
+  'foa',			// family
   ~note,
   ~properties
 )
@@ -220,7 +248,56 @@ code::
 
 There it is:
 code::
-Atk.postMyMatrixDir('decoders');
+Atk.postMyMatrixDir('encoders');
+::
+
+SUBSECTION:: Organizing your matrices
+
+If you'll be generating many matrices, it's advisable to organize your matrices into
+subfolders. For example, if you're algorithmically generating hundreds of matrices
+for a particular project or process, it makes sense to store them in a subfolder.
+
+To do this, you can create subfolders within your code::/encoders::, code::/decoders::,
+and code::/xformers:: folders.
+
+code::
+// Store your encoder matrix with the other encoders, which live here:
+Atk.getMatrixExtensionPath(\encoders, \foa);
+
+// You can make subfolder for a group of matrices, say, for a particular project:
+(
+~projSubFolderName = "myProject";
+
+File.mkdir( Atk.getMatrixExtensionPath(\encoders, \foa).fullPath +/+ ~projSubFolderName )
+)
+
+// For convenience, we'll the 9-point encoder matrix
+// created above to your new project folder
+::
+
+NOTE:: Remember that because code::~encoderMtx:: is an link::Classes/FoaEncoderMatrix::,
+the strong::type:: and strong::family:: arguments are inferred.
+::
+
+code::
+(
+~encoderMtx.writeToFile(~projSubFolderName +/+ "projectEncoder1.yml",
+ note: ~note,
+  attributeDictionary: ~properties
+)
+)
+
+// there it is, in the 'myProject' subdirectory
+Atk.postMyMatrixDir('encoders', 'foa')
+::
+
+Later you'll use link::Classes/FoaEncoderMatrix:: to read the file back in. ATK will know where to look
+so you can simply specify the path relative to your subfolder:
+
+code::
+~encMatrix = FoaEncoderMatrix.newFromFile(~projSubFolderName +/+ "projectEncoder1.yml");
+
+~encMatrix.info;
 ::
 
 SECTION:: Reading Matrices
@@ -341,5 +418,11 @@ list::
 	- - however, there's likely a gain factore that needs to be applied, either a scalar related to the number of "speakers" (9 in this case), or a common scaling factor like 2.sqrt/2, etc.
 
 	- double-check the note about querying the dirInputs above, is this correct?
+
+	- ALSO, submit bug that Matrix class needs documentation
+
+	- ALSO, check for quaternion support in MathLib and square it with ArduinoQuaternion
+
+	- TODO: group .postMyMatrixDir by files and directories so it's more readable
 
 Compare

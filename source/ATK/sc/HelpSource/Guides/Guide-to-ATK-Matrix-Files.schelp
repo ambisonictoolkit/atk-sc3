@@ -287,4 +287,59 @@ code::
 ~encoderMtx.fileParse.keysValuesDo{|k,v| postf("% : %\n", k, v)};
 ::
 
-Now that we've read in our code::~encoderMtx::, we can use it as we would a "built-in" link::Classes/FoaEncoderMatrix::.
+
+SUBSECTION:: Test Case: creating a decoder from an FoaEncoderMatrix
+
+We've now created a new FoaEncoderMatrix by reading in the file containing the matrix that we originally built using the FoaEncoderMatrix planewave encoder: *newDirections (using the points on a nine-point t-design).
+As it turns out, an encoder matrix made from link::Classes/FoaEncoderMatrix#*newDirections:: is suitable for building a strong::decoder:: of the same geometry.
+This involves performing the link::Classes/Matrix#-pseudoInverse:: on the encoder Matrix.
+
+code::
+~matrix = ~encoderMtx.matrix;	// retrieve the Matrix object stored in the FoaEncoderMatrix
+~pinv = ~matrix.pseudoInverse;	// perform the pseudoinverse on that matrix to give decoding coefficients
+
+// this decoder will output a velocity ("strict soundfield", max-rV) decode
+// to speakers (or further spatial encoding) positioned in the following location (in this order)
+~encoderMtx.dirInputs.do{|azElPairs, i| postf("chan %: %\n", i, azElPairs.raddeg) }
+::
+
+NOTE::
+Because we're inverting an encoder to produce a decoder, the original emphasis::input directions:: of the strong::encoder::
+will now be the emphasis::output directions:: of the strong::decoder::.
+The channel ordering will be in the same order the input directions were specified in the encoder.
+Therefore, in the above code we query the emphasis::encoder:: for its  code::dirInputs::  to know where our output channel signals are expected to be sent (in space!).
+::
+
+code::
+~decoderDef = SynthDef(\pinv_decoder, { arg outbus=0, amp=1;
+	var foa, decoder;
+
+	// test signal: panning noise
+	foa = FoaPanB.ar( PinkNoise.ar, LFSaw.kr( 12.reciprocal, 1 ), 0 );
+
+	// because the pseudoinverse matrix is a raw Matrix,
+	// we use AtkMatrixMix to decoder our b-format signal
+	decoder = AtkMatrixMix.ar(foa, ~pinv, amp);
+	Out.ar(outbus, decoder);
+}).load(Server.default);
+
+~decoder = Synth(\pinv_decoder, [\outbus, 0, \amp, -8.dbamp] )
+~decoder.free;
+::
+
+TODO:
+Investigate the resulting coefficients of decoders created from 3 different methods:
+list::
+##link::Classes/FoaDecoderMatrix#*newPeri:: in a cube format (reference 1)
+##link::Classes/FoaDecoderMatrix#*newDiammetric:: in a cube format (reference 2)
+##link::Classes/Matrix#-pseudoinverse:: in a cube format (test case)
+::
+- at the very least reference 1 & 2 should be identical (otherwise there's a bug)
+
+	- if the pseudoinverse produces the same coefficients, great, that's the velocity decoder
+
+	- - however, there's likely a gain factore that needs to be applied, either a scalar related to the number of "speakers" (9 in this case), or a common scaling factor like 2.sqrt/2, etc.
+
+	- double-check the note about querying the dirInputs above, is this correct?
+
+Compare

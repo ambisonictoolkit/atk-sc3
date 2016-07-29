@@ -72,7 +72,7 @@ tree::
     ::
   ::
 ::
-Each of the folders (strong::FOA>encoders::, strong::HOA5>decoders::, etc.) are empty and ready to store matrices (and kernels) for use with the ATK-sc and ATK-Reaper (more on that later). When you write a matrix using the ATK, it will store it in this directory structure by default, and will look here by default when asked to read in a matrix from file.
+Each of the folders (code::FOA>encoders::, code::HOA5>decoders::, etc.) are empty and ready to store matrices (and kernels) for use with the ATK-sc and ATK-Reaper (more on that later). When you write a matrix using the ATK, it will store it in this directory structure by default, and will look here by default when asked to read in a matrix from file.
 
 You can view this structure and any files you've stored there using the following method:
 code::
@@ -88,11 +88,14 @@ SECTION::Writing Matrices
 
 We'll start by writing a matrix file.
 
-Let's create a first order encoder matrix from a nine-point t-design. A t-design is a collection of points on a sphere thyat are uniformly distributed.
+Let's create a first order encoder matrix from a nine-point t-design. A t-design
+is a collection of points on a sphere thyat are uniformly distributed.
+The t-design below can be found in Hardin and Sloan's link::http://neilsloane.com/sphdesigns/dim3##Library of 3-D Designs::.
+footnote::Hardin, R. H. and Sloane, N. J. A., "Sperical Designs", http://neilsloane.com/sphdesigns/::
 
 code::
 (
-// cartesian coordinates of the nine points
+// Cartesian coordinates of the nine points.
 ~cartCoords = [
   [ -0.61237243569579, 0.35355339059327, 0.70710678118655 ],
   [ 0.61237243569579, 0.35355339059327, 0.70710678118655 ],
@@ -105,15 +108,20 @@ code::
   [ 0, -0.70710678118655, -0.70710678118655 ],
 ];
 
-// convert to Spherical coordinates
+// Convert to Spherical coordinates.
 ~directions = ~cartCoords.collect({ |xyz|
   var spherical;
   spherical = Cartesian(*xyz).asSpherical;
-  [spherical.theta, spherical.phi] // discard rho, we just need directions
+
+  // Rotate all directions to orient around a point directly forward at [0,0]
+  spherical = spherical.rotateXY(-30.degrad);
+
+  // discard rho, we just need directions
+  [spherical.theta, spherical.phi]
 });
 
-// here's our (velocity) encoder matrix
-~encoderMtx = FoaEncoderMatrix.newDirections(~directions);
+// Here's our (velocity) encoder matrix:
+~encoder = FoaEncoderMatrix.newDirections(~directions);
 )
 ::
 
@@ -133,13 +141,13 @@ Let's write this encoder matrix out in all three formats:
 
 code::
 // .txt extension writes the matrix only
-~encoderMtx.writeToFile("my9PointEncoder.txt");
+~encoder.writeToFile("my9PointEncoder.txt");
 
 // .yml writes metadata as well
-~encoderMtx.writeToFile("my9PointEncoder.yml");
+~encoder.writeToFile("my9PointEncoder.yml");
 
 // .mosl.txt writes matrix only, single lines for Reaper to read
-~encoderMtx.writeToFile("my9PointEncoder.mosl.txt");
+~encoder.writeToFile("my9PointEncoder.mosl.txt");
 ::
 
 Because I only specified a file name, not a full path, it will store the matrix in the default location.
@@ -164,7 +172,7 @@ info you'd like in the form of key:value pairs.
 
 code::
 (
-// A 'note': a description or note about the matrix
+// A 'note': a description or note about the matrix.
 ~note = "This is a nine-point t-design encoder made for a matrix file writing demo.";
 
 // A Dictionary of more metadata to add.
@@ -172,7 +180,7 @@ code::
 	author: "Me, the Reader",
 	dateCreated: Date.getDate.stamp,
 	channelOrdering: 'FuMa',
-	weighting: 'maxN',
+	weighting: 'MaxN',
 	dirInputs: ~directions
 );
 )
@@ -191,7 +199,7 @@ the same name and extension.
 
 code::
 (
-~encoderMtx.writeToFile( "my9PointEncoder.yml",
+~encoder.writeToFile( "my9PointEncoder.yml",
   note: ~note,
   attributeDictionary: ~properties,
   overwrite: true
@@ -207,7 +215,7 @@ of matrix (e.g. code::'encoder', 'decoder', 'xformer'::).
 In the case of a raw matrix, this information can't be inferred and should be explicitly set when writing to file.
 
 code::
-// here's a raw A-to-B encoder matrix
+// Here's a raw A-to-B encoder matrix:
 ~matrix = Matrix.with([
 	[ 0.61237243569579, 0.61237243569579, 0.61237243569579, 0.61237243569579 ],
 	[ 0.5, 0.5, -0.5, -0.5 ],
@@ -227,7 +235,7 @@ code::
 	author: "Me, the Reader",
 	dateCreated: Date.getDate.stamp,
 	channelOrdering: 'FuMa',
-	weighting: 'maxN',
+	weighting: 'MaxN',
 	dirInputs: [ [ 0.78539816339745, 0.61547970867039 ], [ -0.78539816339745, -0.61547970867039 ], [ 2.3561944901923, -0.61547970867039 ], [ -2.3561944901923, 0.61547970867039 ] ]
 );
 )
@@ -238,8 +246,8 @@ Now be sure to list the proper info for the arguments when writing it to file.  
 code::
 (
 ~matrix.writeToFile( "myA2B_flu_Matrix.yml", // be sure to use .yml for metadata
-  'encoder',	// type
-  'foa',			// family
+  'encoder',  // type
+  'foa',      // family
   ~note,
   ~properties
 )
@@ -251,13 +259,13 @@ code::
 Atk.postMyMatrixDir('encoders');
 ::
 
-SUBSECTION:: Organizing your matrices
+SUBSECTION:: Subfolders: Organizing your matrices
 
 If you'll be generating many matrices, it's advisable to organize your matrices into
 subfolders. For example, if you're algorithmically generating hundreds of matrices
 for a particular project or process, it makes sense to store them in a subfolder.
 
-To do this, you can create subfolders within your code::/encoders::, code::/decoders::,
+To do this, you can create subfolders inside your code::/encoders::, code::/decoders::,
 and code::/xformers:: folders.
 
 code::
@@ -271,28 +279,29 @@ Atk.getMatrixExtensionPath(\encoders, \foa);
 File.mkdir( Atk.getMatrixExtensionPath(\encoders, \foa).fullPath +/+ ~projSubFolderName )
 )
 
-// For convenience, we'll the 9-point encoder matrix
-// created above to your new project folder
-::
-
-NOTE:: Remember that because code::~encoderMtx:: is an link::Classes/FoaEncoderMatrix::,
-the strong::type:: and strong::family:: arguments are inferred.
-::
-
-code::
+// For convenience, we'll write the 9-point ~encoder matrix,
+// which we created above, to a new file in your new project folder.
 (
-~encoderMtx.writeToFile(~projSubFolderName +/+ "projectEncoder1.yml",
+~encoder.writeToFile(~projSubFolderName +/+ "projectEncoder1.yml",
  note: ~note,
   attributeDictionary: ~properties
 )
 )
+::
 
-// there it is, in the 'myProject' subdirectory
+NOTE:: Remember that because code::~encoder:: is an link::Classes/FoaEncoderMatrix::,
+the strong::type:: (code::'encoder'::) and strong::family:: (code::'foa'::)
+arguments are inferred.
+::
+
+code::
+// There it is, in the 'myProject' subdirectory.
 Atk.postMyMatrixDir('encoders', 'foa')
 ::
 
-Later you'll use link::Classes/FoaEncoderMatrix:: to read the file back in. ATK will know where to look
-so you can simply specify the path relative to your subfolder:
+Later you'll use link::Classes/FoaEncoderMatrix:: to read the file back in.
+ATK will know where to look ( code::extensions/matrices/enocoders/foa:: )
+so you can simply specify the emphasis::relative:: path of your code::subfolder/file.yml:::
 
 code::
 ~encMatrix = FoaEncoderMatrix.newFromFile(~projSubFolderName +/+ "projectEncoder1.yml");
@@ -302,120 +311,148 @@ code::
 
 SECTION:: Reading Matrices
 
-We wrote three encoder matrix files earlier, lets read them in.  As when writing, the ATK looks in your strong::extensions/matrices:: directory by default. So unless your matrix file is somewhere outside the defualt location, a filename will suffice to read it in, as the type (code::'encoder'::, code::'decoder'::, code::'xformer'::) is inferred from the object you're instantiating.
+We wrote three encoder matrix files earlier, lets read them in.  As when writing,
+the ATK looks in your strong::extensions/matrices:: directory by default. So
+unless your matrix file is somewhere outside the defualt location, a filename
+will suffice to read it in, as the type (code::'encoder'::, code::'decoder'::,
+code::'xformer'::) is inferred from the object you're instantiating.
 
-You can even omit the file extension if you don't think there will be multiple file types stored under the same name:
+We can even omit the file extension if we don't expect multiple file emphasis::types::
+(code::.txt, .yml, .mosl.txt::) stored under the same emphasis::name:::
 
 code::
-~encoderMtx = FoaEncoderMatrix.newFromFile("my9PointEncoder")
-// >> ERROR: it sees we have more than one file of that name
+~encoder = FoaEncoderMatrix.newFromFile("my9PointEncoder")
+// >> ERROR: It sees we have more than one file type of that name.
 ::
 
-So we'll need to specify the extension...  Have a look at what each file type gives us back:
+So we'll need to specify the extension. As mentioned before, each file type
+determines what kind of information is stored in the file.
+
+Lets have a look at what each file type gives us back:
 
 code::.txt:: format:
 code::
-// reading the .txt file, we just get a matrix and basic info
-~encoderMtx = FoaEncoderMatrix.newFromFile("my9PointEncoder.txt");
+// Reading the .txt file, we just get a matrix and basic info.
+~encoder = FoaEncoderMatrix.newFromFile("my9PointEncoder.txt");
 
-// all the standard instance vars are preserved
-~encoderMtx.matrix;
-~encoderMtx.kind;				// defaults to filename
-~encoderMtx.dirOutputs;	// inf, by nature of being an encoder
-~encoderMtx.dirInputs;		// with no metadata, we can't know input directions, so 'implicit'
-~encoderMtx.dim;
+// All the standard instance vars are preserved.
+~encoder.matrix;
+~encoder.kind;          // Defaults to filename
+~encoder.dirOutputs;    // Outputs are inf, becuase the output is b-format, i.e "all directions".
+~encoder.dirInputs;     // With no metadata, we can't know input directions, so 'implicit'
+~encoder.dirInputs.size;// ...but knowing how large the array is tells us how many inputs the matrix expects
+~encoder.dim;           // We see it's a 3-D matrix
 ::
 
 code::.mosl.txt:: format:
 code::
 // reading the mosl.txt file, we just get a matrix and basic info
-~encoderMtx = FoaEncoderMatrix.newFromFile("my9PointEncoder.mosl.txt");
+~encoder = FoaEncoderMatrix.newFromFile("my9PointEncoder.mosl.txt");
 
 // all the standard instance vars are preserved
-~encoderMtx.matrix;
-~encoderMtx.kind;				// defaults to filename
-~encoderMtx.dirOutputs;	// inf, by nature of being an encoder
-~encoderMtx.dirInputs;		// with no metadata, we can't know input directions
-~encoderMtx.dim;
+~encoder.matrix;
+~encoder.kind;          // Defaults to filename
+~encoder.dirOutputs;    // inf, by nature of encoding to b-format
+~encoder.dirInputs;     // With no metadata, we can't know input directions
+~encoder.dim;
 ::
 
 code::.yml:: format:
 code::
 // reading the .yml file, we get the matrix plus metadata
-~encoderMtx = FoaEncoderMatrix.newFromFile("my9PointEncoder.yml");
+~encoder = FoaEncoderMatrix.newFromFile("my9PointEncoder.yml");
 
 // all the standard instance vars are preserved
-~encoderMtx.matrix;
-~encoderMtx.kind;
-~encoderMtx.dirOutputs;
-~encoderMtx.dim;
+~encoder.matrix;
+~encoder.kind;
+~encoder.dirOutputs;
+~encoder.dim;
 
 // NOTE: because we provided the 'dirInputs' to the attributeDictionary
 // when we wrote it to file, we now have that info for reference. Useful!
-~encoderMtx.dirInputs;
+~encoder.dirInputs;
 
 
-// plus the other data you wrote to it:
-~encoderMtx.info;  // formatted post
-~encoderMtx.fileParse; // for direct access to the dictionary of values
-~encoderMtx.fileParse.note; // What was this matrix again?? Oh yea...
-// metadata loaded as an IndentityDictionary, so values can be accessed as pseudo-methods
-~encoderMtx.fileParse.channelOrdering;
-~encoderMtx.fileParse.keysValuesDo{|k,v| postf("% : %\n", k, v)};
+// Plus the other data you wrote to it:
+~encoder.info;          // Formatted post
+
+// Metadata is loaded as an IndentityDictionary, so values
+// from the attributeDictionary can be accessed by their
+// keys as pseudo-methods.
+~encoder.fileParse;       // For direct access to the dictionary of values
+~encoder.fileParse.note;  // What was this matrix again?? Oh yea...
+~encoder.fileParse.channelOrdering;
+~encoder.fileParse.keysValuesDo{|k,v| postf("% : %\n", k, v)};
 ::
 
 
-SUBSECTION:: Test Case: creating a decoder from an FoaEncoderMatrix
+SUBSECTION:: Test case: Creating a decoder from an FoaEncoderMatrix
 
-We've now created a new FoaEncoderMatrix by reading in the file containing the matrix that we originally built using the FoaEncoderMatrix planewave encoder: *newDirections (using the points on a nine-point t-design).
-As it turns out, an encoder matrix made from link::Classes/FoaEncoderMatrix#*newDirections:: is suitable for building a strong::decoder:: of the same geometry.
-This involves performing the link::Classes/Matrix#-pseudoInverse:: on the encoder Matrix.
+We've now instantiated a new code::~encoder:: by reading in the file that stored
+the matrix that we originally built using the planewave encoder: link::Classes/FoaEncoderMatrix#*newDirections::
+(using the points of a nine-point t-design).
+As it turns out, an emphasis::encoder:: matrix created by link::Classes/FoaEncoderMatrix#*newDirections::
+is suitable for building a emphasis::decoder:: of the same geometry.
+This involves performing the link::Classes/Matrix#-pseudoInverse:: on the encoder's Matrix.
 
 code::
-~matrix = ~encoderMtx.matrix;	// retrieve the Matrix object stored in the FoaEncoderMatrix
-~pinv = ~matrix.pseudoInverse;	// perform the pseudoinverse on that matrix to give decoding coefficients
+// Retrieve the Matrix object stored in the FoaEncoderMatrix
+~matrix = ~encoder.matrix;
 
-// this decoder will output a velocity ("strict soundfield", max-rV) decode
-// to speakers (or further spatial encoding) positioned in the following location (in this order)
-~encoderMtx.dirInputs.do{|azElPairs, i| postf("chan %: %\n", i, azElPairs.raddeg) }
+// Perform the pseudoinverse on that matrix to give decoding coefficients
+~pinv = ~matrix.pseudoInverse;
 ::
+
+This emphasis::decoder:: will output a velocity ("strict soundfield", max-rV) decode
+positioned in the following locations (and in this order):
+code::
+~encoder.dirInputs.do{|azElPairs, i| postf("chan %: %\n", i, azElPairs.raddeg) }
+::
+
 
 NOTE::
-Because we're inverting an encoder to produce a decoder, the original emphasis::input directions:: of the strong::encoder::
-will now be the emphasis::output directions:: of the strong::decoder::.
-The channel ordering will be in the same order the input directions were specified in the encoder.
-Therefore, in the above code we query the emphasis::encoder:: for its  code::dirInputs::  to know where our output channel signals are expected to be sent (in space!).
+Because we're inverting an encoder to produce a decoder, the original
+emphasis::input directions:: of the strong::encoder:: will now be the
+emphasis::output directions:: of the strong::decoder::.
+The channel ordering will be in the same order the input directions were
+specified in the encoder. Therefore, in the above code we query the
+emphasis::encoder:: for its  code::-dirInputs::  to know where our output channel
+signals are expected to be sent (in space!).
 ::
 
+It's important to note here that the code::~pinv:: matrix is a Matrix object,
+not an FoaDecoderMatrix object.  As such, we'll need to use care when building
+the decoding SynthDef.  Instead of using the link::Classes/FoaDecode:: UGen
+(which expects an FoaDecoderMatrix or FoaDecoderKernel decoder),
+we'll use the link::Classes/AtkMatrixMix:: UGen, which will decode our b-format
+signal through our decoding Matrix.
+
 code::
+(
 ~decoderDef = SynthDef(\pinv_decoder, { arg outbus=0, amp=1;
 	var foa, decoder;
 
-	// test signal: panning noise
+	// Test signal: panning noise
 	foa = FoaPanB.ar( PinkNoise.ar, LFSaw.kr( 12.reciprocal, 1 ), 0 );
 
-	// because the pseudoinverse matrix is a raw Matrix,
-	// we use AtkMatrixMix to decoder our b-format signal
+	// Our ~pinv decoder is a Matrix, so we use AtkMatrixMix
 	decoder = AtkMatrixMix.ar(foa, ~pinv, amp);
-	Out.ar(outbus, decoder);
-}).load(Server.default);
 
-~decoder = Synth(\pinv_decoder, [\outbus, 0, \amp, -8.dbamp] )
-~decoder.free;
+	Out.ar(outbus, decoder);
+
+}).load(Server.default);
+)
+
+~decoderSynth = Synth(\pinv_decoder, [\outbus, 0, \amp, -8.dbamp]);
+
+// Scope the 9 channels of the decoded output
+s.scope(9, 0);
+
+// Clean up
+~decoderSynth.free;
 ::
 
 TODO:
-Investigate the resulting coefficients of decoders created from 3 different methods:
-list::
-##link::Classes/FoaDecoderMatrix#*newPeri:: in a cube format (reference 1)
-##link::Classes/FoaDecoderMatrix#*newDiammetric:: in a cube format (reference 2)
-##link::Classes/Matrix#-pseudoinverse:: in a cube format (test case)
-::
-- at the very least reference 1 & 2 should be identical (otherwise there's a bug)
-
-	- if the pseudoinverse produces the same coefficients, great, that's the velocity decoder
-
-	- - however, there's likely a gain factore that needs to be applied, either a scalar related to the number of "speakers" (9 in this case), or a common scaling factor like 2.sqrt/2, etc.
 
 	- double-check the note about querying the dirInputs above, is this correct?
 
@@ -424,5 +461,3 @@ list::
 	- ALSO, check for quaternion support in MathLib and square it with ArduinoQuaternion
 
 	- TODO: group .postMyMatrixDir by files and directories so it's more readable
-
-Compare

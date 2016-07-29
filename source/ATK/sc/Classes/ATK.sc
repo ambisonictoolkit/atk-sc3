@@ -383,9 +383,10 @@ Atk {
 		postf("~ % % ~\n", family.asString.toUpper, type ?? "");
 
 		postContents = { |folderPN, depth=1|
-			var offset;
+			var offset, f_offset;
 			offset = ("\t"!depth).join;
-			postf("%> % <\n", offset, folderPN.folderName);
+			f_offset = ("\t"!(depth-1)).join;
+			postf("%:: % ::\n", f_offset, folderPN.folderName);
 
 			// folderPN.fileName.postln;
 			folderPN.entries.do{ |entry|
@@ -403,10 +404,12 @@ Atk {
 			type.isNil.if(
 				{  Atk.getExtensionSubPath('matrices') +/+ family.asString.toUpper },
 				{
-					if ( [
-						'decoders', 'encoders', 'xformers',
-						'decoder', 'encoder', 'xformer'		// include singular
-					].includes(type.asSymbol) )
+					if (
+						[
+							'decoders', 'encoders', 'xformers',
+							'decoder', 'encoder', 'xformer'		// include singular
+						].includes(type.asSymbol)
+					)
 					{ Atk.getMatrixExtensionPath(type, family) }
 					{ Error("'type' must be 'decoder', 'encoder', 'xformer', or nil (to see all matrix directories)").throw; };
 				}

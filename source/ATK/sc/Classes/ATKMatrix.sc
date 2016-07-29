@@ -297,14 +297,14 @@ AtkMatrix {
 			if (value.isKindOf(Array)) {
 				value = value.asArray; // cast the Matrix to array for posting
 				if (value.rank > 1) {
-					postf("\t% :\n", attribute);
-					value.do{ |elem| postf("\t\t%\n", elem) };
+					postf("\n% :\n", attribute);
+					value.do{ |elem| postf("\t%\n", elem) };
 				} {
-					postf("\t% : \n\t\t%\n", attribute, value);
+					postf("\n% : \n\t%\n", attribute, value);
 				}
 			} {
 				// postf("\t% : \n\t\t%\n", attribute, value);
-				postf("\t% : %\n", attribute, value);
+				postf("\n% : \n\t%\n", attribute, value);
 			};
 		};
 	}

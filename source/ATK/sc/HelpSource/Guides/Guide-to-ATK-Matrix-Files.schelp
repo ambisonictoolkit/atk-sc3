@@ -456,8 +456,4 @@ TODO:
 
 	- double-check the note about querying the dirInputs above, is this correct?
 
-	- ALSO, submit bug that Matrix class needs documentation
-
 	- ALSO, check for quaternion support in MathLib and square it with ArduinoQuaternion
-
-	- TODO: group .postMyMatrixDir by files and directories so it's more readable

@@ -963,13 +963,13 @@ FoaDecoderMatrix : AtkMatrix {
 		if (fileParse.notNil) {
 			dirOutputs = if (fileParse.dirOutputs.notNil) {
 				fileParse.dirOutputs.asFloat
-			} { // unspecified, so output directions are "implicit" in the provided matrix
-				matrix.rows.collect({ 'implicit' })
+			} { // output directions are unspecified in the provided matrix
+				matrix.rows.collect({ 'unspecified' })
 			};
 			shelfK = fileParse.shelfK !? {fileParse.shelfK.asFloat};
 			shelfFreq = fileParse.shelfFreq !? {fileParse.shelfFreq.asFloat};
 		} { // txt file provided, no fileParse
-			dirOutputs = matrix.rows.collect({ 'implicit' });
+			dirOutputs = matrix.rows.collect({ 'unspecified' });
 		};
 	}
 
@@ -1352,11 +1352,11 @@ FoaEncoderMatrix : AtkMatrix {
 		dirInputs = if (fileParse.notNil) {
 			if (fileParse.dirInputs.notNil) {
 				fileParse.dirInputs.asFloat
-			} { // unspecified, so input directions are "implicit" in the provided matrix
-				matrix.cols.collect({ 'implicit' })
+			} { // so input directions are unspecified in the provided matrix
+				matrix.cols.collect({ 'unspecified' })
 			};
 		} { // txt file provided, no fileParse
-			matrix.cols.collect({ 'implicit' });
+			matrix.cols.collect({ 'unspecified' });
 		};
 	}
 

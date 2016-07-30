@@ -15,10 +15,15 @@ list::
 ##strong::sounds:: (example sound files in a-, b-format, and stereo),
 ##strong::matrices:: (for encoding, decoding, xforming).
 ::
-These folders store the files shipped with the ATK. You can also optionally add your own strong::extensions:: folder, in which you can store kernels and matrices of your own design.  Note this is different from SuperCollider's strong::Extensions:: folder. If you haven't yet added an strong::extensions:: directory, you can see where to put it by executing the following method:
+These folders store the files shipped with the ATK.
+You can also optionally add your own code::extensions:: folder,
+in which you can store kernels and matrices of your own design.
+Note this is different from SuperCollider's code::Extensions:: folder.
+If you haven't yet added an code::extensions:: directory, you can see where
+to put it by executing the following method:
 code::
-Atk.userExtensionsDir // view it
-Atk.userExtensionsDir.openOS // open it... if it exists!
+Atk.userExtensionsDir         // view it
+Atk.userExtensionsDir.openOS  // open it... if it exists!
 ::
 
 There's a handy method that will build it for you in the expected structure:
@@ -26,7 +31,10 @@ code::
 Atk.createExtensionsDir
 ::
 
-This will create a directory structure that lives in your next to your default ATK assets. Note this creates both a strong::matrices:: folder structure, and an identical strong::kernels:: folder structure for storing your custom kernels.  The full structure will look like this:
+This will create a directory structure that lives in your next to your default
+ATK assets. Note this creates both a strong::matrices:: folder structure,
+and an identical strong::kernels:: folder structure for storing your custom kernels.
+The full structure will look like this:
 tree::
   ## teletype::Application Support::
   tree::
@@ -38,18 +46,6 @@ tree::
       ## teletype::extensions::  (your custom additions)
       tree::
         ## teletype::kernels::
-        tree::
-          ##teletype::FOA::
-          tree::
-            ##teletype::decoders::
-            ##teletype::encoders::
-            ##teletype::xformers::
-          ::
-          ##teletype::HOA1::
-          ##teletype::HOA2::
-          ##teletype::...::
-          ##teletype::HOAN::
-        ::
         ## teletype::matrices::
         tree::
           ##teletype::FOA::
@@ -72,17 +68,22 @@ tree::
     ::
   ::
 ::
-Each of the folders (code::FOA>encoders::, code::HOA5>decoders::, etc.) are empty and ready to store matrices (and kernels) for use with the ATK-sc and ATK-Reaper (more on that later). When you write a matrix using the ATK, it will store it in this directory structure by default, and will look here by default when asked to read in a matrix from file.
+Each of the folders (code::FOA>encoders::, code::HOA5>decoders::, etc.) are
+empty and ready to store matrices (and kernels) for use with the ATK-sc and
+ATK-Reaper (more on that later). When you write a matrix using the ATK, it
+will store it in this directory structure by default, and will look here by
+default when asked to read in a matrix from file.
 
 You can view this structure and any files you've stored there using the following method:
 code::
-Atk.postMyMatrixDir;					// the whole foa matrices hierarchy
+Atk.postMyMatrixDir;              // the whole foa matrices hierarchy
 Atk.postMyMatrixDir('encoders');	// foa encoders only
 Atk.postMyMatrixDir('decoders');	// foa decoders only
 Atk.postMyMatrixDir('xformers');	// foa xformers only
 ::
 
-Each of these matrix subdirectories can have further subdirectories at your discretion, e.g. for particular projects or categories of matrices.
+Each of these matrix subdirectories can have further subdirectories at your
+discretion, e.g. for particular projects or categories of matrices.
 
 SECTION::Writing Matrices
 
@@ -90,35 +91,18 @@ We'll start by writing a matrix file.
 
 Let's create a first order encoder matrix from a nine-point t-design. A t-design
 is a collection of points on a sphere thyat are uniformly distributed.
-The t-design below can be found in Hardin and Sloan's link::http://neilsloane.com/sphdesigns/dim3##Library of 3-D Designs::.
-footnote::Hardin, R. H. and Sloane, N. J. A., "Sperical Designs", http://neilsloane.com/sphdesigns/::
+The t-design below can be found in Hardin and Sloan's
+link::http://neilsloane.com/sphdesigns/dim3##Library of 3-D Designs::.
+footnote::Hardin, R. H. and Sloane, N. J. A., "Sperical Designs", http://neilsloane.com/sphdesigns/, accessed on July 29, 2016.::
 
 code::
 (
-// Cartesian coordinates of the nine points.
-~cartCoords = [
-  [ -0.61237243569579, 0.35355339059327, 0.70710678118655 ],
-  [ 0.61237243569579, 0.35355339059327, 0.70710678118655 ],
-  [ 0, -0.70710678118655, 0.70710678118655 ],
-  [ -0.86602540378444, 0.5, 0 ],
-  [ 0.86602540378444, 0.5, 0 ],
-  [ 0, -1, 0 ],
-  [ -0.61237243569579, 0.35355339059327, -0.70710678118655 ],
-  [ 0.61237243569579, 0.35355339059327, -0.70710678118655 ],
-  [ 0, -0.70710678118655, -0.70710678118655 ],
-];
-
-// Convert to Spherical coordinates.
-~directions = ~cartCoords.collect({ |xyz|
-  var spherical;
-  spherical = Cartesian(*xyz).asSpherical;
-
-  // Rotate all directions to orient around a point directly forward at [0,0]
-  spherical = spherical.rotateXY(-30.degrad);
-
-  // discard rho, we just need directions
-  [spherical.theta, spherical.phi]
-});
+// Spherical coordinates of the nine-point t-design.
+~directions = [
+	[ 120, 45 ],  [ 0, 45 ],  [ -120, 45 ],
+	[ 120, 0 ],   [ 0, 0 ],   [ -120, 0 ],
+	[ 120, -45 ], [ 0, -45 ], [ -120, -45 ]
+].degrad;
 
 // Here's our (velocity) encoder matrix:
 ~encoder = FoaEncoderMatrix.newDirections(~directions);
@@ -126,8 +110,8 @@ code::
 ::
 
 This link::Classes/FoaEncoderMatrix:: is now ready to be used for encoding planewaves at those
-niine uniformly distributed positions.  After all that work, I want to store my matrix to file for
-use in the future, and to use in my ATK-Reaper plugins!
+niine uniformly distributed positions.  After all that work, we want to store the matrix to file for
+use in the future, and to use in ATK-Reaper plugins!
 
 There are three available file formats, each with a special purpose:
 
@@ -150,14 +134,17 @@ code::
 ~encoder.writeToFile("my9PointEncoder.mosl.txt");
 ::
 
-Because I only specified a file name, not a full path, it will store the matrix in the default location.
-We're writing an link::Classes/FoaEncoderMatrix::, ATK can infer that it's an strong::encoder:: in the strong::FOA:: family.
+Because we only specified a file name, not a full path,
+it will store the matrix in the default location.
+We're writing an link::Classes/FoaEncoderMatrix::, ATK can infer that
+it's an strong::encoder:: in the strong::FOA:: family.
 Therefore, the ATK knows to put it in: code::../extensions/matrices/FOA/encoders::.
 
-Had I specified a full path instead, it would have saved to that location.
+Had we specified a full path instead, it would have saved to that location.
 
 code::
-Atk.postMyMatrixDir('encoders');  // Here are my encoders (defaults to showing the FOA family)
+// Here are our encoders (defaults to showing the FOA family)
+Atk.postMyMatrixDir('encoders');
 ::
 
 SUBSECTION::Writing Metadata
@@ -189,7 +176,8 @@ code::
 NOTE::
 If keys in the strong::attributeDictionary:: match instance variables of FoaEncoderMatrix,
 they can be retrieved with getters once loaded from the file. This is the case for
-strong::dirInputs:: specified in the code::~properties:: dictionary above. We'll see the effect this has below.
+strong::dirInputs:: specified in the code::~properties:: dictionary above.
+We'll see the effect this has below.
 ::
 
 Now write this matrix and metadata to file...
@@ -208,11 +196,13 @@ code::
 ::
 
 SUBSECTION:: Writing Raw Matrices
-In the above examples, we've been reading/writing matrices encapsulated in the AtkMatrix classes.
-When writing from these objects, some the information can be inferred from them,
-such as the strong::family:: (order, e.g. code::'FOA'::, code::'HOA3'::, etc.) and strong::type::
+In the above examples, we've been reading/writing matrices encapsulated in
+the AtkMatrix classes. When writing from these objects, some the information
+can be inferred from them, such as the strong::family:: (order, e.g.
+code::'FOA'::, code::'HOA3'::, etc.) and strong::type::
 of matrix (e.g. code::'encoder', 'decoder', 'xformer'::).
-In the case of a raw matrix, this information can't be inferred and should be explicitly set when writing to file.
+In the case of a raw matrix, this information can't be inferred and should be
+explicitly set when writing to file.
 
 code::
 // Here's a raw A-to-B encoder matrix:
@@ -312,10 +302,10 @@ code::
 SECTION:: Reading Matrices
 
 We wrote three encoder matrix files earlier, lets read them in.  As when writing,
-the ATK looks in your strong::extensions/matrices:: directory by default. So
-unless your matrix file is somewhere outside the defualt location, a filename
+the ATK looks in the strong::extensions/matrices:: directory by default. So
+unless the matrix file is somewhere outside the defualt location, a filename
 will suffice to read it in, as the type (code::'encoder'::, code::'decoder'::,
-code::'xformer'::) is inferred from the object you're instantiating.
+code::'xformer'::) is inferred from the object being instantiated.
 
 We can even omit the file extension if we don't expect multiple file emphasis::types::
 (code::.txt, .yml, .mosl.txt::) stored under the same emphasis::name:::
@@ -373,8 +363,8 @@ code::
 ~encoder.dirInputs;
 
 
-// Plus the other data you wrote to it:
-~encoder.info;          // Formatted post
+// Plus the other data written to it:
+~encoder.info;           // Formatted post
 
 // Metadata is loaded as an IndentityDictionary, so values
 // from the attributeDictionary can be accessed by their
@@ -451,9 +441,3 @@ s.scope(9, 0);
 // Clean up
 ~decoderSynth.free;
 ::
-
-TODO:
-
-	- double-check the note about querying the dirInputs above, is this correct?
-
-	- ALSO, check for quaternion support in MathLib and square it with ArduinoQuaternion

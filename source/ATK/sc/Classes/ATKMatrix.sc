@@ -2238,7 +2238,7 @@ FoaEncoderKernel {
 								action: { arg buf;
 									(
 										kernelBundle = kernelBundle.add(
-											buf.allocReadChannelMsg(kernelPath.fullPath, 0, kernelSize.postln, [chan]));
+											buf.allocReadChannelMsg(kernelPath.fullPath, 0, kernelSize, [chan]));
 										kernelInfo = kernelInfo.add([kernelPath.fullPath, buf.bufnum, [chan]]);
 										"Kernel %, channel % loaded.".format(
 											kernelPath.fileName, chan

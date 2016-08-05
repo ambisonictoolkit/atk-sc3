@@ -361,8 +361,7 @@ Atk {
 
 		if( srcPath.notNil,
 			{
-				postf("Found matrix file: \n\t> %\n", srcPath.asRelativePath(mtxDirPath));
-				// matrix = Matrix.with( FileReader.read(srcPath.fullPath).asFloat ).postln;
+				// postf("Found matrix file: \n\t> %\n", srcPath.asRelativePath(mtxDirPath));
 				^srcPath
 			},{ Error("No matrix file found!").throw }
 		);

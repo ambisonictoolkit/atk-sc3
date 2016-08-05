@@ -85,7 +85,7 @@ FoaSpeakerMatrix {
 	*new { arg directions, k;
 		var positions;
 
-		switch (directions.rank,						// 2D or 3D?
+		switch (directions.rank,					// 2D or 3D?
 			1, { positions = Matrix.with(			// 2D
 					directions.collect({ arg item;
 						Polar.new(1, item).asPoint.asArray
@@ -166,12 +166,14 @@ AtkMatrix {
 	var <filePath;  // matrices from files only
 	var <fileParse;  // data parsed from YAML file
 
-	*new { |mtxKind|
-		^super.newCopyArgs(mtxKind)
-	}
+	// *new { |mtxKind|
+	// 	^super.newCopyArgs(mtxKind)
+	// }
 
+	// used when writing a Matrix to file:
+	// need to convert to AtkMatrix first
 	*newFromMatrix { |aMatrix|
-		^super.newCopyArgs('loaded_from_Matrix').initFromMatrix(aMatrix)
+		^super.newCopyArgs('fromMatrix').initFromMatrix(aMatrix)
 	}
 
 	initFromMatrix { |aMatrix|
@@ -258,6 +260,19 @@ AtkMatrix {
 				)
 			};
 
+			if (fileParse[\type].isNil) {
+				"Matrix 'type' is undefined in the .yml file: cannot confirm the type matches the loaded object (encoder/decoder/xformer)".warn
+			} {
+				if (fileParse[\type].asSymbol != mtxType.asSymbol) {
+					Error(
+						format(
+							"Matrix 'type' defined in the .yml file (%) doesn't match the type of matrix you're trying to load (%)",
+							fileParse[\type], mtxType
+						).throw
+					)
+				}
+			};
+
 			matrix = Matrix.with(fileParse.matrix.asFloat);
 			kind = fileParse.kind ?? resolvedPathName.fileNameWithoutExtension.asSymbol;
 		}
@@ -309,7 +324,7 @@ AtkMatrix {
 		};
 	}
 
-	// type: /encoder, \decoder, \xformer
+	// type: \encoder, \decoder, \xformer
 	// family: foa, hoa1, hoa2, etc
 	writeToFile { arg fileNameOrPath, type, family, note, attributeDictionary, overwrite=false;
 		var mtype, pn, writer, ext;
@@ -347,7 +362,12 @@ AtkMatrix {
 					pn = mtxPath +/+ pn;
 				} {
 					Error(
-						format("Specified relative folder path was not found in %\n", relPath.fullPath)).throw; ^this
+						format(
+							"Specified relative folder path was not found in %\n",
+							relPath.fullPath
+						)
+					).throw;
+					^this
 				}
 			};
 		}; // otherwise, provided path is absolute
@@ -430,7 +450,9 @@ AtkMatrix {
 
 		// write default attributes
 		defAttributes = [\kind, \dirOutputs, \dirInputs];
-		if (type=='decoder') { defAttributes = defAttributes ++ [\shelfK,\shelfFreq] };
+		if (type=='decoder') {
+			defAttributes = defAttributes ++ [\shelfK,\shelfFreq]
+		};
 
 		if (attributeDictionary.notNil) {
 			// make sure attribute dict doesn't explicitly set the attribute first
@@ -462,7 +484,7 @@ AtkMatrix {
 		writer.close;
 	}
 
-	fileName { ^ try {PathName(filePath).fileName} }
+	fileName { ^try {PathName(filePath).fileName} }
 
 }
 
@@ -985,6 +1007,8 @@ FoaDecoderMatrix : AtkMatrix {
 
 	dim { ^this.numInputs - 1}
 
+	type { ^'decoder' }
+
 	printOn { arg stream;
 		stream << this.class.name << "(" <<* [this.kind, this.dim, this.numChannels] <<")";
 	}
@@ -1353,10 +1377,10 @@ FoaEncoderMatrix : AtkMatrix {
 			if (fileParse.dirInputs.notNil) {
 				fileParse.dirInputs.asFloat
 			} { // so input directions are unspecified in the provided matrix
-				matrix.cols.collect({ 'unspecified' })
+				matrix.cols.collect({'unspecified'})
 			};
 		} { // txt file provided, no fileParse
-			matrix.cols.collect({ 'unspecified' });
+			matrix.cols.collect({'unspecified'});
 		};
 	}
 
@@ -1372,6 +1396,8 @@ FoaEncoderMatrix : AtkMatrix {
 	numChannels { ^this.numInputs }
 
 	dim { ^this.numOutputs - 1}
+
+	type { ^'encoder' }
 
 	printOn { arg stream;
 		stream << this.class.name << "(" <<* [kind, this.dim, this.numInputs] <<")";
@@ -2053,6 +2079,8 @@ FoaXformerMatrix : AtkMatrix {
 	numOutputs { ^matrix.rows }
 
 	numChannels { ^4 }			// all transforms are 3D
+
+	type { ^'xformer' }
 
 	printOn { arg stream;
 		stream << this.class.name << "(" <<* [kind, this.dim, this.numChannels] <<")";

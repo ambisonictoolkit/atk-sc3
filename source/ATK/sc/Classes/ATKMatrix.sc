@@ -166,9 +166,10 @@ AtkMatrix {
 	var <filePath;  // matrices from files only
 	var <fileParse;  // data parsed from YAML file
 
-	// *new { |mtxKind|
-	// 	^super.newCopyArgs(mtxKind)
-	// }
+	// most typically called by subclass
+	*new { |mtxKind|
+		^super.newCopyArgs(mtxKind)
+	}
 
 	// used when writing a Matrix to file:
 	// need to convert to AtkMatrix first

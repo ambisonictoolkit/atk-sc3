@@ -97,7 +97,7 @@
 Atk {
 	classvar <userSupportDir, <userSoundsDir, <userKernelDir, <userExtensionsDir;
 	classvar <systemSupportDir, <systemSoundsDir, <systemKernelDir, <systemExtensionsDir;
-	classvar <families;
+	classvar <sets;
 
 	*initClass {
 		userSupportDir = Platform.userAppSupportDir.dirname ++ "/ATK";
@@ -110,7 +110,7 @@ Atk {
 		systemKernelDir = systemSupportDir ++ "/kernels";
 		systemExtensionsDir = systemSupportDir ++ "/extensions";
 
-		families = [ 'foa', 'hoa1', 'hoa2', 'hoa3', 'hoa4', 'hoa5', 'hoa6', 'hoa7' ];
+		sets = [ 'foa', 'hoa1', 'hoa2', 'hoa3', 'hoa4', 'hoa5', 'hoa6', 'hoa7' ];
 	}
 
 	*userSupportDir_ {arg userSupportDirIn;
@@ -154,11 +154,11 @@ Atk {
 		mtxTypes =	["encoders", "decoders", "xformers"];
 
 		makeDirs = { |baseDir|
-			Atk.families.do{ |family|
+			Atk.sets.do{ |set|
 				var path;
 				categories.do{ |category|
 					mtxTypes.do{ |mtxType|
-						path = baseDir +/+ category +/+ family.asString.toUpper +/+ mtxType;
+						path = baseDir +/+ category +/+ set.asString.toUpper +/+ mtxType;
 						File.mkdir( path );
 					}
 				}
@@ -224,16 +224,16 @@ Atk {
 
 	//  which: 'matrices', 'kernels'
 	//  type: 'decoders', 'encoders', 'xformers'
-	//  family: 'foa', "hoa1", "hoa2", etc
-	*getExtensionPath { arg which, type, family='foa';
-		var subPath, fam, typePath, fullPath;
+	//  set: 'foa', "hoa1", "hoa2", etc
+	*getExtensionPath { arg which, type, set='foa';
+		var subPath, setToUpper, typePath, fullPath;
 
-		Atk.checkFamily(family);
+		Atk.checkSet(set);
 
 		subPath = Atk.getExtensionSubPath(which);
-		fam = family.asString.toUpper; // folder structure is uppercase
+		setToUpper = set.asString.toUpper; // folder structure is uppercase
 
-		typePath = PathName.new( fam ++ "/" ++
+		typePath = PathName.new( setToUpper ++ "/" ++
 			switch( type.asSymbol,
 				'decoders', {"decoders/"},
 				'encoders', {"encoders/"},
@@ -250,11 +250,11 @@ Atk {
 		^fullPath
 	}
 	// shortcuts for matrices and kernels
-	*getMatrixExtensionPath { arg type, family='foa';
-		^Atk.getExtensionPath('matrices', type, family);
+	*getMatrixExtensionPath { arg type, set='foa';
+		^Atk.getExtensionPath('matrices', type, set);
 	}
-	*getKernelsExtensionPath { arg type, family='foa';
-		^Atk.getExtensionPath('kernels', type, family);
+	*getKernelsExtensionPath { arg type, set='foa';
+		^Atk.getExtensionPath('kernels', type, set);
 	}
 
 	*folderExists { |folderPathName, throwOnFail=true|
@@ -367,19 +367,19 @@ Atk {
 		);
 	}
 
-	*checkFamily { |fam|
-		Atk.families.includes(fam.asString.toLower.asSymbol).not.if {"Invalid family".throw};
+	*checkSet { |set|
+		Atk.sets.includes(set.asString.toLower.asSymbol).not.if {"Invalid set".throw};
 	}
 
 
 	// NOTE: could be generalized for other user extensions, e.g. kernels, etc.
 	// type: 'decoders', 'encoders', 'xformers'
-	*postMyMatrixDir { |type, family='foa'|
+	*postMyMatrixDir { |type, set='foa'|
 		var postContents;
 
-		Atk.checkFamily(family);
+		Atk.checkSet(set);
 
-		postf("~ % % ~\n", family.asString.toUpper, type ?? "");
+		postf("~ % % ~\n", set.asString.toUpper, type ?? "");
 
 		postContents = { |folderPN, depth=1|
 			var offset, f_offset;
@@ -401,7 +401,7 @@ Atk {
 
 		postContents.(
 			type.isNil.if(
-				{  Atk.getExtensionSubPath('matrices') +/+ family.asString.toUpper },
+				{  Atk.getExtensionSubPath('matrices') +/+ set.asString.toUpper },
 				{
 					if (
 						[
@@ -409,7 +409,7 @@ Atk {
 							'decoder', 'encoder', 'xformer'		// include singular
 						].includes(type.asSymbol)
 					)
-					{ Atk.getMatrixExtensionPath(type, family) }
+					{ Atk.getMatrixExtensionPath(type, set) }
 					{ Error("'type' must be 'decoder', 'encoder', 'xformer', or nil (to see all matrix directories)").throw; };
 				}
 			);

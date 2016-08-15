@@ -326,19 +326,19 @@ AtkMatrix {
 	}
 
 	// type: \encoder, \decoder, \xformer
-	// family: foa, hoa1, hoa2, etc
-	writeToFile { arg fileNameOrPath, type, family, note, attributeDictionary, overwrite=false;
+	// set: foa, hoa1, hoa2, etc
+	writeToFile { arg fileNameOrPath, type, set, note, attributeDictionary, overwrite=false;
 		var mtype, pn, writer, ext;
 
 		if (type.isNil) {
 			switch( this.class,
-				FoaEncoderMatrix,	{mtype = 'encoder'; family = 'foa'},
-				FoaDecoderMatrix,	{mtype = 'decoder'; family = 'foa'},
-				FoaXformerMatrix,	{mtype = 'xformer'; family = 'foa'}
+				FoaEncoderMatrix,	{mtype = 'encoder'; set = 'foa'},
+				FoaDecoderMatrix,	{mtype = 'decoder'; set = 'foa'},
+				FoaXformerMatrix,	{mtype = 'xformer'; set = 'foa'}
 			);
 		} { mtype = type.asSymbol };
 
-		family ?? {Error("Unspecified family argument. Choose 'foa', 'hoa1', 'hoa2', etc.").throw};
+		set ?? {Error("Unspecified set argument. Choose 'foa', 'hoa1', 'hoa2', etc.").throw};
 
 		pn = PathName(fileNameOrPath);
 
@@ -351,12 +351,12 @@ AtkMatrix {
 			case
 			{ pn.colonIndices.size == 0} {
 				// only filename provided, writer to dir matching mtype
-				pn = Atk.getMatrixExtensionPath(mtype, family) +/+ pn;
+				pn = Atk.getMatrixExtensionPath(mtype, set) +/+ pn;
 
 			} { pn.colonIndices.size > 0} {
 				// relative path given, look for it
 				var mtxPath, relPath;
-				mtxPath = Atk.getMatrixExtensionPath(mtype, family);
+				mtxPath = Atk.getMatrixExtensionPath(mtype, set);
 				relPath = (mtxPath +/+ PathName(pn.parentPath));
 				if (relPath.isFolder) {
 					// valid relative path confirmed
@@ -392,7 +392,7 @@ AtkMatrix {
 				this.prWriteMatrixToTXT(pn)
 			}
 		}
-		{ext == "yml"} {this.prWriteMatrixToYML(pn, mtype, family, note, attributeDictionary)}
+		{ext == "yml"} {this.prWriteMatrixToYML(pn, mtype, set, note, attributeDictionary)}
 		{Error("Invalid file extension: provide '.txt' for writing matrix only, or '.yml' or no extension to write matrix with metadata (as YAML)").throw; ^this};
 	}
 
@@ -425,7 +425,7 @@ AtkMatrix {
 		writer.close;
 	}
 
-	prWriteMatrixToYML { arg pn, type, family, note, attributeDictionary;
+	prWriteMatrixToYML { arg pn, type, set, note, attributeDictionary;
 		var writer, defAttributes;
 
 		writer = FileWriter( pn.fullPath );

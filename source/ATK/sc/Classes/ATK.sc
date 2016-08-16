@@ -222,15 +222,15 @@ Atk {
 		^subPath
 	}
 
-	//  which: 'matrices', 'kernels'
+	//  mode: 'matrices', 'kernels'
 	//  type: 'decoders', 'encoders', 'xformers'
 	//  set: 'foa', "hoa1", "hoa2", etc
-	*getExtensionPath { arg which, type, set='foa';
+	*getExtensionPath { arg mode, type, set='foa';
 		var subPath, setToUpper, typePath, fullPath;
 
 		Atk.checkSet(set);
 
-		subPath = Atk.getExtensionSubPath(which);
+		subPath = Atk.getExtensionSubPath(mode);
 		setToUpper = set.asString.toUpper; // folder structure is uppercase
 
 		typePath = PathName.new( setToUpper ++ "/" ++
@@ -251,9 +251,11 @@ Atk {
 	}
 	// shortcuts for matrices and kernels
 	*getMatrixExtensionPath { arg type, set='foa';
+		type ?? {Error("Unspecified matrix type. Please specify 'encoder', 'decoder', or 'xformer'.").errorString.postln; ^nil}
 		^Atk.getExtensionPath('matrices', type, set);
 	}
 	*getKernelsExtensionPath { arg type, set='foa';
+		type ?? {Error("Unspecified kernel type. Please specify 'encoder', 'decoder', or 'xformer'.").errorString.postln; ^nil}
 		^Atk.getExtensionPath('kernels', type, set);
 	}
 

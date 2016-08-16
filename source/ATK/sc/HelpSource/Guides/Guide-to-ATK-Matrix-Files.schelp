@@ -137,13 +137,13 @@ code::
 Because we only specified a file name, not a full path,
 it will store the matrix in the default location.
 We're writing an link::Classes/FoaEncoderMatrix::, ATK can infer that
-it's an strong::encoder:: in the strong::FOA:: family.
+it's an strong::encoder:: in the strong::FOA:: set.
 Therefore, the ATK knows to put it in: code::../extensions/matrices/FOA/encoders::.
 
 Had we specified a full path instead, it would have saved to that location.
 
 code::
-// Here are our encoders (defaults to showing the FOA family)
+// Here are our encoders (defaults to showing the FOA set)
 Atk.postMyMatrixDir('encoders');
 ::
 
@@ -198,7 +198,7 @@ code::
 SUBSECTION:: Writing Raw Matrices
 In the above examples, we've been reading/writing matrices encapsulated in
 the AtkMatrix classes. When writing from these objects, some the information
-can be inferred from them, such as the strong::family:: (order, e.g.
+can be inferred from them, such as the strong::set:: (order, e.g.
 code::'FOA'::, code::'HOA3'::, etc.) and strong::type::
 of matrix (e.g. code::'encoder', 'decoder', 'xformer'::).
 In the case of a raw matrix, this information can't be inferred and should be
@@ -237,7 +237,7 @@ code::
 (
 ~matrix.writeToFile( "myA2B_flu_Matrix.yml", // be sure to use .yml for metadata
   'encoder',  // type
-  'foa',      // family
+  'foa',      // set
   ~note,
   ~properties
 )
@@ -280,7 +280,7 @@ File.mkdir( Atk.getMatrixExtensionPath(\encoders, \foa).fullPath +/+ ~projSubFol
 ::
 
 NOTE:: Remember that because code::~encoder:: is an link::Classes/FoaEncoderMatrix::,
-the strong::type:: (code::'encoder'::) and strong::family:: (code::'foa'::)
+the strong::type:: (code::'encoder'::) and strong::set:: (code::'foa'::)
 arguments are inferred.
 ::
 

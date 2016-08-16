@@ -506,7 +506,21 @@ Imaging is illustrated link::Classes/FoaBalance#figure#here::.
 note:: Corresponding UGen: link::Classes/FoaBalance:: ::
 
 
+METHOD:: newFromFile
+Create an FoaEncoderMatrix by loading a matrix from a file.
 
+argument:: filePathOrName
+Can be a path relative to your code::/extensions/matrices/xformers:: folder:
+code::
+Atk.getMatrixExtensionPath('xformers').fullPath
+::
+Otherwise a full path to your matrix file.
+
+discussion::
+See the link::Guides/Guide-to-ATK-Matrix-Files:: for more information.
+
+
+COPYMETHOD:: AtkMatrix, *newFromMatrix
 
 
 
@@ -565,7 +579,11 @@ METHOD:: dirInputs
 A convenience method providing polymorphism with link::Classes/FoaEncoderMatrix#-dirInputs:: and link::Classes/FoaDecoderMatrix#-dirInputs::.
 
 
+METHOD:: type
+returns:: code::'decoder'::
 
+
+COPYMETHOD:: AtkMatrix, -info
 
 EXAMPLES::
 

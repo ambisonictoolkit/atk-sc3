@@ -4,33 +4,29 @@ categories:: Libraries>Ambisonic Toolkit
 related:: Classes/FoaEncoderMatrix, Classes/FoaDecoderMatrix, Classes/FoaXformerMatrix, Classes/Matrix
 
 DESCRIPTION::
-A superclass to link::Classes/FoaEncoderMatrix::,  link::Classes/FoaDecoderMatrix::, and link::Classes/FoaXformerMatrix::.
-Typically its methods are called from the subclasses that inherit them, and most methods are utilities used internally by the class.
+An AtkMatrix is not typically instantiated directly, but rather through one of its subclasses:
+link::Classes/FoaEncoderMatrix::,  link::Classes/FoaDecoderMatrix::, and link::Classes/FoaXformerMatrix::.
 
 
 CLASSMETHODS::
 
+METHOD:: new
+code::*new:: should not be called directly from AtkMatrix but rather is called from the various creation methods of its subclasses:
+link::Classes/FoaEncoderMatrix::, link::Classes/FoaDecoderMatrix::, or link::Classes/FoaXformerMatrix::.
+
+
 METHOD:: newFromMatrix
-Create an AtkMatrix from a raw 2D link::Classes/Matrix::.
+Create an instance from a raw 2D link::Classes/Matrix::.
 
 ARGUMENT:: aMatrix
-A link::Classes/Matrix:: in the form of code::Matrix.with([[row1],[row2],...[rowN]])::.
-
-returns:: An AtkMatrix in the form of the subclass that called the method, e.g. an link::Classes/FoaEncoderMatrix::, for subsequent use in a SynthDef, writing to a file, etc.
-
+A link::Classes/Matrix:: in the form of
+code::
+Matrix.with([[row1],[row2],...[rowN]])
+::
 
 INSTANCEMETHODS::
 
-METHOD:: filePath
-Answers the path of the file used to create the instance, or code::nil:: if not created by loading a matrix from a file.
-
-METHOD:: fileParse
-If the instance was created by loading a code::.yml:: file, this method returns
-the link::Classes/IdentityDictionary:: containing the parsed metadata. This can
-be useful if anything was stored in the metadata that can be subsequently used
-once reloaded, such as encoding directions, rotations, etc.
-Note:: For simply a quick glance at the metadata, it's recommended to use link::#-info::.::
-
+PRIVATE:: kind
 
 METHOD:: writeToFile
 Write the matrix to a file
@@ -50,8 +46,8 @@ Discussion below for more information.
 ARGUMENT:: type
 A Symbol specifying whether the matrix is an code::'encoder'::, code::'decoder'::, code::'xformer'::. If callded from a subclass of AtkMatrix, this will default to the type of that subclass, e.g. code::'decoder'::, for an link::Classes/FoaDecoderMatrix::.
 
-ARGUMENT:: family
-A Symbol specifying the Ambisonic family: code::'foa'::, code::'hoa1'::, code::'hoa2'::, etc.
+ARGUMENT:: set
+A Symbol specifying the Ambisonic set: code::'foa'::, code::'hoa1'::, code::'hoa2'::, etc.
 
 ARGUMENT:: note
 A String that is a short description or bit of info about the matrix to store for future reference.
@@ -63,53 +59,35 @@ ARGUMENT:: overwrite
 A boolean specifying whether you'd like to force overwriting an existing file of the same name and extension.
 
 DISCUSSION::
-For example, if you're creating a custom FoaEncoderMatrix, you might consider creating a Dictionary with such useful information as:
-code::
-~myInfo = (
-	author: "Me, Myself, I",
-	dateCreated: Date.getDate.stamp,
-	inputOrdering: 'acn',
-	outputOrdering: 'fuMa',
-	weighting: 'n3d',
-	dirInputs: [ 0, 0.5235987755983, 1.5707963267949, 2.3561944901923, -2.3561944901923, -1.5707963267949, -0.5235987755983 ]
-)
-::
 
-Because there is no way to infer channel ordering, normalization, input/output
-directions, etc. from a raw matrix (in some cases), it is useful to store some
-of this information for future use.
-
-Note that link::#-dirInputs:: is also a method of (subclasses of) AtkMatrix.
-Had dirInputs not been specified in the strong::attributeDictionary::, the
-default dirInputs method of ForEncoderMatrix would only have returned
-code::['implicit','implicit','implicit','implicit','implicit','implicit','implicit']::.
-This is because the number of inputs can be inferred from the matrix, but the
-"incoming" directions are only "implicit" in the matrix encoding.  Specifying a
-dirInputs attribute helps avoid this ambiguity for future use of the matrix.
-
-The Guide to ATK Matrix Files offers examples and more discussion regarding
+The link::Guides/Guide-to-ATK-Matrix-Files:: offers examples and more discussion regarding
 writing and reading matrices and metadata, including how to generate
 matrices for use in Reaper.
 
 
-
 METHOD:: info
 A convenience method to post the properties of the matrix, including metadata
-if the matrix was loaded from a file.
+if the matrix was loaded from a code::.yml:: file.
 
 
-PRIVATE:: prWriteMatrixToMOSL
-
-PRIVATE:: prWriteMatrixToYML
-
-PRIVATE:: prWriteMatrixToTXT
-
-PRIVATE:: prParseMOSL
-
-PRIVATE:: initFromMatrix
-
-PRIVATE:: initFromFile
+METHOD:: fileParse
+If the instance was created by loading a code::.yml:: file, this method returns
+the link::Classes/IdentityDictionary:: containing the parsed metadata. This can
+be useful if anything was stored in the metadata that can be subsequently used
+once reloaded, such as encoding directions, rotations, etc.
+Note:: For simply a quick glance at the metadata, it's recommended to use link::#-info::.::
 
 
-EXAMPLES::
-See
+METHOD:: filePath
+Answers the path of the file used to create the instance, or code::nil:: if not created by loading a matrix from a file.
+
+
+METHOD:: fileName
+Answers the name of the file used to create the instance, or code::nil:: if not created by loading a matrix from a file.
+
+
+METHOD:: matrix
+Returns the raw coefficient Matrix.
+
+
+PRIVATE:: prWriteMatrixToMOSL, prWriteMatrixToYML, prWriteMatrixToTXT, prParseMOSL, initFromMatrix, initFromFile

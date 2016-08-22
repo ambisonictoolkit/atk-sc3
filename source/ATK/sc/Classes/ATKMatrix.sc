@@ -1944,7 +1944,7 @@ FoaDecoderKernel {
 							numFrames = soundFile.numFrames;
 							numChannels = soundFile.numChannels
 						});
-						buf = Buffer(server, numFrames, numChannels);
+						buf = Buffer(server, numFrames);
 						kernelBundle = kernelBundle.add(
 							buf.allocReadChannelMsg(kernelPath.fullPath, 0, kernelSize, [chan]));
 						kernelInfo = kernelInfo.add([kernelPath.fullPath, buf.bufnum, [chan]]);
@@ -2269,7 +2269,7 @@ FoaEncoderKernel {
 							numFrames = soundFile.numFrames;
 							numChannels = soundFile.numChannels
 						});
-						buf = Buffer(server, numFrames, numChannels);
+						buf = Buffer(server, numFrames);
 						kernelBundle = kernelBundle.add(
 											buf.allocReadChannelMsg(kernelPath.fullPath, 0, kernelSize, [chan]));
 						kernelInfo = kernelInfo.add([kernelPath.fullPath, buf.bufnum, [chan]]);

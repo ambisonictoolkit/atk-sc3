@@ -597,6 +597,10 @@ returns:: code::'decoder'::
 
 
 COPYMETHOD:: AtkMatrix, -info
+COPYMETHOD:: AtkMatrix, -fileParse
+COPYMETHOD:: AtkMatrix, -filePath
+COPYMETHOD:: AtkMatrix, -fileName
+COPYMETHOD:: AtkMatrix, -op
 
 
 EXAMPLES::

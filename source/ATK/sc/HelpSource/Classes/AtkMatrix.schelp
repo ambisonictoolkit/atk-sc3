@@ -89,5 +89,8 @@ Answers the name of the file used to create the instance, or code::nil:: if not 
 METHOD:: matrix
 Returns the raw coefficient Matrix.
 
+METHOD:: op
+Answers code::'matrix'::, i.e. the type of operation used to compute the resulting signals.
+
 
 PRIVATE:: prWriteMatrixToMOSL, prWriteMatrixToYML, prWriteMatrixToTXT, prParseMOSL, initFromMatrix, initFromFile

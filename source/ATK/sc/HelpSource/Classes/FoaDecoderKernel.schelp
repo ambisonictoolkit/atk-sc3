@@ -361,6 +361,8 @@ list::
 ## for 3D: code:: [ inf, inf, inf , inf ] ::
 ::
 
+METHOD:: op
+Answers code::'kernel'::, i.e. the type of operation used to compute the resulting signals.
 
 EXAMPLES::
 

@@ -364,6 +364,11 @@ list::
 METHOD:: op
 Answers code::'kernel'::, i.e. the type of operation used to compute the resulting signals.
 
+
+METHOD:: set
+Answers code::'FOA'::, i.e. the term describing the ambisonic order, as well as channel ordering and normalization.
+
+
 EXAMPLES::
 
 Please see link::Classes/FoaDecode#Examples::.

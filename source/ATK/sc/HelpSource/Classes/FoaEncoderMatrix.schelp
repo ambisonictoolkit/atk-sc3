@@ -459,11 +459,18 @@ A synonym for link::#-dirChannels::
 METHOD:: type
 returns:: code::'encoder'::
 
-COPYMETHOD:: AtkMatrix, -info
-COPYMETHOD:: AtkMatrix, -fileParse
-COPYMETHOD:: AtkMatrix, -filePath
-COPYMETHOD:: AtkMatrix, -fileName
+METHOD:: set
+Answers code::'FOA'::, i.e. the term describing the ambisonic order, as well as channel ordering and normalization.
+
 COPYMETHOD:: AtkMatrix, -op
+
+COPYMETHOD:: AtkMatrix, -info
+
+COPYMETHOD:: AtkMatrix, -fileParse
+
+COPYMETHOD:: AtkMatrix, -filePath
+
+COPYMETHOD:: AtkMatrix, -fileName
 
 
 EXAMPLES::

@@ -595,12 +595,20 @@ list::
 METHOD:: type
 returns:: code::'decoder'::
 
+METHOD:: set
+Answers code::'FOA'::, i.e. the term describing the ambisonic order, as well as channel ordering and normalization.
+
+COPYMETHOD:: AtkMatrix, -op
 
 COPYMETHOD:: AtkMatrix, -info
+
 COPYMETHOD:: AtkMatrix, -fileParse
+
 COPYMETHOD:: AtkMatrix, -filePath
+
 COPYMETHOD:: AtkMatrix, -fileName
-COPYMETHOD:: AtkMatrix, -op
+
+
 
 
 EXAMPLES::

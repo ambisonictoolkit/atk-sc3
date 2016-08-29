@@ -166,6 +166,7 @@ AtkMatrix {
 	var <filePath;		// matrices from files only
 	var <fileParse;		// data parsed from YAML file
 	var <op = 'matrix';
+	var <set = 'FOA';
 
 	// most typically called by subclass
 	*new { |mtxKind|
@@ -2099,6 +2100,7 @@ FoaDecoderKernel {
 	var <kernel, kernelBundle, kernelInfo;
 	var <dirChannels;
 	var <op = 'kernel';
+	var <set = 'FOA';
 
 
 	// *newSpherical { arg subjectID = 0004, kernelSize = 512, server = Server.default;
@@ -2382,6 +2384,7 @@ FoaEncoderKernel {
 	var <kernel, kernelBundle, kernelInfo;
 	var <dirChannels;
 	var <op = 'kernel';
+	var <set = 'FOA';
 
 	*newUHJ { arg kernelSize = nil, server = Server.default, sampleRate, score;
 		^super.newCopyArgs('uhj', 0).initKernel(kernelSize, server, sampleRate, score);

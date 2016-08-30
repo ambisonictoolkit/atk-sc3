@@ -95,8 +95,8 @@
 //---------------------------------------------------------------------
 
 Atk {
-	classvar <userSupportDir, <userSoundsDir, <userKernelDir, <userExtensionsDir;
-	classvar <systemSupportDir, <systemSoundsDir, <systemKernelDir, <systemExtensionsDir;
+	classvar <userSupportDir, <userSoundsDir, <userKernelDir, <userMatrixDir, <userExtensionsDir;
+	classvar <systemSupportDir, <systemSoundsDir, <systemKernelDir, <systemMatrixDir, <systemExtensionsDir;
 	classvar <sets;
 
 	*initClass {

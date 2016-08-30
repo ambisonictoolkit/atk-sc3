@@ -530,12 +530,12 @@ FoaDecoderMatrix : AtkMatrix {
 	}
 
 	*newHoa1 { arg ordering = 'acn', normalisation = 'n3d';
-		^super.newCopyArgs('Hoa1').initHoa1(ordering, normalisation);
+		^super.new('Hoa1').initHoa1(ordering, normalisation);
 	}
 
 	*newAmbix1 {
 		var ordering = 'acn', normalisation = 'sn3d';
-		^super.newCopyArgs('Hoa1').initHoa1(ordering, normalisation);
+		^super.new('Hoa1').initHoa1(ordering, normalisation);
 	}
 
 	*newFromFile { arg filePathOrName;
@@ -1029,17 +1029,17 @@ FoaEncoderMatrix : AtkMatrix {
 	}
 
 	*newHoa1 { arg ordering = 'acn', normalisation = 'n3d';
-		^super.newCopyArgs('Hoa1').initHoa1(ordering, normalisation);
+		^super.new('Hoa1').initHoa1(ordering, normalisation);
 	}
 
 	*newAmbix1 {
 		var ordering = 'acn', normalisation = 'sn3d';
-		^super.newCopyArgs('Hoa1').initHoa1(ordering, normalisation);
+		^super.new('Hoa1').initHoa1(ordering, normalisation);
 	}
 
 	*newZoomH2n{
 		var ordering = 'acn', normalisation = 'sn3d';
-		^super.newCopyArgs('Hoa1').initHoa1(ordering, normalisation);
+		^super.new('Hoa1').initHoa1(ordering, normalisation);
 	}
 
 	*newOmni {

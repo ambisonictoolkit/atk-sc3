@@ -103,20 +103,24 @@ Atk {
 		userSupportDir = Platform.userAppSupportDir.dirname ++ "/ATK";
 		userSoundsDir = userSupportDir ++ "/sounds";
 		userKernelDir = userSupportDir ++ "/kernels";
+		userMatrixDir = userSupportDir ++ "/matrices";
 		userExtensionsDir = userSupportDir ++ "/extensions";
 
 		systemSupportDir = Platform.systemAppSupportDir.dirname ++ "/ATK";
 		systemSoundsDir = systemSupportDir ++ "/sounds";
 		systemKernelDir = systemSupportDir ++ "/kernels";
+		systemMatrixDir = systemSupportDir ++ "/matrices";
 		systemExtensionsDir = systemSupportDir ++ "/extensions";
 
-		sets = [ 'foa', 'hoa1', 'hoa2', 'hoa3', 'hoa4', 'hoa5', 'hoa6', 'hoa7' ];
+		// supported sets
+		sets = [ 'foa', 'hoa1', 'hoa2', 'hoa3', 'hoa4', 'hoa5'];
 	}
 
 	*userSupportDir_ {arg userSupportDirIn;
 		userSupportDir = userSupportDirIn;
 		userSoundsDir = userSupportDir ++ "/sounds";
 		userKernelDir = userSupportDir ++ "/kernels";
+		userMatrixDir = userSupportDir ++ "/matrices";
 		userExtensionsDir = userSupportDir ++ "/extensions";
 	}
 
@@ -124,6 +128,7 @@ Atk {
 		systemSupportDir = systemSupportDurIn;
 		systemSoundsDir = systemSupportDir ++ "/sounds";
 		systemKernelDir = systemSupportDir ++ "/kernels";
+		systemMatrixDir = systemSupportDir ++ "/matrices";
 		systemExtensionsDir = systemSupportDir ++ "/extensions";
 	}
 
@@ -204,8 +209,8 @@ Atk {
 			Atk.userExtensionsDir ++ str
 		);
 
-		if ( subPath.isFolder.not, {		// is  lib installed for user?
-			subPath = PathName.new(	// no? check for system wide install
+		if ( subPath.isFolder.not, { // is  lib installed for user?
+			subPath = PathName.new(  // no? check for system wide install
 				Atk.systemExtensionsDir ++ str
 			)
 		});
@@ -249,11 +254,13 @@ Atk {
 		Atk.folderExists(fullPath); // throws on fail
 		^fullPath
 	}
+
 	// shortcuts for matrices and kernels
 	*getMatrixExtensionPath { arg type, set='foa';
 		type ?? {Error("Unspecified matrix type. Please specify 'encoder', 'decoder', or 'xformer'.").errorString.postln; ^nil}
 		^Atk.getExtensionPath('matrices', type, set);
 	}
+
 	*getKernelsExtensionPath { arg type, set='foa';
 		type ?? {Error("Unspecified kernel type. Please specify 'encoder', 'decoder', or 'xformer'.").errorString.postln; ^nil}
 		^Atk.getExtensionPath('kernels', type, set);

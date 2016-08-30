@@ -361,6 +361,7 @@ list::
 ## for 3D: code:: [ inf, inf, inf , inf ] ::
 ::
 
+PRIVATE:: buffers, kernelBundle, kernelInfo
 
 METHOD:: op
 Answers code::'kernel'::, i.e. the type of operation used to compute the resulting signals.

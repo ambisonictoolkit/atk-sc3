@@ -281,7 +281,7 @@ AtkMatrix {
 	}
 
 	// type: \encoder, \decoder, \xformer
-	// set: foa, hoa1, hoa2, etc
+	// set: FOA, HOA1, HOA2, etc
 	writeToFile { arg fileNameOrPath, type, set, note, attributeDictionary, overwrite=false;
 		var mtype, pn, writer, ext;
 

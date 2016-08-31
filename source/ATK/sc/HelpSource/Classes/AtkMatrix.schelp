@@ -72,7 +72,7 @@ ARGUMENT:: type
 A Symbol specifying whether the matrix is an code::'encoder'::, code::'decoder'::, code::'xformer'::. If callded from a subclass of AtkMatrix, this will default to the type of that subclass, e.g. code::'decoder'::, for an link::Classes/FoaDecoderMatrix::.
 
 ARGUMENT:: set
-A Symbol specifying the Ambisonic set: code::'foa'::, code::'hoa1'::, code::'hoa2'::, etc.
+A Symbol specifying the Ambisonic set: code::'FOA'::, code::'HOA1'::, code::'HOA2'::, etc.
 
 ARGUMENT:: note
 A String that is a short description or bit of info about the matrix to store for future reference.

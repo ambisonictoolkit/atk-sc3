@@ -2369,6 +2369,8 @@ FoaDecoderKernel {
 
 	dirInputs { ^this.numInputs.collect({ inf }) }
 
+	type { ^'decoder' }
+
 	printOn { arg stream;
 		stream << this.class.name << "(" <<*
 			[kind, this.dim, this.numChannels, subjectID, this.kernelSize] <<")";
@@ -2692,6 +2694,8 @@ FoaEncoderKernel {
 	numInputs { ^kernel.shape.at(0) }
 
 	dirOutputs { ^this.numOutputs.collect({ inf }) }
+
+	type { ^'encoder' }
 
 	printOn { arg stream;
 		stream << this.class.name << "(" <<*

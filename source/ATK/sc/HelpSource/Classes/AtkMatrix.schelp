@@ -93,4 +93,4 @@ METHOD:: op
 Answers code::'matrix'::, i.e. the type of operation used to compute the resulting signals.
 
 
-PRIVATE:: prWriteMatrixToMOSL, prWriteMatrixToYML, prWriteMatrixToTXT, prParseMOSL, initFromMatrix, initFromFile
+PRIVATE:: prWriteMatrixToMOSL, prWriteMatrixToYML, prWriteMatrixToTXT, prParseMOSL, initFromMatrix, initFromFile, loadFromLib

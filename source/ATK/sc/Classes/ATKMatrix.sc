@@ -166,7 +166,7 @@ AtkMatrix {
 	var <filePath;		// matrices from files only
 	var <fileParse;		// data parsed from YAML file
 	var <op = 'matrix';
-	var <set = 'FOA';
+	var <set = 'foa';
 
 	// most typically called by subclass
 	*new { |mtxKind|
@@ -183,59 +183,10 @@ AtkMatrix {
 		matrix = aMatrix;
 	}
 
-	prParseMOSL { |pn|
-		var file, numRows, numCols, mtx, row;
-		file = FileReader.read(pn.fullPath);
-		numRows = nil;
-		numCols = nil;
-		mtx = [];
-		row = [];
-		file.do{ |line|
-			var val = line[0];
-			switch( val,
-				"//",	{}, // ignore comments
-				"",		{},	// ignore blank line
-				{	// found valid line
-					case
-					{numRows.isNil} { numRows = val.asInt }
-					{numCols.isNil} { numCols = val.asInt }
-					{
-						row = row.add(val.asFloat);
-						if (row.size==numCols) {
-							mtx = mtx.add(row);
-							row = [];
-						}
-					}
-				}
-			)
-		};
-		// test matrix dimensions
-		(mtx.size==numRows).not.if{
-			Error(
-				format(
-					"Mismatch in matrix dimensions: rows specified [%], rows parsed from file [%]",
-					numRows, mtx.size
-				)
-			).throw
-		};
-		mtx.do{ |row, i|
-			if (row.size!=numCols) {
-				Error(
-					format(
-						"Mismatch in matrix dimensions: rows % has % columns, but file species %",
-						i, row.size, numCols
-					)
-				).throw
-			}
-		};
+	initFromFile { arg filePathOrName, mtxType, searchExtensions=false;
+		var resolvedPathName = Atk.resolveMtxPath(filePathOrName, mtxType, searchExtensions);
 
-		^mtx
-	}
-
-	initFromFile { arg filePathOrName, mtxType;
-		var resolvedPathName = Atk.resolveMtxPath(filePathOrName, mtxType);
-
-		// instance vars
+		// instance var
 		filePath = resolvedPathName.fullPath;
 
 		case
@@ -305,6 +256,8 @@ AtkMatrix {
 			attributes.remove(\type); attributes.addFirst(\type);
 		};
 
+		postf(":: % Info ::\n", this.class);
+
 		attributes.do{ |attribute|
 			var value;
 			value = this.tryPerform(attribute);
@@ -315,14 +268,14 @@ AtkMatrix {
 			if (value.isKindOf(Array)) {
 				value = value.asArray; // cast the Matrix to array for posting
 				if (value.rank > 1) {
-					postf("\n% :\n", attribute);
+					postf("\n% : [\n", attribute);
 					value.do{ |elem| postf("\t%\n", elem) };
+					"  ]".postln;
 				} {
 					postf("\n% : \n\t%\n", attribute, value);
 				}
 			} {
-				// postf("\t% : \n\t\t%\n", attribute, value);
-				postf("\n% : \n\t%\n", attribute, value);
+				postf("\n% : %\n", attribute, value);
 			};
 		};
 	}
@@ -487,7 +440,81 @@ AtkMatrix {
 		writer.close;
 	}
 
+	prParseMOSL { |pn|
+		var file, numRows, numCols, mtx, row;
+		file = FileReader.read(pn.fullPath);
+		numRows = nil;
+		numCols = nil;
+		mtx = [];
+		row = [];
+		file.do{ |line|
+			var val = line[0];
+			switch( val,
+				"//",	{}, // ignore comments
+				"",		{},	// ignore blank line
+				{	// found valid line
+					case
+					{numRows.isNil} { numRows = val.asInt }
+					{numCols.isNil} { numCols = val.asInt }
+					{
+						row = row.add(val.asFloat);
+						if (row.size==numCols) {
+							mtx = mtx.add(row);
+							row = [];
+						}
+					}
+				}
+			)
+		};
+		// test matrix dimensions
+		(mtx.size==numRows).not.if{
+			Error(
+				format(
+					"Mismatch in matrix dimensions: rows specified [%], rows parsed from file [%]",
+					numRows, mtx.size
+				)
+			).throw
+		};
+		mtx.do{ |row, i|
+			if (row.size!=numCols) {
+				Error(
+					format(
+						"Mismatch in matrix dimensions: rows % has % columns, but file species %",
+						i, row.size, numCols
+					)
+				).throw
+			}
+		};
+
+		^mtx
+	}
+
 	fileName { ^try {PathName(filePath).fileName} }
+
+	loadFromLib { |...args|
+		var pathStr;
+		pathStr = this.kind.asString ++ "/";
+
+		args.do{ |argParam, i|
+			pathStr = if (i>0) {
+				format("%-%", pathStr, argParam.asString)
+			} {
+				format("%%", pathStr, argParam.asString)
+			};
+		};
+
+		this.initFromFile(
+			// format("%/%-%.yml", this.kind, *args),
+			pathStr++".yml",
+			this.type
+		);
+
+		switch( this.type,
+			'\encoder', {this.initEncoderVarsForFiles}, // properly set dirInputs
+			'\decoder', {this.initDecoderVarsForFiles}, // properly set dirOutputs
+			'\xformer', {}
+		)
+	}
 
 }
 
@@ -504,7 +531,7 @@ FoaDecoderMatrix : AtkMatrix {
 	}
 
 	*newPeri { arg numChanPairs = 4, elevation = 0.61547970867039,
-				orientation = 'flat', k = 'single';
+			orientation = 'flat', k = 'single';
 		^super.new('peri').initPeri(numChanPairs, elevation,
 			orientation, k);
 	}
@@ -522,24 +549,28 @@ FoaDecoderMatrix : AtkMatrix {
 	}
 
 	*new5_0 { arg irregKind = 'focused';
-		^super.new('5.0').init5_0(irregKind);
+		// ^super.new('5.0').init5_0(irregKind);
+		^super.new('5_0').loadFromLib(irregKind);
 	}
 
 	*newBtoA { arg orientation = 'flu', weight = 'dec';
-		^super.new('BtoA').initBtoA(orientation, weight);
+		// ^super.new('BtoA').initBtoA(orientation, weight);
+		^super.new('BtoA').loadFromLib(orientation, weight);
 	}
 
 	*newHoa1 { arg ordering = 'acn', normalisation = 'n3d';
-		^super.new('Hoa1').initHoa1(ordering, normalisation);
+		// ^super.new('hoa1').initHoa1(ordering, normalisation);
+		^super.new('hoa1').loadFromLib(ordering, normalisation);
 	}
 
 	*newAmbix1 {
 		var ordering = 'acn', normalisation = 'sn3d';
-		^super.new('Hoa1').initHoa1(ordering, normalisation);
+		// ^super.new('hoa1').initHoa1(ordering, normalisation);
+		^super.new('hoa1').loadFromLib(ordering, normalisation);
 	}
 
 	*newFromFile { arg filePathOrName;
-		^super.new.initFromFile(filePathOrName, 'decoder').initDecoderVarsForFiles;
+		^super.new.initFromFile(filePathOrName, 'decoder', true).initDecoderVarsForFiles;
 	}
 
 	initK2D { arg k;
@@ -1025,21 +1056,25 @@ FoaEncoderMatrix : AtkMatrix {
 	var <dirInputs;
 
 	*newAtoB { arg orientation = 'flu', weight = 'dec';
-		^super.new('AtoB').initAtoB(orientation, weight);
+		// ^super.new('AtoB').initAtoB(orientation, weight);
+		^super.new('AtoB').loadFromLib(orientation, weight)
 	}
 
 	*newHoa1 { arg ordering = 'acn', normalisation = 'n3d';
-		^super.new('Hoa1').initHoa1(ordering, normalisation);
+		// ^super.new('hoa1').initHoa1(ordering, normalisation);
+		^super.new('hoa1').loadFromLib(ordering, normalisation);
 	}
 
 	*newAmbix1 {
 		var ordering = 'acn', normalisation = 'sn3d';
-		^super.new('Hoa1').initHoa1(ordering, normalisation);
+		// ^super.new('hoa1').initHoa1(ordering, normalisation);
+		^super.new('hoa1').loadFromLib(ordering, normalisation);
 	}
 
 	*newZoomH2n{
 		var ordering = 'acn', normalisation = 'sn3d';
-		^super.new('Hoa1').initHoa1(ordering, normalisation);
+		// ^super.new('hoa1').initHoa1(ordering, normalisation);
+		^super.new('hoa1').loadFromLib(ordering, normalisation);
 	}
 
 	*newOmni {
@@ -1085,7 +1120,7 @@ FoaEncoderMatrix : AtkMatrix {
 	}
 
 	*newFromFile { arg filePathOrName;
-		^super.new.initFromFile(filePathOrName, 'encoder').initEncoderVarsForFiles
+		^super.new.initFromFile(filePathOrName, 'encoder', true).initEncoderVarsForFiles
 	}
 
 	init2D {
@@ -1559,7 +1594,7 @@ FoaXformerMatrix : AtkMatrix {
 	}
 
 	*newFromFile { arg filePathOrName;
-		^super.new.initFromFile(filePathOrName, 'xformer');
+		^super.new.initFromFile(filePathOrName, 'xformer', true);
 	}
 
 	initMirrorChan { arg chan;
@@ -2100,7 +2135,7 @@ FoaDecoderKernel {
 	var <kernel, kernelBundle, kernelInfo;
 	var <dirChannels;
 	var <op = 'kernel';
-	var <set = 'FOA';
+	var <set = 'foa';
 
 
 	// *newSpherical { arg subjectID = 0004, kernelSize = 512, server = Server.default;
@@ -2384,7 +2419,7 @@ FoaEncoderKernel {
 	var <kernel, kernelBundle, kernelInfo;
 	var <dirChannels;
 	var <op = 'kernel';
-	var <set = 'FOA';
+	var <set = 'foa';
 
 	*newUHJ { arg kernelSize = nil, server = Server.default, sampleRate, score;
 		^super.newCopyArgs('uhj', 0).initKernel(kernelSize, server, sampleRate, score);

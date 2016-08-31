@@ -529,6 +529,22 @@ INSTANCEMETHODS::
 private:: initMirrorChan, initMirrorX, initMirrorY, initMirrorZ, initMirrorO, initRotate, initTilt, initTumble, initDirectO, initDirectX, initDirectY, initDirectZ, initDominateX, initDominateY, initDominateZ, initZoomX, initZoomY, initZoomZ, initFocusX, initFocusY, initFocusZ, initPushX, initPushY, initPushZ, initPressX, initPressY, initPressZ, initAsymmetry, initRTT, initMirror, initDirect, initDominate, initZoom, initFocus, initPush, initPress, printOn
 
 
+METHOD:: set
+
+Describes both the emphasis::signal set:: and the emphasis::tool set::, encompassing the Ambisonic order, as well as channel ordering and normalisation.
+
+Answers code::'FOA'::, aka traditional B-format:
+
+table::
+## strong::Ambisonic Order:: || strong::Channel Ordering:: || strong::Channel Normalisation::
+## 1st || Gerzon (aka Furse-Malham) || MaxN
+::
+
+METHOD:: type
+returns:: code::'xformer'::
+
+COPYMETHOD:: AtkMatrix, -op
+
 METHOD:: kind
 Answers the kind of encoder
 
@@ -579,11 +595,15 @@ METHOD:: dirInputs
 A convenience method providing polymorphism with link::Classes/FoaEncoderMatrix#-dirInputs:: and link::Classes/FoaDecoderMatrix#-dirInputs::.
 
 
-METHOD:: type
-returns:: code::'decoder'::
-
-
 COPYMETHOD:: AtkMatrix, -info
+
+COPYMETHOD:: AtkMatrix, -fileParse
+
+COPYMETHOD:: AtkMatrix, -filePath
+
+COPYMETHOD:: AtkMatrix, -fileName
+
+COPYMETHOD:: AtkMatrix, -writeToFile
 
 EXAMPLES::
 

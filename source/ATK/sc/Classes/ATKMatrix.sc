@@ -166,7 +166,7 @@ AtkMatrix {
 	var <filePath;		// matrices from files only
 	var <fileParse;		// data parsed from YAML file
 	var <op = 'matrix';
-	var <set = 'foa';
+	var <set = 'FOA';
 
 	// most typically called by subclass
 	*new { |mtxKind|
@@ -287,13 +287,13 @@ AtkMatrix {
 
 		if (type.isNil) {
 			switch( this.class,
-				FoaEncoderMatrix,	{mtype = 'encoder'; set = 'foa'},
-				FoaDecoderMatrix,	{mtype = 'decoder'; set = 'foa'},
-				FoaXformerMatrix,	{mtype = 'xformer'; set = 'foa'}
+				FoaEncoderMatrix,	{mtype = 'encoder'; set = 'FOA'},
+				FoaDecoderMatrix,	{mtype = 'decoder'; set = 'FOA'},
+				FoaXformerMatrix,	{mtype = 'xformer'; set = 'FOA'}
 			);
 		} { mtype = type.asSymbol };
 
-		set ?? {Error("Unspecified set argument. Choose 'foa', 'hoa1', 'hoa2', etc.").throw};
+		set ?? {Error("Unspecified set argument. Choose 'FOA', 'HOA1', 'HOA2', etc.").throw};
 
 		pn = PathName(fileNameOrPath);
 
@@ -2135,7 +2135,7 @@ FoaDecoderKernel {
 	var <kernel, kernelBundle, kernelInfo;
 	var <dirChannels;
 	var <op = 'kernel';
-	var <set = 'foa';
+	var <set = 'FOA';
 
 
 	// *newSpherical { arg subjectID = 0004, kernelSize = 512, server = Server.default;
@@ -2419,7 +2419,7 @@ FoaEncoderKernel {
 	var <kernel, kernelBundle, kernelInfo;
 	var <dirChannels;
 	var <op = 'kernel';
-	var <set = 'foa';
+	var <set = 'FOA';
 
 	*newUHJ { arg kernelSize = nil, server = Server.default, sampleRate, score;
 		^super.newCopyArgs('uhj', 0).initKernel(kernelSize, server, sampleRate, score);

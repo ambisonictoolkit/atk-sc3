@@ -328,19 +328,19 @@ AtkMatrix {
 	}
 
 	// type: \encoder, \decoder, \xformer
-	// set: foa, hoa1, hoa2, etc
+	// set: FOA, HOA1, HOA2, etc
 	writeToFile { arg fileNameOrPath, type, set, note, attributeDictionary, overwrite=false;
 		var mtype, pn, writer, ext;
 
 		if (type.isNil) {
 			switch( this.class,
-				FoaEncoderMatrix,	{mtype = 'encoder'; set = 'foa'},
-				FoaDecoderMatrix,	{mtype = 'decoder'; set = 'foa'},
-				FoaXformerMatrix,	{mtype = 'xformer'; set = 'foa'}
+				FoaEncoderMatrix,	{mtype = 'encoder'; set = 'FOA'},
+				FoaDecoderMatrix,	{mtype = 'decoder'; set = 'FOA'},
+				FoaXformerMatrix,	{mtype = 'xformer'; set = 'FOA'}
 			);
 		} { mtype = type.asSymbol };
 
-		set ?? {Error("Unspecified set argument. Choose 'foa', 'hoa1', 'hoa2', etc.").throw};
+		set ?? {Error("Unspecified set argument. Choose 'FOA', 'HOA1', 'HOA2', etc.").throw};
 
 		pn = PathName(fileNameOrPath);
 

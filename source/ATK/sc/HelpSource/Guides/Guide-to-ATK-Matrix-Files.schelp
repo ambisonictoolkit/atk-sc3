@@ -152,7 +152,7 @@ SUBSECTION::Writing Metadata
 Because this matrix is somewhat unique, it would be helpful to provide a bit more information
 about it for future reference. This is where the code::.yml:: file format comes in.
 
-Note that the link::Classes/AtkMatrix/#-writeToFile:: method has some optional
+Note that the link::Classes/AtkMatrix#-writeToFile:: method has some optional
 arguments: code::note:: and code::attributeDictionary::. A code::note:: can be a
 brief description, while an code::attributeDictionary:: is a Dictionary for storing any
 info you'd like in the form of key:value pairs.
@@ -260,13 +260,13 @@ and code::/xformers:: folders.
 
 code::
 // Store your encoder matrix with the other encoders, which live here:
-Atk.getMatrixExtensionPath(\encoders, \foa);
+Atk.getMatrixExtensionPath('encoders', 'FOA');
 
 // You can make subfolder for a group of matrices, say, for a particular project:
 (
 ~projSubFolderName = "myProject";
 
-File.mkdir( Atk.getMatrixExtensionPath(\encoders, \foa).fullPath +/+ ~projSubFolderName )
+File.mkdir( Atk.getMatrixExtensionPath('encoders', 'FOA').fullPath +/+ ~projSubFolderName )
 )
 
 // For convenience, we'll write the 9-point ~encoder matrix,
@@ -280,17 +280,17 @@ File.mkdir( Atk.getMatrixExtensionPath(\encoders, \foa).fullPath +/+ ~projSubFol
 ::
 
 NOTE:: Remember that because code::~encoder:: is an link::Classes/FoaEncoderMatrix::,
-the strong::type:: (code::'encoder'::) and strong::set:: (code::'foa'::)
+the strong::type:: (code::'encoder'::) and strong::set:: (code::'FOA'::)
 arguments are inferred.
 ::
 
 code::
 // There it is, in the 'myProject' subdirectory.
-Atk.postMyMatrixDir('encoders', 'foa')
+Atk.postMyMatrixDir('encoders', 'FOA')
 ::
 
 Later you'll use link::Classes/FoaEncoderMatrix:: to read the file back in.
-ATK will know where to look ( code::extensions/matrices/enocoders/foa:: )
+ATK will know where to look ( code::extensions/matrices/enocoders/FOA:: )
 so you can simply specify the emphasis::relative:: path of your code::subfolder/file.yml:::
 
 code::
@@ -329,7 +329,7 @@ code::
 ~encoder.matrix;
 ~encoder.kind;          // Defaults to filename
 ~encoder.dirOutputs;    // Outputs are inf, becuase the output is b-format, i.e "all directions".
-~encoder.dirInputs;     // With no metadata, we can't know input directions, so 'implicit'
+~encoder.dirInputs;     // With no metadata, we can't know input directions, so 'unspecified'
 ~encoder.dirInputs.size;// ...but knowing how large the array is tells us how many inputs the matrix expects
 ~encoder.dim;           // We see it's a 3-D matrix
 ::

@@ -76,10 +76,10 @@ default when asked to read in a matrix from file.
 
 You can view this structure and any files you've stored there using the following method:
 code::
-Atk.postMyMatrixDir;              // the whole foa matrices hierarchy
-Atk.postMyMatrixDir('encoders');	// foa encoders only
-Atk.postMyMatrixDir('decoders');	// foa decoders only
-Atk.postMyMatrixDir('xformers');	// foa xformers only
+Atk.postMyMatrixDir;              // the whole FOA matrices hierarchy
+Atk.postMyMatrixDir('encoders');	// FOA encoders only
+Atk.postMyMatrixDir('decoders');	// FOA decoders only
+Atk.postMyMatrixDir('xformers');	// FOA xformers only
 ::
 
 Each of these matrix subdirectories can have further subdirectories at your
@@ -237,7 +237,7 @@ code::
 (
 ~matrix.writeToFile( "myA2B_flu_Matrix.yml", // be sure to use .yml for metadata
   'encoder',  // type
-  'foa',      // set
+  'FOA',      // set
   ~note,
   ~properties
 )

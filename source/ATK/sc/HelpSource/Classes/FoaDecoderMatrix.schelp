@@ -434,6 +434,22 @@ note:: For large-scale concert presentation, the authors advise auditioning valu
 INSTANCEMETHODS::
 private:: initPeri, initK2D, initStereo, initBtoA, initPanto, initK3D, initQuad, printOn, initMono, init5_0, initDiametric, initHoa1, initAmbix1
 
+METHOD:: set
+
+Describes both the emphasis::signal set:: and the emphasis::tool set::, encompassing the Ambisonic order, as well as channel ordering and normalisation.
+
+Answers code::'FOA'::, aka traditional B-format:
+
+table::
+## strong::Ambisonic Order:: || strong::Channel Ordering:: || strong::Channel Normalisation::
+## 1st || Gerzon (aka Furse-Malham) || MaxN
+::
+
+METHOD:: type
+returns:: code::'decoder'::
+
+COPYMETHOD:: AtkMatrix, -op
+
 METHOD:: kind
 Answers the kind of decoder
 
@@ -588,17 +604,9 @@ returns::
 
 list::
 ## for 2D: code:: [ inf, inf, inf ] ::
-## for 3D: code:: [ inf, inf, inf , inf ] ::
+## for 3D: code:: [ inf, inf, inf, inf ] ::
 ::
 
-
-METHOD:: type
-returns:: code::'decoder'::
-
-METHOD:: set
-Answers code::'FOA'::, i.e. the term describing the ambisonic order, as well as channel ordering and normalization.
-
-COPYMETHOD:: AtkMatrix, -op
 
 COPYMETHOD:: AtkMatrix, -info
 
@@ -608,8 +616,9 @@ COPYMETHOD:: AtkMatrix, -filePath
 
 COPYMETHOD:: AtkMatrix, -fileName
 
+COPYMETHOD:: AtkMatrix, -writeToFile
 
-
+private:: initDecoderVarsForFiles
 
 EXAMPLES::
 

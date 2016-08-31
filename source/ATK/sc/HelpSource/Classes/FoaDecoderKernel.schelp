@@ -116,6 +116,23 @@ INSTANCEMETHODS::
 private:: initPath, initKernel, printOn
 
 
+METHOD:: set
+
+Describes both the emphasis::signal set:: and the emphasis::tool set::, encompassing the Ambisonic order, as well as channel ordering and normalisation.
+
+Answers code::'FOA'::, aka traditional B-format:
+
+table::
+## strong::Ambisonic Order:: || strong::Channel Ordering:: || strong::Channel Normalisation::
+## 1st || Gerzon (aka Furse-Malham) || MaxN
+::
+
+METHOD:: type
+returns:: code::'decoder'::
+
+METHOD:: op
+Answers code::'kernel'::, i.e. the type of operation used to compute the resulting signals.
+
 METHOD:: kind
 Answers the kind of decoder
 
@@ -361,31 +378,7 @@ list::
 ## for 3D: code:: [ inf, inf, inf , inf ] ::
 ::
 
-
-METHOD:: op
-Answers code::'kernel'::, i.e. the type of operation used to compute the resulting signals.
-
-
-METHOD:: set
-Answers code::'FOA'::, i.e. the term describing the ambisonic order, as well as channel ordering and normalization.
-
-
-METHOD:: buffers
-returns::
-An Array of single-channel Buffers used to perform the kernel convolution.
-
-
-METHOD:: kernelInfo
-returns::
-A 2D Array, each item being an array listing properties of the single-channel
-buffers used to perform the convolution.  Each array takes the form of:
-[strong::kernelFilePath::, strong::bufferNumber::, strong::[sourceBufferChannel]::].
-
-
-METHOD:: kernelBundle
-returns::
-The OSC message bundle used when loading this kernel to a Score.
-
+PRIVATE:: buffers, kernelBundle, kernelInfo
 
 
 EXAMPLES::

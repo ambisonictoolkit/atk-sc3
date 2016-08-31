@@ -95,28 +95,32 @@
 //---------------------------------------------------------------------
 
 Atk {
-	classvar <userSupportDir, <userSoundsDir, <userKernelDir, <userExtensionsDir;
-	classvar <systemSupportDir, <systemSoundsDir, <systemKernelDir, <systemExtensionsDir;
+	classvar <userSupportDir, <userSoundsDir, <userKernelDir, <userMatrixDir, <userExtensionsDir;
+	classvar <systemSupportDir, <systemSoundsDir, <systemKernelDir, <systemMatrixDir, <systemExtensionsDir;
 	classvar <sets;
 
 	*initClass {
 		userSupportDir = Platform.userAppSupportDir.dirname ++ "/ATK";
 		userSoundsDir = userSupportDir ++ "/sounds";
 		userKernelDir = userSupportDir ++ "/kernels";
+		userMatrixDir = userSupportDir ++ "/matrices";
 		userExtensionsDir = userSupportDir ++ "/extensions";
 
 		systemSupportDir = Platform.systemAppSupportDir.dirname ++ "/ATK";
 		systemSoundsDir = systemSupportDir ++ "/sounds";
 		systemKernelDir = systemSupportDir ++ "/kernels";
+		systemMatrixDir = systemSupportDir ++ "/matrices";
 		systemExtensionsDir = systemSupportDir ++ "/extensions";
 
-		sets = [ 'foa', 'hoa1', 'hoa2', 'hoa3', 'hoa4', 'hoa5', 'hoa6', 'hoa7' ];
+		// supported sets
+		sets = [ 'FOA', 'HOA1', 'HOA2', 'HOA3', 'HOA4', 'HOA5'];
 	}
 
 	*userSupportDir_ {arg userSupportDirIn;
 		userSupportDir = userSupportDirIn;
 		userSoundsDir = userSupportDir ++ "/sounds";
 		userKernelDir = userSupportDir ++ "/kernels";
+		userMatrixDir = userSupportDir ++ "/matrices";
 		userExtensionsDir = userSupportDir ++ "/extensions";
 	}
 
@@ -124,6 +128,7 @@ Atk {
 		systemSupportDir = systemSupportDurIn;
 		systemSoundsDir = systemSupportDir ++ "/sounds";
 		systemKernelDir = systemSupportDir ++ "/kernels";
+		systemMatrixDir = systemSupportDir ++ "/matrices";
 		systemExtensionsDir = systemSupportDir ++ "/extensions";
 	}
 
@@ -158,7 +163,7 @@ Atk {
 				var path;
 				categories.do{ |category|
 					mtxTypes.do{ |mtxType|
-						path = baseDir +/+ category +/+ set.asString.toUpper +/+ mtxType;
+						path = baseDir +/+ category +/+ set.asString +/+ mtxType;
 						File.mkdir( path );
 					}
 				}
@@ -192,56 +197,70 @@ Atk {
 	}
 
 	// which: 'matrices', 'kernels'
-	*getExtensionSubPath { arg which;
-		var str, subPath, kindPath, fullPath;
+	*getAtkLibSubPath { arg which, isExtension=false;
+		var str, subPath, kindPath, fullPath, tested;
+
+		tested = List();
 
 		str = switch (which.asSymbol,
-			'matrices', {"/matrices/"},
-			'kernels', {"/kernels/"},
+			'matrices', {"/matrices"},
+			'kernels',  {"/kernels"},
+			// include singular
+			'matrix',   {"/matrices"},
+			'kernel',   {"/kernels"}
 		);
 
+		// assume user directory first
 		subPath = PathName.new(
-			Atk.userExtensionsDir ++ str
+			if (isExtension) {
+				Atk.userExtensionsDir ++ str
+			} {
+				Atk.userSupportDir ++ str
+			}
 		);
 
-		if ( subPath.isFolder.not, {		// is  lib installed for user?
-			subPath = PathName.new(	// no? check for system wide install
-				Atk.systemExtensionsDir ++ str
-			)
+		tested.add(subPath);
+
+		if ( subPath.isFolder.not, { // is  lib installed for user?
+			subPath = PathName.new(  // no? check for system wide install
+				if (isExtension) {
+					Atk.systemExtensionsDir ++ str
+				} {
+					Atk.systemSupportDir ++ str
+				}
+			);
+			tested.add(subPath);
 		});
 
 		if ( subPath.isFolder.not, {
 			Error(
-				format("\nNo user matrix folder found in\n\t%\nor\n\t%\nIf you've not yet made your Atk /extensions folder, please run\n\tAtk.createExtensionsDir\n",
-					Atk.userExtensionsDir ++ str,
-					Atk.systemExtensionsDir ++ str
-				)
+				format("\nNo folder found in\n\t%\nor\n\t%\n", *tested)
 			).throw;
 		});
 
 		^subPath
 	}
 
-	//  mode: 'matrices', 'kernels'
+	//  op: 'matrices', 'kernels'
 	//  type: 'decoders', 'encoders', 'xformers'
-	//  set: 'foa', "hoa1", "hoa2", etc
-	*getExtensionPath { arg mode, type, set='foa';
-		var subPath, setToUpper, typePath, fullPath;
+	//  set: 'FOA', "HOA1", "HOA2", etc
+	*getExtensionPath { arg op, type, set='FOA';
+		var subPath, typePath, fullPath;
 
 		Atk.checkSet(set);
 
-		subPath = Atk.getExtensionSubPath(mode);
-		setToUpper = set.asString.toUpper; // folder structure is uppercase
+		subPath = Atk.getAtkLibSubPath(op, isExtension:true);
 
-		typePath = PathName.new( setToUpper ++ "/" ++
+		typePath = PathName.new(
+			set.asString.toUpper ++ "/" ++ // folder structure is uppercase
 			switch( type.asSymbol,
-				'decoders', {"decoders/"},
-				'encoders', {"encoders/"},
-				'xformers', {"xformers/"},
+				'decoders', {"decoders"},
+				'encoders', {"encoders"},
+				'xformers', {"xformers"},
 				// include singular
-				'decoder', {"decoders/"},
-				'encoder', {"encoders/"},
-				'xformer', {"xformers/"}
+				'decoder', {"decoders"},
+				'encoder', {"encoders"},
+				'xformer', {"xformers"}
 			);
 		);
 
@@ -249,14 +268,49 @@ Atk {
 		Atk.folderExists(fullPath); // throws on fail
 		^fullPath
 	}
+
+	//  op: 'matrices', 'kernels'
+	//  type: 'decoder(s)', 'encoder(s)', 'xformer(s)'
+	//  set: 'FOA', "HOA1", "HOA2", etc
+	*getBuiltInPath { arg op, type, set='FOA';
+		var subPath, typePath, fullPath;
+
+		Atk.checkSet(set);
+
+		subPath = Atk.getAtkLibSubPath(op, isExtension:false);
+
+		typePath = PathName.new(
+			set.asString.toUpper ++ "/" ++ // folder structure is uppercase
+			switch( type.asSymbol,
+				'decoders', {"decoders"},
+				'encoders', {"encoders"},
+				'xformers', {"xformers"},
+				// include singular
+				'decoder', {"decoders"},
+				'encoder', {"encoders"},
+				'xformer', {"xformers"}
+			);
+		);
+
+		fullPath = subPath +/+ typePath;
+		Atk.folderExists(fullPath); // throws on fail
+		^fullPath
+	}
+
 	// shortcuts for matrices and kernels
-	*getMatrixExtensionPath { arg type, set='foa';
-		type ?? {Error("Unspecified matrix type. Please specify 'encoder', 'decoder', or 'xformer'.").errorString.postln; ^nil}
+	*getMatrixExtensionPath { arg type, set='FOA';
+		type ?? {Error("Unspecified matrix type. Please specify 'encoder', 'decoder', or 'xformer'.").errorString.postln; ^nil};
 		^Atk.getExtensionPath('matrices', type, set);
 	}
-	*getKernelsExtensionPath { arg type, set='foa';
-		type ?? {Error("Unspecified kernel type. Please specify 'encoder', 'decoder', or 'xformer'.").errorString.postln; ^nil}
+
+	*getKernelsExtensionPath { arg type, set='FOA';
+		type ?? {Error("Unspecified kernel type. Please specify 'encoder', 'decoder', or 'xformer'.").errorString.postln; ^nil};
 		^Atk.getExtensionPath('kernels', type, set);
+	}
+
+	*getMatrixBuiltInPath { arg type, set='FOA';
+		type ?? {Error("Unspecified matrix type. Please specify 'encoder', 'decoder', or 'xformer'.").errorString.postln; ^nil};
+		^Atk.getBuiltInPath('matrices', type, set);
 	}
 
 	*folderExists { |folderPathName, throwOnFail=true|
@@ -271,8 +325,9 @@ Atk {
 		};
 	}
 
+
 	// NOTE: could be generalized for other user extensions, e.g. kernels, etc.
-	*resolveMtxPath { arg filePathOrName, mtxType;
+	*resolveMtxPath { arg filePathOrName, mtxType, searchExtensions=false;
 		var usrPN, srcPath, relPath, mtxDirPath;
 		var hasExtension, hasRelPath;
 
@@ -285,7 +340,12 @@ Atk {
 				hasExtension = usrPN.extension.size > 0;
 				hasRelPath = usrPN.colonIndices.size > 0;
 
-				mtxDirPath = Atk.getMatrixExtensionPath(mtxType);
+				mtxDirPath = if (searchExtensions) {
+					Atk.getMatrixExtensionPath(mtxType);
+				} {
+					Atk.getMatrixBuiltInPath(mtxType);
+				};
+
 				relPath = mtxDirPath +/+ usrPN;
 
 				if (hasRelPath,
@@ -363,20 +423,20 @@ Atk {
 
 		if( srcPath.notNil,
 			{
-				// postf("Found matrix file: \n\t> %\n", srcPath.asRelativePath(mtxDirPath));
+				// postf("Found matrix file: \n\t> %\n\t> %\n", srcPath.asRelativePath(mtxDirPath), srcPath);
 				^srcPath
 			},{ Error("No matrix file found!").throw }
 		);
 	}
 
 	*checkSet { |set|
-		Atk.sets.includes(set.asString.toLower.asSymbol).not.if {"Invalid set".throw};
+		Atk.sets.includes(set.asString.toUpper.asSymbol).not.if {"Invalid set".throw};
 	}
 
 
 	// NOTE: could be generalized for other user extensions, e.g. kernels, etc.
 	// type: 'decoders', 'encoders', 'xformers'
-	*postMyMatrixDir { |type, set='foa'|
+	*postMyMatrixDir { |type, set='FOA'|
 		var postContents;
 
 		Atk.checkSet(set);
@@ -403,7 +463,7 @@ Atk {
 
 		postContents.(
 			type.isNil.if(
-				{  Atk.getExtensionSubPath('matrices') +/+ set.asString.toUpper },
+				{  Atk.getAtkLibSubPath('matrices', isExtension:true) +/+ set.asString.toUpper },
 				{
 					if (
 						[

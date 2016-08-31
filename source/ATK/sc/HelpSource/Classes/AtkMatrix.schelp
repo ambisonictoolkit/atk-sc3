@@ -90,4 +90,32 @@ writing and reading matrices and metadata, including how to generate
 matrices for use in Reaper.
 
 
-PRIVATE:: prWriteMatrixToMOSL, prWriteMatrixToYML, prWriteMatrixToTXT, prParseMOSL, initFromMatrix, initFromFile
+METHOD:: info
+A convenience method to post the properties of the matrix, including metadata
+if the matrix was loaded from a code::.yml:: file.
+
+
+METHOD:: fileParse
+If the instance was created by loading a code::.yml:: file, this method returns
+the link::Classes/IdentityDictionary:: containing the parsed metadata. This can
+be useful if anything was stored in the metadata that can be subsequently used
+once reloaded, such as encoding directions, rotations, etc.
+Note:: For simply a quick glance at the metadata, it's recommended to use link::#-info::.::
+
+
+METHOD:: filePath
+Answers the path of the file used to create the instance, or code::nil:: if not created by loading a matrix from a file.
+
+
+METHOD:: fileName
+Answers the name of the file used to create the instance, or code::nil:: if not created by loading a matrix from a file.
+
+
+METHOD:: matrix
+Returns the raw coefficient Matrix.
+
+METHOD:: op
+Answers code::'matrix'::, i.e. the type of operation used to compute the resulting signals.
+
+
+PRIVATE:: prWriteMatrixToMOSL, prWriteMatrixToYML, prWriteMatrixToTXT, prParseMOSL, initFromMatrix, initFromFile, loadFromLib

@@ -1490,7 +1490,7 @@ FoaXformerMatrix : AtkMatrix {
 	}
 
 	*newDirectZ { arg angle = 0;
-		^super.new('directZ').initDirectZ(angle).prSetKind;
+		^super.new('directZ').initDirectZ(angle);
 	}
 
 	*newDominateX { arg gain = 0;

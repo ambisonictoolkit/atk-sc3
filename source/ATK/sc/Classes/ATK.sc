@@ -153,17 +153,17 @@ Atk {
 	}
 
 	*createExtensionsDir {
-		var exists=false, dir, categories, mtxTypes, makeDirs;
+		var exists=false, dir, ops, mtxTypes, makeDirs;
 
-		categories =	["kernels", "matrices"];
-		mtxTypes =	["encoders", "decoders", "xformers"];
+		ops =	["kernels", "matrices"];  // i.e., ops
+		mtxTypes =	["encoders", "decoders", "xformers"];  // i.e., types
 
 		makeDirs = { |baseDir|
 			Atk.sets.do{ |set|
 				var path;
-				categories.do{ |category|
+				ops.do{ |op|
 					mtxTypes.do{ |mtxType|
-						path = baseDir +/+ category +/+ set.asString +/+ mtxType;
+						path = baseDir +/+ op +/+ set.asString +/+ mtxType;
 						File.mkdir( path );
 					}
 				}
@@ -241,10 +241,10 @@ Atk {
 		^subPath
 	}
 
-	//  op: 'matrices', 'kernels'
-	//  type: 'decoders', 'encoders', 'xformers'
 	//  set: 'FOA', "HOA1", "HOA2", etc
-	*getExtensionPath { arg op, type, set='FOA';
+	//  type: 'decoders', 'encoders', 'xformers'
+	//  op: 'matrices', 'kernels'
+	*getExtensionPath { arg set, type, op;
 		var subPath, typePath, fullPath;
 
 		Atk.checkSet(set);
@@ -269,10 +269,10 @@ Atk {
 		^fullPath
 	}
 
-	//  op: 'matrices', 'kernels'
-	//  type: 'decoder(s)', 'encoder(s)', 'xformer(s)'
 	//  set: 'FOA', "HOA1", "HOA2", etc
-	*getBuiltInPath { arg op, type, set='FOA';
+	//  type: 'decoder(s)', 'encoder(s)', 'xformer(s)'
+	//  op: 'matrices', 'kernels'
+	*getBuiltInPath { arg set, type, op;
 		var subPath, typePath, fullPath;
 
 		Atk.checkSet(set);
@@ -297,20 +297,20 @@ Atk {
 		^fullPath
 	}
 
-	// shortcuts for matrices and kernels
-	*getMatrixExtensionPath { arg type, set='FOA';
+	// shortcuts for matrices and kernels, aka 'ops'
+	*getMatrixExtensionPath { arg set, type;
 		type ?? {Error("Unspecified matrix type. Please specify 'encoder', 'decoder', or 'xformer'.").errorString.postln; ^nil};
-		^Atk.getExtensionPath('matrices', type, set);
+		^Atk.getExtensionPath(set, type, 'matrices');
 	}
 
-	*getKernelsExtensionPath { arg type, set='FOA';
+	*getKernelsExtensionPath { arg set, type;
 		type ?? {Error("Unspecified kernel type. Please specify 'encoder', 'decoder', or 'xformer'.").errorString.postln; ^nil};
-		^Atk.getExtensionPath('kernels', type, set);
+		^Atk.getExtensionPath(set, type, 'kernels');
 	}
 
-	*getMatrixBuiltInPath { arg type, set='FOA';
+	*getMatrixBuiltInPath { arg set, type;
 		type ?? {Error("Unspecified matrix type. Please specify 'encoder', 'decoder', or 'xformer'.").errorString.postln; ^nil};
-		^Atk.getBuiltInPath('matrices', type, set);
+		^Atk.getBuiltInPath(set, type, 'matrices');
 	}
 
 	*folderExists { |folderPathName, throwOnFail=true|
@@ -341,9 +341,9 @@ Atk {
 				hasRelPath = usrPN.colonIndices.size > 0;
 
 				mtxDirPath = if (searchExtensions) {
-					Atk.getMatrixExtensionPath(mtxType);
+					Atk.getMatrixExtensionPath('FOA', mtxType);  // hard coded to 'FOA'..
 				} {
-					Atk.getMatrixBuiltInPath(mtxType);
+					Atk.getMatrixBuiltInPath('FOA', mtxType);   // .. for now
 				};
 
 				relPath = mtxDirPath +/+ usrPN;
@@ -436,7 +436,7 @@ Atk {
 
 	// NOTE: could be generalized for other user extensions, e.g. kernels, etc.
 	// type: 'decoders', 'encoders', 'xformers'
-	*postMyMatrixDir { |type, set='FOA'|
+	*postMyMatrixDir { |set, type|
 		var postContents;
 
 		Atk.checkSet(set);
@@ -471,7 +471,7 @@ Atk {
 							'decoder', 'encoder', 'xformer'		// include singular
 						].includes(type.asSymbol)
 					)
-					{ Atk.getMatrixExtensionPath(type, set) }
+					{ Atk.getMatrixExtensionPath(set, type) }
 					{ Error("'type' must be 'decoder', 'encoder', 'xformer', or nil (to see all matrix directories)").throw; };
 				}
 			);

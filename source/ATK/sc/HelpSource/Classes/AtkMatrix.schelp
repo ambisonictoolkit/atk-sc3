@@ -1,6 +1,6 @@
 TITLE:: AtkMatrix
 summary:: A superclass to the Atk's various matrix classes.
-categories:: Libraries>Ambisonic Toolkit
+categories:: Libraries>Ambisonic Toolkit>Internals
 related:: Classes/FoaEncoderMatrix, Classes/FoaDecoderMatrix, Classes/FoaXformerMatrix, Classes/Matrix
 
 DESCRIPTION::
@@ -68,11 +68,11 @@ You may provide a full path if you would like to save the file somewhere other
 than the default location in the Atk code::extensions:: folder. See the
 Discussion below for more information.
 
-ARGUMENT:: type
-A Symbol specifying whether the matrix is an code::'encoder'::, code::'decoder'::, code::'xformer'::. If callded from a subclass of AtkMatrix, this will default to the type of that subclass, e.g. code::'decoder'::, for an link::Classes/FoaDecoderMatrix::.
-
 ARGUMENT:: set
 A Symbol specifying the Ambisonic set: code::'FOA'::, code::'HOA1'::, code::'HOA2'::, etc.
+
+ARGUMENT:: type
+A Symbol specifying whether the matrix is an code::'encoder'::, code::'decoder'::, code::'xformer'::. If callded from a subclass of AtkMatrix, this will default to the type of that subclass, e.g. code::'decoder'::, for an link::Classes/FoaDecoderMatrix::.
 
 ARGUMENT:: note
 A String that is a short description or bit of info about the matrix to store for future reference.
@@ -109,13 +109,6 @@ Answers the path of the file used to create the instance, or code::nil:: if not 
 
 METHOD:: fileName
 Answers the name of the file used to create the instance, or code::nil:: if not created by loading a matrix from a file.
-
-
-METHOD:: matrix
-Returns the raw coefficient Matrix.
-
-METHOD:: op
-Answers code::'matrix'::, i.e. the type of operation used to compute the resulting signals.
 
 
 PRIVATE:: prWriteMatrixToMOSL, prWriteMatrixToYML, prWriteMatrixToTXT, prParseMOSL, initFromMatrix, initFromFile, loadFromLib

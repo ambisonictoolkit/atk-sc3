@@ -280,16 +280,16 @@ AtkMatrix {
 		};
 	}
 
-	// type: \encoder, \decoder, \xformer
 	// set: FOA, HOA1, HOA2, etc
-	writeToFile { arg fileNameOrPath, type, set, note, attributeDictionary, overwrite=false;
+	// type: \encoder, \decoder, \xformer
+	writeToFile { arg fileNameOrPath, set, type, note, attributeDictionary, overwrite=false;
 		var mtype, pn, writer, ext;
 
 		if (type.isNil) {
 			switch( this.class,
-				FoaEncoderMatrix,	{mtype = 'encoder'; set = 'FOA'},
-				FoaDecoderMatrix,	{mtype = 'decoder'; set = 'FOA'},
-				FoaXformerMatrix,	{mtype = 'xformer'; set = 'FOA'}
+				FoaEncoderMatrix,	{set = 'FOA'; mtype = 'encoder'},
+				FoaDecoderMatrix,	{set = 'FOA'; mtype = 'decoder'},
+				FoaXformerMatrix,	{set = 'FOA'; mtype = 'xformer'}
 			);
 		} { mtype = type.asSymbol };
 
@@ -306,12 +306,12 @@ AtkMatrix {
 			case
 			{ pn.colonIndices.size == 0} {
 				// only filename provided, writer to dir matching mtype
-				pn = Atk.getMatrixExtensionPath(mtype, set) +/+ pn;
+				pn = Atk.getMatrixExtensionPath(set, mtype) +/+ pn;
 
 			} { pn.colonIndices.size > 0} {
 				// relative path given, look for it
 				var mtxPath, relPath;
-				mtxPath = Atk.getMatrixExtensionPath(mtype, set);
+				mtxPath = Atk.getMatrixExtensionPath(set, mtype);
 				relPath = (mtxPath +/+ PathName(pn.parentPath));
 				if (relPath.isFolder) {
 					// valid relative path confirmed
@@ -347,7 +347,7 @@ AtkMatrix {
 				this.prWriteMatrixToTXT(pn)
 			}
 		}
-		{ext == "yml"} {this.prWriteMatrixToYML(pn, mtype, set, note, attributeDictionary)}
+		{ext == "yml"} {this.prWriteMatrixToYML(pn, set, mtype, note, attributeDictionary)}
 		{Error("Invalid file extension: provide '.txt' for writing matrix only, or '.yml' or no extension to write matrix with metadata (as YAML)").throw; ^this};
 	}
 
@@ -380,7 +380,7 @@ AtkMatrix {
 		writer.close;
 	}
 
-	prWriteMatrixToYML { arg pn, type, set, note, attributeDictionary;
+	prWriteMatrixToYML { arg pn, set, type, note, attributeDictionary;
 		var writer, defAttributes;
 
 		writer = FileWriter( pn.fullPath );

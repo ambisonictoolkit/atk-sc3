@@ -60,19 +60,10 @@ list::
 ## code::.yml:: allows for additional user-specified metadata (recommended).
 ## code::.txt:: writes the matrix coefficients only, in rows.
 ## code::.mosl.txt:: creates basic matrix files compatible with the link::http://www.ambisonictoolkit.net/download/reaper/##ATK for Reaper::, a set of link::http://www.reaper.fm/sdk/js/js.php##JSFX plugins:: for the link::http://www.reaper.fm/##Reaper:: DAW.
-
-
-
 ::
 You may provide a full path if you would like to save the file somewhere other
 than the default location in the Atk code::extensions:: folder. See the
 Discussion below for more information.
-
-ARGUMENT:: set
-A Symbol specifying the Ambisonic set: code::'FOA'::, code::'HOA1'::, code::'HOA2'::, etc.
-
-ARGUMENT:: type
-A Symbol specifying whether the matrix is an code::'encoder'::, code::'decoder'::, code::'xformer'::. If callded from a subclass of AtkMatrix, this will default to the type of that subclass, e.g. code::'decoder'::, for an link::Classes/FoaDecoderMatrix::.
 
 ARGUMENT:: note
 A String that is a short description or bit of info about the matrix to store for future reference.
@@ -111,4 +102,4 @@ METHOD:: fileName
 Answers the name of the file used to create the instance, or code::nil:: if not created by loading a matrix from a file.
 
 
-PRIVATE:: prWriteMatrixToMOSL, prWriteMatrixToYML, prWriteMatrixToTXT, prParseMOSL, initFromMatrix, initFromFile, loadFromLib
+PRIVATE:: prWriteMatrixToMOSL, prWriteMatrixToYML, prWriteMatrixToTXT, prParseMOSL, initFromMatrix, initFromFile, loadFromLib, prWriteToFile

@@ -76,10 +76,11 @@ default when asked to read in a matrix from file.
 
 You can view this structure and any files you've stored there using the following method:
 code::
-Atk.postMyMatrixDir;              // the whole FOA matrices hierarchy
-Atk.postMyMatrixDir('encoders');	// FOA encoders only
-Atk.postMyMatrixDir('decoders');	// FOA decoders only
-Atk.postMyMatrixDir('xformers');	// FOA xformers only
+Atk.postMyMatrixDir();                    // All sets, all matrices types
+Atk.postMyMatrixDir('FOA');               // FOA matrices hierarchy
+Atk.postMyMatrixDir('FOA', 'encoders');	// FOA encoders only
+Atk.postMyMatrixDir('FOA', 'decoders');	// FOA decoders only
+Atk.postMyMatrixDir('FOA', 'xformers');	// FOA xformers only
 ::
 
 Each of these matrix subdirectories can have further subdirectories at your
@@ -144,7 +145,7 @@ Had we specified a full path instead, it would have saved to that location.
 
 code::
 // Here are our encoders (defaults to showing the FOA set)
-Atk.postMyMatrixDir('encoders');
+Atk.postMyMatrixDir('FOA', 'encoders');
 ::
 
 SUBSECTION::Writing Metadata
@@ -205,13 +206,14 @@ In the case of a raw matrix, this information can't be inferred and should be
 explicitly set when writing to file.
 
 code::
-// Here's a raw A-to-B encoder matrix:
+( // Here's a raw A-to-B encoder matrix:
 ~matrix = Matrix.with([
 	[ 0.61237243569579, 0.61237243569579, 0.61237243569579, 0.61237243569579 ],
 	[ 0.5, 0.5, -0.5, -0.5 ],
 	[ 0.5, -0.5, 0.5, -0.5 ],
 	[ 0.5, -0.5, -0.5, 0.5 ]
 ])
+)
 ::
 
 Metadata is useful to record more information about the matrix:
@@ -236,17 +238,24 @@ Now be sure to list the proper info for the arguments when writing it to file.  
 code::
 (
 ~matrix.writeToFile( "myA2B_flu_Matrix.yml", // be sure to use .yml for metadata
-  'encoder',  // type
   'FOA',      // set
+  'encoder',  // type
   ~note,
   ~properties
 )
 )
 ::
 
+NOTE:: If providing a file path relative to your code::/ATK/extension/matrices/...::
+directory, strong::set:: and strong::type:: are necessary arguments to locate the
+proper directory to store your file. If providing an absolute file path,
+strong::set:: and strong::type:: are recommended but not strictly enforced. This
+allows storing matrices outside the ATK paradigm, e.g. VBAP matrices, etc.
+::
+
 There it is:
 code::
-Atk.postMyMatrixDir('encoders');
+Atk.postMyMatrixDir('FOA', 'encoders');
 ::
 
 SUBSECTION:: Subfolders: Organizing your matrices
@@ -260,13 +269,13 @@ and code::/xformers:: folders.
 
 code::
 // Store your encoder matrix with the other encoders, which live here:
-Atk.getMatrixExtensionPath('encoders', 'FOA');
+Atk.getMatrixExtensionPath('FOA', 'encoders');
 
 // You can make subfolder for a group of matrices, say, for a particular project:
 (
 ~projSubFolderName = "myProject";
 
-File.mkdir( Atk.getMatrixExtensionPath('encoders', 'FOA').fullPath +/+ ~projSubFolderName )
+File.mkdir( Atk.getMatrixExtensionPath('FOA', 'encoders').fullPath +/+ ~projSubFolderName )
 )
 
 // For convenience, we'll write the 9-point ~encoder matrix,
@@ -286,7 +295,7 @@ arguments are inferred.
 
 code::
 // There it is, in the 'myProject' subdirectory.
-Atk.postMyMatrixDir('encoders', 'FOA')
+Atk.postMyMatrixDir('FOA', 'encoders')
 ::
 
 Later you'll use link::Classes/FoaEncoderMatrix:: to read the file back in.
@@ -393,7 +402,7 @@ code::
 ~pinv = ~matrix.pseudoInverse;
 ::
 
-This emphasis::decoder:: will output a velocity ("strict soundfield", max-rV) decode
+This emphasis::decoder:: will output a velocity decode ("strict soundfield", max-rV)
 positioned in the following locations (and in this order):
 code::
 ~encoder.dirInputs.do{|azElPairs, i| postf("chan %: %\n", i, azElPairs.raddeg) }
@@ -415,7 +424,7 @@ not an FoaDecoderMatrix object.  As such, we'll need to use care when building
 the decoding SynthDef.  Instead of using the link::Classes/FoaDecode:: UGen
 (which expects an FoaDecoderMatrix or FoaDecoderKernel decoder),
 we'll use the link::Classes/AtkMatrixMix:: UGen, which will decode our b-format
-signal through our decoding Matrix.
+signal through the decoding Matrix.
 
 code::
 (

@@ -430,7 +430,7 @@ Atk {
 	}
 
 	*checkSet { |set|
-		Atk.sets.includes(set.asString.toUpper.asSymbol).not.if {"Invalid set".throw};
+		Atk.sets.includes(set.asString.toUpper.asSymbol).not.if {^Error("Invalid set").throw};
 	}
 
 
@@ -439,44 +439,55 @@ Atk {
 	*postMyMatrixDir { |set, type|
 		var postContents;
 
-		Atk.checkSet(set);
+		block { |break|
 
-		postf("~ % % ~\n", set.asString.toUpper, type ?? "");
-
-		postContents = { |folderPN, depth=1|
-			var offset, f_offset;
-			offset = ("\t"!depth).join;
-			f_offset = ("\t"!(depth-1)).join;
-			postf("%:: % ::\n", f_offset, folderPN.folderName);
-
-			// folderPN.fileName.postln;
-			folderPN.entries.do{ |entry|
-
-				offset = ("\t"!depth).join;
-				offset.post;
-				entry.isFolder.if(
-					{ postContents.(entry, depth+1) },
-					{ postf("%%\n", offset, entry.fileName) }
-				)
+			if (set.isNil) {
+				// no set provided, show all sets
+				Atk.sets.do{ |thisSet|
+					Atk.postMyMatrixDir(thisSet, type)
+				};
+				break.()
+			} {
+				Atk.checkSet(set);
 			};
-		};
 
-		postContents.(
-			type.isNil.if(
-				{  Atk.getAtkLibSubPath('matrices', isExtension:true) +/+ set.asString.toUpper },
-				{
-					if (
-						[
-							'decoders', 'encoders', 'xformers',
-							'decoder', 'encoder', 'xformer'		// include singular
-						].includes(type.asSymbol)
+			postf("~ %%% ~\n", set.asString.toUpper, type.notNil.if({" "},{""}), type ?? "");
+
+			postContents = { |folderPN, depth=1|
+				var offset, f_offset;
+				offset = ("\t"!depth).join;
+				f_offset = ("\t"!(depth-1)).join;
+				postf("%:: % ::\n", f_offset, folderPN.folderName);
+
+				// folderPN.fileName.postln;
+				folderPN.entries.do{ |entry|
+
+					offset = ("\t"!depth).join;
+					offset.post;
+					entry.isFolder.if(
+						{ postContents.(entry, depth+1) },
+						{ postf("%%\n", offset, entry.fileName) }
 					)
-					{ Atk.getMatrixExtensionPath(set, type) }
-					{ Error("'type' must be 'decoder', 'encoder', 'xformer', or nil (to see all matrix directories)").throw; };
-				}
-			);
+				};
+			};
 
-		);
+			postContents.(
+				type.isNil.if(
+					{  Atk.getAtkLibSubPath('matrices', isExtension:true) +/+ set.asString.toUpper },
+					{
+						if (
+							[
+								'decoders', 'encoders', 'xformers',
+								'decoder', 'encoder', 'xformer'		// include singular
+							].includes(type.asSymbol)
+						)
+						{ Atk.getMatrixExtensionPath(set, type) }
+						{ Error("'type' must be 'decoder', 'encoder', 'xformer', or nil (to see all matrix directories)").throw; };
+					}
+				);
+
+			);
+		}
 	}
 
 }

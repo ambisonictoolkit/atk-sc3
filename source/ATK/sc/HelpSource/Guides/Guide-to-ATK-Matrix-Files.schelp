@@ -12,7 +12,7 @@ Atk.userSupportDir
 This includes three default directories:
 list::
 ##strong::kernels:: (FIR filters for kernel en/decoders),
-##strong::sounds:: (example sound files in a-, b-format, and stereo),
+##strong::sounds:: (example sound files in A-format, B-format, &c.),
 ##strong::matrices:: (for encoding, decoding, xforming).
 ::
 These folders store the files shipped with the ATK.
@@ -69,8 +69,9 @@ tree::
   ::
 ::
 Each of the folders (code::FOA>encoders::, code::HOA5>decoders::, etc.) are
-empty and ready to store matrices (and kernels) for use with the ATK-sc and
-ATK-Reaper (more on that later). When you write a matrix using the ATK, it
+empty and ready to store matrices (and kernels) for use with the ATK-sc (this package)
+and link::http://www.ambisonictoolkit.net/download/reaper/##ATK-Reaper::
+(more on that later). When you write a matrix using the ATK, it
 will store it in this directory structure by default, and will look here by
 default when asked to read in a matrix from file.
 
@@ -90,9 +91,11 @@ SECTION::Writing Matrices
 
 We'll start by writing a matrix file.
 
-Let's create a first order encoder matrix from a nine-point t-design. A t-design
-is a collection of points on a sphere thyat are uniformly distributed.
-The t-design below can be found in Hardin and Sloan's
+Let's create a first order A-format encoding matrix from a nine-point
+link::https://en.wikipedia.org/wiki/Spherical_design##spherical t-design::. For
+our purposes, we'll use a spherical designs with emphasis::d:: = 2, giving a
+collection of uniformly distributed points on a sphere.
+The t-design we're using below can be found in Hardin and Sloan's
 link::http://neilsloane.com/sphdesigns/dim3##Library of 3-D Designs::.
 footnote::Hardin, R. H. and Sloane, N. J. A., "Sperical Designs", http://neilsloane.com/sphdesigns/, accessed on July 29, 2016.::
 
@@ -100,26 +103,28 @@ code::
 (
 // Spherical coordinates of the nine-point t-design.
 ~directions = [
-	[ 120, 45 ],  [ 0, 45 ],  [ -120, 45 ],
-	[ 120, 0 ],   [ 0, 0 ],   [ -120, 0 ],
-	[ 120, -45 ], [ 0, -45 ], [ -120, -45 ]
+	[ 0, 45 ],  [ 120, 45 ],  [ -120, 45 ],
+	[ 0, 0 ],   [ 120, 0 ],   [ -120, 0 ],
+	[ 0, -45 ], [ 120, -45 ], [ -120, -45 ]
 ].degrad;
 
-// Here's our (velocity) encoder matrix:
+// Here's our 9-point A-format to B-format (planewave, aka velocity) encoder:
 ~encoder = FoaEncoderMatrix.newDirections(~directions);
 )
 ::
 
-This link::Classes/FoaEncoderMatrix:: is now ready to be used for encoding planewaves at those
-niine uniformly distributed positions.  After all that work, we want to store the matrix to file for
-use in the future, and to use in ATK-Reaper plugins!
+This link::Classes/FoaEncoderMatrix:: is now ready to be used for encoding
+planewaves arriving from those nine uniformly distributed incidences. After all
+that hard work (thanks ATK!), we want to store the result to a file for
+use in the future, and to use in
+link::http://www.ambisonictoolkit.net/download/reaper/##ATK-Reaper:: plugins!
 
 There are three available file formats, each with a special purpose:
 
 list::
 ##code::.txt:: : the most basic text file, writing the raw matrix only.
 ##code::.yml:: : store the matrix along with metadata in a human readable format.
-##code::.mosl.txt:: : a text file formatted for use with Atk-Reaper JS-plugins.
+##code::.mosl.txt:: : a text file formatted for use with ATK-Reaper JSFX-plugins.
 ::
 
 Let's write this encoder matrix out in all three formats:
@@ -167,8 +172,8 @@ code::
 ~properties =  (
 	author: "Me, the Reader",
 	dateCreated: Date.getDate.stamp,
-	channelOrdering: 'FuMa',
-	weighting: 'MaxN',
+	ordering: 'FuMa',
+	normalisation: 'MaxN',
 	dirInputs: ~directions
 );
 )
@@ -198,10 +203,10 @@ code::
 
 SUBSECTION:: Writing Raw Matrices
 In the above examples, we've been reading/writing matrices encapsulated in
-the AtkMatrix classes. When writing from these objects, some the information
-can be inferred from them, such as the strong::set:: (order, e.g.
-code::'FOA'::, code::'HOA3'::, etc.) and strong::type::
-of matrix (e.g. code::'encoder', 'decoder', 'xformer'::).
+the AtkMatrix subclasses. When writing from these objects, some the information
+can be inferred from them, such as the strong::set:: (Ambisonic order,
+channel ordering, channel normalisation, e.g. code::'FOA'::, code::'HOA3'::,
+etc.) and strong::type:: of matrix (e.g. code::'encoder', 'decoder', 'xformer'::).
 In the case of a raw matrix, this information can't be inferred and should be
 explicitly set when writing to file.
 
@@ -226,8 +231,8 @@ code::
 ~properties =  (
 	author: "Me, the Reader",
 	dateCreated: Date.getDate.stamp,
-	channelOrdering: 'FuMa',
-	weighting: 'MaxN',
+	ordering: 'FuMa',
+	normalisation: 'MaxN',
 	dirInputs: [ [ 0.78539816339745, 0.61547970867039 ], [ -0.78539816339745, -0.61547970867039 ], [ 2.3561944901923, -0.61547970867039 ], [ -2.3561944901923, 0.61547970867039 ] ]
 );
 )
@@ -280,16 +285,30 @@ File.mkdir( Atk.getMatrixExtensionPath('FOA', 'encoders').fullPath +/+ ~projSubF
 
 // For convenience, we'll write the 9-point ~encoder matrix,
 // which we created above, to a new file in your new project folder.
+// (We'll need to reset ~note and ~properties, as we clobbered them above!)
 (
+
+// A 'note': a description or note about the matrix.
+~note = "This is a nine-point t-design encoder made for a matrix file writing demo.";
+
+// A Dictionary of more metadata to add.
+~properties =  (
+    author: "Me, the Reader",
+    dateCreated: Date.getDate.stamp,
+    ordering: 'FuMa',
+    normalisation: 'MaxN',
+    dirInputs: ~directions
+);
+
 ~encoder.writeToFile(~projSubFolderName +/+ "projectEncoder1.yml",
- note: ~note,
+  note: ~note,
   attributeDictionary: ~properties
 )
 )
 ::
 
 NOTE:: Remember that because code::~encoder:: is an link::Classes/FoaEncoderMatrix::,
-the strong::type:: (code::'encoder'::) and strong::set:: (code::'FOA'::)
+the strong::set:: (code::'FOA'::) and strong::type:: (code::'encoder'::)
 arguments are inferred.
 ::
 
@@ -303,31 +322,31 @@ ATK will know where to look ( code::extensions/matrices/enocoders/FOA:: )
 so you can simply specify the emphasis::relative:: path of your code::subfolder/file.yml:::
 
 code::
-~encMatrix = FoaEncoderMatrix.newFromFile(~projSubFolderName +/+ "projectEncoder1.yml");
+~projectEncoder1 = FoaEncoderMatrix.newFromFile(~projSubFolderName +/+ "projectEncoder1.yml");
 
-~encMatrix.info;
+~projectEncoder1.info;
 ::
 
 SECTION:: Reading Matrices
 
-We wrote three encoder matrix files earlier, lets read them in.  As when writing,
-the ATK looks in the strong::extensions/matrices:: directory by default. So
-unless the matrix file is somewhere outside the defualt location, a filename
-will suffice to read it in, as the type (code::'encoder'::, code::'decoder'::,
+We wrote three encoder matrix files earlier. Let's now read them in.  As when writing,
+the ATK looks in the strong::extensions/matrices:: directory by default. Unless
+the matrix file is somewhere outside the default location, a filename
+will suffice to read it in. The strong::type:: (code::'encoder'::, code::'decoder'::,
 code::'xformer'::) is inferred from the object being instantiated.
 
-We can even omit the file extension if we don't expect multiple file emphasis::types::
-(code::.txt, .yml, .mosl.txt::) stored under the same emphasis::name:::
+We can even omit the file extension if we don't expect multiple file
+emphasis::formats:: (code::.txt, .yml, .mosl.txt::) stored under the same emphasis::name:::
 
 code::
 ~encoder = FoaEncoderMatrix.newFromFile("my9PointEncoder")
-// >> ERROR: It sees we have more than one file type of that name.
+// >> ERROR: It sees we have more than one file with that name.
 ::
 
-So we'll need to specify the extension. As mentioned before, each file type
+So, we'll need to specify the extension. As mentioned before, each file format
 determines what kind of information is stored in the file.
 
-Lets have a look at what each file type gives us back:
+Lets have a look at what each file format gives us back:
 
 code::.txt:: format:
 code::
@@ -380,7 +399,7 @@ code::
 // keys as pseudo-methods.
 ~encoder.fileParse;       // For direct access to the dictionary of values
 ~encoder.fileParse.note;  // What was this matrix again?? Oh yea...
-~encoder.fileParse.channelOrdering;
+~encoder.fileParse.ordering;
 ~encoder.fileParse.keysValuesDo{|k,v| postf("% : %\n", k, v)};
 ::
 
@@ -388,22 +407,29 @@ code::
 SUBSECTION:: Test case: Creating a decoder from an FoaEncoderMatrix
 
 We've now instantiated a new code::~encoder:: by reading in the file that stored
-the matrix that we originally built using the planewave encoder: link::Classes/FoaEncoderMatrix#*newDirections::
-(using the points of a nine-point t-design).
-As it turns out, an emphasis::encoder:: matrix created by link::Classes/FoaEncoderMatrix#*newDirections::
-is suitable for building a emphasis::decoder:: of the same geometry.
-This involves performing the link::Classes/Matrix#-pseudoInverse:: on the encoder's Matrix.
+the matrix that we originally built using the planewave encoder:
+link::Classes/FoaEncoderMatrix#*newDirections:: (using the points of a nine-point t-design).
+As it turns out, a matrix emphasis::encoder:: created by
+link::Classes/FoaEncoderMatrix#*newDirections:: can be used to build
+a emphasis::decoder:: of the same geometry. footnote::Recall
+the ATK's matching A-format link::Classes/FoaEncoderMatrix#*newAtoB#encoders:: and
+link::Classes/FoaDecoderMatrix#*newBtoA#decoders::!::
+Doing so just involves performing the link::Classes/Matrix#-pseudoInverse:: on the
+encoder's Matrix. footnote::This decoder design method is often described
+as emphasis::pseudo-inverse:: or emphasis::mode-matching::.::
 
 code::
 // Retrieve the Matrix object stored in the FoaEncoderMatrix
-~matrix = ~encoder.matrix;
+// (Should be the 9-point t-design from above!)
+~encoderMatrix = ~encoder.matrix;
 
-// Perform the pseudoinverse on that matrix to give decoding coefficients
-~pinv = ~matrix.pseudoInverse;
+// Perform the pseudoinverse on that matrix to find decoding coefficients
+~decoderMatrix = ~encoderMatrix.pseudoInverse;
 ::
 
-This emphasis::decoder:: will output a velocity decode ("strict soundfield", max-rV)
-positioned in the following locations (and in this order):
+Using these coefficients will return a code::'velocity':: decode (aka "strict
+soundfield" or "basic"). Loudspeakers should be positioned in the following
+directions (and in this order):
 code::
 ~encoder.dirInputs.do{|azElPairs, i| postf("chan %: %\n", i, azElPairs.raddeg) }
 ::
@@ -419,25 +445,25 @@ emphasis::encoder:: for its  code::-dirInputs::  to know where our output channe
 signals are expected to be sent (in space!).
 ::
 
-It's important to note here that the code::~pinv:: matrix is a Matrix object,
-not an FoaDecoderMatrix object.  As such, we'll need to use care when building
+It's important to note here that the code::~decoderMatrix:: matrix is a link::Classes/Matrix:: object,
+not an link::Classes/FoaDecoderMatrix:: object.  As such, we'll need to use care when building
 the decoding SynthDef.  Instead of using the link::Classes/FoaDecode:: UGen
 (which expects an FoaDecoderMatrix or FoaDecoderKernel decoder),
-we'll use the link::Classes/AtkMatrixMix:: UGen, which will decode our b-format
-signal through the decoding Matrix.
+we'll use the link::Classes/AtkMatrixMix:: UGen, which will decode our B-format
+signal by using our newly authored decoding Matrix, code::~decoderMatrix::.
 
 code::
 (
 ~decoderDef = SynthDef(\pinv_decoder, { arg outbus=0, amp=1;
-	var foa, decoder;
+    var foa, decoder;
 
-	// Test signal: panning noise
-	foa = FoaPanB.ar( PinkNoise.ar, LFSaw.kr( 12.reciprocal, 1 ), 0 );
+    // Test signal: panning noise
+    foa = FoaPanB.ar( PinkNoise.ar, LFSaw.kr( 12.reciprocal, 1 ), 0 );
 
-	// Our ~pinv decoder is a Matrix, so we use AtkMatrixMix
-	decoder = AtkMatrixMix.ar(foa, ~pinv, amp);
+    // ~decoderMatrix is just a Matrix of decoding coefficients, so we use AtkMatrixMix
+    out = AtkMatrixMix.ar(foa, ~decoderMatrix, amp);
 
-	Out.ar(outbus, decoder);
+    Out.ar(outbus, out);
 
 }).load(Server.default);
 )

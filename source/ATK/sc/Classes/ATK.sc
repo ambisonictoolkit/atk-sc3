@@ -144,6 +144,10 @@ Atk {
 		File.mkdir(Atk.userSupportDir);
 	}
 
+	*createSystemSupportDir {
+		File.mkdir(Atk.systemSupportDir);
+	}
+
 	*openSystemSupportDir {
 		File.exists(Atk.systemSupportDir).if({
 			Atk.systemSupportDir.openOS;
@@ -196,13 +200,13 @@ Atk {
 		};
 	}
 
-	// which: 'matrices', 'kernels'
-	*getAtkLibSubPath { arg which, isExtension=false;
+	// op: 'matrices', 'kernels'
+	*getAtkLibOpPath { arg op, isExtension=false;
 		var str, subPath, kindPath, fullPath, tested;
 
 		tested = List();
 
-		str = switch (which.asSymbol,
+		str = switch (op.asSymbol,
 			'matrices', {"/matrices"},
 			'kernels',  {"/kernels"},
 			// include singular
@@ -241,15 +245,15 @@ Atk {
 		^subPath
 	}
 
-	//  set: 'FOA', "HOA1", "HOA2", etc
-	//  type: 'decoders', 'encoders', 'xformers'
+	//  set: 'FOA', 'HOA1', 'HOA2', etc
+	//  type: 'decoder(s)', 'encoder(s)', 'xformer(s)'
 	//  op: 'matrices', 'kernels'
 	*getExtensionPath { arg set, type, op;
 		var subPath, typePath, fullPath;
 
 		Atk.checkSet(set);
 
-		subPath = Atk.getAtkLibSubPath(op, isExtension:true);
+		subPath = Atk.getAtkLibOpPath(op, isExtension:true);
 
 		typePath = PathName.new(
 			set.asString.toUpper ++ "/" ++ // folder structure is uppercase
@@ -269,7 +273,7 @@ Atk {
 		^fullPath
 	}
 
-	//  set: 'FOA', "HOA1", "HOA2", etc
+	//  set: 'FOA', 'HOA1', 'HOA2', etc
 	//  type: 'decoder(s)', 'encoder(s)', 'xformer(s)'
 	//  op: 'matrices', 'kernels'
 	*getBuiltInPath { arg set, type, op;
@@ -277,7 +281,7 @@ Atk {
 
 		Atk.checkSet(set);
 
-		subPath = Atk.getAtkLibSubPath(op, isExtension:false);
+		subPath = Atk.getAtkLibOpPath(op, isExtension:false);
 
 		typePath = PathName.new(
 			set.asString.toUpper ++ "/" ++ // folder structure is uppercase
@@ -311,6 +315,11 @@ Atk {
 	*getMatrixBuiltInPath { arg set, type;
 		type ?? {Error("Unspecified matrix type. Please specify 'encoder', 'decoder', or 'xformer'.").errorString.postln; ^nil};
 		^Atk.getBuiltInPath(set, type, 'matrices');
+	}
+
+	*getKernelBuiltInPath { arg set, type;
+		type ?? {Error("Unspecified matrix type. Please specify 'encoder', 'decoder', or 'xformer'.").errorString.postln; ^nil};
+		^Atk.getBuiltInPath(set, type, 'kernels');
 	}
 
 	*folderExists { |folderPathName, throwOnFail=true|
@@ -473,7 +482,7 @@ Atk {
 
 			postContents.(
 				type.isNil.if(
-					{  Atk.getAtkLibSubPath('matrices', isExtension:true) +/+ set.asString.toUpper },
+					{  Atk.getAtkLibOpPath('matrices', isExtension:true) +/+ set.asString.toUpper },
 					{
 						if (
 							[

@@ -303,7 +303,7 @@ Atk {
 		^Atk.getExtensionPath(set, type, 'matrices');
 	}
 
-	*getKernelsExtensionPath { arg set, type;
+	*getKernelExtensionPath { arg set, type;
 		type ?? {Error("Unspecified kernel type. Please specify 'encoder', 'decoder', or 'xformer'.").errorString.postln; ^nil};
 		^Atk.getExtensionPath(set, type, 'kernels');
 	}

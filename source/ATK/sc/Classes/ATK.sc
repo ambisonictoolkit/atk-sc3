@@ -144,6 +144,10 @@ Atk {
 		File.mkdir(Atk.userSupportDir);
 	}
 
+	*createSystemSupportDir {
+		File.mkdir(Atk.systemSupportDir);
+	}
+
 	*openSystemSupportDir {
 		File.exists(Atk.systemSupportDir).if({
 			Atk.systemSupportDir.openOS;
@@ -153,17 +157,17 @@ Atk {
 	}
 
 	*createExtensionsDir {
-		var exists=false, dir, categories, mtxTypes, makeDirs;
+		var exists=false, dir, ops, mtxTypes, makeDirs;
 
-		categories =	["kernels", "matrices"];
-		mtxTypes =	["encoders", "decoders", "xformers"];
+		ops =	["kernels", "matrices"];  // i.e., ops
+		mtxTypes =	["encoders", "decoders", "xformers"];  // i.e., types
 
 		makeDirs = { |baseDir|
 			Atk.sets.do{ |set|
 				var path;
-				categories.do{ |category|
+				ops.do{ |op|
 					mtxTypes.do{ |mtxType|
-						path = baseDir +/+ category +/+ set.asString +/+ mtxType;
+						path = baseDir +/+ op +/+ set.asString +/+ mtxType;
 						File.mkdir( path );
 					}
 				}
@@ -196,13 +200,13 @@ Atk {
 		};
 	}
 
-	// which: 'matrices', 'kernels'
-	*getAtkLibSubPath { arg which, isExtension=false;
+	// op: 'matrices', 'kernels'
+	*getAtkOpPath { arg op, isExtension=false;
 		var str, subPath, kindPath, fullPath, tested;
 
 		tested = List();
 
-		str = switch (which.asSymbol,
+		str = switch (op.asSymbol,
 			'matrices', {"/matrices"},
 			'kernels',  {"/kernels"},
 			// include singular
@@ -241,43 +245,15 @@ Atk {
 		^subPath
 	}
 
-	//  op: 'matrices', 'kernels'
-	//  type: 'decoders', 'encoders', 'xformers'
-	//  set: 'FOA', "HOA1", "HOA2", etc
-	*getExtensionPath { arg op, type, set='FOA';
-		var subPath, typePath, fullPath;
-
-		Atk.checkSet(set);
-
-		subPath = Atk.getAtkLibSubPath(op, isExtension:true);
-
-		typePath = PathName.new(
-			set.asString.toUpper ++ "/" ++ // folder structure is uppercase
-			switch( type.asSymbol,
-				'decoders', {"decoders"},
-				'encoders', {"encoders"},
-				'xformers', {"xformers"},
-				// include singular
-				'decoder', {"decoders"},
-				'encoder', {"encoders"},
-				'xformer', {"xformers"}
-			);
-		);
-
-		fullPath = subPath +/+ typePath;
-		Atk.folderExists(fullPath); // throws on fail
-		^fullPath
-	}
-
-	//  op: 'matrices', 'kernels'
+	//  set: 'FOA', 'HOA1', 'HOA2', etc
 	//  type: 'decoder(s)', 'encoder(s)', 'xformer(s)'
-	//  set: 'FOA', "HOA1", "HOA2", etc
-	*getBuiltInPath { arg op, type, set='FOA';
+	//  op: 'matrices', 'kernels'
+	*getExtensionSubPath { arg set, type, op;
 		var subPath, typePath, fullPath;
 
 		Atk.checkSet(set);
 
-		subPath = Atk.getAtkLibSubPath(op, isExtension:false);
+		subPath = Atk.getAtkOpPath(op, isExtension:true);
 
 		typePath = PathName.new(
 			set.asString.toUpper ++ "/" ++ // folder structure is uppercase
@@ -297,20 +273,53 @@ Atk {
 		^fullPath
 	}
 
-	// shortcuts for matrices and kernels
-	*getMatrixExtensionPath { arg type, set='FOA';
-		type ?? {Error("Unspecified matrix type. Please specify 'encoder', 'decoder', or 'xformer'.").errorString.postln; ^nil};
-		^Atk.getExtensionPath('matrices', type, set);
+	//  set: 'FOA', 'HOA1', 'HOA2', etc
+	//  type: 'decoder(s)', 'encoder(s)', 'xformer(s)'
+	//  op: 'matrices', 'kernels'
+	*getAtkOpSubPath { arg set, type, op;
+		var subPath, typePath, fullPath;
+
+		Atk.checkSet(set);
+
+		subPath = Atk.getAtkOpPath(op, isExtension:false);
+
+		typePath = PathName.new(
+			set.asString.toUpper ++ "/" ++ // folder structure is uppercase
+			switch( type.asSymbol,
+				'decoders', {"decoders"},
+				'encoders', {"encoders"},
+				'xformers', {"xformers"},
+				// include singular
+				'decoder', {"decoders"},
+				'encoder', {"encoders"},
+				'xformer', {"xformers"}
+			);
+		);
+
+		fullPath = subPath +/+ typePath;
+		Atk.folderExists(fullPath); // throws on fail
+		^fullPath
 	}
 
-	*getKernelsExtensionPath { arg type, set='FOA';
+	// shortcuts for matrices and kernels, aka 'ops'
+	*getMatrixExtensionSubPath { arg set, type;
+		type ?? {Error("Unspecified matrix type. Please specify 'encoder', 'decoder', or 'xformer'.").errorString.postln; ^nil};
+		^Atk.getExtensionSubPath(set, type, 'matrices');
+	}
+
+	*getKernelExtensionSubPath { arg set, type;
 		type ?? {Error("Unspecified kernel type. Please specify 'encoder', 'decoder', or 'xformer'.").errorString.postln; ^nil};
-		^Atk.getExtensionPath('kernels', type, set);
+		^Atk.getExtensionSubPath(set, type, 'kernels');
 	}
 
-	*getMatrixBuiltInPath { arg type, set='FOA';
+	*getAtkMatrixSubPath { arg set, type;
 		type ?? {Error("Unspecified matrix type. Please specify 'encoder', 'decoder', or 'xformer'.").errorString.postln; ^nil};
-		^Atk.getBuiltInPath('matrices', type, set);
+		^Atk.getAtkOpSubPath(set, type, 'matrices');
+	}
+
+	*getAtkKernelSubPath { arg set, type;
+		type ?? {Error("Unspecified matrix type. Please specify 'encoder', 'decoder', or 'xformer'.").errorString.postln; ^nil};
+		^Atk.getAtkOpSubPath(set, type, 'kernels');
 	}
 
 	*folderExists { |folderPathName, throwOnFail=true|
@@ -341,9 +350,9 @@ Atk {
 				hasRelPath = usrPN.colonIndices.size > 0;
 
 				mtxDirPath = if (searchExtensions) {
-					Atk.getMatrixExtensionPath(mtxType);
+					Atk.getMatrixExtensionSubPath('FOA', mtxType);  // hard coded to 'FOA'..
 				} {
-					Atk.getMatrixBuiltInPath(mtxType);
+					Atk.getAtkMatrixSubPath('FOA', mtxType);   // .. for now
 				};
 
 				relPath = mtxDirPath +/+ usrPN;
@@ -430,53 +439,64 @@ Atk {
 	}
 
 	*checkSet { |set|
-		Atk.sets.includes(set.asString.toUpper.asSymbol).not.if {"Invalid set".throw};
+		Atk.sets.includes(set.asString.toUpper.asSymbol).not.if {^Error("Invalid set").throw};
 	}
 
 
 	// NOTE: could be generalized for other user extensions, e.g. kernels, etc.
 	// type: 'decoders', 'encoders', 'xformers'
-	*postMyMatrixDir { |type, set='FOA'|
+	*postMyMatrices { |set, type|
 		var postContents;
 
-		Atk.checkSet(set);
+		block { |break|
 
-		postf("~ % % ~\n", set.asString.toUpper, type ?? "");
-
-		postContents = { |folderPN, depth=1|
-			var offset, f_offset;
-			offset = ("\t"!depth).join;
-			f_offset = ("\t"!(depth-1)).join;
-			postf("%:: % ::\n", f_offset, folderPN.folderName);
-
-			// folderPN.fileName.postln;
-			folderPN.entries.do{ |entry|
-
-				offset = ("\t"!depth).join;
-				offset.post;
-				entry.isFolder.if(
-					{ postContents.(entry, depth+1) },
-					{ postf("%%\n", offset, entry.fileName) }
-				)
+			if (set.isNil) {
+				// no set provided, show all sets
+				Atk.sets.do{ |thisSet|
+					Atk.postMyMatrices(thisSet, type)
+				};
+				break.()
+			} {
+				Atk.checkSet(set);
 			};
-		};
 
-		postContents.(
-			type.isNil.if(
-				{  Atk.getAtkLibSubPath('matrices', isExtension:true) +/+ set.asString.toUpper },
-				{
-					if (
-						[
-							'decoders', 'encoders', 'xformers',
-							'decoder', 'encoder', 'xformer'		// include singular
-						].includes(type.asSymbol)
+			postf("~ %%% ~\n", set.asString.toUpper, type.notNil.if({" "},{""}), type ?? "");
+
+			postContents = { |folderPN, depth=1|
+				var offset, f_offset;
+				offset = ("\t"!depth).join;
+				f_offset = ("\t"!(depth-1)).join;
+				postf("%:: % ::\n", f_offset, folderPN.folderName);
+
+				// folderPN.fileName.postln;
+				folderPN.entries.do{ |entry|
+
+					offset = ("\t"!depth).join;
+					offset.post;
+					entry.isFolder.if(
+						{ postContents.(entry, depth+1) },
+						{ postf("%%\n", offset, entry.fileName) }
 					)
-					{ Atk.getMatrixExtensionPath(type, set) }
-					{ Error("'type' must be 'decoder', 'encoder', 'xformer', or nil (to see all matrix directories)").throw; };
-				}
-			);
+				};
+			};
 
-		);
+			postContents.(
+				type.isNil.if(
+					{  Atk.getAtkOpPath('matrices', isExtension:true) +/+ set.asString.toUpper },
+					{
+						if (
+							[
+								'decoders', 'encoders', 'xformers',
+								'decoder', 'encoder', 'xformer'		// include singular
+							].includes(type.asSymbol)
+						)
+						{ Atk.getMatrixExtensionSubPath(set, type) }
+						{ Error("'type' must be 'decoder', 'encoder', 'xformer', or nil (to see all matrix directories)").throw; };
+					}
+				);
+
+			);
+		}
 	}
 
 }

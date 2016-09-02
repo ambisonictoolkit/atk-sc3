@@ -1,12 +1,16 @@
 + Matrix {
 
 	// see also: AtkMatrix:writeToFile
+	// set: FOA, HOA1, HOA2, etc
 	// type: \encoder, \decoder, \xformer
-	// set: foa, hoa1, hoa2, etc
-	writeToFile { arg fileNameOrPath, type, set, note, attributeDictionary, overwrite=false;
+	writeToFile { arg fileNameOrPath, set, type, note, attributeDictionary, overwrite=false;
 		var atkMatrix;
+
+		set ?? {Error("Unspecified set argument. Choose 'FOA', 'HOA1', 'HOA2', etc.").throw};
+
 		atkMatrix = AtkMatrix.newFromMatrix(this);
-		atkMatrix.writeToFile(fileNameOrPath, type, set, note, attributeDictionary, overwrite);
+
+		atkMatrix.prWriteToFile(fileNameOrPath, set, type, note, attributeDictionary, overwrite);
 	}
 
 }

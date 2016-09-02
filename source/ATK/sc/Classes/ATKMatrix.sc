@@ -166,7 +166,7 @@ AtkMatrix {
 	var <filePath;		// matrices from files only
 	var <fileParse;		// data parsed from YAML file
 	var <op = 'matrix';
-	var <set = 'FOA';
+	var <set = 'FOA';   // ... for now
 
 	// most typically called by subclass
 	*new { |mtxKind|
@@ -280,38 +280,38 @@ AtkMatrix {
 		};
 	}
 
-	// type: \encoder, \decoder, \xformer
-	// set: foa, hoa1, hoa2, etc
-	writeToFile { arg fileNameOrPath, type, set, note, attributeDictionary, overwrite=false;
-		var mtype, pn, writer, ext;
+	// For subclasses of AtkMatrix
+	writeToFile { arg fileNameOrPath, note, attributeDictionary, overwrite=false;
+		this.prWriteToFile(fileNameOrPath, this.set, this.type, note, attributeDictionary, overwrite);
+	}
 
-		if (type.isNil) {
-			switch( this.class,
-				FoaEncoderMatrix,	{mtype = 'encoder'; set = 'FOA'},
-				FoaDecoderMatrix,	{mtype = 'decoder'; set = 'FOA'},
-				FoaXformerMatrix,	{mtype = 'xformer'; set = 'FOA'}
-			);
-		} { mtype = type.asSymbol };
-
-		set ?? {Error("Unspecified set argument. Choose 'FOA', 'HOA1', 'HOA2', etc.").throw};
+	// argSet: FOA, HOA1, HOA2, etc
+	// argType: \encoder, \decoder, \xformer
+	prWriteToFile { arg fileNameOrPath, argSet, argType, note, attributeDictionary, overwrite=false;
+		var pn, writer, ext;
 
 		pn = PathName(fileNameOrPath);
 
-		if (PathName(pn.parentPath).isFolder.not) {
+		if (PathName(pn.parentPath).isFolder.not) { // check for an enclosing folder
+			// ... no enclosing folder found so assumed
+			// to be relative to extensions/matrices/'type' directory
+
+			Atk.checkSet(argSet);
+
 			// This is only needed for relative file paths in user-matrices directory
-			['encoder', 'decoder', 'xformer'].includes(mtype).not.if{
+			['encoder', 'decoder', 'xformer'].includes(argType).not.if{
 				Error("'type' argument must be 'encoder', 'decoder', or 'xformer'").throw; ^this
 			};
 
 			case
 			{ pn.colonIndices.size == 0} {
-				// only filename provided, writer to dir matching mtype
-				pn = Atk.getMatrixExtensionPath(mtype, set) +/+ pn;
+				// only filename provided, write to dir matching 'type'
+				pn = Atk.getMatrixExtensionSubPath(argSet, argType) +/+ pn;
 
 			} { pn.colonIndices.size > 0} {
 				// relative path given, look for it
 				var mtxPath, relPath;
-				mtxPath = Atk.getMatrixExtensionPath(mtype, set);
+				mtxPath = Atk.getMatrixExtensionSubPath(argSet, argType);
 				relPath = (mtxPath +/+ PathName(pn.parentPath));
 				if (relPath.isFolder) {
 					// valid relative path confirmed
@@ -347,8 +347,13 @@ AtkMatrix {
 				this.prWriteMatrixToTXT(pn)
 			}
 		}
-		{ext == "yml"} {this.prWriteMatrixToYML(pn, mtype, set, note, attributeDictionary)}
-		{Error("Invalid file extension: provide '.txt' for writing matrix only, or '.yml' or no extension to write matrix with metadata (as YAML)").throw; ^this};
+		{ext == "yml"} {this.prWriteMatrixToYML(pn, argSet, argType, note, attributeDictionary)}
+		{	// catch all
+			Error( format( "%%",
+				"Invalid file extension: provide '.txt' for writing matrix only, ",
+				"or '.yml' or no extension to write matrix with metadata (as YAML)")
+			).throw;
+		};
 	}
 
 
@@ -380,7 +385,7 @@ AtkMatrix {
 		writer.close;
 	}
 
-	prWriteMatrixToYML { arg pn, type, set, note, attributeDictionary;
+	prWriteMatrixToYML { arg pn, set, type, note, attributeDictionary;
 		var writer, defAttributes;
 
 		writer = FileWriter( pn.fullPath );
@@ -394,7 +399,6 @@ AtkMatrix {
 			row = matrix.getRow(i);
 			line = row.asString.split($ );
 			if ((i+1) != matrix.rows) {line[line.size-1] = line.last ++ ","};
-			line.postln;
 			writer.writeLine(line);
 		};
 		writer.writeLine(["]"]);
@@ -549,24 +553,24 @@ FoaDecoderMatrix : AtkMatrix {
 	}
 
 	*new5_0 { arg irregKind = 'focused';
-		// ^super.new('5.0').init5_0(irregKind);
-		^super.new('5_0').loadFromLib(irregKind);
+		^super.new('5.0').init5_0(irregKind);
+		// ^super.new('5_0').loadFromLib(irregKind);
 	}
 
 	*newBtoA { arg orientation = 'flu', weight = 'dec';
-		// ^super.new('BtoA').initBtoA(orientation, weight);
-		^super.new('BtoA').loadFromLib(orientation, weight);
+		^super.new('BtoA').initBtoA(orientation, weight);
+		// ^super.new('BtoA').loadFromLib(orientation, weight);
 	}
 
 	*newHoa1 { arg ordering = 'acn', normalisation = 'n3d';
-		// ^super.new('hoa1').initHoa1(ordering, normalisation);
-		^super.new('hoa1').loadFromLib(ordering, normalisation);
+		^super.new('hoa1').initHoa1(ordering, normalisation);
+		// ^super.new('hoa1').loadFromLib(ordering, normalisation);
 	}
 
 	*newAmbix1 {
 		var ordering = 'acn', normalisation = 'sn3d';
-		// ^super.new('hoa1').initHoa1(ordering, normalisation);
-		^super.new('hoa1').loadFromLib(ordering, normalisation);
+		^super.new('hoa1').initHoa1(ordering, normalisation);
+		// ^super.new('hoa1').loadFromLib(ordering, normalisation);
 	}
 
 	*newFromFile { arg filePathOrName;
@@ -1056,25 +1060,25 @@ FoaEncoderMatrix : AtkMatrix {
 	var <dirInputs;
 
 	*newAtoB { arg orientation = 'flu', weight = 'dec';
-		// ^super.new('AtoB').initAtoB(orientation, weight);
-		^super.new('AtoB').loadFromLib(orientation, weight)
+		^super.new('AtoB').initAtoB(orientation, weight);
+		// ^super.new('AtoB').loadFromLib(orientation, weight)
 	}
 
 	*newHoa1 { arg ordering = 'acn', normalisation = 'n3d';
-		// ^super.new('hoa1').initHoa1(ordering, normalisation);
-		^super.new('hoa1').loadFromLib(ordering, normalisation);
+		^super.new('hoa1').initHoa1(ordering, normalisation);
+		// ^super.new('hoa1').loadFromLib(ordering, normalisation);
 	}
 
 	*newAmbix1 {
 		var ordering = 'acn', normalisation = 'sn3d';
-		// ^super.new('hoa1').initHoa1(ordering, normalisation);
-		^super.new('hoa1').loadFromLib(ordering, normalisation);
+		^super.new('hoa1').initHoa1(ordering, normalisation);
+		// ^super.new('hoa1').loadFromLib(ordering, normalisation);
 	}
 
 	*newZoomH2n{
 		var ordering = 'acn', normalisation = 'sn3d';
-		// ^super.new('hoa1').initHoa1(ordering, normalisation);
-		^super.new('hoa1').loadFromLib(ordering, normalisation);
+		^super.new('hoa1').initHoa1(ordering, normalisation);
+		// ^super.new('hoa1').loadFromLib(ordering, normalisation);
 	}
 
 	*newOmni {

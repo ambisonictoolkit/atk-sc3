@@ -201,7 +201,7 @@ Atk {
 	}
 
 	// op: 'matrices', 'kernels'
-	*getAtkLibOpPath { arg op, isExtension=false;
+	*getAtkOpPath { arg op, isExtension=false;
 		var str, subPath, kindPath, fullPath, tested;
 
 		tested = List();
@@ -248,12 +248,12 @@ Atk {
 	//  set: 'FOA', 'HOA1', 'HOA2', etc
 	//  type: 'decoder(s)', 'encoder(s)', 'xformer(s)'
 	//  op: 'matrices', 'kernels'
-	*getExtensionPath { arg set, type, op;
+	*getExtensionSubPath { arg set, type, op;
 		var subPath, typePath, fullPath;
 
 		Atk.checkSet(set);
 
-		subPath = Atk.getAtkLibOpPath(op, isExtension:true);
+		subPath = Atk.getAtkOpPath(op, isExtension:true);
 
 		typePath = PathName.new(
 			set.asString.toUpper ++ "/" ++ // folder structure is uppercase
@@ -276,12 +276,12 @@ Atk {
 	//  set: 'FOA', 'HOA1', 'HOA2', etc
 	//  type: 'decoder(s)', 'encoder(s)', 'xformer(s)'
 	//  op: 'matrices', 'kernels'
-	*getBuiltInPath { arg set, type, op;
+	*getAtkOpSubPath { arg set, type, op;
 		var subPath, typePath, fullPath;
 
 		Atk.checkSet(set);
 
-		subPath = Atk.getAtkLibOpPath(op, isExtension:false);
+		subPath = Atk.getAtkOpPath(op, isExtension:false);
 
 		typePath = PathName.new(
 			set.asString.toUpper ++ "/" ++ // folder structure is uppercase
@@ -302,24 +302,24 @@ Atk {
 	}
 
 	// shortcuts for matrices and kernels, aka 'ops'
-	*getMatrixExtensionPath { arg set, type;
+	*getMatrixExtensionSubPath { arg set, type;
 		type ?? {Error("Unspecified matrix type. Please specify 'encoder', 'decoder', or 'xformer'.").errorString.postln; ^nil};
-		^Atk.getExtensionPath(set, type, 'matrices');
+		^Atk.getExtensionSubPath(set, type, 'matrices');
 	}
 
-	*getKernelExtensionPath { arg set, type;
+	*getKernelExtensionSubPath { arg set, type;
 		type ?? {Error("Unspecified kernel type. Please specify 'encoder', 'decoder', or 'xformer'.").errorString.postln; ^nil};
-		^Atk.getExtensionPath(set, type, 'kernels');
+		^Atk.getExtensionSubPath(set, type, 'kernels');
 	}
 
-	*getMatrixBuiltInPath { arg set, type;
+	*getAtkMatrixSubPath { arg set, type;
 		type ?? {Error("Unspecified matrix type. Please specify 'encoder', 'decoder', or 'xformer'.").errorString.postln; ^nil};
-		^Atk.getBuiltInPath(set, type, 'matrices');
+		^Atk.getAtkOpSubPath(set, type, 'matrices');
 	}
 
-	*getKernelBuiltInPath { arg set, type;
+	*getAtkKernelSubPath { arg set, type;
 		type ?? {Error("Unspecified matrix type. Please specify 'encoder', 'decoder', or 'xformer'.").errorString.postln; ^nil};
-		^Atk.getBuiltInPath(set, type, 'kernels');
+		^Atk.getAtkOpSubPath(set, type, 'kernels');
 	}
 
 	*folderExists { |folderPathName, throwOnFail=true|
@@ -350,9 +350,9 @@ Atk {
 				hasRelPath = usrPN.colonIndices.size > 0;
 
 				mtxDirPath = if (searchExtensions) {
-					Atk.getMatrixExtensionPath('FOA', mtxType);  // hard coded to 'FOA'..
+					Atk.getMatrixExtensionSubPath('FOA', mtxType);  // hard coded to 'FOA'..
 				} {
-					Atk.getMatrixBuiltInPath('FOA', mtxType);   // .. for now
+					Atk.getAtkMatrixSubPath('FOA', mtxType);   // .. for now
 				};
 
 				relPath = mtxDirPath +/+ usrPN;
@@ -445,7 +445,7 @@ Atk {
 
 	// NOTE: could be generalized for other user extensions, e.g. kernels, etc.
 	// type: 'decoders', 'encoders', 'xformers'
-	*postMyMatrixDir { |set, type|
+	*postMyMatrices { |set, type|
 		var postContents;
 
 		block { |break|
@@ -453,7 +453,7 @@ Atk {
 			if (set.isNil) {
 				// no set provided, show all sets
 				Atk.sets.do{ |thisSet|
-					Atk.postMyMatrixDir(thisSet, type)
+					Atk.postMyMatrices(thisSet, type)
 				};
 				break.()
 			} {
@@ -482,7 +482,7 @@ Atk {
 
 			postContents.(
 				type.isNil.if(
-					{  Atk.getAtkLibOpPath('matrices', isExtension:true) +/+ set.asString.toUpper },
+					{  Atk.getAtkOpPath('matrices', isExtension:true) +/+ set.asString.toUpper },
 					{
 						if (
 							[
@@ -490,7 +490,7 @@ Atk {
 								'decoder', 'encoder', 'xformer'		// include singular
 							].includes(type.asSymbol)
 						)
-						{ Atk.getMatrixExtensionPath(set, type) }
+						{ Atk.getMatrixExtensionSubPath(set, type) }
 						{ Error("'type' must be 'decoder', 'encoder', 'xformer', or nil (to see all matrix directories)").throw; };
 					}
 				);

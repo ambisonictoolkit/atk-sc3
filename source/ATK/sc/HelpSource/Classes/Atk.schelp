@@ -11,7 +11,8 @@ CLASSMETHODS::
 
 METHOD:: sets
 
-returns:: an Array listing valid ATK sets. (Currently FOA only, HOA in development.)
+returns:: an Array listing valid ATK sets. (Currently only code::'FOA':: is
+supported, code::'HOAn':: is in development!)
 
 SUBSECTION:: ATK's default asset directories
 
@@ -82,7 +83,7 @@ METHOD:: createSystemSupportDir
 runs a unix command to create the system support dir for ATK
 
 
-SUBSECTION:: Asset 'extensions' directory
+SUBSECTION:: User asset /extensions directory
 
 The code::extensions:: directory is where the ATK looks for assets generated or
 added by you, such as your own matrices or kernels.  It is located in
@@ -101,7 +102,6 @@ Atk.createExtensionsDir
 You can find out more about the directory structure in the
 link::Guides/Guide-to-ATK-Matrix-Files::.
 
-
 METHOD:: userExtensionsDir
 
 returns:: a path to the 'extensions' dir inside the ATK support dir. This is where
@@ -112,17 +112,7 @@ METHOD:: systemExtensionsDir
 returns:: a path to the 'extensions' dir inside the ATK support dir. This is where
 user-generated matrices and kernels are stored to and rerieved from by default.
 
-
-METHOD:: getMatrixExtensionPath
-
-returns:: the path to the subdirectory of a specific strong::set:: and matrix
-strong::type:: in your code::ATK/extensions/matrices:: directory.
-NOTE:: This method first searches the code::Atk.userExtensionsDir:: and if no
-directory is found, it proceeds to check for a system-wide installation in
-code::Atk.systemExtensionsDir::.
-::
-
-METHOD:: postMyMatrixDir
+METHOD:: postMyMatrices
 Displays a formatted list the matrices stored in your
 code::ATK/extensions/matrices:: directory.  The strong::set:: and
 strong::type:: arguments are optional filters to display only matrices of a the
@@ -145,31 +135,37 @@ SUBSECTION:: Convenience methods for accessing subdirectories
 The following methods are used by ATK internally but listed here in the case
 you find them useful.
 
-METHOD:: getAtkLibOpPath
-
+METHOD:: getAtkOpPath
 Get the Link::Classes/PathName:: of the strong::op:: directory (code::'kernels':: or
 code::'matrices'::), in either the "built-in" ATK support directory or
 the user code::extension:: subdirectory (strong::isExtension:: = true).
 
 METHOD:: getExtensionSubPath
-
 Get the Link::Classes/PathName:: of the subdirectory within the
 code::ATK/extensions/'op'/'set'/'type':: folder.
+NOTE:: This method first searches the code::Atk.userExtensionsDir:: and if no
+directory is found, it proceeds to check the code::Atk.systemExtensionsDir::.
+::
 
-METHOD:: getMatrixExtensionPath
+METHOD:: getMatrixExtensionSubPath
+A shortcut for code::Atk.getExtensionSubPath(set, op, 'matrices')::
 
-METHOD:: getKernelExtensionPath
+METHOD:: getKernelExtensionSubPath
+A shortcut for code::Atk.getExtensionSubPath(set, op, 'kernels')::
 
-METHOD:: getBuiltInPath
+METHOD:: getAtkOpSubPath
 
-METHOD:: getMatrixBuiltInPath
+Get the Link::Classes/PathName:: of the subdirectory within the
+code::ATK/'op'/'set'/'type':: folder.
+NOTE:: This method first searches the code::Atk.userExtensionsDir:: and if no
+directory is found, it proceeds to check the code::Atk.systemExtensionsDir::.
+::
 
-METHOD:: getKernelBuiltInPath
+METHOD:: getAtkMatrixSubPath
+A shortcut for code::Atk.getAtkOpSubPath(set, op, 'matrices')::
 
-
-
-
-
+METHOD:: getAtkKernelSubPath
+A shortcut for code::Atk.getAtkOpSubPath(set, op, 'kernels')::
 
 
 

@@ -553,24 +553,24 @@ FoaDecoderMatrix : AtkMatrix {
 	}
 
 	*new5_0 { arg irregKind = 'focused';
-		^super.new('5.0').init5_0(irregKind);
-		// ^super.new('5_0').loadFromLib(irregKind);
+		// ^super.new('5.0').init5_0(irregKind);
+		^super.new('5_0').loadFromLib(irregKind);
 	}
 
 	*newBtoA { arg orientation = 'flu', weight = 'dec';
-		^super.new('BtoA').initBtoA(orientation, weight);
-		// ^super.new('BtoA').loadFromLib(orientation, weight);
+		// ^super.new('BtoA').initBtoA(orientation, weight);
+		^super.new('BtoA').loadFromLib(orientation, weight);
 	}
 
 	*newHoa1 { arg ordering = 'acn', normalisation = 'n3d';
-		^super.new('hoa1').initHoa1(ordering, normalisation);
-		// ^super.new('hoa1').loadFromLib(ordering, normalisation);
+		// ^super.new('hoa1').initHoa1(ordering, normalisation);
+		^super.new('hoa1').loadFromLib(ordering, normalisation);
 	}
 
 	*newAmbix1 {
 		var ordering = 'acn', normalisation = 'sn3d';
-		^super.new('hoa1').initHoa1(ordering, normalisation);
-		// ^super.new('hoa1').loadFromLib(ordering, normalisation);
+		// ^super.new('hoa1').initHoa1(ordering, normalisation);
+		^super.new('hoa1').loadFromLib(ordering, normalisation);
 	}
 
 	*newFromFile { arg filePathOrName;
@@ -1060,25 +1060,25 @@ FoaEncoderMatrix : AtkMatrix {
 	var <dirInputs;
 
 	*newAtoB { arg orientation = 'flu', weight = 'dec';
-		^super.new('AtoB').initAtoB(orientation, weight);
-		// ^super.new('AtoB').loadFromLib(orientation, weight)
+		// ^super.new('AtoB').initAtoB(orientation, weight);
+		^super.new('AtoB').loadFromLib(orientation, weight)
 	}
 
 	*newHoa1 { arg ordering = 'acn', normalisation = 'n3d';
-		^super.new('hoa1').initHoa1(ordering, normalisation);
-		// ^super.new('hoa1').loadFromLib(ordering, normalisation);
+		// ^super.new('hoa1').initHoa1(ordering, normalisation);
+		^super.new('hoa1').loadFromLib(ordering, normalisation);
 	}
 
 	*newAmbix1 {
 		var ordering = 'acn', normalisation = 'sn3d';
-		^super.new('hoa1').initHoa1(ordering, normalisation);
-		// ^super.new('hoa1').loadFromLib(ordering, normalisation);
+		// ^super.new('hoa1').initHoa1(ordering, normalisation);
+		^super.new('hoa1').loadFromLib(ordering, normalisation);
 	}
 
 	*newZoomH2n{
 		var ordering = 'acn', normalisation = 'sn3d';
-		^super.new('hoa1').initHoa1(ordering, normalisation);
-		// ^super.new('hoa1').loadFromLib(ordering, normalisation);
+		// ^super.new('hoa1').initHoa1(ordering, normalisation);
+		^super.new('hoa1').loadFromLib(ordering, normalisation);
 	}
 
 	*newOmni {

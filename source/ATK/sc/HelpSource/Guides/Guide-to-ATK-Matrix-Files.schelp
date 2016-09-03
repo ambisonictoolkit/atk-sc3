@@ -77,11 +77,11 @@ default when asked to read in a matrix from file.
 
 You can view this structure and any files you've stored there using the following method:
 code::
-Atk.postMyMatrixDir();                    // All sets, all matrices types
-Atk.postMyMatrixDir('FOA');               // FOA matrices hierarchy
-Atk.postMyMatrixDir('FOA', 'encoders');	// FOA encoders only
-Atk.postMyMatrixDir('FOA', 'decoders');	// FOA decoders only
-Atk.postMyMatrixDir('FOA', 'xformers');	// FOA xformers only
+Atk.postMyMatrices();                    // All sets, all matrices types
+Atk.postMyMatrices('FOA');               // FOA matrices hierarchy
+Atk.postMyMatrices('FOA', 'encoders');	// FOA encoders only
+Atk.postMyMatrices('FOA', 'decoders');	// FOA decoders only
+Atk.postMyMatrices('FOA', 'xformers');	// FOA xformers only
 ::
 
 Each of these matrix subdirectories can have further subdirectories at your
@@ -150,7 +150,7 @@ Had we specified a full path instead, it would have saved to that location.
 
 code::
 // Here are our encoders (defaults to showing the FOA set)
-Atk.postMyMatrixDir('FOA', 'encoders');
+Atk.postMyMatrices('FOA', 'encoders');
 ::
 
 SUBSECTION::Writing Metadata
@@ -260,7 +260,7 @@ allows storing matrices outside the ATK paradigm, e.g. VBAP matrices, etc.
 
 There it is:
 code::
-Atk.postMyMatrixDir('FOA', 'encoders');
+Atk.postMyMatrices('FOA', 'encoders');
 ::
 
 SUBSECTION:: Subfolders: Organizing your matrices
@@ -274,13 +274,13 @@ and code::/xformers:: folders.
 
 code::
 // Store your encoder matrix with the other encoders, which live here:
-Atk.getMatrixExtensionPath('FOA', 'encoders');
+Atk.getMatrixExtensionSubPath('FOA', 'encoders');
 
 // You can make subfolder for a group of matrices, say, for a particular project:
 (
 ~projSubFolderName = "myProject";
 
-File.mkdir( Atk.getMatrixExtensionPath('FOA', 'encoders').fullPath +/+ ~projSubFolderName )
+File.mkdir( Atk.getMatrixExtensionSubPath('FOA', 'encoders').fullPath +/+ ~projSubFolderName )
 )
 
 // For convenience, we'll write the 9-point ~encoder matrix,
@@ -314,7 +314,7 @@ arguments are inferred.
 
 code::
 // There it is, in the 'myProject' subdirectory.
-Atk.postMyMatrixDir('FOA', 'encoders')
+Atk.postMyMatrices('FOA', 'encoders')
 ::
 
 Later you'll use link::Classes/FoaEncoderMatrix:: to read the file back in.
@@ -455,7 +455,7 @@ signal by using our newly authored decoding Matrix, code::~decoderMatrix::.
 code::
 (
 ~decoderDef = SynthDef(\pinv_decoder, { arg outbus=0, amp=1;
-    var foa, decoder;
+    var foa, out;
 
     // Test signal: panning noise
     foa = FoaPanB.ar( PinkNoise.ar, LFSaw.kr( 12.reciprocal, 1 ), 0 );

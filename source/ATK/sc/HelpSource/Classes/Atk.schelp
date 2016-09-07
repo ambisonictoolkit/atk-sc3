@@ -140,19 +140,6 @@ Get the Link::Classes/PathName:: of the strong::op:: directory (code::'kernels':
 code::'matrices'::), in either the "built-in" ATK support directory or
 the user code::extension:: subdirectory (strong::isExtension:: = true).
 
-METHOD:: getExtensionSubPath
-Get the Link::Classes/PathName:: of the subdirectory within the
-code::ATK/extensions/'op'/'set'/'type':: folder.
-NOTE:: This method first searches the code::Atk.userExtensionsDir:: and if no
-directory is found, it proceeds to check the code::Atk.systemExtensionsDir::.
-::
-
-METHOD:: getMatrixExtensionSubPath
-A shortcut for code::Atk.getExtensionSubPath(set, op, 'matrices')::
-
-METHOD:: getKernelExtensionSubPath
-A shortcut for code::Atk.getExtensionSubPath(set, op, 'kernels')::
-
 METHOD:: getAtkOpSubPath
 
 Get the Link::Classes/PathName:: of the subdirectory within the
@@ -166,6 +153,19 @@ A shortcut for code::Atk.getAtkOpSubPath(set, op, 'matrices')::
 
 METHOD:: getAtkKernelSubPath
 A shortcut for code::Atk.getAtkOpSubPath(set, op, 'kernels')::
+
+METHOD:: getExtensionSubPath
+Get the Link::Classes/PathName:: of the subdirectory within the
+code::ATK/extensions/'op'/'set'/'type':: folder.
+NOTE:: This method first searches the code::Atk.userExtensionsDir:: and if no
+directory is found, it proceeds to check the code::Atk.systemExtensionsDir::.
+::
+
+METHOD:: getMatrixExtensionSubPath
+A shortcut for code::Atk.getExtensionSubPath(set, op, 'matrices')::
+
+METHOD:: getKernelExtensionSubPath
+A shortcut for code::Atk.getExtensionSubPath(set, op, 'kernels')::
 
 
 

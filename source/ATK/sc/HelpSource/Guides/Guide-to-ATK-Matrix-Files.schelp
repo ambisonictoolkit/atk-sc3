@@ -69,7 +69,7 @@ tree::
   ::
 ::
 Each of the folders (code::FOA>encoders::, code::HOA5>decoders::, etc.) are
-empty and ready to store matrices (and kernels) for use with the ATK-sc (this package)
+empty and ready to store matrices (and kernels) for use with the ATK-SC3 (this package)
 and link::http://www.ambisonictoolkit.net/download/reaper/##ATK-Reaper:: (more
 on that later). When you write a matrix using the ATK, it
 will store it in this directory structure by default, and will look here by
@@ -136,6 +136,7 @@ methodsToInspect.do({arg item; (item.asString ++ " : " ++ ~encoder.perform(item)
 After all that hard work (thanks ATK!), we want to store the result to a file for
 use in the future, and to use in
 link::http://www.ambisonictoolkit.net/download/reaper/##ATK-Reaper:: plugins!
+footnote::ATK-Reaper will support matrix loading in an upcoming release.::
 
 There are three available file formats, each with a special purpose:
 

@@ -1535,20 +1535,23 @@ FoaXformerMatrix : AtkMatrix {
 	}
 
 // ~~
+	// Note: the 'kind' of the mirror transforms will be
+	// superceded by the kind specified in the .yml file
+	// e.g. 'mirrorX'
 	*newMirrorX {
-		^super.new('mirrorX').loadFromLib;
+		^super.new('mirrorAxis').loadFromLib('x');
 	}
 
 	*newMirrorY {
-		^super.new('mirrorY').loadFromLib;
+		^super.new('mirrorAxis').loadFromLib('y');
 	}
 
 	*newMirrorZ {
-		^super.new('mirrorZ').loadFromLib;
+		^super.new('mirrorAxis').loadFromLib('z');
 	}
 
 	*newMirrorO {
-		^super.new('mirrorO').loadFromLib;
+		^super.new('mirrorAxis').loadFromLib('o');
 	}
 //~~~
 

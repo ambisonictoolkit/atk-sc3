@@ -499,16 +499,20 @@ AtkMatrix {
 		var pathStr;
 		pathStr = this.kind.asString ++ "/";
 
-		args.do{ |argParam, i|
-			pathStr = if (i>0) {
-				format("%-%", pathStr, argParam.asString)
-			} {
-				format("%%", pathStr, argParam.asString)
+		if (args.size==0) {
+			// no args... filename is assumed to be this.kind
+			pathStr = this.kind.asString;
+		} {
+			args.do{ |argParam, i|
+				pathStr = if (i>0) {
+					format("%-%", pathStr, argParam.asString)
+				} {
+					format("%%", pathStr, argParam.asString)
+				};
 			};
 		};
 
 		this.initFromFile(
-			// format("%/%-%.yml", this.kind, *args),
 			pathStr++".yml",
 			this.type
 		);
@@ -550,6 +554,27 @@ FoaDecoderMatrix : AtkMatrix {
 
 	*newMono { arg theta = 0, phi = 0, pattern = 0;
 		^super.new('mono').initMono(theta, phi, pattern);
+	}
+
+	*new5_0_bak { arg irregKind = 'focused';
+		^super.new('5.0').init5_0(irregKind);
+		// ^super.new('5_0').loadFromLib(irregKind);
+	}
+
+	*newBtoA_bak { arg orientation = 'flu', weight = 'dec';
+		^super.new('BtoA').initBtoA(orientation, weight);
+		// ^super.new('BtoA').loadFromLib(orientation, weight);
+	}
+
+	*newHoa1_bak { arg ordering = 'acn', normalisation = 'n3d';
+		^super.new('hoa1').initHoa1(ordering, normalisation);
+		// ^super.new('hoa1').loadFromLib(ordering, normalisation);
+	}
+
+	*newAmbix1_bak {
+		var ordering = 'acn', normalisation = 'sn3d';
+		^super.new('hoa1').initHoa1(ordering, normalisation);
+		// ^super.new('hoa1').loadFromLib(ordering, normalisation);
 	}
 
 	*new5_0 { arg irregKind = 'focused';
@@ -1059,9 +1084,29 @@ FoaDecoderMatrix : AtkMatrix {
 FoaEncoderMatrix : AtkMatrix {
 	var <dirInputs;
 
+	*newAtoB_bak { arg orientation = 'flu', weight = 'dec';
+		^super.new('AtoB').initAtoB(orientation, weight);
+	}
 	*newAtoB { arg orientation = 'flu', weight = 'dec';
 		// ^super.new('AtoB').initAtoB(orientation, weight);
 		^super.new('AtoB').loadFromLib(orientation, weight)
+	}
+
+	*newHoa1_bak { arg ordering = 'acn', normalisation = 'n3d';
+		^super.new('hoa1').initHoa1(ordering, normalisation);
+		// ^super.new('hoa1').loadFromLib(ordering, normalisation);
+	}
+
+	*newAmbix1_bak {
+		var ordering = 'acn', normalisation = 'sn3d';
+		^super.new('hoa1').initHoa1(ordering, normalisation);
+		// ^super.new('hoa1').loadFromLib(ordering, normalisation);
+	}
+
+	*newZoomH2n_bak {
+		var ordering = 'acn', normalisation = 'sn3d';
+		^super.new('hoa1').initHoa1(ordering, normalisation);
+		// ^super.new('hoa1').loadFromLib(ordering, normalisation);
 	}
 
 	*newHoa1 { arg ordering = 'acn', normalisation = 'n3d';
@@ -1075,14 +1120,19 @@ FoaEncoderMatrix : AtkMatrix {
 		^super.new('hoa1').loadFromLib(ordering, normalisation);
 	}
 
-	*newZoomH2n{
+	*newZoomH2n {
 		var ordering = 'acn', normalisation = 'sn3d';
 		// ^super.new('hoa1').initHoa1(ordering, normalisation);
 		^super.new('hoa1').loadFromLib(ordering, normalisation);
 	}
 
-	*newOmni {
+	*newOmni_bak {
 		^super.new('omni').initOmni;
+		// ^super.new('omni').loadFromLib;
+	}
+	*newOmni {
+		// ^super.new('omni').initOmni;
+		^super.new('omni').loadFromLib;
 	}
 
 	*newDirection { arg theta = 0, phi = 0;
@@ -1093,16 +1143,31 @@ FoaEncoderMatrix : AtkMatrix {
 		^super.new('stereo').initStereo(angle);
 	}
 
-	*newQuad {
+	*newQuad_bak {
 		^super.new('quad').initQuad;
+		// ^super.new('quad').loadFromLib;
+	}
+	*newQuad {
+		// ^super.new('quad').initQuad;
+		^super.new('quad').loadFromLib;
 	}
 
-	*new5_0 {
+	*new5_0_bak {
 		^super.new('5.0').init5_0;
+		// ^super.new('5_0').loadFromLib;
+	}
+	*   {
+		// ^super.new('5.0').init5_0;
+		^super.new('5_0').loadFromLib;
 	}
 
-	*new7_0 {
+	*new7_0_bak {
 		^super.new('7.0').init7_0;
+		// ^super.new('7_0').loadFromLib;
+	}
+	*new7_0 {
+		// ^super.new('7.0').init7_0;
+		^super.new('7_0').loadFromLib;
 	}
 
 	*newDirections { arg directions, pattern = nil;
@@ -1453,21 +1518,38 @@ FoaEncoderMatrix : AtkMatrix {
 
 FoaXformerMatrix : AtkMatrix {
 
-	*newMirrorX {
+	*newMirrorX_bak {
 		^super.new('mirrorX').initMirrorX;
 	}
 
-	*newMirrorY {
+	*newMirrorY_bak {
 		^super.new('mirrorY').initMirrorY;
 	}
 
-	*newMirrorZ {
+	*newMirrorZ_bak {
 		^super.new('mirrorZ').initMirrorZ;
 	}
 
-	*newMirrorO {
+	*newMirrorO_bak {
 		^super.new('mirrorO').initMirrorO;
 	}
+// ~~
+	*newMirrorX {
+		^super.new('mirrorX').loadFromLib;
+	}
+
+	*newMirrorY {
+		^super.new('mirrorY').loadFromLib;
+	}
+
+	*newMirrorZ {
+		^super.new('mirrorZ').loadFromLib;
+	}
+
+	*newMirrorO {
+		^super.new('mirrorO').loadFromLib;
+	}
+//~~~
 
 	*newRotate { arg angle = 0;
 		^super.new('rotate').initRotate(angle);

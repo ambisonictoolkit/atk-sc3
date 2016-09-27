@@ -1156,7 +1156,7 @@ FoaEncoderMatrix : AtkMatrix {
 		^super.new('5.0').init5_0;
 		// ^super.new('5_0').loadFromLib;
 	}
-	*   {
+	*new5_0 {
 		// ^super.new('5.0').init5_0;
 		^super.new('5_0').loadFromLib;
 	}
@@ -1533,6 +1533,7 @@ FoaXformerMatrix : AtkMatrix {
 	*newMirrorO_bak {
 		^super.new('mirrorO').initMirrorO;
 	}
+
 // ~~
 	*newMirrorX {
 		^super.new('mirrorX').loadFromLib;

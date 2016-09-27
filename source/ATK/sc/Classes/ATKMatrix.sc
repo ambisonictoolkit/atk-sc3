@@ -256,7 +256,7 @@ AtkMatrix {
 			attributes.remove(\type); attributes.addFirst(\type);
 		};
 
-		postf(":: % Info ::\n", this.class);
+		postf("\n*** % Info ***\n", this.class);
 
 		attributes.do{ |attribute|
 			var value;
@@ -268,14 +268,15 @@ AtkMatrix {
 			if (value.isKindOf(Array)) {
 				value = value.asArray; // cast the Matrix to array for posting
 				if (value.rank > 1) {
-					postf("\n% : [\n", attribute);
+					// postf("\n% : [\n", attribute);
+					postf("-> %\n  [\n", attribute);
 					value.do{ |elem| postf("\t%\n", elem) };
 					"  ]".postln;
 				} {
-					postf("\n% : \n\t%\n", attribute, value);
+					postf("-> %\n\t%\n", attribute, value);
 				}
 			} {
-				postf("\n% : %\n", attribute, value);
+				postf("-> %\n\t%\n", attribute, value);
 			};
 		};
 	}

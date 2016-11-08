@@ -123,12 +123,12 @@ FoaSpeakerMatrix {
 	matrix {
 		var s, directions, pos, dir;
 
-	    	// scatter matrix accumulator
-	    	s = Matrix.newClear(m, m);
+		// scatter matrix accumulator
+		s = Matrix.newClear(m, m);
 
 		// output channel (speaker) directions matrix
-        	// NOTE: this isn't the user supplied directions arg
-	    	directions = Matrix.newClear(m, n);
+		// NOTE: this isn't the user supplied directions arg
+		directions = Matrix.newClear(m, n);
 
 		n.do({ arg i;
 
@@ -152,7 +152,7 @@ FoaSpeakerMatrix {
 		});
 
 		// return resulting matrix
-	 	^sqrt(1/2) * n * k * ( s.inverse * directions);
+		^sqrt(1/2) * n * k * ( s.inverse * directions);
 	}
 
 	printOn { arg stream;
@@ -161,25 +161,49 @@ FoaSpeakerMatrix {
 }
 
 AtkMatrix {
-	var <kind;			// copyArgs
+	// copyArgs
+	var <kind, <set = 'FOA', <type; // NOTE: 'set' default will change with addition of HOA
+
 	var <matrix;
 	var <filePath;		// matrices from files only
 	var <fileParse;		// data parsed from YAML file
 	var <op = 'matrix';
-	var <set = 'FOA';   // ... for now
 
 	// most typically called by subclass
-	*new { |mtxKind|
-		^super.newCopyArgs(mtxKind)
+	// *new { |mtxKind, set, mtxType|
+	*new { |kind, set, type|
+		^super.newCopyArgs(kind).init(set, type)
+	}
+
+	init { |argSet, argType|
+		if (argSet.notNil) {
+			set = argSet
+		} { // detect from class
+			if (this.class.asString.keep(3) == "Foa") {
+				set = 'FOA';
+			}
+		};
+		if (argType.notNil) {
+			type = argType
+		} { // detect from class
+			type = switch( this.class,
+				FoaEncoderMatrix, {'encoder'},
+				FoaEncoderKernel, {'encoder'},
+				FoaDecoderMatrix, {'decoder'},
+				FoaDecoderKernel, {'decoder'},
+				FoaXformerMatrix, {'xformer'}
+			);
+		};
 	}
 
 	// used when writing a Matrix to file:
 	// need to convert to AtkMatrix first
-	*newFromMatrix { |aMatrix|
-		^super.newCopyArgs('fromMatrix').initFromMatrix(aMatrix)
+	*newFromMatrix { |aMatrix, set, type|
+		^super.newCopyArgs('fromMatrix').initFromMatrix(aMatrix, set, type)
 	}
 
-	initFromMatrix { |aMatrix|
+	initFromMatrix { |aMatrix, argSet, argType|
+		this.init(argSet, argType);
 		matrix = aMatrix;
 	}
 
@@ -535,7 +559,7 @@ FoaDecoderMatrix : AtkMatrix {
 	}
 
 	*newPeri { arg numChanPairs = 4, elevation = 0.61547970867039,
-			orientation = 'flat', k = 'single';
+				   orientation = 'flat', k = 'single';
 		^super.new('peri').initPeri(numChanPairs, elevation,
 			orientation, k);
 	}

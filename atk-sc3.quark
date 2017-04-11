@@ -1,0 +1,15 @@
+(
+          name: "atk-sc3",
+       summary: "A comprehensive set of tools for working with First Order Ambisonic soundfields.",
+        author: "Joseph Anderson, Josh Parmenter",
+     copyright: "2017",
+       license: "GPL",
+       version: "1.0.0",
+        schelp: "Intro-to-the-ATK",
+          test: "",
+           url: "https://github.com/ambisonictoolkit/atk-sc3",
+  dependencies: [
+              		"MathLib"
+                ],
+         since: "2012"
+)

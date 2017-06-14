@@ -1,8 +1,8 @@
 (
           name: "atk-sc3",
        summary: "A comprehensive set of tools for working with First Order Ambisonic soundfields.",
-        author: "Joseph Anderson, Josh Parmenter, & the ATK Community",
-     copyright: "2011, 2016-17",
+        author: "Joseph Anderson, Josh Parmenter, & the Ambisonic Toolkit Community",
+     copyright: "Ambisonic Toolkit Community, Joseph Anderson, and Josh Parmenter, 2011, 2016-17",
        license: "GPL",
        version: "4.0.0",
         schelp: "Intro-to-the-ATK",

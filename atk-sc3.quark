@@ -1,15 +1,17 @@
 (
           name: "atk-sc3",
        summary: "A comprehensive set of tools for working with First Order Ambisonic soundfields.",
-        author: "Joseph Anderson, Josh Parmenter",
-     copyright: "2017",
+        author: "Joseph Anderson, Josh Parmenter, & the ATK Community",
+     copyright: "2011, 2016-17",
        license: "GPL",
-       version: "1.0.0",
+       version: "4.0.0",
         schelp: "Intro-to-the-ATK",
-          test: "",
            url: "https://github.com/ambisonictoolkit/atk-sc3",
   dependencies: [
-              		"MathLib"
+              		"MathLib",
+                  "FileLog"
                 ],
-         since: "2012"
+  organization: "ATK Community: http://www.ambisonictoolkit.net",
+         since: "2011",
+ext_dependancy: "See installation instructions: http://www.ambisonictoolkit.net/download/supercollider/. SC3-plugins: https://github.com/supercollider/sc3-plugins. ATK Kernels: https://github.com/ambisonictoolkit/atk-kernels",
 )

@@ -173,8 +173,6 @@ Ambisonic Toolkit.
 List of Changes
 ---------------
 
-Unreleased
-
 Version 4.0.0
 
 *  Refactoring:
@@ -269,17 +267,17 @@ Version 3.5
 
 * First Public Release as part of the sc3-plugins project!
 
-__A note on the ATK's version numbers__: As part of the
+__A note on the ATK's version numbers__: Versioning for the
+[atk-sc3 Quark](https://github.com/ambisonictoolkit/atk-sc3) adheres to the
+familiar system known as [Semantic Versioning](http://semver.org/). In contrast,
+as part of the
 [sc3-plugins](https://github.com/supercollider/sc3-plugins) project, the
-SuperCollider3 ATK's versioning for UGen components is synced to the release
-numbers assigned to
-[sc3-plugins releases](https://github.com/supercollider/sc3-plugins/releases). A
-separate versioning trajectory for
-[atk-sc3](https://github.com/ambisonictoolkit/atk-sc3) adheres to the
-familiar system known as [Semantic Versioning](http://semver.org/).
+versioning for UGen components is synced to the release numbers assigned to
+[sc3-plugins releases](https://github.com/supercollider/sc3-plugins/releases).
 
 As SuperCollider3's plugin system continues to develop, we expect to adopt
-[Semantic Versioning](http://semver.org/) when it is possible to do so.
+[Semantic Versioning](http://semver.org/) for all components when it is possible
+to do so.
 
 
 &nbsp;
@@ -291,7 +289,8 @@ Credits
 
 &nbsp;
 
-Copyright the ATK Community, Joseph Anderson, and Joshua Parmenter, 2011, 2016.
+Copyright the ATK Community, Joseph Anderson, and Joshua Parmenter, 2011,
+2016-17.
 
 * J Anderson : [[e-mail]](mailto:j.anderson[at]ambisonictoolkit.net)
 * J Parmenter : [[e-mail]](mailto:j.parmenter[at]ambisonictoolkit.net)

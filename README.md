@@ -3,8 +3,9 @@ ATK for SuperCollider3 : Read Me
 
 This is the SuperCollider3 version of the Ambisonic Toolkit (ATK).
 It can be used with [SuperCollider3](http://supercollider.github.io/) on OSX,
-Linux and Windows, and is distributed via the
-[sc3-plugins](https://github.com/supercollider/sc3-plugins) project.
+Linux and Windows, and is distributed as a
+[Quark package](https://github.com/ambisonictoolkit/atk-sc3) with [sc3-plugins](https://github.com/supercollider/sc3-plugins) components, and
+[other dependencies](http://www.ambisonictoolkit.net/download/supercollider/).
 
 The Ambisonic Toolkit (ATK) is intended to bring together a number of
 tools and methods for working with Ambisonic surround sound. The intention
@@ -50,22 +51,41 @@ or later. Download the latest version
 
 &nbsp;
 
+atk-sc3 Quark
+-----------
+
+The ATK for [SuperCollider3](http://supercollider.github.io)'s classes,
+extension methods and documentation are distributed via the
+[atk-sc3 Quark](https://github.com/ambisonictoolkit/atk-sc3). Start by reviewing
+the Quark installation instructions
+[found here](https://github.com/supercollider-quarks/quarks#installing). See
+also [Using Quarks](http://doc.sccode.org/Guides/UsingQuarks.html).
+
+With [git](https://git-scm.com/) installed, you can easily install the
+[atk-sc3 Quark](https://github.com/ambisonictoolkit/atk-sc3) directly by
+running the following line of code in SuperCollider:
+
+    Quarks.install("https://github.com/ambisonictoolkit/atk-sc3.git");
+
+
 sc3-plugins
 -----------
 
-Compiled releases are available from the
+The ATK's compiled UGen component releases are available from the
 [sc3-plugins](https://github.com/supercollider/sc3-plugins/releases)
 releases page.
 
-Place the downloaded `SC3plugins` folder in your `Extensions` folder. On Mac OS X, this resolves to:
+Place the downloaded `SC3plugins` folder in your `Extensions` folder. On Mac
+OS X, this resolves to:
 
     ~/Library/Application Support/SuperCollider/Extensions
 
 You may need to create the `Extensions` folder if it does not already exist.  
 
-On other platforms, you can find where this is by running the following line of code in SuperCollider:
+On other platforms, you can find where this is by running the following line of
+code in SuperCollider:
 
-		(  
+    (  
     // post the directory in which to move the SC3Plugins folder  
     Platform.userExtensionDir.postln;  
     )  
@@ -75,26 +95,21 @@ On other platforms, you can find where this is by running the following line of 
     Platform.userExtensionDir.openOS;  
     )  
 
-Additionally, the SuperCollider3 version of the ATK has a number of
-dependencies. Please install the following:
 
-* Install the [MathLib Quark](https://github.com/supercollider-quarks/MathLib)
-most simply by running `Quarks.gui` in the SuperCollider IDE. Further install
-options and information on Quarks can be found in SuperCollider's Help system.
-See [Using Quarks](http://doc.sccode.org/Guides/UsingQuarks.html) and also the
-[supercollider-quarks](https://github.com/supercollider-quarks/quarks) GitHub page.
-* Install the [FileLog Quark](https://github.com/supercollider-quarks/FileLog)
+Kernels & Recordings
+--------------------
+
+Additionally, the SuperCollider3 version of the ATK has further dependencies:
+
 * Download and install [ATK Kernels](http://www.ambisonictoolkit.net/download/kernels/).
 * Download and install [ATK Sound File Example Recordings](http://www.ambisonictoolkit.net/download/recordings/).
-
-__NOTE:__ The ATK requires SuperCollider3 version 3.5 or later. Download the latest version [here](http://supercollider.github.io/download), or fork the source code at [GitHub](http://supercollider.github.io/).
 
 
 &nbsp;
 
 ### Source code
 
-You can build ATK for SuperCollider from the [sc3-plugins](https://github.com/supercollider/sc3-plugins) source-code.
+You can build the ATK for SuperCollider UGen components from the [sc3-plugins](https://github.com/supercollider/sc3-plugins) source-code.
 
 
 &nbsp;
@@ -159,6 +174,13 @@ List of Changes
 ---------------
 
 Unreleased
+
+Version 4.0.0
+
+*  Refactoring:
+    *  Quark-ify: classes, extension methods & documentation moved to
+    [atk-sc3 Quark](https://github.com/ambisonictoolkit/atk-sc3). UGens remain
+    in [sc3-plugins](https://github.com/supercollider/sc3-plugins).
 
 *  Issue fixes:
     *  Class library: fix inline warnings
@@ -249,10 +271,11 @@ Version 3.5
 
 __A note on the ATK's version numbers__: As part of the
 [sc3-plugins](https://github.com/supercollider/sc3-plugins) project, the
-SuperCollider3 ATK's versioning is synced to the release numbers assigned to
-[sc3-plugins releases](https://github.com/supercollider/sc3-plugins/releases).
-As a result, at this time the versioning for
-[atk-sc3](https://github.com/ambisonictoolkit/atk-sc3) does not adhere to the
+SuperCollider3 ATK's versioning for UGen components is synced to the release
+numbers assigned to
+[sc3-plugins releases](https://github.com/supercollider/sc3-plugins/releases). A
+separate versioning trajectory for
+[atk-sc3](https://github.com/ambisonictoolkit/atk-sc3) adheres to the
 familiar system known as [Semantic Versioning](http://semver.org/).
 
 As SuperCollider3's plugin system continues to develop, we expect to adopt
@@ -286,8 +309,10 @@ are copyright the Ambisonic Toolkit Community and Joseph Anderson,
 Contributors
 ------------
 
-Unreleased
+Version 4.0.0
+*  Joseph Anderson (@joslloand)
 *  Julian Rohrhuber (@telephon)
+*  Michael McCrea (@mtmccrea)
 
 Version 3.8.0
 *  Daniel Peterson (@dmartinp)

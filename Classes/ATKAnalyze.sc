@@ -25,9 +25,48 @@
 //---------------------------------------------------------------------
 //	The Ambisonic Toolkit (ATK) is a soundfield kernel support library.
 //
-//     Class: FoaEval
-// 	Class: Foa[AnalysisName]
-// 	Class: ...
+//     Class (superclass): FoaEval
+//
+// 	Class: FoaWp
+// 	Class: FoaWu
+// 	Class: FoaWs
+// 	Class: FoaWd
+// 	Class: FoaWh
+//
+// 	Class: FoaMagI
+// 	Class: FoaMagIa
+// 	Class: FoaMagIr
+// 	Class: FoaMagA
+// 	Class: FoaMagAa
+// 	Class: FoaMagAr
+// 	Class: FoaMagW
+// 	Class: FoaMagWa
+// 	Class: FoaMagWr
+// 	Class: FoaMagNa
+// 	Class: FoaMagNr
+//
+// 	Class: FoaSFPL
+// 	Class: FoaSFVL
+// 	Class: FoaSFWL
+// 	Class: FoaSFWhL
+// 	Class: FoaSFIL
+//
+// 	Class: FoaAlpha
+// 	Class: FoaBeta
+// 	Class: FoaGamma
+//
+// 	Class: FoaAzEla
+// 	Class: FoaAzElr
+//
+// 	Class: FoaIa
+// 	Class: FoaIr
+// 	Class: FoaAa
+// 	Class: FoaAr
+// 	Class: FoaWa
+// 	Class: FoaWr
+// 	Class: FoaNa
+// 	Class: FoaNr
+//
 //
 //
 //	The Ambisonic Toolkit (ATK) is intended to bring together a number of tools and

@@ -55,8 +55,8 @@
 // 	Class: FoaBeta
 // 	Class: FoaGamma
 //
-// 	Class: FoaAzEla
-// 	Class: FoaAzElr
+// 	Class: FoaThetaPhia
+// 	Class: FoaThetaPhir
 //
 // 	Class: FoaIa
 // 	Class: FoaIr
@@ -962,7 +962,7 @@ FoaGamma : FoaEval {
 // FOA SOUNDFIELD INCIDENCE - vectors
 
 // FOA Active Intensity Azimuth, Elevation
-FoaAzEla : FoaEval {
+FoaThetaPhia : FoaEval {
 	*ar { arg in, size = 2048, method = 'instant';
 		var p, u;
 		in = this.checkChans(in);
@@ -971,7 +971,7 @@ FoaAzEla : FoaEval {
 
 		case
 		{ method == 'instant' } {
-			var pReIm, pImRe, uReIm, ia, magIa, ir, magIr, az, el;
+			var pReIm, pImRe, uReIm, ia, magIa, ir, magIr, theta, phi;
 			var reg, alpha, gateA;  // gate using -thresh
 
 			pReIm = HilbertW.ar(p, size);
@@ -998,13 +998,13 @@ FoaAzEla : FoaEval {
 
 			ia = gateA * ia;
 
-			az = atan2(ia.at(1), ia.at(0) + reg);
-			el = atan2(ia.at(2), (ia.at(0).squared + ia.at(1).squared + reg).sqrt);
+			theta = atan2(ia.at(1), ia.at(0) + reg);
+			phi = atan2(ia.at(2), (ia.at(0).squared + ia.at(1).squared + reg).sqrt);
 
-			^Array.with(az, el)
+			^Array.with(theta, phi)
 		}
 		{ method == 'average' } {
-			var wp, wu, ia, magI_squared, magIa_squared, magIa, magIr, az, el;
+			var wp, wu, ia, magI_squared, magIa_squared, magIa, magIr, theta, phi;
 			var reg, alpha, gateA;  // gate using -thresh
 			var normFac;
 			normFac = 2*size.reciprocal;
@@ -1027,17 +1027,17 @@ FoaAzEla : FoaEval {
 
 			ia = gateA * ia;
 
-			az = atan2(ia.at(1), ia.at(0) + reg);
-			el = atan2(ia.at(2), (ia.at(0).squared + ia.at(1).squared + reg).sqrt);
+			theta = atan2(ia.at(1), ia.at(0) + reg);
+			phi = atan2(ia.at(2), (ia.at(0).squared + ia.at(1).squared + reg).sqrt);
 
-			^Array.with(az, el)
+			^Array.with(theta, phi)
 		}
 	}
 }
 
 
 // FOA Reactive Intensity Azimuth, Elevation
-FoaAzElr : FoaEval {
+FoaThetaPhir : FoaEval {
 	*ar { arg in, size = 2048, method = 'instant';
 		var p, u;
 		in = this.checkChans(in);
@@ -1046,7 +1046,7 @@ FoaAzElr : FoaEval {
 
 		case
 		{ method == 'instant' } {
-			var pReIm, pImRe, uReIm, ia, magIa, ir, magIr, az, el;
+			var pReIm, pImRe, uReIm, ia, magIa, ir, magIr, theta, phi;
 			var reg, alpha, gateR;  // gate using -thresh
 
 			pReIm = HilbertW.ar(p, size);
@@ -1073,14 +1073,14 @@ FoaAzElr : FoaEval {
 
 			ir = gateR * ir;
 
-			az = atan2(ir.at(1), ir.at(0) + reg);
-			el = atan2(ir.at(2), (ir.at(0).squared + ir.at(1).squared + reg).sqrt);
+			theta = atan2(ir.at(1), ir.at(0) + reg);
+			phi = atan2(ir.at(2), (ir.at(0).squared + ir.at(1).squared + reg).sqrt);
 
-			^Array.with(az, el)
+			^Array.with(theta, phi)
 		}
 		{ method == 'average' } {
 			// Consider re-writing this!!
-			Error(format("FoaAzElr.ar argument method = %, INVALID.", method)).throw;
+			Error(format("FoaThetaPhir.ar argument method = %, INVALID.", method)).throw;
 		}
 	}
 }
@@ -1737,9 +1737,9 @@ FoaAnalyze : FoaEval {
 				)
 			},
 
-			'AzEla', {
+			'thetaPhia', {
 
-				ugen = FoaAzEla;
+				ugen = FoaThetaPhia;
 				argDefaults = [2048, 'instant'];
 
 				argDict = this.argDict(ugen, args, argDefaults);
@@ -1750,9 +1750,9 @@ FoaAnalyze : FoaEval {
 				)
 			},
 
-			'AzElr', {
+			'thetaPhir', {
 
-				ugen = FoaAzElr;
+				ugen = FoaThetaPhir;
 				argDefaults = [2048, 'instant'];
 
 				argDict = this.argDict(ugen, args, argDefaults);

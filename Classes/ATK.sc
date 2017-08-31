@@ -794,32 +794,33 @@ FoaUGen {
 	}
 
 	*argDict { arg ugen, args, argDefaults;
-			var index, userDict;
-			var ugenKeys;
-			var ugenDict;
-			// find index dividing ordered and named args
-			index = args.detectIndex({arg item; item.isKindOf(Symbol)});
+		var index, userDict;
+		var ugenKeys;
+		var ugenDict;
 
-			// find ugen args, drop [ 'this', sig]
-			ugenKeys = ugen.class.findRespondingMethodFor(\ar).argNames.drop(2);
-			ugenDict = Dictionary.new;
-			ugenKeys.do({arg key, i; ugenDict.put(key, argDefaults.at(i))});
+		// find ugen args, drop [ 'this', sig]
+		ugenKeys = ugen.class.findRespondingMethodFor(\ar).argNames.drop(2);
+		ugenDict = Dictionary.new;
+		ugenKeys.do({arg key, i; ugenDict.put(key, argDefaults.at(i))});
 
-			// build user dictionary
-			userDict = Dictionary.new(ugenKeys.size);
-			(index == nil).not.if({
-				userDict = userDict.putAll(Dictionary.newFrom(args[index..]));
-			}, {
-				index = args.size;
-			});
-			userDict = userDict.putAll(Dictionary.newFrom((index).collect({arg i;
-				[ugenKeys.at(i), args.at(i)]}).flat));
+		// find index dividing ordered and named args
+		index = args.detectIndex({arg item; ugenKeys.matchItem(item)});
 
-			// merge
-			^ugenDict.merge(userDict, {
-				arg ugenArg, userArg; (userArg != nil).if({userArg})
-			})
-		}
+		// build user dictionary
+		userDict = Dictionary.new(ugenKeys.size);
+		(index == nil).not.if({
+			userDict = userDict.putAll(Dictionary.newFrom(args[index..]));
+		}, {
+			index = args.size;
+		});
+		userDict = userDict.putAll(Dictionary.newFrom((index).collect({arg i;
+			[ugenKeys.at(i), args.at(i)]}).flat));
+
+		// merge
+		^ugenDict.merge(userDict, {
+			arg ugenArg, userArg; (userArg != nil).if({userArg})
+		})
+	}
 }
 
 FoaDecode : FoaUGen {

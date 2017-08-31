@@ -97,7 +97,6 @@ FoaEval : FoaUGen {
 		gamAlpA = 0.01.degrad;  // Active Alpha threshold, for Gamma calc
 		gamAlpR = (90.0 - 5.5).degrad;  // Reactive Alpha threshold, '' ''
 	}
-
 }
 
 
@@ -106,7 +105,7 @@ FoaEval : FoaUGen {
 
 // FOA potential energy
 FoaWp : FoaEval {
-	*ar { arg in, size, method = 'instant';
+	*ar { arg in, size = 2048, method = 'instant';
 		var p;
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
@@ -127,7 +126,7 @@ FoaWp : FoaEval {
 
 // FOA kinetic energy
 FoaWu : FoaEval {
-	*ar { arg in, size, method = 'instant';
+	*ar { arg in, size = 2048, method = 'instant';
 		var u;
 		in = this.checkChans(in);
 		u = in[1..3];  // [x, y, z] = velocity (vector)
@@ -153,7 +152,7 @@ FoaWu : FoaEval {
 
 // FOA potential & kinetic energy mean
 FoaWs : FoaEval {
-	*ar { arg in, size, method = 'instant';
+	*ar { arg in, size = 2048, method = 'instant';
 		var p, u;
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
@@ -187,7 +186,7 @@ FoaWs : FoaEval {
 
 // FOA potential & kinetic energy difference
 FoaWd : FoaEval {
-	*ar { arg in, size, method = 'instant';
+	*ar { arg in, size = 2048, method = 'instant';
 		var p, u;
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
@@ -221,7 +220,7 @@ FoaWd : FoaEval {
 
 // FOA Heyser energy density
 FoaWh : FoaEval {
-	*ar { arg in, size, method = 'instant';
+	*ar { arg in, size = 2048, method = 'instant';
 		var p, u;
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
@@ -276,7 +275,7 @@ FoaWh : FoaEval {
 
 // FOA Magnitude Intensity
 FoaMagI : FoaEval {
-	*ar { arg in, size, method = 'instant';
+	*ar { arg in, size = 2048, method = 'instant';
 		var p, u;
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
@@ -310,7 +309,7 @@ FoaMagI : FoaEval {
 
 // FOA Magnitude Active Intensity
 FoaMagIa : FoaEval {
-	*ar { arg in, size, method = 'instant';
+	*ar { arg in, size = 2048, method = 'instant';
 		var p, u;
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
@@ -344,7 +343,7 @@ FoaMagIa : FoaEval {
 
 // FOA Magnitude Reactive Intensity
 FoaMagIr : FoaEval {
-	*ar { arg in, size, method = 'instant';
+	*ar { arg in, size = 2048, method = 'instant';
 		var p, u;
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
@@ -384,7 +383,7 @@ FoaMagIr : FoaEval {
 
 // FOA Magnitude Admittance
 FoaMagA : FoaEval {
-	*ar { arg in, size, method = 'instant';
+	*ar { arg in, size = 2048, method = 'instant';
 		var p, u;
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
@@ -422,7 +421,7 @@ FoaMagA : FoaEval {
 
 // FOA Magnitude Active Admittance
 FoaMagAa : FoaEval {
-	*ar { arg in, size, method = 'instant';
+	*ar { arg in, size = 2048, method = 'instant';
 		var p, u;
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
@@ -460,7 +459,7 @@ FoaMagAa : FoaEval {
 
 // FOA Magnitude Reactive Admittance
 FoaMagAr : FoaEval {
-	*ar { arg in, size, method = 'instant';
+	*ar { arg in, size = 2048, method = 'instant';
 		var p, u;
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
@@ -505,7 +504,7 @@ FoaMagAr : FoaEval {
 
 // FOA Magnitude Energy
 FoaMagW : FoaEval {
-	*ar { arg in, size, method = 'instant';
+	*ar { arg in, size = 2048, method = 'instant';
 		var p, u;
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
@@ -545,7 +544,7 @@ FoaMagW : FoaEval {
 
 // FOA Magnitude Active Energy
 FoaMagWa : FoaEval {
-	*ar { arg in, size, method = 'instant';
+	*ar { arg in, size = 2048, method = 'instant';
 		var p, u;
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
@@ -592,7 +591,7 @@ FoaMagWa : FoaEval {
 
 // FOA Magnitude Reactive Energy
 FoaMagWr : FoaEval {
-	*ar { arg in, size, method = 'instant';
+	*ar { arg in, size = 2048, method = 'instant';
 		var p, u;
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
@@ -644,7 +643,7 @@ FoaMagWr : FoaEval {
 
 // FOA Magnitude Unit Normalized Active Intensity
 FoaMagNa : FoaEval {
-	*ar { arg in, size, method = 'instant';
+	*ar { arg in, size = 2048, method = 'instant';
 		var p, u;
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
@@ -691,7 +690,7 @@ FoaMagNa : FoaEval {
 
 // FOA Magnitude Unit Normalized Reactive Intensity
 FoaMagNr : FoaEval {
-	*ar { arg in, size, method = 'instant';
+	*ar { arg in, size = 2048, method = 'instant';
 		var p, u;
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
@@ -746,10 +745,10 @@ FoaMagNr : FoaEval {
 
 // FOA SFPL
 FoaSFPL : FoaEval {
-	*ar { arg in, size, method = 'instant';
+	*ar { arg in, size = 2048, method = 'instant';
 		var wp;
 
-		wp = FoaWp.ar(in, size, method);
+		wp = FoaWp.ar(in, size = 2048, method);
 
 		^(10 * wp.log10)
 	}
@@ -758,10 +757,10 @@ FoaSFPL : FoaEval {
 
 // FOA SFVL
 FoaSFVL : FoaEval {
-	*ar { arg in, size, method = 'instant';
+	*ar { arg in, size = 2048, method = 'instant';
 		var wu;
 
-		wu = FoaWu.ar(in, size, method);
+		wu = FoaWu.ar(in, size = 2048, method);
 
 		^(10 * wu.log10)
 	}
@@ -770,10 +769,10 @@ FoaSFVL : FoaEval {
 
 // FOA SFWL
 FoaSFWL : FoaEval {
-	*ar { arg in, size, method = 'instant';
+	*ar { arg in, size = 2048, method = 'instant';
 		var ws;
 
-		ws = FoaWs.ar(in, size, method);
+		ws = FoaWs.ar(in, size = 2048, method);
 
 		^(10 * ws.log10)
 	}
@@ -782,10 +781,10 @@ FoaSFWL : FoaEval {
 
 // FOA SFWhL
 FoaSFWhL : FoaEval {
-	*ar { arg in, size, method = 'instant';
+	*ar { arg in, size = 2048, method = 'instant';
 		var wh;
 
-		wh = FoaWh.ar(in, size, method);
+		wh = FoaWh.ar(in, size = 2048, method);
 
 		^(10 * wh.log10)
 	}
@@ -794,10 +793,10 @@ FoaSFWhL : FoaEval {
 
 // FOA SFIL
 FoaSFIL : FoaEval {
-	*ar { arg in, size, method = 'instant';
+	*ar { arg in, size = 2048, method = 'instant';
 		var i;
 
-		i = FoaMagI.ar(in, size, method);
+		i = FoaMagI.ar(in, size = 2048, method);
 
 		^(10 * i.log10)
 	}
@@ -811,7 +810,7 @@ FoaSFIL : FoaEval {
 
 // FOA Active-Reactive Soundfield Balance Angle: Alpha
 FoaAlpha : FoaEval {
-	*ar { arg in, size, method = 'instant';
+	*ar { arg in, size = 2048, method = 'instant';
 		var p, u;
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
@@ -862,7 +861,7 @@ FoaAlpha : FoaEval {
 
 // FOA Potential-Kinetic Soundfield Balance Angle: Beta
 FoaBeta : FoaEval {
-	*ar { arg in, size, method = 'instant';
+	*ar { arg in, size = 2048, method = 'instant';
 		var p, u;
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
@@ -902,7 +901,7 @@ FoaBeta : FoaEval {
 
 // FOA Active-Reactive Vector Alignment Angle: Gamma
 FoaGamma : FoaEval {
-	*ar { arg in, size, method = 'instant';
+	*ar { arg in, size = 2048, method = 'instant';
 		var p, u;
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
@@ -964,7 +963,7 @@ FoaGamma : FoaEval {
 
 // FOA Active Intensity Azimuth, Elevation
 FoaAzEla : FoaEval {
-	*ar { arg in, size, method = 'instant';
+	*ar { arg in, size = 2048, method = 'instant';
 		var p, u;
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
@@ -1039,7 +1038,7 @@ FoaAzEla : FoaEval {
 
 // FOA Reactive Intensity Azimuth, Elevation
 FoaAzElr : FoaEval {
-	*ar { arg in, size, method = 'instant';
+	*ar { arg in, size = 2048, method = 'instant';
 		var p, u;
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
@@ -1092,7 +1091,7 @@ FoaAzElr : FoaEval {
 
 // FOA Active Intensity
 FoaIa : FoaEval {
-	*ar { arg in, size, method = 'instant';
+	*ar { arg in, size = 2048, method = 'instant';
 		var p, u;
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
@@ -1125,7 +1124,7 @@ FoaIa : FoaEval {
 
 // FOA Reactive Intensity
 FoaIr : FoaEval {
-	*ar { arg in, size, method = 'instant';
+	*ar { arg in, size = 2048, method = 'instant';
 		var p, u;
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
@@ -1153,7 +1152,7 @@ FoaIr : FoaEval {
 
 // FOA Active Admittance
 FoaAa : FoaEval {
-	*ar { arg in, size, method = 'instant';
+	*ar { arg in, size = 2048, method = 'instant';
 		var p, u;
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
@@ -1188,9 +1187,9 @@ FoaAa : FoaEval {
 }
 
 
-// FOA Magnitude Reactive Admittance
+// FOA Reactive Admittance
 FoaAr : FoaEval {
-	*ar { arg in, size, method = 'instant';
+	*ar { arg in, size = 2048, method = 'instant';
 		var p, u;
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
@@ -1223,7 +1222,7 @@ FoaAr : FoaEval {
 
 // FOA Active Energy
 FoaWa : FoaEval {
-	*ar { arg in, size, method = 'instant';
+	*ar { arg in, size = 2048, method = 'instant';
 		var p, u;
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
@@ -1270,7 +1269,7 @@ FoaWa : FoaEval {
 
 // FOA Reactive Energy
 FoaWr : FoaEval {
-	*ar { arg in, size, method = 'instant';
+	*ar { arg in, size = 2048, method = 'instant';
 		var p, u;
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
@@ -1307,9 +1306,9 @@ FoaWr : FoaEval {
 }
 
 
-// FOA Magnitude Unit Normalized Active Intensity
+// FOA Unit Normalized Active Intensity
 FoaNa : FoaEval {
-	*ar { arg in, size, method = 'instant';
+	*ar { arg in, size = 2048, method = 'instant';
 		var p, u;
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
@@ -1354,9 +1353,9 @@ FoaNa : FoaEval {
 }
 
 
-// FOA Magnitude Unit Normalized Reactive Intensity
+// FOA Unit Normalized Reactive Intensity
 FoaNr : FoaEval {
-	*ar { arg in, size, method = 'instant';
+	*ar { arg in, size = 2048, method = 'instant';
 		var p, u;
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
@@ -1397,3 +1396,476 @@ FoaNr : FoaEval {
 //
 // Reactive vectors into parallel and orthogonal
 // Include (additional) soundfield indicators
+
+
+//------------------------------------------------------------------------
+// Analyzer: peudo-UGen wrapper
+/*
+argument key - see helpfile for reasonable values
+
+*/
+
+FoaAnalyze : FoaEval {
+	*ar { arg in, kind ... args;
+
+		var argDict, argDefaults;
+		var ugen;
+		in = this.checkChans(in);
+
+		switch ( kind,
+
+			'Wp', {
+
+				ugen = FoaWp;
+				argDefaults = [2048, 'instant'];
+
+				argDict = this.argDict(ugen, args, argDefaults);
+
+				^ugen.ar(
+					in,
+					argDict.at(\size), argDict.at(\method)
+				)
+			},
+
+			'Wu', {
+
+				ugen = FoaWu;
+				argDefaults = [2048, 'instant'];
+
+				argDict = this.argDict(ugen, args, argDefaults);
+
+				^ugen.ar(
+					in,
+					argDict.at(\size), argDict.at(\method)
+				)
+			},
+
+			'Ws', {
+
+				ugen = FoaWs;
+				argDefaults = [2048, 'instant'];
+
+				argDict = this.argDict(ugen, args, argDefaults);
+
+				^ugen.ar(
+					in,
+					argDict.at(\size), argDict.at(\method)
+				)
+			},
+
+			'Wd', {
+
+				ugen = FoaWd;
+				argDefaults = [2048, 'instant'];
+
+				argDict = this.argDict(ugen, args, argDefaults);
+
+				^ugen.ar(
+					in,
+					argDict.at(\size), argDict.at(\method)
+				)
+			},
+
+			'Wh', {
+
+				ugen = FoaWh;
+				argDefaults = [2048, 'instant'];
+
+				argDict = this.argDict(ugen, args, argDefaults);
+
+				^ugen.ar(
+					in,
+					argDict.at(\size), argDict.at(\method)
+				)
+			},
+
+			// 'magI', {
+			'||I||', {
+
+				ugen = FoaMagI;
+				argDefaults = [2048, 'instant'];
+
+				argDict = this.argDict(ugen, args, argDefaults);
+
+				^ugen.ar(
+					in,
+					argDict.at(\size), argDict.at(\method)
+				)
+			},
+
+			// 'magIa', {
+			'||Ia||', {
+
+				ugen = FoaMagIa;
+				argDefaults = [2048, 'instant'];
+
+				argDict = this.argDict(ugen, args, argDefaults);
+
+				^ugen.ar(
+					in,
+					argDict.at(\size), argDict.at(\method)
+				)
+			},
+
+			// 'magIr', {
+			'||Ir||', {
+
+				ugen = FoaMagIr;
+				argDefaults = [2048, 'instant'];
+
+				argDict = this.argDict(ugen, args, argDefaults);
+
+				^ugen.ar(
+					in,
+					argDict.at(\size), argDict.at(\method)
+				)
+			},
+
+			// 'magA', {
+			'||A||', {
+
+				ugen = FoaMagA;
+				argDefaults = [2048, 'instant'];
+
+				argDict = this.argDict(ugen, args, argDefaults);
+
+				^ugen.ar(
+					in,
+					argDict.at(\size), argDict.at(\method)
+				)
+			},
+
+			// 'magAa', {
+			'||Aa||', {
+
+				ugen = FoaMagAa;
+				argDefaults = [2048, 'instant'];
+
+				argDict = this.argDict(ugen, args, argDefaults);
+
+				^ugen.ar(
+					in,
+					argDict.at(\size), argDict.at(\method)
+				)
+			},
+
+			// 'magAr', {
+			'||Ar||', {
+
+				ugen = FoaMagAr;
+				argDefaults = [2048, 'instant'];
+
+				argDict = this.argDict(ugen, args, argDefaults);
+
+				^ugen.ar(
+					in,
+					argDict.at(\size), argDict.at(\method)
+				)
+			},
+
+			// 'magW', {
+			'||W||', {
+
+				ugen = FoaMagW;
+				argDefaults = [2048, 'instant'];
+
+				argDict = this.argDict(ugen, args, argDefaults);
+
+				^ugen.ar(
+					in,
+					argDict.at(\size), argDict.at(\method)
+				)
+			},
+
+			// 'magWa', {
+			'||Wa||', {
+
+				ugen = FoaMagWa;
+				argDefaults = [2048, 'instant'];
+
+				argDict = this.argDict(ugen, args, argDefaults);
+
+				^ugen.ar(
+					in,
+					argDict.at(\size), argDict.at(\method)
+				)
+			},
+
+			// 'magWr', {
+			'||Wr||', {
+
+				ugen = FoaMagWr;
+				argDefaults = [2048, 'instant'];
+
+				argDict = this.argDict(ugen, args, argDefaults);
+
+				^ugen.ar(
+					in,
+					argDict.at(\size), argDict.at(\method)
+				)
+			},
+
+			// 'magNa', {
+			'||Na||', {
+
+				ugen = FoaMagNa;
+				argDefaults = [2048, 'instant'];
+
+				argDict = this.argDict(ugen, args, argDefaults);
+
+				^ugen.ar(
+					in,
+					argDict.at(\size), argDict.at(\method)
+				)
+			},
+
+			// 'magNr', {
+			'||Nr||', {
+
+				ugen = FoaMagNr;
+				argDefaults = [2048, 'instant'];
+
+				argDict = this.argDict(ugen, args, argDefaults);
+
+				^ugen.ar(
+					in,
+					argDict.at(\size), argDict.at(\method)
+				)
+			},
+
+			'SFPL', {
+
+				ugen = FoaSFPL;
+				argDefaults = [2048, 'instant'];
+
+				argDict = this.argDict(ugen, args, argDefaults);
+
+				^ugen.ar(
+					in,
+					argDict.at(\size), argDict.at(\method)
+				)
+			},
+
+			'SFVL', {
+
+				ugen = FoaSFVL;
+				argDefaults = [2048, 'instant'];
+
+				argDict = this.argDict(ugen, args, argDefaults);
+
+				^ugen.ar(
+					in,
+					argDict.at(\size), argDict.at(\method)
+				)
+			},
+
+			'SFWL', {
+
+				ugen = FoaSFWL;
+				argDefaults = [2048, 'instant'];
+
+				argDict = this.argDict(ugen, args, argDefaults);
+
+				^ugen.ar(
+					in,
+					argDict.at(\size), argDict.at(\method)
+				)
+			},
+
+			'SFWhL', {
+
+				ugen = FoaSFWhL;
+				argDefaults = [2048, 'instant'];
+
+				argDict = this.argDict(ugen, args, argDefaults);
+
+				^ugen.ar(
+					in,
+					argDict.at(\size), argDict.at(\method)
+				)
+			},
+
+			'SFIL', {
+
+				ugen = FoaSFIL;
+				argDefaults = [2048, 'instant'];
+
+				argDict = this.argDict(ugen, args, argDefaults);
+
+				^ugen.ar(
+					in,
+					argDict.at(\size), argDict.at(\method)
+				)
+			},
+
+			'alpha', {
+
+				ugen = FoaAlpha;
+				argDefaults = [2048, 'instant'];
+
+				argDict = this.argDict(ugen, args, argDefaults);
+
+				^ugen.ar(
+					in,
+					argDict.at(\size), argDict.at(\method)
+				)
+			},
+
+			'beta', {
+
+				ugen = FoaBeta;
+				argDefaults = [2048, 'instant'];
+
+				argDict = this.argDict(ugen, args, argDefaults);
+
+				^ugen.ar(
+					in,
+					argDict.at(\size), argDict.at(\method)
+				)
+			},
+
+			'gamma', {
+
+				ugen = FoaGamma;
+				argDefaults = [2048, 'instant'];
+
+				argDict = this.argDict(ugen, args, argDefaults);
+
+				^ugen.ar(
+					in,
+					argDict.at(\size), argDict.at(\method)
+				)
+			},
+
+			'AzEla', {
+
+				ugen = FoaAzEla;
+				argDefaults = [2048, 'instant'];
+
+				argDict = this.argDict(ugen, args, argDefaults);
+
+				^ugen.ar(
+					in,
+					argDict.at(\size), argDict.at(\method)
+				)
+			},
+
+			'AzElr', {
+
+				ugen = FoaAzElr;
+				argDefaults = [2048, 'instant'];
+
+				argDict = this.argDict(ugen, args, argDefaults);
+
+				^ugen.ar(
+					in,
+					argDict.at(\size), argDict.at(\method)
+				)
+			},
+
+			'Ia', {
+
+				ugen = FoaIa;
+				argDefaults = [2048, 'instant'];
+
+				argDict = this.argDict(ugen, args, argDefaults);
+
+				^ugen.ar(
+					in,
+					argDict.at(\size), argDict.at(\method)
+				)
+			},
+
+			'Ir', {
+
+				ugen = FoaIr;
+				argDefaults = [2048, 'instant'];
+
+				argDict = this.argDict(ugen, args, argDefaults);
+
+				^ugen.ar(
+					in,
+					argDict.at(\size), argDict.at(\method)
+				)
+			},
+
+			'Aa', {
+
+				ugen = FoaAa;
+				argDefaults = [2048, 'instant'];
+
+				argDict = this.argDict(ugen, args, argDefaults);
+
+				^ugen.ar(
+					in,
+					argDict.at(\size), argDict.at(\method)
+				)
+			},
+
+			'Ar', {
+
+				ugen = FoaAr;
+				argDefaults = [2048, 'instant'];
+
+				argDict = this.argDict(ugen, args, argDefaults);
+
+				^ugen.ar(
+					in,
+					argDict.at(\size), argDict.at(\method)
+				)
+			},
+
+			'Wa', {
+
+				ugen = FoaWa;
+				argDefaults = [2048, 'instant'];
+
+				argDict = this.argDict(ugen, args, argDefaults);
+
+				^ugen.ar(
+					in,
+					argDict.at(\size), argDict.at(\method)
+				)
+			},
+
+			'Wr', {
+
+				ugen = FoaWr;
+				argDefaults = [2048, 'instant'];
+
+				argDict = this.argDict(ugen, args, argDefaults);
+
+				^ugen.ar(
+					in,
+					argDict.at(\size), argDict.at(\method)
+				)
+			},
+
+			'Na', {
+
+				ugen = FoaNa;
+				argDefaults = [2048, 'instant'];
+
+				argDict = this.argDict(ugen, args, argDefaults);
+
+				^ugen.ar(
+					in,
+					argDict.at(\size), argDict.at(\method)
+				)
+			},
+
+			'Nr', {
+
+				ugen = FoaNr;
+				argDefaults = [2048, 'instant'];
+
+				argDict = this.argDict(ugen, args, argDefaults);
+
+				^ugen.ar(
+					in,
+					argDict.at(\size), argDict.at(\method)
+				)
+			},
+		)
+	}
+}

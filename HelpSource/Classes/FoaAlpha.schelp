@@ -1,0 +1,40 @@
+CLASS:: FoaAlpha
+summary:: First Order Ambisonic (FOA) Soundfield Active-Reactive Intensity Balance
+categories:: Libraries>Ambisonic Toolkit>FOA>Analyzing>UGens, UGens>Multichannel>Ambisonics, UGens>Analysis>Ambisonics
+related:: Classes/FoaBeta, Classes/FoaGamma, Classes/FoaMagIa, Classes/FoaMagIr
+
+DESCRIPTION::
+Return the emphasis::Active-Reactive Intensity Balance:: of a first order ambisonic (B-format) signal, in radians.
+
+
+NOTE::
+link::Classes/FoaAlpha:: is usually called via the convenience wrapper link::Classes/FoaAnalyze::.
+::
+
+
+CLASSMETHODS::
+
+METHOD:: ar
+
+argument:: in
+The B-format signal, an array: [w, x, y, z]
+
+argument:: size
+Analysis filter kernel size.
+
+NOTE::For strong::method::: code::'instant'::, must be a power of 2.::
+
+argument:: method
+The Soundfield analysis method:
+
+list::
+## code::'instant'::
+## code::'average'::
+::
+
+Please see discussion of strong::method:: here.
+
+
+EXAMPLES::
+
+Please see various examples link::Classes/FoaAnalyze#examples#here::.

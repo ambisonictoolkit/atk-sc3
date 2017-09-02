@@ -1,14 +1,14 @@
-CLASS:: FoaThetaPhia
+CLASS:: FoaThetaPhiA
 summary:: First Order Ambisonic (FOA) Azimuth & Elevation of Soundfield Active Intensity Vector
 categories:: Libraries>Ambisonic Toolkit>FOA>Analyzing>UGens, UGens>Multichannel>Ambisonics, UGens>Analysis>Ambisonics
-related:: Classes/FoaIa, Classes/FoaMagIa, Classes/FoaThetaPhir
+related:: Classes/FoaIa, Classes/FoaMagIa, Classes/FoaThetaPhiR
 
 DESCRIPTION::
 Return the emphasis::Azimuth & Elevation of Active Intensity Vector:: of a first order ambisonic (B-format) signal.
 
 
 NOTE::
-link::Classes/FoaThetaPhia:: is usually called via the convenience wrapper link::Classes/FoaAnalyze::.
+link::Classes/FoaThetaPhiA:: is usually called via the convenience wrapper link::Classes/FoaAnalyze::.
 ::
 
 

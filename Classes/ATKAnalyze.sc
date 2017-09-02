@@ -962,7 +962,7 @@ FoaGamma : FoaEval {
 // FOA SOUNDFIELD INCIDENCE - vectors
 
 // FOA Active Intensity Azimuth, Elevation
-FoaThetaPhia : FoaEval {
+FoaThetaPhiA : FoaEval {
 	*ar { arg in, size = 2048, method = 'instant';
 		var p, u;
 		in = this.checkChans(in);
@@ -1037,7 +1037,7 @@ FoaThetaPhia : FoaEval {
 
 
 // FOA Reactive Intensity Azimuth, Elevation
-FoaThetaPhir : FoaEval {
+FoaThetaPhiR : FoaEval {
 	*ar { arg in, size = 2048, method = 'instant';
 		var p, u;
 		in = this.checkChans(in);

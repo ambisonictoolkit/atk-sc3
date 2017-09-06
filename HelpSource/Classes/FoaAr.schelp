@@ -32,8 +32,9 @@ list::
 ## code::'average'::
 ::
 
-Please see discussion of strong::method:: link::Classes/FoaAnalyze#Analysis%20method#here::.
+warning::This UGen requires the emphasis::reactive:: intensity vector, so will throw an error if called with the code::'average':: keyword.::
 
+Please see discussion of strong::method:: link::Classes/FoaAnalyze#Analysis%20method#here::.
 
 EXAMPLES::
 

@@ -226,14 +226,12 @@ FoaWh : FoaEval {
 
 			pReIm = HilbertW.ar(p, size);
 			pImRe = [1, -1] * pReIm.reverse;
-			uReIm = u.collect({ arg item;
-				HilbertW.ar(item, size)
-			});
+			uReIm = HilbertW.ar(u, size);
 
 			wp = Mix.new(pReIm.squared);
-			wu = Mix.new(
-				Mix.new(uReIm.squared)
-			);
+			wu = uReIm.squared.sum({arg item;
+				Mix.new(item)
+			});
 			ws = (0.5 * (wp + wu));
 
 			ir = uReIm.collect({ arg item;
@@ -313,10 +311,9 @@ FoaMagIa : FoaEval {
 
 			pReIm = HilbertW.ar(p, size);
 
-
-			ia = u.collect({ arg item;
-				Mix.new(pReIm * HilbertW.ar(item, size))
-			})
+			ia = HilbertW.ar(u, size).collect({arg item;
+				Mix.new(pReIm * item)
+			});
 
 			^Mix.ar(ia.squared).sqrt
 		}
@@ -347,10 +344,9 @@ FoaMagIr : FoaEval {
 
 			pImRe = [1, -1] * HilbertW.ar(p, size).reverse;
 
-
-			ir = u.collect({ arg item;
-				Mix.new(pImRe * HilbertW.ar(item, size))
-			})
+			ir = HilbertW.ar(u, size).collect({arg item;
+				Mix.new(pImRe * item)
+			});
 
 			^Mix.ar(ir.squared).sqrt
 		}
@@ -424,9 +420,8 @@ FoaMagAa : FoaEval {
 			pReIm = HilbertW.ar(p, size);
 			wp = Mix.new(pReIm.squared);
 
-
-			ia = u.collect({ arg item;
-				Mix.new(pReIm * HilbertW.ar(item, size))
+			ia = HilbertW.ar(u, size).collect({arg item;
+				Mix.new(pReIm * item)
 			});
 			magIa = Mix.ar(ia.squared).sqrt;
 
@@ -464,9 +459,8 @@ FoaMagAr : FoaEval {
 
 			wp = Mix.new(pReIm.squared);
 
-
-			ir = u.collect({ arg item;
-				Mix.new(pImRe * HilbertW.ar(item, size))
+			ir = HilbertW.ar(u, size).collect({arg item;
+				Mix.new(pImRe * item)
 			});
 
 			magIr = Mix.ar(ir.squared).sqrt;
@@ -540,18 +534,19 @@ FoaMagWa : FoaEval {
 
 		case
 		{ method == 'instant' } {
-			var pReIm, wp, wu, ws, ia, magIa;
+			var pReIm, uReIm, wp, wu, ws, ia, magIa;
 
 			pReIm = HilbertW.ar(p, size);
+			uReIm = HilbertW.ar(u, size);
+
 			wp = Mix.new(pReIm.squared);
-			wu = HilbertW.ar(u, size).squared.sum({arg item;
+			wu = uReIm.squared.sum({arg item;
 				Mix.new(item)
 			});
 			ws = (0.5 * (wp + wu));
 
-
-			ia = u.collect({ arg item;
-				Mix.new(pReIm * HilbertW.ar(item, size))
+			ia = uReIm.collect({arg item;
+				Mix.new(pReIm * item)
 			});
 			magIa = Mix.ar(ia.squared).sqrt;
 
@@ -585,20 +580,20 @@ FoaMagWr : FoaEval {
 
 		case
 		{ method == 'instant' } {
-			var pReIm, pImRe, wp, wu, ws, ir, magIr;
+			var pReIm, pImRe, uReIm, wp, wu, ws, ir, magIr;
 
 			pReIm = HilbertW.ar(p, size);
 			pImRe = [1, -1] * pReIm.reverse;
+			uReIm = HilbertW.ar(u, size);
 
 			wp = Mix.new(pReIm.squared);
-			wu = HilbertW.ar(u, size).squared.sum({arg item;
+			wu = uReIm.squared.sum({arg item;
 				Mix.new(item)
 			});
 			ws = (0.5 * (wp + wu));
 
-
-			ir = u.collect({ arg item;
-				Mix.new(pImRe * HilbertW.ar(item, size))
+			ir = uReIm.collect({arg item;
+				Mix.new(pImRe * item)
 			});
 
 			magIr = Mix.ar(ir.squared).sqrt;
@@ -635,18 +630,19 @@ FoaMagNa : FoaEval {
 
 		case
 		{ method == 'instant' } {
-			var pReIm, wp, wu, magI, ia, magIa;
+			var pReIm, uReIm, wp, wu, magI, ia, magIa;
 
 			pReIm = HilbertW.ar(p, size);
+			uReIm = HilbertW.ar(u, size);
+
 			wp = Mix.new(pReIm.squared);
-			wu = HilbertW.ar(u, size).squared.sum({arg item;
+			wu = uReIm.squared.sum({arg item;
 				Mix.new(item)
 			});
 			magI = (wp * wu).sqrt;
 
-
-			ia = u.collect({ arg item;
-				Mix.new(pReIm * HilbertW.ar(item, size))
+			ia = uReIm.collect({arg item;
+				Mix.new(pReIm * item)
 			});
 			magIa = Mix.ar(ia.squared).sqrt;
 
@@ -680,20 +676,20 @@ FoaMagNr : FoaEval {
 
 		case
 		{ method == 'instant' } {
-			var pReIm, pImRe, wp, wu, magI, ir, magIr;
+			var pReIm, pImRe, uReIm, wp, wu, magI, ir, magIr;
 
 			pReIm = HilbertW.ar(p, size);
 			pImRe = [1, -1] * pReIm.reverse;
+			uReIm = HilbertW.ar(u, size);
 
 			wp = Mix.new(pReIm.squared);
-			wu = HilbertW.ar(u, size).squared.sum({arg item;
+			wu = uReIm.squared.sum({arg item;
 				Mix.new(item)
 			});
 			magI = (wp * wu).sqrt;
 
-
-			ir = u.collect({ arg item;
-				Mix.new(pImRe * HilbertW.ar(item, size))
+			ir = uReIm.collect({arg item;
+				Mix.new(pImRe * item)
 			});
 
 			magIr = Mix.ar(ir.squared).sqrt;
@@ -802,9 +798,7 @@ FoaAlpha : FoaEval {
 
 			pReIm = HilbertW.ar(p, size);
 			pImRe = [1, -1] * pReIm.reverse;
-			uReIm = u.collect({ arg item;
-				HilbertW.ar(item, size)
-			});
+			uReIm = HilbertW.ar(u, size);
 
 			ia = uReIm.collect({ arg item;
 				Mix.new(pReIm * item)
@@ -892,9 +886,7 @@ FoaGamma : FoaEval {
 
 			pReIm = HilbertW.ar(p, size);
 			pImRe = [1, -1] * pReIm.reverse;
-			uReIm = u.collect({ arg item;
-				HilbertW.ar(item, size)
-			});
+			uReIm = HilbertW.ar(u, size);
 
 			ia = uReIm.collect({ arg item;
 				Mix.new(pReIm * item)
@@ -954,9 +946,7 @@ FoaThetaPhiA : FoaEval {
 
 			pReIm = HilbertW.ar(p, size);
 			pImRe = [1, -1] * pReIm.reverse;
-			uReIm = u.collect({ arg item;
-				HilbertW.ar(item, size)
-			});
+			uReIm = HilbertW.ar(u, size);
 
 			ia = uReIm.collect({ arg item;
 				Mix.new(pReIm * item)
@@ -1029,9 +1019,7 @@ FoaThetaPhiR : FoaEval {
 
 			pReIm = HilbertW.ar(p, size);
 			pImRe = [1, -1] * pReIm.reverse;
-			uReIm = u.collect({ arg item;
-				HilbertW.ar(item, size)
-			});
+			uReIm = HilbertW.ar(u, size);
 
 			ia = uReIm.collect({ arg item;
 				Mix.new(pReIm * item)
@@ -1081,9 +1069,9 @@ FoaIa : FoaEval {
 
 			pReIm = HilbertW.ar(p, size);
 
-			ia = u.collect({ arg item;
-				Mix.new(pReIm * HilbertW.ar(item, size))
-			})
+			ia = HilbertW.ar(u, size).collect({arg item;
+				Mix.new(pReIm * item)
+			});
 
 			^ia
 		}
@@ -1114,9 +1102,9 @@ FoaIr : FoaEval {
 
 			pImRe = [1, -1] * HilbertW.ar(p, size).reverse;
 
-			ir = u.collect({ arg item;
-				Mix.new(pImRe * HilbertW.ar(item, size))
-			})
+			ir = HilbertW.ar(u, size).collect({arg item;
+				Mix.new(pImRe * item)
+			});
 
 			^ir
 		}
@@ -1143,8 +1131,8 @@ FoaAa : FoaEval {
 			pReIm = HilbertW.ar(p, size);
 			wp = Mix.new(pReIm.squared);
 
-			ia = u.collect({ arg item;
-				Mix.new(pReIm * HilbertW.ar(item, size))
+			ia = HilbertW.ar(u, size).collect({arg item;
+				Mix.new(pReIm * item)
 			});
 			aa = ia / (wp + DC.ar(FoaEval.reg));
 
@@ -1182,8 +1170,8 @@ FoaAr : FoaEval {
 
 			wp = Mix.new(pReIm.squared);
 
-			ir = u.collect({ arg item;
-				Mix.new(pImRe * HilbertW.ar(item, size))
+			ir = HilbertW.ar(u, size).collect({arg item;
+				Mix.new(pImRe * item)
 			});
 
 			ar = ir / (wp + DC.ar(FoaEval.reg));
@@ -1208,18 +1196,19 @@ FoaWa : FoaEval {
 
 		case
 		{ method == 'instant' } {
-			var pReIm, wp, wu, ws, ia, wa;
+			var pReIm, uReIm, wp, wu, ws, ia, wa;
 
 			pReIm = HilbertW.ar(p, size);
+			uReIm = HilbertW.ar(u, size);
+
 			wp = Mix.new(pReIm.squared);
-			wu = HilbertW.ar(u, size).squared.sum({arg item;
+			wu = uReIm.squared.sum({arg item;
 				Mix.new(item)
 			});
 			ws = (0.5 * (wp + wu));
 
-
-			ia = u.collect({ arg item;
-				Mix.new(pReIm * HilbertW.ar(item, size))
+			ia = uReIm.collect({arg item;
+				Mix.new(pReIm * item)
 			});
 			wa = ia / (ws + DC.ar(FoaEval.reg));
 
@@ -1253,20 +1242,20 @@ FoaWr : FoaEval {
 
 		case
 		{ method == 'instant' } {
-			var pReIm, pImRe, wp, wu, ws, ir, wr;
+			var pReIm, pImRe, uReIm, wp, wu, ws, ir, wr;
 
 			pReIm = HilbertW.ar(p, size);
 			pImRe = [1, -1] * pReIm.reverse;
+			uReIm = HilbertW.ar(u, size);
 
 			wp = Mix.new(pReIm.squared);
-			wu = HilbertW.ar(u, size).squared.sum({arg item;
+			wu = uReIm.squared.sum({arg item;
 				Mix.new(item)
 			});
 			ws = (0.5 * (wp + wu));
 
-
-			ir = u.collect({ arg item;
-				Mix.new(pImRe * HilbertW.ar(item, size))
+			ir = uReIm.collect({arg item;
+				Mix.new(pImRe * item)
 			});
 			wr = ir / (ws + DC.ar(FoaEval.reg));
 
@@ -1290,18 +1279,19 @@ FoaNa : FoaEval {
 
 		case
 		{ method == 'instant' } {
-			var pReIm, wp, wu, magI, ia, na;
+			var pReIm, uReIm, wp, wu, magI, ia, na;
 
 			pReIm = HilbertW.ar(p, size);
+			uReIm = HilbertW.ar(u, size);
+
 			wp = Mix.new(pReIm.squared);
-			wu = HilbertW.ar(u, size).squared.sum({arg item;
+			wu = uReIm.squared.sum({arg item;
 				Mix.new(item)
 			});
 			magI = (wp * wu).sqrt;
 
-
-			ia = u.collect({ arg item;
-				Mix.new(pReIm * HilbertW.ar(item, size))
+			ia = uReIm.collect({arg item;
+				Mix.new(pReIm * item)
 			});
 			na = ia / (magI + DC.ar(FoaEval.reg));
 
@@ -1335,20 +1325,20 @@ FoaNr : FoaEval {
 
 		case
 		{ method == 'instant' } {
-			var pReIm, pImRe, wp, wu, magI, ir, nr;
+			var pReIm, pImRe, uReIm, wp, wu, magI, ir, nr;
 
 			pReIm = HilbertW.ar(p, size);
 			pImRe = [1, -1] * pReIm.reverse;
+			uReIm = HilbertW.ar(u, size);
 
 			wp = Mix.new(pReIm.squared);
-			wu = HilbertW.ar(u, size).squared.sum({arg item;
+			wu = uReIm.squared.sum({arg item;
 				Mix.new(item)
 			});
 			magI = (wp * wu).sqrt;
 
-
-			ir = u.collect({ arg item;
-				Mix.new(pImRe * HilbertW.ar(item, size))
+			ir = uReIm.collect({arg item;
+				Mix.new(pImRe * item)
 			});
 			nr = ir / (magI + DC.ar(FoaEval.reg));
 

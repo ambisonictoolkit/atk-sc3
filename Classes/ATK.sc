@@ -28,6 +28,7 @@
 // 	Class (UGen superclass): Foa
 //
 // 	Class (UGen): FoaPanB
+//     Class: FoaMFreqOsc
 //
 // 	Class (UGen): FoaDirectO
 // 	Class (UGen): FoaDirectX
@@ -520,6 +521,28 @@ FoaPanB : MultiOutUGen {
 
 	checkInputs { ^this.checkNInputs(1) }
 }
+
+
+FoaMFreqOsc : FoaUGen  {
+
+	*ar { arg freq = 440, phase = 0, azimuthA = 0, elevationA = 0, azimuthR = 0, elevationR = 0, alpha = 0, beta = 0, mul = 1, add = 0;
+		var dc, dcl0a, dcl0r, aA, aR, out;
+
+		dc = DC.ar(1);
+		dcl0a = 2.sqrt.reciprocal * dc;
+		dcl0r = 0 * dc;
+
+		aA = FoaPanB.ar(dc, azimuthA, elevationA, alpha.cos).put(0, dcl0a) * FoaDirectO.ar(Array.fill(4, {dc}), beta);
+		aR = FoaPanB.ar(dc, azimuthR, elevationR, alpha.sin).put(0, dcl0r) * FoaDirectO.ar(Array.fill(4, {dc}), beta);
+
+		out = SinOsc.ar(freq, phase + pi/2, aA) + SinOsc.ar(freq, phase, aR);
+		out = out.madd(mul, add);
+		out = this.checkChans(out);
+
+		^out
+	}
+}
+
 
 Foa : MultiOutUGen {
 

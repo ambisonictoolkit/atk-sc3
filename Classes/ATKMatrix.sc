@@ -25,8 +25,10 @@
 //	The Ambisonic Toolkit (ATK) is a soundfield kernel support library.
 //
 // 	Class: FoaSpeakerMatrix
+//     Class: AtkMatrix
 // 	Class: FoaDecoderMatrix
 // 	Class: FoaEncoderMatrix
+//     Class: FoaXformerMatrix
 // 	Class: FoaDecoderKernel
 // 	Class: FoaEncoderKernel
 //

@@ -228,7 +228,13 @@ Encoding means encoding from one Ambisonic channel componenent orderding and nor
 
 
 note::
-Requires a device firmware update to link::https://www.zoom-na.com/sites/default/files/products/downloads/software/H2n_v2.00E.zip##H2n System Version 2.00:: or higher. Set the link::https://www.zoom-na.com/products/field-video-recording/field-recording/zoom-h2n-handy-recorder##ZoomH2n:: to record in the code::SPATIAL AUDIO:: mode. Further details may be reviewed in the manual addendum link::https://www.zoom.co.jp/sites/default/files/products/downloads/pdfs/H2n_Ver2_OPmanual_E.pdf##found here::.
+Requires a device firmware update to link::https://www.zoom-na.com/products/field-video-recording/field-recording/zoom-h2n-handy-recorder#downloads#H2n System Version 2.00:: or higher. Set the link::https://www.zoom-na.com/products/field-video-recording/field-recording/zoom-h2n-handy-recorder##ZoomH2n:: to record in the code::SPATIAL AUDIO:: mode. Further details may be reviewed in the manual addendum link::https://www.zoom.co.jp/sites/default/files/products/downloads/pdfs/H2n_Ver2_OPmanual_E.pdf##found here::. You may also like to review the link::https://youtu.be/njep5CO3w3g##H2n: Spatial Audio Setup:: video. footnote::These last two links are best opened in a browser window:
+code::
+[
+	"https://www.zoom.co.jp/sites/default/files/products/downloads/pdfs/H2n_Ver2_OPmanual_E.pdf",
+	"https://youtu.be/njep5CO3w3g"
+].do({arg item; item.openOS})
+:: ::
 ::
 
 

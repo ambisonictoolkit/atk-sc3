@@ -1,0 +1,154 @@
+TITLE:: FoaXformDisplay
+summary:: Visualize, audition and customize FOA soundfield transforms.
+categories:: Libraries>Ambisonic Toolkit>FOA
+related:: Classes/FoaMatrixChain, Classes/FoaAudition, Classes/FoaXformerMatrix
+
+DESCRIPTION::
+An interface to view the imaging characteristics of a soundfield after being
+transformed by a custom matrix, an link::Classes/FoaXformerMatrix::, or a chain
+of transforms. The resultant transform matrix can be auditioned, through an
+embeded link::Classes/FoaAudition::, and parameters may be changed in real-time.
+
+CLASSMETHODS::
+
+METHOD:: new
+
+ARGUMENT:: numDisplayPoints
+The number of points arrayed around the soundfield circle, which represent
+incoming planewaves spaced evenly around the horizontal plane.
+
+
+INSTANCEMETHODS::
+
+METHOD:: chain
+Returns the current link::Classes/FoaMatrixChain::, the output of which is displayed.
+
+METHOD:: curXformMatrix
+Returns the resultant link::Classes/Matrix:: from the transform chain.
+
+METHOD:: free
+Clean up the windows and free resources on the server.
+
+
+PRIVATE:: addChainView, addRmvMargins, alignRows, chainViewHeight, chainViewWidth, chainViews, codeWin, colorStep, createNewXForm, ctlColor, debug, displayChain, evalTxtView, iOpenedAudition, idTabColor, idTxtColor, initChainGui, initDisplayGUI, prDefineColors, prDefineDrawSoundfield, prGetChainViewID, prGetInputList, prGetXfViewID, prInit, prRemoveXForm, prUpdateChainIdLabels, prUpdateChainTitles, prUpdateInputMenus, prUpdateMatrix, prePostStats, pwAzim, pwPlaying, removeChainView, setAudition, showMatrixWindow, update, xfColor, xfMargins, xfViewChains, audition
+
+section:: Understanding the Transform Display
+The transform display shows points which represent incoming planewaves from many
+directions evenly spaced across the horizontal plane. As you adjust your
+transforms, these planewaves are warped in both arrival direction and
+directivity, depending on the transforms chosen.  Gain, arrival direction, and
+directivity are linked and often change together.
+
+subsection:: Gain
+Gain changes are indicated by the color of the planewave dots, where increasing
+gain causes a warmer shift (toward red) and attenuation causes a cooler shift
+(toward blue). The gain is also listed next to the point to show specifically
+how sound from that initial arrival direction changes gain.  When the display is
+set to "Radius Only", the gain value follows the point.  The max and min gain
+values across all of the planewave probes are listed in the bottom right, which
+is useful to see the range of the transformed gain in the new spatial image.
+This is also useful to spot if the transform(s) are going to drive your
+soundfield to clip, or if you need to re-normalize your soundfield at the tail
+of a transform chain (with the Gain "transform").
+
+subsection:: Angular Warping
+Many transforms will warp your soundfield so that a sound originally approaching
+from one direction appears to arrive from a different direction after the
+transform has been applied.  Notice how the points change their angular position
+as you change your transform parameters.  As points spread apart, the original image
+in that direction will widen, and as points gather together, the spatial image
+collapses in that direction.  Note though that the angular change is often
+accompanied by a change in gain and/or directivity.
+
+For example, Zoom, Focus, and Dominate warp the image in the direction of the transform
+while also imposing a gain differential. Push and Press, on the other hand, warp
+the image in the direection of the transform while maintaining the gains, at the
+"cost" of decreasing directivity in the direction opposite of the transform.
+
+For convenience, the azimuth point representing the
+front of the original soundfield, 0 degrees arrival, is marked by a red circle
+so you can track it's orientation after it has been transformed.
+
+subsection:: Directivity
+A point at the edge of the circle represents a planewave arriving from the
+specified azimuth. As a point approachs the me middle of the soundfield display,
+it loses directivity.  strong::A point inside the circle is NOT sound moving
+inside the perimeter of your loudspeaker array.:: Rather, it represents a
+sound with less directivity, i.e. a directivity of zero, at the center of the
+circle, has no perceived arrival direction. You might also think of this as
+arrival from an infinite number of directions at once.  This effect is shown
+graphically by an increased size and transparency of the planewave circle. This
+representation can be turned off with the dropdown menu at the top right for a
+clearer view of the angular distortion of the original soundfield.  In this case
+directivity is shown only by the distance from the center of the display.
+
+
+section:: Inspecting the transform matrix and providing a custom matrix
+The strong::Post Matrix:: button will show you the resultant matrix from your
+transform or transform chain.  You can manually alter it and click Evaluate to
+update the display.  You can enter your own matrix to visualize and audition
+using the strong::Enter Matrix:: button.  You may also enter code that returns
+a link::Classes/Matrix:: or link::Classes/FoaXformerMatrix::.
+
+section:: Auditioning
+The strong::Audition:: button will bring up an link::Classes/FoaAudition::
+window so you can play your own b-format soundfile, live sound (via a Bus),
+or test signals through the transform matrix and change its parameters in
+real-time.
+
+
+section:: Examples
+code::
+// default
+d = FoaXformDisplay();
+d.free;
+
+// more points, but overkill for FOA and hits CPU harder
+d = FoaXformDisplay( 32 );
+d.free;
+
+
+// now use it with some sound!
+d = FoaXformDisplay();
+
+// Once open, you can audition the results of
+// your transform. Press the "Audition" button
+// to play a test signal or load a file to play.
+
+// If you aren't already playing through a decoder,
+// make one now:
+
+// select a decoder of your choice
+~decoder = FoaDecoderKernel.newSpherical
+
+(
+SynthDef(\decoder_spherical, { arg outbus = 0, inbus;
+	// ReplaceOut here in case you'be selected a
+	// hardware out for the auditioner
+	ReplaceOut.ar( outbus,
+		FoaDecode.ar(
+			In.ar( inbus, 4 ),
+			~decoder
+		)
+	)
+}).send(s);
+)
+
+// Note: this assumes you've already opened the
+// "Audition" window (thus the auditioning synths are on the
+// node tree). So place your decoder AFTER the
+// Audition synth group:
+
+x = Synth(\decoder_spherical, [\inbus, d.audition.outbus], d.audition.group, \addAfter);
+
+// now play with the transforms/chain...
+
+// Just close the windows to clean up when you're done, or use .free
+d.free
+
+// free your decoder kernels
+~decoder.free
+// and your decoder synth
+x.free
+
+::

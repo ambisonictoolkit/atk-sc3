@@ -1,0 +1,141 @@
+TITLE:: FoaAudition
+summary:: Audition FOA recordings, panning planewaves, diffuse soundfields, and transforms.
+categories:: Libraries>Ambisonic Toolkit>FOA
+related:: Classes/FoaMatrixChain, Classes/FoaXformDisplay
+
+DESCRIPTION::
+An interface for auditioning FOA recordings, panning planewaves, and diffuse soundfields.
+FOA transforms can be can also be auditioned by manually setting a transform matrix or more conveniently through link::Classes/FoaXformDisplay::.
+Note this will boot the server if it's not already booted.
+
+
+
+CLASSMETHODS::
+
+METHOD:: new
+
+ARGUMENT:: outbus
+A bus number to which you send the FOA output.  This is likely the input bus number of your decoder.
+
+ARGUMENT:: matrixFadeTime
+(Optional) The crossfade time between transform matrices if the audition matrix is changed.  This is used primarily by link::Classes/FoaXformDisplay::.
+
+ARGUMENT:: xformMatrix
+Optionally provide a transform matrix through which the B-Format signal will play. The default is an identity matrix, i.e. an unchanged soundfield.
+
+ARGUMENT:: inbus
+Optionally provide the bus number for the soundfield input module to read in (when set to "inbus").  This can be changed in the GUI as well.
+
+ARGUMENT:: addAction
+Optionally provide an addAction for placing the FoaAudition's group in a particular place in the Node Tree. Default is \addToTail.
+one of the following Symbols:
+table::
+## \addToHead || (the default) add at the head of the group specified by target
+## \addToTail || add at the tail of the group specified by target
+## \addAfter || add immediately after target in its server's node order
+## \addBefore || add immediately before target in its server's node order
+## \addReplace || replace target and take its place in its server's node order
+::
+Note: A Synth is not a valid target for \addToHead and \addToTail.
+
+ARGUMENT:: target
+Optionally, FoaAudition's group is placed according to the strong::addAction:: relative to the strong::target::.
+
+ARGUMENT:: server
+Optionally provide a server on which buffers are loaded and the group is played.
+
+ARGUMENT:: initCond
+Optionally a code::Condition:: that is signalled once this has allocated all of it's resources.
+
+ARGUMENT:: initGUI
+A Boolean for whether the gui is immediately displayed.  strong::.gui:: can also be called after the instance is created.
+
+
+
+
+INSTANCEMETHODS::
+
+METHOD:: outbus
+Get/set the outbus
+
+METHOD:: amp
+Set the amp. Note this is NOT a value in dB.
+
+METHOD:: gui
+Create a gui for the auditioning system, if not already created when initialized.
+
+ARGUMENT:: show
+A boolean indicating whether the gui is assigned to a window.  If false, the gui elements are created without being assigned to a window, but strong::.ui.view:: will return the view so it can be placed in a custom layout.
+
+METHOD:: free
+Free all the resources.
+
+METHOD:: group
+Get the code::Group:: containing all the synths. Can be useful to use as a target to achieve proper node order for routing into and from the audition system.
+
+METHOD:: gAmp
+Get the global amp used by all of the playback synths.
+
+METHOD:: inbus
+Get/set the inbus used by the synth that reads in a 4-channel audio bus to play through the auditioning system.
+
+METHOD:: soundfileBuf
+Get the soundfile buffer currently loaded for playback.
+
+METHOD:: loadSoundfile
+Load a new sound file of FOA b-format material for playback. Must be 3 (pantophonic) or 4 (periphonic) channels. This also frees any previously loaded soundfile buffer.
+
+METHOD:: matrixFader
+Get the instance of code::FoaMatrixFade:: used internally.  Useful for chaning the transform matrix manually, changing the matrix crossfade time, etc.
+
+PRIVATE:: auditionEnabled, diffRtt, diffRttFreq, diffSynth, inbusSynth, internalInbus, loading, playSynth, prepareAuditioning, pwAzim, pwEl, pwSynth, server, sfSynth_3ch, sfSynth_4ch, soundfileSynth, stopSynth, ui, xFade
+
+
+EXAMPLES::
+
+code::
+s.boot
+
+// create a bus to play your b-format to
+~foaBus = s.audioBusAllocator.alloc(4)
+
+a = FoaAudition(outbus: ~foaBus);
+
+// If you aren't already playing through a decoder,
+// make one now:
+
+// select a decoder of your choice
+~decoder = FoaDecoderKernel.newSpherical
+
+(
+SynthDef(\decoder_spherical, { arg outbus = 0, inbus;
+	// ReplaceOut here in case you'be selected a
+	// hardware out for the auditioner
+	ReplaceOut.ar( outbus,
+		FoaDecode.ar(
+			In.ar( inbus, 4 ),
+			~decoder
+		)
+	)
+}).send(s);
+)
+
+// Note: this assumes you've already opened the
+// "Audition" window (thus the auditioning synths are on the
+// node tree). So place your decoder after your the
+// audition synth group:
+
+x = Synth(\decoder_spherical, [\inbus, a.outbus], a.group, \addAfter);
+
+// now play your sound in the Audition window
+
+// Just close the window to clean up when you're done, or use .free
+a.free
+
+// free your decoder kernels
+~decoder.free
+// and your decoder synth
+x.free
+// and your foa bus
+s.audioBusAllocator.free(~foaBus)
+::

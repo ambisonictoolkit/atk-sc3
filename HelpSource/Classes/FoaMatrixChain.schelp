@@ -1,0 +1,193 @@
+TITLE:: FoaMatrixChain
+summary:: Chain multiple FoaXformerMatrix transforms.
+categories:: Libraries>Ambisonic Toolkit>FOA
+related:: Classes/FoaXformDisplay
+
+DESCRIPTION::
+A utility to chain multiple link::Classes/FoaXformerMatrix:: transforms. While
+it can be used as a standalone utility, it was primarily designed for internal
+use by link::Classes/FoaXformDisplay::.
+
+Subsection:: Transform Chain Structure
+
+An FoaMatrixChain generates a node structure of transforms in both series and
+parallel. Parallel chains can tap "outputs" from nodes in other chains.
+The strong::final:: output (retrieved with link::#-curXformMatrix::)
+is always the last transform node of the last chain.  However the resultant
+matrix at each node in the chain is also stored.
+
+An FoaMatrixChain may actually be composed of multiple "chains" of transforms in
+parallel. By default, each node in the chain reads in the matrix from the previous
+transform, or the last transform of the previous chain in the case of a new parallel chain.
+The first node in a chain can optionally read in any previous node in the tree,
+and some transforms can also read a previous node into its input. For example
+in the code::add:: transform takes a previous node as an argument to be added
+to its input matrix.  This structure will become apparent when using the interface
+provided with link::Classes/FoaXformDisplay::.
+
+Many of the instance methods have arguments asking strong::whichChain:: followed
+by an strong::index::. This refers to which parallel chain (a zero-based
+index), followed by the index of the node (transform) within that chain. For example if
+you have three parallel chains, and you want to specify the second node position in the
+last parallel chain, then code::whichChan: 2, index: 1::.
+
+strong::Important -:: When modifying the matrix chain, you must call
+link::#-chainXForms:: in order for the chain and its
+variables to update. At that point link::#-curXformMatrix:: will return the
+resultant transform matrix.
+
+
+
+CLASSMETHODS::
+
+
+METHOD:: new
+
+ARGUMENT:: verbose
+A code::Boolean:: specifying whether the transform chain is posted whenever a
+transform is changed, added or removed.
+
+
+METHOD:: aerEFromMatrix
+
+ARGUMENT:: matrix
+A link::Classes/Matrix:: representing a soundfield.  If providing an
+FoaXformerMatrix, call code::.matrix:: to get the raw matrix on it before
+setting this argument.
+
+returns:: An code::Array:: containing the strong::[azimuth, elevation,
+directivity, gain]:: of the most prominent incoming wavefront.  strong::Directivity::
+in this case is the strong::magnitude of the energy vector (rE):: in the range of
+0 -> 1; 0 is no directivity (no perceived arrival direction, or arrival
+from all directions), 1 is a planewave arriving from the specified
+azimuth/elevation.
+strong::Azimuth:: and strong::elevation:: are specified in radians.
+The strong::gain returned is in dB::, so be sure to convert as necessary if
+you're looking for amplitude.
+
+
+PRIVATE:: abcs, aedFromMatrix
+
+
+INSTANCEMETHODS::
+
+
+
+METHOD:: addTransform
+Insert a transform into the chain.
+
+ARGUMENT:: xformName
+A code::Symbol:: corresponding to the transform's name, as listed by key in
+code::.xFormDict.keys::.
+
+ARGUMENT:: whichChain
+A chain index, zero-based.
+
+ARGUMENT:: index
+A index in the chain specified by strong::whichChain::.
+
+ARGUMENT::  ... params
+Initial parameters to supply the transform, in the order they are listed in the
+controls, which can be viewed with, for example,
+code::.xFormDict['press'].controls::.  This param order and default values
+corresponds to the order defined in the link::Classes/FoaXformerMatrix::.
+
+
+METHOD:: removeTransform
+Remove a transform from the chain.
+
+ARGUMENT:: whichChain
+Which chain index.
+
+ARGUMENT:: index
+Index of the transform in the specified chain.
+
+
+METHOD:: replaceTransform
+Similar to strong::addTransform::, but rather than inserting, it replaces the
+transform at the specified chain/index location.
+
+
+METHOD:: setParam
+Set a parameter of one of the transforms in the chain(s).
+
+ARGUMENT:: whichChain
+A chain index, zero-based.
+
+ARGUMENT:: index
+A index in the chain specified by strong::whichChain::.
+
+ARGUMENT:: ctlDex
+The index of the parameter in the code::.controls:: array corresponding to the
+transform being changed.
+
+ARGUMENT:: value
+The new value for the transform parameter.
+
+
+METHOD:: addChain
+Add a parallel processing chain. The default head of the chain will be the tail
+of the preceeding chain.
+
+ARGUMENT:: index
+Index at which to insert the new chain.
+
+
+METHOD:: removeChain
+Remove one of the parallel processing chains at strong::index::.  Note that any
+transform inputs reading from nodes in this chain will be reset to code::'A0'::,
+the orginal unaffected input soundfield.
+
+
+METHOD:: chainXForms
+Perform the calculation of "chaining" all the transforms together. This should
+be called after any alteration to the transform chain, which will in turn
+update the link::#-curXformMatrix:: variable.
+
+
+METHOD:: curXformMatrix
+Get the resultant transform from the chain.
+
+
+METHOD:: chains
+returns:: A 2D code::Array:: of FoaMatrixChainLinks whose state can be queried
+to return it's transform name, control parameter values, and resultant matrix
+up to that point in the chain, by
+strong::.name::, strong::.controlStates::, and strong::.mtx::, repsectively.
+
+
+METHOD:: reset
+Reset the processing chain, starting over from an unaffected input soundfield.
+
+
+METHOD:: clear
+Same as reset.
+
+
+METHOD:: verbose
+A Boolean specifying whether the transform chain is posted whenever a
+transform is changed, added or removed.
+
+
+METHOD:: postChain
+Post the current processing chains, with the transform names and parameters
+formatted to view easily.
+
+
+METHOD:: getLinkByKey
+Get a transform "link" in the chain by its alpha-numeric key.
+
+ARGUMENT:: key
+An alpha-numeric key, e.g. code::'B2':: would return the third  (code::'2'::)
+transform "link" in the second parallel chain (code::'B'::)
+
+returns:: A code::FoaMatrixChainLink:: whose state can be queried to return it's
+transform name, control parameter values, and resultant matrix up to that point
+in the chain, by strong::.name::, strong::.controlStates::, and strong::.mtx::,
+repsectively.
+
+
+METHOD:: xFormDict
+returns:: A code::Dictionary:: containing specifications for all of the valid transforms and their controls.
+
+PRIVATE:: xFormDict_sorted, loadXForms, createXformLink, checkIfInputRemoved, checkLinkExists, muteXform, soloXform

@@ -66,8 +66,8 @@ FoaXformView {
         sfView.debug.if{"initializing new XForm".postln;};
 
         chain = switch(target,
-            'chain',    {sfView.chain},         // xform in chain view UI
-            'display',  {sfView.displayChain}   // or xform view in the xformDisplay UI
+            'chain',	{sfView.chain},        // xform in chain view UI
+            'display',	{sfView.displayChain}  // or xform view in the xformDisplay UI
         );
 
         // if this xform takes a chain index for an input,
@@ -85,7 +85,7 @@ FoaXformView {
                 (sfView.ctlColor.asHSV[0] + (initChainDex * sfView.colorStep)).fold(0,1)))
         )
         // .fixedHeight_(80)
-        .maxHeight_(110)
+        .maxHeight_(140)
         .minWidth_(sfView.chainViewWidth)
         .layout_(layout)
         ;
@@ -98,10 +98,10 @@ FoaXformView {
         .align_(\center);
 
         // transform controls layout
-        ctlLayout = VLayout();
+        ctlLayout = HLayout().spacing_(5);
         layout.add(ctlLayout);
         // this allows the ctlLayout to move all the way left
-        if (target == 'chain') {layout.add(1)};
+        if (target == 'chain') {layout.add(nil)};
 
         name = chain.chains[initChainDex][initDex].name;
 
@@ -158,9 +158,7 @@ FoaXformView {
         })
         .maxWidth_(125).minWidth_(95).value_(0);
 
-        ctlLayout.add(
-            HLayout([xFormMenu, a: \topLeft], nil).margins_(0);
-        );
+        ctlLayout.add(xFormMenu, align: \left);
 
         if(selectedName != 'mute') {
             // update with the current transform selection
@@ -196,7 +194,7 @@ FoaXformView {
                 #ctlName, ctl = pair;
                 case
                 {ctl.isKindOf(ControlSpec)} {
-                    this.addSliderCtl(ctlName, ctl, i);
+                    this.addRotCtl(ctlName, ctl, i);
                 }
                 // a ctl of a Symbol, e.g. 'A0' yields a
                 // dropdown menu for an input soundfield
@@ -227,9 +225,10 @@ FoaXformView {
             chain.setParam(chDex, dex, ctlOrder, mn.item);
         });
 
-        dropLayout = HLayout(
-            StaticText().string_(xfname.asString).align_('left'),
-            [menu, a: \left],
+        dropLayout = VLayout(
+            nil,
+            [StaticText().string_(xfname.asString).align_('center'), a: \center],
+            [menu, a: \center],
             nil
         );
         ctlLayout.add(dropLayout);
@@ -238,27 +237,26 @@ FoaXformView {
         inputMenu = menu;
     }
 
-    addSliderCtl { |ctlName, spec, ctlOrder|
-        var min, max, sl, nb, nameTxt, unitTxt, slLayout;
+    addRotCtl { |ctlName, spec, ctlOrder|
+        var min, max, rot, nb, nameTxt, unitTxt, slLayout, nbLayout;
 
         // min/maxItem to handle negative max on rotate xform
         min = [spec.minval, spec.maxval].minItem;
         max = [spec.minval, spec.maxval].maxItem;
 
-        sl = Slider()
-        .action_({ |sldr|
-            var val, chDex, dex;
+        rot = this.makeRotaryCtl(ctlName, spec);
+        rot.value_(spec.default);
+        rot.action_({ |view, val|
+            var chDex, dex;
             #chDex, dex = this.getViewIndex;
 
-            val = spec.map(sldr.value);
             if(spec.units == "π",
                 {nb.value_(val.round(0.001) / pi)},
                 {nb.value_(val.round(0.001))}
             );
             chain.setParam(chDex, dex, ctlOrder, val);
-            }
-        ).orientation_('horizontal')
-        .value_(spec.unmap(spec.default));
+        });
+        rot.minHeight_(60);
 
         nb = NumberBox()
         .action_({ |nb|
@@ -269,9 +267,9 @@ FoaXformView {
                 {val = nb.value * pi;},
                 {val = nb.value;}
             );
-            sl.value_(spec.unmap(val));
+            rot.value_(val);
             chain.setParam(chDex, dex, ctlOrder, val);
-            }
+        }
         )
         .clipHi_(
             if(spec.units == "π"){max / pi;}{max})
@@ -286,17 +284,61 @@ FoaXformView {
         ;
 
         nameTxt = StaticText().string_(ctlName.asString)
-        .align_('center')
-        .fixedWidth_(65)
-        ;
+        .align_('center');
 
-        slLayout =  HLayout();
-
-        [nameTxt, sl, nb, unitTxt].do{ |me| slLayout.add(me)};
+        slLayout = VLayout();
+        nbLayout = HLayout(20, [nb, a: \center], unitTxt);
+        [nameTxt, rot, nbLayout].do{ |me| slLayout.add(me)};
 
         ctlLayout.add(slLayout);
     }
 
+
+    makeRotaryCtl { |ctlName, spec|
+        var r;
+        r = RotaryView(bounds: Size(300, 300).asRect, spec: spec, innerRadiusRatio: 0);
+        r.startAngle_(-0.0pi).sweepLength_(2pi);
+        r.direction = \ccw; // increment counter clockwise
+
+        r.range.show = true;
+        r.range.fill = true;
+        r.range.fillColor = Color.new(0.9,0.9,0.9).alpha_(0.8);
+        r.range.stroke = false;
+
+        r.handle.show_(true);
+        r.handle.stroke = false;
+
+        r.handle.style = \arrow;
+        r.handle.anchor_(0.65).length_(0.6);
+
+        r.handle.joinStyle_(\flat);
+        r.handle.fillColor = Color.hsv(0.27,1,0.8);
+
+        r.level.show = false;
+        r.text.show = false;
+
+        r.ticks.show = true;
+        r.numTicks_(360/22.5, 2, endTick: false);
+        r.ticks.minorColor_(Color.new255(*200!3)).majorColor_(Color.new255(*150!3));
+        r.ticks.majorWidth_(0.09); // if <1 it's a normalized value, relative to the min(width, height) of the view
+        r.ticks.anchor_(0.92).align_(\outside);
+        r.ticks.majorLength = 0.1;
+        r.ticks.minorLength = 0.8;
+        r.ticks.capStyle = \round;
+
+        r.action = {|view, val, input| val.postln};
+        r.clickMode = \absolute;
+        r.orientation = \circular;
+        r.wrap = true; // wrap through the zero crossing
+        r.text.round = 0.1; // round the value of the displayed text
+        r.scrollStep_(0.01); // percentage of the full range for each scroll step
+        r.keyStep_(45.reciprocal); // percentage of the full range for each key step, 20 strokes per range in this case
+
+        r.outline.show = true;
+        r.outline.strokeWidth = 0.015;
+        r.outline.radius = 0.7;
+        ^r
+    }
 
     addAddRmvButs { |includeRmv = true|
         var ht = 20, wth = 20, addRmvView, addBut, rmvBut, lay;
@@ -354,22 +396,22 @@ FoaXformView {
 
         lay = if(includeRmv){
             VLayout(
-                [labelTxt,	a: 'top'],
+                [labelTxt, a: 'top'],
                 HLayout(
-                    [muteBut,	a: 'left'],
-                    [soloBut,	a: 'right'],
+                    [muteBut, a: 'left'],
+                    [soloBut, a: 'right'],
                 ),
                 400, // force it to grow to enclosing view's max height
                 HLayout(
-                    [rmvBut,	a: 'left'],
-                    [addBut,	a: 'right'],
+                    [rmvBut, a: 'left'],
+                    [addBut, a: 'right'],
                 )
             )
         }{
             VLayout(
-                [labelTxt,	a: 'top'],
+                [labelTxt, a: 'top'],
                 15, // force it to grow the height of the view
-                [addBut,	a: 'bottom']
+                [addBut, a: 'bottom']
             )
         };
 
@@ -378,8 +420,8 @@ FoaXformView {
 
     getViewIndex {
         ^switch(target,
-            'chain', 	{sfView.prGetXfViewID(this)},
-            'display',	{[ 0, 1 ]}
+            'chain',    {sfView.prGetXfViewID(this)},
+            'display',  {[ 0, 1 ]}
         );
     }
 

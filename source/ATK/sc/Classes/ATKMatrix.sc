@@ -557,45 +557,20 @@ FoaDecoderMatrix : AtkMatrix {
 		^super.new('mono').initMono(theta, phi, pattern);
 	}
 
-	*new5_0_bak { arg irregKind = 'focused';
-		^super.new('5.0').init5_0(irregKind);
-		// ^super.new('5_0').loadFromLib(irregKind);
-	}
-
-	*newBtoA_bak { arg orientation = 'flu', weight = 'dec';
-		^super.new('BtoA').initBtoA(orientation, weight);
-		// ^super.new('BtoA').loadFromLib(orientation, weight);
-	}
-
-	*newHoa1_bak { arg ordering = 'acn', normalisation = 'n3d';
-		^super.new('hoa1').initHoa1(ordering, normalisation);
-		// ^super.new('hoa1').loadFromLib(ordering, normalisation);
-	}
-
-	*newAmbix1_bak {
-		var ordering = 'acn', normalisation = 'sn3d';
-		^super.new('hoa1').initHoa1(ordering, normalisation);
-		// ^super.new('hoa1').loadFromLib(ordering, normalisation);
-	}
-
 	*new5_0 { arg irregKind = 'focused';
-		// ^super.new('5.0').init5_0(irregKind);
 		^super.new('5_0').loadFromLib(irregKind);
 	}
 
 	*newBtoA { arg orientation = 'flu', weight = 'dec';
-		// ^super.new('BtoA').initBtoA(orientation, weight);
 		^super.new('BtoA').loadFromLib(orientation, weight);
 	}
 
 	*newHoa1 { arg ordering = 'acn', normalisation = 'n3d';
-		// ^super.new('hoa1').initHoa1(ordering, normalisation);
 		^super.new('hoa1').loadFromLib(ordering, normalisation);
 	}
 
 	*newAmbix1 {
 		var ordering = 'acn', normalisation = 'sn3d';
-		// ^super.new('hoa1').initHoa1(ordering, normalisation);
 		^super.new('hoa1').loadFromLib(ordering, normalisation);
 	}
 
@@ -873,178 +848,6 @@ FoaDecoderMatrix : AtkMatrix {
 	    ])
 	}
 
-	init5_0 { arg irregKind;
-
-	    // set output channel (speaker) directions for instance
-	    dirOutputs = [ 0, pi/6, 110/180 * pi, 110/180 * pi.neg, pi.neg/6 ];
-
-		// build decoder matrix
-		// Wigging's Matricies (credit contribution/copyright at top)
-		matrix = switch (irregKind,
-			'focused', {[
-		    		[ 0.2000,  0.1600,  0.0000 ],
-		        	[ 0.4250,  0.3600,  0.4050 ],
-		        	[ 0.4700, -0.3300,  0.4150 ],
-		        	[ 0.4700, -0.3300, -0.4150 ],
-		        	[ 0.4250,  0.3600, -0.4050 ]
-			]},
-			'equal', {[
-		    		[ 0.0000,  0.0850,  0.0000 ],
-		        	[ 0.3650,  0.4350,  0.3400 ],
-		        	[ 0.5550, -0.2850,  0.4050 ],
-		        	[ 0.5550, -0.2850, -0.4050 ],
-		        	[ 0.3650,  0.4350, -0.3400 ]
-		    ]},
-			'four', {[
-		    		[ 0.0000,  0.0000,  0.0000 ],
-		        	[ 0.4250,  0.3850,  0.3300 ],
-		        	[ 0.6300, -0.2750,  0.2850 ],
-		        	[ 0.6300, -0.2750, -0.2850 ],
-		        	[ 0.4250,  0.3850, -0.3300 ]
-		    ]}
-		);
-		matrix = Matrix.with(matrix)
-	}
-
-	initBtoA { arg orientation, weight;
-
-		var recSqrt2 = 2.sqrt.reciprocal;
-		var sqrt3Div2 = 3.sqrt/2;
-		var sqrt3Div6 = 3.sqrt/6;
-		var sqrt6Div3 = 6.sqrt/3;
-		var recSqrt6 = 6.sqrt.reciprocal;
-		var g0;
-
-
-		// build decoder matrix, and set for instance
-		g0 = switch ( weight,
-			'dec', { (2/3).sqrt },	// decorrelated (on the sphere)
-			'can', { 1 },			// canonical
-			'uns', { 2.sqrt },		// unscaled, W_gain = 1
-			'car', { 6.sqrt }		// cardioid
-		);
-
-		matrix = switch ( orientation,
-
-			// 0 - orthogonal (front left up)
-			// [ FLU, FRD, BLD, BRU ]
-			'flu', {[
-				[ 0.5, 0.5, 0.5, 0.5 ],
-				[ 0.5, 0.5, -0.5, -0.5 ],
-				[ 0.5, -0.5, 0.5, -0.5 ],
-				[ 0.5, -0.5, -0.5, 0.5 ]
-			]},
-			// 1 - front left down
-			// [ FLD, FRU, BLU, BRD ]
-			'fld', {[
-				[ 0.5, 0.5, 0.5, -0.5 ],
-				[ 0.5, 0.5, -0.5, 0.5 ],
-				[ 0.5, -0.5, 0.5, 0.5 ],
-				[ 0.5, -0.5, -0.5, -0.5 ]
-			]},
-			// 2 - front left-right
-			// [ FL, FR, BU, BD ]
-			'flr', {[
-				[ 0.5, 0.5, recSqrt2, 0 ],
-				[ 0.5, 0.5, recSqrt2.neg, 0 ],
-				[ 0.5, -0.5, 0, recSqrt2 ],
-				[ 0.5, -0.5, 0, recSqrt2.neg ]
-			]},
-			// 3 - front up-down
-			// [ FU, FD, BL, BR ]
-			'fud', {[
-				[ 0.5, 0.5, 0, recSqrt2 ],
-				[ 0.5, 0.5, 0, recSqrt2.neg ],
-				[ 0.5, -0.5, recSqrt2, 0 ],
-				[ 0.5, -0.5, recSqrt2.neg, 0 ]
-			]},
-			// 4 - front & back down
-			// [ F, BD, BLU, BRU ]
-			'fbd', {[
-				[ 0.5, sqrt3Div2, 0, 0 ],
-				[ 0.5, sqrt3Div6.neg, 0, sqrt6Div3.neg ],
-				[ 0.5, sqrt3Div6.neg, recSqrt2, recSqrt6 ],
-				[ 0.5, sqrt3Div6.neg, recSqrt2.neg, recSqrt6 ]
-			]},
-			// 5 - front & back up
-			// [ F, BU, BLD, BRD ]
-			'fbu', {[
-				[ 0.5, sqrt3Div2, 0, 0 ],
-				[ 0.5, sqrt3Div6.neg, 0, sqrt6Div3 ],
-				[ 0.5, sqrt3Div6.neg, recSqrt2, recSqrt6.neg ],
-				[ 0.5, sqrt3Div6.neg, recSqrt2.neg, recSqrt6.neg ]
-			]},
-			// 6 - front left-right up
-			// [ FLU, FRU, FD, B ]
-			'flru', {[
-				[ 0.5, sqrt3Div6, recSqrt2, recSqrt6 ],
-				[ 0.5, sqrt3Div6, recSqrt2.neg, recSqrt6 ],
-				[ 0.5, sqrt3Div6, 0, sqrt6Div3.neg ],
-				[ 0.5, sqrt3Div2.neg, 0, 0 ]
-			]},
-			// 7 - front left-right down
-			// [ FLD, FRD, FU, B ]
-			'flrd', {[
-				[ 0.5, sqrt3Div6, recSqrt2, recSqrt6.neg ],
-				[ 0.5, sqrt3Div6, recSqrt2.neg, recSqrt6.neg ],
-				[ 0.5, sqrt3Div6, 0, sqrt6Div3 ],
-				[ 0.5, sqrt3Div2.neg, 0, 0 ]
-			]}
-		);
-		matrix = Matrix.with(matrix);
-		matrix = matrix.putCol(0, g0 * matrix.getCol(0));
-
-
-	    // set output channel (speaker) directions for instance
-	    dirOutputs = matrix.removeCol(0).asArray.collect({arg item;
-			item.asCartesian.asSpherical.angles
-		})
-	}
-
-	initHoa1 { arg ordering, normalisation;
-
-		var sqrt2 = 2.sqrt;
-		var sqrt3 = 3.sqrt;
-
-		matrix = switch ( (ordering ++ normalisation).asSymbol,
-
-			// 0 - acn-n3d (aka Hoa1)
-			'acnn3d', {[
-				[ sqrt2, 0.0, 0.0, 0.0 ],
-				[ 0.0, 0.0, sqrt3, 0.0 ],
-				[ 0.0, 0.0, 0.0, sqrt3 ],
-				[ 0.0, sqrt3, 0.0, 0.0 ]
-			]},
-			// 1 - acn-sn3d (aka Ambix1)
-			'acnsn3d', {[
-				[ sqrt2, 0.0, 0.0, 0.0 ],
-				[ 0.0, 0.0, 1.0, 0.0 ],
-				[ 0.0, 0.0, 0.0, 1.0 ],
-				[ 0.0, 1.0, 0.0, 0.0 ]
-			]},
-			// 2 - sid-n3d
-			'sidn3d', {[
-				[ sqrt2, 0.0, 0.0, 0.0 ],
-				[ 0.0, sqrt3, 0.0, 0.0 ],
-				[ 0.0, 0.0, sqrt3, 0.0 ],
-				[ 0.0, 0.0, 0.0, sqrt3 ]
-			]},
-			// 3 - sid-sn3d
-			'sidsn3d', {[
-				[ sqrt2, 0.0, 0.0, 0.0 ],
-				[ 0.0, 1.0, 0.0, 0.0 ],
-				[ 0.0, 0.0, 1.0, 0.0 ],
-				[ 0.0, 0.0, 0.0, 1.0 ]
-			]},
-
-		);
-		matrix = Matrix.with(matrix);
-
-		// set output channel (speaker) directions for instance
-		// still in b-format in this case, so 'inf' directions
-		dirOutputs = matrix.rows.collect({ inf });
-	}
-
 	initDecoderVarsForFiles {
 		if (fileParse.notNil) {
 			dirOutputs = if (fileParse.dirOutputs.notNil) {
@@ -1085,54 +888,25 @@ FoaDecoderMatrix : AtkMatrix {
 FoaEncoderMatrix : AtkMatrix {
 	var <dirInputs;
 
-	*newAtoB_bak { arg orientation = 'flu', weight = 'dec';
-		^super.new('AtoB').initAtoB(orientation, weight);
-	}
 	*newAtoB { arg orientation = 'flu', weight = 'dec';
-		// ^super.new('AtoB').initAtoB(orientation, weight);
 		^super.new('AtoB').loadFromLib(orientation, weight)
 	}
 
-	*newHoa1_bak { arg ordering = 'acn', normalisation = 'n3d';
-		^super.new('hoa1').initHoa1(ordering, normalisation);
-		// ^super.new('hoa1').loadFromLib(ordering, normalisation);
-	}
-
-	*newAmbix1_bak {
-		var ordering = 'acn', normalisation = 'sn3d';
-		^super.new('hoa1').initHoa1(ordering, normalisation);
-		// ^super.new('hoa1').loadFromLib(ordering, normalisation);
-	}
-
-	*newZoomH2n_bak {
-		var ordering = 'acn', normalisation = 'sn3d';
-		^super.new('hoa1').initHoa1(ordering, normalisation);
-		// ^super.new('hoa1').loadFromLib(ordering, normalisation);
-	}
-
 	*newHoa1 { arg ordering = 'acn', normalisation = 'n3d';
-		// ^super.new('hoa1').initHoa1(ordering, normalisation);
 		^super.new('hoa1').loadFromLib(ordering, normalisation);
 	}
 
 	*newAmbix1 {
 		var ordering = 'acn', normalisation = 'sn3d';
-		// ^super.new('hoa1').initHoa1(ordering, normalisation);
 		^super.new('hoa1').loadFromLib(ordering, normalisation);
 	}
 
 	*newZoomH2n {
 		var ordering = 'acn', normalisation = 'sn3d';
-		// ^super.new('hoa1').initHoa1(ordering, normalisation);
 		^super.new('hoa1').loadFromLib(ordering, normalisation);
 	}
 
-	*newOmni_bak {
-		^super.new('omni').initOmni;
-		// ^super.new('omni').loadFromLib;
-	}
 	*newOmni {
-		// ^super.new('omni').initOmni;
 		^super.new('omni').loadFromLib;
 	}
 
@@ -1144,30 +918,15 @@ FoaEncoderMatrix : AtkMatrix {
 		^super.new('stereo').initStereo(angle);
 	}
 
-	*newQuad_bak {
-		^super.new('quad').initQuad;
-		// ^super.new('quad').loadFromLib;
-	}
 	*newQuad {
-		// ^super.new('quad').initQuad;
 		^super.new('quad').loadFromLib;
 	}
 
-	*new5_0_bak {
-		^super.new('5.0').init5_0;
-		// ^super.new('5_0').loadFromLib;
-	}
 	*new5_0 {
-		// ^super.new('5.0').init5_0;
 		^super.new('5_0').loadFromLib;
 	}
 
-	*new7_0_bak {
-		^super.new('7.0').init7_0;
-		// ^super.new('7_0').loadFromLib;
-	}
 	*new7_0 {
-		// ^super.new('7.0').init7_0;
 		^super.new('7_0').loadFromLib;
 	}
 
@@ -1302,43 +1061,6 @@ FoaEncoderMatrix : AtkMatrix {
 		matrix = matrix.putRow(0, matrix.getRow(0) * g0);
 	}
 
-	initAtoB { arg orientation, weight;
-		var bToAMatrix;
-
-		// retrieve corresponding A-format decoder
-		bToAMatrix = FoaDecoderMatrix.newBtoA(orientation, weight);
-
-	    // set input channel directions for instance
-	    dirInputs = bToAMatrix.dirOutputs;
-
-		// build encoder matrix, and set for instance
-	    matrix = bToAMatrix.matrix.inverse
-	}
-
-	initHoa1 { arg ordering, normalisation;
-		var bToHoa1Matrix;
-
-		// retrieve corresponding Hoa1 decoder
-		bToHoa1Matrix = FoaDecoderMatrix.newHoa1(ordering, normalisation);
-
-	    // set input channel directions for instance
-	    dirInputs = bToHoa1Matrix.dirInputs;
-
-		// build encoder matrix, and set for instance
-	    matrix = bToHoa1Matrix.matrix.inverse
-	}
-
-	initOmni {
-
-	    // set input channel directions for instance
-	    dirInputs = [ inf ];
-
-		// build encoder matrix, and set for instance
-	    matrix = Matrix.with([
-		    	[ 2.sqrt.reciprocal ]
-		])
-	}
-
 	initDirection { arg theta, phi;
 
 	    // set input channel directions for instance
@@ -1357,30 +1079,6 @@ FoaEncoderMatrix : AtkMatrix {
 
 	    // set input channel directions for instance
 	    dirInputs = [ pi/2 - angle, (pi/2 - angle).neg ];
-
-	    this.init2D
-	}
-
-	initQuad {
-
-	    // set input channel directions for instance
-	    dirInputs = [ pi/4, pi * 3/4, pi.neg * 3/4, pi.neg/4 ];
-
-	    this.init2D
-	}
-
-	init5_0 {
-
-	    // set input channel directions for instance
-	    dirInputs = [ 0, pi/6, 110/180 * pi, 110/180 * pi.neg, pi.neg/6 ];
-
-	    this.init2D
-	}
-
-	init7_0 {
-
-	    // set input channel directions for instance
-	    dirInputs = [ 0, pi/6, pi/2, 135/180 * pi, 135/180 * pi.neg, pi.neg/2, pi.neg/6 ];
 
 	    this.init2D
 	}
@@ -1518,22 +1216,6 @@ FoaEncoderMatrix : AtkMatrix {
 
 
 FoaXformerMatrix : AtkMatrix {
-
-	*newMirrorX_bak {
-		^super.new('mirrorX').initMirrorX;
-	}
-
-	*newMirrorY_bak {
-		^super.new('mirrorY').initMirrorY;
-	}
-
-	*newMirrorZ_bak {
-		^super.new('mirrorZ').initMirrorZ;
-	}
-
-	*newMirrorO_bak {
-		^super.new('mirrorO').initMirrorO;
-	}
 
 // ~~
 	// Note: the 'kind' of the mirror transforms will be
@@ -1686,64 +1368,6 @@ FoaXformerMatrix : AtkMatrix {
 
 	*newFromFile { arg filePathOrName;
 		^super.new.initFromFile(filePathOrName, 'xformer', true);
-	}
-
-	initMirrorChan { arg chan;
-		matrix = matrix.put(chan, chan, matrix.get(chan, chan).neg)
-	}
-
-	initMirrorX {
-		var chan;
-
-		// ambisonic channel index
-		chan = 1;
-
-		// build identity matrix
-		matrix = Matrix.newIdentity(4);
-
-		// mirror it
-		this.initMirrorChan(chan)
-	}
-
-	initMirrorY {
-		var chan;
-
-		// ambisonic channel index
-		chan = 2;
-
-		// build identity matrix
-		matrix = Matrix.newIdentity(4);
-
-		// mirror it
-		this.initMirrorChan(chan)
-	}
-
-	initMirrorZ {
-		var chan;
-
-		// ambisonic channel index
-		chan = 3;
-
-		// build identity matrix
-		matrix = Matrix.newIdentity(4);
-
-		// mirror it
-		this.initMirrorChan(chan)
-	}
-
-	initMirrorO {
-		var chans;
-
-		// ambisonic channel index
-		chans = [1, 2, 3];
-
-		// build identity matrix
-		matrix = Matrix.newIdentity(4);
-
-		// mirror it
-		chans.do({arg chan;
-			this.initMirrorChan(chan)
-		})
 	}
 
 	initRotate { arg angle;

@@ -1,4 +1,5 @@
-// from wslib - swiped to avoid the dependency in ATK
+// String extension from wslib Quark
+// - duplicated to avoid the dependency on the whole wslib library in ATK
 
 + String {
 

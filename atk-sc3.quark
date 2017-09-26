@@ -9,7 +9,8 @@
            url: "https://github.com/ambisonictoolkit/atk-sc3",
   dependencies: [
               		"MathLib",
-                  "FileLog"
+                  "FileLog",
+                  "Hilbert"
                 ],
   organization: "ATK Community: http://www.ambisonictoolkit.net",
          since: "2011",

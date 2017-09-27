@@ -96,12 +96,13 @@ code in SuperCollider:
     )  
 
 
-Kernels & Recordings
+Kernels, Matrices & Recordings
 --------------------
 
 Additionally, the SuperCollider3 version of the ATK has further dependencies:
 
 * Download and install [ATK Kernels](http://www.ambisonictoolkit.net/download/kernels/).
+* Download and install [ATK Matrices](http://www.ambisonictoolkit.net/download/matrices/).
 * Download and install [ATK Sound File Example Recordings](http://www.ambisonictoolkit.net/download/recordings/).
 
 
@@ -115,12 +116,12 @@ You can build the ATK for SuperCollider UGen components from the [sc3-plugins](h
 &nbsp;
 
 If you are using Ambisonic Toolkit with Reaper as well,
-the convolution kernels are installed in the same place and have
+the convolution kernels and matrices are installed in the same place and have
 the exact same content. We do not expect this to cause any conflicts.
 
 If you want to take a look at the installed files and do not see the
-Library folder in Finder, please press the ALT button while clicking
-the "Go" menu in Finder. The Library folder will show up as an
+`Library` folder in Finder, please press the ALT button while clicking
+the "Go" menu in Finder. The `Library` folder will show up as an
 additional option.
 
 &nbsp;

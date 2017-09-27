@@ -169,23 +169,83 @@ See link::Classes/FoaDecode::, link::Classes/FoaDecoderMatrix:: and link::Classe
 
 section:: Installation
 
-The ATK library for SuperCollider3 consists of several components:
+If you're reading this document, the link::https://github.com/ambisonictoolkit/atk-sc3##atk-sc3 Quark:: has most
+likely been corectly installed.
 
-list::
-## link::https://github.com/ambisonictoolkit/atk-sc3##ATK Quark::
 
-## link::https://github.com/supercollider/sc3-plugins/##SC3-plugins::
+subsection:: Requirements
 
-##link::http://www.ambisonictoolkit.net/download/kernels/##ATK Kernels::
+ATK for link::http://supercollider.github.io##SuperCollider3:: requires version 3.5
+or later. Download the latest version link::http://supercollider.github.io/download##here::, or fork the source code at
+link::http://supercollider.github.io/##GitHub::.
 
-##link::http://www.ambisonictoolkit.net/download/recordings/##ATK Example Soundfiles::
+subsection:: atk-sc3 Quark
+
+The ATK for link::http://supercollider.github.io##SuperCollider3::'s classes,
+extension methods and documentation are distributed via the
+link::https://github.com/ambisonictoolkit/atk-sc3##atk-sc3 Quark::. Start by reviewing the Quark installation instructions
+link::https://github.com/supercollider-quarks/quarks#installing#found here::.
+See also link::http://doc.sccode.org/Guides/UsingQuarks.html##Using Quarks::.
+
+With link::https://git-scm.com/##git:: installed, you can easily install the
+link::https://github.com/ambisonictoolkit/atk-sc3##atk-sc3 Quark:: directly by
+running the following line of code in SuperCollider:
+
+code::
+Quarks.install("https://github.com/ambisonictoolkit/atk-sc3.git");
 ::
 
-If you're reading this document, the link::https://github.com/ambisonictoolkit/atk-sc3##ATK Quark:: has most likely been corectly installed.
+subsection:: sc3-plugins
 
-For link::Classes/Quark:: installation, see: link::Guides/UsingQuarks:: and the link::https://github.com/supercollider-quarks/quarks/##Quarks for SuperCollider:: project.
+The ATK's compiled UGen component releases are available from the
+link::https://github.com/supercollider/sc3-plugins/releases##sc3-plugins::
+releases page.
 
-note::Please review installation instructions found at link::http://www.ambisonictoolkit.net/download/supercollider/##Download ATK for SuperCollider 3::.::
+Place the downloaded TELETYPE::SC3plugins:: folder in your TELETYPE::Extensions:: folder. On Mac OS X, this resolves to:
+
+code::
+~/Library/Application Support/SuperCollider/Extensions
+::
+
+You may need to create the TELETYPE::Extensions:: folder if it does not
+already exist.
+
+On other platforms, you can find where this is by running the following line
+of code in SuperCollider:
+
+code::
+(
+// post the directory in which to move the SC3Plugins folder
+Platform.userExtensionDir.postln;
+)
+(
+// alternatively, SC can open it for you
+// (assuming it already exists! - you may need to create /Extensions)
+Platform.userExtensionDir.openOS;
+)
+::
+
+subsection:: Kernels, Matrices & Recordings
+
+Additionally, the SuperCollider3 version of the ATK has further dependencies:
+
+list::
+## Download and install
+link::http://www.ambisonictoolkit.net/download/kernels/##ATK Kernels::.
+## Download and install
+link::http://www.ambisonictoolkit.net/download/matrices/##ATK Matrices::.
+## Download and install link::http://www.ambisonictoolkit.net/download/recordings/##ATK Example Soundfiles::.
+::
+
+If you are using Ambisonic Toolkit with Reaper as well,
+the convolution kernels and matrices are installed in the same place and have
+the exact same content. We do not expect this to cause any conflicts.
+
+If you want to take a look at the installed files and do not see the
+TELETYPE::Library:: folder in Finder, please press the ALT button while clicking
+the emphasis::Go:: menu in Finder. The TELETYPE::Library:: folder will show up
+as an additional option.
+
 
 section:: Examples
 

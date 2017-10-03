@@ -1,0 +1,42 @@
+CLASS:: FoaNr
+summary:: First Order Ambisonic (FOA) Soundfield Unit Normalized Reactive Intensity Vector
+categories:: Libraries>Ambisonic Toolkit>FOA>Analyzing>UGens, UGens>Multichannel>Ambisonics, UGens>Analysis>Ambisonics
+related:: Classes/FoaMagNa, Classes/FoaMagNr, Classes/FoaNa
+
+DESCRIPTION::
+Return the emphasis::Unit Normalized Reactive Intensity Vector::, emphasis::Nr::, of a first order ambisonic (B-format) signal.
+
+
+NOTE::
+link::Classes/FoaNr:: is usually called via the convenience wrapper link::Classes/FoaAnalyze::.
+::
+
+
+CLASSMETHODS::
+
+METHOD:: ar
+
+argument:: in
+The B-format signal, an array: [w, x, y, z]
+
+argument:: size
+Analysis filter kernel size.
+
+NOTE::For strong::method::: code::'instant'::, must be a power of 2.::
+
+argument:: method
+The Soundfield analysis method:
+
+list::
+## code::'instant'::
+## code::'average'::
+::
+
+warning::This UGen requires the emphasis::reactive:: intensity vector, so will throw an error if called with the code::'average':: keyword.::
+
+Please see discussion of strong::method:: link::Classes/FoaAnalyze#Analysis%20method#here::.
+
+
+EXAMPLES::
+
+Please see various examples link::Classes/FoaAnalyze#examples#here::.

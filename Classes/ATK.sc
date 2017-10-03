@@ -28,6 +28,7 @@
 // 	Class (UGen superclass): Foa
 //
 // 	Class (UGen): FoaPanB
+//     Class: FoaMFreqOsc
 //
 // 	Class (UGen): FoaDirectO
 // 	Class (UGen): FoaDirectX
@@ -521,6 +522,28 @@ FoaPanB : MultiOutUGen {
 	checkInputs { ^this.checkNInputs(1) }
 }
 
+
+FoaMFreqOsc : FoaUGen  {
+
+	*ar { arg freq = 440, phase = 0, azimuthA = 0, elevationA = 0, azimuthR = 0, elevationR = 0, alpha = 0, beta = 0, mul = 1, add = 0;
+		var dc, dcl0a, dcl0r, aA, aR, out;
+
+		dc = DC.ar(1);
+		dcl0a = 2.sqrt.reciprocal * dc;
+		dcl0r = 0 * dc;
+
+		aA = FoaPanB.ar(dc, azimuthA, elevationA, alpha.cos).put(0, dcl0a) * FoaDirectO.ar(Array.fill(4, {dc}), beta);
+		aR = FoaPanB.ar(dc, azimuthR, elevationR, alpha.sin).put(0, dcl0r) * FoaDirectO.ar(Array.fill(4, {dc}), beta);
+
+		out = SinOsc.ar(freq, phase + pi/2, aA) + SinOsc.ar(freq, phase, aR);
+		out = out.madd(mul, add);
+		out = this.checkChans(out);
+
+		^out
+	}
+}
+
+
 Foa : MultiOutUGen {
 
 	init { arg ... theInputs;
@@ -794,32 +817,33 @@ FoaUGen {
 	}
 
 	*argDict { arg ugen, args, argDefaults;
-			var index, userDict;
-			var ugenKeys;
-			var ugenDict;
-			// find index dividing ordered and named args
-			index = args.detectIndex({arg item; item.isKindOf(Symbol)});
+		var index, userDict;
+		var ugenKeys;
+		var ugenDict;
 
-			// find ugen args, drop [ 'this', sig]
-			ugenKeys = ugen.class.findRespondingMethodFor(\ar).argNames.drop(2);
-			ugenDict = Dictionary.new;
-			ugenKeys.do({arg key, i; ugenDict.put(key, argDefaults.at(i))});
+		// find ugen args, drop [ 'this', sig]
+		ugenKeys = ugen.class.findRespondingMethodFor(\ar).argNames.drop(2);
+		ugenDict = Dictionary.new;
+		ugenKeys.do({arg key, i; ugenDict.put(key, argDefaults.at(i))});
 
-			// build user dictionary
-			userDict = Dictionary.new(ugenKeys.size);
-			(index == nil).not.if({
-				userDict = userDict.putAll(Dictionary.newFrom(args[index..]));
-			}, {
-				index = args.size;
-			});
-			userDict = userDict.putAll(Dictionary.newFrom((index).collect({arg i;
-				[ugenKeys.at(i), args.at(i)]}).flat));
+		// find index dividing ordered and named args
+		index = args.detectIndex({arg item; ugenKeys.matchItem(item)});
 
-			// merge
-			^ugenDict.merge(userDict, {
-				arg ugenArg, userArg; (userArg != nil).if({userArg})
-			})
-		}
+		// build user dictionary
+		userDict = Dictionary.new(ugenKeys.size);
+		(index == nil).not.if({
+			userDict = userDict.putAll(Dictionary.newFrom(args[index..]));
+		}, {
+			index = args.size;
+		});
+		userDict = userDict.putAll(Dictionary.newFrom((index).collect({arg i;
+			[ugenKeys.at(i), args.at(i)]}).flat));
+
+		// merge
+		^ugenDict.merge(userDict, {
+			arg ugenArg, userArg; (userArg != nil).if({userArg})
+		})
+	}
 }
 
 FoaDecode : FoaUGen {

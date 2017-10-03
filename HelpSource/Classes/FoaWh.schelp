@@ -1,0 +1,40 @@
+CLASS:: FoaWh
+summary:: First Order Ambisonic (FOA) Soundfield Heyser's Total Energy Density
+categories:: Libraries>Ambisonic Toolkit>FOA>Analyzing>UGens, UGens>Multichannel>Ambisonics, UGens>Analysis>Ambisonics
+related:: Classes/FoaWp, Classes/FoaWu, Classes/FoaWs, Classes/FoaWd, Classes/FoaSFWhL
+
+DESCRIPTION::
+Return the emphasis::Heyser's Total Energy Density::, emphasis::Wh::, of a first order ambisonic (B-format) signal.
+
+
+NOTE::
+link::Classes/FoaWh:: is usually called via the convenience wrapper link::Classes/FoaAnalyze::.
+::
+
+
+CLASSMETHODS::
+
+METHOD:: ar
+
+argument:: in
+The B-format signal, an array: [w, x, y, z]
+
+argument:: size
+Analysis filter kernel size.
+
+NOTE::For strong::method::: code::'instant'::, must be a power of 2.::
+
+argument:: method
+The Soundfield analysis method:
+
+list::
+## code::'instant'::
+## code::'average'::
+::
+
+Please see discussion of strong::method:: link::Classes/FoaAnalyze#Analysis%20method#here::.
+
+
+EXAMPLES::
+
+Please see various examples link::Classes/FoaAnalyze#examples#here::.

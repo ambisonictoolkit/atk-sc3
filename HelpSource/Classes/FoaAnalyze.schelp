@@ -1,0 +1,118 @@
+CLASS:: FoaAnalyze
+summary:: First Order Ambisonic (FOA) analyzer
+categories:: Libraries>Ambisonic Toolkit>FOA>Analyzing, UGens>Multichannel>Ambisonics, UGens>Analysis>Ambisonics
+
+DESCRIPTION::
+Analyzes a first order ambisonic signal (B-format).
+
+NOTE::
+link::Classes/FoaAnalyze:: is a convenience wrapper around the various analyzer UGens.
+::
+
+
+CLASSMETHODS::
+
+METHOD:: ar
+
+argument:: in
+The input signal, an array: [in0, in1, ... inN]
+
+argument:: kind
+The kind of analysis to apply.
+anchor::analyses::
+
+note:: All analyzers take args of code::size = 2048::, code::method = 'instant':: as defaults.::
+
+definitionList::
+## Soundfield Levels
+## code:: 'SFPL' :: || link::Classes/FoaSFPL::
+## code:: 'SFVL' :: || link::Classes/FoaSFVL::
+## code:: 'SFWL' :: || link::Classes/FoaSFWL::
+## code:: 'SFWhL' :: || link::Classes/FoaSFWhL::
+## code:: 'SFIL' :: || link::Classes/FoaSFIL::
+
+## Soundfield Indicators
+## code:: 'alpha' :: || link::Classes/FoaAlpha::
+## code:: 'beta' :: || link::Classes/FoaBeta::
+## code:: 'gamma' :: || link::Classes/FoaGamma::
+
+## Soundfield Energies
+## code:: 'Wp' :: || link::Classes/FoaWp::
+## code:: 'Wu' :: || link::Classes/FoaWu::
+## code:: 'Ws' :: || link::Classes/FoaWs::
+## code:: 'Wd' :: || link::Classes/FoaWd::
+## code:: 'Wh' :: || link::Classes/FoaWh::
+
+## Soundfield Intensities - magnitudes
+## code:: '||I||' :: || link::Classes/FoaMagI::
+## code:: '||Ia||' :: || link::Classes/FoaMagIa::
+## code:: '||Ir||' :: || link::Classes/FoaMagIr::
+## code:: '||A||' :: || link::Classes/FoaMagA::
+## code:: '||Aa||' :: || link::Classes/FoaMagAa::
+## code:: '||Ar||' :: || link::Classes/FoaMagAr::
+## code:: '||W||' :: || link::Classes/FoaMagW::
+## code:: '||Wa||' :: || link::Classes/FoaMagWa::
+## code:: '||Wr||' :: || link::Classes/FoaMagWr::
+## code:: '||Na||' :: || link::Classes/FoaMagNa::
+## code:: '||Nr||' :: || link::Classes/FoaMagNr::
+
+## Soundfield Incidences - vectors
+## code:: 'thetaPhiA' :: || link::Classes/FoaThetaPhiA::
+## code:: 'thetaPhiR' :: || link::Classes/FoaThetaPhiR::
+
+## Soundfield Intensities - vectors
+## code:: 'Ia' :: || link::Classes/FoaIa::
+## code:: 'Ir' :: || link::Classes/FoaIr::
+## code:: 'Aa' :: || link::Classes/FoaAa::
+## code:: 'Ar' :: || link::Classes/FoaAr::
+## code:: 'Wa' :: || link::Classes/FoaWa::
+## code:: 'Wr' :: || link::Classes/FoaWr::
+## code:: 'Na' :: || link::Classes/FoaNa::
+## code:: 'Nr' :: || link::Classes/FoaNr::
+::
+
+
+argument::  ... args
+Arguments (listed above with each 'kind') for the wrapped transformer UGens. Arguments can NOT be passed in through keyword through the FoaAnalyze wrapper. You can pass values in by keyword if you use the transform UGens directly.
+
+SUBSECTION:: Analysis method
+Analyzers offer two strong::method::s of analysis:
+
+list::
+## code::'instant'::
+## code::'average'::
+::
+
+These keywords describe the form of the underlying filter method employed to return the various analyses. emphasis::Instantaneous time domain:: soundfield analysis is offered by code::'instant':: where emphasis::time averaged time domain:: analysis is returned by code::'average'::.
+
+The emphasis::instantaneous:: analysis method uses link::https://en.wikipedia.org/wiki/Hilbert_transform##Hilbert Transform:: Filters to generate an link::https://ccrma.stanford.edu/~jos/st/Analytic_Signals_Hilbert_Transform.html##Analytic Signal:: from which the resulting time domain analysis is derived. As a result, the code::'instant':: analysis method is able to return a detailed view of both the emphasis::active:: and emphasis::reactive:: soundfield components. footnote::F. Jacobsen, A note on instantaneous and time-averaged active and reactive sound intensity, Journal of Sound and Vibration, Volume 147, Issue 3, 1991, Pages 489-496, ISSN 0022-460X, http://dx.doi.org/10.1016/0022-460X(91)90496-7.
+(http://www.sciencedirect.com/science/article/pii/0022460X91904967):: Additionally, as implied by the name, code::'instant':: returns the emphasis::instantaneous:: sample-by-sample analysis of soundfield features. As you would expect, the resolution of the analysis is determined by the resolution of the underlying link::https://en.wikipedia.org/wiki/Hilbert_transform##Hilbert Transform:: Filters. Increasing the strong::size:: argument to larger values increases the frequency domain bandwidth of the analysis. The link::https://en.wikipedia.org/wiki/Hilbert_transform##Hilbert Transform:: Filters employed are emphasis::linear phase:: for the emphasis::Real:: response, and therefore introduce a delay. Since the link::https://en.wikipedia.org/wiki/Fast_Fourier_transform##Fast Fourier Transform:: is used to realize the link::https://en.wikipedia.org/wiki/Hilbert_transform##Hilbert Transform:: Filters, strong::size:: is constrained to a power of 2.
+
+The emphasis::time averaged:: analysis method, code::'average'::, is implemented through the use of an un-weighted link::https://en.wikipedia.org/wiki/Finite_impulse_response#Moving_average_example#Moving Average:: Filter. This filter also has a emphasis::linear phase:: response, and therefore the emphasis::time averaged:: method also introduces a delay. Rather than a sample-by-sample view, this analysis offers an efficient emphasis::time averaged:: reading of the soundfield. While detailed inspection of the emphasis::active:: features of the soundfield is available, some aspects of the emphasis::reactive:: soundfield are invisible to the emphasis::time average:: method. footnote::Only the magnitude of the emphasis::reactive intensity:: is available.:: As with code::'instant'::, increasing the strong::size:: argument to larger values increases the bandwidth of the analysis. The strong::size:: of the link::https://en.wikipedia.org/wiki/Finite_impulse_response#Moving_average_example#Moving Average:: Filter emphasis::is not:: constrained to a power of 2.
+
+
+These features are summarized:
+
+table::
+## strong::keyword:: || strong::method:: || strong::analysis:: || strong::filter:: || strong::delay:: (samples) || strong::cost::
+## code::'instant':: || instantaneous time || emphasis::Active:: & emphasis::Reactive:: Vectors || link::https://en.wikipedia.org/wiki/Hilbert_transform##Hilbert Transform:: || code::size - blockSize:: footnote::Where link::Classes/ServerOptions#-blockSize#blockSize:: is the number of samples in one control period of the link::Classes/Server:: in use.:: || higher
+## code::'average':: || averaged time || emphasis::Active:: Vectors, emphasis::Reactive:: Magnitudes || link::https://en.wikipedia.org/wiki/Finite_impulse_response#Moving_average_example#Moving Average:: || code::size/2:: || lower
+::
+
+warning::
+The following UGens require the emphasis::reactive:: intensity vector, so will throw an error if called with the code::'average':: keyword:
+
+list::
+## link::Classes/FoaGamma::
+## link::Classes/FoaThetaPhiR::
+## link::Classes/FoaIr::
+## link::Classes/FoaAr::
+## link::Classes/FoaWr::
+## link::Classes/FoaNr::
+::
+::
+
+
+EXAMPLES::
+
+TBD

@@ -1,6 +1,6 @@
 TITLE:: FoaMatrixChain
 summary:: Chain multiple FoaXformerMatrix transforms.
-categories:: Libraries>Ambisonic Toolkit>FOA
+categories:: Libraries>Ambisonic Toolkit>FOA>Transforming
 related:: Classes/FoaXformDisplay
 
 DESCRIPTION::

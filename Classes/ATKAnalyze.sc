@@ -55,8 +55,8 @@
 // 	Class: FoaBeta
 // 	Class: FoaGamma
 //
-// 	Class: FoaThetaPhia
-// 	Class: FoaThetaPhir
+// 	Class: FoaThetaPhiA
+// 	Class: FoaThetaPhiR
 //
 // 	Class: FoaIa
 // 	Class: FoaIr
@@ -1045,7 +1045,7 @@ FoaThetaPhiR : FoaEval {
 		}
 		{ method == 'average' } {
 			// Consider re-writing this!!
-			Error(format("FoaThetaPhir.ar argument method = %, INVALID.", method)).throw;
+			Error(format("FoaThetaPhiR.ar argument method = %, INVALID.", method)).throw;
 		}
 	}
 }
@@ -1698,7 +1698,7 @@ FoaAnalyze : FoaEval {
 
 			'thetaPhia', {
 
-				ugen = FoaThetaPhia;
+				ugen = FoaThetaPhiA;
 				argDefaults = [2048, 'instant'];
 
 				argDict = this.argDict(ugen, args, argDefaults);
@@ -1711,7 +1711,7 @@ FoaAnalyze : FoaEval {
 
 			'thetaPhir', {
 
-				ugen = FoaThetaPhir;
+				ugen = FoaThetaPhiR;
 				argDefaults = [2048, 'instant'];
 
 				argDict = this.argDict(ugen, args, argDefaults);

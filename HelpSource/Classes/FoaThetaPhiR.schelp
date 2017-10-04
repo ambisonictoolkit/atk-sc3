@@ -1,0 +1,42 @@
+CLASS:: FoaThetaPhiR
+summary:: First Order Ambisonic (FOA) Azimuth & Elevation of Soundfield Reactive Intensity Vector
+categories:: Libraries>Ambisonic Toolkit>FOA>Analyzing>UGens, UGens>Multichannel>Ambisonics, UGens>Analysis>Ambisonics
+related:: Classes/FoaIr, Classes/FoaMagIr, Classes/FoaThetaPhiA
+
+DESCRIPTION::
+Return the emphasis::Azimuth & Elevation of Reactive Intensity Vector:: of a first order ambisonic (B-format) signal.
+
+
+NOTE::
+link::Classes/FoaThetaPhiR:: is usually called via the convenience wrapper link::Classes/FoaAnalyze::.
+::
+
+
+CLASSMETHODS::
+
+METHOD:: ar
+
+argument:: in
+The B-format signal, an array: [w, x, y, z]
+
+argument:: size
+Analysis filter kernel size.
+
+NOTE::For strong::method::: code::'instant'::, must be a power of 2.::
+
+argument:: method
+The Soundfield analysis method:
+
+list::
+## code::'instant'::
+## code::'average'::
+::
+
+warning::This UGen requires the emphasis::reactive:: intensity vector, so will throw an error if called with the code::'average':: keyword.::
+
+Please see discussion of strong::method:: link::Classes/FoaAnalyze#Analysis%20method#here::.
+
+
+EXAMPLES::
+
+Please see various examples link::Classes/FoaAnalyze#examples#here::.

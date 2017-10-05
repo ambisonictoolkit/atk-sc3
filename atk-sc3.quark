@@ -8,8 +8,9 @@
         schelp: "Intro-to-the-ATK",
            url: "https://github.com/ambisonictoolkit/atk-sc3",
   dependencies: [
-              		"MathLib",
-                  "FileLog"
+              	 "MathLib",
+                 "FileLog",
+				 "wslib",
                 ],
   organization: "ATK Community: http://www.ambisonictoolkit.net",
          since: "2011",

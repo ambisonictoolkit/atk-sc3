@@ -23,8 +23,8 @@ ARGUMENT:: initMatrix
 ARGUMENT:: xFade
 (Optional) The crossfade time between transform matrices if the audition matrix is changed.
 
-ARGUMENT:: amp
-An amplitude applied to the output.
+ARGUMENT:: mul
+Amplitude scalar applied to the output.
 
 ARGUMENT:: addAction
 (Optional) Provide an addAction for placing the matrix mixer synth in a particular place in the Node Tree. Default is \addToTail.
@@ -53,8 +53,8 @@ PRIVATE:: loadSynthDefs, mtxFadeDef
 
 INSTANCEMETHODS::
 
-METHOD:: amp
-Get/set the amp. Note this is NOT a value in dB.
+METHOD:: mul
+Get/set the the amplitude scalar. footnote::You may wish to review the discussion link::Classes/UGen#Documentation%20of%20mul%20and%20add%20arguments#found here::.::
 
 METHOD:: xFade
 Get/set the crossfade time between transform matrices.

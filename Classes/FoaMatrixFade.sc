@@ -49,15 +49,15 @@
 FoaMatrixFade {
     classvar <mtxFadeDef;
     // copyArgs
-    var <outbus, <inbus, initMatrix, <>xFade, <amp, addAction, target, <server, completeCond;
+    var <outbus, <inbus, initMatrix, <>xFade, <mul, addAction, target, <server, completeCond;
     var <synth, <matrix, server, internalInbus=false, internalOutbus=false;
 
 
-    *new { |outbus, inbus, initMatrix, xFade = 0.5, amp = 1,
+    *new { |outbus, inbus, initMatrix, xFade = 0.5, mul = 1,
         addAction, target, server, completeCond|
 
         ^super.newCopyArgs(
-            outbus, inbus, initMatrix, xFade, amp,
+            outbus, inbus, initMatrix, xFade, mul,
             addAction, target, server, completeCond).init;
     }
 
@@ -91,7 +91,7 @@ FoaMatrixFade {
                 \outbus, outbus,
                 \inbus, inbus,
                 \fade, xFade,
-                \amp, amp
+                \mul, mul
             ], targ, addAct );
 
             server.sync;
@@ -117,9 +117,9 @@ FoaMatrixFade {
     }
 
 
-    amp_{ |amplitude|
-        synth.set(\amp, amplitude);
-        amp = amplitude;
+    mul_{ |mul|
+        synth.set(\mul, mul);
+        mul = mul;
     }
 
 
@@ -133,10 +133,10 @@ FoaMatrixFade {
     *loadSynthDefs { |server, cond|
 
         server.waitForBoot({
-            mtxFadeDef = SynthDef(\foaMatrixFade, { arg outbus, inbus, fade = 1.5, amp = 1;
+            mtxFadeDef = SynthDef(\foaMatrixFade, { arg outbus, inbus, fade = 1.5, mul = 1;
                 var foaSrc, array, out;
 
-                foaSrc = In.ar(inbus, 4) * Lag.kr(amp);
+                foaSrc = In.ar(inbus, 4) * Lag.kr(mul);
 
                 array = Control.names([\matrixArray]).kr(
                     Matrix.newIdentity(4).asArray.flat // initialize with no transform

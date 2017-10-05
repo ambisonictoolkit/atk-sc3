@@ -58,8 +58,8 @@ INSTANCEMETHODS::
 METHOD:: outbus
 Get/set the outbus
 
-METHOD:: amp
-Set the amp. Note this is NOT a value in dB.
+METHOD:: mul
+Set the amplitude scalar. footnote::You may wish to review the discussion link::Classes/UGen#Documentation%20of%20mul%20and%20add%20arguments#found here::.::
 
 METHOD:: gui
 Create a gui for the auditioning system, if not already created when initialized.
@@ -73,8 +73,8 @@ Free all the resources.
 METHOD:: group
 Get the code::Group:: containing all the synths. Can be useful to use as a target to achieve proper node order for routing into and from the audition system.
 
-METHOD:: gAmp
-Get the global amp used by all of the playback synths.
+METHOD:: gMul
+Get the global amplitude scalar used by all of the playback synths.
 
 METHOD:: inbus
 Get/set the inbus used by the synth that reads in a 4-channel audio bus to play through the auditioning system.

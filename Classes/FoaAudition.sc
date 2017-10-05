@@ -53,7 +53,7 @@ FoaAudition {
     var <outbus, <xFade, xformMatrix, <inbus, addAction, target, <server, initCond, initGUI;
     var <loading, <auditionEnabled = false, <matrixFader, <group;
     var <pwSynth, <soundfileSynth, <sfSynth_3ch, <sfSynth_4ch, <inbusSynth, <diffSynth, <ui;
-    var <soundfileBuf, <internalInbus, <gAmp = 0.5;
+    var <soundfileBuf, <internalInbus, <gMul = 0.5;
     var synthReleaseTime = 0.5, vdiskinBufSize = 65536;
 
 
@@ -264,10 +264,10 @@ FoaAudition {
     }
 
 
-    amp_ { |amplitude|
-        gAmp = amplitude;
-        matrixFader.amp_(gAmp);
-        this.changed(\amp, gAmp);
+    mul_ { |mul|
+        gMul = mul;
+        matrixFader.mul_(gMul);
+        this.changed(\mul, gMul);
     }
 
 
@@ -401,12 +401,12 @@ FoaAudition {
 
             \FoaAudition_foaDiffuseNoise,
             SynthDef( \FoaAudition_foaDiffuseNoise, {
-                arg outbus, gate = 1, amp = 1, releaseTime = 0.5, rttFreq=0.333, rtt=0;
+                arg outbus, gate = 1, mul = 1, releaseTime = 0.5, rttFreq=0.333, rtt=0;
                 var env, mtx, foa, rttfrq;
 
                 env = EnvGen.kr(Env([0,1,0],[0.1,releaseTime], \sin, 1), gate);
                 mtx = FoaEncoderMatrix.newAtoB;
-                foa = FoaEncode.ar( PinkNoise.ar(-3.dbamp.dup(4)), mtx, amp ) * env;
+                foa = FoaEncode.ar( PinkNoise.ar(-3.dbamp.dup(4)), mtx, mul ) * env;
                 rttfrq = rttFreq * rtt;
                 foa = FoaRTT.ar(foa,
                     LFDNoise3.kr(rttfrq, 2pi),
@@ -417,38 +417,38 @@ FoaAudition {
 
             \FoaAudition_foaSoundfile_3ch,
             SynthDef( \FoaAudition_foaSoundfile_3ch, {
-                arg outbus, buffer, amp = 1, gate = 1, releaseTime = 0.5;
+                arg outbus, buffer, mul = 1, gate = 1, releaseTime = 0.5;
                 var env, foa;
 
                 env = EnvGen.kr(Env([0,1,0],[0.1,releaseTime], \sin, 1), gate);
                 foa = VDiskIn.ar(3, buffer, BufRateScale.kr(buffer), 1);
-                Out.ar(outbus, foa * amp * env);
+                Out.ar(outbus, foa * mul * env);
             }).load(server),
 
             \FoaAudition_foaSoundfile_4ch,
             SynthDef( \FoaAudition_foaSoundfile_4ch, {
-                arg outbus, buffer, amp = 1, gate = 1, releaseTime = 0.5;
+                arg outbus, buffer, mul = 1, gate = 1, releaseTime = 0.5;
                 var env, foa;
 
                 env = EnvGen.kr(Env([0,1,0],[0.1,releaseTime], \sin, 1), gate);
                 foa = VDiskIn.ar(4, buffer, BufRateScale.kr(buffer), 1);
-                Out.ar(outbus, foa * amp * env);
+                Out.ar(outbus, foa * mul * env);
             }).load(server),
 
             \FoaAudition_foaInbus,
             SynthDef( \FoaAudition_foaInbus, {
-                arg outbus, inbus, amp = 1, gate = 1, releaseTime = 0.5;
+                arg outbus, inbus, mul = 1, gate = 1, releaseTime = 0.5;
                 var env, foa;
 
                 env = EnvGen.kr(Env([0,1,0],[0.1,releaseTime], \sin, 1), gate);
-                foa = In.ar(inbus, 4) * amp * env;
+                foa = In.ar(inbus, 4) * mul * env;
                 Out.ar(outbus, foa);
             }).load(server),
 
             \FoaAudition_foaPanNoise,
             SynthDef( \FoaAudition_foaPanNoise, {
                 arg outbus, rotating=1, rotfreq=0.1, tumbling=0, tumfreq=0.1,
-                pulsed=1, pulsefreq=3, amp=0.5, gate=1, releaseTime=0.5,
+                pulsed=1, pulsefreq=3, mul=0.5, gate=1, releaseTime=0.5,
                 t_azim=0, t_elev=0, azimReset=0, elReset;
                 var env, lagTimeU, lagTimeD, src, foa, azim, elev, normRate;
 
@@ -462,9 +462,9 @@ FoaAudition {
                     SelectX.kr(
                         Lag.kr(pulsed, 0.3),
                         [
-                            Lag.kr(amp),    // steady state noise
+                            Lag.kr(mul),    // steady state noise
                             Lag2UD.kr(      // pulsed noise
-                                LFSaw.kr(pulsefreq, 1, -1).range(0, amp),
+                                LFSaw.kr(pulsefreq, 1, -1).range(0, mul),
                                 lagTimeU, lagTimeD
                             )
                         ]
@@ -592,16 +592,16 @@ FoaAuditionView {
 
         ampSl = Slider()
         .action_({|sl|
-            audition.amp_( ampSpec.map( sl.value ).dbamp )
-        }).value_( ampSpec.unmap( audition.gAmp.ampdb ) );
+            audition.mul_( ampSpec.map( sl.value ).dbamp )
+        }).value_( ampSpec.unmap( audition.gMul.ampdb ) );
 
         ampBx = NumberBox()
         .action_({ |bx|
-            audition.amp_( bx.value.dbamp )
+            audition.mul_( bx.value.dbamp )
         })
         .decimals_(1)
         .align_(\center)
-        .value_( audition.gAmp.ampdb )
+        .value_( audition.gMul.ampdb )
         ;
 
         /* noise panner controls */
@@ -1141,7 +1141,7 @@ FoaAuditionView {
                 \diffSynthRunning, {
                     diffPlayBut.stringColor = if (args[0]) {playColor}{stopColor};
                 },
-                \amp, {
+                \mul, {
                     var db = args[0].ampdb;
                     ampSl.value_(ampSpec.unmap( db ));
                     ampBx.value_( db );

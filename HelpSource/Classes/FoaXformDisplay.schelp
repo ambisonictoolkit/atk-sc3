@@ -1,6 +1,6 @@
 TITLE:: FoaXformDisplay
 summary:: Visualize, audition and customize FOA soundfield transforms.
-categories:: Libraries>Ambisonic Toolkit>FOA
+categories:: Libraries>Ambisonic Toolkit>FOA>Transforming
 related:: Classes/FoaMatrixChain, Classes/FoaAudition, Classes/FoaXformerMatrix
 
 DESCRIPTION::

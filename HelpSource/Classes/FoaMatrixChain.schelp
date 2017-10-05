@@ -1,6 +1,6 @@
 TITLE:: FoaMatrixChain
 summary:: Chain multiple FoaXformerMatrix transforms.
-categories:: Libraries>Ambisonic Toolkit>FOA
+categories:: Libraries>Ambisonic Toolkit>FOA>Transforming
 related:: Classes/FoaXformDisplay
 
 DESCRIPTION::
@@ -48,25 +48,7 @@ A code::Boolean:: specifying whether the transform chain is posted whenever a
 transform is changed, added or removed.
 
 
-METHOD:: aerEFromMatrix
-
-ARGUMENT:: matrix
-A link::Classes/Matrix:: representing a soundfield.  If providing an
-FoaXformerMatrix, call code::.matrix:: to get the raw matrix on it before
-setting this argument.
-
-returns:: An code::Array:: containing the strong::[azimuth, elevation,
-directivity, gain]:: of the most prominent incoming wavefront.  strong::Directivity::
-in this case is the strong::magnitude of the energy vector (rE):: in the range of
-0 -> 1; 0 is no directivity (no perceived arrival direction, or arrival
-from all directions), 1 is a planewave arriving from the specified
-azimuth/elevation.
-strong::Azimuth:: and strong::elevation:: are specified in radians.
-The strong::gain returned is in dB::, so be sure to convert as necessary if
-you're looking for amplitude.
-
-
-PRIVATE:: abcs, aedFromMatrix
+PRIVATE:: abcs, aedFromMatrix, aerEFromMatrix
 
 
 INSTANCEMETHODS::

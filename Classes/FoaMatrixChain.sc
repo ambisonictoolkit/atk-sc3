@@ -562,12 +562,19 @@ FoaMatrixChain {
     }
 
 
-    // Note: this should probably be a general Atk utility,
-    // it isn't specific to FoaMatrixChain
-    // based on Jo Anderson's MUSE 'aed' function
+    // Note: both these should probably be re-written as a general Atk utility,
+    // as part of a coefficient analysis suite modeled on the real-time
+    // signal analysis found in ATKAnalyze.sc
+    //
+    // The returned values are equivalent to those listed below.
+    //
     // see also Tapani Pihlajamäki - Multi-resolution Short-time Fourier
     // Transform Implementation of Directional Audio Coding (ch. 6)
     // http://lib.tkk.fi/Dipl/2009/urn100011.pdf
+
+    // FoaThetaPhiA - [Azimuth, Elevation] of Active Intensity Vector
+    // --- [ATK doesn't include the listed measure for directivity]
+    // FoaSFWL - FOA potential & kinetic energy mean, in dB
     *aedFromMatrix { |matrix|
         var b, pv_mean, b_sqrd_mean, p_sqrd, v_sqrd, a, e, d, d_norm, amp;
 
@@ -578,6 +585,7 @@ FoaMatrixChain {
         v_sqrd = b_sqrd_mean[1..].sum;    // summed X^2,Y^2,Z^2; velocity
 
         // directivity measure (planewave = 1)
+        // calculated measure : 1 - beta.abs / 0.5pi
         d = (pi/2) - (2 * atan2(sqrt(v_sqrd), sqrt(p_sqrd)));
         d_norm = 1 - (d.abs / 0.5pi);
 
@@ -594,6 +602,9 @@ FoaMatrixChain {
         ^[a, e, d_norm, amp.abs.ampdb];
     }
 
+    // FoaThetaPhiA - [Azimuth, Elevation] of Active Intensity Vector
+    // FoaMagWa - Magnitude Active Energy Vector: ||Wa||, aka rE
+    // FoaSFWL - FOA potential & kinetic energy mean, in dB
     *aerEFromMatrix { |matrix|
         var b, pressure, velocity,
         activeIntensityVec, potentialEnergy, kineticEnergy, meanEnergy,

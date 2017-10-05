@@ -4,10 +4,12 @@ categories:: Libraries>Ambisonic Toolkit>FOA>Utilities
 related:: Classes/FoaMatrixChain, Classes/FoaXformDisplay
 
 DESCRIPTION::
-An interface for auditioning FOA recordings, panning planewaves, and diffuse soundfields.
-FOA transforms can be can also be auditioned by manually setting a transform matrix or more conveniently through link::Classes/FoaXformDisplay::.
-Note this will boot the server if it's not already booted.
+An interface for auditioning FOA recordings and panning link::Classes/PinkNoise:: planewaves & diffuse soundfields.
+link::Classes/FoaXform##FOA transforms:: can be can also be auditioned by manually setting a link::Classes/FoaXformerMatrix##transform matrix:: or more conveniently through link::Classes/FoaXformDisplay::.
 
+Note:: This will boot the link::Classes/Server:: if it's not already booted.::
+
+image::FoaAudition.png::
 
 
 CLASSMETHODS::
@@ -21,34 +23,34 @@ ARGUMENT:: matrixFadeTime
 (Optional) The crossfade time between transform matrices if the audition matrix is changed.  This is used primarily by link::Classes/FoaXformDisplay::.
 
 ARGUMENT:: xformMatrix
-Optionally provide a transform matrix through which the B-Format signal will play. The default is an identity matrix, i.e. an unchanged soundfield.
+Optionally provide a link::Classes/FoaXformerMatrix##transform matrix:: through which the B-Format signal will play. footnote::Provide the matrix by using the link::Classes/FoaXformerMatrix#-matrix:: method.::  The default is an identity matrix, i.e. an unchanged soundfield.
 
 ARGUMENT:: inbus
 Optionally provide the bus number for the soundfield input module to read in (when set to "inbus").  This can be changed in the GUI as well.
 
 ARGUMENT:: addAction
-Optionally provide an addAction for placing the FoaAudition's group in a particular place in the Node Tree. Default is \addToTail.
-one of the following Symbols:
+Optionally provide an addAction for placing the FoaAudition's link::Classes/Group:: in a particular place in the link::Classes/Node:: Tree. Default is code::\addToTail::.
+one of the following link::Classes/Symbol::s:
 table::
-## \addToHead || (the default) add at the head of the group specified by target
-## \addToTail || add at the tail of the group specified by target
-## \addAfter || add immediately after target in its server's node order
-## \addBefore || add immediately before target in its server's node order
-## \addReplace || replace target and take its place in its server's node order
+## code::\addToHead:: || (the default) add at the head of the group specified by target
+## code::\addToTail:: || add at the tail of the group specified by target
+## code::\addAfter:: || add immediately after target in its server's node order
+## code::\addBefore:: || add immediately before target in its server's node order
+## code::\addReplace:: || replace target and take its place in its server's node order
 ::
-Note: A Synth is not a valid target for \addToHead and \addToTail.
+Note:: A Synth is not a valid target for code::\addToHead:: and code::\addToTail::.::
 
 ARGUMENT:: target
-Optionally, FoaAudition's group is placed according to the strong::addAction:: relative to the strong::target::.
+Optionally, FoaAudition's link::Classes/Group:: is placed according to the strong::addAction:: relative to the strong::target::.
 
 ARGUMENT:: server
-Optionally provide a server on which buffers are loaded and the group is played.
+Optionally provide a link::Classes/Server:: on which link::Classes/Buffer::s are loaded and the link::Classes/Group:: is played.
 
 ARGUMENT:: initCond
-Optionally a code::Condition:: that is signalled once this has allocated all of it's resources.
+Optionally a link::Classes/Condition:: that is signalled once this has allocated all of it's resources.
 
 ARGUMENT:: initGUI
-A Boolean for whether the gui is immediately displayed.  strong::.gui:: can also be called after the instance is created.
+A link::Classes/Boolean:: for whether the gui is immediately displayed.  strong::.gui:: can also be called after the instance is created.
 
 
 
@@ -71,7 +73,7 @@ METHOD:: free
 Free all the resources.
 
 METHOD:: group
-Get the code::Group:: containing all the synths. Can be useful to use as a target to achieve proper node order for routing into and from the audition system.
+Get the link::Classes/Group:: containing all the synths. Can be useful to use as a target to achieve proper node order for routing into and from the audition system.
 
 METHOD:: gMul
 Get the global amplitude scalar used by all of the playback synths.
@@ -80,10 +82,10 @@ METHOD:: inbus
 Get/set the inbus used by the synth that reads in a 4-channel audio bus to play through the auditioning system.
 
 METHOD:: soundfileBuf
-Get the soundfile buffer currently loaded for playback.
+Get the soundfile link::Classes/Buffer:: currently loaded for playback.
 
 METHOD:: loadSoundfile
-Load a new sound file of FOA b-format material for playback. Must be 3 (pantophonic) or 4 (periphonic) channels. This also frees any previously loaded soundfile buffer.
+Load a new sound file of FOA b-format material for playback. Must be 3 (pantophonic) or 4 (periphonic) channels. This also frees any previously loaded soundfile link::Classes/Buffer::.
 
 METHOD:: matrixFader
 Get the instance of code::FoaMatrixFade:: used internally.  Useful for chaning the transform matrix manually, changing the matrix crossfade time, etc.
@@ -127,7 +129,10 @@ SynthDef(\decoder_spherical, { arg outbus = 0, inbus;
 
 x = Synth(\decoder_spherical, [\inbus, a.outbus], a.group, \addAfter);
 
-// now play your sound in the Audition window
+// Now play your sound in the Audition window by
+// pressing the "play" icon on the relevant tab.
+// The above illustration under Description shows
+// the GUI state for auditioning a PinkNoise Planewave.
 
 // Just close the window to clean up when you're done, or use .free
 a.free

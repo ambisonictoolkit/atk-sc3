@@ -176,10 +176,23 @@ List of Changes
 
 Version 4.0.0
 
+*  New features:
+    *  Soundfield Analysis: Real-time soundfield features and vectors
+    *  Soundfield (matrix) transform display
+    *  B-format Audition / Player
+
 *  Refactoring:
     *  Quark-ify: classes, extension methods & documentation moved to
     [atk-sc3 Quark](https://github.com/ambisonictoolkit/atk-sc3). UGens remain
     in [sc3-plugins](https://github.com/supercollider/sc3-plugins).
+    *  Matrix library: fixed matrices moved to [atk-matrices](https://github.com/ambisonictoolkit/atk-matrices). Download
+    fixed matrices: https://github.com/ambisonictoolkit/atk-matrices/releases
+
+*  Documentation Updates:
+   *  README updated to reflect recent changes and installation instructions.
+   *  Fix broken Decoder k links
+   *  Fix -newZoomH2n encoder links
+   *  AtkMatrix - remove duplicated methods & hide -type
 
 *  Issue fixes:
     *  Class library: fix inline warnings

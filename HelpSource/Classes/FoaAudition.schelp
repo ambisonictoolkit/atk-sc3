@@ -38,7 +38,7 @@ table::
 ## code::\addBefore:: || add immediately before target in its server's node order
 ## code::\addReplace:: || replace target and take its place in its server's node order
 ::
-Note:: A Synth is not a valid target for code::\addToHead:: and code::\addToTail::.::
+Note:: A link::Classes/Synth:: is not a valid target for code::\addToHead:: and code::\addToTail::.::
 
 ARGUMENT:: target
 Optionally, FoaAudition's link::Classes/Group:: is placed according to the strong::addAction:: relative to the strong::target::.
@@ -58,7 +58,7 @@ A link::Classes/Boolean:: for whether the gui is immediately displayed.  strong:
 INSTANCEMETHODS::
 
 METHOD:: outbus
-Get/set the outbus
+Get/set the output link::Classes/Bus::
 
 METHOD:: mul
 Set the amplitude scalar. footnote::You may wish to review the discussion link::Classes/UGen#Documentation%20of%20mul%20and%20add%20arguments#found here::.::
@@ -73,13 +73,13 @@ METHOD:: free
 Free all the resources.
 
 METHOD:: group
-Get the link::Classes/Group:: containing all the synths. Can be useful to use as a target to achieve proper node order for routing into and from the audition system.
+Get the link::Classes/Group:: containing all the link::Classes/Synth::s. Can be useful to use as a target to achieve proper node order for routing into and from the audition system.
 
 METHOD:: gMul
-Get the global amplitude scalar used by all of the playback synths.
+Get the global amplitude scalar used by all of the playback link::Classes/Synth::s.
 
 METHOD:: inbus
-Get/set the inbus used by the synth that reads in a 4-channel audio bus to play through the auditioning system.
+Get/set the input link::Classes/Bus:: used by the link::Classes/Synth:: that reads in a 4-channel audio bus to play through the auditioning system.
 
 METHOD:: soundfileBuf
 Get the soundfile link::Classes/Buffer:: currently loaded for playback.

@@ -32,7 +32,7 @@ table::
 ## 1.0 || Bi-directional
 ::
 
-For equivalences to decoder strong::k::, please see link::#decoder k::.
+For equivalences to decoder strong::k::, please see link::#Decoder%20k#Decoder k::.
 
 discussion:: The virtual microphone decoder returns a single monophonic channel, and can be used to "listen in" to the soundfield at the specified azimuth and elevation.
 
@@ -55,7 +55,7 @@ table::
 ## 1.0 || Bi-directional
 ::
 
-For equivalences to decoder strong::k::, please see link::#decoder k::.
+For equivalences to decoder strong::k::, please see link::#Decoder%20k#Decoder k::.
 
 discussion:: Standard coincident stereo microphone configurations footnote::Sengpiel Audio provides a useful tool to visualise resulting imaging: link::http://www.sengpielaudio.com/Visualization-Blumlein-E.htm:::::
 
@@ -109,7 +109,7 @@ discussion:: The outputs are in anti-clockwise order. The position of the first 
 
 Varying strong::angle:: allows a number of flexible quadraphonic decoders to be generated. E.g, strong::angle:: = pi/6 returns a decoder with loudspeakers at [ 30, 150, -150, 30 ] degrees.
 
-Please see link::#decoder k:: for further discussion on strong::k::.
+Please see link::#Decoder%20k#Decoder k:: for further discussion on strong::k::.
 
 
 
@@ -157,7 +157,7 @@ discussion:: The outputs are in anti-clockwise order. The position of the first 
 
 Used in conjunction with link::Classes/FoaDecode#*ar:: the resulting decoder is equivalent to link::Classes/DecodeB2#*ar:: (SuperCollider's inbuilt decoder), albeit with the addition of variable strong::k:: and dual-band optimised psychoacoustic decoding. link::Classes/DecodeB2#*ar:: is a "controlled opposites" decoder ( strong::k:: = code::'controlled':: ) with a gain of 6dB greater than link::#*newPanto::.
 
-Please see link::#decoder k:: for further discussion on strong::k::.
+Please see link::#Decoder%20k#Decoder k:: for further discussion on strong::k::.
 
 
 METHOD:: newPeri
@@ -185,7 +185,7 @@ list::
 
 discussion::  The outputs are in anti-clockwise order, beginning with the top ring. The position of the first speaker is either centre or left of centre. link::#-dirChannels:: may be used to query resulting loudspeaker directions.
 
-Please see link::#decoder k:: for further discussion on strong::k::.
+Please see link::#Decoder%20k#Decoder k:: for further discussion on strong::k::.
 
 
 METHOD:: newDiametric
@@ -242,7 +242,7 @@ code::
 ~decoder.dirChannels.raddeg
 ::
 
-Please see link::#decoder k:: for further discussion on strong::k::.
+Please see link::#Decoder%20k#Decoder k:: for further discussion on strong::k::.
 
 
 METHOD:: newBtoA

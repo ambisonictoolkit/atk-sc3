@@ -377,7 +377,7 @@ subsection:: Quadraphonic decoder
 
 The Ambisonic Toolkit provides an optimised quadraphonic decoder with variable loudspeaker angle. The below example uses the default settings, which results in a square layout, code::'single':: band type ( code::'energy':: ) decoder. This sort of decoder is suitable for mid-scale playback, though, for best results for an audience, the use of a larger array (5+ loudspeakers) is advised. link::Classes/FoaDecoderMatrix#*newPanto:: or link::Classes/FoaDecoderMatrix#*newDiametric:: would be appropriate.
 
-A psychoacoustically optimised (dual-band) near-field compensated decoder, suitable for studio monitoring, is demonstrated link::#psychoacoustically_optimised_quadraphonic_decoder#below::.
+A psychoacoustically optimised (dual-band) near-field compensated decoder, suitable for studio monitoring, is demonstrated link::#Psychoacoustically%20optimised%20quadraphonic%20decoder#below::.
 
 note:: A matrix type decoder, see link::Classes/FoaDecoderMatrix#*newQuad:: for further details.::
 
@@ -451,7 +451,7 @@ subsection:: SuperCollider's inbuilt decoder
 
 By default, SuperCollider includes a pantophonic (2D) decoder, link::Classes/DecodeB2::. This inbuilt decoder provides functionality similar to the Ambisonic Toolkit's link::Classes/FoaDecoderMatrix#*newPanto::, with the exceptions of a variable strong::k:: argument and the documentation features of link::Classes/FoaDecoderMatrix::, e.g. link::Classes/FoaDecoderMatrix#-dirChannels::.
 
-The inbuilt decoder is a code::'controlled':: strong::k:: decoder. (See link::Classes/FoaDecoderMatrix#decoder k#this discussion:: on strong::k::.) The below code includes a function, code::funK::, to add variable strong::k:: functionality to link::Classes/DecodeB2::. So, this example is realised as a code::'single':: band type ( code::'energy':: ) decoder, matching the link::Classes/FoaDecoderMatrix#*newQuad:: example link::#quadraphonic_decoder#above::.
+The inbuilt decoder is a code::'controlled':: strong::k:: decoder. (See link::Classes/FoaDecoderMatrix#Decoder%20k#this discussion:: on strong::k::.) The below code includes a function, code::funK::, to add variable strong::k:: functionality to link::Classes/DecodeB2::. So, this example is realised as a code::'single':: band type ( code::'energy':: ) decoder, matching the link::Classes/FoaDecoderMatrix#*newQuad:: example link::#Quadraphonic%20decoder#above::.
 
 note:: See link::Classes/DecodeB2#*ar:: for further details.::
 
@@ -710,7 +710,7 @@ subsection:: Periphonic (cube) decoder
 
 A full 3D decoder, with eight loudspeakers arranged in upper and lower rings of four. This small eight channel array is not optimal for large scale playback. For public performance, a 10 or 12 channel arrangement (two rings of 5 or 6) is more suitable.
 
-The loudspeaker layout specified by this decoder is more suited to a small-scale situation. See link::#Diametric_(bi-rectangle)_decoder#below:: for a minimal arrangement appropriate for full 3D studio monitoring.
+The loudspeaker layout specified by this decoder is more suited to a small-scale situation. See link::#Diametric%20(bi-rectangle)%20decoder#below:: for a minimal arrangement appropriate for full 3D studio monitoring.
 
 note:: A matrix type decoder, see link::Classes/FoaDecoderMatrix#*newPeri:: for further details.::
 

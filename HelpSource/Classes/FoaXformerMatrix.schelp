@@ -6,7 +6,7 @@ related:: Classes/FoaXform
 DESCRIPTION::
 Generates transform matrices required by the Ambisonic Toolkit's first order (matrix) transformer, link::Classes/FoaXform::.
 
-
+You may wish to explore the visualizations of the available transforms via link::Classes/FoaXformDisplay::.
 
 CLASSMETHODS::
 

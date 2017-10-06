@@ -1,0 +1,109 @@
+TITLE:: FoaMatrixFade
+summary:: A system for fading between FOA matrices (tranforms).
+categories:: Libraries>Ambisonic Toolkit>Internals
+related:: Classes/FoaMatrixChain, Classes/FoaXformDisplay, Classes/FoaXformerMatrix, Classes/FoaXformerMatrix
+
+DESCRIPTION::
+Transform an FOA signal with a link::Classes/Matrix:: or link::Classes/FoaXformerMatrix:: that can be set on the fly, crossfading to the new matrix in strong::xFade:: time.  While this can be used as a standalone utility, it was designed primarily for use by link::Classes/FoaXformDisplay::.
+
+
+CLASSMETHODS::
+
+METHOD:: new
+
+ARGUMENT:: outbus
+A 4-channel output link::Classes/Bus:: to which the link::Classes/Synth:: plays. If not provided, one is created for you on a virtual audio bus, which can be queried with strong::.outbus::.
+
+ARGUMENT:: inbus
+A 4-channel input link::Classes/Bus:: to read in to the matrix mixer. If not provided, one is created for you on a virtual audio bus, which can be queried with strong::.inbus::.
+
+ARGUMENT:: initMatrix
+Optionally provide a link::Classes/FoaXformerMatrix##transform matrix:: through which the B-Format signal will play. footnote::Provide the matrix by using the link::Classes/FoaXformerMatrix#-matrix:: method.::  The default is an identity matrix, i.e. an unchanged soundfield.
+
+ARGUMENT:: xFade
+(Optional) The crossfade time in seconds between transform matrices if the audition matrix is changed.
+
+ARGUMENT:: mul
+Amplitude scalar applied to the output.
+
+ARGUMENT:: addAction
+(Optional) Provide an addAction for placing the matrix mixer link::Classes/Synth:: in a particular
+place in the link::Classes/Node:: Tree. Default is code::\addToTail::.
+one of the following link::Classes/Symbol::s:
+table::
+## code::\addToHead:: || (the default) add at the head of the group specified by target
+## code::\addToTail:: || add at the tail of the group specified by target
+## code::\addAfter:: || add immediately after target in its server's node order
+## code::\addBefore:: || add immediately before target in its server's node order
+## code::\addReplace:: || replace target and take its place in its server's node order
+::
+Note:: A link::Classes/Synth:: is not a valid target for code::\addToHead:: and code::\addToTail::.::
+
+ARGUMENT:: target
+Optionally, the matrix mixer link::Classes/Synth:: is placed according to the strong::addAction:: relative to the strong::target::. Default is (link::Classes/Group::) 1.
+
+ARGUMENT:: server
+(Optional) Provide a link::Classes/Server:: on which the link::Classes/Synth:: is played.
+
+ARGUMENT:: completeCond
+Optionally a link::Classes/Condition:: that is signalled once this has allocated all of it's resources.
+
+
+PRIVATE:: loadSynthDefs, mtxFadeDef
+
+
+INSTANCEMETHODS::
+
+METHOD:: mul
+Get/set the the amplitude scalar. footnote::You may wish to review the discussion link::Classes/UGen#Documentation%20of%20mul%20and%20add%20arguments#found here::.::
+
+METHOD:: xFade
+Get/set the crossfade time between transform matrices.
+
+METHOD:: matrix
+Get/set the transform link::Classes/Matrix::.
+
+ARGUMENT:: newMatrix
+When setting, provide a link::Classes/Matrix:: or link::Classes/FoaXformerMatrix:: to transform your soundfield. The new matrix will crossfade in over strong::xFade:: seconds.
+
+METHOD:: synth
+Get the matrix mix link::Classes/Synth::.
+
+METHOD:: inbus
+Get the input link::Classes/Bus:: read by the matrix fading link::Classes/Synth::.
+
+METHOD:: outbus
+Get the output link::Classes/Bus:: written to by the matrix fading link::Classes/Synth::.
+
+METHOD:: server
+Get the instance of link::Classes/Server:: used by the matrix fading link::Classes/Synth::.
+
+METHOD:: free
+Free the resources used by link::Classes/FoaMatrixFade::.
+
+
+
+
+EXAMPLES::
+
+code::
+s.boot
+b = s.audioBusAllocator.alloc( 4 );
+a = FoaMatrixFade(0, b);
+
+~foa = { FoaPanB.ar( PinkNoise.ar(0.25), LFSaw.kr(0.3).range(0,2pi)) }.play(outbus: b)
+
+// swap to full focus to the left
+a.matrix_( FoaXformerMatrix.newFocus(pi/2, pi/2) )
+
+// swap to full push to the rear, laggin the transition 4 secs
+a.xFade_(4).matrix_( FoaXformerMatrix.newPush(pi/2, -pi) )
+
+// swap to zoom with some elevation
+a.matrix_( FoaXformerMatrix.newZoom(pi/2, -pi, 0.25pi) )
+
+// get the current transform matrix
+a.matrix
+
+[~foa, a, b].do(_.free)
+::

@@ -1,7 +1,7 @@
 TITLE:: FoaMatrixChain
 summary:: Chain multiple FoaXformerMatrix transforms.
-categories:: Libraries>Ambisonic Toolkit>FOA>Transforming
-related:: Classes/FoaXformDisplay
+categories:: Libraries>Ambisonic Toolkit>Internals
+related:: Classes/FoaXformDisplay, Classes/FoaXformerMatrix
 
 DESCRIPTION::
 A utility to chain multiple link::Classes/FoaXformerMatrix:: transforms. While
@@ -31,10 +31,10 @@ index), followed by the index of the node (transform) within that chain. For exa
 you have three parallel chains, and you want to specify the second node position in the
 last parallel chain, then code::whichChan: 2, index: 1::.
 
-strong::Important -:: When modifying the matrix chain, you must call
+note:: When modifying the matrix chain, you must call
 link::#-chainXForms:: in order for the chain and its
 variables to update. At that point link::#-curXformMatrix:: will return the
-resultant transform matrix.
+resultant transform matrix.::
 
 
 
@@ -44,7 +44,7 @@ CLASSMETHODS::
 METHOD:: new
 
 ARGUMENT:: verbose
-A code::Boolean:: specifying whether the transform chain is posted whenever a
+A link::Classes/Boolean:: specifying whether the transform chain is posted whenever a
 transform is changed, added or removed.
 
 
@@ -59,7 +59,7 @@ METHOD:: addTransform
 Insert a transform into the chain.
 
 ARGUMENT:: xformName
-A code::Symbol:: corresponding to the transform's name, as listed by key in
+A link::Classes/Symbol:: corresponding to the transform's name, as listed by key in
 code::.xFormDict.keys::.
 
 ARGUMENT:: whichChain
@@ -147,7 +147,7 @@ Same as reset.
 
 
 METHOD:: verbose
-A Boolean specifying whether the transform chain is posted whenever a
+A link::Classes/Boolean:: specifying whether the transform chain is posted whenever a
 transform is changed, added or removed.
 
 

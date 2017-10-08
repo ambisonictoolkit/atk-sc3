@@ -1155,14 +1155,18 @@ FoaAuditionView {
                 \pwAzim, {
                     var deg = args[0].raddeg;
                     defer {
-                        azimBx.hasFocus.not.if{azimBx.value_( deg )};
+                        azimBx.hasFocus !? { // sometimes .hasFocus can return nil (race condition?)
+                            azimBx.hasFocus.not.if{azimBx.value_( deg )};
+                        };
                         azimSl.value_( azimSpec.unmap(deg) );
                     };
                 },
                 \pwElev, {
                     var deg = args[0].raddeg;
                     defer {
-                        elBx.hasFocus.not.if{elBx.value_( deg )};
+                        elBx.hasFocus !? { // sometimes .hasFocus can return nil (race condition?)
+                            elBx.hasFocus.not.if{elBx.value_( deg )};
+                        };
                         elSl.value_( elSpec.unmap(deg) );
                     };
                 },

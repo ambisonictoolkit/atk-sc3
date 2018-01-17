@@ -44,7 +44,7 @@ Installing
 Requirements
 ------------
 
-* ATK for [SuperCollider3](http://supercollider.github.io) requires version 3.5
+* ATK for [SuperCollider3](http://supercollider.github.io) requires version 3.9
 or later. Download the latest version
 [here](http://supercollider.github.io/download), or fork the source code at
 [GitHub](http://supercollider.github.io/).

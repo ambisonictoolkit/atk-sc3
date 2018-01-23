@@ -10,7 +10,7 @@
   \dependencies: [
               	 "MathLib",
                  "FileLog",
-                 "Hilbert"
+                 "Hilbert",
                  "wslib",
                 ],
   \organization: "ATK Community: http://www.ambisonictoolkit.net",

@@ -1,19 +1,19 @@
 (
-          name: "atk-sc3",
-       summary: "A comprehensive set of tools for working with First Order Ambisonic soundfields.",
-        author: "Joseph Anderson, Josh Parmenter, & the Ambisonic Toolkit Community",
-     copyright: "Ambisonic Toolkit Community, Joseph Anderson, and Josh Parmenter, 2011, 2016-17",
-       license: "GPL",
-       version: "4.0.0",
-        schelp: "Intro-to-the-ATK",
-           url: "https://github.com/ambisonictoolkit/atk-sc3",
-  dependencies: [
+          \name: "atk-sc3",
+       \summary: "A comprehensive set of tools for working with First Order Ambisonic soundfields.",
+        \author: "Joseph Anderson, Josh Parmenter, & the Ambisonic Toolkit Community",
+     \copyright: "Ambisonic Toolkit Community, Joseph Anderson, and Josh Parmenter, 2011, 2016-17",
+       \license: "GPL",
+       \version: "4.0.0",
+        \schelp: "Intro-to-the-ATK",
+           \url: "https://github.com/ambisonictoolkit/atk-sc3",
+  \dependencies: [
               	 "MathLib",
                  "FileLog",
                  "Hilbert"
                  "wslib",
                 ],
-  organization: "ATK Community: http://www.ambisonictoolkit.net",
-         since: "2011",
-ext_dependancy: "See installation instructions: http://www.ambisonictoolkit.net/download/supercollider/. SC3-plugins: https://github.com/supercollider/sc3-plugins. ATK Kernels: https://github.com/ambisonictoolkit/atk-kernels",
+  \organization: "ATK Community: http://www.ambisonictoolkit.net",
+         \since: "2011",
+\ext_dependancy: "See installation instructions: http://www.ambisonictoolkit.net/download/supercollider/. SC3-plugins: https://github.com/supercollider/sc3-plugins. ATK Kernels: https://github.com/ambisonictoolkit/atk-kernels",
 )

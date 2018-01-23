@@ -174,6 +174,16 @@ Ambisonic Toolkit.
 List of Changes
 ---------------
 
+Version 4.0.1
+
+*  Documentation Updates:
+   *  README: add Michael McCrea as named contributor in Author & Copyright
+   notices.
+
+*  Issue fixes:
+    *  Correct Quark file dependencies
+
+
 Version 4.0.0
 
 *  New features:
@@ -303,8 +313,8 @@ Credits
 
 &nbsp;
 
-Copyright the ATK Community, Joseph Anderson, and Joshua Parmenter, 2011,
-2016-17.
+Copyright the ATK Community, Joseph Anderson, Joshua Parmenter, and
+Michael McCrea 2011, 2016-18.
 
 * J Anderson : [[e-mail]](mailto:j.anderson[at]ambisonictoolkit.net)
 * J Parmenter : [[e-mail]](mailto:j.parmenter[at]ambisonictoolkit.net)
@@ -321,6 +331,9 @@ are copyright the Ambisonic Toolkit Community and Joseph Anderson,
 
 Contributors
 ------------
+
+Version 4.0.1
+*  Joseph Anderson (@joslloand)
 
 Version 4.0.0
 *  Joseph Anderson (@joslloand)

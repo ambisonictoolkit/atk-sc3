@@ -175,7 +175,7 @@ likely been corectly installed.
 
 subsection:: Requirements
 
-ATK for link::http://supercollider.github.io##SuperCollider3:: requires version 3.5
+ATK for link::http://supercollider.github.io##SuperCollider3:: requires version 3.9
 or later. Download the latest version link::http://supercollider.github.io/download##here::, or fork the source code at
 link::http://supercollider.github.io/##GitHub::.
 

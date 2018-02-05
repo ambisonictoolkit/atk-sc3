@@ -208,6 +208,16 @@ HoaOrder {
     // ------------
     // Return decoder measures or coefficients
 
+    // effective decoding radius
+    radius { arg freq;
+        ^(this.order*Atk.speedOfSound) / (2*pi*freq)
+    }
+
+    // effective decoding frequency
+    freq { arg radius;
+        ^(this.order*Atk.speedOfSound) / (2*pi*radius)
+    }
+
     // maximum average rV for an Ambisonic decoder
     rV { arg k = 'basic', dim = 3;
         var m = this.order;

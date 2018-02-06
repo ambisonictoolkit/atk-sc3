@@ -193,4 +193,37 @@ HoaDegree {
     }
 
 
+    // ------------
+    // Return normalisation coefficients
+
+    // 3D Schmidt semi-normalisation
+    sn3d {
+        ^this.lm.collect({ arg lm;
+            HoaLm.new(lm).sn3d
+        })
+    }
+
+    // 3D full normalisation
+    n3d {
+        ^this.lm.collect({ arg lm;
+            HoaLm.new(lm).n3d
+        })
+    }
+
+    // 2D full normalisation
+    n2d {
+        ^this.lm.collect({ arg lm;
+            HoaLm.new(lm).n2d
+        })
+    }
+
+    // 2D semi-normalisation
+    sn2d {
+        ^this.lm.collect({ arg lm;
+            HoaLm.new(lm).sn2d
+        })
+    }
+
+    // // Add: maxN, bigMaxN
+
 }

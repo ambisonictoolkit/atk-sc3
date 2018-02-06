@@ -206,6 +206,40 @@ HoaOrder {
 
 
     // ------------
+    // Return normalisation coefficients
+
+    // 3D Schmidt semi-normalisation
+    sn3d {
+        ^(this.order + 1).collect({ arg l;
+            HoaDegree.new(l).sn3d
+        }).flatten
+    }
+
+    // 3D full normalisation
+    n3d {
+        ^(this.order + 1).collect({ arg l;
+            HoaDegree.new(l).n3d
+        }).flatten
+    }
+
+    // 2D full normalisation
+    n2d {
+        ^(this.order + 1).collect({ arg l;
+            HoaDegree.new(l).n2d
+        }).flatten
+    }
+
+    // 2D semi-normalisation
+    sn2d {
+        ^(this.order + 1).collect({ arg l;
+            HoaDegree.new(l).sn2d
+        }).flatten
+    }
+
+    // // Add: maxN, bigMaxN
+
+
+    // ------------
     // Return decoder measures or coefficients
 
     // effective decoding radius

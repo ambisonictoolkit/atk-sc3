@@ -192,4 +192,42 @@ HoaLm {
     }
 
 
+    // ------------
+    // Return normalisation coefficients
+
+    // 3D Schmidt semi-normalisation
+    sn3d {
+        var l, m, dm, mabs;
+        #l, m = this.lm;
+        dm = (m==0).asInt;
+        mabs = m.abs;
+        ^sqrt(
+            (2 - dm) * (
+                floatFactorial(l - mabs) / floatFactorial(l + mabs)
+            )
+        )
+    }
+
+    // 3D full normalisation
+    n3d {
+        ^sqrt((2*this.l) + 1) * this.sn3d
+    }
+
+    // 2D full normalisation
+    n2d {
+        var l = this.l;
+        ^sqrt(
+            2.pow(2*l) * floatFactorial(l).pow(2) /
+            floatFactorial((2*l) + 1)
+        ) * this.n3d
+    }
+
+    // 2D semi-normalisation
+    sn2d {
+        var lne0;
+        lne0 = (this.l>0).asInt;
+        ^2.pow(-0.5 * lne0) * this.n2d
+    }
+
+    // // Add: maxN, bigMaxN
 }

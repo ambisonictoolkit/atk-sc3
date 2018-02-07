@@ -240,6 +240,17 @@ HoaOrder {
 
 
     // ------------
+    // Return encoding coefficients
+
+    // N3D normalized coefficients
+    sph { arg theta = 0.0, phi = 0.0;
+        ^this.lm.collect({ arg lm;
+            HoaLm.new(lm).sph(theta, phi)
+        })
+    }
+
+
+    // ------------
     // Return decoder measures or coefficients
 
     // effective decoding radius

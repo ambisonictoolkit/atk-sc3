@@ -50,12 +50,32 @@
 // factorial calculation using 64-bit double precision floating point numbers
 // NOTE: may wish to add this to "https://github.com/supercollider-quarks/MathLib"
 + Integer {
-	floatFactorial {
+    floatFactorial {
 
-		var product = 1.0;
-		this.asFloat.do({ arg x;
-			product = product * (x + 1);
-		});
-		^product
-	}
+        var product = 1.0;
+        this.asFloat.do({ arg x;
+            product = product * (x + 1);
+        });
+        ^product
+    }
+
+    isSquareOf {
+        var sum = 0;
+        var res;
+
+        ^this.isNegative.if({
+            nil
+        }, {
+            res = 0;
+            { sum < this }.while({
+                sum = Array.series(res+1, 1, 2).sum;
+                res = res+1;
+            });
+            (sum == this).if({
+                res
+            }, {
+                nil
+            })
+        })
+    }
 }

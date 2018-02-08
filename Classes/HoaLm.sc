@@ -229,7 +229,35 @@ HoaLm {
         ^2.pow(-0.5 * lne0) * this.n2d
     }
 
-    // // Add: maxN, bigMaxN
+    // maxN normalization
+    maxN {
+        var twoDivSqrt3, sqrt45_32, threeDivSqrt5, sqrt8_5;
+        var norms;
+        twoDivSqrt3 = 2/3.sqrt;
+        sqrt45_32 = (45/32).sqrt;
+        threeDivSqrt5 = 3/5.sqrt;
+        sqrt8_5 = (8/5).sqrt;
+
+        // scaling to convert from SN3D to maxN
+        // indexed by ACN
+        norms = [
+            1.0,  // W
+            1.0, 1.0, 1.0,  // Y, Z, X
+            twoDivSqrt3, twoDivSqrt3, 1.0, twoDivSqrt3, twoDivSqrt3,  // V, T, R, S, U
+            sqrt8_5, threeDivSqrt5, sqrt45_32, 1, sqrt45_32, threeDivSqrt5, sqrt8_5  // Q, O, M, K, L, N, P
+        ];
+
+        ^norms[this.index] * this.sn3d
+    }
+
+    // MaxN normalization, aka FuMa
+    fuma {
+        ^(this.index == 0).if({
+            2.sqrt.reciprocal  // W
+        }, {
+            this.maxN
+        })
+    }
 
 
     // ------------

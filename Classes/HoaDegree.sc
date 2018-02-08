@@ -224,8 +224,19 @@ HoaDegree {
         })
     }
 
-    // // Add: maxN, bigMaxN
+    // maxN normalization
+    maxN {
+        ^this.lm.collect({ arg lm;
+            HoaLm.new(lm).maxN
+        })
+    }
 
+    // MaxN normalization, aka FuMa
+    fuma {
+        ^this.lm.collect({ arg lm;
+            HoaLm.new(lm).fuma
+        })
+    }
 
     // ------------
     // Return encoding coefficients

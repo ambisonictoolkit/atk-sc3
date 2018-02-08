@@ -236,7 +236,19 @@ HoaOrder {
         }).flatten
     }
 
-    // // Add: maxN, bigMaxN
+    // maxN normalization
+    maxN {
+        ^(this.order + 1).collect({ arg l;
+            HoaDegree.new(l).maxN
+        }).flatten
+    }
+
+    // MaxN normalization, aka FuMa
+    fuma {
+        ^(this.order + 1).collect({ arg l;
+            HoaDegree.new(l).fuma
+        }).flatten
+    }
 
 
     // ------------

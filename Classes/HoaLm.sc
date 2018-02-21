@@ -57,45 +57,44 @@ HoaLm {
         ^super.newCopyArgs(lm)
     }
 
-    // index - ACN
-    *newIndex { arg index;
+    *newIndex { arg index, ordering = \acn;
         var l, m;
-        l = (floor(sqrt(index))).asInt;
-        m = index - l.squared - l
-        ^this.new([l, m])
+
+        switch (ordering,
+            \acn, {
+                l = (floor(sqrt(index))).asInt;
+                m = index - l.squared - l
+                ^this.new([l, m])
+            },
+            \sid, {
+                var m0, m1, bool;
+                l = index.sqrt.floor.asInt;
+                m0 = (((l + 1).squared - (index + 1)) / 2).floor.asInt;
+                m1 = -1 * (((l + 1).squared - index) / 2).floor.asInt;
+                bool = (m0 == m1.abs);
+                m = (m0 * bool.asInt) + (m1 * bool.not.asInt);
+                ^this.new([l, m])
+            },
+            \fuma, {
+                l = index.sqrt.floor.asInt;
+
+                ^(l<=1).if({
+                    this.newIndex(index, \sid)
+                }, {
+                    var m, m0, m1, bool;
+
+                    m0 = -1 * ((index - l.squared) / 2).floor.asInt;
+                    m1 = ((index +1 - l.squared) / 2).floor.asInt;
+
+                    bool = (m1 == m0.abs);
+                    m = (m0 * bool.asInt) + (m1 * bool.not.asInt);
+
+                    this.new([l, m])
+                })
+            },
+        )
     }
 
-    // SID
-    *newSidIndex { arg sid;
-        var l, m, m0, m1, bool;
-        l = sid.sqrt.floor.asInt;
-        m0 = (((l + 1).squared - (sid + 1)) / 2).floor.asInt;
-        m1 = -1 * (((l + 1).squared - sid) / 2).floor.asInt;
-        bool = (m0 == m1.abs);
-        m = (m0 * bool.asInt) + (m1 * bool.not.asInt);
-        ^this.new([l, m])
-    }
-
-    // FuMa
-    *newFumaIndex { arg fuma;
-        var l;
-
-        l = fuma.sqrt.floor.asInt;
-
-        ^(l<=1).if({
-            this.newSidIndex(fuma)
-        }, {
-            var m, m0, m1, bool;
-
-            m0 = -1 * ((fuma - l.squared) / 2).floor.asInt;
-            m1 = ((fuma +1 - l.squared) / 2).floor.asInt;
-
-            bool = (m1 == m0.abs);
-            m = (m0 * bool.asInt) + (m1 * bool.not.asInt);
-
-            this.new([l, m])
-        })
-    }
 
     // ------------
     // Return l, m
@@ -111,29 +110,25 @@ HoaLm {
     // ------------
     // Return indices
 
-    // index - ACN
-    index {
+    index { arg ordering = \acn;
         var l, m;
         #l, m = this.lm;
-        ^l.squared + l + m
-    }
 
-    // SID
-    sidIndex {
-        var l, m;
-        #l, m = this.lm;
-        ^(l**2 + (2 * (l - m.abs))) - m.sign.clip(-1, 0)
-    }
-
-    // FuMa
-    fumaIndex {
-        var l, m;
-        #l, m = this.lm;
-        ^(l <= 1).if ({
-            this.sidIndex  // sid
-        }, {
-            (l.squared + (2 * m.abs)) - m.sign.clip(0, 1);
-        })
+        switch (ordering,
+            \acn, {
+                ^l.squared + l + m
+            },
+            \sid, {
+                ^(l**2 + (2 * (l - m.abs))) - m.sign.clip(-1, 0)
+            },
+            \fuma, {
+                ^(l <= 1).if ({
+                    this.index(\sid)
+                }, {
+                    (l.squared + (2 * m.abs)) - m.sign.clip(0, 1);
+                })
+            }
+        )
     }
 
     // ------------
@@ -195,68 +190,65 @@ HoaLm {
     // ------------
     // Return normalisation coefficients
 
-    // 3D Schmidt semi-normalisation
-    sn3d {
-        var l, m, dm, mabs;
+    normalisation { arg scheme = \n3d;
+        var l, m;
         #l, m = this.lm;
-        dm = (m==0).asInt;
-        mabs = m.abs;
-        ^sqrt(
-            (2 - dm) * (
-                floatFactorial(l - mabs) / floatFactorial(l + mabs)
-            )
+
+        switch (scheme,
+            \n3d, {
+                ^sqrt((2*l) + 1) * this.normalisation(\sn3d)
+            },
+            \sn3d, {
+                var dm, mabs;
+                dm = (m==0).asInt;
+                mabs = m.abs;
+                ^sqrt(
+                    (2 - dm) * (
+                        floatFactorial(l - mabs) / floatFactorial(l + mabs)
+                    )
+                )
+            },
+            \n2d, {
+                ^sqrt(
+                    2.pow(2*l) * floatFactorial(l).pow(2) /
+                    floatFactorial((2*l) + 1)
+                ) * this.normalisation(\n3d)
+            },
+            \sn2d, {
+                var lne0;
+                lne0 = (l>0).asInt;
+                ^2.pow(-0.5 * lne0) * this.normalisation(\n2d)
+            },
+            \maxN, {
+                var twoDivSqrt3, sqrt45_32, threeDivSqrt5, sqrt8_5;
+                var norms;
+                twoDivSqrt3 = 2/3.sqrt;
+                sqrt45_32 = (45/32).sqrt;
+                threeDivSqrt5 = 3/5.sqrt;
+                sqrt8_5 = (8/5).sqrt;
+
+                // scaling to convert from SN3D to maxN
+                // indexed by ACN
+                norms = [
+                    1.0,  // W
+                    1.0, 1.0, 1.0,  // Y, Z, X
+                    twoDivSqrt3, twoDivSqrt3, 1.0, twoDivSqrt3, twoDivSqrt3,  // V, T, R, S, U
+                    sqrt8_5, threeDivSqrt5, sqrt45_32, 1, sqrt45_32, threeDivSqrt5, sqrt8_5  // Q, O, M, K, L, N, P
+                ];
+
+                ^norms[this.index(\acn)] * this.normalisation(\sn3d)
+            },
+            \MaxN, {
+                ^(this.index(\acn) == 0).if({
+                    2.sqrt.reciprocal  // W
+                }, {
+                    this.normalisation(\maxN)
+                })
+            },
+            \fuma, {
+                ^this.normalisation(\MaxN)
+            },
         )
-    }
-
-    // 3D full normalisation
-    n3d {
-        ^sqrt((2*this.l) + 1) * this.sn3d
-    }
-
-    // 2D full normalisation
-    n2d {
-        var l = this.l;
-        ^sqrt(
-            2.pow(2*l) * floatFactorial(l).pow(2) /
-            floatFactorial((2*l) + 1)
-        ) * this.n3d
-    }
-
-    // 2D semi-normalisation
-    sn2d {
-        var lne0;
-        lne0 = (this.l>0).asInt;
-        ^2.pow(-0.5 * lne0) * this.n2d
-    }
-
-    // maxN normalization
-    maxN {
-        var twoDivSqrt3, sqrt45_32, threeDivSqrt5, sqrt8_5;
-        var norms;
-        twoDivSqrt3 = 2/3.sqrt;
-        sqrt45_32 = (45/32).sqrt;
-        threeDivSqrt5 = 3/5.sqrt;
-        sqrt8_5 = (8/5).sqrt;
-
-        // scaling to convert from SN3D to maxN
-        // indexed by ACN
-        norms = [
-            1.0,  // W
-            1.0, 1.0, 1.0,  // Y, Z, X
-            twoDivSqrt3, twoDivSqrt3, 1.0, twoDivSqrt3, twoDivSqrt3,  // V, T, R, S, U
-            sqrt8_5, threeDivSqrt5, sqrt45_32, 1, sqrt45_32, threeDivSqrt5, sqrt8_5  // Q, O, M, K, L, N, P
-        ];
-
-        ^norms[this.index] * this.sn3d
-    }
-
-    // MaxN normalization, aka FuMa
-    fuma {
-        ^(this.index == 0).if({
-            2.sqrt.reciprocal  // W
-        }, {
-            this.maxN
-        })
     }
 
 

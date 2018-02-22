@@ -59,7 +59,7 @@
         ^product
     }
 
-    isSquareOf {
+    squareOf {
         var sum = 0;
         var res;
 

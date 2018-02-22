@@ -51,7 +51,7 @@
 	hoaOrder {
         var sizeSqrt;
 
-        sizeSqrt = this.size.isSquareOf;
+        sizeSqrt = this.size.squareOf;
 
         ^(sizeSqrt == nil).if({
             nil

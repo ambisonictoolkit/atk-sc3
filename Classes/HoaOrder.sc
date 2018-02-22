@@ -98,63 +98,6 @@ HoaOrder {
         })
     }
 
-    // sub-groups
-
-    // degree
-    degreeIndices { arg degree;
-        var l = degree;
-        (l <= this.order).if({
-            ^Array.series((2*l)+1, l.squared)
-        }, {
-            ^[]
-        })
-    }
-
-    // Condon-Shortley Phase - indices
-    cspIndices {
-        ^Array.series((this.order +1).squared/2, 1, 2)
-    }
-
-    // reflect - mirror across origin
-    reflectIndices {
-        ^Array.series((this.order +1)/2, 1, 2).collect({ arg l;
-            this.degreeIndices(l)
-        }).flatten
-    }
-
-    // flap - mirror across z-axis
-    flapIndices {
-        ^(this.order +1).collect({ arg l;
-            Array.series(l, l.squared + 1, 2)
-        }).flatten
-    }
-
-    // flip - mirror across y-axis
-    flipIndices {
-        ^(this.order +1).collect({ arg l;
-            Array.series(l, l.squared)
-        }).flatten
-    }
-
-    // flop - mirror across x-axis
-    flopIndices {
-        ^(this.order +1).collect({ arg l;
-            l.even.if({
-                Array.series(l/2, l.squared, 2) ++ Array.series(l/2, l*(l+1)+1, 2)
-            }, {
-                Array.series((l-1)/2, l.squared+1, 2) ++ Array.series((l+1)/2, l*(l+1)+1, 2)
-            })
-        }).flatten
-    }
-
-    // rotate around z-axis, aka yaw
-    rotateIndices {
-        ^this.indices.difference(
-            this.zonalIndices
-        )
-    }
-
-
     // ------------
     // Return simple transform coefficients
 

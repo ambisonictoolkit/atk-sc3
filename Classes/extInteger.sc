@@ -50,7 +50,7 @@
 // factorial calculation using 64-bit double precision floating point numbers
 // NOTE: may wish to add this to "https://github.com/supercollider-quarks/MathLib"
 + Integer {
-    floatFactorial {
+    factorialFloat {
 
         var product = 1.0;
         this.asFloat.do({ arg x;

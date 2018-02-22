@@ -211,8 +211,8 @@ HoaOrder {
         )
     }
 
-    // kDegreeWeights, aka, "decoder order gains" or Gamma vector of per-degree (beam forming) scalars
-    kDegreeWeights { arg k = 'basic', dim = 3;
+    // beamWeights, aka, "decoder order gains" or Gamma vector of per-degree (beam forming) scalars
+    beamWeights { arg k = 'basic', dim = 3;
         var m = this.order;
         var max_rE;
 

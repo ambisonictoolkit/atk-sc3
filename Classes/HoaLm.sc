@@ -155,37 +155,42 @@ HoaLm {
     }
 
     // ------------
-    // Return simple transform coefficients
+    // Return reflection coefficients
 
-    // Condon-Shortley Phase - flip * flop
-    csp {
-        ^this.m.odd.if({-1.0}, {1.0});
-    }
-
-    // reflect - mirror across origin
-    reflect {
-        ^this.l.odd.if({-1.0}, {1.0});
-    }
-
-    // flap - mirror across z-axis
-    flap {
+    reflection { arg mirror = \reflect;
         var l, m;
         #l, m = this.lm;
-        ^(m + l).odd.if({-1.0}, {1.0})
-    }
 
-    // flip - mirror across y-axis
-    flip {
-        ^(this.m < 0).if({-1.0}, {1.0})
+        switch (mirror,
+            \reflect, {  // reflect - mirror across origin
+                ^l.odd.if({-1.0}, {1.0});
+            },
+            \flip, {  // flip - mirror across y-axis
+                ^(m < 0).if({-1.0}, {1.0})
+            },
+            \flop, {  // flop - mirror across x-axis
+                ^((m < 0 && m.even) || (m > 0 && m.odd)).if({-1.0}, {1.0})
+            },
+            \flap, {  // flap - mirror across z-axis
+                ^(m + l).odd.if({-1.0}, {1.0})
+            },
+            \CondonShortleyPhase, {  // Condon-Shortley Phase - flip * flop
+                ^m.odd.if({-1.0}, {1.0});
+            },
+            \origin, {
+                ^this.reflection(\reflect)
+            },
+            \x, {
+                ^this.reflection(\flop)
+            },
+            \y, {
+                ^this.reflection(\flip)
+            },
+            \z, {
+                ^this.reflection(\flap)
+            },
+        )
     }
-
-    // flop - mirror across x-axis
-    flop {
-        var m;
-        m = this.m;
-        ^((m < 0 && m.even) || (m > 0 && m.odd)).if({-1.0}, {1.0})
-    }
-
 
     // ------------
     // Return normalisation coefficients
@@ -275,7 +280,7 @@ HoaLm {
         { m > 0 } { res = 2.sqrt * sphHarm.real(mabs, phi, theta) };  // real
 
         // remove Condon-Shortley phase
-        res = this.csp * res;
+        res = this.reflection(\CondonShortleyPhase) * res;
 
         // normalize (l, m) = (0, 0) to 1
         res = 4pi.sqrt * res;

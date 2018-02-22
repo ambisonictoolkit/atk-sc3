@@ -78,56 +78,21 @@ HoaDegree {
     // ------------
     // Return indices
 
-    // channel ordering
-    indices {
-        ^Array.series((2*this.degree)+1, this.degree.squared)
-    }
-
-    sidIndices {
-        ^this.lm.collect({ arg lm;
-            var l, m;
-            #l, m = lm;
-            (l**2 + (2 * (l - m.abs))) - m.sign.clip(-1, 0)
-        })
-    }
-
-    fumaIndices {
-        ^this.lm.collect({ arg lm;
-            var l, m;
-            #l, m = lm;
-
-            (l <= 1).if ({
-                (l**2 + (2 * (l - m.abs))) - m.sign.clip(-1, 0)  // sid
-            }, {
-                (l.squared + (2 * m.abs)) - m.sign.clip(0, 1);
+    indices { arg ordering = \acn, subset = \all;
+        (subset == \all).if({
+            // all
+            ^this.lm.collect({ arg lm;
+                HoaLm.new(lm).index(ordering)
             })
-        })
-    }
-
-    // sub-groups
-
-    // zonal
-    zonalIndices {
-        ^Array.with(this.degree * (this.degree + 1))
-    }
-
-    // sectoral
-    sectoralIndices {
-        ^(this.degree == 0).if({
-            Array.with(0)
         }, {
-            Array.with(this.degree.squared, (this.degree+1).squared - 1)
+            // subset
+            ^this.lm.collect({ arg lm;
+                var hoaLm = HoaLm.new(lm);
+                hoaLm.isSubsetOf(subset).if({
+                    hoaLm.index(ordering)
+                })
+            }).removeEvery([nil])
         })
-    }
-
-    // tesseral
-    tesseralIndices {
-        ^this.indices.difference(
-            union(
-                this.zonalIndices,
-                this.sectoralIndices
-            )
-        )
     }
 
     // Condon-Shortley Phase - indices

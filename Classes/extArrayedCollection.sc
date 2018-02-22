@@ -60,7 +60,7 @@
         })
 	}
 
-    hoaClumpDegree {
+    clumpByDegree {
         ^this.clumps(
             Array.series(this.hoaOrder+1, 1, 2)
         )

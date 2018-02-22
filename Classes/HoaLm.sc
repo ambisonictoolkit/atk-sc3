@@ -162,7 +162,7 @@ HoaLm {
         #l, m = this.lm;
 
         switch (mirror,
-            \reflect, {  // reflect - mirror across origin
+            \reflect, {  // reflect - mirror across origin - flip * flop * flap
                 ^l.odd.if({-1.0}, {1.0});
             },
             \flip, {  // flip - mirror across y-axis

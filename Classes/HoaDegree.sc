@@ -95,51 +95,6 @@ HoaDegree {
         })
     }
 
-    // Condon-Shortley Phase - indices
-    cspIndices {
-        ^this.degree.odd.if({
-            Array.series(this.degree+1, this.degree.squared, 2)
-        }, {
-            Array.series(this.degree, this.degree.squared+1, 2)
-        })
-    }
-
-    // reflect - mirror across origin
-    reflectIndices {
-        ^this.degree.odd.if({
-            ^this.indices
-        }, {
-            Array.newClear
-        })
-    }
-
-    // flap - mirror across z-axis
-    flapIndices {
-        ^Array.series(this.degree, this.degree.squared + 1, 2)
-    }
-
-    // flip - mirror across y-axis
-    flipIndices {
-        ^Array.series(this.degree, this.degree.squared)
-    }
-
-    // flop - mirror across x-axis
-    flopIndices {
-        ^this.degree.even.if({
-            Array.series(this.degree/2, this.degree.squared, 2) ++ Array.series(this.degree/2, this.degree*(this.degree+1)+1, 2)
-        }, {
-            Array.series((this.degree-1)/2, this.degree.squared+1, 2) ++ Array.series((this.degree+1)/2, this.degree*(this.degree+1)+1, 2)
-        })
-    }
-
-    // rotate around z-axis, aka yaw
-    rotateIndices {
-        ^this.indices.difference(
-            this.zonalIndices
-        )
-    }
-
-
     // ------------
     // Return simple transform coefficients
 

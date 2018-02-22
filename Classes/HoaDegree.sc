@@ -96,33 +96,13 @@ HoaDegree {
     }
 
     // ------------
-    // Return simple transform coefficients
+    // Return reflection coefficients
 
-    // Condon-Shortley Phase - flip * flop
-    csp {
-        ^(Array.fill((2*this.degree)+1, { 1.0 })[this.cspIndices - this.degree.squared] = -1.0)
+    reflection { arg mirror = \reflect;
+        ^this.lm.collect({ arg lm;
+            HoaLm.new(lm).reflection(mirror)
+        })
     }
-
-    // reflect - mirror across origin
-    reflect {
-        ^(Array.fill((2*this.degree)+1, { 1.0 })[this.reflectIndices - this.degree.squared] = -1.0)
-    }
-
-    // flap - mirror across z-axis
-    flap {
-        ^(Array.fill((2*this.degree)+1, { 1.0 })[this.flapIndices - this.degree.squared] = -1.0)
-    }
-
-    // flip - mirror across y-axis
-    flip {
-        ^(Array.fill((2*this.degree)+1, { 1.0 })[this.flipIndices - this.degree.squared] = -1.0)
-    }
-
-    // flop - mirror across x-axis
-    flop {
-        ^(Array.fill((2*this.degree)+1, { 1.0 })[this.flopIndices - this.degree.squared] = -1.0)
-    }
-
 
     // ------------
     // Return normalisation coefficients

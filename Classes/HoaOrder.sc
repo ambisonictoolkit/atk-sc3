@@ -58,20 +58,32 @@ HoaOrder {
     }
 
     // ------------
+    // Return l, m
+
+    l {
+        ^(this.order + 1).collect({ arg degree;
+            HoaDegree.new(degree).l
+        }).flatten
+    }
+
+    m {
+        ^(this.order + 1).collect({ arg degree;
+            HoaDegree.new(degree).m
+        }).flatten
+    }
+
+    lm {
+        ^(this.order + 1).collect({ arg degree;
+            HoaDegree.new(degree).lm
+        }).flatten
+    }
+
+    // ------------
     // Return indices
 
     // channel ordering
     indices {
         ^Array.series((this.order + 1).squared)
-    }
-
-    lm {
-        ^(this.order + 1).collect({ arg l;
-            Array.with(
-                Array.fill(2*(l+1)-1, {l}),  // fill l
-                Array.series(2*(l+1)-1, -1 * l)  // fill m
-            ).flop
-        }).flatten
     }
 
     sidIndices {

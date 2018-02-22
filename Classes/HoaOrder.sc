@@ -99,79 +99,22 @@ HoaOrder {
     }
 
     // ------------
-    // Return simple transform coefficients
+    // Return reflection coefficients
 
-    // Condon-Shortley Phase - flip * flop
-    csp {
-        ^(Array.fill((this.order + 1).squared, { 1.0 })[this.cspIndices] = -1.0)
+    reflection { arg mirror = \reflect;
+        ^this.lm.collect({ arg lm;
+            HoaLm.new(lm).reflection(mirror)
+        })
     }
-
-    // reflect - mirror across origin
-    reflect {
-        ^(Array.fill((this.order + 1).squared, { 1.0 })[this.reflectIndices] = -1.0)
-    }
-
-    // flap - mirror across z-axis
-    flap {
-        ^(Array.fill((this.order + 1).squared, { 1.0 })[this.flapIndices] = -1.0)
-    }
-
-    // flip - mirror across y-axis
-    flip {
-        ^(Array.fill((this.order + 1).squared, { 1.0 })[this.flipIndices] = -1.0)
-    }
-
-    // flop - mirror across x-axis
-    flop {
-        ^(Array.fill((this.order + 1).squared, { 1.0 })[this.flopIndices] = -1.0)
-    }
-
 
     // ------------
     // Return normalisation coefficients
 
-    // 3D Schmidt semi-normalisation
-    sn3d {
-        ^(this.order + 1).collect({ arg l;
-            HoaDegree.new(l).sn3d
-        }).flatten
+    normalisation { arg scheme = \n3d;
+        ^this.lm.collect({ arg lm;
+            HoaLm.new(lm).normalisation(scheme)
+        })
     }
-
-    // 3D full normalisation
-    n3d {
-        ^(this.order + 1).collect({ arg l;
-            HoaDegree.new(l).n3d
-        }).flatten
-    }
-
-    // 2D full normalisation
-    n2d {
-        ^(this.order + 1).collect({ arg l;
-            HoaDegree.new(l).n2d
-        }).flatten
-    }
-
-    // 2D semi-normalisation
-    sn2d {
-        ^(this.order + 1).collect({ arg l;
-            HoaDegree.new(l).sn2d
-        }).flatten
-    }
-
-    // maxN normalization
-    maxN {
-        ^(this.order + 1).collect({ arg l;
-            HoaDegree.new(l).maxN
-        }).flatten
-    }
-
-    // MaxN normalization, aka FuMa
-    fuma {
-        ^(this.order + 1).collect({ arg l;
-            HoaDegree.new(l).fuma
-        }).flatten
-    }
-
 
     // ------------
     // Return encoding coefficients

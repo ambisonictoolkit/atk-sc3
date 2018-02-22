@@ -134,24 +134,24 @@ HoaLm {
     // ------------
     // Test sub-group membership
 
-    // zonal
-    zonal {
-        ^HoaDegree.new(this.l).zonalIndices.includes(this.index)
-    }
+    isSubsetOf { arg subset = \zonal;
+        var l, m;
+        #l, m = this.lm;
 
-    // sectoral
-    sectoral {
-        ^HoaDegree.new(this.l).sectoralIndices.includes(this.index)
-    }
-
-    // tesseral
-    tesseral {
-        ^HoaDegree.new(this.l).tesseralIndices.includes(this.index)
-    }
-
-    // rotate around z-axis, aka yaw
-    rotate {
-        ^this.zonal.not
+        switch (subset,
+            \zonal, {
+                ^(m == 0)
+            },
+            \sectoral, {
+                ^(m.abs == l)
+            },
+            \tesseral, {
+                ^((m != 0) && (m.abs != l))
+            },
+            \rotate, {  // rotate around z-axis, aka yaw
+                ^(m != 0)
+            },
+        )
     }
 
     // ------------

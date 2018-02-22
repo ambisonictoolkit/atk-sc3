@@ -88,7 +88,7 @@ HoaDegree {
             // subset
             ^this.lm.collect({ arg lm;
                 var hoaLm = HoaLm.new(lm);
-                hoaLm.isSubsetOf(subset).if({
+                hoaLm.isInSubset(subset).if({
                     hoaLm.index(ordering)
                 })
             }).removeEvery([nil])

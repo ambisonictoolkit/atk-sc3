@@ -134,7 +134,7 @@ HoaLm {
     // ------------
     // Test sub-group membership
 
-    isSubsetOf { arg subset = \zonal;
+    isInSubset { arg subset = \zonal;
         var l, m;
         #l, m = this.lm;
 

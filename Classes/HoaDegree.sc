@@ -58,18 +58,29 @@ HoaDegree {
     }
 
     // ------------
+    // Return l, m
+
+    l {
+        ^Array.fill(2*(this.degree+1)-1, {this.degree})
+    }
+
+    m {
+        ^Array.series(2*(this.degree+1)-1, -1 * this.degree)
+    }
+
+    lm {
+        ^Array.with(
+            this.l,  // fill l
+            this.m  // fill m
+        ).flop
+    }
+
+    // ------------
     // Return indices
 
     // channel ordering
     indices {
         ^Array.series((2*this.degree)+1, this.degree.squared)
-    }
-
-    lm {
-        ^Array.with(
-            Array.fill(2*(this.degree+1)-1, {this.degree}),  // fill l
-            Array.series(2*(this.degree+1)-1, -1 * this.degree)  // fill m
-        ).flop
     }
 
     sidIndices {

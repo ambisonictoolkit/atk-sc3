@@ -126,17 +126,16 @@ HoaOrder {
         })
     }
 
-
     // ------------
     // Return decoder measures or coefficients
 
     // effective decoding radius
-    radius { arg freq;
+    radiusAtFreq { arg freq;
         ^(this.order*Atk.speedOfSound) / (2*pi*freq)
     }
 
     // effective decoding frequency
-    freq { arg radius;
+    freqAtRadius { arg radius;
         ^(this.order*Atk.speedOfSound) / (2*pi*radius)
     }
 

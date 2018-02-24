@@ -178,14 +178,14 @@ HoaOrder {
     // 'l’énergie réduite E' for an Ambisonic decoder
     meanE { arg k = 'basic', dim = 3;
         var m = this.order;
-        var kDegreeWeights;
+        var beamWeights;
 
-        kDegreeWeights = this.kDegreeWeights(k, dim);
+        beamWeights = this.beamWeights(k, dim);
 
         ^(dim == 2).if({
-            kDegreeWeights.removeAt(0).squared + (2*kDegreeWeights.squared.sum) // 2D
+            beamWeights.removeAt(0).squared + (2*beamWeights.squared.sum) // 2D
         }, {
-            (Array.series(m + 1, 1, 2) * kDegreeWeights.squared).sum // 3D
+            (Array.series(m + 1, 1, 2) * beamWeights.squared).sum // 3D
         })
     }
 

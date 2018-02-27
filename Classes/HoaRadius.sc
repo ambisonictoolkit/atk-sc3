@@ -62,18 +62,18 @@ HoaRadius {
         ^this.new(delay*Atk.speedOfSound)
     }
 
-    // Set radius from order and wavenumber
-    *newOrderNum { arg order = 1, num = 8.0600627847202;
-        ^this.new(order/num)
+    // Set radius from wavenumber and order
+    *newWaveNumber { arg waveNumber = 8.0600627847202, order = 1;
+        ^this.new(order/waveNumber)
     }
 
-    // Set radius from order and frequency
-    *newOrderFreq { arg order = 1, freq = 440.0;
+    // Set radius from frequency and order
+    *newFreq { arg freq = 440.0, order = 1;
         ^this.new((order*Atk.speedOfSound) / (2*pi*freq))
     }
 
-    // Set radius from order and normalised frequency
-    *newOrderWn { arg order, wn, sr;
+    // Set radius from normalised frequency and order
+    *newWn { arg wn, sr, order = 1;
         ^this.new((order*Atk.speedOfSound) / (pi*wn*sr))
     }
 
@@ -87,17 +87,17 @@ HoaRadius {
     // Order
 
     // Return effective order.
-    numOrder { arg num = 8.0600627847202;
-        ^(this.radius*num)
+    orderAtWaveNumber { arg waveNumber = 8.0600627847202;
+        ^(this.radius*waveNumber)
     }
 
     // Return effective order.
-    freqOrder { arg freq = 440.0;
+    orderAtFreq { arg freq = 440.0;
         ^(2*pi*this.radius*freq) / Atk.speedOfSound
     }
 
     // Return effective order.
-    wnOrder { arg wn, sr;
+    orderAtWn { arg wn, sr;
         ^(pi*this.radius*wn*sr) / Atk.speedOfSound
     }
 
@@ -105,17 +105,17 @@ HoaRadius {
     // Wavenumber / frequency
 
     // Return effective wavenumber.
-    orderNum { arg order = 1;
+    waveNumber { arg order = 1;
         ^(order/this.radius)
     }
 
     // Return effective frequency.
-    orderFreq { arg order = 1;
+    freq { arg order = 1;
         ^(order*Atk.speedOfSound) / (2*pi*this.radius)
     }
 
     // Return effective normalized frequency.
-    orderWn { arg order, sr;
+    wn { arg order, sr;
         ^(order*Atk.speedOfSound) / (pi*this.radius*sr)
     }
 

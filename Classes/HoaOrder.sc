@@ -233,12 +233,12 @@ HoaOrder {
             'controlled', {
                 (dim == 2).if ({ // 2D
                     (m+1).collect({ arg order;
-                        1 / (floatFactorial(m + order) * floatFactorial(m - order))
-                    }) * floatFactorial(order).squared;
+                        1 / (factorialFloat(m + order) * factorialFloat(m - order))
+                    }) * factorialFloat(order).squared;
                 }, { // 3D
                     (m+1).collect({ arg order;
-                        1 / (floatFactorial(m + order + 1) * floatFactorial(m - order))
-                    }) * floatFactorial(m) * floatFactorial(m + 1);
+                        1 / (factorialFloat(m + order + 1) * factorialFloat(m - order))
+                    }) * factorialFloat(m) * factorialFloat(m + 1);
                 })
             }
         )

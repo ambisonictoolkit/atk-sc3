@@ -442,5 +442,144 @@
         ^this.primitiveFailed;
     }
 
+    /*  Gamma  */
+    // "true gamma" of input value
+    gamma {
+        _TGamma
+        ^this.primitiveFailed;
+    }
 
+    // gamma(value + 1) - 1
+    gamma1pm1 {
+        _TGamma1pm1
+        ^this.primitiveFailed;
+    }
+
+    // log gamma
+    gammaLog {
+        _LGamma
+        ^this.primitiveFailed;
+    }
+
+    // digamma
+    gammaDi {
+        _DiGamma
+        ^this.primitiveFailed;
+    }
+
+    // trigamma
+    gammaTri {
+        _TriGamma
+        ^this.primitiveFailed;
+    }
+
+    // polygamma
+    gammaPoly { |z|
+        _PolyGamma
+        ^this.primitiveFailed;
+    }
+
+    // gamma(value) / gamma(b)
+    gammaRatio { |b|
+        _TGammaRatio
+        ^this.primitiveFailed;
+    }
+
+    // gamma(value) / gamma(value + delta)
+    gammaDeltaRatio { |delta|
+        _TGammaDeltaRatio
+        ^this.primitiveFailed;
+    }
+
+    // normalised lower incomplete gamma function of a and z
+    gammaP { |z|
+        _GammaP
+        ^this.primitiveFailed;
+    }
+
+    // normalised upper incomplete gamma function of a and z
+    gammaQ { |z|
+        _GammaQ
+        ^this.primitiveFailed;
+    }
+
+    // full (non-normalised) lower incomplete gamma function of a and z
+    gammaFullLower { |z|
+        _TGammaLower
+        ^this.primitiveFailed;
+    }
+
+    // full (non-normalised) upper incomplete gamma function of a and z
+    gammaFullUpper { |z|
+        _TGammaI
+        ^this.primitiveFailed;
+    }
+
+    /* Incomplete Gamma Function Inverses */
+
+    // Returns a value x such that: p = gammaP(a, x);
+    // Requires: a > 0 and 1 >= p >= 0.
+    gammaPInv { |p|
+        _GammaPInv
+        ^this.primitiveFailed;
+    }
+
+    // Returns a value x such that: q = gammaQ(a, x);
+    // Requires: a > 0 and 1 >= q >= 0.
+    gammaQInv { |q|
+        _GammaQInv
+        ^this.primitiveFailed;
+    }
+
+    // Returns a value a such that: p = gammaP(a, x);
+    // Requires: x > 0 and 1 >= p >= 0.
+    gammaPInvA { |p|
+        _GammaPInvA
+        ^this.primitiveFailed;
+    }
+
+    // Returns a value a such that: q = gammaQ(a, x);
+    // Requires: x > 0 and 1 >= q >= 0.
+    gammaQInvA { |q|
+        _GammaQInvA
+        ^this.primitiveFailed;
+    }
+
+    // Derivatives of the Incomplete Gamma Function
+    gammaPDerivative { |x|
+        _GammaPDerivative
+        ^this.primitiveFailed;
+    }
+
+    gammaQDerivative { |x|
+        ^this.gammaPDerivative(x).neg
+    }
+
+
+    /*  Airy Functions  */
+
+    airyAi {
+        _AiryAi
+        ^this.primitiveFailed;
+    }
+
+    airyBi {
+        _AiryBi
+        ^this.primitiveFailed;
+    }
+
+    airyAiPrime {
+        _AiryAiPrime
+        ^this.primitiveFailed;
+    }
+
+    airyBiPrime {
+        _AiryBiPrime
+        ^this.primitiveFailed;
+    }
+
+    airyZero {
+        _AiryZero
+        ^this.primitiveFailed;
+    }
 }

@@ -118,58 +118,40 @@ HoaEncoderMatrix : AtkMatrix {
     //     ^super.new.initFromFile(filePathOrName, 'encoder', true).initEncoderVarsForFiles
     // }
 
-    init2D {  // simple panto
-        var hoaOrder;
+    initBasic {  // simple, k = \basic
+        var directions, hoaOrder;
+
+        directions = (dirInputs.rank == 2).if({  // peri
+            dirInputs
+        }, {  // panto
+            Array.with(dirInputs, Array.fill(dirInputs.size, { 0.0 })).flop
+        });
 
         hoaOrder = HoaOrder.new(this.order);  // instance order
 
         // build encoder matrix, and set for instance
         matrix = Matrix.with(
-            dirInputs.collect({ arg theta;
-                hoaOrder.sph(theta, 0)
-            }).flop
-        )
-    }
-
-    init3D {  // simple peri
-        var hoaOrder;
-
-        hoaOrder = HoaOrder.new(this.order);  // instance order
-
-        // build encoder matrix, and set for instance
-        matrix = Matrix.with(
-            dirInputs.collect({ arg thetaPhi;
+            directions.collect({ arg thetaPhi;
                 hoaOrder.sph(thetaPhi.at(0), thetaPhi.at(1))
             }).flop
         )
     }
 
-    initSA2D {  arg k; // sampling beam panto
-        var hoaOrder, beamWeights;
+    initSAE {  arg k; // sampling beam encoder
+        var directions, hoaOrder, beamWeights;
+
+        directions = (dirInputs.rank == 2).if({  // peri
+            dirInputs
+        }, {  // panto
+            Array.with(dirInputs, Array.fill(dirInputs.size, { 0.0 })).flop
+        });
 
         hoaOrder = HoaOrder.new(this.order);  // instance order
         beamWeights = hoaOrder.beamWeights(k);
 
         // build encoder matrix, and set for instance
         matrix = Matrix.with(
-            dirInputs.collect({ arg theta;
-                var coeffs;
-                coeffs = hoaOrder.sph(theta, 0);
-                coeffs = (coeffs.clumpByDegree * beamWeights.reciprocal).flatten;
-                coeffs * (Array.series(this.order+1, 1, 2) * beamWeights).sum / (this.order+1).squared;
-            }).flop
-        )
-    }
-
-    initSA3D {  arg k; // sampling beam peri
-        var hoaOrder, beamWeights;
-
-        hoaOrder = HoaOrder.new(this.order);  // instance order
-        beamWeights = hoaOrder.beamWeights(k);
-
-        // build encoder matrix, and set for instance
-        matrix = Matrix.with(
-            dirInputs.collect({ arg thetaPhi;
+            directions.collect({ arg thetaPhi;
                 var coeffs;
                 coeffs = hoaOrder.sph(thetaPhi.at(0), thetaPhi.at(1));
                 coeffs = (coeffs.clumpByDegree * beamWeights.reciprocal).flatten;
@@ -257,40 +239,30 @@ HoaEncoderMatrix : AtkMatrix {
     initDirection { arg theta, phi;
 
         // set input channel directions for instance
-        (phi == 0).if (
-            {
-                dirInputs = [ theta ];  // panto
-                this.init2D
-            }, {
-                dirInputs = [ [ theta, phi ] ];  // peri
-                this.init3D
-            }
-        )
+        dirInputs = (phi == 0).if({
+            [ theta ];  // panto
+        }, {
+            [ [ theta, phi ] ];  // peri
+        });
+        this.initBasic
     }
 
     initDirections { arg directions;
 
         // set input channel directions for instance
         dirInputs = directions;
-
-        switch (directions.rank,	  // 2D or 3D?
-            1, { this.init2D },  // panto
-            2, { this.init3D }  // peri
-        )
+        this.initBasic
     }
 
     initBeam { arg theta, phi, k;
 
         // set input channel directions for instance
-        (phi == 0).if (
-            {
-                dirInputs = [ theta ];  // panto
-                this.initSA2D(k)
-            }, {
-                dirInputs = [ [ theta, phi ] ];  // peri
-                this.initSA3D(k)
-            }
-        )
+        dirInputs = (phi == 0).if({
+            [ theta ];  // panto
+        }, {
+            [ [ theta, phi ] ];  // peri
+        });
+        this.initSAE(k)
     }
 
     // initPanto { arg numChans, orientation;

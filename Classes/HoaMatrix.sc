@@ -53,7 +53,7 @@
 // martrix encoders
 
 HoaEncoderMatrix : AtkMatrix {
-	var <dirInputs;
+    var <dirInputs;
 
     // *newAtoB { arg orientation = 'flu', weight = 'dec';
     //     ^super.new('AtoB').loadFromLib(orientation, weight)
@@ -77,13 +77,28 @@ HoaEncoderMatrix : AtkMatrix {
     //     ^super.new('omni').loadFromLib;
     // }
 
-	*newDirection { arg theta = 0, phi = 0, order = 1;
-		^super.new('dir', ("HOA" ++ order).asSymbol).initDirection(theta, phi);
-	}
+    *newDirection { arg theta = 0, phi = 0, order = 1;
+        ^super.new('dir', ("HOA" ++ order).asSymbol).initDirection(theta, phi);
+    }
 
     *newDirections { arg directions = [ 0, 0 ], order = 1;
         ^super.new('dirs', ("HOA" ++ order).asSymbol).initDirections(directions);
     }
+
+    /*
+    For beaming we may need to have two types of encoders equivalent to:
+       - Sampling decoding (SAD)
+       - Mode-matching decoding (MMD)
+    */
+
+    // sampling beam
+    *newBeam { arg theta = 0, phi = 0, k = \basic, order = 1;
+        ^super.new('beam', ("HOA" ++ order).asSymbol).initBeam(theta, phi, k);
+    }
+
+    // *newBeams { arg directions = [ 0, 0 ], k = \basic, order = 1;
+    //     ^super.new('dirs', ("HOA" ++ order).asSymbol).initBeams(directions);
+    // }
 
     // *newPanto { arg numChans = 4, orientation = 'flat';
     //     ^super.new('panto').initPanto(numChans, orientation);
@@ -103,7 +118,7 @@ HoaEncoderMatrix : AtkMatrix {
     //     ^super.new.initFromFile(filePathOrName, 'encoder', true).initEncoderVarsForFiles
     // }
 
-    init2D {
+    init2D {  // simple panto
         var hoaOrder;
 
         hoaOrder = HoaOrder.new(this.order);  // instance order
@@ -116,7 +131,7 @@ HoaEncoderMatrix : AtkMatrix {
         )
     }
 
-	init3D {
+    init3D {  // simple peri
         var hoaOrder;
 
         hoaOrder = HoaOrder.new(this.order);  // instance order
@@ -125,6 +140,40 @@ HoaEncoderMatrix : AtkMatrix {
         matrix = Matrix.with(
             dirInputs.collect({ arg thetaPhi;
                 hoaOrder.sph(thetaPhi.at(0), thetaPhi.at(1))
+            }).flop
+        )
+    }
+
+    initSA2D {  arg k; // sampling beam panto
+        var hoaOrder, beamWeights;
+
+        hoaOrder = HoaOrder.new(this.order);  // instance order
+        beamWeights = hoaOrder.beamWeights(k);
+
+        // build encoder matrix, and set for instance
+        matrix = Matrix.with(
+            dirInputs.collect({ arg theta;
+                var coeffs;
+                coeffs = hoaOrder.sph(theta, 0);
+                coeffs = (coeffs.clumpByDegree * beamWeights.reciprocal).flatten;
+                coeffs * (Array.series(this.order+1, 1, 2) * beamWeights).sum / (this.order+1).squared;
+            }).flop
+        )
+    }
+
+    initSA3D {  arg k; // sampling beam peri
+        var hoaOrder, beamWeights;
+
+        hoaOrder = HoaOrder.new(this.order);  // instance order
+        beamWeights = hoaOrder.beamWeights(k);
+
+        // build encoder matrix, and set for instance
+        matrix = Matrix.with(
+            dirInputs.collect({ arg thetaPhi;
+                var coeffs;
+                coeffs = hoaOrder.sph(thetaPhi.at(0), thetaPhi.at(1));
+                coeffs = (coeffs.clumpByDegree * beamWeights.reciprocal).flatten;
+                coeffs * (Array.series(this.order+1, 1, 2) * beamWeights).sum / (this.order+1).squared;
             }).flop
         )
     }
@@ -205,19 +254,19 @@ HoaEncoderMatrix : AtkMatrix {
     //     matrix = matrix.putRow(0, matrix.getRow(0) * g0);
     // }
 
-	initDirection { arg theta, phi;
+    initDirection { arg theta, phi;
 
-	    // set input channel directions for instance
+        // set input channel directions for instance
         (phi == 0).if (
             {
-                dirInputs = [ theta ];
+                dirInputs = [ theta ];  // panto
                 this.init2D
             }, {
-                dirInputs = [ [ theta, phi ] ];
+                dirInputs = [ [ theta, phi ] ];  // peri
                 this.init3D
             }
         )
-	}
+    }
 
     initDirections { arg directions;
 
@@ -225,8 +274,22 @@ HoaEncoderMatrix : AtkMatrix {
         dirInputs = directions;
 
         switch (directions.rank,	  // 2D or 3D?
-            1, { this.init2D },
-            2, { this.init3D }
+            1, { this.init2D },  // panto
+            2, { this.init3D }  // peri
+        )
+    }
+
+    initBeam { arg theta, phi, k;
+
+        // set input channel directions for instance
+        (phi == 0).if (
+            {
+                dirInputs = [ theta ];  // panto
+                this.initSA2D(k)
+            }, {
+                dirInputs = [ [ theta, phi ] ];  // peri
+                this.initSA3D(k)
+            }
         )
     }
 
@@ -315,23 +378,23 @@ HoaEncoderMatrix : AtkMatrix {
     // }
 
 
-	dirOutputs { ^this.numOutputs.collect({ inf }) }
+    dirOutputs { ^this.numOutputs.collect({ inf }) }
 
-	dirChannels { ^this.dirInputs }
+    dirChannels { ^this.dirInputs }
 
-	numInputs { ^matrix.cols }
+    numInputs { ^matrix.cols }
 
-	numOutputs { ^matrix.rows }
+    numOutputs { ^matrix.rows }
 
-	numChannels { ^this.numInputs }
+    numChannels { ^this.numInputs }
 
-	dim { ^this.dirInputs.rank + 1}
+    dim { ^this.dirInputs.rank + 1}
 
-	type { ^'encoder' }
+    type { ^'encoder' }
 
     order { ^this.set.asString.drop(3).asInteger }
 
-	printOn { arg stream;
-		stream << this.class.name << "(" <<* [kind, this.dim, this.numInputs] <<")";
-	}
+    printOn { arg stream;
+        stream << this.class.name << "(" <<* [kind, this.dim, this.numInputs] <<")";
+    }
 }

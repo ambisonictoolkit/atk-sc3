@@ -582,4 +582,207 @@
         _AiryZero
         ^this.primitiveFailed;
     }
+
+
+    // Elliptic Integrals - Carlson Form
+    // Requires that all of the arguments are non-negative, and at most one may be zero
+    ellipIntRf { |y, z|
+        _EllintRf
+        ^this.primitiveFailed;
+    }
+
+    // Requires that x and y are non-negative, with at most one of them zero, and that z >= 0
+    ellipIntRd { |y, z|
+        _EllintRd
+        ^this.primitiveFailed;
+    }
+
+    // Requires that x, y and z are non-negative, with at most one of them zero, and that p != 0
+    ellipIntRj { |y, z, p|
+        _EllintRj
+        ^this.primitiveFailed;
+    }
+
+    // Requires that x > 0 and that y != 0
+    ellipIntRc { |y|
+        _EllintRc
+        ^this.primitiveFailed;
+    }
+
+    // Requires that x and y are non-negative
+    ellipIntRg { |y, z|
+        _EllintRg
+        ^this.primitiveFailed;
+    }
+
+    // Elliptic Integrals of the First, Second, Third Kind, D - Legendre Form
+    // Requires -1 <= k <= 1
+    ellipInt1i { |phi|
+        _Ellint1Incomplete
+        ^this.primitiveFailed;
+    }
+
+    // Requires -1 <= k <= 1
+    ellipInt1c {
+        _Ellint1Complete
+        ^this.primitiveFailed;
+    }
+
+    // Requires -1 <= k <= 1
+    ellipInt2i { |phi|
+        _Ellint2Incomplete
+        ^this.primitiveFailed;
+    }
+
+    // Requires -1 <= k <= 1
+    ellipInt2c {
+        _Ellint2Complete
+        ^this.primitiveFailed;
+    }
+
+    // Requires -1 <= k <= 1 and n < 1/sin2(φ)
+    ellipInt3i { |n, phi|
+        _Ellint3Incomplete
+        ^this.primitiveFailed;
+    }
+
+    // Requires -1 <= k <= 1 and n < 1
+    ellipInt3c { |n|
+        _Ellint3Complete
+        ^this.primitiveFailed;
+    }
+
+    // Requires -1 <= k <= 1
+    ellipIntDi { |phi|
+        _EllintDIncomplete
+        ^this.primitiveFailed;
+    }
+
+    // Requires -1 <= k <= 1
+    ellipIntDc {
+        _EllintDComplete
+        ^this.primitiveFailed;
+    }
+
+    // Jacobi Zeta Function
+    // Requires -1 <= k <= 1
+    zetaJ { |phi|
+        _JacobiZeta
+        ^this.primitiveFailed;
+    }
+
+    // Heuman Lambda Function
+    // Requires -1 <= k <= 1
+    lambdaH { |phi|
+        _HeumanLambda
+        ^this.primitiveFailed;
+    }
+
+
+    /*  Jacobi Elliptic Functions  */
+    // k must be positive
+
+    ellipJcd { |u|
+        _JacobiCd
+        ^this.primitiveFailed;
+    }
+
+    ellipJcn { |u|
+        _JacobiCn
+        ^this.primitiveFailed;
+    }
+    ellipJcs { |u|
+        _JacobiCs
+        ^this.primitiveFailed;
+    }
+    ellipJdc { |u|
+        _JacobiDc
+        ^this.primitiveFailed;
+    }
+
+    ellipJdn { |u|
+        _JacobiDn
+        ^this.primitiveFailed;
+    }
+
+    ellipJds { |u|
+        _JacobiDs
+        ^this.primitiveFailed;
+    }
+
+    ellipJnc { |u|
+        _JacobiNc
+        ^this.primitiveFailed;
+    }
+
+    ellipJnd { |u|
+        _JacobiNd
+        ^this.primitiveFailed;
+    }
+
+    ellipJns { |u|
+        _JacobiNs
+        ^this.primitiveFailed;
+    }
+
+    ellipJsc { |u|
+        _JacobiSc
+        ^this.primitiveFailed;
+    }
+
+    ellipJsd { |u|
+        _JacobiSd
+        ^this.primitiveFailed;
+    }
+
+    ellipJsn { |u|
+        _JacobiSn
+        ^this.primitiveFailed;
+    }
+
+    // Riemann Zeta Function
+    zetaR {
+        _Zeta
+        ^this.primitiveFailed;
+    }
+
+    /*  Exponential Integrals */
+    expIntEn { |z|
+        _ExpIntEn
+        ^this.primitiveFailed;
+    }
+
+    expInt {
+        _ExpInt
+        ^this.primitiveFailed;
+    }
+
+    /*  Sinus Cardinal ("sinc") and Hyperbolic Sinus Cardinal Functions */
+    // sin(x) / x
+    sinc {
+        _SinCpi
+        ^this.primitiveFailed;
+    }
+
+    // sinh(x) / x
+    sinhc {
+        _SinHCpi
+        ^this.primitiveFailed;
+    }
+
+    /*  Inverse Hyperbolic Functions  */
+    asinh {
+        _ASinH
+        ^this.primitiveFailed;
+    }
+
+    // requires x >= 1
+    acosh {
+        _ACosH
+        ^this.primitiveFailed;
+    }
+    atanh {
+        _ATanH
+        ^this.primitiveFailed;
+    }
 }

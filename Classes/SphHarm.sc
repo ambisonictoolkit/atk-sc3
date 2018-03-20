@@ -71,19 +71,16 @@ SphHarm {
 
     // spherical_harmomic function _from boost_
     complex { arg order, theta, phi;
-        _SphHarmComplex
-        ^this.primitiveFailed;
+        ^sphHarmComplex(degree, order, theta, phi)
     }
 
     // spherical_harmomic function returns the real part _from boost_
     real { arg order, theta, phi;
-        _SphHarmReal
-        ^this.primitiveFailed;
+        ^sphHarmReal(degree, order, theta, phi)
     }
 
     // spherical_harmomic function returns the imaginary part _from boost_
     imag { arg order, theta, phi;
-        _SphHarmImag
-        ^this.primitiveFailed;
+        ^sphHarmImag(degree, order, theta, phi)
     }
 }

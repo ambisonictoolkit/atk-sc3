@@ -49,53 +49,10 @@
 
 + Number {
 
-	/* Number Series */
-
-	bernouliNum { _BernouliB2n; ^this.primitiveFailed }
-	tangentNum { _TangentT2n; ^this.primitiveFailed }
-
-	/*  Gamma  */
-
-	// "true gamma" of input value
-	gamma { _TGamma; ^this.primitiveFailed }
-	// gamma(value + 1) - 1
-	gamma1pm1 { _TGamma1pm1; ^this.primitiveFailed }
-	// log gamma
-	gammaLog { _LGamma; ^this.primitiveFailed }
-	// digamma, trigamma, polygamma
-	gammaDi { _DiGamma; ^this.primitiveFailed }
-	gammaTri { _TriGamma; ^this.primitiveFailed }
-	gammaPoly { |z| _PolyGamma; ^this.primitiveFailed }
-	// gamma(this) / gamma(b)
-	gammaRatio { |b| _TGammaRatio; ^this.primitiveFailed }
-	// gamma(this) / gamma(this + delta)
-	gammaDeltaRatio { |delta| _TGammaDeltaRatio; ^this.primitiveFailed }
-	// normalised lower/upper incomplete gamma function of a and z
-	gammaP { |z| _GammaP; ^this.primitiveFailed }
-	gammaQ { |z| _GammaQ; ^this.primitiveFailed }
-	// full (non-normalised) lower/upper incomplete gamma function of a and z
-	gammaFullLower { |z| _TGammaLower; ^this.primitiveFailed }
-	gammaFullUpper { |z| _TGammaI; ^this.primitiveFailed }
-
-	// Incomplete Gamma Function Inverses
-	// Returns a value x such that: p = gammaP(a, x);
-	// Requires: a > 0 and 1 >= p >= 0.
-	gammaPInv { |p| _GammaPInv; ^this.primitiveFailed }
-	// Returns a value x such that: q = gammaQ(a, x);
-	// Requires: a > 0 and 1 >= q >= 0.
-	gammaQInv { |q| _GammaQInv; ^this.primitiveFailed }
-	// Returns a value a such that: p = gammaP(a, x);
-	// Requires: x > 0 and 1 >= p >= 0.
-	gammaPInvA { |p| _GammaPInvA; ^this.primitiveFailed }
-	// Returns a value a such that: q = gammaQ(a, x);
-	// Requires: x > 0 and 1 >= q >= 0.
-	gammaQInvA { |q| _GammaQInvA; ^this.primitiveFailed }
-	// Derivatives of the Incomplete Gamma Function
-	gammaPDerivative { |x| _GammaPDerivative; ^this.primitiveFailed }
-	gammaQDerivative { |x| ^this.gammaPDerivative(x).neg }
-
-
-	/*	Factorials and Binomial Coefficients */
+	/*
+	NOTE: these are boost functions which will eventually be supported in the
+	SC core library in Number (or elsewhere)
+	*/
 
 	// TODO: replace Integer:factorial?
 	factorial { _Factorial; ^this.primitiveFailed }
@@ -108,60 +65,6 @@
 	//     }
 	// }
 	//
-	// prCheckFactorialRes {
-	//
-	// }
-	doubleFactorial { _DoubleFactorial; ^this.primitiveFailed }
-	// both x and i can be negative as well as positive
-	risingFactorial { |i| _RisingFactorial; ^this.primitiveFailed }
-	// only defined for positive i, x can be either positive or negative
-	fallingFactorial { |i| _FallingFactorial; ^this.primitiveFailed }
-	// Requires k <= n
-	binomialCoefficient { |k| _BinomialCoefficient; ^this.primitiveFailed }
-
-
-	/* Beta functions */
-	beta { |z| _Beta; ^this.primitiveFailed }
-	// incomplete beta functions
-	// All require 0 <= x <= 1
-	// normalised incomplete beta function of a, b and x
-	// require a,b >= 0, and in addition that not both a and b are zero
-	betaI { |b, x| _BetaI; ^this.primitiveFailed }
-	// normalised complement of the incomplete beta function of a, b and x
-	// require a,b >= 0, and in addition that not both a and b are zero
-	betaIC { |b, x| _BetaIC; ^this.primitiveFailed }
-	// full (non-normalised) incomplete beta function of a, b and x
-	// require a,b > 0
-	betaIFull { |b, x| _BetaIFull; ^this.primitiveFailed }
-	// full (non-normalised) complement of the incomplete beta function of a, b and x
-	// require a,b > 0
-	betaIFullC { |b, x| _BetaIFullC; ^this.primitiveFailed }
-	// Incomplete beta function inverses
-	// Requires: a,b > 0 and 0 <= p <= 1
-	betaIInv { |b, p| _BetaIInv; ^this.primitiveFailed }
-	// Requires: a,b > 0 and 0 <= q <= 1
-	betaICInv { |b, q| _BetaICInv; ^this.primitiveFailed }
-	// Requires: b > 0, 0 < x < 1 and 0 <= p <= 1
-	betaIInvA { |x, p| _BetaIInvA; ^this.primitiveFailed }
-	// Requires: b > 0, 0 < x < 1 and 0 <= q <= 1
-	betaICInvA { |x, q| _BetaICInvA; ^this.primitiveFailed }
-	// Requires: a > 0, 0 < x < 1 and 0 <= p <= 1
-	betaIInvB { |x, p| _BetaIInvB; ^this.primitiveFailed }
-	// Requires: a > 0, 0 < x < 1 and 0 <= q <= 1
-	betaICInvB { |x, q| _BetaICInvB; ^this.primitiveFailed }
-	// Incomplete beta function derivative
-	betaIDerivative { |b, x| _BetaIDerivative; ^this.primitiveFailed }
-
-
-	/*  Error functions */
-	// error function of z
-	errorFunc { _Erf; ^this.primitiveFailed }
-	// complement of error function
-	errorFuncC { _ErfC; ^this.primitiveFailed }
-	// inverse error function of z
-	errorFuncInv { _ErfInv; ^this.primitiveFailed }
-	// inverse of the complement of the error function of z
-	errorFuncCInv { _ErfCInv; ^this.primitiveFailed }
 
 
 	/*  Polynomials  */
@@ -197,29 +100,6 @@
 	// TODO: name?
 	prLegendre2 { |x| _LegendreQ; ^this.primitiveFailed }
 
-	//  Laguerre polynomial
-
-	laguerre { |x| _Laguerre; ^this.primitiveFailed }
-	// TODO: proper way to catch error?
-	laguerreAssoc { |m, x|
-		if (this < 0) {
-			format("n = %, but Associated Laguerre Polynomial requires n >= 0", this).throw
-		};
-		^prLaguerreAssoc(this, m, x);
-	}
-	prLaguerreAssoc { |m, x| _LaguerreAssoc; ^this.primitiveFailed }
-
-	// Hermite Polynomial
-
-	// TODO: proper way to catch error?
-	hermite { arg x;
-		if (this < 0) {
-			format("n = %, but Hermite Polynomial requires n >= 0", this).throw
-		};
-		^prHermite(this, x);
-	}
-	prHermite { |x| _Hermite; ^this.primitiveFailed }
-
 	// Chebyshev polynomials - first, second kind & derivative
 	chebyshev { |x| _ChebyshevT; ^this.primitiveFailed }
 	chebyshev2 { |x| _ChebyshevU; ^this.primitiveFailed }
@@ -243,134 +123,14 @@
 	// Spherical Harmonics
 
     sphHarm { |m, theta, phi| _SphHarmComplex; ^this.primitiveFailed }
-    sphHarm { |m, theta, phi| _SphHarmReal; ^this.primitiveFailed }
-    sphHarm { |m, theta, phi| _SphHarmImag; ^this.primitiveFailed }
-
-
-	/*	Bessel Functions  */
-
-	//  First and Second Kinds
-	bessel { |x| _BesselJ; ^this.primitiveFailed }
-	bessel2 { |x| _BesselNeumann; ^this.primitiveFailed }
-	//  Modified, First and Second Kinds
-	besselMod { |x| _BesselI; ^this.primitiveFailed }
-	besselMod2 { |x| _BesselK; ^this.primitiveFailed }
-	// Spherical, First and Second Kinds
-	besselSph { |x| _BesselSph; ^this.primitiveFailed }
-	besselSph2 { |x| _BesselNeumannSph; ^this.primitiveFailed }
-	// Derivatives
-	besselPrime { |x| _BesselJPrime; ^this.primitiveFailed }
-	besselPrime2 { |x| _BesselNeumannPrime; ^this.primitiveFailed }
-	besselModPrime { |x| _BesselIPrime; ^this.primitiveFailed }
-	besselModPrime2 { |x| _BesselKPrime; ^this.primitiveFailed }
-	besselSphPrime { |x| _BesselSphPrime; ^this.primitiveFailed }
-	besselSphPrime2 { |x| _BesselNeumannSphPrime; ^this.primitiveFailed }
-	// Zero finder for bessel polynomials of first and second kind
-	// Retrieve one zero at a time, by index
-	besselZero { |index| _BesselZero; ^this.primitiveFailed }
-	besselZero2 { |index| _BesselNeumannZero; ^this.primitiveFailed }
-
-
-	/*  Hankel Functions  */
-
-	// Cyclic
-	hankelCyc { |x| _CycHankel1; ^this.primitiveFailed }
-	hankelCyc2 { |x| _CycHankel2; ^this.primitiveFailed }
-	// Spherical
-	hankelSph { |x| _SphHankel1; ^this.primitiveFailed }
-	hankelSph2 { |x| _SphHankel2; ^this.primitiveFailed }
-
-
-	/*  Airy Functions  */
-
-	airyAi { _AiryAi; ^this.primitiveFailed }
-	airyBi { _AiryBi; ^this.primitiveFailed }
-	airyAiPrime { _AiryAiPrime; ^this.primitiveFailed }
-	airyBiPrime { _AiryBiPrime; ^this.primitiveFailed }
-	airyZero { _AiryZero; ^this.primitiveFailed }
-
-
-	/*  Elliptic Integrals  */
-
-	// Carlson Form
-	// Requires that all of the arguments are non-negative, and at most one may be zero
-	ellipIntRf { |y, z| _EllintRf; ^this.primitiveFailed }
-	// Requires that x and y are non-negative, with at most one of them zero, and that z >= 0
-	ellipIntRd { |y, z| _EllintRd; ^this.primitiveFailed }
-	// Requires that x, y and z are non-negative, with at most one of them zero, and that p != 0
-	ellipIntRj { |y, z, p| _EllintRj; ^this.primitiveFailed }
-	// Requires that x > 0 and that y != 0
-	ellipIntRc { |y| _EllintRc; ^this.primitiveFailed }
-	// Requires that x and y are non-negative
-	ellipIntRg { |y, z| _EllintRg; ^this.primitiveFailed }
-
-	//  Elliptic Integrals of the First, Second, Third Kind, D - Legendre Form
-	// Requires -1 <= k <= 1
-	ellipInt1i { |phi| _Ellint1Incomplete; ^this.primitiveFailed }
-	// Requires -1 <= k <= 1
-	ellipInt1c { _Ellint1Complete; ^this.primitiveFailed }
-	// Requires -1 <= k <= 1
-	ellipInt2i { |phi| _Ellint2Incomplete; ^this.primitiveFailed }
-	// Requires -1 <= k <= 1
-	ellipInt2c { _Ellint2Complete; ^this.primitiveFailed }
-	// Requires -1 <= k <= 1 and n < 1/sin2(φ)
-	ellipInt3i { |n, phi| _Ellint3Incomplete; ^this.primitiveFailed	}
-	// Requires -1 <= k <= 1 and n < 1
-	ellipInt3c { |n| _Ellint3Complete; ^this.primitiveFailed }
-	// Requires -1 <= k <= 1
-	ellipIntDi { |phi| _EllintDIncomplete; ^this.primitiveFailed }
-	// Requires -1 <= k <= 1
-	ellipIntDc { _EllintDComplete; ^this.primitiveFailed }
-
-	// Jacobi Zeta Function
-	// Requires -1 <= k <= 1
-	zetaJ { |phi| _JacobiZeta; ^this.primitiveFailed }
-
-	// Heuman Lambda Function
-	// Requires -1 <= k <= 1
-	lambdaH { |phi| _HeumanLambda; ^this.primitiveFailed }
-
-
-	/*  Jacobi Elliptic Functions  */
-
-	// k must be positive
-	ellipJcd { |u| _JacobiCd; ^this.primitiveFailed }
-	ellipJcn { |u| _JacobiCn; ^this.primitiveFailed }
-	ellipJcs { |u| _JacobiCs; ^this.primitiveFailed }
-	ellipJdc { |u| _JacobiDc; ^this.primitiveFailed }
-	ellipJdn { |u| _JacobiDn; ^this.primitiveFailed }
-	ellipJds { |u| _JacobiDs; ^this.primitiveFailed }
-	ellipJnc { |u| _JacobiNc; ^this.primitiveFailed }
-	ellipJnd { |u| _JacobiNd; ^this.primitiveFailed }
-	ellipJns { |u| _JacobiNs; ^this.primitiveFailed }
-	ellipJsc { |u| _JacobiSc; ^this.primitiveFailed }
-	ellipJsd { |u| _JacobiSd; ^this.primitiveFailed }
-	ellipJsn { |u| _JacobiSn; ^this.primitiveFailed }
-
-
-	/*  Zeta Function - Riemann  */
-
-	zetaR { _Zeta; ^this.primitiveFailed }
-
-
-	/*  Exponential Integrals */
-
-	expIntEn { |z| _ExpIntEn; ^this.primitiveFailed }
-	expInt { _ExpInt; ^this.primitiveFailed }
+    sphHarmRe { |m, theta, phi| _SphHarmReal; ^this.primitiveFailed }
+    sphHarmImag { |m, theta, phi| _SphHarmImag; ^this.primitiveFailed }
 
 
 	/*  Basic Functions  */
 
 	sinpi { _SinPi; ^this.primitiveFailed }
 	cospi { _CosPi; ^this.primitiveFailed }
-	log1p { _Log1p; ^this.primitiveFailed }
-	expm1{ _ExpM1; ^this.primitiveFailed }
-	cbrt { _Cbrt; ^this.primitiveFailed }
-	sqrt1pm1 { _Sqrt1pm1; ^this.primitiveFailed }
-	powm1{ |y| _PowM1; ^this.primitiveFailed }
-	// not needed... slightly slower than current implementation of hypot
-	// hypot { _Hypot2; ^this.primitiveFailed }
-
 
 	/*  Sinus Cardinal ("sinc") and Hyperbolic Sinus Cardinal Functions  */
 
@@ -378,17 +138,4 @@
 	sinc { _SinCpi; ^this.primitiveFailed }
 	// sinh(x) / x
 	sinhc { _SinHCpi; ^this.primitiveFailed }
-
-
-	/*  Inverse Hyperbolic Functions  */
-
-	asinh { _ASinH; ^this.primitiveFailed }
-	// requires x >= 1
-	acosh { _ACosH; ^this.primitiveFailed }
-	atanh { _ATanH; ^this.primitiveFailed }
-
-
-
-	/*	Owen's T function */
-	owensT { |a| _OwensT; ^this.primitiveFailed }
 }

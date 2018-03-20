@@ -61,6 +61,7 @@ PolyDegree {
     //
     // "https://en.wikipedia.org/wiki/Chebyshev_polynomials#Explicit_expressions"
     // "http://mathworld.wolfram.com/ChebyshevPolynomialoftheFirstKind.html"
+	// See Number:chebyshev
     chebyEval { arg x;
         var n = this.degree;
         ^cos(n * acos(x))
@@ -70,6 +71,7 @@ PolyDegree {
     //
     // "https://en.wikipedia.org/wiki/Chebyshev_polynomials#Roots_and_extrema"
     // "http://mathworld.wolfram.com/ChebyshevPolynomialoftheFirstKind.html"
+	// Note: also in Number
     chebyZeros {
         var n = this.degree;
         ^(1..n).collect({ arg k;
@@ -85,6 +87,7 @@ PolyDegree {
     // evaluate Associated Legendre polynomial
     //
     // use LegrendP _from boost_
+	// boost equivalent: legendreAssoc(degree, order, x)
     assocLegendreEval { arg order, x;
         ^LegendreP.new(this.degree).assocEval(order, x)
     }
@@ -92,6 +95,7 @@ PolyDegree {
     // evaluate Legendre polynomial
     //
     // use LegrendP _from boost_
+	// boost equivalent: legendre(degree, x)
     legendreEval { arg x;
         ^LegendreP.new(this.degree).eval(x)
     }
@@ -128,6 +132,7 @@ PolyDegree {
     // "http://kfe.fjfi.cvut.cz/~klimo/nm/c8/legpoly.pdf"
     //
     // Note: accuracy improves (relative to numpy) with ascending degree
+	// See: Number:legendreZeros
     legendreZeros {
         var n = this.degree;
 
@@ -137,6 +142,7 @@ PolyDegree {
         })
     }
 
+	// See: Number:legendreZeros
     legendreMaxZero { arg degree = 3;
         var n = this.degree;
 
@@ -152,7 +158,7 @@ PolyDegree {
         var coeffs;
 
         coeffs = (n+1).collect({ arg k;
-            ((2*n) - k).floatFactorial / (pow(2, n-k)*k.floatFactorial*(n-k).floatFactorial)
+            ((2*n) - k).asFloat.factorial / (pow(2, n-k)*k.asFloat.factorial*(n-k).asFloat.factorial)
         });
 
         ^Polynomial.newFrom(coeffs).eval(x)
@@ -165,7 +171,7 @@ PolyDegree {
         var coeffs, method = 'eigenvalue';
 
         coeffs = (n+1).collect({ arg k;
-            ((2*n) - k).floatFactorial / (pow(2, n-k)*k.floatFactorial*(n-k).floatFactorial)
+            ((2*n) - k).asFloat.factorial / (pow(2, n-k)*k.asFloat.factorial*(n-k).asFloat.factorial)
         });
 
         ^Polynomial.newFrom(coeffs).findRoots(method)

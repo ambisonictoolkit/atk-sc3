@@ -77,8 +77,9 @@ LegendreP {
 
     // legendre_p function returns the Associated Legendre polynomial of the first kind _from boost_
     assocEval { arg order, x;
-        _LegendreP
-        ^this.primitiveFailed;
+		^legendreAssoc(degree, order, x)
+		// _LegendrePAssoc
+		// ^this.primitiveFailed;
     }
 
     // returns the Legendre polynomial (order = 0) of the first kind _from boost_

@@ -126,7 +126,7 @@ WaveNumber {
             ^(m+1).collect({ arg j;
                 (j+1).collect({ arg k;
                     var fact;
-                    fact = (j+k).floatFactorial/((j-k).floatFactorial*k.floatFactorial);
+                    fact = (j+k).asFloat.factorial/((j-k).asFloat.factorial*k.asFloat.factorial);
                     fact * Complex.new(0, -1/(2*this.waveNumber*radius)).pow(k)
                 }).sum
             })
@@ -144,7 +144,7 @@ WaveNumber {
             ^(m+1).collect({ arg j;
                 (j+1).collect({ arg k;
                     var fact;
-                    fact = (j+k).floatFactorial/((j-k).floatFactorial*k.floatFactorial);
+                    fact = (j+k).asFloat.factorial/((j-k).asFloat.factorial*k.asFloat.factorial);
                     fact * Complex.new(0, -1/(2*this.waveNumber*radius)).pow(k)
                 }).sum.reciprocal
             })
@@ -164,11 +164,11 @@ WaveNumber {
             ^(m+1).collect({ arg j;
                 ((j+1).collect({ arg k;
                     var fact;
-                    fact = (j+k).floatFactorial/((j-k).floatFactorial*k.floatFactorial);
+                    fact = (j+k).asFloat.factorial/((j-k).asFloat.factorial*k.asFloat.factorial);
                     fact * Complex.new(0, -1/(2*this.waveNumber*encRadius)).pow(k)
                 }).sum) / ((j+1).collect({ arg k;
                     var fact;
-                    fact = (j+k).floatFactorial/((j-k).floatFactorial*k.floatFactorial);
+                    fact = (j+k).asFloat.factorial/((j-k).asFloat.factorial*k.asFloat.factorial);
                     fact * Complex.new(0, -1/(2*this.waveNumber*decRadius)).pow(k)
                 }).sum)
             })

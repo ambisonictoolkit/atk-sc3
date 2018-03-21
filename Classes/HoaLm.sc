@@ -263,7 +263,6 @@ HoaLm {
     // N3D normalized coefficient
     sph { arg theta = 0.0, phi = 0.0;
         var l, m, mabs;
-        var sphHarm;
         var res;
 
         #l, m = this.lm;
@@ -273,11 +272,10 @@ HoaLm {
         phi = pi/2 - phi;
 
         // evaluate spherical harmonic
-        sphHarm = SphHarm.new(l);
         case
-        { m < 0 } { res = 2.sqrt * sphHarm.imag(mabs, phi, theta) }  // imag
-        { m == 0 } { res = sphHarm.real(mabs, phi, theta) }  // real
-        { m > 0 } { res = 2.sqrt * sphHarm.real(mabs, phi, theta) };  // real
+        { m < 0 } { res = 2.sqrt * sphHarmImag(l, mabs, phi, theta) }  // imag
+        { m == 0 } { res = sphHarmReal(l, mabs, phi, theta) }  // real
+        { m > 0 } { res = 2.sqrt * sphHarmReal(l, mabs, phi, theta) };  // real
 
         // remove Condon-Shortley phase
         res = this.reflection(\CondonShortleyPhase) * res;

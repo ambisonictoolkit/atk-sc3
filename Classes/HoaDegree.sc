@@ -69,8 +69,12 @@ HoaDegree {
     }
 
     lm {
-        ^Array.with(
-            this.l,  // fill l
+		// Use List here instead of Array (temporary)
+		// added to force Collection::flop
+		// Array:flop uses primitive with has a GC bug:
+		// https://github.com/supercollider/supercollider/issues/3454
+        ^List.with(
+            this.l, // fill l
             this.m  // fill m
         ).flop
     }

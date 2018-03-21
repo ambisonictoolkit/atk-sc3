@@ -209,14 +209,13 @@ HoaLm {
                 mabs = m.abs;
                 ^sqrt(
                     (2 - dm) * (
-                        factorialFloat(l - mabs) / factorialFloat(l + mabs)
+                        (l - mabs).asFloat.factorial / (l + mabs).asFloat.factorial
                     )
                 )
             },
             \n2d, {
                 ^sqrt(
-                    2.pow(2*l) * factorialFloat(l).pow(2) /
-                    factorialFloat((2*l) + 1)
+                    2.pow(2*l) * l.asFloat.factorial.pow(2) / ((2*l) + 1).asFloat.factorial
                 ) * this.normalisation(\n3d)
             },
             \sn2d, {

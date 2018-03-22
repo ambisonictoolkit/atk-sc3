@@ -139,6 +139,14 @@ HoaOrder {
         ^(this.order*Atk.speedOfSound) / (2*pi*radius)
     }
 
+    /*
+    NOTE:
+
+    May want to review the naming of the var m
+    in the below code. This isn't the same m as [l, m],
+    and may cause confusion!
+    */
+
     // maximum average rV for an Ambisonic decoder
     rV { arg k = 'basic', dim = 3;
         var m = this.order;
@@ -162,9 +170,9 @@ HoaOrder {
 
         ^(k == 'energy').if({
             (dim == 2).if ({
-                PolyDegree.new(m+1).chebyMaxZero  // 2D
+                chebyMaxZero(m+1)  // 2D
             }, {
-                PolyDegree.new(m+1).legendreMaxZero  // 3D
+                legendreZeros(m+1).maxItem  // 3D
             })
         }, {  // 'basic' & 'controlled'
             (dim == 2).if({
@@ -221,23 +229,23 @@ HoaOrder {
             'energy', {
                 max_rE = this.rE(k, dim);
                 (dim == 2).if({ // 2D
-                    (m+1).collect({ arg order;
-                        PolyDegree.new(order).chebyEval(max_rE)
+                    (m+1).collect({ arg degree;
+                        chebyshev(degree, max_rE)
                     })
                 }, { // 3D
-                    (m+1).collect({ arg order;
-                        PolyDegree.new(order).legendreEval(max_rE)
+                    (m+1).collect({ arg degree;
+                        legendre(degree, max_rE)
                     })
                 })
             },
             'controlled', {
                 (dim == 2).if ({ // 2D
-                    (m+1).collect({ arg order;
-                        1 / ((m + order).asFloat.factorial * (m - order).asFloat.factorial)
-                    }) * (order).asFloat.factorial.squared;
+                    (m+1).collect({ arg degree;
+                        1 / ((m + degree).asFloat.factorial * (m - degree).asFloat.factorial)
+                    }) * m.asFloat.factorial.squared;
                 }, { // 3D
-                    (m+1).collect({ arg order;
-                        1 / ((m + order + 1).asFloat.factorial * (m - order).asFloat.factorial)
+                    (m+1).collect({ arg degree;
+                        1 / ((m + degree + 1).asFloat.factorial * (m - degree).asFloat.factorial)
                     }) * m.asFloat.factorial * (m + 1).asFloat.factorial;
                 })
             }

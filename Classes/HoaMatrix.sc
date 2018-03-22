@@ -68,11 +68,6 @@ HoaEncoderMatrix : AtkMatrix {
     //     ^super.new('hoa1').loadFromLib(ordering, normalisation);
     // }
     //
-    // *newZoomH2n {
-    //     var ordering = 'acn', normalisation = 'sn3d';
-    //     ^super.new('hoa1').loadFromLib(ordering, normalisation);
-    // }
-    //
     // *newOmni {
     //     ^super.new('omni').loadFromLib;
     // }
@@ -83,6 +78,10 @@ HoaEncoderMatrix : AtkMatrix {
 
     *newDirections { arg directions = [ 0, 0 ], order = 1;
         ^super.new('dirs', ("HOA" ++ order).asSymbol).initDirections(directions);
+    }
+
+    *newPanto { arg numChans = 4, orientation = 'flat', order = 1;
+        ^super.new('panto', ("HOA" ++ order).asSymbol).initPanto(numChans, orientation);
     }
 
     /*
@@ -100,20 +99,6 @@ HoaEncoderMatrix : AtkMatrix {
     //     ^super.new('dirs', ("HOA" ++ order).asSymbol).initBeams(directions);
     // }
 
-    // *newPanto { arg numChans = 4, orientation = 'flat';
-    //     ^super.new('panto').initPanto(numChans, orientation);
-    // }
-    //
-    // *newPeri { arg numChanPairs = 4, elevation = 0.61547970867039,
-    //     orientation = 'flat';
-    //     ^super.new('peri').initPeri(numChanPairs, elevation,
-    //     orientation);
-    // }
-    //
-    // *newZoomH2 { arg angles = [pi/3, 3/4*pi], pattern = 0.5857, k = 1;
-    //     ^super.new('zoomH2').initZoomH2(angles, pattern, k);
-    // }
-    //
     // *newFromFile { arg filePathOrName;
     //     ^super.new.initFromFile(filePathOrName, 'encoder', true).initEncoderVarsForFiles
     // }
@@ -265,77 +250,24 @@ HoaEncoderMatrix : AtkMatrix {
         this.initSAE(k)
     }
 
-    // initPanto { arg numChans, orientation;
-    //
-    //     var theta;
-    //
-    //     // return theta from output channel (speaker) number
-    //     theta = numChans.collect({ arg channel;
-    //         switch (orientation,
-    //             'flat',	{ ((1.0 + (2.0 * channel))/numChans) * pi },
-    //             'point',	{ ((2.0 * channel)/numChans) * pi }
-    //         )
-    //     });
-    //     theta = (theta + pi).mod(2pi) - pi;
-    //
-    //     // set input channel directions for instance
-    //     dirInputs = theta;
-    //
-    //     this.init2D
-    // }
+    initPanto { arg numChans, orientation;
 
-    // initPeri { arg numChanPairs, elevation, orientation;
-    //
-    //     var theta, directions, upDirs, downDirs, upMatrix, downMatrix;
-    //
-    //     // generate input channel pair positions
-    //     // start with polar positions. . .
-    //     theta = [];
-    //     numChanPairs.do({arg i;
-    //         theta = theta ++ [2 * pi * i / numChanPairs]}
-    //     );
-    //     if ( orientation == 'flat',
-    //     { theta = theta + (pi / numChanPairs) });       // 'flat' case
-    //
-    //     // collect directions [ [theta, phi], ... ]
-    //     // upper ring only
-    //     directions = [
-    //         theta,
-    //         Array.newClear(numChanPairs).fill(elevation)
-    //     ].flop;
-    //
-    //
-    //     // prepare output channel (speaker) directions for instance
-    //     upDirs = (directions + pi).mod(2pi) - pi;
-    //
-    //     downDirs = upDirs.collect({ arg angles;
-    //         Spherical.new(1, angles.at(0), angles.at(1)).neg.angles
-    //     });
-    //
-    //     // reorder the lower polygon
-    //     if ( (orientation == 'flat') && (numChanPairs.mod(2) == 1),
-    //         {									 // odd, 'flat'
-    //             downDirs = downDirs.rotate((numChanPairs/2 + 1).asInteger);
-    //         }, {     								// 'flat' case, default
-    //             downDirs = downDirs.rotate((numChanPairs/2).asInteger);
-    //         }
-    //     );
-    //
-    //     // set input channel directions for instance
-    //     dirInputs = upDirs ++ downDirs;
-    //
-    //     this.init3D
-    // }
+        var theta;
 
-    // initZoomH2 { arg angles, pattern, k;
-    //
-    //     // set input channel directions for instance
-    //     dirInputs = [ angles.at(0), angles.at(0).neg, angles.at(1), angles.at(1).neg ];
-    //
-    //     this.initInv2D(pattern);
-    //
-    //     matrix = matrix.putRow(2, matrix.getRow(2) * k); // scale Y
-    // }
+        // return theta from output channel (speaker) number
+        theta = numChans.collect({ arg channel;
+            switch (orientation,
+                'flat',	{ ((1.0 + (2.0 * channel))/numChans) * pi },
+                'point',	{ ((2.0 * channel)/numChans) * pi }
+            )
+        });
+        theta = (theta + pi).mod(2pi) - pi;
+
+        // set input channel directions for instance
+        dirInputs = theta;
+
+        this.initBasic
+    }
 
     // initEncoderVarsForFiles {
     //     dirInputs = if (fileParse.notNil) {

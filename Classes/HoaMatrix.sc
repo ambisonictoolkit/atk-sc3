@@ -59,18 +59,13 @@ HoaEncoderMatrix : AtkMatrix {
     //     ^super.new('AtoB').loadFromLib(orientation, weight)
     // }
     //
-    // *newHoa1 { arg ordering = 'acn', normalisation = 'n3d';
-    //     ^super.new('hoa1').loadFromLib(ordering, normalisation);
-    // }
-    //
-    // *newAmbix1 {
-    //     var ordering = 'acn', normalisation = 'sn3d';
-    //     ^super.new('hoa1').loadFromLib(ordering, normalisation);
-    // }
-    //
     // *newOmni {
     //     ^super.new('omni').loadFromLib;
     // }
+
+    *newFormat { arg format = [\acn, \n3d], order = 1;
+        ^super.new('format', ("HOA" ++ order).asSymbol).initFormat(format);
+    }
 
     *newDirection { arg theta = 0, phi = 0, order = 1;
         ^super.new('dir', ("HOA" ++ order).asSymbol).initDirection(theta, phi);
@@ -143,6 +138,57 @@ HoaEncoderMatrix : AtkMatrix {
                 coeffs * (Array.series(this.order+1, 1, 2) * beamWeights).sum / (this.order+1).squared;
             }).flop
         )
+    }
+
+    /*
+    NOTE:
+
+    We may like to make the format matrixing more general
+    by implementing via a superclass.
+    */
+    initFormat { arg format;
+        var inputFormat;
+        var outputFormat = [ \acn, \n3d ];
+        var hoaOrder;
+        var size;
+        var coeffs;
+        var colIndices, rowIndices;
+
+        // test for single keyword format
+        inputFormat = switch (format,
+                    \ambix, { [ \acn, \sn3d ] },  // ambix
+                    \fuma, { [ \fuma, \fuma ] },  // fuma
+                    { format }  // default
+        );
+
+        hoaOrder = HoaOrder.new(this.order);  // instance order
+        size = (this.order + 1).squared;
+
+        dirInputs = size.collect({ inf });  // set dirInputs
+
+        (inputFormat == outputFormat).if({  // equal formats?
+            matrix = Matrix.newIdentity(size).asFloat
+        }, {  // unequal formats
+
+            // 1) normalization - returned coefficients are ordered \acn
+            coeffs = (inputFormat.at(1) == outputFormat.at(1)).if({
+                Array.fill(size, { 1.0 })
+            }, {
+                hoaOrder.normalisation(outputFormat.at(1)) / hoaOrder.normalisation(inputFormat.at(1))
+            });
+
+            // 2) generate matrix
+            colIndices = hoaOrder.indices(inputFormat.at(0));
+            rowIndices = hoaOrder.indices(outputFormat.at(0));
+            matrix = Matrix.newClear(size, size).asFloat;
+            size.do({ arg index;  // index increment ordered \acn
+                matrix.put(
+                    rowIndices.at(index),
+                    colIndices.at(index),
+                    coeffs.at(index)
+                )
+            })
+        })
     }
 
     // initInv2D { arg pattern;
@@ -292,7 +338,13 @@ HoaEncoderMatrix : AtkMatrix {
 
     numChannels { ^this.numInputs }
 
-    dim { ^this.dirInputs.rank + 1}
+    dim {
+        (this.kind == \format).if({
+            ^3
+        }, {
+            ^this.dirInputs.rank + 1
+        })
+    }
 
     type { ^'encoder' }
 

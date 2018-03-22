@@ -1,7 +1,7 @@
 /*
-	Copyright the ATK Community, Joseph Anderson, and Michael McCrea, 2018
+	Copyright the ATK Community and Joseph Anderson, 2011-2017
 		J Anderson	j.anderson[at]ambisonictoolkit.net
-
+        M McCrea    mtm5[at]uw.edu
 
 	This file is part of SuperCollider3 version of the Ambisonic Toolkit (ATK).
 
@@ -24,7 +24,7 @@
 //---------------------------------------------------------------------
 //	The Ambisonic Toolkit (ATK) is a soundfield kernel support library.
 //
-// 	Class: PolyDegree
+// 	Extension: Polynomial
 //
 //	The Ambisonic Toolkit (ATK) is intended to bring together a number of tools and
 //	methods for working with Ambisonic surround sound. The intention is for the toolset
@@ -46,45 +46,18 @@
 //
 //---------------------------------------------------------------------
 
++ Polynomial {
 
-//------------------------------------------------------------------------
-// Polynomial Utilities for HOA
-
-PolyDegree {
-    var <>degree;
-
-    *new { arg degree;
-        ^super.newCopyArgs(degree)
-    }
-
-    // evaluate Reverse Bessel polynomial
-    //
-    rBesselEval { arg x;
-        var n = this.degree;
+    // Reverse Bessel polynomial - consider adding to Polynomial Quark Extension
+    *newReverseBessel { |degree|
+        var n = degree;
         var coeffs;
 
         coeffs = (n+1).collect({ arg k;
             ((2*n) - k).asFloat.factorial / (pow(2, n-k)*k.asFloat.factorial*(n-k).asFloat.factorial)
         });
 
-        ^Polynomial.newFrom(coeffs).eval(x)
+        ^this.newFrom(coeffs)
     }
 
-    // calculate the roots (zeros) of Reverse Bessel polynomial
-    //
-    rBesselZeros {
-        var n = this.degree;
-        var coeffs, method = 'eigenvalue';
-
-        coeffs = (n+1).collect({ arg k;
-            ((2*n) - k).asFloat.factorial / (pow(2, n-k)*k.asFloat.factorial*(n-k).asFloat.factorial)
-        });
-
-        ^Polynomial.newFrom(coeffs).findRoots(method)
-    }
-
-    rBesselMaxZero {
-        ^this.rBesselZeros.maxItem
-        // ^this.rBesselZeros.sort({ arg a, b; a > b }).maxItem
-    }
 }

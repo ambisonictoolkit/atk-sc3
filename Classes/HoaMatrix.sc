@@ -986,3 +986,425 @@ HoaXformerMatrix : AtkMatrix {
         stream << this.class.name << "(" <<* [kind, this.dim, this.numChannels] <<")";
     }
 }
+
+
+//-----------------------------------------------------------------------
+// martrix decoders
+
+
+HoaDecoderMatrix : AtkMatrix {
+	var <dirOutputs;
+    // var <>shelfFreq, <shelfK;
+
+    *newFormat { arg format = [\acn, \n3d], order = 1;
+        ^super.new('format', ("HOA" ++ order).asSymbol).initFormat(format);
+    }
+
+    // *newDiametric { arg directions = [ pi/4, 3*pi/4 ], k = 'single';
+    //     ^super.new('diametric').initDiametric(directions, k);
+    // }
+    //
+    // *newPanto { arg numChans = 4, orientation = 'flat', k = 'single';
+    //     ^super.new('panto').initPanto(numChans, orientation, k);
+    // }
+    //
+    // *newPeri { arg numChanPairs = 4, elevation = 0.61547970867039,
+    //     orientation = 'flat', k = 'single';
+    //     ^super.new('peri').initPeri(numChanPairs, elevation,
+    //     orientation, k);
+    // }
+    //
+    // *newQuad { arg angle = pi/4, k = 'single';
+    //     ^super.new('quad').initQuad(angle, k);
+    // }
+    //
+    // *newStereo { arg angle = pi/2, pattern = 0.5;
+    //     ^super.new('stereo').initStereo(angle, pattern);
+    // }
+    //
+    // *newMono { arg theta = 0, phi = 0, pattern = 0;
+    //     ^super.new('mono').initMono(theta, phi, pattern);
+    // }
+    //
+    // *new5_0 { arg irregKind = 'focused';
+    //     ^super.new('5_0').loadFromLib(irregKind);
+    // }
+    //
+    // *newBtoA { arg orientation = 'flu', weight = 'dec';
+    //     ^super.new('BtoA').loadFromLib(orientation, weight);
+    // }
+    //
+    // *newHoa1 { arg ordering = 'acn', normalisation = 'n3d';
+    //     ^super.new('hoa1').loadFromLib(ordering, normalisation);
+    // }
+    //
+    // *newAmbix1 {
+    //     var ordering = 'acn', normalisation = 'sn3d';
+    //     ^super.new('hoa1').loadFromLib(ordering, normalisation);
+    // }
+    //
+    // *newFromFile { arg filePathOrName;
+    //     ^super.new.initFromFile(filePathOrName, 'decoder', true).initDecoderVarsForFiles;
+    // }
+
+    /*
+    NOTE:
+
+    We may like to make the format matrixing more general
+    by implementing via a superclass.
+    */
+    initFormat { arg format;
+        var inputFormat = [ \acn, \n3d ];
+        var outputFormat;
+        var hoaOrder;
+        var size;
+        var coeffs;
+        var colIndices, rowIndices;
+
+        // test for single keyword format
+        outputFormat = switch (format,
+                    \ambix, { [ \acn, \sn3d ] },  // ambix
+                    \fuma, { [ \fuma, \fuma ] },  // fuma
+                    { format }  // default
+        );
+
+        hoaOrder = HoaOrder.new(this.order);  // instance order
+        size = (this.order + 1).squared;
+
+        dirOutputs = size.collect({ inf });  // set dirOutputs
+
+        (inputFormat == outputFormat).if({  // equal formats?
+            matrix = Matrix.newIdentity(size).asFloat
+        }, {  // unequal formats
+
+            // 1) normalization - returned coefficients are ordered \acn
+            coeffs = (inputFormat.at(1) == outputFormat.at(1)).if({
+                Array.fill(size, { 1.0 })
+            }, {
+                hoaOrder.normalisation(outputFormat.at(1)) / hoaOrder.normalisation(inputFormat.at(1))
+            });
+
+            // 2) generate matrix
+            colIndices = hoaOrder.indices(inputFormat.at(0));
+            rowIndices = hoaOrder.indices(outputFormat.at(0));
+            matrix = Matrix.newClear(size, size).asFloat;
+            size.do({ arg index;  // index increment ordered \acn
+                matrix.put(
+                    rowIndices.at(index),
+                    colIndices.at(index),
+                    coeffs.at(index)
+                )
+            })
+        })
+    }
+
+    // initK2D { arg k;
+    //
+    //     if ( k.isNumber, {
+    //         ^k
+    //         }, {
+    //             switch ( k,
+    //                 'velocity', 	{ ^1 },
+    //                 'energy', 	{ ^2.reciprocal.sqrt },
+    //                 'controlled', { ^2.reciprocal },
+    //                 'single', 	{ ^2.reciprocal.sqrt },
+    //                 'dual', 		{
+    //                     shelfFreq = 400.0;
+    //                     shelfK = [(3/2).sqrt, 3.sqrt/2];
+    //                     ^1;
+    //                 }
+    //             )
+    //         }
+    //     )
+    // }
+    //
+    // initK3D { arg k;
+    //
+    //     if ( k.isNumber, {
+    //         ^k
+    //         }, {
+    //             switch ( k,
+    //                 'velocity', 	{ ^1 },
+    //                 'energy', 	{ ^3.reciprocal.sqrt },
+    //                 'controlled', { ^3.reciprocal },
+    //                 'single', 	{ ^3.reciprocal.sqrt },
+    //                 'dual', 		{
+    //                     shelfFreq = 400.0;
+    //                     shelfK = [2.sqrt, (2/3).sqrt];
+    //                     ^1;
+    //                 }
+    //             )
+    //         }
+    //     )
+    // }
+    //
+    // initDiametric { arg directions, k;
+    //
+    //     var positions, positions2;
+    //     var speakerMatrix, n;
+    //
+    //     switch (directions.rank,			// 2D or 3D?
+    //         1, {									// 2D
+    //
+    //             // find positions
+    //             positions = Matrix.with(
+    //                 directions.collect({ arg item;
+    //                     Polar.new(1, item).asPoint.asArray
+    //                 })
+    //             );
+    //
+    //             // list all of the output channels (speakers)
+    //             // i.e., expand to actual pairs
+    //             positions2 = positions ++ (positions.neg);
+    //
+    //
+    //             // set output channel (speaker) directions for instance
+    //             dirOutputs = positions2.asArray.collect({ arg item;
+    //                 item.asPoint.asPolar.angle
+    //             });
+    //
+    //             // initialise k
+    //             k = this.initK2D(k);
+    //         },
+    //         2, {									// 3D
+    //
+    //             // find positions
+    //             positions = Matrix.with(
+    //                 directions.collect({ arg item;
+    //                     Spherical.new(1, item.at(0), item.at(1)).asCartesian.asArray
+    //                 })
+    //             );
+    //
+    //             // list all of the output channels (speakers)
+    //             // i.e., expand to actual pairs
+    //             positions2 = positions ++ (positions.neg);
+    //
+    //
+    //             // set output channel (speaker) directions for instance
+    //             dirOutputs = positions2.asArray.collect({ arg item;
+    //                 item.asCartesian.asSpherical.angles
+    //             });
+    //
+    //             // initialise k
+    //             k = this.initK3D(k);
+    //         }
+    //     );
+    //
+    //
+    //     // get velocity gains
+    //     // NOTE: this comment from Heller seems to be slightly
+    //     //       misleading, in that the gains returned will be
+    //     //       scaled by k, which may not request a velocity
+    //     //       gain. I.e., k = 1 isn't necessarily true, as it
+    //     //       is assigned as an argument to this function.
+    //     speakerMatrix = FoaSpeakerMatrix.newPositions(positions2, k).matrix;
+    //
+    //     // n = number of output channels (speakers)
+    //     n = speakerMatrix.cols;
+    //
+    //     // build decoder matrix
+    //     // resulting rows (after flop) are W, X, Y, Z gains
+    //     matrix = speakerMatrix.insertRow(0, Array.fill(n, {1}));
+    //
+    //     // return resulting matrix
+    //     // ALSO: the below code calls for the complex conjugate
+    //     //       of decoder_matrix. As we are expecting real vaules,
+    //     //       we may regard this call as redundant.
+    //     // res = sqrt(2)/n * decoder_matrix.conj().transpose()
+    //     matrix = 2.sqrt/n * matrix.flop;
+    // }
+    //
+    // initPanto { arg numChans, orientation, k;
+    //
+    //     var g0, g1, theta;
+    //
+    //     g0 = 1.0;								// decoder gains
+    //     g1 = 2.sqrt;							// 0, 1st order
+    //
+    //
+    //     // return theta from output channel (speaker) number
+    //     theta = numChans.collect({ arg channel;
+    //         switch (orientation,
+    //             'flat',	{ ((1.0 + (2.0 * channel))/numChans) * pi },
+    //             'point',	{ ((2.0 * channel)/numChans) * pi }
+    //         )
+    //     });
+    //     theta = (theta + pi).mod(2pi) - pi;
+    //
+    //     // set output channel (speaker) directions for instance
+    //     dirOutputs = theta;
+    //
+    //     // initialise k
+    //     k = this.initK2D(k);
+    //
+    //
+    //     // build decoder matrix
+    //     matrix = Matrix.newClear(numChans, 3); // start w/ empty matrix
+    //
+    //     numChans.do({ arg i;
+    //         matrix.putRow(i, [
+    //             g0,
+    //             k * g1 * theta.at(i).cos,
+    //             k * g1 * theta.at(i).sin
+    //         ])
+    //     });
+    //     matrix = 2.sqrt/numChans * matrix
+    // }
+    //
+    // initPeri { arg numChanPairs, elevation, orientation, k;
+    //
+    //     var theta, directions, upDirs, downDirs, upMatrix, downMatrix;
+    //
+    //     // generate output channel (speaker) pair positions
+    //     // start with polar positions. . .
+    //     theta = [];
+    //     numChanPairs.do({arg i;
+    //         theta = theta ++ [2 * pi * i / numChanPairs]}
+    //     );
+    //     if ( orientation == 'flat',
+    //     { theta = theta + (pi / numChanPairs) });       // 'flat' case
+    //
+    //     // collect directions [ [theta, phi], ... ]
+    //     // upper ring only
+    //     directions = [
+    //         theta,
+    //         Array.newClear(numChanPairs).fill(elevation)
+    //     ].flop;
+    //
+    //
+    //     // prepare output channel (speaker) directions for instance
+    //     upDirs = (directions + pi).mod(2pi) - pi;
+    //
+    //     downDirs = upDirs.collect({ arg angles;
+    //         Spherical.new(1, angles.at(0), angles.at(1)).neg.angles
+    //     });
+    //
+    //     // initialise k
+    //     k = this.initK3D(k);
+    //
+    //
+    //     // build decoder matrix
+    //     matrix = FoaDecoderMatrix.newDiametric(directions, k).matrix;
+    //
+    //     // reorder the lower polygon
+    //     upMatrix = matrix[..(numChanPairs-1)];
+    //     downMatrix = matrix[(numChanPairs)..];
+    //
+    //     if ( (orientation == 'flat') && (numChanPairs.mod(2) == 1),
+    //         {									 // odd, 'flat'
+    //
+    //             downDirs = downDirs.rotate((numChanPairs/2 + 1).asInteger);
+    //             downMatrix = downMatrix.rotate((numChanPairs/2 + 1).asInteger)
+    //
+    //         }, {     								// 'flat' case, default
+    //
+    //             downDirs = downDirs.rotate((numChanPairs/2).asInteger);
+    //             downMatrix = downMatrix.rotate((numChanPairs/2).asInteger)
+    //         }
+    //     );
+    //
+    //     dirOutputs = upDirs ++ downDirs;		// set output channel (speaker) directions
+    //     matrix = upMatrix ++ downMatrix;			// set matrix
+    //
+    // }
+    //
+    // initQuad { arg angle, k;
+    //
+    //     var g0, g1, g2;
+    //
+    //     // set output channel (speaker) directions for instance
+    //     dirOutputs = [ angle, pi - angle, (pi - angle).neg, angle.neg ];
+    //
+    //
+    //     // initialise k
+    //     k = this.initK2D(k);
+    //
+    //     // calculate g1, g2 (scaled by k)
+    //     g0	= 1;
+    //     g1	= k / (2.sqrt * angle.cos);
+    //     g2	= k / (2.sqrt * angle.sin);
+    //
+    //     // build decoder matrix
+    //     matrix = 2.sqrt/4 * Matrix.with([
+    //         [ g0, g1, 	g2 		],
+    //         [ g0, g1.neg, g2 		],
+    //         [ g0, g1.neg, g2.neg	],
+    //         [ g0, g1, 	g2.neg	]
+    //     ])
+    // }
+    //
+    // initStereo { arg angle, pattern;
+    //
+    //     var g0, g1, g2;
+    //
+    //     // set output channel (speaker) directions for instance
+    //     dirOutputs = [ pi/6, pi.neg/6 ];
+    //
+    //     // calculate g0, g1, g2 (scaled by pattern)
+    //     g0	= (1.0 - pattern) * 2.sqrt;
+    //     g1	= pattern * angle.cos;
+    //     g2	= pattern * angle.sin;
+    //
+    //     // build decoder matrix, and set for instance
+    //     matrix = Matrix.with([
+    //         [ g0, g1, g2		],
+    //         [ g0, g1, g2.neg	]
+    //     ])
+    // }
+    //
+    // initMono { arg theta, phi, pattern;
+    //
+    //     // set output channel (speaker) directions for instance
+    //     dirOutputs = [ 0 ];
+    //
+    //     // build decoder matrix, and set for instance
+    //     matrix = Matrix.with([
+    //         [
+    //             (1.0 - pattern) * 2.sqrt,
+    //             pattern * theta.cos * phi.cos,
+    //             pattern * theta.sin * phi.cos,
+    //             pattern * phi.sin
+    //         ]
+    //     ])
+    // }
+    //
+    // initDecoderVarsForFiles {
+    //     if (fileParse.notNil) {
+    //         dirOutputs = if (fileParse.dirOutputs.notNil) {
+    //             fileParse.dirOutputs.asFloat
+    //         } { // output directions are unspecified in the provided matrix
+    //             matrix.rows.collect({ 'unspecified' })
+    //         };
+    //         shelfK = fileParse.shelfK !? {fileParse.shelfK.asFloat};
+    //         shelfFreq = fileParse.shelfFreq !? {fileParse.shelfFreq.asFloat};
+    //     } { // txt file provided, no fileParse
+    //         dirOutputs = matrix.rows.collect({ 'unspecified' });
+    //     };
+    // }
+
+	dirInputs { ^this.numInputs.collect({ inf }) }
+
+	dirChannels { ^this.dirOutputs }
+
+	numInputs { ^matrix.cols }
+
+	numOutputs { ^matrix.rows }
+
+	numChannels { ^this.numOutputs }
+
+    dim {
+        (this.kind == \format).if({
+            ^3
+        }, {
+            ^this.dirInputs.rank + 1
+        })
+    }
+
+	type { ^'decoder' }
+
+    order { ^this.set.asString.drop(3).asInteger }
+
+	printOn { arg stream;
+		stream << this.class.name << "(" <<* [this.kind, this.dim, this.numChannels] <<")";
+	}
+}

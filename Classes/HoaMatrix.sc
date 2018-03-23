@@ -360,27 +360,12 @@ HoaEncoderMatrix : AtkMatrix {
 // martrix transforms
 
 
-// HoaXformerMatrix : AtkMatrix {
-//
-//     // ~~
-//     // Note: the 'kind' of the mirror transforms will be
-//     // superceded by the kind specified in the .yml file
-//     // e.g. 'mirrorX'
-//     *newMirrorX {
-//         ^super.new('mirrorAxis').loadFromLib('x');
-//     }
-//
-//     *newMirrorY {
-//         ^super.new('mirrorAxis').loadFromLib('y');
-//     }
-//
-//     *newMirrorZ {
-//         ^super.new('mirrorAxis').loadFromLib('z');
-//     }
-//
-//     *newMirrorO {
-//         ^super.new('mirrorAxis').loadFromLib('o');
-//     }
+HoaXformerMatrix : AtkMatrix {
+
+    *newMirror { arg mirror = \reflect, order = 1;
+        ^super.new('mirror', ("HOA" ++ order).asSymbol).initMirror(mirror);
+    }
+
 //     //~~~
 //
 //     *newRotate { arg angle = 0;
@@ -514,7 +499,22 @@ HoaEncoderMatrix : AtkMatrix {
 //     *newFromFile { arg filePathOrName;
 //         ^super.new.initFromFile(filePathOrName, 'xformer', true);
 //     }
-//
+
+    initMirror { arg mirror;
+        var hoaOrder;
+        var size;
+        var coeffs;
+
+        hoaOrder = HoaOrder.new(this.order);  // instance order
+        size = (this.order + 1).squared;
+
+        // 1) generate coefficients - ordered \acn
+        coeffs = hoaOrder.reflection(mirror);
+
+        // 2) generate matrix
+        matrix = Matrix.newDiagonal(coeffs);
+    }
+
 //     initRotate { arg angle;
 //         var cosAngle, sinAngle;
 //
@@ -963,24 +963,26 @@ HoaEncoderMatrix : AtkMatrix {
 //             FoaXformerMatrix.newRotate(theta.neg).matrix
 //         )
 //     }
-//
-//     dirInputs { ^this.numInputs.collect({ inf }) }
-//
-//     dirOutputs { ^this.numOutputs.collect({ inf }) }
-//
-//     dirChannels { ^this.dirOutputs }
-//
-//     dim { ^3 }				// all transforms are 3D
-//
-//     numInputs { ^matrix.cols }
-//
-//     numOutputs { ^matrix.rows }
-//
-//     numChannels { ^4 }			// all transforms are 3D
-//
-//     type { ^'xformer' }
-//
-//     printOn { arg stream;
-//         stream << this.class.name << "(" <<* [kind, this.dim, this.numChannels] <<")";
-//     }
-// }
+
+    dirInputs { ^this.numInputs.collect({ inf }) }
+
+    dirOutputs { ^this.numOutputs.collect({ inf }) }
+
+    dirChannels { ^this.dirOutputs }
+
+    dim { ^3 }  // all transforms are 3D
+
+    numInputs { ^matrix.cols }
+
+    numOutputs { ^matrix.rows }
+
+    numChannels { ^(this.order + 1).squared }  // all transforms are 3D
+
+    type { ^'xformer' }
+
+    order { ^this.set.asString.drop(3).asInteger }
+
+    printOn { arg stream;
+        stream << this.class.name << "(" <<* [kind, this.dim, this.numChannels] <<")";
+    }
+}

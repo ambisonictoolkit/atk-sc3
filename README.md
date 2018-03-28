@@ -174,6 +174,12 @@ Ambisonic Toolkit.
 List of Changes
 ---------------
 
+Version 4.0.2
+
+*  Issue fixes:
+    *  Remove CTK dependency from kernel loading routines.
+
+
 Version 4.0.1
 
 *  Documentation Updates:
@@ -331,6 +337,9 @@ are copyright the Ambisonic Toolkit Community and Joseph Anderson,
 
 Contributors
 ------------
+Version 4.0.2
+*  Michael McCrea (@mtmccrea)
+*  David Granström (@davidgranstrom)
 
 Version 4.0.1
 *  Joseph Anderson (@joslloand)

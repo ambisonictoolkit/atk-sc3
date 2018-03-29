@@ -1,6 +1,6 @@
 /*
 Copyright the ATK Community and Joseph Anderson, 2011-2018
-J Anderson	j.anderson[at]ambisonictoolkit.net
+J Anderson  j.anderson[at]ambisonictoolkit.net
 M McCrea    mtm5[at]uw.edu
 
 This file is part of SuperCollider3 version of the Ambisonic Toolkit (ATK).
@@ -37,7 +37,6 @@ SuperCollider3 version of the Ambisonic Toolkit (ATK). If not, see
 //	of sounds in a sound-space and instead attend to the impression and image of a soundfield.
 //	This approach takes advantage of the model the Ambisonic technology presents, and is
 //	viewed to be the idiomatic mode for working with the Ambisonic technique.
-//
 //
 //	We hope you enjoy the ATK!
 //
@@ -160,11 +159,11 @@ HoaRotationMatrix {
 	rXYZ: the normal 3x3 rotation matrix for the cartesian system (via -eulerToRO3)
 	*/
 	buildSHRotMtx { |rXYZ, maxDegree|
-		var r;			// output rotation matrix
-		var r_1;		// first band rotation matrix
-		var r_l;		// current band rotation matrix
-		var r_lm1;		// previous band's rotation matrix
-		var band_idx;	// offset of sub matrix into the full rotation matrix
+		var r;         // output rotation matrix
+		var r_1;       // first band rotation matrix
+		var r_l;       // current band rotation matrix
+		var r_lm1;     // previous band's rotation matrix
+		var band_idx;  // offset of sub matrix into the full rotation matrix
 		var setSize, denom, u, v, w, d;
 
 		setSize = (maxDegree+1).squared;

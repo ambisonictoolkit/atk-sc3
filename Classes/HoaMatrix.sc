@@ -53,8 +53,8 @@ HoaMatrix : AtkMatrix {
 	// TODO: these utilities could move to AtkMatrix, or elsewhere?
 
 	postDegreeBlock { |degree, round = 0.001|
-		var st = Hoa.degreeStIdx;
-		var nDegCoeffs = Hoa.numDegreeCoeffs;
+		var st = Hoa.degreeStIdx(degree);
+		var nDegCoeffs = Hoa.numDegreeCoeffs(degree);
 
 		// st = (degree+1).squared - (degree*2+1);
 		// nDegCoeffs = degree*2+1;
@@ -63,8 +63,8 @@ HoaMatrix : AtkMatrix {
 	}
 
 	getDegreeBlock { |degree, round = 0.001|
-		var st = Hoa.degreeStIdx;
-		var nDegCoeffs = Hoa.numDegreeCoeffs;
+		var st = Hoa.degreeStIdx(degree);
+		var nDegCoeffs = Hoa.numDegreeCoeffs(degree);
 
 		// st = (degree+1).squared - (degree*2+1);
 		// nDegCoeffs = degree*2+1;
@@ -72,17 +72,16 @@ HoaMatrix : AtkMatrix {
 		^this.matrix.getSub(st, st, nDegCoeffs, nDegCoeffs, round);
 	}
 
-	// this is a destructive operation:
-	// the instance's matrix will be zero'd below the threshold
-	zeroBelow { |threshold = (-300.dbamp)|
-		var tempM;
-		tempM = Matrix.newClear(this.matrix.rows, this.matrix.cols);
-		this.matrix.rowsDo({ |rArray, ri|
-			tempM.putRow(ri, rArray.collect{ |item| if(item <= threshold, {0},{item}) })
-		});
-
-		matrix = tempM
+	zeroWithin { |threshold = (-300.dbamp)|
+		this.matrix.zeroWithin(threshold);
 	}
+
+	doRow { arg row, func;
+		this.getRow(row).do({ arg item,i;
+			func.value(item, i);
+		});
+	}
+
 
 	postSub { |rowStart=0, colStart=0, rowLength, colLength, round=0.001|
 		this.matrix.postSub(rowStart, colStart, rowLength, colLength, round)
@@ -91,6 +90,21 @@ HoaMatrix : AtkMatrix {
 	getSub { |rowStart=0, colStart=0, rowLength, colLength|
 		^this.matrix.getSub(rowStart, colStart, rowLength, colLength)
 	}
+
+	// mix coefficients with a transform matrix
+	mixCoeffs { |coeffs|
+
+        if (coeffs.size != this.matrix.cols) {
+            format("AtkMatrix:mixCoeffs - coeffs.size [%] != matrix.cols [%]", coeffs.size, this.matrix.cols).throw
+        };
+
+        // NOTE: .asList added to force Collection:flop.
+        // Array:flop uses a primitive that has a GC bug:
+        // https://github.com/supercollider/supercollider/issues/3454
+        ^this.matrix.cols.collect({|i|
+            this.matrix.getCol(i) * coeffs[i]
+		}).asList.flop.collect{|me| me.sum};
+    }
 }
 
 //-----------------------------------------------------------------------
@@ -423,7 +437,27 @@ HoaEncoderMatrix : HoaMatrix {
 HoaXformerMatrix : HoaMatrix {
 
 	*newRotation { |r1 = 0, r2 = 0, r3 = 0, convention = \xyz, order|
-		^super.new('rotation').initRotation(r1, r2, r3, convention, order) // .loadFromLib('x');
+		^super.new('rotation').initRotation(r1, r2, r3, convention, order)
+	}
+
+	*newRotate { |angle, order|
+		^super.new('rotation').initRotation(0, 0, angle, \xyz, order)
+	}
+
+	*newTilt { |angle, order|
+		^super.new('rotation').initRotation(angle, 0 , 0, \xyz, order)
+	}
+
+	*newTumble { |angle, order|
+		^super.new('rotation').initRotation(0, angle, 0, \xyz, order)
+	}
+
+	*newRTT { |rotate = 0, tilt = 0, tumble = 0, order|
+		^super.new('rotation').initRotation(rotate, tilt, tumble, \rtt, order)
+	}
+
+	*newYPR { |yaw = 0, pitch = 0, roll = 0, order|
+		^super.new('rotation').initRotation(yaw, pitch, roll, \ypr, order)
 	}
 
 	initRotation { |r1, r2, r3, convention, order|

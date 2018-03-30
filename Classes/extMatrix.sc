@@ -61,6 +61,26 @@
         ^matrix
     }
 
+	// TEMP (or submit to MathLib as PR) override Matrix:*with
+	// work around to avoid .flop.flop, which if called on Array, will expose
+	// it to a bug that could fail on large arrays.
+	// also, this is more efficient
+	*with { arg array; // return matrix from 2D array (array of rows)
+		var shapes, shapeTest, numTest, rows;
+
+		shapes = array.asArray.collect(_.shape).flatten;
+
+		shapeTest = shapes.every(_ == shapes[0]);
+		numTest = array.flatten.every(_.isNumber);
+
+		if (shapeTest and: numTest, {
+			rows = array.size;
+			^super.fill(rows, {arg col; array.at(col) });
+			},{
+				error("wrong type of argument in Meta_Matrix-with");this.halt
+		});
+	}
+
 	rowsDo { |func|
 		this.rows.do{|row, ri| func.(this.getRow(row), ri)}
 	}
@@ -114,5 +134,15 @@
 		)
 
 	}
+
+	// this is a destructive operation:
+	// the matrix will be zero'd within the absolute valude of the threshold
+	zeroWithin { |threshold = (-300.dbamp)|
+		this.rowsDo({ |rArray, ri|
+			rArray.do{ |item, ci|
+				this.put(ri, ci, if(item.abs <= threshold, {0},{item}))}
+		});
+	}
+
 }
 

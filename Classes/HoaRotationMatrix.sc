@@ -85,39 +85,39 @@ this library for details on that alternative method.
 
 HoaRotationMatrix {
 	// copyArgs
-	var r1, r2, r3, convention;
+	var r1, r2, r3, axes;
 	var <matrix;
 	var order, rO3;
 
-	*new { |r1 = 0, r2 = 0, r3 = 0, convention = \xyz, order|
-		^super.newCopyArgs(r1,r2,r3,convention).init(order)
+	*new { |r1 = 0, r2 = 0, r3 = 0, axes = \xyz, order|
+		^super.newCopyArgs(r1,r2,r3,axes).init(order)
 	}
 
 	init { |argOrder|
 		order = argOrder ?? {Hoa.globalOrder};
 
-		convention = switch(convention,
+		axes = switch(axes,
 			\rtt, {\yxz},
 			\ypr, {\xyz},
-			convention // default: pass through
+			axes // default: pass through
 		);
 
-		rO3 = this.eulerToR3(r1, r2, r3, convention);
+		rO3 = this.eulerToR3(r1, r2, r3, axes);
 		matrix = this.buildSHRotMtx(rO3, order, 'real');
 	}
 
 
 	/*
 	alpha, beta, gamma:  first, second, and third angle of rotation
-	connvention: definition of the order of axes to rotate, e.g. 'zyz'
+	axes: definition of the order of axes to rotate, e.g. 'zyz'
 	*/
-	eulerToR3 { |alpha, beta, gamma, convention|
+	eulerToR3 { |alpha, beta, gamma, axes|
 		var r_1, r_2, r_3, cstr;
 
-		// unpack chars of convention
-		cstr = convention.asString;
+		// unpack chars of axes
+		cstr = axes.asString;
 
-		// resultant rotations for each axis, the order of which depends on 'convention'
+		// resultant rotations for each axis, the order of which depends on 'axes'
 		r_1 = this.buildR1(cstr[0].asSymbol, alpha);
 		r_2 = this.buildR1(cstr[1].asSymbol, beta);
 		r_3 = this.buildR1(cstr[2].asSymbol, gamma);
@@ -133,12 +133,15 @@ HoaRotationMatrix {
 		sint = sin(theta);
 		sint_neg = sint.neg;
 
+		// Note: this R1 kernel follows classic ambisonic rotation
+		// convention which differs from ported reference (politis)
+		// (sint and sint_neg are swapped)
 		^Matrix.with(
 			switch( axis,
 				'x', {[
 					[1, 0, 0],
-					[0, cost, sint],
-					[0, sint_neg, cost]
+					[0, cost, sint_neg],
+					[0, sint, cost]
 				]},
 				'y', {[
 					[cost, 0, sint_neg],
@@ -146,8 +149,8 @@ HoaRotationMatrix {
 					[sint, 0, cost]
 				]},
 				'z', {[
-					[cost, sint, 0],
-					[sint_neg, cost, 0],
+					[cost, sint_neg, 0],
+					[sint, cost, 0],
 					[0, 0, 1]
 				]},
 			)

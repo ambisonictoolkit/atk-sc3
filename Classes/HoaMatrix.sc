@@ -76,12 +76,6 @@ HoaMatrix : AtkMatrix {
 		this.matrix.zeroWithin(threshold);
 	}
 
-	doRow { arg row, func;
-		this.getRow(row).do({ arg item,i;
-			func.value(item, i);
-		});
-	}
-
 
 	postSub { |rowStart=0, colStart=0, rowLength, colLength, round=0.001|
 		this.matrix.postSub(rowStart, colStart, rowLength, colLength, round)
@@ -436,29 +430,46 @@ HoaEncoderMatrix : HoaMatrix {
 
 HoaXformerMatrix : HoaMatrix {
 
-	*newRotation { |r1 = 0, r2 = 0, r3 = 0, convention = \xyz, order|
-		^super.new('rotation').initRotation(r1, r2, r3, convention, order)
+	*newRotate { |r1 = 0, r2 = 0, r3 = 0, axes = \xyz, order|
+		^super.new('rotate', order).initRotation(r1, r2, r3, axes, order)
 	}
 
-	*newRotate { |angle, order|
-		^super.new('rotation').initRotation(0, 0, angle, \xyz, order)
+	*newRotateAxis { |axis = \z, angle = 0, order|
+		var r1=0,r2=0,r3=0;
+		switch( axis,
+			\x, {r1=angle},
+			\y, {r2=angle},
+			\z, {r3=angle},
+			\rotate, {r3=angle},
+			\tilt, {r1=angle},
+			\tumble, {r2=angle},
+			\yaw, {r3=angle},
+			\pitch, {r2=angle},
+			\roll, {r1=angle},
+		);
+		^super.new('rotateAxis', order).initRotation(r1, r2, r3, \xyz, order)
 	}
 
-	*newTilt { |angle, order|
-		^super.new('rotation').initRotation(angle, 0 , 0, \xyz, order)
-	}
-
-	*newTumble { |angle, order|
-		^super.new('rotation').initRotation(0, angle, 0, \xyz, order)
-	}
-
-	*newRTT { |rotate = 0, tilt = 0, tumble = 0, order|
-		^super.new('rotation').initRotation(rotate, tilt, tumble, \rtt, order)
-	}
-
-	*newYPR { |yaw = 0, pitch = 0, roll = 0, order|
-		^super.new('rotation').initRotation(yaw, pitch, roll, \ypr, order)
-	}
+	/* Removed for now as redundant... */
+	// *newRotate { |angle, order|
+	// 	^super.new('rotation').initRotation(0, 0, angle, \xyz, order)
+	// }
+	//
+	// *newTilt { |angle, order|
+	// 	^super.new('rotation').initRotation(angle, 0 , 0, \xyz, order)
+	// }
+	//
+	// *newTumble { |angle, order|
+	// 	^super.new('rotation').initRotation(0, angle, 0, \xyz, order)
+	// }
+	//
+	// *newRTT { |rotate = 0, tilt = 0, tumble = 0, order|
+	// 	^super.new('rotation').initRotation(rotate, tilt, tumble, \rtt, order)
+	// }
+	//
+	// *newYPR { |yaw = 0, pitch = 0, roll = 0, order|
+	// 	^super.new('rotation').initRotation(yaw, pitch, roll, \ypr, order)
+	// }
 
 	initRotation { |r1, r2, r3, convention, order|
 		matrix = HoaRotationMatrix(r1, r2, r3, convention, order).matrix;
@@ -582,10 +593,7 @@ HoaXformerMatrix : HoaMatrix {
 	//         ^super.new('zoomY').initZoomY(angle);
 	//     }
 	//
-	//     *newRTT { arg rotAngle = 0, tilAngle = 0, tumAngle = 0;
-	//         ^super.new('rtt').initRTT(rotAngle, tilAngle, tumAngle);
-	//     }
-	//
+
 	//     *newMirror { arg theta = 0, phi = 0;
 	//         ^super.new('mirror').initMirror(theta, phi);
 	//     }
@@ -618,54 +626,7 @@ HoaXformerMatrix : HoaMatrix {
 	//         ^super.new.initFromFile(filePathOrName, 'xformer', true);
 	//     }
 	//
-	//     initRotate { arg angle;
-	//         var cosAngle, sinAngle;
-	//
-	//         // build transform matrix, and set for instance
-	//         // calculate cos, sin
-	//         cosAngle	= angle.cos;
-	//         sinAngle	= angle.sin;
-	//
-	//         matrix = Matrix.with([
-	//             [ 1, 0, 			0,			0 ],
-	//             [ 0, cosAngle,	sinAngle.neg,	0 ],
-	//             [ 0, sinAngle, 	cosAngle,		0 ],
-	//             [ 0, 0, 			0,			1 ]
-	//         ])
-	//     }
-	//
-	//     initTilt { arg angle;
-	//         var cosAngle, sinAngle;
-	//
-	//         // build transform matrix, and set for instance
-	//         // calculate cos, sin
-	//         cosAngle	= angle.cos;
-	//         sinAngle	= angle.sin;
-	//
-	//         matrix = Matrix.with([
-	//             [ 1, 0, 0,		0 			],
-	//             [ 0, 1, 0,		0 			],
-	//             [ 0,	0, cosAngle,	sinAngle.neg 	],
-	//             [ 0,	0, sinAngle, 	cosAngle 		]
-	//         ])
-	//     }
-	//
-	//     initTumble { arg angle;
-	//         var cosAngle, sinAngle;
-	//
-	//         // build transform matrix, and set for instance
-	//         // calculate cos, sin
-	//         cosAngle	= angle.cos;
-	//         sinAngle	= angle.sin;
-	//
-	//         matrix = Matrix.with([
-	//             [ 1, 0, 			0,	0 			],
-	//             [ 0, cosAngle,	0,	sinAngle.neg	],
-	//             [ 0, 0,			1, 	0 			],
-	//             [ 0, sinAngle,	0, 	cosAngle 		]
-	//         ])
-	//     }
-	//
+
 	//     initDirectO { arg angle;
 	//         var g0, g1;
 	//
@@ -980,16 +941,7 @@ HoaXformerMatrix : HoaMatrix {
 	//             [ 0,			   0,  0, 				g4 ]
 	//         ])
 	//     }
-	//
-	//     initRTT { arg rotAngle, tilAngle, tumAngle;
-	//
-	//         matrix = (
-	//             FoaXformerMatrix.newTumble(tumAngle).matrix *
-	//             FoaXformerMatrix.newTilt(tilAngle).matrix *
-	//             FoaXformerMatrix.newRotate(rotAngle).matrix
-	//         )
-	//     }
-	//
+
 	//     initMirror { arg theta, phi;
 	//
 	//         matrix = (
@@ -1066,24 +1018,26 @@ HoaXformerMatrix : HoaMatrix {
 	//             FoaXformerMatrix.newRotate(theta.neg).matrix
 	//         )
 	//     }
-	//
-	//     dirInputs { ^this.numInputs.collect({ inf }) }
-	//
-	//     dirOutputs { ^this.numOutputs.collect({ inf }) }
-	//
-	//     dirChannels { ^this.dirOutputs }
-	//
-	//     dim { ^3 }				// all transforms are 3D
-	//
-	//     numInputs { ^matrix.cols }
-	//
-	//     numOutputs { ^matrix.rows }
-	//
-	//     numChannels { ^4 }			// all transforms are 3D
-	//
-	//     type { ^'xformer' }
-	//
-	//     printOn { arg stream;
-	//         stream << this.class.name << "(" <<* [kind, this.dim, this.numChannels] <<")";
-	//     }
+
+	dirInputs { ^this.numInputs.collect({ inf }) }
+
+	dirOutputs { ^this.numOutputs.collect({ inf }) }
+
+	dirChannels { ^this.dirOutputs }
+
+	dim { ^3 }				// all transforms are 3D
+
+	numInputs { ^matrix.cols }
+
+	numOutputs { ^matrix.rows }
+
+	numChannels { ^4 }			// all transforms are 3D
+
+	type { ^'xformer' }
+
+	order { ^this.set.asString.drop(3).asInteger }
+
+	printOn { arg stream;
+		stream << this.class.name << "(" <<* [kind, this.dim, this.numChannels] <<")";
+	}
 }

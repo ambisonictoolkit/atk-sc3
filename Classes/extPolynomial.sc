@@ -1,7 +1,7 @@
 /*
-	Copyright the ATK Community, Joseph Anderson, and Michael McCrea, 2018
+	Copyright the ATK Community and Joseph Anderson, 2011-2017
 		J Anderson	j.anderson[at]ambisonictoolkit.net
-
+        M McCrea    mtm5[at]uw.edu
 
 	This file is part of SuperCollider3 version of the Ambisonic Toolkit (ATK).
 
@@ -24,7 +24,7 @@
 //---------------------------------------------------------------------
 //	The Ambisonic Toolkit (ATK) is a soundfield kernel support library.
 //
-// 	Class: SphHarm
+// 	Extension: Polynomial
 //
 //	The Ambisonic Toolkit (ATK) is intended to bring together a number of tools and
 //	methods for working with Ambisonic surround sound. The intention is for the toolset
@@ -46,41 +46,18 @@
 //
 //---------------------------------------------------------------------
 
++ Polynomial {
 
-//------------------------------------------------------------------------
-// Simple class to import Boost Spherical Harmonic functionality
+    // Reverse Bessel polynomial - consider adding to Polynomial Quark Extension
+    *newReverseBessel { |degree|
+        var n = degree;
+        var coeffs;
 
-/*
-For θ outside [0, π] and φ outside [0, 2π] this implementation follows the convention used by Mathematica:
-the function is periodic with period π in θ and 2π in φ. Please note that this is not the behaviour one would
-get from a casual application of the function's definition. Cautious users should keep θ and φ to the
-range [0, π] and [0, 2π] respectively.
+        coeffs = (n+1).collect({ arg k;
+            ((2*n) - k).asFloat.factorial / (pow(2, n-k)*k.asFloat.factorial*(n-k).asFloat.factorial)
+        });
 
-Some other sources include an additional Condon-Shortley phase term of (-1)m in the definition of this function:
-note however that our definition of the associated Legendre polynomial already includes this term.
-
-"http://www.boost.org/doc/libs/1_65_1/libs/math/doc/html/math_toolkit/sf_poly/sph_harm.html"
-*/
-
-SphHarm {
-    var <>degree;
-
-    *new { arg degree;
-        ^super.newCopyArgs(degree)
+        ^this.newFrom(coeffs)
     }
 
-    // spherical_harmomic function _from boost_
-    complex { arg order, theta, phi;
-        ^sphHarmComplex(degree, order, theta, phi)
-    }
-
-    // spherical_harmomic function returns the real part _from boost_
-    real { arg order, theta, phi;
-        ^sphHarmReal(degree, order, theta, phi)
-    }
-
-    // spherical_harmomic function returns the imaginary part _from boost_
-    imag { arg order, theta, phi;
-        ^sphHarmImag(degree, order, theta, phi)
-    }
 }

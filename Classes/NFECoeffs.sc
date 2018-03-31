@@ -59,9 +59,11 @@ NFECoeffs {
 
     init {
         var m = this.degree;
+        var method = \eigenvalue;
         var bpr;
 
-        bpr = PolyDegree.new(m).rBesselZeros;
+        // Bessel Polynomial Zeros
+        bpr = Polynomial.newReverseBessel(m).findRoots(method);
         bpr = bpr.sort.reverse;  // sorted so real is at end
 
         // extract Re(X) & |X|, e.g., Bessel Polynomial Factors

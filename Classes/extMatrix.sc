@@ -24,7 +24,7 @@
 //---------------------------------------------------------------------
 //	The Ambisonic Toolkit (ATK) is a soundfield kernel support library.
 //
-// 	Extension: Array
+// 	Extension: Matrix
 //
 //	The Ambisonic Toolkit (ATK) is intended to bring together a number of tools and
 //	methods for working with Ambisonic surround sound. The intention is for the toolset
@@ -100,9 +100,8 @@
 		height = colHeight ?? {maxh};
 
 		if ((width > maxw) or: (height > maxh)) {
-			format(
-				"dimensions of requested sub-matrix exceed bounds: "
-				"asked for %x%, remaining space after starting index is %x%",
+			format("dimensions of requested sub-matrix exceed bounds: "
+				"you asked for %x%, remaining space after starting index is %x%",
 				rowLength, colHeight, maxw, maxh
 			).throw
 		};
@@ -119,10 +118,10 @@
 	}
 
 	// post a sub matrix, formatted for viewing
-	postSub { |rowStart=0, colStart=0, rowLength, colLength, round=0.001|
+	postSub { |rowStart=0, colStart=0, rowLength, colHeight, round=0.001|
 		var pmtx, maxstrlen=0, temp;
 
-		pmtx = this.getSub(rowStart, colStart, rowLength, colLength).round(round);
+		pmtx = this.getSub(rowStart, colStart, rowLength, colHeight).round(round);
 		pmtx.doMatrix({|item| maxstrlen = max(maxstrlen, item.asString.size)});
 
 		pmtx.rowsDo(
@@ -136,7 +135,7 @@
 	}
 
 	// this is a destructive operation:
-	// the matrix will be zero'd within the absolute valude of the threshold
+	// force values to zero that are within threshold distance (positive or negative)
 	zeroWithin { |threshold = (-300.dbamp)|
 		this.rowsDo({ |rArray, ri|
 			rArray.do{ |item, ci|

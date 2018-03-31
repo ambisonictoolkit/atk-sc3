@@ -209,14 +209,13 @@ HoaLm {
                 mabs = m.abs;
                 ^sqrt(
                     (2 - dm) * (
-                        factorialFloat(l - mabs) / factorialFloat(l + mabs)
+                        (l - mabs).asFloat.factorial / (l + mabs).asFloat.factorial
                     )
                 )
             },
             \n2d, {
                 ^sqrt(
-                    2.pow(2*l) * factorialFloat(l).pow(2) /
-                    factorialFloat((2*l) + 1)
+                    2.pow(2*l) * l.asFloat.factorial.pow(2) / ((2*l) + 1).asFloat.factorial
                 ) * this.normalisation(\n3d)
             },
             \sn2d, {
@@ -263,7 +262,6 @@ HoaLm {
     // N3D normalized coefficient
     sph { arg theta = 0.0, phi = 0.0;
         var l, m, mabs;
-        var sphHarm;
         var res;
 
         #l, m = this.lm;
@@ -273,11 +271,10 @@ HoaLm {
         phi = pi/2 - phi;
 
         // evaluate spherical harmonic
-        sphHarm = SphHarm.new(l);
         case
-        { m < 0 } { res = 2.sqrt * sphHarm.imag(mabs, phi, theta) }  // imag
-        { m == 0 } { res = sphHarm.real(mabs, phi, theta) }  // real
-        { m > 0 } { res = 2.sqrt * sphHarm.real(mabs, phi, theta) };  // real
+        { m < 0 } { res = 2.sqrt * sphHarmImag(l, mabs, phi, theta) }  // imag
+        { m == 0 } { res = sphHarmReal(l, mabs, phi, theta) }  // real
+        { m > 0 } { res = 2.sqrt * sphHarmReal(l, mabs, phi, theta) };  // real
 
         // remove Condon-Shortley phase
         res = this.reflection(\CondonShortleyPhase) * res;

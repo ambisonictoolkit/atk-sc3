@@ -164,7 +164,8 @@ FoaSpeakerMatrix {
 
 AtkMatrix {
 	// copyArgs
-	var <kind, <set = 'FOA', <type; // NOTE: 'set' default will change with addition of HOA
+	var <kind;
+	var <set, <type;
 
 	var <matrix;
 	var <filePath;		// matrices from files only
@@ -172,23 +173,25 @@ AtkMatrix {
 	var <op = 'matrix';
 
 	// most typically called by subclass
-	// *new { |mtxKind, set, mtxType|
-	*new { |kind, set, type|
-		^super.newCopyArgs(kind).init(set, type)
+	*new { |kind, order, type|
+		^super.newCopyArgs(kind).init(order, type)
 	}
 
-	init { |argSet, argType|
-		if (argSet.notNil) {
-			set = argSet
+	init { |argOrder, argType|
+		set = if (argOrder.notNil) {
+			format("HOA%", argOrder).asSymbol;
 		} { // detect from class
 			if (this.class.asString.keep(3) == "Foa") {
-				set = 'FOA';
+				'FOA';
+			} {
+				format("HOA%", Hoa.globalOrder).asSymbol;
 			}
 		};
-		if (argType.notNil) {
-			type = argType
+
+		type = if (argType.notNil) {
+			argType
 		} { // detect from class
-			type = switch( this.class,
+			switch( this.class,
 				FoaEncoderMatrix, {'encoder'},
 				FoaEncoderKernel, {'encoder'},
 				FoaDecoderMatrix, {'decoder'},

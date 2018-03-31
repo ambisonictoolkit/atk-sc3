@@ -48,11 +48,60 @@
 //
 //---------------------------------------------------------------------
 
+HoaMatrix : AtkMatrix {
+
+	// TODO: these utilities could move to AtkMatrix, or elsewhere?
+
+	getSub { |rowStart=0, colStart=0, rowLength, colLength|
+		^this.matrix.getSub(rowStart, colStart, rowLength, colLength)
+	}
+
+	postSub { |rowStart=0, colStart=0, rowLength, colLength, round=0.001|
+		this.matrix.postSub(rowStart, colStart, rowLength, colLength, round)
+	}
+
+	// get the block matrix for a single degree within the full matrix
+	getDegreeBlock { |degree, round = 0.001|
+		var st = Hoa.degreeStIdx(degree);
+		var nCoeffs = Hoa.numDegreeCoeffs(degree);
+
+		^this.matrix.getSub(st, st, nCoeffs, nCoeffs, round);
+	}
+
+	// post the block matrix for a single degree within the full matrix
+	postDegreeBlock { |degree, round = 0.001|
+		var st = Hoa.degreeStIdx(degree);
+		var nCoeffs = Hoa.numDegreeCoeffs(degree);
+
+		this.matrix.postSub(st, st, nCoeffs, nCoeffs, round);
+	}
+
+	// force values to zero that are within threshold distance (positive or negative)
+	zeroWithin { |threshold = (-300.dbamp)|
+		this.matrix.zeroWithin(threshold);
+	}
+
+
+	// mix coefficients with a transform matrix
+	mixCoeffs { |coeffs|
+
+		if (coeffs.size != this.matrix.cols) {
+			format("AtkMatrix:mixCoeffs - coeffs.size [%] != matrix.cols [%]", coeffs.size, this.matrix.cols).throw
+		};
+
+		// NOTE: .asList added to force Collection:flop.
+		// Array:flop uses a primitive that has a GC bug:
+		// https://github.com/supercollider/supercollider/issues/3454
+		^this.matrix.cols.collect({|i|
+			this.matrix.getCol(i) * coeffs[i]
+		}).asList.flop.collect{|me| me.sum};
+	}
+}
 
 //-----------------------------------------------------------------------
 // martrix encoders
 
-HoaEncoderMatrix : AtkMatrix {
+HoaEncoderMatrix : HoaMatrix {
     var <dirInputs;
 
     // *newAtoB { arg orientation = 'flu', weight = 'dec';
@@ -63,20 +112,20 @@ HoaEncoderMatrix : AtkMatrix {
     //     ^super.new('omni').loadFromLib;
     // }
 
-    *newFormat { arg format = [\acn, \n3d], order = 1;
-        ^super.new('format', ("HOA" ++ order).asSymbol).initFormat(format);
+    *newFormat { arg format = [\acn, \n3d], order;
+        ^super.new('format', order).initFormat(format);
     }
 
-    *newDirection { arg theta = 0, phi = 0, order = 1;
-        ^super.new('dir', ("HOA" ++ order).asSymbol).initDirection(theta, phi);
+    *newDirection { arg theta = 0, phi = 0, order;
+        ^super.new('dir', order).initDirection(theta, phi);
     }
 
-    *newDirections { arg directions = [ 0, 0 ], order = 1;
-        ^super.new('dirs', ("HOA" ++ order).asSymbol).initDirections(directions);
+    *newDirections { arg directions = [ 0, 0 ], order;
+        ^super.new('dirs', order).initDirections(directions);
     }
 
-    *newPanto { arg numChans = 4, orientation = 'flat', order = 1;
-        ^super.new('panto', ("HOA" ++ order).asSymbol).initPanto(numChans, orientation);
+    *newPanto { arg numChans = 4, orientation = 'flat', order;
+        ^super.new('panto', order).initPanto(numChans, orientation);
     }
 
     /*
@@ -86,12 +135,12 @@ HoaEncoderMatrix : AtkMatrix {
     */
 
     // sampling beam
-    *newBeam { arg theta = 0, phi = 0, k = \basic, order = 1;
-        ^super.new('beam', ("HOA" ++ order).asSymbol).initBeam(theta, phi, k);
+    *newBeam { arg theta = 0, phi = 0, k = \basic, order;
+        ^super.new('beam', order).initBeam(theta, phi, k);
     }
 
-    // *newBeams { arg directions = [ 0, 0 ], k = \basic, order = 1;
-    //     ^super.new('dirs', ("HOA" ++ order).asSymbol).initBeams(directions);
+    // *newBeams { arg directions = [ 0, 0 ], k = \basic, order;
+    //     ^super.new('dirs', order).initBeams(directions);
     // }
 
     // *newFromFile { arg filePathOrName;
@@ -360,145 +409,60 @@ HoaEncoderMatrix : AtkMatrix {
 // martrix transforms
 
 
-HoaXformerMatrix : AtkMatrix {
+HoaXformerMatrix : HoaMatrix {
 
-    *newMirror { arg mirror = \reflect, order = 1;
-        ^super.new('mirror', ("HOA" ++ order).asSymbol).initMirror(mirror);
-    }
+	/*  Rotation  */
 
-//     //~~~
-//
-//     *newRotate { arg angle = 0;
-//         ^super.new('rotate').initRotate(angle);
-//     }
-//
-//     *newTilt { arg angle = 0;
-//         ^super.new('tilt').initTilt(angle);
-//     }
-//
-//     *newTumble { arg angle = 0;
-//         ^super.new('tumble').initTumble(angle);
-//     }
-//
-//     *newDirectO { arg angle = 0;
-//         ^super.new('directO').initDirectO(angle);
-//     }
-//
-//     *newDirectX { arg angle = 0;
-//         ^super.new('directX').initDirectX(angle);
-//     }
-//
-//     *newDirectY { arg angle = 0;
-//         ^super.new('directY').initDirectY(angle);
-//     }
-//
-//     *newDirectZ { arg angle = 0;
-//         ^super.new('directZ').initDirectZ(angle);
-//     }
-//
-//     *newDominateX { arg gain = 0;
-//         ^super.new('dominateX').initDominateX(gain);
-//     }
-//
-//     *newDominateY { arg gain = 0;
-//         ^super.new('dominateY').initDominateY(gain);
-//     }
-//
-//     *newDominateZ { arg gain = 0;
-//         ^super.new('dominateZ').initDominateZ(gain);
-//     }
-//
-//     *newZoomX { arg angle = 0;
-//         ^super.new('zoomX').initZoomX(angle);
-//     }
-//
-//     *newZoomY { arg angle = 0;
-//         ^super.new('zoomY').initZoomY(angle);
-//     }
-//
-//     *newZoomZ { arg angle = 0;
-//         ^super.new('zoomZ').initZoomZ(angle);
-//     }
-//
-//     *newFocusX { arg angle = 0;
-//         ^super.new('focusX').initFocusX(angle);
-//     }
-//
-//     *newFocusY { arg angle = 0;
-//         ^super.new('focusY').initFocusY(angle);
-//     }
-//
-//     *newFocusZ { arg angle = 0;
-//         ^super.new('focusZ').initFocusZ(angle);
-//     }
-//
-//     *newPushX { arg angle = 0;
-//         ^super.new('pushX').initPushX(angle);
-//     }
-//
-//     *newPushY { arg angle = 0;
-//         ^super.new('pushY').initPushY(angle);
-//     }
-//
-//     *newPushZ { arg angle = 0;
-//         ^super.new('pushZ').initPushZ(angle);
-//     }
-//
-//     *newPressX { arg angle = 0;
-//         ^super.new('pressX').initPressX(angle);
-//     }
-//
-//     *newPressY { arg angle = 0;
-//         ^super.new('pressY').initPressY(angle);
-//     }
-//
-//     *newPressZ { arg angle = 0;
-//         ^super.new('pressZ').initPressZ(angle);
-//     }
-//
-//     *newAsymmetry { arg angle = 0;
-//         ^super.new('asymmetry').initAsymmetry(angle);
-//     }
-//
-//     *newBalance { arg angle = 0;
-//         ^super.new('zoomY').initZoomY(angle);
-//     }
-//
-//     *newRTT { arg rotAngle = 0, tilAngle = 0, tumAngle = 0;
-//         ^super.new('rtt').initRTT(rotAngle, tilAngle, tumAngle);
-//     }
-//
-//     *newMirror { arg theta = 0, phi = 0;
-//         ^super.new('mirror').initMirror(theta, phi);
-//     }
-//
-//     *newDirect { arg angle = 0, theta = 0, phi = 0;
-//         ^super.new('direct').initDirect(angle, theta, phi);
-//     }
-//
-//     *newDominate { arg gain = 0, theta = 0, phi = 0;
-//         ^super.new('dominate').initDominate(gain, theta, phi);
-//     }
-//
-//     *newZoom { arg angle = 0, theta = 0, phi = 0;
-//         ^super.new('zoom').initZoom(angle, theta, phi);
-//     }
-//
-//     *newFocus { arg angle = 0, theta = 0, phi = 0;
-//         ^super.new('focus').initFocus(angle, theta, phi);
-//     }
-//
-//     *newPush { arg angle = 0, theta = 0, phi = 0;
-//         ^super.new('push').initPush(angle, theta, phi);
-//     }
-//
-//     *newPress { arg angle = 0, theta = 0, phi = 0;
-//         ^super.new('press').initPress(angle, theta, phi);
-//     }
-//
-//     *newFromFile { arg filePathOrName;
-//         ^super.new.initFromFile(filePathOrName, 'xformer', true);
-//     }
+	*newRotate { |r1 = 0, r2 = 0, r3 = 0, axes = \xyz, order|
+		^super.new('rotate', order).initRotation(r1, r2, r3, axes, order)
+	}
+
+	*newRotateAxis { |axis = \z, angle = 0, order|
+		var r1=0,r2=0,r3=0;
+		switch( axis,
+			\x, {r1=angle},
+			\y, {r2=angle},
+			\z, {r3=angle},
+			\rotate, {r3=angle},
+			\tilt, {r1=angle},
+			\tumble, {r2=angle},
+			\yaw, {r3=angle},
+			\pitch, {r2=angle},
+			\roll, {r1=angle},
+		);
+		^super.new('rotateAxis', order).initRotation(r1, r2, r3, \xyz, order)
+	}
+
+	/* Removed for now as redundant... */
+	// *newRotate { |angle, order|
+	// 	^super.new('rotation').initRotation(0, 0, angle, \xyz, order)
+	// }
+	//
+	// *newTilt { |angle, order|
+	// 	^super.new('rotation').initRotation(angle, 0 , 0, \xyz, order)
+	// }
+	//
+	// *newTumble { |angle, order|
+	// 	^super.new('rotation').initRotation(0, angle, 0, \xyz, order)
+	// }
+	//
+	// *newRTT { |rotate = 0, tilt = 0, tumble = 0, order|
+	// 	^super.new('rotation').initRotation(rotate, tilt, tumble, \rtt, order)
+	// }
+	//
+	// *newYPR { |yaw = 0, pitch = 0, roll = 0, order|
+	// 	^super.new('rotation').initRotation(yaw, pitch, roll, \ypr, order)
+	// }
+
+	initRotation { |r1, r2, r3, convention, order|
+		matrix = HoaRotationMatrix(r1, r2, r3, convention, order).matrix;
+	}
+
+	/*  Mirroring  */
+
+	*newMirror { arg mirror = \reflect, order;
+		^super.new('mirror', order).initMirror(mirror);
+	}
 
     initMirror { arg mirror;
         var hoaOrder;
@@ -515,454 +479,498 @@ HoaXformerMatrix : AtkMatrix {
         matrix = Matrix.newDiagonal(coeffs);
     }
 
-//     initRotate { arg angle;
-//         var cosAngle, sinAngle;
-//
-//         // build transform matrix, and set for instance
-//         // calculate cos, sin
-//         cosAngle	= angle.cos;
-//         sinAngle	= angle.sin;
-//
-//         matrix = Matrix.with([
-//             [ 1, 0, 			0,			0 ],
-//             [ 0, cosAngle,	sinAngle.neg,	0 ],
-//             [ 0, sinAngle, 	cosAngle,		0 ],
-//             [ 0, 0, 			0,			1 ]
-//         ])
-//     }
-//
-//     initTilt { arg angle;
-//         var cosAngle, sinAngle;
-//
-//         // build transform matrix, and set for instance
-//         // calculate cos, sin
-//         cosAngle	= angle.cos;
-//         sinAngle	= angle.sin;
-//
-//         matrix = Matrix.with([
-//             [ 1, 0, 0,		0 			],
-//             [ 0, 1, 0,		0 			],
-//             [ 0,	0, cosAngle,	sinAngle.neg 	],
-//             [ 0,	0, sinAngle, 	cosAngle 		]
-//         ])
-//     }
-//
-//     initTumble { arg angle;
-//         var cosAngle, sinAngle;
-//
-//         // build transform matrix, and set for instance
-//         // calculate cos, sin
-//         cosAngle	= angle.cos;
-//         sinAngle	= angle.sin;
-//
-//         matrix = Matrix.with([
-//             [ 1, 0, 			0,	0 			],
-//             [ 0, cosAngle,	0,	sinAngle.neg	],
-//             [ 0, 0,			1, 	0 			],
-//             [ 0, sinAngle,	0, 	cosAngle 		]
-//         ])
-//     }
-//
-//     initDirectO { arg angle;
-//         var g0, g1;
-//
-//         // build transform matrix, and set for instance
-//         g0 = (1 + angle.sin).sqrt;
-//         g1 = (1 - angle.sin).sqrt;
-//
-//         matrix = Matrix.with([
-//             [ g0,	0,	0,	0 	],
-//             [ 0, 	g1,	0,	0	],
-//             [ 0, 	0,	g1, 	0 	],
-//             [ 0, 	0,	0, 	g1 	]
-//         ])
-//     }
-//
-//     initDirectX { arg angle;
-//         var g0, g1;
-//
-//         // build transform matrix, and set for instance
-//         g0 = (1 + angle.sin).sqrt;
-//         g1 = (1 - angle.sin).sqrt;
-//
-//         matrix = Matrix.with([
-//             [ g0,	0,	0,	0 	],
-//             [ 0, 	g1,	0,	0	],
-//             [ 0, 	0,	g0, 	0 	],
-//             [ 0, 	0,	0, 	g0 	]
-//         ])
-//     }
-//
-//     initDirectY { arg angle;
-//         var g0, g1;
-//
-//         // build transform matrix, and set for instance
-//         g0 = (1 + angle.sin).sqrt;
-//         g1 = (1 - angle.sin).sqrt;
-//
-//         matrix = Matrix.with([
-//             [ g0,	0,	0,	0 	],
-//             [ 0, 	g0,	0,	0	],
-//             [ 0, 	0,	g1, 	0 	],
-//             [ 0, 	0,	0, 	g0 	]
-//         ])
-//     }
-//
-//     initDirectZ { arg angle;
-//         var g0, g1;
-//
-//         // build transform matrix, and set for instance
-//         g0 = (1 + angle.sin).sqrt;
-//         g1 = (1 - angle.sin).sqrt;
-//
-//         matrix = Matrix.with([
-//             [ g0,	0,	0,	0 	],
-//             [ 0, 	g0,	0,	0	],
-//             [ 0, 	0,	g0, 	0 	],
-//             [ 0, 	0,	0, 	g1 	]
-//         ])
-//     }
-//
-//     initDominateX { arg gain;
-//         var g0, g1, k;
-//
-//         // build transform matrix, and set for instance
-//         k = gain.dbamp;
-//
-//         g0 = (k + k.reciprocal) / 2;
-//         g1 = (k - k.reciprocal) / 2.sqrt;
-//
-//         matrix = Matrix.with([
-//             [ g0,	g1/2,	0,	0 	],
-//             [ g1, 	g0,		0,	0	],
-//             [ 0, 	0,		1, 	0 	],
-//             [ 0, 	0,		0, 	1 	]
-//         ])
-//     }
-//
-//     initDominateY { arg gain;
-//         var g0, g1, k;
-//
-//         // build transform matrix, and set for instance
-//         k = gain.dbamp;
-//
-//         g0 = (k + k.reciprocal) / 2;
-//         g1 = (k - k.reciprocal) / 2.sqrt;
-//
-//         matrix = Matrix.with([
-//             [ g0,	0,	g1/2,	0 	],
-//             [ 0, 	1,	0, 		0 	],
-//             [ g1, 	0,	g0,		0	],
-//             [ 0, 	0,	0, 		1 	]
-//         ])
-//     }
-//
-//     initDominateZ { arg gain;
-//         var g0, g1, k;
-//
-//         // build transform matrix, and set for instance
-//         k = gain.dbamp;
-//
-//         g0 = (k + k.reciprocal) / 2;
-//         g1 = (k - k.reciprocal) / 2.sqrt;
-//
-//         matrix = Matrix.with([
-//             [ g0,	0,	0,	g1/2	],
-//             [ 0, 	1,	0, 	0 	],
-//             [ 0, 	0,	1, 	0 	],
-//             [ g1, 	0,	0,	g0	]
-//         ])
-//     }
-//
-//     initZoomX { arg angle;
-//         var g0, g1;
-//
-//         // build transform matrix, and set for instance
-//         g0 = angle.sin;
-//         g1 = angle.cos;
-//
-//         matrix = Matrix.with([
-//             [ 1,			g0/2.sqrt,	0,	0 	],
-//             [ 2.sqrt*g0, 	1,			0,	0	],
-//             [ 0, 		0,			g1, 	0 	],
-//             [ 0, 		0,			0, 	g1 	]
-//         ])
-//     }
-//
-//     initZoomY { arg angle;
-//         var g0, g1;
-//
-//         // build transform matrix, and set for instance
-//         g0 = angle.sin;
-//         g1 = angle.cos;
-//
-//         matrix = Matrix.with([
-//             [ 1,			0,	g0/2.sqrt,	0 	],
-//             [ 0, 		g1,	0, 			0 	],
-//             [ 2.sqrt*g0, 	0,	1,			0	],
-//             [ 0, 		0,	0, 			g1 	]
-//         ])
-//     }
-//
-//     initZoomZ { arg angle;
-//         var g0, g1;
-//
-//         // build transform matrix, and set for instance
-//         g0 = angle.sin;
-//         g1 = angle.cos;
-//
-//         matrix = Matrix.with([
-//             [ 1,			0,	0,	g0/2.sqrt	],
-//             [ 0, 		g1,	0, 	0 		],
-//             [ 0, 		0, 	g1,	0 		],
-//             [ 2.sqrt*g0, 	0,	0,	1		]
-//         ])
-//     }
-//
-//     initFocusX { arg angle;
-//         var g0, g1, g2;
-//
-//         // build transform matrix, and set for instance
-//         g0 = (1 + angle.abs.sin).reciprocal;
-//         g1 = 2.sqrt * angle.sin * g0;
-//         g2 = angle.cos * g0;
-//
-//         matrix = Matrix.with([
-//             [ g0,	g1/2,	0,	0	],
-//             [ g1,	g0,		0,	0	],
-//             [ 0,		0,		g2, 	0 	],
-//             [ 0,		0,		0, 	g2	]
-//         ])
-//     }
-//
-//     initFocusY { arg angle;
-//         var g0, g1, g2;
-//
-//         // build transform matrix, and set for instance
-//         g0 = (1 + angle.abs.sin).reciprocal;
-//         g1 = 2.sqrt * angle.sin * g0;
-//         g2 = angle.cos * g0;
-//
-//         matrix = Matrix.with([
-//             [ g0,	0,	g1/2,	0	],
-//             [ 0,		g2,	0, 		0 	],
-//             [ g1,	0,	g0,		0	],
-//             [ 0,		0,	0, 		g2	]
-//         ])
-//     }
-//
-//     initFocusZ { arg angle;
-//         var g0, g1, g2;
-//
-//         // build transform matrix, and set for instance
-//         g0 = (1 + angle.abs.sin).reciprocal;
-//         g1 = 2.sqrt * angle.sin * g0;
-//         g2 = angle.cos * g0;
-//
-//         matrix = Matrix.with([
-//             [ g0,	0,	0,	g1/2	],
-//             [ 0,		g2,	0, 	0 	],
-//             [ 0,		0, 	g2,	0	],
-//             [ g1,	0,	0,	g0	]
-//         ])
-//     }
-//
-//     initPushX { arg angle;
-//         var g0, g1;
-//
-//         // build transform matrix, and set for instance
-//         g0 = 2.sqrt * angle.sin * angle.abs.sin;
-//         g1 = angle.cos.squared;
-//
-//         matrix = Matrix.with([
-//             [ 1,		0,	0,	0	],
-//             [ g0,	g1,	0,	0	],
-//             [ 0,		0,	g1, 	0 	],
-//             [ 0,		0,	0, 	g1	]
-//         ])
-//     }
-//
-//     initPushY { arg angle;
-//         var g0, g1;
-//
-//         // build transform matrix, and set for instance
-//         g0 = 2.sqrt * angle.sin * angle.abs.sin;
-//         g1 = angle.cos.squared;
-//
-//         matrix = Matrix.with([
-//             [ 1,		0,	0,	0	],
-//             [ 0,		g1,	0, 	0 	],
-//             [ g0,	0,	g1,	0	],
-//             [ 0,		0,	0, 	g1	]
-//         ])
-//     }
-//
-//     initPushZ { arg angle;
-//         var g0, g1;
-//
-//         // build transform matrix, and set for instance
-//         g0 = 2.sqrt * angle.sin * angle.abs.sin;
-//         g1 = angle.cos.squared;
-//
-//         matrix = Matrix.with([
-//             [ 1,		0,	0,	0	],
-//             [ 0,		g1,	0, 	0 	],
-//             [ 0,		0, 	g1,	0	],
-//             [ g0,	0,	0,	g1	]
-//         ])
-//     }
-//
-//     initPressX { arg angle;
-//         var g0, g1, g2;
-//
-//         // build transform matrix, and set for instance
-//         g0 = 2.sqrt * angle.sin * angle.abs.sin;
-//         g1 = angle.cos.squared;
-//         g2 = angle.cos;
-//
-//         matrix = Matrix.with([
-//             [ 1,		0,	0,	0	],
-//             [ g0,	g1,	0,	0	],
-//             [ 0,		0,	g2, 	0 	],
-//             [ 0,		0,	0, 	g2	]
-//         ])
-//     }
-//
-//     initPressY { arg angle;
-//         var g0, g1, g2;
-//
-//         // build transform matrix, and set for instance
-//         g0 = 2.sqrt * angle.sin * angle.abs.sin;
-//         g1 = angle.cos.squared;
-//         g2 = angle.cos;
-//
-//         matrix = Matrix.with([
-//             [ 1,		0,	0,	0	],
-//             [ 0,		g2,	0, 	0 	],
-//             [ g0,	0,	g1,	0	],
-//             [ 0,		0,	0, 	g2	]
-//         ])
-//     }
-//
-//     initPressZ { arg angle;
-//         var g0, g1, g2;
-//
-//         // build transform matrix, and set for instance
-//         g0 = 2.sqrt * angle.sin * angle.abs.sin;
-//         g1 = angle.cos.squared;
-//         g2 = angle.cos;
-//
-//         matrix = Matrix.with([
-//             [ 1,		0,	0,	0	],
-//             [ 0,		g2,	0, 	0 	],
-//             [ 0,		0, 	g2,	0	],
-//             [ g0,	0,	0,	g1	]
-//         ])
-//     }
-//
-//     initAsymmetry { arg angle;
-//         var g0, g1, g2, g3, g4;
-//
-//         // build transform matrix, and set for instance
-//         g0 = angle.sin.neg;
-//         g1 = angle.sin.squared;
-//         g2 = angle.cos.squared;
-//         g3 = angle.cos * angle.sin;
-//         g4 = angle.cos;
-//
-//         matrix = Matrix.with([
-//             [ 1,			    0, 2.sqrt.reciprocal*g0, 0 ],
-//             [ 2.sqrt*g1,	   g2, g0,				 0 ],
-//             [ 2.sqrt.neg*g3, g3, g4, 				 0 ],
-//             [ 0,			   0,  0, 				g4 ]
-//         ])
-//     }
-//
-//     initRTT { arg rotAngle, tilAngle, tumAngle;
-//
-//         matrix = (
-//             FoaXformerMatrix.newTumble(tumAngle).matrix *
-//             FoaXformerMatrix.newTilt(tilAngle).matrix *
-//             FoaXformerMatrix.newRotate(rotAngle).matrix
-//         )
-//     }
-//
-//     initMirror { arg theta, phi;
-//
-//         matrix = (
-//             FoaXformerMatrix.newRotate(theta).matrix *
-//             FoaXformerMatrix.newTumble(phi).matrix *
-//             FoaXformerMatrix.newMirrorX.matrix *
-//             FoaXformerMatrix.newTumble(phi.neg).matrix *
-//             FoaXformerMatrix.newRotate(theta.neg).matrix
-//         )
-//     }
-//
-//     initDirect { arg angle, theta, phi;
-//
-//         matrix = (
-//             FoaXformerMatrix.newRotate(theta).matrix *
-//             FoaXformerMatrix.newTumble(phi).matrix *
-//             FoaXformerMatrix.newDirectX(angle).matrix *
-//             FoaXformerMatrix.newTumble(phi.neg).matrix *
-//             FoaXformerMatrix.newRotate(theta.neg).matrix
-//         )
-//     }
-//
-//     initDominate { arg gain, theta, phi;
-//
-//         matrix = (
-//             FoaXformerMatrix.newRotate(theta).matrix *
-//             FoaXformerMatrix.newTumble(phi).matrix *
-//             FoaXformerMatrix.newDominateX(gain).matrix *
-//             FoaXformerMatrix.newTumble(phi.neg).matrix *
-//             FoaXformerMatrix.newRotate(theta.neg).matrix
-//         )
-//     }
-//
-//     initZoom { arg angle, theta, phi;
-//
-//         matrix = (
-//             FoaXformerMatrix.newRotate(theta).matrix *
-//             FoaXformerMatrix.newTumble(phi).matrix *
-//             FoaXformerMatrix.newZoomX(angle).matrix *
-//             FoaXformerMatrix.newTumble(phi.neg).matrix *
-//             FoaXformerMatrix.newRotate(theta.neg).matrix
-//         )
-//     }
-//
-//     initFocus { arg angle, theta, phi;
-//
-//         matrix = (
-//             FoaXformerMatrix.newRotate(theta).matrix *
-//             FoaXformerMatrix.newTumble(phi).matrix *
-//             FoaXformerMatrix.newFocusX(angle).matrix *
-//             FoaXformerMatrix.newTumble(phi.neg).matrix *
-//             FoaXformerMatrix.newRotate(theta.neg).matrix
-//         )
-//     }
-//
-//     initPush { arg angle, theta, phi;
-//
-//         matrix = (
-//             FoaXformerMatrix.newRotate(theta).matrix *
-//             FoaXformerMatrix.newTumble(phi).matrix *
-//             FoaXformerMatrix.newPushX(angle).matrix *
-//             FoaXformerMatrix.newTumble(phi.neg).matrix *
-//             FoaXformerMatrix.newRotate(theta.neg).matrix
-//         )
-//     }
-//
-//     initPress { arg angle, theta, phi;
-//
-//         matrix = (
-//             FoaXformerMatrix.newRotate(theta).matrix *
-//             FoaXformerMatrix.newTumble(phi).matrix *
-//             FoaXformerMatrix.newPressX(angle).matrix *
-//             FoaXformerMatrix.newTumble(phi.neg).matrix *
-//             FoaXformerMatrix.newRotate(theta.neg).matrix
-//         )
-//     }
+	// *newDirectO { arg angle = 0;
+	// 	^super.new('directO').initDirectO(angle);
+	// }
+	//
+	// *newDirectX { arg angle = 0;
+	// 	^super.new('directX').initDirectX(angle);
+	// }
+	//
+	// *newDirectY { arg angle = 0;
+	// 	^super.new('directY').initDirectY(angle);
+	// }
+	//
+	// *newDirectZ { arg angle = 0;
+	// 	^super.new('directZ').initDirectZ(angle);
+	// }
+	//
+	// *newDominateX { arg gain = 0;
+	// 	^super.new('dominateX').initDominateX(gain);
+	// }
+	//
+	// *newDominateY { arg gain = 0;
+	// 	^super.new('dominateY').initDominateY(gain);
+	// }
+	//
+	// *newDominateZ { arg gain = 0;
+	// 	^super.new('dominateZ').initDominateZ(gain);
+	// }
+	//
+	// *newZoomX { arg angle = 0;
+	// 	^super.new('zoomX').initZoomX(angle);
+	// }
+	//
+	// *newZoomY { arg angle = 0;
+	// 	^super.new('zoomY').initZoomY(angle);
+	// }
+	//
+	// *newZoomZ { arg angle = 0;
+	// 	^super.new('zoomZ').initZoomZ(angle);
+	// }
+	//
+	// *newFocusX { arg angle = 0;
+	// 	^super.new('focusX').initFocusX(angle);
+	// }
+	//
+	// *newFocusY { arg angle = 0;
+	// 	^super.new('focusY').initFocusY(angle);
+	// }
+	//
+	// *newFocusZ { arg angle = 0;
+	// 	^super.new('focusZ').initFocusZ(angle);
+	// }
+	//
+	// *newPushX { arg angle = 0;
+	// 	^super.new('pushX').initPushX(angle);
+	// }
+	//
+	// *newPushY { arg angle = 0;
+	// 	^super.new('pushY').initPushY(angle);
+	// }
+	//
+	// *newPushZ { arg angle = 0;
+	// 	^super.new('pushZ').initPushZ(angle);
+	// }
+	//
+	// *newPressX { arg angle = 0;
+	// 	^super.new('pressX').initPressX(angle);
+	// }
+	//
+	// *newPressY { arg angle = 0;
+	// 	^super.new('pressY').initPressY(angle);
+	// }
+	//
+	// *newPressZ { arg angle = 0;
+	// 	^super.new('pressZ').initPressZ(angle);
+	// }
+	//
+	// *newAsymmetry { arg angle = 0;
+	// 	^super.new('asymmetry').initAsymmetry(angle);
+	// }
+	//
+	// *newBalance { arg angle = 0;
+	// 	^super.new('zoomY').initZoomY(angle);
+	// }
+	//
+	// *newDirect { arg angle = 0, theta = 0, phi = 0;
+	// 	^super.new('direct').initDirect(angle, theta, phi);
+	// }
+	//
+	// *newDominate { arg gain = 0, theta = 0, phi = 0;
+	// 	^super.new('dominate').initDominate(gain, theta, phi);
+	// }
+	//
+	// *newZoom { arg angle = 0, theta = 0, phi = 0;
+	// 	^super.new('zoom').initZoom(angle, theta, phi);
+	// }
+	//
+	// *newFocus { arg angle = 0, theta = 0, phi = 0;
+	// 	^super.new('focus').initFocus(angle, theta, phi);
+	// }
+	//
+	// *newPush { arg angle = 0, theta = 0, phi = 0;
+	// 	^super.new('push').initPush(angle, theta, phi);
+	// }
+	//
+	// *newPress { arg angle = 0, theta = 0, phi = 0;
+	// 	^super.new('press').initPress(angle, theta, phi);
+	// }
+	//
+	// *newFromFile { arg filePathOrName;
+	// 	^super.new.initFromFile(filePathOrName, 'xformer', true);
+	// }
+	//
+	// initDirectO { arg angle;
+	// 	var g0, g1;
+	//
+	// 	// build transform matrix, and set for instance
+	// 	g0 = (1 + angle.sin).sqrt;
+	// 	g1 = (1 - angle.sin).sqrt;
+	//
+	// 	matrix = Matrix.with([
+	// 		[ g0,	0,	0,	0 	],
+	// 		[ 0, 	g1,	0,	0	],
+	// 		[ 0, 	0,	g1, 	0 	],
+	// 		[ 0, 	0,	0, 	g1 	]
+	// 	])
+	// }
+	//
+	// initDirectX { arg angle;
+	// 	var g0, g1;
+	//
+	// 	// build transform matrix, and set for instance
+	// 	g0 = (1 + angle.sin).sqrt;
+	// 	g1 = (1 - angle.sin).sqrt;
+	//
+	// 	matrix = Matrix.with([
+	// 		[ g0,	0,	0,	0 	],
+	// 		[ 0, 	g1,	0,	0	],
+	// 		[ 0, 	0,	g0, 	0 	],
+	// 		[ 0, 	0,	0, 	g0 	]
+	// 	])
+	// }
+	//
+	// initDirectY { arg angle;
+	// 	var g0, g1;
+	//
+	// 	// build transform matrix, and set for instance
+	// 	g0 = (1 + angle.sin).sqrt;
+	// 	g1 = (1 - angle.sin).sqrt;
+	//
+	// 	matrix = Matrix.with([
+	// 		[ g0,	0,	0,	0 	],
+	// 		[ 0, 	g0,	0,	0	],
+	// 		[ 0, 	0,	g1, 	0 	],
+	// 		[ 0, 	0,	0, 	g0 	]
+	// 	])
+	// }
+	//
+	// initDirectZ { arg angle;
+	// 	var g0, g1;
+	//
+	// 	// build transform matrix, and set for instance
+	// 	g0 = (1 + angle.sin).sqrt;
+	// 	g1 = (1 - angle.sin).sqrt;
+	//
+	// 	matrix = Matrix.with([
+	// 		[ g0,	0,	0,	0 	],
+	// 		[ 0, 	g0,	0,	0	],
+	// 		[ 0, 	0,	g0, 	0 	],
+	// 		[ 0, 	0,	0, 	g1 	]
+	// 	])
+	// }
+	//
+	// initDominateX { arg gain;
+	// 	var g0, g1, k;
+	//
+	// 	// build transform matrix, and set for instance
+	// 	k = gain.dbamp;
+	//
+	// 	g0 = (k + k.reciprocal) / 2;
+	// 	g1 = (k - k.reciprocal) / 2.sqrt;
+	//
+	// 	matrix = Matrix.with([
+	// 		[ g0,	g1/2,	0,	0 	],
+	// 		[ g1, 	g0,		0,	0	],
+	// 		[ 0, 	0,		1, 	0 	],
+	// 		[ 0, 	0,		0, 	1 	]
+	// 	])
+	// }
+	//
+	// initDominateY { arg gain;
+	// 	var g0, g1, k;
+	//
+	// 	// build transform matrix, and set for instance
+	// 	k = gain.dbamp;
+	//
+	// 	g0 = (k + k.reciprocal) / 2;
+	// 	g1 = (k - k.reciprocal) / 2.sqrt;
+	//
+	// 	matrix = Matrix.with([
+	// 		[ g0,	0,	g1/2,	0 	],
+	// 		[ 0, 	1,	0, 		0 	],
+	// 		[ g1, 	0,	g0,		0	],
+	// 		[ 0, 	0,	0, 		1 	]
+	// 	])
+	// }
+	//
+	// initDominateZ { arg gain;
+	// 	var g0, g1, k;
+	//
+	// 	// build transform matrix, and set for instance
+	// 	k = gain.dbamp;
+	//
+	// 	g0 = (k + k.reciprocal) / 2;
+	// 	g1 = (k - k.reciprocal) / 2.sqrt;
+	//
+	// 	matrix = Matrix.with([
+	// 		[ g0,	0,	0,	g1/2	],
+	// 		[ 0, 	1,	0, 	0 	],
+	// 		[ 0, 	0,	1, 	0 	],
+	// 		[ g1, 	0,	0,	g0	]
+	// 	])
+	// }
+	//
+	// initZoomX { arg angle;
+	// 	var g0, g1;
+	//
+	// 	// build transform matrix, and set for instance
+	// 	g0 = angle.sin;
+	// 	g1 = angle.cos;
+	//
+	// 	matrix = Matrix.with([
+	// 		[ 1,			g0/2.sqrt,	0,	0 	],
+	// 		[ 2.sqrt*g0, 	1,			0,	0	],
+	// 		[ 0, 		0,			g1, 	0 	],
+	// 		[ 0, 		0,			0, 	g1 	]
+	// 	])
+	// }
+	//
+	// initZoomY { arg angle;
+	// 	var g0, g1;
+	//
+	// 	// build transform matrix, and set for instance
+	// 	g0 = angle.sin;
+	// 	g1 = angle.cos;
+	//
+	// 	matrix = Matrix.with([
+	// 		[ 1,			0,	g0/2.sqrt,	0 	],
+	// 		[ 0, 		g1,	0, 			0 	],
+	// 		[ 2.sqrt*g0, 	0,	1,			0	],
+	// 		[ 0, 		0,	0, 			g1 	]
+	// 	])
+	// }
+	//
+	// initZoomZ { arg angle;
+	// 	var g0, g1;
+	//
+	// 	// build transform matrix, and set for instance
+	// 	g0 = angle.sin;
+	// 	g1 = angle.cos;
+	//
+	// 	matrix = Matrix.with([
+	// 		[ 1,			0,	0,	g0/2.sqrt	],
+	// 		[ 0, 		g1,	0, 	0 		],
+	// 		[ 0, 		0, 	g1,	0 		],
+	// 		[ 2.sqrt*g0, 	0,	0,	1		]
+	// 	])
+	// }
+	//
+	// initFocusX { arg angle;
+	// 	var g0, g1, g2;
+	//
+	// 	// build transform matrix, and set for instance
+	// 	g0 = (1 + angle.abs.sin).reciprocal;
+	// 	g1 = 2.sqrt * angle.sin * g0;
+	// 	g2 = angle.cos * g0;
+	//
+	// 	matrix = Matrix.with([
+	// 		[ g0,	g1/2,	0,	0	],
+	// 		[ g1,	g0,		0,	0	],
+	// 		[ 0,		0,		g2, 	0 	],
+	// 		[ 0,		0,		0, 	g2	]
+	// 	])
+	// }
+	//
+	// initFocusY { arg angle;
+	// 	var g0, g1, g2;
+	//
+	// 	// build transform matrix, and set for instance
+	// 	g0 = (1 + angle.abs.sin).reciprocal;
+	// 	g1 = 2.sqrt * angle.sin * g0;
+	// 	g2 = angle.cos * g0;
+	//
+	// 	matrix = Matrix.with([
+	// 		[ g0,	0,	g1/2,	0	],
+	// 		[ 0,		g2,	0, 		0 	],
+	// 		[ g1,	0,	g0,		0	],
+	// 		[ 0,		0,	0, 		g2	]
+	// 	])
+	// }
+	//
+	// initFocusZ { arg angle;
+	// 	var g0, g1, g2;
+	//
+	// 	// build transform matrix, and set for instance
+	// 	g0 = (1 + angle.abs.sin).reciprocal;
+	// 	g1 = 2.sqrt * angle.sin * g0;
+	// 	g2 = angle.cos * g0;
+	//
+	// 	matrix = Matrix.with([
+	// 		[ g0,	0,	0,	g1/2	],
+	// 		[ 0,		g2,	0, 	0 	],
+	// 		[ 0,		0, 	g2,	0	],
+	// 		[ g1,	0,	0,	g0	]
+	// 	])
+	// }
+	//
+	// initPushX { arg angle;
+	// 	var g0, g1;
+	//
+	// 	// build transform matrix, and set for instance
+	// 	g0 = 2.sqrt * angle.sin * angle.abs.sin;
+	// 	g1 = angle.cos.squared;
+	//
+	// 	matrix = Matrix.with([
+	// 		[ 1,		0,	0,	0	],
+	// 		[ g0,	g1,	0,	0	],
+	// 		[ 0,		0,	g1, 	0 	],
+	// 		[ 0,		0,	0, 	g1	]
+	// 	])
+	// }
+	//
+	// initPushY { arg angle;
+	// 	var g0, g1;
+	//
+	// 	// build transform matrix, and set for instance
+	// 	g0 = 2.sqrt * angle.sin * angle.abs.sin;
+	// 	g1 = angle.cos.squared;
+	//
+	// 	matrix = Matrix.with([
+	// 		[ 1,		0,	0,	0	],
+	// 		[ 0,		g1,	0, 	0 	],
+	// 		[ g0,	0,	g1,	0	],
+	// 		[ 0,		0,	0, 	g1	]
+	// 	])
+	// }
+	//
+	// initPushZ { arg angle;
+	// 	var g0, g1;
+	//
+	// 	// build transform matrix, and set for instance
+	// 	g0 = 2.sqrt * angle.sin * angle.abs.sin;
+	// 	g1 = angle.cos.squared;
+	//
+	// 	matrix = Matrix.with([
+	// 		[ 1,		0,	0,	0	],
+	// 		[ 0,		g1,	0, 	0 	],
+	// 		[ 0,		0, 	g1,	0	],
+	// 		[ g0,	0,	0,	g1	]
+	// 	])
+	// }
+	//
+	// initPressX { arg angle;
+	// 	var g0, g1, g2;
+	//
+	// 	// build transform matrix, and set for instance
+	// 	g0 = 2.sqrt * angle.sin * angle.abs.sin;
+	// 	g1 = angle.cos.squared;
+	// 	g2 = angle.cos;
+	//
+	// 	matrix = Matrix.with([
+	// 		[ 1,		0,	0,	0	],
+	// 		[ g0,	g1,	0,	0	],
+	// 		[ 0,		0,	g2, 	0 	],
+	// 		[ 0,		0,	0, 	g2	]
+	// 	])
+	// }
+	//
+	// initPressY { arg angle;
+	// 	var g0, g1, g2;
+	//
+	// 	// build transform matrix, and set for instance
+	// 	g0 = 2.sqrt * angle.sin * angle.abs.sin;
+	// 	g1 = angle.cos.squared;
+	// 	g2 = angle.cos;
+	//
+	// 	matrix = Matrix.with([
+	// 		[ 1,		0,	0,	0	],
+	// 		[ 0,		g2,	0, 	0 	],
+	// 		[ g0,	0,	g1,	0	],
+	// 		[ 0,		0,	0, 	g2	]
+	// 	])
+	// }
+	//
+	// initPressZ { arg angle;
+	// 	var g0, g1, g2;
+	//
+	// 	// build transform matrix, and set for instance
+	// 	g0 = 2.sqrt * angle.sin * angle.abs.sin;
+	// 	g1 = angle.cos.squared;
+	// 	g2 = angle.cos;
+	//
+	// 	matrix = Matrix.with([
+	// 		[ 1,		0,	0,	0	],
+	// 		[ 0,		g2,	0, 	0 	],
+	// 		[ 0,		0, 	g2,	0	],
+	// 		[ g0,	0,	0,	g1	]
+	// 	])
+	// }
+	//
+	// initAsymmetry { arg angle;
+	// 	var g0, g1, g2, g3, g4;
+	//
+	// 	// build transform matrix, and set for instance
+	// 	g0 = angle.sin.neg;
+	// 	g1 = angle.sin.squared;
+	// 	g2 = angle.cos.squared;
+	// 	g3 = angle.cos * angle.sin;
+	// 	g4 = angle.cos;
+	//
+	// 	matrix = Matrix.with([
+	// 		[ 1,			    0, 2.sqrt.reciprocal*g0, 0 ],
+	// 		[ 2.sqrt*g1,	   g2, g0,				 0 ],
+	// 		[ 2.sqrt.neg*g3, g3, g4, 				 0 ],
+	// 		[ 0,			   0,  0, 				g4 ]
+	// 	])
+	// }
+	//
+	// initDirect { arg angle, theta, phi;
+	//
+	// 	matrix = (
+	// 		FoaXformerMatrix.newRotate(theta).matrix *
+	// 		FoaXformerMatrix.newTumble(phi).matrix *
+	// 		FoaXformerMatrix.newDirectX(angle).matrix *
+	// 		FoaXformerMatrix.newTumble(phi.neg).matrix *
+	// 		FoaXformerMatrix.newRotate(theta.neg).matrix
+	// 	)
+	// }
+	//
+	// initDominate { arg gain, theta, phi;
+	//
+	// 	matrix = (
+	// 		FoaXformerMatrix.newRotate(theta).matrix *
+	// 		FoaXformerMatrix.newTumble(phi).matrix *
+	// 		FoaXformerMatrix.newDominateX(gain).matrix *
+	// 		FoaXformerMatrix.newTumble(phi.neg).matrix *
+	// 		FoaXformerMatrix.newRotate(theta.neg).matrix
+	// 	)
+	// }
+	//
+	// initZoom { arg angle, theta, phi;
+	//
+	// 	matrix = (
+	// 		FoaXformerMatrix.newRotate(theta).matrix *
+	// 		FoaXformerMatrix.newTumble(phi).matrix *
+	// 		FoaXformerMatrix.newZoomX(angle).matrix *
+	// 		FoaXformerMatrix.newTumble(phi.neg).matrix *
+	// 		FoaXformerMatrix.newRotate(theta.neg).matrix
+	// 	)
+	// }
+	//
+	// initFocus { arg angle, theta, phi;
+	//
+	// 	matrix = (
+	// 		FoaXformerMatrix.newRotate(theta).matrix *
+	// 		FoaXformerMatrix.newTumble(phi).matrix *
+	// 		FoaXformerMatrix.newFocusX(angle).matrix *
+	// 		FoaXformerMatrix.newTumble(phi.neg).matrix *
+	// 		FoaXformerMatrix.newRotate(theta.neg).matrix
+	// 	)
+	// }
+	//
+	// initPush { arg angle, theta, phi;
+	//
+	// 	matrix = (
+	// 		FoaXformerMatrix.newRotate(theta).matrix *
+	// 		FoaXformerMatrix.newTumble(phi).matrix *
+	// 		FoaXformerMatrix.newPushX(angle).matrix *
+	// 		FoaXformerMatrix.newTumble(phi.neg).matrix *
+	// 		FoaXformerMatrix.newRotate(theta.neg).matrix
+	// 	)
+	// }
+	//
+	// initPress { arg angle, theta, phi;
+	//
+	// 	matrix = (
+	// 		FoaXformerMatrix.newRotate(theta).matrix *
+	// 		FoaXformerMatrix.newTumble(phi).matrix *
+	// 		FoaXformerMatrix.newPressX(angle).matrix *
+	// 		FoaXformerMatrix.newTumble(phi.neg).matrix *
+	// 		FoaXformerMatrix.newRotate(theta.neg).matrix
+	// 	)
+	// }
 
     dirInputs { ^this.numInputs.collect({ inf }) }
 
@@ -992,12 +1000,12 @@ HoaXformerMatrix : AtkMatrix {
 // martrix decoders
 
 
-HoaDecoderMatrix : AtkMatrix {
+HoaDecoderMatrix : HoaMatrix {
 	var <dirOutputs;
     // var <>shelfFreq, <shelfK;
 
-    *newFormat { arg format = [\acn, \n3d], order = 1;
-        ^super.new('format', ("HOA" ++ order).asSymbol).initFormat(format);
+    *newFormat { arg format = [\acn, \n3d], order;
+        ^super.new('format', order).initFormat(format);
     }
 
     // *newDiametric { arg directions = [ pi/4, 3*pi/4 ], k = 'single';

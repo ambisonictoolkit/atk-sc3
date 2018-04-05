@@ -1,4 +1,11 @@
-TestNumber : HoaTest {
+TestNumberForHoa : UnitTest {
+	var order, report, floatWithin;
+
+	setUp {
+		order = HoaTests.order;
+		report = HoaTests.report;
+		floatWithin = HoaTests.floatWithin;
+	}
 
 	test_sphericalHarmonic {
 		var t;

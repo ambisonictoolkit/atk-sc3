@@ -433,27 +433,6 @@ HoaXformerMatrix : HoaMatrix {
 		^super.new('rotateAxis', order).initRotation(r1, r2, r3, \xyz, order)
 	}
 
-	/* Removed for now as redundant... */
-	// *newRotate { |angle, order|
-	// 	^super.new('rotation').initRotation(0, 0, angle, \xyz, order)
-	// }
-	//
-	// *newTilt { |angle, order|
-	// 	^super.new('rotation').initRotation(angle, 0 , 0, \xyz, order)
-	// }
-	//
-	// *newTumble { |angle, order|
-	// 	^super.new('rotation').initRotation(0, angle, 0, \xyz, order)
-	// }
-	//
-	// *newRTT { |rotate = 0, tilt = 0, tumble = 0, order|
-	// 	^super.new('rotation').initRotation(rotate, tilt, tumble, \rtt, order)
-	// }
-	//
-	// *newYPR { |yaw = 0, pitch = 0, roll = 0, order|
-	// 	^super.new('rotation').initRotation(yaw, pitch, roll, \ypr, order)
-	// }
-
 	initRotation { |r1, r2, r3, convention, order|
 		matrix = HoaRotationMatrix(r1, r2, r3, convention, order).matrix;
 	}

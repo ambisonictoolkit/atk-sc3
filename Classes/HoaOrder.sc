@@ -172,7 +172,7 @@ HoaOrder {
             (dim == 2).if ({
                 chebyshevZeros(m+1).maxItem  // 2D
             }, {
-                legendreZeros(m+1).maxItem  // 3D
+                legendrePZeros(m+1).maxItem  // 3D
             })
         }, {  // 'basic' & 'controlled'
             (dim == 2).if({
@@ -234,7 +234,7 @@ HoaOrder {
                     })
                 }, { // 3D
                     (m+1).collect({ arg degree;
-                        legendre(degree, max_rE)
+                        legendreP(degree, max_rE)
                     })
                 })
             },

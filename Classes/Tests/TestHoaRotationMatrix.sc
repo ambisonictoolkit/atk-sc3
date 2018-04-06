@@ -29,6 +29,7 @@ TestHoaRotationMatrix : UnitTest {
 
 	test_buildR1 {
 		var r123, x, res, test, axes = 'xyz';
+		var order = 3; // order for pre-computed results is fixed
 
 		r123 = [ -2.420257662452, -0.76733344238074, -0.49621582037497 ];
 		x = HoaRotationMatrix(r123[0], r123[1], r123[2], axes, order);
@@ -93,7 +94,8 @@ TestHoaRotationMatrix : UnitTest {
 	}
 
 	test_eulerToR3 {
-		var r1, r2, r3, x, res, test, axes = 'xyz', order = 3, within = 0.00000001;
+		var r1, r2, r3, x, res, test, axes = 'xyz';
+		var order = 3; // order for pre-computed results is fixed
 
 		#r1,r2,r3 = [ 4.7864320159343, -2.6168319075184, 5.9114735993464 ];
 		x = HoaRotationMatrix(r1, r2, r3, axes, order);

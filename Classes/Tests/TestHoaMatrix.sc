@@ -100,7 +100,7 @@ TestHoaDecoderMatrix : UnitTest {
 		format = [\acn, \n3d];
 		d = HoaDecoderMatrix.newFormat(format, order: order);
 
-		this.assertEquals(d.kind, 'formatt', "HoaDecoderMatrix:format should be kind 'format'", report);
+		this.assertEquals(d.kind, 'format', "HoaDecoderMatrix:format should be kind 'format'", report);
 		this.assertEquals(d.dirOutputs, inf.dup((order+1).squared), "HoaDecoderMatrix:format -dirOutputs == inf.dup((order+1).squared", report);
 		this.assertEquals(d.matrix.rows, d.matrix.cols, "HoaDecoderMatrix:format should be a square matrix", report);
 

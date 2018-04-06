@@ -116,6 +116,13 @@ HoaEncoderMatrix : HoaMatrix {
         ^super.new('format', order).initFormat(format);
     }
 
+    /*
+    For beaming we may need to have two types of encoders equivalent to:
+       - Sampling decoding (SAD)
+       - Mode-matching decoding (MMD)
+    */
+
+	// Sampling Encoding (SAE) beams - 'basic' pattern
     *newDirection { arg theta = 0, phi = 0, order;
         ^super.new('dir', order).initDirection(theta, phi);
     }
@@ -124,17 +131,12 @@ HoaEncoderMatrix : HoaMatrix {
         ^super.new('dirs', order).initDirections(directions);
     }
 
+	// panto is a convenience - may wish to deprecate
     *newPanto { arg numChans = 4, orientation = 'flat', order;
         ^super.new('panto', order).initPanto(numChans, orientation);
     }
 
-    /*
-    For beaming we may need to have two types of encoders equivalent to:
-       - Sampling decoding (SAD)
-       - Mode-matching decoding (MMD)
-    */
-
-    // sampling beam
+    // Sampling Encoding (SAE) beams - multi pattern
     *newBeam { arg theta = 0, phi = 0, k = \basic, order;
         ^super.new('beam', order).initBeam(theta, phi, k);
     }
@@ -987,6 +989,36 @@ HoaDecoderMatrix : HoaMatrix {
         ^super.new('format', order).initFormat(format);
     }
 
+
+    /*
+    Two types:
+       - Sampling decoding (SAD)
+       - Mode-matching decoding (MMD)
+    */
+
+	// Sampling Decoding beam - 'basic' pattern
+    *newDirection { arg theta = 0, phi = 0, order;
+        ^super.new('dir', order).initDirection(theta, phi);
+    }
+
+	// NOTE: Need to keep in mind that this won't result
+	// in a SAD decoder for a 2D (panto) case, as weighting
+	// to N2D hasn't been applied.
+	// AND, gain normalisation hasn't been applied, either!
+    *newDirections { arg directions = [ 0, 0 ], order;
+        ^super.new('dirs', order).initDirections(directions);
+    }
+
+	// Sampling Decoding beam - multi pattern
+	*newBeam { arg theta = 0, phi = 0, k = \basic, order;
+		^super.new('beam', order).initBeam(theta, phi, k);
+	}
+
+    // Sampling Decoding beams - multi pattern
+    // *newBeams { arg directions = [ 0, 0 ], k = \basic, order;
+    //     ^super.new('beams', order).initBeams(directions);
+    // }
+
     // *newDiametric { arg directions = [ pi/4, 3*pi/4 ], k = 'single';
     //     ^super.new('diametric').initDiametric(directions, k);
     // }
@@ -1019,15 +1051,6 @@ HoaDecoderMatrix : HoaMatrix {
     //
     // *newBtoA { arg orientation = 'flu', weight = 'dec';
     //     ^super.new('BtoA').loadFromLib(orientation, weight);
-    // }
-    //
-    // *newHoa1 { arg ordering = 'acn', normalisation = 'n3d';
-    //     ^super.new('hoa1').loadFromLib(ordering, normalisation);
-    // }
-    //
-    // *newAmbix1 {
-    //     var ordering = 'acn', normalisation = 'sn3d';
-    //     ^super.new('hoa1').loadFromLib(ordering, normalisation);
     // }
     //
     // *newFromFile { arg filePathOrName;
@@ -1085,7 +1108,54 @@ HoaDecoderMatrix : HoaMatrix {
         })
     }
 
-    // initK2D { arg k;
+    initBasic {  // simple, k = \basic
+        var directions, hoaOrder;
+
+        directions = (dirOutputs.rank == 2).if({  // peri
+            dirOutputs
+        }, {  // panto
+            Array.with(dirOutputs, Array.fill(dirOutputs.size, { 0.0 })).flop
+        });
+
+        hoaOrder = HoaOrder.new(this.order);  // instance order
+
+        // build decoder matrix, and set for instance
+        matrix = Matrix.with(
+            directions.collect({ arg thetaPhi;
+                hoaOrder.sph(thetaPhi.at(0), thetaPhi.at(1)) * Array.series(this.order+1, 1, 2).sum.reciprocal
+            })
+        )
+    }
+
+	// NOTE:
+	// This is the beamDecodeMatrix function from atk-hoa-prototypes,
+	// not a fully weighted SAD decoder, as it doesn't include N2D weighting
+	// or normalisation weighting.
+	// may need to rename
+	initSAD {  arg k; // sampling beam decoder
+		var directions, hoaOrder, beamWeights;
+
+		directions = (dirOutputs.rank == 2).if({  // peri
+			dirOutputs
+			}, {  // panto
+				Array.with(dirOutputs, Array.fill(dirOutputs.size, { 0.0 })).flop
+		});
+
+		hoaOrder = HoaOrder.new(this.order);  // instance order
+		beamWeights = hoaOrder.beamWeights(k);
+
+		// build decoder matrix, and set for instance
+		matrix = Matrix.with(
+			directions.collect({ arg thetaPhi;
+				var coeffs;
+				coeffs = hoaOrder.sph(thetaPhi.at(0), thetaPhi.at(1));
+				coeffs = (coeffs.clumpByDegree * beamWeights).flatten;
+				coeffs * (Array.series(this.order+1, 1, 2) * beamWeights).sum.reciprocal;
+			})
+		)
+	}
+
+	// initK2D { arg k;
     //
     //     if ( k.isNumber, {
     //         ^k
@@ -1124,8 +1194,37 @@ HoaDecoderMatrix : HoaMatrix {
     //         }
     //     )
     // }
-    //
-    // initDiametric { arg directions, k;
+
+    initDirection { arg theta, phi;
+
+        // set output channel directions for instance
+        dirOutputs = (phi == 0).if({
+            [ theta ];  // panto
+        }, {
+            [ [ theta, phi ] ];  // peri
+        });
+        this.initBasic
+    }
+
+    initDirections { arg directions;
+
+        // set output channel directions for instance
+        dirOutputs = directions;
+        this.initBasic
+    }
+
+    initBeam { arg theta, phi, k;
+
+        // set output channel directions for instance
+        dirOutputs = (phi == 0).if({
+            [ theta ];  // panto
+        }, {
+            [ [ theta, phi ] ];  // peri
+        });
+		this.initSAD(k)
+    }
+
+	// initDiametric { arg directions, k;
     //
     //     var positions, positions2;
     //     var speakerMatrix, n;
@@ -1383,7 +1482,7 @@ HoaDecoderMatrix : HoaMatrix {
         (this.kind == \format).if({
             ^3
         }, {
-            ^this.dirInputs.rank + 1
+            ^this.dirOutputs.rank + 1
         })
     }
 

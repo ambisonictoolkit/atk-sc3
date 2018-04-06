@@ -1019,11 +1019,19 @@ HoaDecoderMatrix : HoaMatrix {
     //     ^super.new('beams', order).initBeams(directions);
     // }
 
-    // *newDiametric { arg directions = [ pi/4, 3*pi/4 ], k = 'single';
-    //     ^super.new('diametric').initDiametric(directions, k);
-    // }
-    //
-    // *newPanto { arg numChans = 4, orientation = 'flat', k = 'single';
+	// *newPantoSAD { arg numChans = 4, orientation = 'flat', k = 'single';
+	// 	^super.new('pantoSAD').initPanto(numChans, orientation, k);
+	// }
+
+	// NOTE: these arguments diverge from FOA newPeri
+	// This implies we may wish to have methods to assign
+	// directions.
+    *newPeriSAD { arg directions, k = \basic, match = \amp, order;
+        ^super.new('periSAD', order).initPeriSAD(directions, k, match);
+    }
+
+
+	// *newPanto { arg numChans = 4, orientation = 'flat', k = 'single';
     //     ^super.new('panto').initPanto(numChans, orientation, k);
     // }
     //
@@ -1031,6 +1039,10 @@ HoaDecoderMatrix : HoaMatrix {
     //     orientation = 'flat', k = 'single';
     //     ^super.new('peri').initPeri(numChanPairs, elevation,
     //     orientation, k);
+    // }
+    //
+    // *newDiametric { arg directions = [ pi/4, 3*pi/4 ], k = 'single';
+    //     ^super.new('diametric').initDiametric(directions, k);
     // }
     //
     // *newQuad { arg angle = pi/4, k = 'single';
@@ -1155,6 +1167,62 @@ HoaDecoderMatrix : HoaMatrix {
 		)
 	}
 
+	init3DSADM {  arg k, match; // sampling beam decoder, with matching gain
+		var directions, numOutputs;
+		var inputOrder, outputOrder, hoaOrder;
+		var encodingMatrix, decodingMatrix;
+		var weights;
+
+		// init
+		directions = (dirOutputs.rank == 2).if({  // peri
+			dirOutputs
+			}, {  // panto
+				Array.with(dirOutputs, Array.fill(dirOutputs.size, { 0.0 })).flop
+		});
+		inputOrder = this.order;
+		numOutputs = directions.size;
+
+		// 1) determine decoder output order
+		outputOrder = (numOutputs >= (inputOrder + 1).squared).if({
+			inputOrder
+		}, {
+			numOutputs.sqrt.asInteger - 1
+		});
+		hoaOrder = HoaOrder.new(outputOrder);
+
+		// 2) calculate weights: matching weight, beam weights
+		weights = hoaOrder.matchWeight(k, this.dim, match, numOutputs) * hoaOrder.beamWeights(k, this.dim);
+		weights = weights[hoaOrder.l];  // expand from degree...
+		weights = Matrix.newDiagonal(weights);  // ... and assign to diagonal matrix
+
+		// --------------------------------
+		// 3) generate prototype planewave encoding matrix
+		// NOTE: Could use HoaEncoderMatrix.newDirections.matrix here...
+		//            This is an argument for making -basic encoding part of
+		//            the AtkMatrix superclass
+		encodingMatrix = Matrix.with(
+			directions.collect({arg item;
+				hoaOrder.sph(item.at(0), item.at(1));  // encoding coefficients
+			}).flop
+		);
+
+		// 4) transpose and scale: projection
+		decodingMatrix = numOutputs.reciprocal * encodingMatrix.flop;
+
+		// 5) apply weights: matching weight, beam weights
+		decodingMatrix = decodingMatrix.mulMatrix(weights);
+
+		// 6) expand to match input order (if necessary)
+		(inputOrder > outputOrder).if({
+			decodingMatrix = (decodingMatrix.flop ++ Matrix.newClear(
+				(inputOrder + 1).squared - (outputOrder + 1).squared, numOutputs)
+			).flop
+		});
+
+		// assign
+		matrix = decodingMatrix
+	}
+
 	// initK2D { arg k;
     //
     //     if ( k.isNumber, {
@@ -1223,6 +1291,13 @@ HoaDecoderMatrix : HoaMatrix {
         });
 		this.initSAD(k)
     }
+
+	initPeriSAD { arg directions, k, match;
+
+		// set output channel directions for instance
+        dirOutputs = directions;
+		this.init3DSADM(k, match)
+	}
 
 	// initDiametric { arg directions, k;
     //

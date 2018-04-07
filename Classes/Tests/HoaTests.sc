@@ -15,6 +15,7 @@ HoaTests {
 			TestHoaDecoderMatrix,
 			TestHoaRotationMatrix,
 			TestNumberForHoa,
+			TestHoaRotationMatrix,
 		].do(_.run)
 
 	}

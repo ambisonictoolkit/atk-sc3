@@ -230,7 +230,7 @@ HoaOrder {
                 max_rE = this.rE(k, dim);
                 (dim == 2).if({ // 2D
                     (m+1).collect({ arg degree;
-                        chebyshev(degree, max_rE)
+                        chebyshevT(degree, max_rE)
                     })
                 }, { // 3D
                     (m+1).collect({ arg degree;

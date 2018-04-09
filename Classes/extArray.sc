@@ -48,6 +48,25 @@
 
 + Array {
 
+	*regularPolygon { |size = 3, orientation = 0.0, wrap = 2pi|
+		var theta;
+
+		orientation.isNumber.not.if({
+			orientation = orientation.switch(
+				\vertex, { 0.0 },
+				\side, { pi / size },
+			)
+		});
+
+		theta = size.collect({ arg i;
+			(2pi * i)/size + orientation
+		});
+
+		theta = (theta + wrap.mod(2pi)).mod(2pi) - wrap.mod(2pi);
+
+		^theta
+	}
+
 	// set: FOA, HOA1, HOA2, etc.
 	// type: \encoder, \decoder, \xformer
 	// NOTE: set and type aren't currently enforced, but it's a

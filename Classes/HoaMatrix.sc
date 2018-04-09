@@ -49,6 +49,7 @@
 //---------------------------------------------------------------------
 
 HoaMatrix : AtkMatrix {
+    var <dirChannels;
 
 	// TODO: these utilities could move to AtkMatrix, or elsewhere?
 
@@ -96,13 +97,49 @@ HoaMatrix : AtkMatrix {
 			this.matrix.getCol(i) * coeffs[i]
 		}).asList.flop.collect{|me| me.sum};
 	}
+
+	// ---------
+	// return info
+    printOn { |stream|
+        stream << this.class.name << "(" <<* [kind, this.dim, this.numChannels] <<")";
+    }
+
+	order { ^this.set.asString.drop(3).asInteger }
+
+	numInputs { ^matrix.cols }
+
+	numOutputs { ^matrix.rows }
+
+	numChannels {
+		^this.type.switch(
+			\encoder, { this.numInputs },
+			\xformer, { (this.order + 1).squared },
+			\decoder, { this.numOutputs },
+		)
+	}
+
+	dirInputs {
+		^(this.type == \encoder).if({
+			this.dirChannels
+		}, {
+			this.numInputs.collect({ inf })
+		})
+	}
+
+	dirOutputs {
+		^(this.type == \decoder).if({
+			this.dirChannels
+		}, {
+			this.numOutputs.collect({ inf })
+		})
+	}
+
 }
 
 //-----------------------------------------------------------------------
 // martrix encoders
 
 HoaEncoderMatrix : HoaMatrix {
-    var <dirInputs;
 
     // *newAtoB { arg orientation = 'flu', weight = 'dec';
     //     ^super.new('AtoB').loadFromLib(orientation, weight)
@@ -152,10 +189,10 @@ HoaEncoderMatrix : HoaMatrix {
     initBasic {  // simple, k = \basic
         var directions, hoaOrder;
 
-        directions = (dirInputs.rank == 2).if({  // peri
-            dirInputs
+        directions = (this.dirInputs.rank == 2).if({  // peri
+            this.dirInputs
         }, {  // panto
-            Array.with(dirInputs, Array.fill(dirInputs.size, { 0.0 })).flop
+            Array.with(this.dirInputs, Array.fill(this.dirInputs.size, { 0.0 })).flop
         });
 
         hoaOrder = HoaOrder.new(this.order);  // instance order
@@ -171,10 +208,10 @@ HoaEncoderMatrix : HoaMatrix {
     initSAE {  arg k; // sampling beam encoder
         var directions, hoaOrder, beamWeights;
 
-        directions = (dirInputs.rank == 2).if({  // peri
-            dirInputs
+        directions = (this.dirInputs.rank == 2).if({  // peri
+            this.dirInputs
         }, {  // panto
-            Array.with(dirInputs, Array.fill(dirInputs.size, { 0.0 })).flop
+            Array.with(this.dirInputs, Array.fill(this.dirInputs.size, { 0.0 })).flop
         });
 
         hoaOrder = HoaOrder.new(this.order);  // instance order
@@ -215,7 +252,7 @@ HoaEncoderMatrix : HoaMatrix {
         hoaOrder = HoaOrder.new(this.order);  // instance order
         size = (this.order + 1).squared;
 
-        dirInputs = size.collect({ inf });  // set dirInputs
+        dirChannels = size.collect({ inf });  // set dirChannels
 
         (inputFormat == outputFormat).if({  // equal formats?
             matrix = Matrix.newIdentity(size).asFloat
@@ -321,7 +358,7 @@ HoaEncoderMatrix : HoaMatrix {
     initDirection { arg theta, phi;
 
         // set input channel directions for instance
-        dirInputs = (phi == 0).if({
+        dirChannels = (phi == 0).if({
             [ theta ];  // panto
         }, {
             [ [ theta, phi ] ];  // peri
@@ -332,14 +369,14 @@ HoaEncoderMatrix : HoaMatrix {
     initDirections { arg directions;
 
         // set input channel directions for instance
-        dirInputs = directions;
+        dirChannels = directions;
         this.initBasic
     }
 
     initBeam { arg theta, phi, k;
 
         // set input channel directions for instance
-        dirInputs = (phi == 0).if({
+        dirChannels = (phi == 0).if({
             [ theta ];  // panto
         }, {
             [ [ theta, phi ] ];  // peri
@@ -361,7 +398,7 @@ HoaEncoderMatrix : HoaMatrix {
         theta = (theta + pi).mod(2pi) - pi;
 
         // set input channel directions for instance
-        dirInputs = theta;
+        dirChannels = theta;
 
         this.initBasic
     }
@@ -378,17 +415,6 @@ HoaEncoderMatrix : HoaMatrix {
     //     };
     // }
 
-
-    dirOutputs { ^this.numOutputs.collect({ inf }) }
-
-    dirChannels { ^this.dirInputs }
-
-    numInputs { ^matrix.cols }
-
-    numOutputs { ^matrix.rows }
-
-    numChannels { ^this.numInputs }
-
     dim {
         (this.kind == \format).if({
             ^3
@@ -397,13 +423,8 @@ HoaEncoderMatrix : HoaMatrix {
         })
     }
 
-    type { ^'encoder' }
+    type { ^\encoder }
 
-    order { ^this.set.asString.drop(3).asInteger }
-
-    printOn { arg stream;
-        stream << this.class.name << "(" <<* [kind, this.dim, this.numInputs] <<")";
-    }
 }
 
 
@@ -953,27 +974,13 @@ HoaXformerMatrix : HoaMatrix {
 	// 	)
 	// }
 
-    dirInputs { ^this.numInputs.collect({ inf }) }
-
-    dirOutputs { ^this.numOutputs.collect({ inf }) }
-
-    dirChannels { ^this.dirOutputs }
+	// is this a good thing to do?
+	dirChannels { ^((this.order + 1).squared).collect({ inf }) }
 
     dim { ^3 }  // all transforms are 3D
 
-    numInputs { ^matrix.cols }
+    type { ^\xformer }
 
-    numOutputs { ^matrix.rows }
-
-    numChannels { ^(this.order + 1).squared }  // all transforms are 3D
-
-    type { ^'xformer' }
-
-    order { ^this.set.asString.drop(3).asInteger }
-
-    printOn { arg stream;
-        stream << this.class.name << "(" <<* [kind, this.dim, this.numChannels] <<")";
-    }
 }
 
 
@@ -982,7 +989,6 @@ HoaXformerMatrix : HoaMatrix {
 
 
 HoaDecoderMatrix : HoaMatrix {
-	var <dirOutputs;
     // var <>shelfFreq, <shelfK;
 
     *newFormat { arg format = [\acn, \n3d], order;
@@ -1095,7 +1101,7 @@ HoaDecoderMatrix : HoaMatrix {
         hoaOrder = HoaOrder.new(this.order);  // instance order
         size = (this.order + 1).squared;
 
-        dirOutputs = size.collect({ inf });  // set dirOutputs
+        dirChannels = size.collect({ inf });  // set dirChannels
 
         (inputFormat == outputFormat).if({  // equal formats?
             matrix = Matrix.newIdentity(size).asFloat
@@ -1125,10 +1131,10 @@ HoaDecoderMatrix : HoaMatrix {
     initBasic {  // simple, k = \basic
         var directions, hoaOrder;
 
-        directions = (dirOutputs.rank == 2).if({  // peri
-            dirOutputs
+        directions = (dirChannels.rank == 2).if({  // peri
+            this.dirOutputs
         }, {  // panto
-            Array.with(dirOutputs, Array.fill(dirOutputs.size, { 0.0 })).flop
+            Array.with(this.dirOutputs, Array.fill(this.dirOutputs.size, { 0.0 })).flop
         });
 
         hoaOrder = HoaOrder.new(this.order);  // instance order
@@ -1149,10 +1155,10 @@ HoaDecoderMatrix : HoaMatrix {
 	initSAD {  arg k; // sampling beam decoder
 		var directions, hoaOrder, beamWeights;
 
-		directions = (dirOutputs.rank == 2).if({  // peri
-			dirOutputs
+		directions = (this.dirOutputs.rank == 2).if({  // peri
+			this.dirOutputs
 			}, {  // panto
-				Array.with(dirOutputs, Array.fill(dirOutputs.size, { 0.0 })).flop
+				Array.with(this.dirOutputs, Array.fill(this.dirOutputs.size, { 0.0 })).flop
 		});
 
 		hoaOrder = HoaOrder.new(this.order);  // instance order
@@ -1176,10 +1182,10 @@ HoaDecoderMatrix : HoaMatrix {
 		var weights;
 
 		// init
-		directions = (dirOutputs.rank == 2).if({  // peri
-			dirOutputs
+		directions = (this.dirOutputs.rank == 2).if({  // peri
+			this.dirOutputs
 			}, {  // panto
-				Array.with(dirOutputs, Array.fill(dirOutputs.size, { 0.0 })).flop
+				Array.with(this.dirOutputs, Array.fill(this.dirOutputs.size, { 0.0 })).flop
 		});
 		inputOrder = this.order;
 		numOutputs = directions.size;
@@ -1236,10 +1242,10 @@ HoaDecoderMatrix : HoaMatrix {
 		dim = 2;  // replace this.dim
 
 		// init
-		directions = (dirOutputs.rank == 2).if({  // peri
-			dirOutputs
+		directions = (this.dirOutputs.rank == 2).if({  // peri
+			this.dirOutputs
 			}, {  // panto
-				Array.with(dirOutputs, Array.fill(dirOutputs.size, { 0.0 })).flop
+				Array.with(this.dirOutputs, Array.fill(this.dirOutputs.size, { 0.0 })).flop
 		});
 		inputOrder = this.order;
 		numOutputs = directions.size;
@@ -1341,7 +1347,7 @@ HoaDecoderMatrix : HoaMatrix {
     initDirection { arg theta, phi;
 
         // set output channel directions for instance
-        dirOutputs = (phi == 0).if({
+        dirChannels = (phi == 0).if({
             [ theta ];  // panto
         }, {
             [ [ theta, phi ] ];  // peri
@@ -1352,14 +1358,14 @@ HoaDecoderMatrix : HoaMatrix {
     initDirections { arg directions;
 
         // set output channel directions for instance
-        dirOutputs = directions;
+        dirChannels = directions;
         this.initBasic
     }
 
     initBeam { arg theta, phi, k;
 
         // set output channel directions for instance
-        dirOutputs = (phi == 0).if({
+        dirChannels = (phi == 0).if({
             [ theta ];  // panto
         }, {
             [ [ theta, phi ] ];  // peri
@@ -1370,14 +1376,14 @@ HoaDecoderMatrix : HoaMatrix {
 	initPeriSAD { arg directions, k, match;
 
 		// set output channel directions for instance
-        dirOutputs = directions;
+        dirChannels = directions;
 		this.init3DSADM(k, match)
 	}
 
 	initPantoSAD { arg directions, k, match;
 
 		// set output channel directions for instance
-        dirOutputs = directions;
+        dirChannels = directions;
 		this.init2DSADM(k, match)
 	}
 
@@ -1625,16 +1631,6 @@ HoaDecoderMatrix : HoaMatrix {
     //     };
     // }
 
-	dirInputs { ^this.numInputs.collect({ inf }) }
-
-	dirChannels { ^this.dirOutputs }
-
-	numInputs { ^matrix.cols }
-
-	numOutputs { ^matrix.rows }
-
-	numChannels { ^this.numOutputs }
-
     dim {
         (this.kind == \format).if({
             ^3
@@ -1643,11 +1639,6 @@ HoaDecoderMatrix : HoaMatrix {
         })
     }
 
-	type { ^'decoder' }
+	type { ^\decoder }
 
-    order { ^this.set.asString.drop(3).asInteger }
-
-	printOn { arg stream;
-		stream << this.class.name << "(" <<* [this.kind, this.dim, this.numChannels] <<")";
-	}
 }

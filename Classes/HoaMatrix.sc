@@ -124,27 +124,15 @@ HoaMatrix : AtkMatrix {
 	numOutputs { ^matrix.rows }
 
 	numChannels {
-		^this.type.switch(
-			\encoder, { this.numInputs },
-			\xformer, { (this.order + 1).squared },
-			\decoder, { this.numOutputs },
-		)
+		^(this.order + 1).squared
 	}
 
 	dirInputs {
-		^(this.type == \decoder).if({
-			this.numInputs.collect({ inf })
-		}, {
-			this.dirChannels
-		})
+		^this.dirChannels
 	}
 
 	dirOutputs {
-		^(this.type == \encoder).if({
-			this.numOutputs.collect({ inf })
-		}, {
-			this.dirChannels
-		})
+		^this.dirChannels
 	}
 
 }
@@ -371,7 +359,15 @@ HoaEncoderMatrix : HoaMatrix {
     //     };
     // }
 
-    dim {
+	numChannels {
+		^this.numInputs
+	}
+
+	dirOutputs {
+		^this.numOutputs.collect({ inf })
+	}
+
+	dim {
         (this.kind == \format).if({
             ^3
         }, {
@@ -1545,7 +1541,15 @@ HoaDecoderMatrix : HoaMatrix {
     //     };
     // }
 
-    dim {
+	numChannels {
+		^this.numOutputs
+	}
+
+	dirInputs {
+		^this.numInputs.collect({ inf })
+	}
+
+	dim {
         (this.kind == \format).if({
             ^3
         }, {

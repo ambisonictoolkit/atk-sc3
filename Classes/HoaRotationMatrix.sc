@@ -82,7 +82,6 @@ this library for details on that alternative method.
 
 */
 
-
 HoaRotationMatrix {
 	// copyArgs
 	var r1, r2, r3, axes;
@@ -96,12 +95,6 @@ HoaRotationMatrix {
 	init { |argOrder|
 		order = argOrder ?? {Hoa.globalOrder};
 
-		axes = switch(axes,
-			\rtt, {\yxz},
-			\ypr, {\xyz},
-			axes // default: pass through
-		);
-
 		rO3 = this.eulerToR3(r1, r2, r3, axes);
 		matrix = this.buildSHRotMtx(rO3, order, 'real');
 	}
@@ -112,17 +105,17 @@ HoaRotationMatrix {
 	axes: definition of the order of axes to rotate, e.g. 'zyz'
 	*/
 	eulerToR3 { |alpha, beta, gamma, axes|
-		var r_1, r_2, r_3, cstr;
+		var r1, r2, r3, cstr;
 
 		// unpack chars of axes
 		cstr = axes.asString;
 
 		// resultant rotations for each axis, the order of which depends on 'axes'
-		r_1 = this.buildR1(cstr[0].asSymbol, alpha);
-		r_2 = this.buildR1(cstr[1].asSymbol, beta);
-		r_3 = this.buildR1(cstr[2].asSymbol, gamma);
+		r1 = this.buildR1(cstr[0].asSymbol, alpha);
+		r2 = this.buildR1(cstr[1].asSymbol, beta);
+		r3 = this.buildR1(cstr[2].asSymbol, gamma);
 
-		^r_3*r_2*r_1; // return matrix multiply
+		^r3*(r2*r1); // return matrix multiply
 	}
 
 

@@ -7,23 +7,6 @@ TestHoaXformerMatrix : UnitTest {
 		order = HoaTests.order;
 		report = HoaTests.report;
 		floatWithin = HoaTests.floatWithin;
-
-		// various reference directions to rotate:
-		// axis directions
-		axisDirs = [
-			[0,0], [pi/2,0], [0,pi/2],      // +X, +Y, +Z
-			[pi/2,0], [-pi/2,0], [0,-pi/2]  // -X, -Y, -Z
-		];
-		// tetrahedral directions
-		tetraDirs = FoaDecoderMatrix.newBtoA('flu').dirOutputs;
-		// directions of cube corners
-		cubeDirs = 4.collect({|i|
-			[45.degrad + (i*90.degrad), atan(2.sqrt.reciprocal)]
-		}) ++ 4.collect({|i|
-			[45.degrad + (i*90.degrad), atan(2.sqrt.reciprocal).neg]
-		});
-		// random directions
-		randomDirs = 25.collect{[rrand(-2pi, 2pi), rrand(-2pi, 2pi)]};
 	}
 
 	initPlanewaves { |dirsArray, yaw, pitch, roll|
@@ -50,49 +33,16 @@ TestHoaXformerMatrix : UnitTest {
 		};
 	}
 
-	test_newRotate {
-		var testDirs, yaw, pitch, roll;
-		var rotatedPlanewaves, rMtx;
-		var numRotTests = 5; // how many random rotation tests per configuration
-
-		testDirs = { |dirs, groupName="tetrahedron"|
-			numRotTests.do{
-				#yaw, pitch, roll = 3.collect{rrand(-2pi,2pi)};
-
-				// axis directions test
-				this.initPlanewaves(dirs, yaw, pitch, roll);
-
-				// create the rotation matrix
-				rMtx = HoaXformerMatrix.newRotate(roll, pitch, yaw, axes: 'xyz', order: order); // works
-
-				// rotate teh planewaves with the rotation matrix
-				rotatedPlanewaves = initializedPlanewaves.collect{ |pw|
-					rMtx.mixCoeffs(pw);
-				};
-
-				// compare to target planewaves, directly encoded in the pre-rotated directions
-				rotatedPlanewaves.do{|rpw, i|
-					this.assertArrayFloatEquals(rpw, targetPlanewaves[i],
-						format("planewaves encoded in the directions of %, then rotated via y-p-r should match those planewaves encoded directly via directions that have been rotated", groupName),
-						floatWithin, report
-					)
-				};
-			}
-		};
-		testDirs.(axisDirs, "axes");
-		testDirs.(tetraDirs, "a tetrahedon");
-		testDirs.(cubeDirs, "a cube");
-		testDirs.(randomDirs, "randomness");
-	}
 
 	test_newRotateAxis {
 		var pw00, pw90, pwTest, rMtx, pwRotated, angle;
+		var numTests = 5;
 
 		// planewave coefficients, encoded at [0,0]
 		pw00 = HoaEncoderMatrix.newDirection(0,0,order:order).matrix.flop.getRow(0);
 
 		// rotate on Z
-		10.do{
+		numTests.do{
 			angle = rrand(-2pi, 2pi);
 			rMtx = HoaXformerMatrix.newRotateAxis(\z, angle);
 			// rotate the planewave with the rotation matrix
@@ -104,7 +54,7 @@ TestHoaXformerMatrix : UnitTest {
 		};
 
 		// rotate on Y
-		10.do{
+		numTests.do{
 			angle = rrand(-2pi, 2pi);
 			rMtx = HoaXformerMatrix.newRotateAxis(\y, angle);
 			// rotate the planewave with the rotation matrix
@@ -118,7 +68,7 @@ TestHoaXformerMatrix : UnitTest {
 		// planewave encode at 90 degrees left, [pi/2,0] (+Y)
 		pw90 = HoaEncoderMatrix.newDirection(pi/2,0,order:order).matrix.flop.getRow(0);
 		// rotate on X
-		10.do{
+		numTests.do{
 			angle = rrand(-2pi, 2pi);
 			rMtx = HoaXformerMatrix.newRotateAxis(\x, angle);
 			// rotate the planewave with the rotation matrix
@@ -128,5 +78,28 @@ TestHoaXformerMatrix : UnitTest {
 			this.assertArrayFloatEquals(pwRotated, pwTest,
 				"Planewave rotated on X should match a planewave encoded in that direction", floatWithin, report);
 		};
+	}
+
+	// test the equivalence between multiple individual axis rotations
+	// via *newRotateAxis and they're *newRotate counterpart
+	test_axisRotationOrder {
+		var angles, axes, r123, r1, r2, r3, compoundRot;
+		5.do{
+			angles = 3.collect{rrand(0,2pi)}; // choose random rotation amounts
+			axes = "xyz".scramble;      // randomize the axis convention
+			// *newRotateAxis
+			#r1, r2, r3 = 3.collect{ |i|
+				HoaXformerMatrix.newRotateAxis(axes[i].asSymbol, angles[i], order).matrix;
+			};
+			compoundRot = r3 * (r2 * r1);
+
+			// *newRotate
+			r123 = HoaXformerMatrix.newRotate(angles[0], angles[1], angles[2], axes.asSymbol, order).matrix;
+
+			this.assertArrayFloatEquals(r123.asArray.flat, compoundRot.asArray.flat,
+				"3 individual axis rotations (*newRotateAxis) should equal the compound rotation (*newRotate)",
+				floatWithin, report
+			);
+		}
 	}
 }

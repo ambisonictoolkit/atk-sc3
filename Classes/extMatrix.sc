@@ -131,7 +131,6 @@
 				// min((maxstrlen/2).asInt-1, 3).do{"".postln}; // space it out vertically
 			}
 		)
-
 	}
 
 	// this is a destructive operation:

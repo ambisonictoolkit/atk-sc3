@@ -135,6 +135,18 @@ HoaMatrix : AtkMatrix {
 		^this.dirChannels
 	}
 
+	dim {
+		^(this.kind == \format).if({
+			3
+		}, {
+			this.dirChannels.flatten.unlace.last.every({ arg item; item == 0.0 }).if({  // test - 2D
+				2
+			}, {
+				3
+			})
+		})
+	}
+
 }
 
 //-----------------------------------------------------------------------
@@ -366,14 +378,6 @@ HoaEncoderMatrix : HoaMatrix {
 	dirOutputs {
 		^this.numOutputs.collect({ inf })
 	}
-
-	dim {
-        (this.kind == \format).if({
-            ^3
-        }, {
-            ^this.dirInputs.rank + 1
-        })
-    }
 
     type { ^\encoder }
 
@@ -1548,14 +1552,6 @@ HoaDecoderMatrix : HoaMatrix {
 	dirInputs {
 		^this.numInputs.collect({ inf })
 	}
-
-	dim {
-        (this.kind == \format).if({
-            ^3
-        }, {
-            ^this.dirOutputs.rank + 1
-        })
-    }
 
 	type { ^\decoder }
 

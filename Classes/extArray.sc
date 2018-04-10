@@ -55,6 +55,8 @@
 			orientation = orientation.switch(
 				\vertex, { 0.0 },
 				\side, { pi / size },
+				\point, { 0.0 },
+				\flat, { pi / size },
 			)
 		});
 

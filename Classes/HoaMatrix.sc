@@ -51,6 +51,19 @@
 HoaMatrix : AtkMatrix {
     var <dirChannels;
 
+	// may want to wrap supplied angles
+	initDirChannels { arg directions;
+		dirChannels = (directions == nil).if({
+			(this.order + 1).squared.collect({ inf })
+		}, {
+			directions.rank.switch(
+				0, { Array.with(directions, 0.0).reshape(1, 2) },
+				1, { directions.collect({ arg dir; Array.with(dir, 0.0)}) },
+				2, { directions },
+			)
+		})
+	}
+
 	// TODO: these utilities could move to AtkMatrix, or elsewhere?
 
 	getSub { |rowStart=0, colStart=0, rowLength, colLength|
@@ -119,18 +132,18 @@ HoaMatrix : AtkMatrix {
 	}
 
 	dirInputs {
-		^(this.type == \encoder).if({
-			this.dirChannels
-		}, {
+		^(this.type == \decoder).if({
 			this.numInputs.collect({ inf })
+		}, {
+			this.dirChannels
 		})
 	}
 
 	dirOutputs {
-		^(this.type == \decoder).if({
-			this.dirChannels
-		}, {
+		^(this.type == \encoder).if({
 			this.numOutputs.collect({ inf })
+		}, {
+			this.dirChannels
 		})
 	}
 
@@ -150,7 +163,7 @@ HoaEncoderMatrix : HoaMatrix {
     // }
 
     *newFormat { arg format = [\acn, \n3d], order;
-        ^super.new('format', order).initFormat(format);
+        ^super.new('format', order).initDirChannels.initFormat(format);
     }
 
     /*
@@ -161,21 +174,24 @@ HoaEncoderMatrix : HoaMatrix {
 
 	// Sampling Encoding (SAE) beams - 'basic' pattern
     *newDirection { arg theta = 0, phi = 0, order;
-        ^super.new('dir', order).initDirection(theta, phi);
+		var directions = [[ theta, phi ]];
+		^super.new('dir', order).initDirChannels(directions).initBasic;
     }
 
-    *newDirections { arg directions = [ 0, 0 ], order;
-        ^super.new('dirs', order).initDirections(directions);
+	*newDirections { arg directions = [[ 0, 0 ]], order;
+        ^super.new('dirs', order).initDirChannels(directions).initBasic;
     }
 
 	// panto is a convenience - may wish to deprecate
-    *newPanto { arg numChans = 4, orientation = 'flat', order;
-        ^super.new('panto', order).initPanto(numChans, orientation);
+    *newPanto { arg numChans = 4, orientation = \flat, order;
+		var directions = Array.regularPolygon(numChans, orientation, pi);
+		^super.new('panto', order).initDirChannels(directions).initBasic;
     }
 
     // Sampling Encoding (SAE) beams - multi pattern
     *newBeam { arg theta = 0, phi = 0, k = \basic, order;
-        ^super.new('beam', order).initBeam(theta, phi, k);
+		var directions = [[ theta, phi ]];
+        ^super.new('beam', order).initDirChannels(directions).initSAE(k);
     }
 
     // *newBeams { arg directions = [ 0, 0 ], k = \basic, order;
@@ -187,19 +203,14 @@ HoaEncoderMatrix : HoaMatrix {
     // }
 
     initBasic {  // simple, k = \basic
-        var directions, hoaOrder;
+		var directions, hoaOrder;
 
-        directions = (this.dirInputs.rank == 2).if({  // peri
-            this.dirInputs
-        }, {  // panto
-            Array.with(this.dirInputs, Array.fill(this.dirInputs.size, { 0.0 })).flop
-        });
-
+		directions = this.dirChannels;
         hoaOrder = HoaOrder.new(this.order);  // instance order
 
         // build encoder matrix, and set for instance
         matrix = Matrix.with(
-            directions.collect({ arg thetaPhi;
+			directions.collect({ arg thetaPhi;
                 hoaOrder.sph(thetaPhi.at(0), thetaPhi.at(1))
             }).flop
         )
@@ -208,12 +219,7 @@ HoaEncoderMatrix : HoaMatrix {
     initSAE {  arg k; // sampling beam encoder
         var directions, hoaOrder, beamWeights;
 
-        directions = (this.dirInputs.rank == 2).if({  // peri
-            this.dirInputs
-        }, {  // panto
-            Array.with(this.dirInputs, Array.fill(this.dirInputs.size, { 0.0 })).flop
-        });
-
+		directions = this.dirChannels;
         hoaOrder = HoaOrder.new(this.order);  // instance order
         beamWeights = hoaOrder.beamWeights(k);
 
@@ -251,8 +257,6 @@ HoaEncoderMatrix : HoaMatrix {
 
         hoaOrder = HoaOrder.new(this.order);  // instance order
         size = (this.order + 1).squared;
-
-        dirChannels = size.collect({ inf });  // set dirChannels
 
         (inputFormat == outputFormat).if({  // equal formats?
             matrix = Matrix.newIdentity(size).asFloat
@@ -355,54 +359,6 @@ HoaEncoderMatrix : HoaMatrix {
     //     matrix = matrix.putRow(0, matrix.getRow(0) * g0);
     // }
 
-    initDirection { arg theta, phi;
-
-        // set input channel directions for instance
-        dirChannels = (phi == 0).if({
-            [ theta ];  // panto
-        }, {
-            [ [ theta, phi ] ];  // peri
-        });
-        this.initBasic
-    }
-
-    initDirections { arg directions;
-
-        // set input channel directions for instance
-        dirChannels = directions;
-        this.initBasic
-    }
-
-    initBeam { arg theta, phi, k;
-
-        // set input channel directions for instance
-        dirChannels = (phi == 0).if({
-            [ theta ];  // panto
-        }, {
-            [ [ theta, phi ] ];  // peri
-        });
-        this.initSAE(k)
-    }
-
-    initPanto { arg numChans, orientation;
-
-        var theta;
-
-        // return theta from output channel (speaker) number
-        theta = numChans.collect({ arg channel;
-            switch (orientation,
-                'flat',	{ ((1.0 + (2.0 * channel))/numChans) * pi },
-                'point',	{ ((2.0 * channel)/numChans) * pi }
-            )
-        });
-        theta = (theta + pi).mod(2pi) - pi;
-
-        // set input channel directions for instance
-        dirChannels = theta;
-
-        this.initBasic
-    }
-
     // initEncoderVarsForFiles {
     //     dirInputs = if (fileParse.notNil) {
     //         if (fileParse.dirInputs.notNil) {
@@ -437,7 +393,7 @@ HoaXformerMatrix : HoaMatrix {
 	/*  Rotation  */
 
 	*newRotate { |r1 = 0, r2 = 0, r3 = 0, axes = \xyz, order|
-		^super.new('rotate', order).initRotation(r1, r2, r3, axes, order)
+		^super.new('rotate', order).initDirChannels.initRotation(r1, r2, r3, axes, order)
 	}
 
 	*newRotateAxis { |axis = \z, angle = 0, order|
@@ -453,7 +409,7 @@ HoaXformerMatrix : HoaMatrix {
 			\pitch, {r2=angle},
 			\roll, {r1=angle},
 		);
-		^super.new('rotateAxis', order).initRotation(r1, r2, r3, \xyz, order)
+		^super.new('rotateAxis', order).initDirChannels.initRotation(r1, r2, r3, \xyz, order)
 	}
 
 	initRotation { |r1, r2, r3, convention, order|
@@ -463,7 +419,7 @@ HoaXformerMatrix : HoaMatrix {
 	/*  Mirroring  */
 
 	*newMirror { arg mirror = \reflect, order;
-		^super.new('mirror', order).initMirror(mirror);
+		^super.new('mirror', order).initDirChannels.initMirror(mirror);
 	}
 
     initMirror { arg mirror;
@@ -974,9 +930,6 @@ HoaXformerMatrix : HoaMatrix {
 	// 	)
 	// }
 
-	// is this a good thing to do?
-	dirChannels { ^((this.order + 1).squared).collect({ inf }) }
-
     dim { ^3 }  // all transforms are 3D
 
     type { ^\xformer }
@@ -992,9 +945,8 @@ HoaDecoderMatrix : HoaMatrix {
     // var <>shelfFreq, <shelfK;
 
     *newFormat { arg format = [\acn, \n3d], order;
-        ^super.new('format', order).initFormat(format);
+        ^super.new('format', order).initDirChannels.initFormat(format);
     }
-
 
     /*
     Two types:
@@ -1004,20 +956,23 @@ HoaDecoderMatrix : HoaMatrix {
 
 	// Sampling Decoding beam - 'basic' pattern
     *newDirection { arg theta = 0, phi = 0, order;
-        ^super.new('dir', order).initDirection(theta, phi);
+		var directions = [[ theta, phi ]];
+        ^super.new('dir', order).initDirChannels(directions).initBasic;
     }
 
 	// NOTE: Need to keep in mind that this won't result
 	// in a SAD decoder for a 2D (panto) case, as weighting
 	// to N2D hasn't been applied.
 	// AND, gain normalisation hasn't been applied, either!
-    *newDirections { arg directions = [ 0, 0 ], order;
-        ^super.new('dirs', order).initDirections(directions);
+	// .. ALSO, no order reduction is implemented
+	*newDirections { arg directions = [[ 0, 0 ]], order;
+        ^super.new('dirs', order).initDirChannels(directions).initBasic;
     }
 
 	// Sampling Decoding beam - multi pattern
 	*newBeam { arg theta = 0, phi = 0, k = \basic, order;
-		^super.new('beam', order).initBeam(theta, phi, k);
+		var directions = [[ theta, phi ]];
+		^super.new('beam', order).initDirChannels(directions).initSAD(k);
 	}
 
     // Sampling Decoding beams - multi pattern
@@ -1101,8 +1056,6 @@ HoaDecoderMatrix : HoaMatrix {
         hoaOrder = HoaOrder.new(this.order);  // instance order
         size = (this.order + 1).squared;
 
-        dirChannels = size.collect({ inf });  // set dirChannels
-
         (inputFormat == outputFormat).if({  // equal formats?
             matrix = Matrix.newIdentity(size).asFloat
         }, {  // unequal formats
@@ -1131,12 +1084,7 @@ HoaDecoderMatrix : HoaMatrix {
     initBasic {  // simple, k = \basic
         var directions, hoaOrder;
 
-        directions = (dirChannels.rank == 2).if({  // peri
-            this.dirOutputs
-        }, {  // panto
-            Array.with(this.dirOutputs, Array.fill(this.dirOutputs.size, { 0.0 })).flop
-        });
-
+		directions = this.dirChannels;
         hoaOrder = HoaOrder.new(this.order);  // instance order
 
         // build decoder matrix, and set for instance
@@ -1155,12 +1103,7 @@ HoaDecoderMatrix : HoaMatrix {
 	initSAD {  arg k; // sampling beam decoder
 		var directions, hoaOrder, beamWeights;
 
-		directions = (this.dirOutputs.rank == 2).if({  // peri
-			this.dirOutputs
-			}, {  // panto
-				Array.with(this.dirOutputs, Array.fill(this.dirOutputs.size, { 0.0 })).flop
-		});
-
+		directions = this.dirChannels;
 		hoaOrder = HoaOrder.new(this.order);  // instance order
 		beamWeights = hoaOrder.beamWeights(k);
 
@@ -1343,35 +1286,6 @@ HoaDecoderMatrix : HoaMatrix {
     //         }
     //     )
     // }
-
-    initDirection { arg theta, phi;
-
-        // set output channel directions for instance
-        dirChannels = (phi == 0).if({
-            [ theta ];  // panto
-        }, {
-            [ [ theta, phi ] ];  // peri
-        });
-        this.initBasic
-    }
-
-    initDirections { arg directions;
-
-        // set output channel directions for instance
-        dirChannels = directions;
-        this.initBasic
-    }
-
-    initBeam { arg theta, phi, k;
-
-        // set output channel directions for instance
-        dirChannels = (phi == 0).if({
-            [ theta ];  // panto
-        }, {
-            [ [ theta, phi ] ];  // peri
-        });
-		this.initSAD(k)
-    }
 
 	initPeriSAD { arg directions, k, match;
 

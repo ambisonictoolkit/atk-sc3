@@ -984,14 +984,14 @@ HoaDecoderMatrix : HoaMatrix {
 	// This implies we may wish to have methods to assign
 	// directions.
     *newPeriSAD { arg directions, k = \basic, match = \amp, order;
-        ^super.new('periSAD', order).initDirChannels(directions).init3DSADM(k, match);
+        ^super.new('periSAD', order).initDirChannels(directions).initPeriSADM(k, match);
     }
 
 	// NOTE: these arguments diverge from FOA newPeri
 	// This implies we may wish to have methods to assign
 	// directions.
 	*newPantoSAD { arg directions, k = \basic, match = \amp, order;
-		^super.new('pantoSAD', order).initDirChannels(directions).init2DSADM(k, match);
+		^super.new('pantoSAD', order).initDirChannels(directions).initPantoSADM(k, match);
 	}
 
 	// *newPanto { arg numChans = 4, orientation = 'flat', k = 'single';
@@ -1118,7 +1118,7 @@ HoaDecoderMatrix : HoaMatrix {
 		)
 	}
 
-	init3DSADM {  arg k, match; // sampling beam decoder, with matching gain
+	initPeriSADM {  arg k, match; // sampling beam decoder, with matching gain
 		var directions, numOutputs;
 		var inputOrder, outputOrder, hoaOrder;
 		var encodingMatrix, decodingMatrix;
@@ -1172,7 +1172,7 @@ HoaDecoderMatrix : HoaMatrix {
 		matrix = decodingMatrix
 	}
 
-	init2DSADM {  arg k, match; // sampling beam decoder, with matching gain
+	initPantoSADM {  arg k, match; // sampling beam decoder, with matching gain
 		var directions, numOutputs;
 		var inputOrder, outputOrder, hoaOrder;
 		var encodingMatrix, decodingMatrix;

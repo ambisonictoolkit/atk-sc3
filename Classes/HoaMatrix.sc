@@ -984,14 +984,14 @@ HoaDecoderMatrix : HoaMatrix {
 	// This implies we may wish to have methods to assign
 	// directions.
     *newPeriSAD { arg directions, k = \basic, match = \amp, order;
-        ^super.new('periSAD', order).initPeriSAD(directions, k, match);
+        ^super.new('periSAD', order).initDirChannels(directions).init3DSADM(k, match);
     }
 
 	// NOTE: these arguments diverge from FOA newPeri
 	// This implies we may wish to have methods to assign
 	// directions.
 	*newPantoSAD { arg directions, k = \basic, match = \amp, order;
-		^super.new('pantoSAD', order).initPantoSAD(directions, k, match);
+		^super.new('pantoSAD', order).initDirChannels(directions).init2DSADM(k, match);
 	}
 
 	// *newPanto { arg numChans = 4, orientation = 'flat', k = 'single';
@@ -1123,15 +1123,13 @@ HoaDecoderMatrix : HoaMatrix {
 		var inputOrder, outputOrder, hoaOrder;
 		var encodingMatrix, decodingMatrix;
 		var weights;
+		var dim;
 
 		// init
-		directions = (this.dirOutputs.rank == 2).if({  // peri
-			this.dirOutputs
-			}, {  // panto
-				Array.with(this.dirOutputs, Array.fill(this.dirOutputs.size, { 0.0 })).flop
-		});
+		directions = this.dirChannels;
 		inputOrder = this.order;
 		numOutputs = directions.size;
+		dim = this.dim;
 
 		// 1) determine decoder output order
 		outputOrder = (numOutputs >= (inputOrder + 1).squared).if({
@@ -1142,7 +1140,7 @@ HoaDecoderMatrix : HoaMatrix {
 		hoaOrder = HoaOrder.new(outputOrder);
 
 		// 2) calculate weights: matching weight, beam weights
-		weights = hoaOrder.matchWeight(k, this.dim, match, numOutputs) * hoaOrder.beamWeights(k, this.dim);
+		weights = hoaOrder.matchWeight(k, dim, match, numOutputs) * hoaOrder.beamWeights(k, dim);
 		weights = weights[hoaOrder.l];  // expand from degree...
 		weights = Matrix.newDiagonal(weights);  // ... and assign to diagonal matrix
 
@@ -1179,19 +1177,13 @@ HoaDecoderMatrix : HoaMatrix {
 		var inputOrder, outputOrder, hoaOrder;
 		var encodingMatrix, decodingMatrix;
 		var weights;
-
-		// temp for debugging...
 		var dim;
-		dim = 2;  // replace this.dim
 
 		// init
-		directions = (this.dirOutputs.rank == 2).if({  // peri
-			this.dirOutputs
-			}, {  // panto
-				Array.with(this.dirOutputs, Array.fill(this.dirOutputs.size, { 0.0 })).flop
-		});
+		directions = this.dirChannels;
 		inputOrder = this.order;
 		numOutputs = directions.size;
+		dim = this.dim;
 
 		// 1) determine decoder output order
 		outputOrder = (numOutputs >= (2 * inputOrder + 1)).if({
@@ -1286,20 +1278,6 @@ HoaDecoderMatrix : HoaMatrix {
     //         }
     //     )
     // }
-
-	initPeriSAD { arg directions, k, match;
-
-		// set output channel directions for instance
-        dirChannels = directions;
-		this.init3DSADM(k, match)
-	}
-
-	initPantoSAD { arg directions, k, match;
-
-		// set output channel directions for instance
-        dirChannels = directions;
-		this.init2DSADM(k, match)
-	}
 
 	// initDiametric { arg directions, k;
     //

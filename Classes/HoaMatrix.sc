@@ -51,7 +51,6 @@
 HoaMatrix : AtkMatrix {
     var <dirChannels;
 
-	// may want to wrap supplied angles
 	initDirChannels { arg directions;
 		dirChannels = (directions == nil).if({
 			(this.order + 1).squared.collect({ inf })
@@ -61,6 +60,8 @@ HoaMatrix : AtkMatrix {
 				1, { directions.collect({ arg dir; Array.with(dir, 0.0)}) },
 				2, { directions },
 			)
+		}).collect({ arg thetaPhi;  // wrap to [ +/-pi, +/-pi/2 ]
+			Spherical.new(1, thetaPhi.at(0), thetaPhi.at(1)).asCartesian.asSpherical.angles
 		})
 	}
 

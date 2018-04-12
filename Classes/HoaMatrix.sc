@@ -59,9 +59,9 @@ HoaMatrix : AtkMatrix {
 				0, { Array.with(directions, 0.0).reshape(1, 2) },
 				1, { directions.collect({ arg dir; Array.with(dir, 0.0)}) },
 				2, { directions },
-			)
-		}).collect({ arg thetaPhi;  // wrap to [ +/-pi, +/-pi/2 ]
-			Spherical.new(1, thetaPhi.at(0), thetaPhi.at(1)).asCartesian.asSpherical.angles
+			).collect({ arg thetaPhi;  // wrap to [ +/-pi, +/-pi/2 ]
+				Spherical.new(1, thetaPhi.at(0), thetaPhi.at(1)).asCartesian.asSpherical.angles
+			})
 		})
 	}
 

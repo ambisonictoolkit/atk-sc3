@@ -999,6 +999,27 @@ HoaDecoderMatrix : HoaMatrix {
 		)
     }
 
+	*newDiametric { arg directions, k = \basic, match = \amp, order;
+		var directionPairs, thisInst;
+		directionPairs = directions ++ directions.rank.switch(
+			1, {  // 2D
+				directions.collect({ arg item;
+					Polar.new(1, item).neg.angle
+				})
+			},
+			2, {  // 3D
+				directions.collect({ arg item;
+					Spherical.new(1, item.at(0), item.at(1)).neg.angles
+				})
+			}
+		);
+		thisInst = super.new('diametric', order).initDirChannels(directionPairs);
+		^thisInst.dim.switch(
+			2, { thisInst.initPantoMMDM(k, match) },
+			3, { thisInst.initPeriMMDM(k, match) },
+		)
+	}
+
 	// *newPanto { arg numChans = 4, orientation = 'flat', k = 'single';
     //     ^super.new('panto').initPanto(numChans, orientation, k);
     // }

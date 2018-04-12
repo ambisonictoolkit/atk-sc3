@@ -983,13 +983,11 @@ HoaDecoderMatrix : HoaMatrix {
 
 	// NOTE: these arguments diverge from FOA newPeri & newPanto
     *newProjection { arg directions, k = \basic, match = \amp, order;
-		((directions.rank == 1) || (directions.flatten.unlace.last.every({ arg item; item == 0.0 }))).if({
-			// pantoSAD
-			^super.new('projection', order).initDirChannels(directions).initPantoSADM(k, match);  // 2D
-		}, {
-			// periSAD
-			^super.new('projection', order).initDirChannels(directions).initPeriSADM(k, match);  // 3D
-		})
+		var thisInst = super.new('projection', order).initDirChannels(directions);
+		^thisInst.dim.switch(
+			2, { thisInst.initPantoSADM(k, match) },
+			3, { thisInst.initPeriSADM(k, match) },
+		)
     }
 
 	// *newPanto { arg numChans = 4, orientation = 'flat', k = 'single';

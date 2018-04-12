@@ -991,16 +991,11 @@ HoaDecoderMatrix : HoaMatrix {
 
 	// NOTE: these arguments diverge from FOA newPeri & newPanto
     *newModeMatch { arg directions, k = \basic, match = \amp, order;
-		var thisInst = super.new('modeMatch', order).initDirChannels(directions);
-		^thisInst.dim.switch(
-			2, { thisInst.initPantoMMDM(k, match) },
-			3, { thisInst.initPeriMMDM(k, match) },
-		)
+		^super.new('modeMatch', order).initDirChannels(directions).initMMDM(k, match)
     }
 
 	*newDiametric { arg directions, k = \basic, match = \amp, order;
-		var directionPairs, thisInst;
-		directionPairs = directions ++ directions.rank.switch(
+		var directionPairs = directions ++ directions.rank.switch(
 			1, {  // 2D
 				directions.collect({ arg item;
 					Polar.new(1, item).neg.angle
@@ -1012,11 +1007,7 @@ HoaDecoderMatrix : HoaMatrix {
 				})
 			}
 		);
-		thisInst = super.new('diametric', order).initDirChannels(directionPairs);
-		^thisInst.dim.switch(
-			2, { thisInst.initPantoMMDM(k, match) },
-			3, { thisInst.initPeriMMDM(k, match) },
-		)
+		^super.new('diametric', order).initDirChannels(directionPairs).initMMDM(k, match)
 	}
 
     // *newBtoA { arg orientation = 'flu', weight = 'dec';
@@ -1237,10 +1228,10 @@ HoaDecoderMatrix : HoaMatrix {
 
 	//-----------
 	// Mode Matching Decoders, aka Pseudo-inverse
-	initPeriMMDM {  arg k, match;  // mode matching decoder, with matching gain
+	initMMDM {  arg k, match;  // mode matching decoders, with matching gain
 		var directions, numOutputs;
 		var inputOrder, outputOrder, hoaOrder;
-		var encodingMatrix, decodingMatrix;
+		var encodingMatrix, decodingMatrix, zerosMatrix;
 		var weights;
 		var dim;
 
@@ -1250,12 +1241,23 @@ HoaDecoderMatrix : HoaMatrix {
 		numOutputs = directions.size;
 		dim = this.dim;
 
-		// 1) determine decoder output order
-		outputOrder = (numOutputs >= (inputOrder + 1).squared).if({
-			inputOrder
-		}, {
-			numOutputs.sqrt.asInteger - 1
-		});
+		// 1) determine decoder output order - estimate
+		outputOrder = dim.switch(
+			2, {  // 2D
+				(numOutputs >= (2 * inputOrder + 1)).if({
+					inputOrder
+				}, {
+					((numOutputs - 1) / 2).asInteger
+				})
+			},
+			3, {  // 3D
+				(numOutputs >= (inputOrder + 1).squared).if({
+					inputOrder
+				}, {
+					numOutputs.sqrt.asInteger - 1
+				})
+			}
+		);
 		hoaOrder = HoaOrder.new(outputOrder);
 
 		// 2) calculate weights: matching weight, beam weights
@@ -1265,89 +1267,35 @@ HoaDecoderMatrix : HoaMatrix {
 
 		// --------------------------------
 		// 3) generate prototype planewave encoding matrix
-		// NOTE: Could use HoaEncoderMatrix.newDirections.matrix here...
-		//            This is an argument for making -basic encoding part of
-		//            the AtkMatrix superclass
 		encodingMatrix = Matrix.with(
 			directions.collect({arg item;
 				hoaOrder.sph(item.at(0), item.at(1));  // encoding coefficients
 			}).flop
 		);
 
-		// 4) pseudo inverse
-		decodingMatrix = encodingMatrix.pseudoInverse;
-
-		// 5) apply weights: matching weight, beam weights
-		decodingMatrix = decodingMatrix.mulMatrix(weights);
-
-		// 6) expand to match input order (if necessary)
-		(inputOrder > outputOrder).if({
-			decodingMatrix = (decodingMatrix.flop ++ Matrix.newClear(
-				(inputOrder + 1).squared - (outputOrder + 1).squared, numOutputs)
-			).flop
-		});
-
-		// assign
-		matrix = decodingMatrix
-	}
-
-	initPantoMMDM {  arg k, match; // mode matching decoder, with matching gain
-		var directions, numOutputs;
-		var inputOrder, outputOrder, hoaOrder;
-		var encodingMatrix, decodingMatrix;
-		var zerosMatrix;
-		var weights;
-		var dim;
-
-		// init
-		directions = this.dirChannels;
-		inputOrder = this.order;
-		numOutputs = directions.size;
-		dim = this.dim;
-
-		// 1) determine decoder output order
-		outputOrder = (numOutputs >= (2 * inputOrder + 1)).if({
-			inputOrder
-		}, {
-			((numOutputs - 1) / 2).asInteger
-		});
-		hoaOrder = HoaOrder.new(outputOrder);
-
-		// 2) calculate weights: matching weight, beam weights
-		weights = hoaOrder.matchWeight(k, dim, match, numOutputs) * hoaOrder.beamWeights(k, dim);
-		weights = weights[hoaOrder.l];  // expand from degree...
-		weights = Matrix.newDiagonal(weights);  // ... and assign to diagonal matrix
-
-		// --------------------------------
-		// 3) generate prototype planewave encoding matrix
-		// NOTE: Could use HoaEncoderMatrix.newDirections.matrix here...
-		//            This is an argument for making -basic encoding part of
-		//            the AtkMatrix superclass
-		encodingMatrix = Matrix.with(
-			directions.collect({arg item;
-				hoaOrder.sph(item.at(0), item.at(1));  // encoding coefficients
-			}).flop
-		);
-
-		// 3a) discard non-sectoral (3D) harmonics
-		encodingMatrix = Matrix.with(
-			encodingMatrix.asArray[hoaOrder.indices(subset: \sectoral)]
-		);
-
-		// 4) pseudo inverse
-		decodingMatrix = encodingMatrix.pseudoInverse;
-
-		// 5) (re-)insert non-sectoral (3D) harmonics
-		zerosMatrix = Matrix.newClear(numOutputs, (outputOrder + 1).squared);
-		hoaOrder.indices(subset: \sectoral).do({ arg index, i;
-			zerosMatrix.putCol(
-				index,
-				decodingMatrix.getCol(i)
+		// 3a) if 2D, discard non-sectoral (3D) harmonics
+		(dim == 2).if({
+			encodingMatrix = Matrix.with(
+				encodingMatrix.asArray[hoaOrder.indices(subset: \sectoral)]
 			)
 		});
-		decodingMatrix = zerosMatrix;  // now filled
 
-		// 6) apply weights: matching weight, beam weights
+		// 4) pseudo inverse
+		decodingMatrix = encodingMatrix.pseudoInverse;
+
+		// 4a) if 2D (re-)insert non-sectoral (3D) harmonics
+		(dim == 2).if({
+			zerosMatrix = Matrix.newClear(numOutputs, (outputOrder + 1).squared);
+			hoaOrder.indices(subset: \sectoral).do({ arg index, i;
+				zerosMatrix.putCol(
+					index,
+					decodingMatrix.getCol(i)
+				)
+			});
+			decodingMatrix = zerosMatrix;  // now filled
+		});
+
+		// 5) apply weights: matching weight, beam weights
 		decodingMatrix = decodingMatrix.mulMatrix(weights);
 
 		// 6) expand to match input order (if necessary)

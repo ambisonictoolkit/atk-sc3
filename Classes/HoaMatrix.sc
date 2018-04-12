@@ -981,19 +981,16 @@ HoaDecoderMatrix : HoaMatrix {
     //     ^super.new('beams', order).initBeams(directions);
     // }
 
-	// NOTE: these arguments diverge from FOA newPeri
-	// This implies we may wish to have methods to assign
-	// directions.
-    *newPeriSAD { arg directions, k = \basic, match = \amp, order;
-        ^super.new('periSAD', order).initDirChannels(directions).initPeriSADM(k, match);
+	// NOTE: these arguments diverge from FOA newPeri & newPanto
+    *newProjection { arg directions, k = \basic, match = \amp, order;
+		((directions.rank == 1) || (directions.flatten.unlace.last.every({ arg item; item == 0.0 }))).if({
+			// pantoSAD
+			^super.new('projection', order).initDirChannels(directions).initPantoSADM(k, match);  // 2D
+		}, {
+			// periSAD
+			^super.new('projection', order).initDirChannels(directions).initPeriSADM(k, match);  // 3D
+		})
     }
-
-	// NOTE: these arguments diverge from FOA newPeri
-	// This implies we may wish to have methods to assign
-	// directions.
-	*newPantoSAD { arg directions, k = \basic, match = \amp, order;
-		^super.new('pantoSAD', order).initDirChannels(directions).initPantoSADM(k, match);
-	}
 
 	// *newPanto { arg numChans = 4, orientation = 'flat', k = 'single';
     //     ^super.new('panto').initPanto(numChans, orientation, k);

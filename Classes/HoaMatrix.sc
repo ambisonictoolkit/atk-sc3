@@ -982,11 +982,7 @@ HoaDecoderMatrix : HoaMatrix {
 
 	// NOTE: these arguments diverge from FOA newPeri & newPanto
     *newProjection { arg directions, k = \basic, match = \amp, order;
-		var thisInst = super.new('projection', order).initDirChannels(directions);
-		^thisInst.dim.switch(
-			2, { thisInst.initPantoSADM(k, match) },
-			3, { thisInst.initPeriSADM(k, match) },
-		)
+		^super.new('projection', order).initDirChannels(directions).initSADM(k, match);
     }
 
 	// NOTE: these arguments diverge from FOA newPeri & newPanto
@@ -1106,7 +1102,7 @@ HoaDecoderMatrix : HoaMatrix {
 		)
 	}
 
-	initPeriSADM {  arg k, match; // sampling beam decoder, with matching gain
+	initSADM {  arg k, match; // sampling beam decoder, with matching gain
 		var directions, numOutputs;
 		var inputOrder, outputOrder, hoaOrder;
 		var encodingMatrix, decodingMatrix;
@@ -1119,12 +1115,23 @@ HoaDecoderMatrix : HoaMatrix {
 		numOutputs = directions.size;
 		dim = this.dim;
 
-		// 1) determine decoder output order
-		outputOrder = (numOutputs >= (inputOrder + 1).squared).if({
-			inputOrder
-		}, {
-			numOutputs.sqrt.asInteger - 1
-		});
+		// 1) determine decoder output order - estimate
+		outputOrder = dim.switch(
+			2, {  // 2D
+				(numOutputs >= (2 * inputOrder + 1)).if({
+					inputOrder
+				}, {
+					((numOutputs - 1) / 2).asInteger
+				})
+			},
+			3, {  // 3D
+				(numOutputs >= (inputOrder + 1).squared).if({
+					inputOrder
+				}, {
+					numOutputs.sqrt.asInteger - 1
+				})
+			}
+		);
 		hoaOrder = HoaOrder.new(outputOrder);
 
 		// 2) calculate weights: matching weight, beam weights
@@ -1134,85 +1141,34 @@ HoaDecoderMatrix : HoaMatrix {
 
 		// --------------------------------
 		// 3) generate prototype planewave encoding matrix
-		// NOTE: Could use HoaEncoderMatrix.newDirections.matrix here...
-		//            This is an argument for making -basic encoding part of
-		//            the AtkMatrix superclass
 		encodingMatrix = Matrix.with(
 			directions.collect({arg item;
 				hoaOrder.sph(item.at(0), item.at(1));  // encoding coefficients
 			}).flop
 		);
 
+		// 3a) if 2D, convert (decode) output to N2D scaling & zero non-sectoral (3D) harmonics
+		(dim == 2).if({
+			encodingMatrix = this.class.newFormat([\acn, \n2d], outputOrder).matrix.mulMatrix(
+				encodingMatrix
+			);
+			hoaOrder.indices.difference(hoaOrder.indices(subset: \sectoral)).do({ arg row;
+				encodingMatrix.putRow(row, Array.fill(numOutputs, { 0.0 }))
+			})
+		});
+
 		// 4) transpose and scale: projection
 		decodingMatrix = numOutputs.reciprocal * encodingMatrix.flop;
+
+		// 4a) if 2D, convert (encode) input to N2D scaling
+		// NOTE: could be included in step 3a, above
+		(dim == 2).if({
+			decodingMatrix = decodingMatrix.mulMatrix(
+				this.class.newFormat([\acn, \n2d], outputOrder).matrix
+			)
+		});
 
 		// 5) apply weights: matching weight, beam weights
-		decodingMatrix = decodingMatrix.mulMatrix(weights);
-
-		// 6) expand to match input order (if necessary)
-		(inputOrder > outputOrder).if({
-			decodingMatrix = (decodingMatrix.flop ++ Matrix.newClear(
-				(inputOrder + 1).squared - (outputOrder + 1).squared, numOutputs)
-			).flop
-		});
-
-		// assign
-		matrix = decodingMatrix
-	}
-
-	initPantoSADM {  arg k, match; // sampling beam decoder, with matching gain
-		var directions, numOutputs;
-		var inputOrder, outputOrder, hoaOrder;
-		var encodingMatrix, decodingMatrix;
-		var weights;
-		var dim;
-
-		// init
-		directions = this.dirChannels;
-		inputOrder = this.order;
-		numOutputs = directions.size;
-		dim = this.dim;
-
-		// 1) determine decoder output order
-		outputOrder = (numOutputs >= (2 * inputOrder + 1)).if({
-			inputOrder
-		}, {
-			((numOutputs - 1) / 2).asInteger
-		});
-		hoaOrder = HoaOrder.new(outputOrder);
-
-		// 2) calculate weights: matching weight, beam weights
-		weights = hoaOrder.matchWeight(k, dim, match, numOutputs) * hoaOrder.beamWeights(k, dim);
-		weights = weights[hoaOrder.l];  // expand from degree...
-		weights = Matrix.newDiagonal(weights);  // ... and assign to diagonal matrix
-
-		// --------------------------------
-		// 3) generate prototype planewave encoding matrix
-		// NOTE: Could use HoaEncoderMatrix.newDirections.matrix here...
-		//            This is an argument for making -basic encoding part of
-		//            the AtkMatrix superclass
-		//           (N2D/N3D)^2 scaling can be applied here to implement step 5
-		encodingMatrix = Matrix.with(
-			hoaOrder.normalisation(\n2d) / hoaOrder.normalisation(\n3d) * directions.collect({arg item;
-				hoaOrder.sph(item.at(0), item.at(1));  // encoding coefficients - N2D scaling
-			}).flop
-		);
-
-		// 3a) zero non-sectoral (3D) harmonics
-		hoaOrder.indices.difference(hoaOrder.indices(subset: \sectoral)).do({ arg row;
-			encodingMatrix.putRow(row, Array.fill(numOutputs, { 0.0 }))
-		});
-
-		// 4) transpose and scale: projection
-		decodingMatrix = numOutputs.reciprocal * encodingMatrix.flop;
-
-		// 5) convert to N2D scaling - for input
-		// NOTE: could be included in step 3, above
-		decodingMatrix = decodingMatrix.mulMatrix(
-			this.class.newFormat([\acn, \n2d], outputOrder).matrix
-		);
-
-		// 6) apply weights: matching weight, beam weights
 		decodingMatrix = decodingMatrix.mulMatrix(weights);
 
 		// 6) expand to match input order (if necessary)

@@ -73,7 +73,7 @@ TestHoaRotationMatrix : UnitTest {
 		// a function to perform rotation tests on groups of directions
 		testDirs = { |dirs, groupName="a tetrahedron", numRotTests = 5|
 			numRotTests.do{
-				var r1, r2, r3, axes, rMtx, rotatedPws;
+				var r1, r2, r3, axes, rMtx, rotatedPws, groupTests;
 
 				#r1, r2, r3 = 3.collect{rrand(-2pi,2pi)};
 				axes = "xyz".scramble;      // randomize the convention
@@ -92,16 +92,18 @@ TestHoaRotationMatrix : UnitTest {
 				rotatedPws = rotatedPws.collect{ |mtx| mtx.asArray.flat };
 
 				// compare to target planewaves, directly encoded in the pre-rotated directions
-				rotatedPws.do{|rpw, i|
-					this.assertArrayFloatEquals(rpw, targetPws[i],
-						format("Planewaves encoded in the directions of %, "
-							"then rotated via axes % should match those planewaves "
-							"encoded directly via directions that have been rotated.",
-							groupName, axes
-						),
-						floatWithin, report
-					)
+				groupTests = rotatedPws.collect{|rpw, i|
+					rpw.round(floatWithin) == targetPws[i].round(floatWithin)
 				};
+
+				this.assert(groupTests.every({|item| item}),
+					format("Planewaves encoded in the directions of %, "
+						"then rotated via axes % should match those planewaves "
+						"encoded directly via Spherical directions that have been rotated.",
+						groupName, axes
+					), report
+				)
+
 			};
 		};
 
@@ -110,6 +112,27 @@ TestHoaRotationMatrix : UnitTest {
 		testDirs.(HoaTests.getDirs(\tetra, \flu), "a tetrahedon", 5);
 		testDirs.(HoaTests.getDirs(\cube), "a cube", 5);
 		testDirs.(HoaTests.getDirs(\random, 10), "randomness", 5);
+	}
+
+	test_FoaRttVsHoaRtt {
+		var rtt, test, ref, res;
+		res = 50.collect{
+			rtt = 3.collect{rrand(-2pi, 2pi)};
+			// A first order planewave, encoded with FOA rotation matrix
+			ref = FoaXformerMatrix.newRTT(*rtt).matrix * FoaEncoderMatrix.newDirection(0,0).matrix.addRow([0]);
+			// A first order planewave, encoded with HOA rotation matrix
+			test = (
+				HoaRotationMatrix(rtt.at(0), rtt.at(1), rtt.at(2), 'zxy', 1).matrix *
+				HoaEncoderMatrix.newDirection(0,0, order: 1).matrix;
+			);
+			// "decode" the HOA (acn-n3d) to FOA (fuma-maxN), for test comparison
+			test = HoaDecoderMatrix.newFormat(\fuma, 1).matrix * test;
+			// test
+			ref.round(0.00001) == test.round(0.00001)
+		};
+
+		// did every test return true?
+		this.assert(res.every({|item| item}), "Rotations using Atk-Foa should match those of Atk-Hoa", report);
 	}
 
 	// test_buildR1 {

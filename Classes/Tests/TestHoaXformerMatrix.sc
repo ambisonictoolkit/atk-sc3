@@ -35,49 +35,43 @@ TestHoaXformerMatrix : UnitTest {
 
 
 	test_newRotateAxis {
-		var pw00, pw90, pwTest, rMtx, pwRotated, angle;
+		var pw00, pw90, comparePwFunc;
 		var numTests = 5;
-		var comparePwFunc;
 
-		comparePwFunc = { |pw, theta, phi, axis|
-			// reference planewave, encoded directly at [theta, phi]
-			var pwRef = HoaEncoderMatrix.newDirection(theta, phi, order: order).matrix.flop.getRow(0);
+		comparePwFunc = { |initPw, rMtx, theta, phi, axis|
+			var pwRot, pwRef;
 
-			this.assertEquals(pw.size, pwRef.size, "rotated planewave coefficient array size should match that of the reference planewave", report);
-			this.assertArrayFloatEquals(pw, pwRef,
-				format("Planewave rotated on % should match a planewave encoded in that direction", axis.asString), floatWithin, report);
+			// generate reference planewave coefficeints (as matrix), encoded directly at [theta, phi]
+			pwRef = HoaEncoderMatrix.newDirection(theta, phi, order).matrix;
+
+			this.assert(initPw.matrix.rows == rMtx.matrix.cols, "rotated planewave coefficient rows should match rotation matrix cols", report);
+
+			// rotate the input planewave (as matrix) with the rotation matrix
+			pwRot = rMtx.matrix * initPw.matrix;
+
+			this.assertEquals(pwRot.rows, pwRef.rows,
+				"Rotated planewave coefficient array size should match that of the reference planewave", report);
+
+			this.assertArrayFloatEquals(pwRot.asArray.flat, pwRef.asArray.flat,
+				format("Planewave rotated on % should match a planewave encoded in that direction", axis.asString),
+				floatWithin, report);
 		};
 
 		// planewave coefficients, encoded at [0,0]
-		pw00 = HoaEncoderMatrix.newDirection(0,0,order:order).matrix.flop.getRow(0);
+		pw00 = HoaEncoderMatrix.newDirection(0,0, order);
 		// planewave coefficients, encoded at [pi/2,0] (+Y)
-		pw90 = HoaEncoderMatrix.newDirection(pi/2,0,order:order).matrix.flop.getRow(0);
+		pw90 = HoaEncoderMatrix.newDirection(pi/2,0, order);
 
-		// rotate on Z
 		numTests.do{
-			angle = rrand(-2pi, 2pi);
-			rMtx = HoaXformerMatrix.newRotateAxis(\z, angle, order);
-			// rotate the planewave with the rotation matrix
-			pwRotated = rMtx.mixCoeffs(pw00);
-			comparePwFunc.(pwRotated, angle, 0, \z);
-		};
+			var angle = rrand(-2pi, 2pi);
+			var rMtx = HoaXformerMatrix.newRotateAxis(\z, angle, order);
+			comparePwFunc.(pw00, rMtx, angle, 0, \z);
 
-		// rotate on Y
-		numTests.do{
-			angle = rrand(-2pi, 2pi);
 			rMtx = HoaXformerMatrix.newRotateAxis(\y, angle, order);
-			// rotate the planewave with the rotation matrix
-			pwRotated = rMtx.mixCoeffs(pw00);
-			comparePwFunc.(pwRotated, 0, angle, \y);
-		};
+			comparePwFunc.(pw00, rMtx, 0, angle, \y);
 
-		// rotate on X
-		numTests.do{
-			angle = rrand(-2pi, 2pi);
 			rMtx = HoaXformerMatrix.newRotateAxis(\x, angle, order);
-			// rotate the planewave with the rotation matrix
-			pwRotated = rMtx.mixCoeffs(pw90);  // note pw90
-			comparePwFunc.(pwRotated, pi/2, angle, \x);
+			comparePwFunc.(pw90, rMtx, pi/2, angle, \x);
 		};
 	}
 

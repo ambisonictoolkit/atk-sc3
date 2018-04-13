@@ -37,46 +37,47 @@ TestHoaXformerMatrix : UnitTest {
 	test_newRotateAxis {
 		var pw00, pw90, pwTest, rMtx, pwRotated, angle;
 		var numTests = 5;
+		var comparePwFunc;
+
+		comparePwFunc = { |pw, theta, phi, axis|
+			// reference planewave, encoded directly at [theta, phi]
+			var pwRef = HoaEncoderMatrix.newDirection(theta, phi, order: order).matrix.flop.getRow(0);
+
+			this.assertEquals(pw.size, pwRef.size, "rotated planewave coefficient array size should match that of the reference planewave", report);
+			this.assertArrayFloatEquals(pw, pwRef,
+				format("Planewave rotated on % should match a planewave encoded in that direction", axis.asString), floatWithin, report);
+		};
 
 		// planewave coefficients, encoded at [0,0]
 		pw00 = HoaEncoderMatrix.newDirection(0,0,order:order).matrix.flop.getRow(0);
+		// planewave coefficients, encoded at [pi/2,0] (+Y)
+		pw90 = HoaEncoderMatrix.newDirection(pi/2,0,order:order).matrix.flop.getRow(0);
 
 		// rotate on Z
 		numTests.do{
 			angle = rrand(-2pi, 2pi);
-			rMtx = HoaXformerMatrix.newRotateAxis(\z, angle);
+			rMtx = HoaXformerMatrix.newRotateAxis(\z, angle, order);
 			// rotate the planewave with the rotation matrix
 			pwRotated = rMtx.mixCoeffs(pw00);
-
-			pwTest = HoaEncoderMatrix.newDirection(angle,0,order:order).matrix.flop.getRow(0);
-			this.assertArrayFloatEquals(pwRotated, pwTest,
-				"Planewave rotated on Z should match a planewave encoded in that direction", floatWithin, report);
+			comparePwFunc.(pwRotated, angle, 0, \z);
 		};
 
 		// rotate on Y
 		numTests.do{
 			angle = rrand(-2pi, 2pi);
-			rMtx = HoaXformerMatrix.newRotateAxis(\y, angle);
+			rMtx = HoaXformerMatrix.newRotateAxis(\y, angle, order);
 			// rotate the planewave with the rotation matrix
 			pwRotated = rMtx.mixCoeffs(pw00);
-
-			pwTest = HoaEncoderMatrix.newDirection(0,angle,order:order).matrix.flop.getRow(0);
-			this.assertArrayFloatEquals(pwRotated, pwTest,
-				"Planewave rotated on Y should match a planewave encoded in that direction", floatWithin, report);
+			comparePwFunc.(pwRotated, 0, angle, \y);
 		};
 
-		// planewave encode at 90 degrees left, [pi/2,0] (+Y)
-		pw90 = HoaEncoderMatrix.newDirection(pi/2,0,order:order).matrix.flop.getRow(0);
 		// rotate on X
 		numTests.do{
 			angle = rrand(-2pi, 2pi);
-			rMtx = HoaXformerMatrix.newRotateAxis(\x, angle);
+			rMtx = HoaXformerMatrix.newRotateAxis(\x, angle, order);
 			// rotate the planewave with the rotation matrix
-			pwRotated = rMtx.mixCoeffs(pw90);
-
-			pwTest = HoaEncoderMatrix.newDirection(pi/2,angle,order:order).matrix.flop.getRow(0);
-			this.assertArrayFloatEquals(pwRotated, pwTest,
-				"Planewave rotated on X should match a planewave encoded in that direction", floatWithin, report);
+			pwRotated = rMtx.mixCoeffs(pw90);  // note pw90
+			comparePwFunc.(pwRotated, pi/2, angle, \x);
 		};
 	}
 

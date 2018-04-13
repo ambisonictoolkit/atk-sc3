@@ -9,13 +9,15 @@ HoaTests {
 	classvar <>report=false, <>order=3, <>floatWithin=1e-8;
 
 	// Run all HOA tests
-	*run {
+	*run { |verbose=false, hoaOrder|
+		report = verbose;
+		hoaOrder !? {order = hoaOrder};
 		[   // list of Test classes
 			TestHoaEncoderMatrix,
 			TestHoaDecoderMatrix,
 			TestHoaRotationMatrix,
-			TestNumberForHoa,
-			TestHoaRotationMatrix,
+			TestHoaXformerMatrix,
+			TestNumberForHoa, // tests sphericalHarmonic method
 		].do(_.run)
 
 	}

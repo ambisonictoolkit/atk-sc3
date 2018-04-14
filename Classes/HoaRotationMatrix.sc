@@ -127,14 +127,14 @@ HoaRotationMatrix {
 		sint_neg = sint.neg;
 
 		// Note: this R1 kernel follows classic ambisonic rotation
-		// convention which differs from ported reference (politis)
-		// (sint and sint_neg are swapped)
+		// convention which differs from ported reference (Politis):
+		// commented rows to the right show source's values,
 		^Matrix.with(
 			switch( axis,
 				'x', {[
 					[1, 0, 0],
-					[0, cost, sint_neg],
-					[0, sint, cost]
+					[0, cost, sint_neg], // [0, cost, sint],
+					[0, sint, cost]      // [0, sint_neg, cost]
 				]},
 				'y', {[
 					[cost, 0, sint_neg],
@@ -142,8 +142,8 @@ HoaRotationMatrix {
 					[sint, 0, cost]
 				]},
 				'z', {[
-					[cost, sint_neg, 0],
-					[sint, cost, 0],
+					[cost, sint_neg, 0], // [cost, sint, 0],
+					[sint, cost, 0],     // [sint_neg, cost, 0],
 					[0, 0, 1]
 				]},
 			)

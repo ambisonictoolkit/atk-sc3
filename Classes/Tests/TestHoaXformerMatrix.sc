@@ -23,13 +23,13 @@ TestHoaXformerMatrix : UnitTest {
 		};
 
 		initializedPlanewaves = initialDirs.collect{|sph|
-			HoaEncoderMatrix.newDirection(sph.theta, sph.phi, order: order).matrix.flop.getRow(0);
+			HoaEncoderMatrix.newDirection(sph.theta, sph.phi, order).matrix.flop.getRow(0);
 		};
 
 		// Encode the resulting rotated directions as planewaves.
 		// These are the targets for comparison
 		targetPlanewaves = rotatedDirs.collect{|sph|
-			HoaEncoderMatrix.newDirection(sph.theta, sph.phi, order: order).matrix.flop.getRow(0);
+			HoaEncoderMatrix.newDirection(sph.theta, sph.phi, order).matrix.flop.getRow(0);
 		};
 	}
 

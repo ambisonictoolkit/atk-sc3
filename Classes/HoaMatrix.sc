@@ -92,8 +92,8 @@ HoaMatrix : AtkMatrix {
 	}
 
 	// force values to zero that are within threshold distance (positive or negative)
-	zeroWithin { |threshold = (-300.dbamp)|
-		this.matrix.zeroWithin(threshold);
+	zeroWithin { |within = (-300.dbamp)|
+		this.matrix.zeroWithin(within);
 	}
 
 
@@ -333,6 +333,14 @@ HoaXformerMatrix : HoaMatrix {
 			\roll, {r1=angle},
 		);
 		^super.new('rotateAxis', order).initDirChannels.initRotation(r1, r2, r3, \xyz, order)
+	}
+
+	*newRTT { |rotate = 0, tilt = 0, tumble = 0, order|
+		^super.new('rotation').initDirChannels.initRotation(rotate, tilt, tumble, \zxy, order)
+	}
+
+	*newYPR { |yaw = 0, pitch = 0, roll = 0, order|
+		^super.new('rotation').initDirChannels.initRotation(roll, pitch, yaw, \xyz, order)
 	}
 
 	initRotation { |r1, r2, r3, convention, order|

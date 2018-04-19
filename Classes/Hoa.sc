@@ -10,14 +10,10 @@ Hoa {
 	}
 
 	*degreeStIdx { |degree|
-		var d = degree ?? globalOrder;
-
-		^(d+1).squared - (d*2+1)
+		^(degree+1).squared - (degree*2 + 1)
 	}
 
 	*numDegreeCoeffs { |degree|
-		var d = degree ?? globalOrder;
-
-		^(d*2+1)
+		^(degree*2 + 1)
 	}
 }

@@ -333,6 +333,7 @@ FoaAudition {
 
             inbus ?? {
                 // assign internally to free if created
+                // internalInbus = CtkAudio.play( 4 );
                 internalInbus = server.audioBusAllocator.alloc( 4 );
                 inbus = internalInbus;
             };

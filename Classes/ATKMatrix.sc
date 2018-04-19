@@ -2073,7 +2073,7 @@ FoaDecoderKernel {
 				})
 			});
 
-			(\CtkScore.asClass.notNil and:{score.isKindOf(\CtkScore.asClass)}).if({
+			score.isKindOf(CtkScore).if({
 				kernel = subjectPath.files.collect({ arg kernelPath;
 					chans.collect({ arg chan;
 						var buf = CtkBuffer(kernelPath.fullPath, channels: [chan]);
@@ -2099,7 +2099,7 @@ FoaDecoderKernel {
 				score.add(kernelBundle)
 			});
 
-			(kernel.isNil && score.notNil).if( {
+			(score.isKindOf(CtkScore).not && score.isKindOf(Score).not && score.notNil).if( {
 				Error(
 					"Score is not a Score or a CtkScore. Score is a %.".format(
 						score.class.asString
@@ -2399,8 +2399,7 @@ FoaEncoderKernel {
 					})
 				})
 			});
-
-			(\CtkScore.asClass.notNil and:{score.isKindOf(\CtkScore.asClass)}).if({
+			score.isKindOf(CtkScore).if({
 				kernel = subjectPath.files.collect({ arg kernelPath;
 					chans.collect({ arg chan;
 						var buf = CtkBuffer(kernelPath.fullPath, channels: [chan]);
@@ -2426,7 +2425,7 @@ FoaEncoderKernel {
 				score.add(kernelBundle)
 			});
 
-			(kernel.isNil && score.notNil).if({
+			(score.isKindOf(CtkScore).not && score.isKindOf(Score).not && score.notNil).if({
 				Error(
 					"Score is not a Score or a CtkScore. Score is a %.".format(
 						score.class.asString

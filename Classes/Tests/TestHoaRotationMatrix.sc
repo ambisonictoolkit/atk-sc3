@@ -1,4 +1,11 @@
-TestHoaRotationMatrix : HoaTest {
+TestHoaRotationMatrix : UnitTest {
+	var order, report, floatWithin;
+
+	setUp {
+		order = HoaTests.order;
+		report = HoaTests.report;
+		floatWithin = HoaTests.floatWithin;
+	}
 
 	test_initKeywords {
 		var r123, t1, t2, within = 0.00000001;
@@ -8,145 +15,147 @@ TestHoaRotationMatrix : HoaTest {
 		t2 = HoaRotationMatrix(r123[0], r123[1], r123[2], \yxz);
 		this.assertArrayFloatEquals(
 			t1.matrix.asArray.flat, t2.matrix.asArray.flat,
-			"axes keyword rtt should be equal to yxz", within: within
+			"axes keyword rtt should be equal to yxz", within: floatWithin, report: report
 		);
 
 		t1 = HoaRotationMatrix(r123[0], r123[1], r123[2], \ypr);
 		t2 = HoaRotationMatrix(r123[0], r123[1], r123[2], \xyz);
 		this.assertArrayFloatEquals(
 			t1.matrix.asArray.flat, t2.matrix.asArray.flat,
-			"axes keyword rtt should be equal to yxz", within: within
+			"axes keyword rtt should be equal to yxz", within: floatWithin, report: report
 		);
 
 	}
 
 	test_buildR1 {
-		var r123, x, res, test, axes = 'xyz', order = 3, within = 0.00000001;
+		var r123, x, res, test, axes = 'xyz';
+		var order = 3; // order for pre-computed results is fixed
 
 		r123 = [ -2.420257662452, -0.76733344238074, -0.49621582037497 ];
 		x = HoaRotationMatrix(r123[0], r123[1], r123[2], axes, order);
 		test = [\x,\y, \z].collect({|axis, i| x.buildR1(axis, r123[i])}).asArray.flat;
 		res = [ 1, 0, 0, 0, -0.75092478677443, 0.66038773808103, 0, -0.66038773808103, -0.75092478677443, 0.71976439977468, 0, 0.69421841578641, 0, 1, 0, -0.69421841578641, 0, 0.71976439977468, 0.87939050642489, 0.47610118379371, 0, -0.47610118379371, 0.87939050642489, 0, 0, 0, 1 ];
-		this.assertArrayFloatEquals(test, res, "buildR1 should match pre-computed result", within:within);
+		this.assertArrayFloatEquals(test, res, "buildR1 should match pre-computed result", within: floatWithin, report: report);
 
 		r123 = [ 3.690416225243, 2.8572040005295, 3.8816200395237 ];
 		x = HoaRotationMatrix(r123[0], r123[1], r123[2], axes, order);
 		test = [\x,\y, \z].collect({|axis, i| x.buildR1(axis, r123[i])}).asArray.flat;
 		res = [ 1, 0, 0, 0, -0.85313883605033, 0.52168393345271, 0, -0.52168393345271, -0.85313883605033, -0.9598333580597, 0, -0.28057071257677, 0, 1, 0, 0.28057071257677, 0, -0.9598333580597, -0.7384500924485, 0.67430813502641, 0, -0.67430813502641, -0.7384500924485, 0, 0, 0, 1 ];
-		this.assertArrayFloatEquals(test, res, "buildR1 should match pre-computed result", within:within);
+		this.assertArrayFloatEquals(test, res, "buildR1 should match pre-computed result", within: floatWithin, report: report);
 
 		r123 = [ -3.53433817416, 3.3213530311139, 0.28837190981326 ];
 		x = HoaRotationMatrix(r123[0], r123[1], r123[2], axes, order);
 		test = [\x,\y, \z].collect({|axis, i| x.buildR1(axis, r123[i])}).asArray.flat;
 		res = [ 1, 0, 0, 0, -0.92386176012834, -0.38272633587533, 0, 0.38272633587533, -0.92386176012834, -0.98388656405172, 0, 0.17879381722669, 0, 1, 0, -0.17879381722669, 0, -0.98388656405172, 0.95870816132106, -0.28439173936033, 0, 0.28439173936033, 0.95870816132106, 0, 0, 0, 1 ];
-		this.assertArrayFloatEquals(test, res, "buildR1 should match pre-computed result", within:within);
+		this.assertArrayFloatEquals(test, res, "buildR1 should match pre-computed result", within: floatWithin, report: report);
 
 		r123 = [ 6.1976673762831, 3.6879684473061, 5.3881779247696 ];
 		x = HoaRotationMatrix(r123[0], r123[1], r123[2], axes, order);
 		test = [\x,\y, \z].collect({|axis, i| x.buildR1(axis, r123[i])}).asArray.flat;
 		res = [ 1, 0, 0, 0, 0.99634556972933, 0.085413732389729, 0, -0.085413732389729, 0.99634556972933, -0.85441324535827, 0, 0.51959407825373, 0, 1, 0, -0.51959407825373, 0, -0.85441324535827, 0.62551305655076, 0.78021369898543, 0, -0.78021369898543, 0.62551305655076, 0, 0, 0, 1 ];
-		this.assertArrayFloatEquals(test, res, "buildR1 should match pre-computed result", within:within);
+		this.assertArrayFloatEquals(test, res, "buildR1 should match pre-computed result", within: floatWithin, report: report);
 
 		r123 = [ 3.5019013714256, 5.3703244257169, -0.31526001641654 ];
 		x = HoaRotationMatrix(r123[0], r123[1], r123[2], axes, order);
 		test = [\x,\y, \z].collect({|axis, i| x.buildR1(axis, r123[i])}).asArray.flat;
 		res = [ 1, 0, 0, 0, -0.93578802574215, 0.35256314452536, 0, -0.35256314452536, -0.93578802574215, 0.61148456431314, 0, 0.79125636023148, 0, 1, 0, -0.79125636023148, 0, 0.61148456431314, 0.95071578940535, 0.310063683419, 0, -0.310063683419, 0.95071578940535, 0, 0, 0, 1 ];
-		this.assertArrayFloatEquals(test, res, "buildR1 should match pre-computed result", within:within);
+		this.assertArrayFloatEquals(test, res, "buildR1 should match pre-computed result", within: floatWithin, report: report);
 
 		r123 = [ -3.8217768124588, 5.345347802986, -3.0429909451529 ];
 		x = HoaRotationMatrix(r123[0], r123[1], r123[2], axes, order);
 		test = [\x,\y, \z].collect({|axis, i| x.buildR1(axis, r123[i])}).asArray.flat;
 		res = [ 1, 0, 0, 0, -0.77745690775396, -0.6289362102675, 0, 0.6289362102675, -0.77745690775396, 0.59153298563725, 0, 0.80628079904155, 0, 1, 0, -0.80628079904155, 0, 0.59153298563725, -0.99514278873123, 0.098442013572594, 0, -0.098442013572594, -0.99514278873123, 0, 0, 0, 1 ];
-		this.assertArrayFloatEquals(test, res, "buildR1 should match pre-computed result", within:within);
+		this.assertArrayFloatEquals(test, res, "buildR1 should match pre-computed result", within: floatWithin, report: report);
 
 		r123 = [ 1.9371480900392, 5.3346249177519, 2.2358504017209 ];
 		x = HoaRotationMatrix(r123[0], r123[1], r123[2], axes, order);
 		test = [\x,\y, \z].collect({|axis, i| x.buildR1(axis, r123[i])}).asArray.flat;
 		res = [ 1, 0, 0, 0, -0.3582116821381, -0.9336403969301, 0, 0.9336403969301, -0.3582116821381, 0.58285348785704, 0, 0.81257726506031, 0, 1, 0, -0.81257726506031, 0, 0.58285348785704, -0.6171016842928, -0.78688341655101, 0, 0.78688341655101, -0.6171016842928, 0, 0, 0, 1 ];
-		this.assertArrayFloatEquals(test, res, "buildR1 should match pre-computed result", within:within);
+		this.assertArrayFloatEquals(test, res, "buildR1 should match pre-computed result", within: floatWithin, report: report);
 
 		r123 = [ -0.83573490405617, 5.8700351456799, -5.6816326439709 ];
 		x = HoaRotationMatrix(r123[0], r123[1], r123[2], axes, order);
 		test = [\x,\y, \z].collect({|axis, i| x.buildR1(axis, r123[i])}).asArray.flat;
 		res = [ 1, 0, 0, 0, 0.67063271964944, 0.74178956270333, 0, -0.74178956270333, 0.67063271964944, 0.91586059060647, 0, 0.40149642411107, 0, 1, 0, -0.40149642411107, 0, 0.91586059060647, 0.82445792082332, -0.56592326051479, 0, 0.56592326051479, 0.82445792082332, 0, 0, 0, 1 ];
-		this.assertArrayFloatEquals(test, res, "buildR1 should match pre-computed result", within:within);
+		this.assertArrayFloatEquals(test, res, "buildR1 should match pre-computed result", within: floatWithin, report: report);
 
 		r123 = [ -2.8821686390354, 0.58776930653944, 5.1870122235364 ];
 		x = HoaRotationMatrix(r123[0], r123[1], r123[2], axes, order);
 		test = [\x,\y, \z].collect({|axis, i| x.buildR1(axis, r123[i])}).asArray.flat;
 		res = [ 1, 0, 0, 0, -0.96653789247818, 0.2565238827163, 0, -0.2565238827163, -0.96653789247818, 0.83217968158965, 0, -0.55450606628724, 0, 1, 0, 0.55450606628724, 0, 0.83217968158965, 0.45700336760529, 0.88946496389539, 0, -0.88946496389539, 0.45700336760529, 0, 0, 0, 1 ];
-		this.assertArrayFloatEquals(test, res, "buildR1 should match pre-computed result", within:within);
+		this.assertArrayFloatEquals(test, res, "buildR1 should match pre-computed result", within: floatWithin, report: report);
 
 		r123 = [ 5.6098246663661, -2.8950501827806, -6.231897318669 ];
 		x = HoaRotationMatrix(r123[0], r123[1], r123[2], axes, order);
 		test = [\x,\y, \z].collect({|axis, i| x.buildR1(axis, r123[i])}).asArray.flat;
 		res = [ 1, 0, 0, 0, 0.78173033275623, 0.62361661848354, 0, -0.62361661848354, 0.78173033275623, -0.96976203498743, 0, 0.24405244415299, 0, 1, 0, -0.24405244415299, 0, -0.96976203498743, 0.99868505939649, -0.051265506319771, 0, 0.051265506319771, 0.99868505939649, 0, 0, 0, 1 ];
-		this.assertArrayFloatEquals(test, res, "buildR1 should match pre-computed result", within:within);
+		this.assertArrayFloatEquals(test, res, "buildR1 should match pre-computed result", within: floatWithin, report: report);
 
 	}
 
 	test_eulerToR3 {
-		var r1, r2, r3, x, res, test, axes = 'xyz', order = 3, within = 0.00000001;
+		var r1, r2, r3, x, res, test, axes = 'xyz';
+		var order = 3; // order for pre-computed results is fixed
 
 		#r1,r2,r3 = [ 4.7864320159343, -2.6168319075184, 5.9114735993464 ];
 		x = HoaRotationMatrix(r1, r2, r3, axes, order);
 		test = x.eulerToR3(r1, r2, r3, axes, order).asArray.flat;
 		res = [ -0.8063400783711, -0.43864312088774, 0.39674663263895, 0.31433852433757, 0.25039557075208, 0.91569282527768, -0.50100595817791, 0.86307257553789, -0.064021552813329 ];
-		this.assertArrayFloatEquals(test, res, "eulerToR3 should match pre-computed result", within:within);
+		this.assertArrayFloatEquals(test, res, "eulerToR3 should match pre-computed result", within: floatWithin, report: report);
 
 		#r1,r2,r3 = [ -4.4787220612082, 5.5579419606946, -4.2459779273493 ];
 		x = HoaRotationMatrix(r1, r2, r3, axes, order);
 		test = x.eulerToR3(r1, r2, r3, axes, order).asArray.flat;
 		res = [ -0.33651532671078, -0.083362450371252, 0.93798088293783, 0.66840649250968, 0.6804888677247, 0.30027930610293, -0.6633175677303, 0.72800110080332, -0.17327493058576 ];
-		this.assertArrayFloatEquals(test, res, "eulerToR3 should match pre-computed result", within:within);
+		this.assertArrayFloatEquals(test, res, "eulerToR3 should match pre-computed result", within: floatWithin, report: report);
 
 		#r1,r2,r3 = [ 4.6942778204965, -2.2261836263066, 3.986673755044 ];
 		x = HoaRotationMatrix(r1, r2, r3, axes, order);
 		test = x.eulerToR3(r1, r2, r3, axes, order).asArray.flat;
 		res = [ 0.40448490610647, 0.51253284057831, 0.75743121671922, 0.45589602549921, 0.60496503143698, -0.65282166375855, -0.79281194155112, 0.60936639066098, 0.01103753898101 ];
-		this.assertArrayFloatEquals(test, res, "eulerToR3 should match pre-computed result", within:within);
+		this.assertArrayFloatEquals(test, res, "eulerToR3 should match pre-computed result", within: floatWithin, report: report);
 
 		#r1,r2,r3 = [ -2.7390065863441, 3.4309352856204, 4.1320349130054 ];
 		x = HoaRotationMatrix(r1, r2, r3, axes, order);
 		test = x.eulerToR3(r1, r2, r3, axes, order).asArray.flat;
 		res = [ 0.52552730300177, -0.70811347245605, 0.47158918978907, 0.80150625111302, 0.59796793733269, 0.0046984411083297, -0.28532224453491, 0.37551252448929, 0.88180585205885 ];
-		this.assertArrayFloatEquals(test, res, "eulerToR3 should match pre-computed result", within:within);
+		this.assertArrayFloatEquals(test, res, "eulerToR3 should match pre-computed result", within: floatWithin, report: report);
 
 		#r1,r2,r3 = [ -3.0723103513838, 4.7280433741673, 3.3912959637178 ];
 		x = HoaRotationMatrix(r1, r2, r3, axes, order);
 		test = x.eulerToR3(r1, r2, r3, axes, order).asArray.flat;
 		res = [ -0.015168265450109, -0.17945198266629, 0.98364979013894, -0.0038683007184886, 0.98376613663847, 0.17941355760637, -0.9998774724799, -0.0010836607228137, -0.015616200134843 ];
-		this.assertArrayFloatEquals(test, res, "eulerToR3 should match pre-computed result", within:within);
+		this.assertArrayFloatEquals(test, res, "eulerToR3 should match pre-computed result", within: floatWithin, report: report);
 
 		#r1,r2,r3 = [ -1.1135547038403, -2.3203496735004, 2.8884738393638 ];
 		x = HoaRotationMatrix(r1, r2, r3, axes, order);
 		test = x.eulerToR3(r1, r2, r3, axes, order).asArray.flat;
 		res = [ 0.6596026296598, 0.5253139681941, -0.5375589323656, -0.17061726132282, -0.59188611335515, -0.78775667496761, -0.73199325207584, 0.61132320718054, -0.30078200624028 ];
-		this.assertArrayFloatEquals(test, res, "eulerToR3 should match pre-computed result", within:within);
+		this.assertArrayFloatEquals(test, res, "eulerToR3 should match pre-computed result", within: floatWithin, report: report);
 
 		#r1,r2,r3 = [ -5.6041890846043, 5.973378113095, 5.5366085423349 ];
 		x = HoaRotationMatrix(r1, r2, r3, axes, order);
 		test = x.eulerToR3(r1, r2, r3, axes, order).asArray.flat;
 		res = [ 0.69907312967181, 0.6690402828323, -0.25235264872502, -0.64679825638304, 0.44118557711604, -0.62209910953533, -0.30487501522873, 0.59811402465789, 0.74115507054652 ];
-		this.assertArrayFloatEquals(test, res, "eulerToR3 should match pre-computed result", within:within);
+		this.assertArrayFloatEquals(test, res, "eulerToR3 should match pre-computed result", within: floatWithin, report: report);
 
 		#r1,r2,r3 = [ -1.0754074179384, 5.5926527701048, -4.0809851109648 ];
 		x = HoaRotationMatrix(r1, r2, r3, axes, order);
 		test = x.eulerToR3(r1, r2, r3, axes, order).asArray.flat;
 		res = [ -0.45504981639231, -0.052943409751016, -0.88889069067308, 0.62227578545277, -0.73293862359407, -0.27490693131159, -0.63694780903969, -0.67823150133856, 0.36646898798068 ];
-		this.assertArrayFloatEquals(test, res, "eulerToR3 should match pre-computed result", within:within);
+		this.assertArrayFloatEquals(test, res, "eulerToR3 should match pre-computed result", within: floatWithin, report: report);
 
 		#r1,r2,r3 = [ 6.0410530311355, -1.0852195020797, 0.7834702012158 ];
 		x = HoaRotationMatrix(r1, r2, r3, axes, order);
 		test = x.eulerToR3(r1, r2, r3, axes, order).asArray.flat;
 		res = [ 0.3306555279166, -0.8353905929309, 0.43907798749284, 0.32938299702539, 0.53814446342032, 0.77582689935361, -0.88440588144175, -0.11190662952939, 0.45310389883404 ];
-		this.assertArrayFloatEquals(test, res, "eulerToR3 should match pre-computed result", within:within);
+		this.assertArrayFloatEquals(test, res, "eulerToR3 should match pre-computed result", within: floatWithin, report: report);
 
 		#r1,r2,r3 = [ -4.8227007745823, 0.96971554244183, 2.5312585495817 ];
 		x = HoaRotationMatrix(r1, r2, r3, axes, order);
 		test = x.eulerToR3(r1, r2, r3, axes, order).asArray.flat;
 		res = [ -0.46343068015759, 0.60862233534822, 0.64405811663541, 0.32413096611479, -0.56002331438606, 0.76243885272823, 0.82472487624308, 0.56209673567752, 0.062258639934579 ];
-		this.assertArrayFloatEquals(test, res, "eulerToR3 should match pre-computed result", within:within);
+		this.assertArrayFloatEquals(test, res, "eulerToR3 should match pre-computed result", within: floatWithin, report: report);
 
 	}
 
@@ -174,7 +183,7 @@ TestHoaRotationMatrix : HoaTest {
 			[ 0, 0, 0, 0, 0, 0, 0, 0, 0, -0.39200861892496, 0.00019735776253183, -0.57504321303613, -0.0083056891868219, -0.54183802953651, -0.032476970629392, 0.47004501756044 ],
 			[ 0, 0, 0, 0, 0, 0, 0, 0, 0, -0.19183356179186, 0.030023534055703, 0.66286506382017, 0.038421556208996, -0.70417402234095, 0.0034554740642034, -0.15987235257344 ],
 		].flat;
-		this.assertArrayFloatEquals(test, res, "buildSHRotMtx should match pre-computed result", within:within);
+		this.assertArrayFloatEquals(test, res, "buildSHRotMtx should match pre-computed result", within: floatWithin, report: report);
 
 		#r1,r2,r3 = [ 6.2003818032241, 5.6478506119908, -2.9382173608897 ];
 		x = HoaRotationMatrix(r1, r2, r3, axes, order);
@@ -197,7 +206,7 @@ TestHoaRotationMatrix : HoaTest {
 			[ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.19724956709161, -0.11282362339106, -0.43804981679628, 0.42908978875328, 0.39144476929543, 0.32198091045324, -0.56165561990818 ],
 			[ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.46766166834337, 0.42064595708131, 0.27765784408126, -0.087110283370715, -0.1753479794114, -0.41445051409029, -0.56316189536517 ],
 		].flat;
-		this.assertArrayFloatEquals(test, res, "buildSHRotMtx should match pre-computed result", within:within);
+		this.assertArrayFloatEquals(test, res, "buildSHRotMtx should match pre-computed result", within: floatWithin, report: report);
 
 		#r1,r2,r3 = [ 2.6197455721985, 0.36271904506986, 4.9258085515836 ];
 		x = HoaRotationMatrix(r1, r2, r3, axes, order);
@@ -220,7 +229,7 @@ TestHoaRotationMatrix : HoaTest {
 			[ 0, 0, 0, 0, 0, 0, 0, 0, 0, -0.53082481423956, 0.068958925646779, -0.46803655934293, -0.020578782147631, 0.58640226713819, 0.30626956691942, -0.23731689674169 ],
 			[ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.69806205194828, 0.49671805111929, -0.0076612654912992, 0.10572159244327, 0.3058333760336, 0.31312870386183, -0.25131884160571 ],
 		].flat;
-		this.assertArrayFloatEquals(test, res, "buildSHRotMtx should match pre-computed result", within:within);
+		this.assertArrayFloatEquals(test, res, "buildSHRotMtx should match pre-computed result", within: floatWithin, report: report);
 
 		#r1,r2,r3 = [ 1.665468707491, 5.4579995170964, 2.5494580931286 ];
 		x = HoaRotationMatrix(r1, r2, r3, axes, order);
@@ -243,7 +252,7 @@ TestHoaRotationMatrix : HoaTest {
 			[ 0, 0, 0, 0, 0, 0, 0, 0, 0, -0.072135087904338, 0.088450286557963, -0.056820157700529, 0.030266730085407, 0.20678354330386, 0.95757342764607, -0.15205974981741 ],
 			[ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.027600525990461, 0.56231646462752, -0.32423395461154, -0.71914536318299, -0.22118196384923, -0.015690122452105, -0.10757812411663 ],
 		].flat;
-		this.assertArrayFloatEquals(test, res, "buildSHRotMtx should match pre-computed result", within:within);
+		this.assertArrayFloatEquals(test, res, "buildSHRotMtx should match pre-computed result", within: floatWithin, report: report);
 
 		#r1,r2,r3 = [ 3.2031331465069, -5.3892175562802, 3.5041559037359 ];
 		x = HoaRotationMatrix(r1, r2, r3, axes, order);
@@ -266,7 +275,7 @@ TestHoaRotationMatrix : HoaTest {
 			[ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.39433853824473, 0.17128413810434, -0.591967506571, -0.46824885706593, -0.096873428574287, -0.017411897543528, 0.48558079139277 ],
 			[ 0, 0, 0, 0, 0, 0, 0, 0, 0, -0.50183802038013, -0.56071685542894, -0.56689440469769, -0.091715801907707, -0.11808867350073, -0.21853144956319, -0.20560453712007 ],
 		].flat;
-		this.assertArrayFloatEquals(test, res, "buildSHRotMtx should match pre-computed result", within:within);
+		this.assertArrayFloatEquals(test, res, "buildSHRotMtx should match pre-computed result", within: floatWithin, report: report);
 
 		#r1,r2,r3 = [ 5.6127563073836, 6.2568859256248, 6.2644404813995 ];
 		x = HoaRotationMatrix(r1, r2, r3, axes, order);
@@ -289,7 +298,7 @@ TestHoaRotationMatrix : HoaTest {
 			[ 0, 0, 0, 0, 0, 0, 0, 0, 0, -0.61385685810856, -0.0042358552324474, -0.4139126878815, -0.58304580750103, 0.062314145913983, 0.32826039574988, -0.016054539883432 ],
 			[ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.020021220299675, -0.59510577386874, -0.029769782109378, -0.029450973485855, -0.37125975632439, 0.045105617701034, 0.70980725937783 ],
 		].flat;
-		this.assertArrayFloatEquals(test, res, "buildSHRotMtx should match pre-computed result", within:within);
+		this.assertArrayFloatEquals(test, res, "buildSHRotMtx should match pre-computed result", within: floatWithin, report: report);
 
 		#r1,r2,r3 = [ -4.6467873332528, -5.7886382901227, 1.3001430935042 ];
 		x = HoaRotationMatrix(r1, r2, r3, axes, order);
@@ -312,7 +321,7 @@ TestHoaRotationMatrix : HoaTest {
 			[ 0, 0, 0, 0, 0, 0, 0, 0, 0, -0.013521811151806, 0.27204692425258, 0.63001778657263, -0.098832326743943, 0.2927529150403, 0.36906055070604, -0.54516734317854 ],
 			[ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.16285379738324, 0.41172839206867, -0.2651079201132, 0.59219441655362, 0.57874381314314, -0.21418121610669, -0.046518178747383 ],
 		].flat;
-		this.assertArrayFloatEquals(test, res, "buildSHRotMtx should match pre-computed result", within:within);
+		this.assertArrayFloatEquals(test, res, "buildSHRotMtx should match pre-computed result", within: floatWithin, report: report);
 
 		#r1,r2,r3 = [ -4.1430589018903, -5.706149372071, -3.4045235519571 ];
 		x = HoaRotationMatrix(r1, r2, r3, axes, order);
@@ -335,7 +344,7 @@ TestHoaRotationMatrix : HoaTest {
 			[ 0, 0, 0, 0, 0, 0, 0, 0, 0, -0.18924249242497, -0.062137633800887, -0.1573502958667, 0.68889885247368, -0.23877376239856, 0.10515104385376, 0.62682995887562 ],
 			[ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.3927592210498, 0.25977037086092, -0.40014098161175, 0.12194408280565, 0.64143161140687, 0.43024880051263, 0.082023421972272 ],
 		].flat;
-		this.assertArrayFloatEquals(test, res, "buildSHRotMtx should match pre-computed result", within:within);
+		this.assertArrayFloatEquals(test, res, "buildSHRotMtx should match pre-computed result", within: floatWithin, report: report);
 
 		#r1,r2,r3 = [ 4.4202375456419, 3.7802919199208, -6.261191258422 ];
 		x = HoaRotationMatrix(r1, r2, r3, axes, order);
@@ -358,7 +367,7 @@ TestHoaRotationMatrix : HoaTest {
 			[ 0, 0, 0, 0, 0, 0, 0, 0, 0, -0.13118371007343, -0.00026508126842381, -0.38563713061587, -0.39058394892542, 0.47380415841869, -0.35814696477289, -0.57337537212946 ],
 			[ 0, 0, 0, 0, 0, 0, 0, 0, 0, -0.25949069139792, -0.39903133742282, 0.36973615252591, 0.40999731230358, 0.67161824097968, 0.13247738422203, 0.0038256116660192 ],
 		].flat;
-		this.assertArrayFloatEquals(test, res, "buildSHRotMtx should match pre-computed result", within:within);
+		this.assertArrayFloatEquals(test, res, "buildSHRotMtx should match pre-computed result", within: floatWithin, report: report);
 
 		#r1,r2,r3 = [ -2.9627206067368, 6.1923508745094, 3.8503262322396 ];
 		x = HoaRotationMatrix(r1, r2, r3, axes, order);
@@ -381,7 +390,7 @@ TestHoaRotationMatrix : HoaTest {
 			[ 0, 0, 0, 0, 0, 0, 0, 0, 0, -0.14320700118916, -0.90810055574067, 0.08444630131022, -0.052705166944301, 0.29037411003784, -0.1550354662855, 0.19126683836896 ],
 			[ 0, 0, 0, 0, 0, 0, 0, 0, 0, -0.83669998867377, 0.20158234830097, 0.0038362979772911, 0.0023106810585383, -0.038067653412996, 0.12824799519538, 0.49130533771745 ],
 		].flat;
-		this.assertArrayFloatEquals(test, res, "buildSHRotMtx should match pre-computed result", within:within);
+		this.assertArrayFloatEquals(test, res, "buildSHRotMtx should match pre-computed result", within: floatWithin, report: report);
 
 	}
 }
@@ -401,7 +410,7 @@ postf("#r1,r2,r3 = %;\n", [r1,r2,r3]);
 	"res = [".postln;
 	x.matrix.asArray.do{|me| me.post; ",".postln};
 	"].flat;".postln;
-	"this.assertArrayFloatEquals(test, res, \"buildSHRotMtx should match pre-computed result\", within:within);\n".postln;
+	"this.assertArrayFloatEquals(test, res, \"buildSHRotMtx should match pre-computed result\", within: floatWithin, report: report);\n".postln;
 };
 nil
 )
@@ -418,7 +427,7 @@ postf("#r1,r2,r3 = %;\n", [r1,r2,r3]);
 	"test = x.eulerToR3(r1, r2, r3, axes).asArray.flat;".postln;
 	postf("res = %;\n", x.eulerToR3(r1, r2, r3, axes).asArray.flat);
 
-	"this.assertArrayFloatEquals(test, res, \"eulerToR3 should match pre-computed result\", within:within);\n".postln;
+	"this.assertArrayFloatEquals(test, res, \"eulerToR3 should match pre-computed result\", within: floatWithin, report: report);\n".postln;
 };
 nil
 )
@@ -436,7 +445,7 @@ var r123, x,res, axes = 'xyz';
 	"test = [\\x,\\y, \\z].collect({|axis, i| x.buildR1(axis, r123[i])}).asArray.flat;".postln;
 	postf("res = %;\n", res);
 
-	"this.assertArrayFloatEquals(test, res, \"buildR1 should match pre-computed result\", within:within);\n".postln;
+	"this.assertArrayFloatEquals(test, res, \"buildR1 should match pre-computed result\", within: floatWithin, report: report);\n".postln;
 };
 nil
 )

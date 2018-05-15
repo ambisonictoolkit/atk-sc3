@@ -190,7 +190,7 @@ HoaEncoderMatrix : HoaMatrix {
     // Sampling Encoding (SAE) beams - multi pattern
     *newBeam { arg theta = 0, phi = 0, k = \basic, order;
 		var directions = [[ theta, phi ]];
-        ^super.new('beam', order).initDirChannels(directions).initSAE(k);
+        ^super.new('beam', order).initDirChannels(directions).initBeam(k);
     }
 
     // *newBeams { arg directions = [ 0, 0 ], k = \basic, order;
@@ -201,13 +201,14 @@ HoaEncoderMatrix : HoaMatrix {
     //     ^super.new.initFromFile(filePathOrName, 'encoder', true).initEncoderVarsForFiles
     // }
 
-    initBasic {  // simple, k = \basic
+    initBasic {  // basic beam encoder, k = \basic
 		var directions, hoaOrder;
 
 		directions = this.dirChannels;
         hoaOrder = HoaOrder.new(this.order);  // instance order
 
         // build encoder matrix, and set for instance
+		// norm = 1.0, beamWeights = [ 1, 1, ..., 1 ]
         matrix = Matrix.with(
 			directions.collect({ arg thetaPhi;
                 hoaOrder.sph(thetaPhi.at(0), thetaPhi.at(1))
@@ -215,20 +216,21 @@ HoaEncoderMatrix : HoaMatrix {
         )
     }
 
-    initSAE {  arg k; // sampling beam encoder
+    initBeam {  arg k; // beam encoder
         var directions, hoaOrder, beamWeights;
+		var degreeSeries, norm;
 
 		directions = this.dirChannels;
         hoaOrder = HoaOrder.new(this.order);  // instance order
         beamWeights = hoaOrder.beamWeights(k);
 
+		degreeSeries = Array.series(this.order+1, 1, 2);
+		norm = (degreeSeries * beamWeights).sum / degreeSeries.sum;
+
         // build encoder matrix, and set for instance
-        matrix = Matrix.with(
+        matrix = norm * Matrix.with(
             directions.collect({ arg thetaPhi;
-                var coeffs;
-                coeffs = hoaOrder.sph(thetaPhi.at(0), thetaPhi.at(1));
-                coeffs = (coeffs.clumpByDegree * beamWeights.reciprocal).flatten;
-                coeffs * (Array.series(this.order+1, 1, 2) * beamWeights).sum / (this.order+1).squared;
+				(1/beamWeights)[hoaOrder.l] * hoaOrder.sph(thetaPhi.at(0), thetaPhi.at(1));
             }).flop
         )
     }
@@ -509,7 +511,7 @@ HoaDecoderMatrix : HoaMatrix {
 	// Sampling Decoding beam - multi pattern
 	*newBeam { arg theta = 0, phi = 0, k = \basic, order;
 		var directions = [[ theta, phi ]];
-		^super.new('beam', order).initDirChannels(directions).initSAD(k);
+		^super.new('beam', order).initDirChannels(directions).initBeam(k);
 	}
 
     // Sampling Decoding beams - multi pattern
@@ -519,12 +521,12 @@ HoaDecoderMatrix : HoaMatrix {
 
 	// NOTE: these arguments diverge from FOA newPeri & newPanto
     *newProjection { arg directions, k = \basic, match = \amp, order;
-		^super.new('projection', order).initDirChannels(directions).initSADM(k, match);
+		^super.new('projection', order).initDirChannels(directions).initSAD(k, match);
     }
 
 	// NOTE: these arguments diverge from FOA newPeri & newPanto
     *newModeMatch { arg directions, k = \basic, match = \amp, order;
-		^super.new('modeMatch', order).initDirChannels(directions).initMMDM(k, match)
+		^super.new('modeMatch', order).initDirChannels(directions).initMMD(k, match)
     }
 
 	*newDiametric { arg directions, k = \basic, match = \amp, order;
@@ -540,7 +542,7 @@ HoaDecoderMatrix : HoaMatrix {
 				})
 			}
 		);
-		^super.new('diametric', order).initDirChannels(directionPairs).initMMDM(k, match)
+		^super.new('diametric', order).initDirChannels(directionPairs).initMMD(k, match)
 	}
 
     // *newBtoA { arg orientation = 'flu', weight = 'dec';
@@ -602,44 +604,46 @@ HoaDecoderMatrix : HoaMatrix {
 
 	//-----------
 	// Sampling Decoders, aka SAD
-    initBasic {  // simple, k = \basic
+
+	initBasic {  // basic beam decoder, k = \basic
         var directions, hoaOrder;
+		var degreeSeries, norm;
 
 		directions = this.dirChannels;
         hoaOrder = HoaOrder.new(this.order);  // instance order
 
+		degreeSeries = Array.series(this.order+1, 1, 2);
+		norm = 1 / degreeSeries.sum;
+
         // build decoder matrix, and set for instance
-        matrix = Matrix.with(
+		// beamWeights = [ 1, 1, ..., 1 ]
+        matrix =  norm * Matrix.with(
             directions.collect({ arg thetaPhi;
-                hoaOrder.sph(thetaPhi.at(0), thetaPhi.at(1)) * Array.series(this.order+1, 1, 2).sum.reciprocal
+               hoaOrder.sph(thetaPhi.at(0), thetaPhi.at(1))
             })
         )
     }
 
-	// NOTE:
-	// This is the beamDecodeMatrix function from atk-hoa-prototypes,
-	// not a fully weighted SAD decoder, as it doesn't include N2D weighting
-	// or normalisation weighting.
-	// may need to rename
-	initSAD {  arg k; // sampling beam decoder
+	initBeam {  arg k; // beam decoder
 		var directions, hoaOrder, beamWeights;
+		var degreeSeries, norm;
 
 		directions = this.dirChannels;
 		hoaOrder = HoaOrder.new(this.order);  // instance order
 		beamWeights = hoaOrder.beamWeights(k);
 
+		degreeSeries = Array.series(this.order+1, 1, 2);
+		norm = 1 / (degreeSeries * beamWeights).sum;
+
 		// build decoder matrix, and set for instance
-		matrix = Matrix.with(
+		matrix = norm * Matrix.with(
 			directions.collect({ arg thetaPhi;
-				var coeffs;
-				coeffs = hoaOrder.sph(thetaPhi.at(0), thetaPhi.at(1));
-				coeffs = (coeffs.clumpByDegree * beamWeights).flatten;
-				coeffs * (Array.series(this.order+1, 1, 2) * beamWeights).sum.reciprocal;
+				beamWeights[hoaOrder.l] * hoaOrder.sph(thetaPhi.at(0), thetaPhi.at(1));
 			})
 		)
 	}
 
-	initSADM {  arg k, match; // sampling beam decoder, with matching gain
+	initSAD {  arg k, match; // sampling beam decoder, with matching gain
 		var directions, numOutputs;
 		var inputOrder, outputOrder, hoaOrder;
 		var encodingMatrix, decodingMatrix;
@@ -677,7 +681,7 @@ HoaDecoderMatrix : HoaMatrix {
 		weights = Matrix.newDiagonal(weights);  // ... and assign to diagonal matrix
 
 		// --------------------------------
-		// 3) generate prototype planewave encoding matrix
+		// 3) generate prototype planewave (basic) encoding matrix
 		encodingMatrix = Matrix.with(
 			directions.collect({arg item;
 				hoaOrder.sph(item.at(0), item.at(1));  // encoding coefficients
@@ -694,7 +698,7 @@ HoaDecoderMatrix : HoaMatrix {
 			})
 		});
 
-		// 4) transpose and scale: projection
+		// 4) transpose and scale: projection (basic beam, \amp norm)
 		decodingMatrix = numOutputs.reciprocal * encodingMatrix.flop;
 
 		// 4a) if 2D, convert (encode) input to N2D scaling
@@ -721,7 +725,7 @@ HoaDecoderMatrix : HoaMatrix {
 
 	//-----------
 	// Mode Matching Decoders, aka Pseudo-inverse
-	initMMDM {  arg k, match;  // mode matching decoders, with matching gain
+	initMMD {  arg k, match;  // mode matching decoder, with matching gain
 		var directions, numOutputs;
 		var inputOrder, outputOrder, hoaOrder;
 		var encodingMatrix, decodingMatrix, zerosMatrix;
@@ -759,7 +763,7 @@ HoaDecoderMatrix : HoaMatrix {
 		weights = Matrix.newDiagonal(weights);  // ... and assign to diagonal matrix
 
 		// --------------------------------
-		// 3) generate prototype planewave encoding matrix
+		// 3) generate prototype planewave (basic) encoding matrix
 		encodingMatrix = Matrix.with(
 			directions.collect({arg item;
 				hoaOrder.sph(item.at(0), item.at(1));  // encoding coefficients

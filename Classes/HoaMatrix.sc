@@ -151,7 +151,7 @@ HoaMatrix : AtkMatrix {
 }
 
 //-----------------------------------------------------------------------
-// martrix encoders
+// matrix encoders
 
 HoaEncoderMatrix : HoaMatrix {
 
@@ -171,12 +171,13 @@ HoaEncoderMatrix : HoaMatrix {
        - Mode-matching decoding (MMD)
     */
 
-	// Sampling Encoding (SAE) beams - 'basic' pattern
+	// Sampling Encoding beam - 'basic' pattern
     *newDirection { arg theta = 0, phi = 0, order;
 		var directions = [[ theta, phi ]];
 		^super.new('dir', order).initDirChannels(directions).initBasic;
     }
 
+	// Sampling Encoding beams - 'basic' pattern
 	*newDirections { arg directions = [[ 0, 0 ]], order;
         ^super.new('dirs', order).initDirChannels(directions).initBasic;
     }
@@ -187,15 +188,16 @@ HoaEncoderMatrix : HoaMatrix {
 		^super.new('panto', order).initDirChannels(directions).initBasic;
     }
 
-    // Sampling Encoding (SAE) beams - multi pattern
+    // Sampling Encoding (SAE) beam - multi pattern
     *newBeam { arg theta = 0, phi = 0, k = \basic, order;
 		var directions = [[ theta, phi ]];
         ^super.new('beam', order).initDirChannels(directions).initBeam(k);
     }
 
-    // *newBeams { arg directions = [ 0, 0 ], k = \basic, order;
-    //     ^super.new('dirs', order).initBeams(directions);
-    // }
+	// Sampling Encoding (SAE) beams - multi pattern
+    *newBeams { arg directions = [ 0, 0 ], k = \basic, order;
+        ^super.new('beams', order).initDirChannels(directions).initBeam(k);
+    }
 
     // *newFromFile { arg filePathOrName;
     //     ^super.new.initFromFile(filePathOrName, 'encoder', true).initEncoderVarsForFiles
@@ -499,11 +501,7 @@ HoaDecoderMatrix : HoaMatrix {
         ^super.new('dir', order).initDirChannels(directions).initBasic;
     }
 
-	// NOTE: Need to keep in mind that this won't result
-	// in a SAD decoder for a 2D (panto) case, as weighting
-	// to N2D hasn't been applied.
-	// AND, gain normalisation hasn't been applied, either!
-	// .. ALSO, no order reduction is implemented
+	// Sampling Decoding beams - 'basic' pattern
 	*newDirections { arg directions = [[ 0, 0 ]], order;
         ^super.new('dirs', order).initDirChannels(directions).initBasic;
     }
@@ -514,10 +512,10 @@ HoaDecoderMatrix : HoaMatrix {
 		^super.new('beam', order).initDirChannels(directions).initBeam(k);
 	}
 
-    // Sampling Decoding beams - multi pattern
-    // *newBeams { arg directions = [ 0, 0 ], k = \basic, order;
-    //     ^super.new('beams', order).initBeams(directions);
-    // }
+	// Sampling Decoding beams - multi pattern
+    *newBeams { arg directions = [ 0, 0 ], k = \basic, order;
+        ^super.new('beams', order).initDirChannels(directions).initBeam(k);
+    }
 
 	// NOTE: these arguments diverge from FOA newPeri & newPanto
     *newProjection { arg directions, k = \basic, match = \amp, order;

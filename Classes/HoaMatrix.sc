@@ -476,7 +476,7 @@ HoaXformerMatrix : HoaMatrix {
 
 
 //-----------------------------------------------------------------------
-// martrix decoders
+// matrix decoders
 
 
 HoaDecoderMatrix : HoaMatrix {

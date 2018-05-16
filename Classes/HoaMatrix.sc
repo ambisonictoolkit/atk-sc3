@@ -189,9 +189,9 @@ HoaEncoderMatrix : HoaMatrix {
     }
 
     // Sampling Encoding (SAE) beam - multi pattern
-    *newBeam { arg theta = 0, phi = 0, k = \basic, match = \beam, order;
+    *newBeam { arg theta = 0, phi = 0, k = \basic, order;
 		var directions = [[ theta, phi ]];
-        ^super.new('beam', order).initDirChannels(directions).initBeam(k, match);
+        ^super.new('beam', order).initDirChannels(directions).initBeam(k, nil);
     }
 
 	// Sampling Encoding (SAE) beams - multi pattern
@@ -511,9 +511,9 @@ HoaDecoderMatrix : HoaMatrix {
     }
 
 	// Sampling Decoding beam - multi pattern
-	*newBeam { arg theta = 0, phi = 0, k = \basic, match = \beam, order;
+	*newBeam { arg theta = 0, phi = 0, k = \basic, order;
 		var directions = [[ theta, phi ]];
-		^super.new('beam', order).initDirChannels(directions).initBeam(k, match);
+		^super.new('beam', order).initDirChannels(directions).initBeam(k, nil);
 	}
 
 	// Sampling Decoding beams - multi pattern

@@ -189,14 +189,14 @@ HoaEncoderMatrix : HoaMatrix {
     }
 
     // Sampling Encoding (SAE) beam - multi pattern
-    *newBeam { arg theta = 0, phi = 0, k = \basic, order;
+    *newBeam { arg theta = 0, phi = 0, k = \basic, match = \beam, order;
 		var directions = [[ theta, phi ]];
-        ^super.new('beam', order).initDirChannels(directions).initBeam(k);
+        ^super.new('beam', order).initDirChannels(directions).initBeam(k, match);
     }
 
 	// Sampling Encoding (SAE) beams - multi pattern
-    *newBeams { arg directions = [ 0, 0 ], k = \basic, order;
-        ^super.new('beams', order).initDirChannels(directions).initBeam(k);
+    *newBeams { arg directions = [ 0, 0 ], k = \basic, match = \beam, order;
+        ^super.new('beams', order).initDirChannels(directions).initBeam(k, match);
     }
 
     // *newFromFile { arg filePathOrName;
@@ -218,7 +218,7 @@ HoaEncoderMatrix : HoaMatrix {
         )
     }
 
-    initBeam {  arg k; // beam encoder
+    initBeam {  arg k, match; // beam encoder
         var directions, hoaOrder, beamWeights;
 		var degreeSeries, norm;
 
@@ -228,6 +228,10 @@ HoaEncoderMatrix : HoaMatrix {
 
 		degreeSeries = Array.series(this.order+1, 1, 2);
 		norm = (degreeSeries * beamWeights).sum / degreeSeries.sum;
+		// rescale for matching a/b normalization?
+		(match == \beam).if({
+			norm = degreeSeries.sum / directions.size * norm
+		});
 
         // build encoder matrix, and set for instance
         matrix = norm * Matrix.with(
@@ -507,14 +511,14 @@ HoaDecoderMatrix : HoaMatrix {
     }
 
 	// Sampling Decoding beam - multi pattern
-	*newBeam { arg theta = 0, phi = 0, k = \basic, order;
+	*newBeam { arg theta = 0, phi = 0, k = \basic, match = \beam, order;
 		var directions = [[ theta, phi ]];
-		^super.new('beam', order).initDirChannels(directions).initBeam(k);
+		^super.new('beam', order).initDirChannels(directions).initBeam(k, match);
 	}
 
 	// Sampling Decoding beams - multi pattern
-    *newBeams { arg directions = [ 0, 0 ], k = \basic, order;
-        ^super.new('beams', order).initDirChannels(directions).initBeam(k);
+    *newBeams { arg directions = [ 0, 0 ], k = \basic, match = \beam, order;
+        ^super.new('beams', order).initDirChannels(directions).initBeam(k, match);
     }
 
 	// NOTE: these arguments diverge from FOA newPeri & newPanto
@@ -622,7 +626,7 @@ HoaDecoderMatrix : HoaMatrix {
         )
     }
 
-	initBeam {  arg k; // beam decoder
+	initBeam {  arg k, match; // beam decoder
 		var directions, hoaOrder, beamWeights;
 		var degreeSeries, norm;
 
@@ -632,6 +636,10 @@ HoaDecoderMatrix : HoaMatrix {
 
 		degreeSeries = Array.series(this.order+1, 1, 2);
 		norm = 1 / (degreeSeries * beamWeights).sum;
+		// rescale for matching a/b normalization?
+		(match == \amp).if({
+			norm = degreeSeries.sum / directions.size * norm
+		});
 
 		// build decoder matrix, and set for instance
 		matrix = norm * Matrix.with(

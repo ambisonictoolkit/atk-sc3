@@ -246,30 +246,20 @@ HoaEncoderMatrix : HoaMatrix {
         )
     }
 
-	// NOTE: could replace decoderMatrix generation
-	// with HoaDecoderMatrix *newBeams
     initModes {  arg k, match; // modal encoder
-		var directions, hoaOrder, beamWeights;
-		var degreeSeries, norm;
+		var directions, order;
 		var decodingMatrix;
 
 		directions = this.dirChannels;
-		hoaOrder = HoaOrder.new(this.order);  // instance order
-		beamWeights = hoaOrder.beamWeights(k);
-
-		degreeSeries = Array.series(this.order+1, 1, 2);
-		norm = 1 / (degreeSeries * beamWeights).sum;
-		// rescale for matching a/b normalization?
-		(match == \amp).if({
-			norm = degreeSeries.sum / directions.size * norm
-		});
+		order = this.order;  // instance order
 
 		// build decoder matrix
-		decodingMatrix = norm * Matrix.with(
-			directions.collect({ arg thetaPhi;
-				beamWeights[hoaOrder.l] * hoaOrder.sph(thetaPhi.at(0), thetaPhi.at(1));
-			})
-		);
+		decodingMatrix = HoaDecoderMatrix.newBeams(
+			directions,
+			k,
+			match,
+			order
+		).matrix;
 
 		// match modes
 		matrix = decodingMatrix.pseudoInverse;

@@ -340,7 +340,7 @@ HoaEncoderMatrix : HoaMatrix {
 
 
 //-----------------------------------------------------------------------
-// martrix transforms
+// matrix transforms
 
 
 HoaXformerMatrix : HoaMatrix {
@@ -402,10 +402,10 @@ HoaXformerMatrix : HoaMatrix {
 
 	/* Beaming */
 
-	// Sampling (SADE) beams - multi pattern
+	// Sampling beams - multi pattern
     *newBeam { arg theta = 0, phi = 0, decK = \basic, encK = \basic, order;
 		var directions = [[ theta, phi ]];
-        ^super.new('beam', order).initDirChannels(directions).initSADE(decK, encK);
+        ^super.new('beam', order).initDirChannels(directions).initBeam(decK, encK);
     }
 
 	// *newBeams { arg theta = 0, phi = 0, decK = \basic, encK = \basic, order;
@@ -415,7 +415,7 @@ HoaXformerMatrix : HoaMatrix {
 
     *newNull { arg theta = 0, phi = 0, decK = \basic, encK = \basic, order;
 		var directions = [[ theta, phi ]];
-        ^super.new('null', order).initDirChannels(directions).initSADER(decK, encK);
+        ^super.new('null', order).initDirChannels(directions).initNull(decK, encK);
     }
 
 	// *newNulls { arg theta = 0, phi = 0, decK = \basic, encK = \basic, order;
@@ -423,77 +423,52 @@ HoaXformerMatrix : HoaMatrix {
 	// 	^super.new('null', order).initDirChannels(directions).initSADER(decK, encK);
 	// }
 
-	/*
-	NOTE: matrix generation may be simplified
-	*/
-    initSADE {  arg decK, encK; // sampling beam decoder / re-encoder
-        var directions, hoaOrder, decodingBeamWeights, encodingBeamWeights;
+	initBeam { arg decK, encK;
+		var theta, phi, order;
 		var decodingMatrix, encodingMatrix;
 
-		directions = this.dirChannels;
-        hoaOrder = HoaOrder.new(this.order);  // instance order
-        decodingBeamWeights = hoaOrder.beamWeights(decK);
-        encodingBeamWeights = hoaOrder.beamWeights(encK);
+		#theta, phi = this.dirChannels.at(0);
+		order = this.order;  // instance order
 
 		// build decoder matrix
-		decodingMatrix = Matrix.with(
-			directions.collect({ arg thetaPhi;
-				var coeffs;
-				coeffs = hoaOrder.sph(thetaPhi.at(0), thetaPhi.at(1));
-				coeffs = (coeffs.clumpByDegree * decodingBeamWeights).flatten;
-				coeffs * (Array.series(this.order+1, 1, 2) * decodingBeamWeights).sum.reciprocal;
-			})
-		);
+		decodingMatrix = HoaDecoderMatrix.newBeam(
+			theta,
+			phi,
+			decK,
+			order
+		).matrix;
 
 		// build encoder matrix
-        encodingMatrix = Matrix.with(
-            directions.collect({ arg thetaPhi;
-                var coeffs;
-                coeffs = hoaOrder.sph(thetaPhi.at(0), thetaPhi.at(1));
-                coeffs = (coeffs.clumpByDegree * encodingBeamWeights.reciprocal).flatten;
-                coeffs * (Array.series(this.order+1, 1, 2) * encodingBeamWeights).sum / (this.order+1).squared;
-            }).flop
-        );
+		encodingMatrix = HoaEncoderMatrix.newBeam(
+			theta,
+			phi,
+			encK,
+			order
+		).matrix;
 
 		// decode, re-encode
 		matrix = encodingMatrix.mulMatrix(decodingMatrix)
-    }
+	}
 
-	/*
-	NOTE: matrix generation may be simplified
-	NOTE: This could likely be refactored to use -initSADE
-	*/
-	initSADER {  arg decK, encK; // sampling null decoder / re-encoder
-		var directions, hoaOrder, decodingBeamWeights, encodingBeamWeights;
+	initNull { arg decK, encK;
+		var theta, phi, order;
 		var decodingMatrix, encodingMatrix;
+		var xformingMatrix;
 
-		directions = this.dirChannels;
-		hoaOrder = HoaOrder.new(this.order);  // instance order
-		decodingBeamWeights = hoaOrder.beamWeights(decK);
-		encodingBeamWeights = hoaOrder.beamWeights(encK);
+		#theta, phi = this.dirChannels.at(0);
+		order = this.order;  // instance order
 
-		// build decoder matrix
-		decodingMatrix = Matrix.with(
-			directions.collect({ arg thetaPhi;
-				var coeffs;
-				coeffs = hoaOrder.sph(thetaPhi.at(0), thetaPhi.at(1));
-				coeffs = (coeffs.clumpByDegree * decodingBeamWeights).flatten;
-				coeffs * (Array.series(this.order+1, 1, 2) * decodingBeamWeights).sum.reciprocal;
-			})
-		);
+		// build xforming matrix
+		xformingMatrix = HoaXformerMatrix.newBeam(
+			theta,
+			phi,
+			decK,
+			encK,
+			order
+		).matrix;
 
-		// build encoder matrix
-		encodingMatrix = Matrix.with(
-			directions.collect({ arg thetaPhi;
-				var coeffs;
-				coeffs = hoaOrder.sph(thetaPhi.at(0), thetaPhi.at(1));
-				coeffs = (coeffs.clumpByDegree * encodingBeamWeights.reciprocal).flatten;
-				coeffs * (Array.series(this.order+1, 1, 2) * encodingBeamWeights).sum / (this.order+1).squared;
-			}).flop
-		);
-
-		// null, decode, re-encode
-		matrix = Matrix.newIdentity((this.order+1).squared) - encodingMatrix.mulMatrix(decodingMatrix)
+		// null
+		matrix = Matrix.newIdentity((order+1).squared) - xformingMatrix
 	}
 
 	// *newFromFile { arg filePathOrName;

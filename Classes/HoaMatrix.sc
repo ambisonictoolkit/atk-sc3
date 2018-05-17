@@ -403,9 +403,9 @@ HoaXformerMatrix : HoaMatrix {
 	/* Beaming */
 
 	// Sampling beams - multi pattern
-    *newBeam { arg theta = 0, phi = 0, decK = \basic, encK = \basic, order;
+    *newBeam { arg theta = 0, phi = 0, k = \basic, order;
 		var directions = [[ theta, phi ]];
-        ^super.new('beam', order).initDirChannels(directions).initBeam(decK, encK);
+        ^super.new('beam', order).initDirChannels(directions).initBeam(k);
     }
 
 	// *newBeams { arg theta = 0, phi = 0, decK = \basic, encK = \basic, order;
@@ -413,9 +413,9 @@ HoaXformerMatrix : HoaMatrix {
 	// 	^super.new('beam', order).initDirChannels(directions).initSADE(decK, encK);
 	// }
 
-    *newNull { arg theta = 0, phi = 0, decK = \basic, encK = \basic, order;
+    *newNull { arg theta = 0, phi = 0, k = \basic, order;
 		var directions = [[ theta, phi ]];
-        ^super.new('null', order).initDirChannels(directions).initNull(decK, encK);
+        ^super.new('null', order).initDirChannels(directions).initNull(k);
     }
 
 	// *newNulls { arg theta = 0, phi = 0, decK = \basic, encK = \basic, order;
@@ -423,7 +423,7 @@ HoaXformerMatrix : HoaMatrix {
 	// 	^super.new('null', order).initDirChannels(directions).initSADER(decK, encK);
 	// }
 
-	initBeam { arg decK, encK;
+	initBeam { arg k;
 		var theta, phi, order;
 		var decodingMatrix, encodingMatrix;
 
@@ -434,15 +434,14 @@ HoaXformerMatrix : HoaMatrix {
 		decodingMatrix = HoaDecoderMatrix.newBeam(
 			theta,
 			phi,
-			decK,
+			k,
 			order
 		).matrix;
 
 		// build encoder matrix
-		encodingMatrix = HoaEncoderMatrix.newBeam(
+		encodingMatrix = HoaEncoderMatrix.newDirection(
 			theta,
 			phi,
-			encK,
 			order
 		).matrix;
 
@@ -450,7 +449,7 @@ HoaXformerMatrix : HoaMatrix {
 		matrix = encodingMatrix.mulMatrix(decodingMatrix)
 	}
 
-	initNull { arg decK, encK;
+	initNull { arg k;
 		var theta, phi, order;
 		var decodingMatrix, encodingMatrix;
 		var xformingMatrix;
@@ -462,8 +461,7 @@ HoaXformerMatrix : HoaMatrix {
 		xformingMatrix = HoaXformerMatrix.newBeam(
 			theta,
 			phi,
-			decK,
-			encK,
+			k,
 			order
 		).matrix;
 

@@ -195,12 +195,12 @@ HoaEncoderMatrix : HoaMatrix {
     }
 
 	// Sampling Encoding (SAE) beams - multi pattern
-    *newBeams { arg directions = [ 0, 0 ], k = \basic, match = \beam, order;
+	*newBeams { arg directions = [[ 0, 0 ]], k = \basic, match = \beam, order;
         ^super.new('beams', order).initDirChannels(directions).initBeam(k, match);
     }
 
 	// Modal Encoding beams - multi pattern
-    *newModes { arg directions = [ 0, 0 ], k = \basic, match = \beam, order;
+	*newModes { arg directions = [[ 0, 0 ]], k = \basic, match = \beam, order;
         ^super.new('modes', order).initDirChannels(directions).initModes(k, match);
     }
 
@@ -514,7 +514,7 @@ HoaDecoderMatrix : HoaMatrix {
 	}
 
 	// Sampling Decoding beams - multi pattern
-    *newBeams { arg directions = [ 0, 0 ], k = \basic, match = \beam, order;
+	*newBeams { arg directions = [[ 0, 0 ]], k = \basic, match = \beam, order;
         ^super.new('beams', order).initDirChannels(directions).initBeam(k, match);
     }
 

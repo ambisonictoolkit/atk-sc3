@@ -65,6 +65,54 @@ HoaMatrix : AtkMatrix {
 		})
 	}
 
+	initFormat { arg inputFormat = \atk, outputFormat = \atk;
+		var hoaOrder;
+		var size;
+		var coeffs;
+		var colIndices, rowIndices;
+		var formatKeyword;
+
+		formatKeyword = { arg format;
+			switch (format,
+				\atk, { [ \acn, \n3d ] },  // atk, mpegH
+				\ambix, { [ \acn, \sn3d ] },  // ambix
+				\fuma, { [ \fuma, \fuma ] },  // fuma
+				{ format }  // default
+			)
+		};
+
+		// test for single keyword format
+		inputFormat = formatKeyword.value(inputFormat);
+		outputFormat = formatKeyword.value(outputFormat);
+
+		hoaOrder = HoaOrder.new(this.order);  // instance order
+		size = (this.order + 1).squared;
+
+		(inputFormat == outputFormat).if({  // equal formats?
+			matrix = Matrix.newIdentity(size).asFloat
+		}, {  // unequal formats
+
+			// 1) normalization - returned coefficients are ordered \acn
+			coeffs = (inputFormat.at(1) == outputFormat.at(1)).if({
+				Array.fill(size, { 1.0 })
+			}, {
+				hoaOrder.normalisation(outputFormat.at(1)) / hoaOrder.normalisation(inputFormat.at(1))
+			});
+
+			// 2) generate matrix
+			colIndices = hoaOrder.indices(inputFormat.at(0));
+			rowIndices = hoaOrder.indices(outputFormat.at(0));
+			matrix = Matrix.newClear(size, size).asFloat;
+			size.do({ arg index;  // index increment ordered \acn
+				matrix.put(
+					rowIndices.at(index),
+					colIndices.at(index),
+					coeffs.at(index)
+				)
+			})
+		})
+	}
+
 	// TODO: these utilities could move to AtkMatrix, or elsewhere?
 
 	getSub { |rowStart=0, colStart=0, rowLength, colLength|
@@ -159,9 +207,9 @@ HoaEncoderMatrix : HoaMatrix {
     //     ^super.new('AtoB').loadFromLib(orientation, weight)
     // }
 
-    *newFormat { arg format = [\acn, \n3d], order;
-        ^super.new('format', order).initDirChannels.initFormat(format);
-    }
+	*newFormat { arg format =\atk, order;
+		^super.new('format', order).initDirChannels.initFormat(format, \atk);
+	}
 
     /*
 	NOTE:
@@ -264,55 +312,6 @@ HoaEncoderMatrix : HoaMatrix {
 		// match modes
 		matrix = decodingMatrix.pseudoInverse;
 	}
-
-    /*
-    NOTE:
-
-    We may like to make the format matrixing more general
-    by implementing via a superclass.
-    */
-    initFormat { arg format;
-        var inputFormat;
-        var outputFormat = [ \acn, \n3d ];
-        var hoaOrder;
-        var size;
-        var coeffs;
-        var colIndices, rowIndices;
-
-        // test for single keyword format
-        inputFormat = switch (format,
-                    \ambix, { [ \acn, \sn3d ] },  // ambix
-                    \fuma, { [ \fuma, \fuma ] },  // fuma
-                    { format }  // default
-        );
-
-        hoaOrder = HoaOrder.new(this.order);  // instance order
-        size = (this.order + 1).squared;
-
-        (inputFormat == outputFormat).if({  // equal formats?
-            matrix = Matrix.newIdentity(size).asFloat
-        }, {  // unequal formats
-
-            // 1) normalization - returned coefficients are ordered \acn
-            coeffs = (inputFormat.at(1) == outputFormat.at(1)).if({
-                Array.fill(size, { 1.0 })
-            }, {
-                hoaOrder.normalisation(outputFormat.at(1)) / hoaOrder.normalisation(inputFormat.at(1))
-            });
-
-            // 2) generate matrix
-            colIndices = hoaOrder.indices(inputFormat.at(0));
-            rowIndices = hoaOrder.indices(outputFormat.at(0));
-            matrix = Matrix.newClear(size, size).asFloat;
-            size.do({ arg index;  // index increment ordered \acn
-                matrix.put(
-                    rowIndices.at(index),
-                    colIndices.at(index),
-                    coeffs.at(index)
-                )
-            })
-        })
-    }
 
     // initEncoderVarsForFiles {
     //     dirInputs = if (fileParse.notNil) {
@@ -486,9 +485,9 @@ HoaXformerMatrix : HoaMatrix {
 
 HoaDecoderMatrix : HoaMatrix {
 
-    *newFormat { arg format = [\acn, \n3d], order;
-        ^super.new('format', order).initDirChannels.initFormat(format);
-    }
+	*newFormat { arg format = \atk, order;
+		^super.new('format', order).initDirChannels.initFormat(\atk, format);
+	}
 
     /*
     Two types:
@@ -551,55 +550,6 @@ HoaDecoderMatrix : HoaMatrix {
     // *newFromFile { arg filePathOrName;
     //     ^super.new.initFromFile(filePathOrName, 'decoder', true).initDecoderVarsForFiles;
     // }
-
-    /*
-    NOTE:
-
-    We may like to make the format matrixing more general
-    by implementing via a superclass.
-    */
-    initFormat { arg format;
-        var inputFormat = [ \acn, \n3d ];
-        var outputFormat;
-        var hoaOrder;
-        var size;
-        var coeffs;
-        var colIndices, rowIndices;
-
-        // test for single keyword format
-        outputFormat = switch (format,
-                    \ambix, { [ \acn, \sn3d ] },  // ambix
-                    \fuma, { [ \fuma, \fuma ] },  // fuma
-                    { format }  // default
-        );
-
-        hoaOrder = HoaOrder.new(this.order);  // instance order
-        size = (this.order + 1).squared;
-
-        (inputFormat == outputFormat).if({  // equal formats?
-            matrix = Matrix.newIdentity(size).asFloat
-        }, {  // unequal formats
-
-            // 1) normalization - returned coefficients are ordered \acn
-            coeffs = (inputFormat.at(1) == outputFormat.at(1)).if({
-                Array.fill(size, { 1.0 })
-            }, {
-                hoaOrder.normalisation(outputFormat.at(1)) / hoaOrder.normalisation(inputFormat.at(1))
-            });
-
-            // 2) generate matrix
-            colIndices = hoaOrder.indices(inputFormat.at(0));
-            rowIndices = hoaOrder.indices(outputFormat.at(0));
-            matrix = Matrix.newClear(size, size).asFloat;
-            size.do({ arg index;  // index increment ordered \acn
-                matrix.put(
-                    rowIndices.at(index),
-                    colIndices.at(index),
-                    coeffs.at(index)
-                )
-            })
-        })
-    }
 
 	//-----------
 	// Sampling Decoders, aka SAD

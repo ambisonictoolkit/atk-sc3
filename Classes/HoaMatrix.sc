@@ -203,46 +203,35 @@ HoaMatrix : AtkMatrix {
 
 HoaEncoderMatrix : HoaMatrix {
 
-    // *newAtoB { arg orientation = 'flu', weight = 'dec';
-    //     ^super.new('AtoB').loadFromLib(orientation, weight)
-    // }
-
+	// Format Encoder
 	*newFormat { |format =\atk, order|
 		^super.new('format', order).initDirChannels.initFormat(format, \atk);
 	}
 
-    /*
-	NOTE:
-
-    For beaming we may need to have two types of encoders equivalent to:
-       - Sampling decoding (SAD)
-       - Mode-matching decoding (MMD)
-    */
-
-	// Sampling Encoding beam - 'basic' pattern
+	// Projection Encoding beam - 'basic' pattern
     *newDirection { |theta = 0, phi = 0, order|
 		var directions = [[ theta, phi ]];
 		^super.new('dir', order).initDirChannels(directions).initBasic;
     }
 
-	// Sampling Encoding beams - 'basic' pattern
+	// Projection Encoding beams - 'basic' pattern
 	*newDirections { arg directions = [[ 0, 0 ]], order;
         ^super.new('dirs', order).initDirChannels(directions).initBasic;
     }
 
-	// panto is a convenience - may wish to deprecate
+	// Projection Encoding beams (convenience to match FOA: may wish to deprecate) - 'basic' pattern
     *newPanto { |numChans = 4, orientation = \flat, order|
 		var directions = Array.regularPolygon(numChans, orientation, pi);
 		^super.new('panto', order).initDirChannels(directions).initBasic;
     }
 
-    // Sampling Encoding (SAE) beam - multi pattern
+    // Projection Encoding beam - multi pattern
     *newBeam { |theta = 0, phi = 0, k = \basic, order|
 		var directions = [[ theta, phi ]];
         ^super.new('beam', order).initDirChannels(directions).initBeam(k, nil);
     }
 
-	// Sampling Encoding (SAE) beams - multi pattern
+	// Projection Encoding beams - multi pattern
 	*newBeams { arg directions = [[ 0, 0 ]], k = \basic, match = \beam, order;
         ^super.new('beams', order).initDirChannels(directions).initBeam(k, match);
     }
@@ -252,9 +241,17 @@ HoaEncoderMatrix : HoaMatrix {
         ^super.new('modes', order).initDirChannels(directions).initModes(k, match);
     }
 
+	// TBD: t-design wrapper for *newBeams
+    // *newAtoB { arg orientation = 'flu', weight = 'dec';
+    //     ^super.new('AtoB').loadFromLib(orientation, weight)
+    // }
+
     // *newFromFile { arg filePathOrName;
     //     ^super.new.initFromFile(filePathOrName, 'encoder', true).initEncoderVarsForFiles
     // }
+
+    // ------------
+    // Basic
 
     initBasic {  // basic beam encoder, k = \basic
 		var directions, hoaOrder;
@@ -270,6 +267,9 @@ HoaEncoderMatrix : HoaMatrix {
             }).flop
         )
     }
+
+    // ------------
+	// Multi-pattern (projection)
 
     initBeam {  |k, match| // beam encoder
         var directions, hoaOrder, beamWeights;
@@ -293,6 +293,9 @@ HoaEncoderMatrix : HoaMatrix {
             }).flop
         )
     }
+
+    // ------------
+	// Multi-pattern (modal)
 
     initModes {  |k, match| // modal encoder
 		var directions, order;
@@ -344,7 +347,8 @@ HoaEncoderMatrix : HoaMatrix {
 
 HoaXformerMatrix : HoaMatrix {
 
-	/*  Rotation  */
+    // ------------
+    // Rotation
 
 	*newRotate { |r1 = 0, r2 = 0, r3 = 0, axes = \xyz, order|
 		^super.new('rotate', order).initDirChannels.initRotation(r1, r2, r3, axes, order)
@@ -374,14 +378,26 @@ HoaXformerMatrix : HoaMatrix {
 		^super.new('rotation').initDirChannels.initRotation(roll, pitch, yaw, \xyz, order)
 	}
 
-	initRotation { |r1, r2, r3, convention, order|
-		matrix = HoaRotationMatrix(r1, r2, r3, convention, order).matrix;
-	}
-
-	/*  Mirroring  */
-
+	//  Mirroring
 	*newMirror { |mirror = \reflect, order|
 		^super.new('mirror', order).initDirChannels.initMirror(mirror);
+	}
+
+    // ------------
+    // Beaming & nulling
+
+    *newBeam { |theta = 0, phi = 0, k = \basic, order|
+		var directions = [[ theta, phi ]];
+        ^super.new('beam', order).initDirChannels(directions).initBeam(k);
+    }
+
+    *newNull { |theta = 0, phi = 0, k = \basic, order|
+		var directions = [[ theta, phi ]];
+        ^super.new('null', order).initDirChannels(directions).initNull(k);
+    }
+
+	initRotation { |r1, r2, r3, convention, order|
+		matrix = HoaRotationMatrix(r1, r2, r3, convention, order).matrix;
 	}
 
     initMirror { |mirror|
@@ -397,19 +413,6 @@ HoaXformerMatrix : HoaMatrix {
 
         // 2) generate matrix
         matrix = Matrix.newDiagonal(coeffs);
-    }
-
-	/* Beaming */
-
-	// Sampling beams - multi pattern
-    *newBeam { |theta = 0, phi = 0, k = \basic, order|
-		var directions = [[ theta, phi ]];
-        ^super.new('beam', order).initDirChannels(directions).initBeam(k);
-    }
-
-    *newNull { |theta = 0, phi = 0, k = \basic, order|
-		var directions = [[ theta, phi ]];
-        ^super.new('null', order).initDirChannels(directions).initNull(k);
     }
 
 	initBeam { |k|
@@ -475,48 +478,44 @@ HoaXformerMatrix : HoaMatrix {
 
 HoaDecoderMatrix : HoaMatrix {
 
+	// Format Encoder
 	*newFormat { |format = \atk, order|
 		^super.new('format', order).initDirChannels.initFormat(\atk, format);
 	}
 
-    /*
-    Two types:
-       - Sampling decoding (SAD)
-       - Mode-matching decoding (MMD)
-    */
-
-	// Sampling Decoding beam - 'basic' pattern
+	// Projection Decoding beam - 'basic' pattern
     *newDirection { |theta = 0, phi = 0, order|
 		var directions = [[ theta, phi ]];
         ^super.new('dir', order).initDirChannels(directions).initBasic;
     }
 
-	// Sampling Decoding beams - 'basic' pattern
+	// Projection Decoding beams - 'basic' pattern
 	*newDirections { arg directions = [[ 0, 0 ]], order;
         ^super.new('dirs', order).initDirChannels(directions).initBasic;
     }
 
-	// Sampling Decoding beam - multi pattern
+	// Projection Decoding beam - multi pattern
 	*newBeam { |theta = 0, phi = 0, k = \basic, order|
 		var directions = [[ theta, phi ]];
 		^super.new('beam', order).initDirChannels(directions).initBeam(k, nil);
 	}
 
-	// Sampling Decoding beams - multi pattern
+	// Projection Decoding beams - multi pattern
 	*newBeams { arg directions = [[ 0, 0 ]], k = \basic, match = \beam, order;
         ^super.new('beams', order).initDirChannels(directions).initBeam(k, match);
     }
 
-	// NOTE: these arguments diverge from FOA newPeri & newPanto
+	// Projection: Simple Ambisonic Decoding, aka SAD
     *newProjection { |directions, k = \basic, match = \amp, order|
 		^super.new('projection', order).initDirChannels(directions).initSAD(k, match);
     }
 
-	// NOTE: these arguments diverge from FOA newPeri & newPanto
+	// Mode Match: Mode Matched Decoding, aka Pseudoinverse
     *newModeMatch { |directions, k = \basic, match = \amp, order|
 		^super.new('modeMatch', order).initDirChannels(directions).initMMD(k, match)
     }
 
+	// Diametric: Mode Matched Decoding, aka Diametric Pseudoinverse
 	*newDiametric { |directions, k = \basic, match = \amp, order|
 		var directionPairs = directions ++ directions.rank.switch(
 			1, {  // 2D
@@ -533,6 +532,7 @@ HoaDecoderMatrix : HoaMatrix {
 		^super.new('diametric', order).initDirChannels(directionPairs).initMMD(k, match)
 	}
 
+	// TBD: t-design wrapper for *newBeams
     // *newBtoA { arg orientation = 'flu', weight = 'dec';
     //     ^super.new('BtoA').loadFromLib(orientation, weight);
     // }
@@ -541,8 +541,8 @@ HoaDecoderMatrix : HoaMatrix {
     //     ^super.new.initFromFile(filePathOrName, 'decoder', true).initDecoderVarsForFiles;
     // }
 
-	//-----------
-	// Sampling Decoders, aka SAD
+    // ------------
+    // Basic
 
 	initBasic {  // basic beam decoder, k = \basic
         var directions, hoaOrder;
@@ -562,6 +562,9 @@ HoaDecoderMatrix : HoaMatrix {
             })
         )
     }
+
+    // ------------
+	// Multi-pattern (projection)
 
 	initBeam {  |k, match| // beam decoder
 		var directions, hoaOrder, beamWeights;
@@ -585,6 +588,9 @@ HoaDecoderMatrix : HoaMatrix {
 			})
 		)
 	}
+
+    // ------------
+	// Projection: Simple Ambisonic Decoding, aka SAD
 
 	initSAD {  |k, match| // sampling beam decoder, with matching gain
 		var directions, numOutputs;
@@ -666,8 +672,9 @@ HoaDecoderMatrix : HoaMatrix {
 		matrix = decodingMatrix
 	}
 
-	//-----------
-	// Mode Matching Decoders, aka Pseudo-inverse
+    // ------------
+	// Mode Match: Mode Matched Decoding, aka Pseudoinverse
+
 	initMMD {  |k, match|  // mode matching decoder, with matching gain
 		var directions, numOutputs;
 		var inputOrder, outputOrder, hoaOrder;

@@ -53,11 +53,11 @@
 HoaLm {
     var <>lm;
 
-    *new { arg lm;
+    *new { |lm|
         ^super.newCopyArgs(lm)
     }
 
-    *newIndex { arg index, ordering = \acn;
+    *newIndex { |index, ordering = \acn|
         var l, m;
 
         switch (ordering,
@@ -110,7 +110,7 @@ HoaLm {
     // ------------
     // Return indices
 
-    index { arg ordering = \acn;
+    index { |ordering = \acn|
         var l, m;
         #l, m = this.lm;
 
@@ -134,7 +134,7 @@ HoaLm {
     // ------------
     // Test sub-group membership
 
-    isInSubset { arg subset = \zonal;
+    isInSubset { |subset = \zonal|
         var l, m;
         #l, m = this.lm;
 
@@ -157,7 +157,7 @@ HoaLm {
     // ------------
     // Return reflection coefficients
 
-    reflection { arg mirror = \reflect;
+    reflection { |mirror = \reflect|
         var l, m;
         #l, m = this.lm;
 
@@ -195,7 +195,7 @@ HoaLm {
     // ------------
     // Return normalisation coefficients
 
-    normalisation { arg scheme = \n3d;
+    normalisation { |scheme = \n3d|
         var l, m;
         #l, m = this.lm;
 
@@ -260,7 +260,7 @@ HoaLm {
     // Return encoding coefficients
 
     // N3D normalized coefficient
-    sph { arg theta = 0.0, phi = 0.0;
+    sph { |theta = 0.0, phi = 0.0|
         var l, m, mabs;
         var res;
 

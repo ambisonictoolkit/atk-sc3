@@ -53,7 +53,7 @@
 NFECoeffs {
     var <>degree, <reX, <absX, <numSOS, <numFOS;
 
-    *new { arg degree;
+    *new { |degree|
         ^super.newCopyArgs(degree).init
     }
 
@@ -69,12 +69,12 @@ NFECoeffs {
         // extract Re(X) & |X|, e.g., Bessel Polynomial Factors
 
         // average of real
-        reX = ((m/2).asInteger).collect({ arg q;
+        reX = ((m/2).asInteger).collect({ |q|
             (bpr.at(2*q).real + bpr.at(2*q+1).real) / 2
         });
 
         // average of magnitude
-        absX = ((m/2).asInteger).collect({ arg q;
+        absX = ((m/2).asInteger).collect({ |q|
             (bpr.at(2*q).abs + bpr.at(2*q+1).abs) / 2
         });
 
@@ -98,7 +98,7 @@ NFECoeffs {
 
         alpha = 2*sampleRate*radius/Atk.speedOfSound;
 
-        coeffs = numSOS.collect({arg q;
+        coeffs = numSOS.collect({ |q|
             var c1, c2;
 
             c1 = this.reX.at(q)/alpha;
@@ -134,7 +134,7 @@ NFECoeffs {
         // factor down to simple SOS & FOS coeffs + gain
         g = 1.0;
 
-        (this.numSOS + this.numFOS).do({ arg q;
+        (this.numSOS + this.numFOS).do({ |q|
             var g0;
 
             g0 = coeffs.at(q).at(0);
@@ -146,7 +146,7 @@ NFECoeffs {
 
         // parse coeffs into form usable by SOS & FOS UGens
         // NOTE: this could happen in the coefficient generation, above
-        coeffsSOS = this.numSOS.collect({ arg q;
+        coeffsSOS = this.numSOS.collect({ |q|
             coeffs.at(q).copyRange(0, 2) ++ (-1 * coeffs.at(q).copyRange(4, 5))
         });
 
@@ -170,7 +170,7 @@ NFECoeffs {
 
         alpha = 2*sampleRate*radius/Atk.speedOfSound;
 
-        coeffs = numSOS.collect({arg q;
+        coeffs = numSOS.collect({ |q|
             var c1, c2;
 
             c1 = this.reX.at(q)/alpha;
@@ -206,7 +206,7 @@ NFECoeffs {
         // factor down to simple SOS & FOS coeffs + gain
         g = 1.0;
 
-        (this.numSOS + this.numFOS).do({ arg q;
+        (this.numSOS + this.numFOS).do({ |q|
             var g0;
 
             g0 = coeffs.at(q).at(3).reciprocal;
@@ -218,7 +218,7 @@ NFECoeffs {
 
         // parse coeffs into form usable by SOS & FOS UGens
         // NOTE: this could happen in the coefficient generation, above
-        coeffsSOS = this.numSOS.collect({ arg q;
+        coeffsSOS = this.numSOS.collect({ |q|
             coeffs.at(q).copyRange(0, 2) ++ (-1 * coeffs.at(q).copyRange(4, 5))
         });
 
@@ -243,7 +243,7 @@ NFECoeffs {
         alpha0 = 2*sampleRate*encRadius/Atk.speedOfSound;  // proximity
         alpha1 = 2*sampleRate*decRadius/Atk.speedOfSound;  // distance
 
-        coeffs = numSOS.collect({arg q;
+        coeffs = numSOS.collect({ |q|
             var c10, c20, c11, c21;
 
             // proximity
@@ -289,7 +289,7 @@ NFECoeffs {
         // factor down to simple SOS & FOS coeffs + gain
         g = 1.0;
 
-        (this.numSOS + this.numFOS).do({ arg q;
+        (this.numSOS + this.numFOS).do({ |q|
             var g0;
 
             // distance
@@ -309,7 +309,7 @@ NFECoeffs {
 
         // parse coeffs into form usable by SOS & FOS UGens
         // NOTE: this could happen in the coefficient generation, above
-        coeffsSOS = this.numSOS.collect({ arg q;
+        coeffsSOS = this.numSOS.collect({ |q|
             coeffs.at(q).copyRange(0, 2) ++ (-1 * coeffs.at(q).copyRange(4, 5))
         });
 

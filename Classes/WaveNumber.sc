@@ -53,27 +53,27 @@
 WaveNumber {
     var <>waveNumber;
 
-    *new { arg waveNumber = 8.0600627847202;
+    *new { |waveNumber = 8.0600627847202|
         ^super.newCopyArgs(waveNumber)
     }
 
     // Set wavenumber from freq (in hz).
-    *newFreq { arg freq = 440.0;
+    *newFreq { |freq = 440.0|
         ^this.new(2*pi*freq / Atk.speedOfSound);
     }
 
     // Set wavenumber from normalised frequency.
-    *newWn { arg wn, sr;
+    *newWn { |wn, sr|
         ^this.new(pi*wn*sr / Atk.speedOfSound)
     }
 
     // Set wavenumber from delay and effective order.
-    *newDelay { arg delay = 0.00036171577975431, order = 1;
+    *newDelay { |delay = 0.00036171577975431, order = 1|
         ^this.new(order/(delay*this.c))
     }
 
     // Set wavenumber from radius and effective order.
-    *newRadius { arg radius = 0.12406851245573, order = 1;
+    *newRadius { |radius = 0.12406851245573, order = 1|
         ^this.new(order / radius)
     }
 
@@ -83,7 +83,7 @@ WaveNumber {
     }
 
     // Return normalised frequency from wavenumber.
-    wn { arg sr;
+    wn { |sr|
         ^this.num*Atk.speedOfSound / (pi*sr)
     }
 
@@ -91,22 +91,22 @@ WaveNumber {
     // Radius Utilities
 
     // Return effective radius.
-    radius { arg order = 1;
+    radius { |order = 1|
         ^order / this.waveNumber
     }
 
     // Return effective delay.
-    delay { arg order = 1;
+    delay { |order = 1|
         ^order / (Atk.speedOfSound*this.waveNumber)
     }
 
     // Return effective order.
-    orderAtRadius { arg radius = 0.12406851245573;
+    orderAtRadius { |radius = 0.12406851245573|
         ^radius*this.waveNumber
     }
 
     // Return effective order.
-    orderAtDelay { arg delay = 0.00036171577975431;
+    orderAtDelay { |delay = 0.00036171577975431|
         ^delay*this.waveNumber*Atk.speedOfSound
     }
 
@@ -119,12 +119,12 @@ WaveNumber {
         var nearZero = 1e-08;
 
         (this.waveNumber.abs <= nearZero).if({
-            ^Array.with(Complex.new(1, 0)) ++ m.collect({ arg k;
+            ^Array.with(Complex.new(1, 0)) ++ m.collect({ |k|
                 Complex.new(-inf.pow(((k+1)/2).floor), -inf.pow(((k+2)/2).floor))
             })
         }, {
-            ^(m+1).collect({ arg j;
-                (j+1).collect({ arg k;
+            ^(m+1).collect({ |j|
+                (j+1).collect({ |k|
                     var fact;
                     fact = (j+k).asFloat.factorial/((j-k).asFloat.factorial*k.asFloat.factorial);
                     fact * Complex.new(0, -1/(2*this.waveNumber*radius)).pow(k)
@@ -141,8 +141,8 @@ WaveNumber {
         (this.waveNumber.abs <= nearZero).if({
             ^Array.with(Complex.new(1, 0)) ++ m.collect({Complex.new(0, 0)})
         }, {
-            ^(m+1).collect({ arg j;
-                (j+1).collect({ arg k;
+            ^(m+1).collect({ |j|
+                (j+1).collect({ |k|
                     var fact;
                     fact = (j+k).asFloat.factorial/((j-k).asFloat.factorial*k.asFloat.factorial);
                     fact * Complex.new(0, -1/(2*this.waveNumber*radius)).pow(k)
@@ -157,16 +157,16 @@ WaveNumber {
         var nearZero = 1e-08;
 
         (this.waveNumber.abs <= nearZero).if({
-            ^(m+1).collect({ arg k;
+            ^(m+1).collect({ |k|
                 Complex.new((decRadius/encRadius).pow(k), 0)
             })
         }, {
-            ^(m+1).collect({ arg j;
-                ((j+1).collect({ arg k;
+            ^(m+1).collect({ |j|
+                ((j+1).collect({ |k|
                     var fact;
                     fact = (j+k).asFloat.factorial/((j-k).asFloat.factorial*k.asFloat.factorial);
                     fact * Complex.new(0, -1/(2*this.waveNumber*encRadius)).pow(k)
-                }).sum) / ((j+1).collect({ arg k;
+                }).sum) / ((j+1).collect({ |k|
                     var fact;
                     fact = (j+k).asFloat.factorial/((j-k).asFloat.factorial*k.asFloat.factorial);
                     fact * Complex.new(0, -1/(2*this.waveNumber*decRadius)).pow(k)

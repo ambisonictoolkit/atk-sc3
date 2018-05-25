@@ -53,7 +53,7 @@
 HoaOrder {
     var <>order;
 
-    *new { arg order;
+    *new { |order|
         ^super.newCopyArgs(order)
     }
 
@@ -61,19 +61,19 @@ HoaOrder {
     // Return l, m
 
     l {
-        ^(this.order + 1).collect({ arg degree;
+        ^(this.order + 1).collect({ |degree|
             HoaDegree.new(degree).l
         }).flatten
     }
 
     m {
-        ^(this.order + 1).collect({ arg degree;
+        ^(this.order + 1).collect({ |degree|
             HoaDegree.new(degree).m
         }).flatten
     }
 
     lm {
-        ^(this.order + 1).collect({ arg degree;
+        ^(this.order + 1).collect({ |degree|
             HoaDegree.new(degree).lm
         }).flatten
     }
@@ -81,15 +81,15 @@ HoaOrder {
     // ------------
     // Return indices
 
-    indices { arg ordering = \acn, subset = \all;
+    indices { |ordering = \acn, subset = \all|
         (subset == \all).if({
             // all
-            ^this.lm.collect({ arg lm;
+            ^this.lm.collect({ |lm|
                 HoaLm.new(lm).index(ordering)
             })
         }, {
             // subset
-            ^this.lm.collect({ arg lm;
+            ^this.lm.collect({ |lm|
                 var hoaLm = HoaLm.new(lm);
                 hoaLm.isInSubset(subset).if({
                     hoaLm.index(ordering)
@@ -101,8 +101,8 @@ HoaOrder {
     // ------------
     // Return reflection coefficients
 
-    reflection { arg mirror = \reflect;
-        ^this.lm.collect({ arg lm;
+    reflection { |mirror = \reflect|
+        ^this.lm.collect({ |lm|
             HoaLm.new(lm).reflection(mirror)
         })
     }
@@ -110,8 +110,8 @@ HoaOrder {
     // ------------
     // Return normalisation coefficients
 
-    normalisation { arg scheme = \n3d;
-        ^this.lm.collect({ arg lm;
+    normalisation { |scheme = \n3d|
+        ^this.lm.collect({ |lm|
             HoaLm.new(lm).normalisation(scheme)
         })
     }
@@ -120,8 +120,8 @@ HoaOrder {
     // Return encoding coefficients
 
     // N3D normalized coefficients
-    sph { arg theta = 0.0, phi = 0.0;
-        ^this.lm.collect({ arg lm;
+    sph { |theta = 0.0, phi = 0.0|
+        ^this.lm.collect({ |lm|
             HoaLm.new(lm).sph(theta, phi)
         })
     }
@@ -130,12 +130,12 @@ HoaOrder {
     // Return decoder measures or coefficients
 
     // effective decoding radius
-    radiusAtFreq { arg freq;
+    radiusAtFreq { |freq|
         ^(this.order*Atk.speedOfSound) / (2*pi*freq)
     }
 
     // effective decoding frequency
-    freqAtRadius { arg radius;
+    freqAtRadius { |radius|
         ^(this.order*Atk.speedOfSound) / (2*pi*radius)
     }
 
@@ -148,7 +148,7 @@ HoaOrder {
     */
 
     // maximum average rV for an Ambisonic decoder
-    rV { arg k = 'basic', dim = 3;
+    rV { |k = 'basic', dim = 3|
         var m = this.order;
 
         ^switch( k,
@@ -165,7 +165,7 @@ HoaOrder {
     }
 
     // maximum average rE for an Ambisonic decoder
-    rE { arg k = 'basic', dim = 3;
+    rE { |k = 'basic', dim = 3|
         var m = this.order;
 
         ^(k == 'energy').if({
@@ -184,7 +184,7 @@ HoaOrder {
     }
 
     // 'l’énergie réduite E' for an Ambisonic decoder
-    meanE { arg k = 'basic', dim = 3;
+    meanE { |k = 'basic', dim = 3|
         var m = this.order;
         var beamWeights;
 
@@ -198,7 +198,7 @@ HoaOrder {
     }
 
     // 'matching gain' (scale) for a given Ambisonic decoder
-    matchWeight { arg k = 'basic', dim = 3, match = 'amp', numSpkrs = nil;
+    matchWeight { |k = 'basic', dim = 3, match = 'amp', numSpkrs = nil|
         var m = this.order;
         var n;
 
@@ -220,7 +220,7 @@ HoaOrder {
     }
 
     // beamWeights, aka, "decoder order gains" or Gamma vector of per-degree (beam forming) scalars
-    beamWeights { arg k = 'basic', dim = 3;
+    beamWeights { |k = 'basic', dim = 3|
         var m = this.order;
         var max_rE;
 
@@ -229,22 +229,22 @@ HoaOrder {
             'energy', {
                 max_rE = this.rE(k, dim);
                 (dim == 2).if({ // 2D
-                    (m+1).collect({ arg degree;
+                    (m+1).collect({ |degree|
                         chebyshevT(degree, max_rE)
                     })
                 }, { // 3D
-                    (m+1).collect({ arg degree;
+                    (m+1).collect({ |degree|
                         legendreP(degree, max_rE)
                     })
                 })
             },
             'controlled', {
                 (dim == 2).if ({ // 2D
-                    (m+1).collect({ arg degree;
+                    (m+1).collect({ |degree|
                         1 / ((m + degree).asFloat.factorial * (m - degree).asFloat.factorial)
                     }) * m.asFloat.factorial.squared;
                 }, { // 3D
-                    (m+1).collect({ arg degree;
+                    (m+1).collect({ |degree|
                         1 / ((m + degree + 1).asFloat.factorial * (m - degree).asFloat.factorial)
                     }) * m.asFloat.factorial * (m + 1).asFloat.factorial;
                 })

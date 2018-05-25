@@ -51,28 +51,28 @@
 HoaMatrix : AtkMatrix {
     var <dirChannels;
 
-	initDirChannels { arg directions;
+	initDirChannels { |directions|
 		dirChannels = (directions == nil).if({
 			(this.order + 1).squared.collect({ inf })
 		}, {
 			directions.rank.switch(
 				0, { Array.with(directions, 0.0).reshape(1, 2) },
-				1, { directions.collect({ arg dir; Array.with(dir, 0.0)}) },
+				1, { directions.collect({ |dir| Array.with(dir, 0.0)}) },
 				2, { directions },
-			).collect({ arg thetaPhi;  // wrap to [ +/-pi, +/-pi/2 ]
+			).collect({ |thetaPhi|  // wrap to [ +/-pi, +/-pi/2 ]
 				Spherical.new(1, thetaPhi.at(0), thetaPhi.at(1)).asCartesian.asSpherical.angles
 			})
 		})
 	}
 
-	initFormat { arg inputFormat = \atk, outputFormat = \atk;
+	initFormat { |inputFormat = \atk, outputFormat = \atk|
 		var hoaOrder;
 		var size;
 		var coeffs;
 		var colIndices, rowIndices;
 		var formatKeyword;
 
-		formatKeyword = { arg format;
+		formatKeyword = { |format|
 			switch (format,
 				\atk, { [ \acn, \n3d ] },  // atk, mpegH
 				\ambix, { [ \acn, \sn3d ] },  // ambix
@@ -103,7 +103,7 @@ HoaMatrix : AtkMatrix {
 			colIndices = hoaOrder.indices(inputFormat.at(0));
 			rowIndices = hoaOrder.indices(outputFormat.at(0));
 			matrix = Matrix.newClear(size, size).asFloat;
-			size.do({ arg index;  // index increment ordered \acn
+			size.do({ |index|  // index increment ordered \acn
 				matrix.put(
 					rowIndices.at(index),
 					colIndices.at(index),
@@ -188,7 +188,7 @@ HoaMatrix : AtkMatrix {
 		^(this.kind == \format).if({
 			3
 		}, {
-			this.dirChannels.flatten.unlace.last.every({ arg item; item == 0.0 }).if({  // test - 2D
+			this.dirChannels.flatten.unlace.last.every({ |item| item == 0.0 }).if({  // test - 2D
 				2
 			}, {
 				3
@@ -207,7 +207,7 @@ HoaEncoderMatrix : HoaMatrix {
     //     ^super.new('AtoB').loadFromLib(orientation, weight)
     // }
 
-	*newFormat { arg format =\atk, order;
+	*newFormat { |format =\atk, order|
 		^super.new('format', order).initDirChannels.initFormat(format, \atk);
 	}
 
@@ -220,7 +220,7 @@ HoaEncoderMatrix : HoaMatrix {
     */
 
 	// Sampling Encoding beam - 'basic' pattern
-    *newDirection { arg theta = 0, phi = 0, order;
+    *newDirection { |theta = 0, phi = 0, order|
 		var directions = [[ theta, phi ]];
 		^super.new('dir', order).initDirChannels(directions).initBasic;
     }
@@ -231,13 +231,13 @@ HoaEncoderMatrix : HoaMatrix {
     }
 
 	// panto is a convenience - may wish to deprecate
-    *newPanto { arg numChans = 4, orientation = \flat, order;
+    *newPanto { |numChans = 4, orientation = \flat, order|
 		var directions = Array.regularPolygon(numChans, orientation, pi);
 		^super.new('panto', order).initDirChannels(directions).initBasic;
     }
 
     // Sampling Encoding (SAE) beam - multi pattern
-    *newBeam { arg theta = 0, phi = 0, k = \basic, order;
+    *newBeam { |theta = 0, phi = 0, k = \basic, order|
 		var directions = [[ theta, phi ]];
         ^super.new('beam', order).initDirChannels(directions).initBeam(k, nil);
     }
@@ -265,13 +265,13 @@ HoaEncoderMatrix : HoaMatrix {
         // build encoder matrix, and set for instance
 		// norm = 1.0, beamWeights = [ 1, 1, ..., 1 ]
         matrix = Matrix.with(
-			directions.collect({ arg thetaPhi;
+			directions.collect({ |thetaPhi|
                 hoaOrder.sph(thetaPhi.at(0), thetaPhi.at(1))
             }).flop
         )
     }
 
-    initBeam {  arg k, match; // beam encoder
+    initBeam {  |k, match| // beam encoder
         var directions, hoaOrder, beamWeights;
 		var degreeSeries, norm;
 
@@ -288,13 +288,13 @@ HoaEncoderMatrix : HoaMatrix {
 
         // build encoder matrix, and set for instance
         matrix = norm * Matrix.with(
-            directions.collect({ arg thetaPhi;
+            directions.collect({ |thetaPhi|
 				(1/beamWeights)[hoaOrder.l] * hoaOrder.sph(thetaPhi.at(0), thetaPhi.at(1));
             }).flop
         )
     }
 
-    initModes {  arg k, match; // modal encoder
+    initModes {  |k, match| // modal encoder
 		var directions, order;
 		var decodingMatrix;
 
@@ -380,11 +380,11 @@ HoaXformerMatrix : HoaMatrix {
 
 	/*  Mirroring  */
 
-	*newMirror { arg mirror = \reflect, order;
+	*newMirror { |mirror = \reflect, order|
 		^super.new('mirror', order).initDirChannels.initMirror(mirror);
 	}
 
-    initMirror { arg mirror;
+    initMirror { |mirror|
         var hoaOrder;
         var size;
         var coeffs;
@@ -402,27 +402,17 @@ HoaXformerMatrix : HoaMatrix {
 	/* Beaming */
 
 	// Sampling beams - multi pattern
-    *newBeam { arg theta = 0, phi = 0, k = \basic, order;
+    *newBeam { |theta = 0, phi = 0, k = \basic, order|
 		var directions = [[ theta, phi ]];
         ^super.new('beam', order).initDirChannels(directions).initBeam(k);
     }
 
-	// *newBeams { arg theta = 0, phi = 0, decK = \basic, encK = \basic, order;
-	// 	var directions = [[ theta, phi ]];
-	// 	^super.new('beam', order).initDirChannels(directions).initSADE(decK, encK);
-	// }
-
-    *newNull { arg theta = 0, phi = 0, k = \basic, order;
+    *newNull { |theta = 0, phi = 0, k = \basic, order|
 		var directions = [[ theta, phi ]];
         ^super.new('null', order).initDirChannels(directions).initNull(k);
     }
 
-	// *newNulls { arg theta = 0, phi = 0, decK = \basic, encK = \basic, order;
-	// 	var directions = [[ theta, phi ]];
-	// 	^super.new('null', order).initDirChannels(directions).initSADER(decK, encK);
-	// }
-
-	initBeam { arg k;
+	initBeam { |k|
 		var theta, phi, order;
 		var decodingMatrix, encodingMatrix;
 
@@ -448,7 +438,7 @@ HoaXformerMatrix : HoaMatrix {
 		matrix = encodingMatrix.mulMatrix(decodingMatrix)
 	}
 
-	initNull { arg k;
+	initNull { |k|
 		var theta, phi, order;
 		var decodingMatrix, encodingMatrix;
 		var xformingMatrix;
@@ -485,7 +475,7 @@ HoaXformerMatrix : HoaMatrix {
 
 HoaDecoderMatrix : HoaMatrix {
 
-	*newFormat { arg format = \atk, order;
+	*newFormat { |format = \atk, order|
 		^super.new('format', order).initDirChannels.initFormat(\atk, format);
 	}
 
@@ -496,7 +486,7 @@ HoaDecoderMatrix : HoaMatrix {
     */
 
 	// Sampling Decoding beam - 'basic' pattern
-    *newDirection { arg theta = 0, phi = 0, order;
+    *newDirection { |theta = 0, phi = 0, order|
 		var directions = [[ theta, phi ]];
         ^super.new('dir', order).initDirChannels(directions).initBasic;
     }
@@ -507,7 +497,7 @@ HoaDecoderMatrix : HoaMatrix {
     }
 
 	// Sampling Decoding beam - multi pattern
-	*newBeam { arg theta = 0, phi = 0, k = \basic, order;
+	*newBeam { |theta = 0, phi = 0, k = \basic, order|
 		var directions = [[ theta, phi ]];
 		^super.new('beam', order).initDirChannels(directions).initBeam(k, nil);
 	}
@@ -518,24 +508,24 @@ HoaDecoderMatrix : HoaMatrix {
     }
 
 	// NOTE: these arguments diverge from FOA newPeri & newPanto
-    *newProjection { arg directions, k = \basic, match = \amp, order;
+    *newProjection { |directions, k = \basic, match = \amp, order|
 		^super.new('projection', order).initDirChannels(directions).initSAD(k, match);
     }
 
 	// NOTE: these arguments diverge from FOA newPeri & newPanto
-    *newModeMatch { arg directions, k = \basic, match = \amp, order;
+    *newModeMatch { |directions, k = \basic, match = \amp, order|
 		^super.new('modeMatch', order).initDirChannels(directions).initMMD(k, match)
     }
 
-	*newDiametric { arg directions, k = \basic, match = \amp, order;
+	*newDiametric { |directions, k = \basic, match = \amp, order|
 		var directionPairs = directions ++ directions.rank.switch(
 			1, {  // 2D
-				directions.collect({ arg item;
+				directions.collect({ |item|
 					Polar.new(1, item).neg.angle
 				})
 			},
 			2, {  // 3D
-				directions.collect({ arg item;
+				directions.collect({ |item|
 					Spherical.new(1, item.at(0), item.at(1)).neg.angles
 				})
 			}
@@ -567,13 +557,13 @@ HoaDecoderMatrix : HoaMatrix {
         // build decoder matrix, and set for instance
 		// beamWeights = [ 1, 1, ..., 1 ]
         matrix =  norm * Matrix.with(
-            directions.collect({ arg thetaPhi;
+            directions.collect({ |thetaPhi|
                hoaOrder.sph(thetaPhi.at(0), thetaPhi.at(1))
             })
         )
     }
 
-	initBeam {  arg k, match; // beam decoder
+	initBeam {  |k, match| // beam decoder
 		var directions, hoaOrder, beamWeights;
 		var degreeSeries, norm;
 
@@ -590,13 +580,13 @@ HoaDecoderMatrix : HoaMatrix {
 
 		// build decoder matrix, and set for instance
 		matrix = norm * Matrix.with(
-			directions.collect({ arg thetaPhi;
+			directions.collect({ |thetaPhi|
 				beamWeights[hoaOrder.l] * hoaOrder.sph(thetaPhi.at(0), thetaPhi.at(1));
 			})
 		)
 	}
 
-	initSAD {  arg k, match; // sampling beam decoder, with matching gain
+	initSAD {  |k, match| // sampling beam decoder, with matching gain
 		var directions, numOutputs;
 		var inputOrder, outputOrder, hoaOrder;
 		var encodingMatrix, decodingMatrix;
@@ -636,7 +626,7 @@ HoaDecoderMatrix : HoaMatrix {
 		// --------------------------------
 		// 3) generate prototype planewave (basic) encoding matrix
 		encodingMatrix = Matrix.with(
-			directions.collect({arg item;
+			directions.collect({ |item|
 				hoaOrder.sph(item.at(0), item.at(1));  // encoding coefficients
 			}).flop
 		);
@@ -646,7 +636,7 @@ HoaDecoderMatrix : HoaMatrix {
 			encodingMatrix = this.class.newFormat([\acn, \n2d], outputOrder).matrix.mulMatrix(
 				encodingMatrix
 			);
-			hoaOrder.indices.difference(hoaOrder.indices(subset: \sectoral)).do({ arg row;
+			hoaOrder.indices.difference(hoaOrder.indices(subset: \sectoral)).do({ |row|
 				encodingMatrix.putRow(row, Array.fill(numOutputs, { 0.0 }))
 			})
 		});
@@ -678,7 +668,7 @@ HoaDecoderMatrix : HoaMatrix {
 
 	//-----------
 	// Mode Matching Decoders, aka Pseudo-inverse
-	initMMD {  arg k, match;  // mode matching decoder, with matching gain
+	initMMD {  |k, match|  // mode matching decoder, with matching gain
 		var directions, numOutputs;
 		var inputOrder, outputOrder, hoaOrder;
 		var encodingMatrix, decodingMatrix, zerosMatrix;
@@ -718,7 +708,7 @@ HoaDecoderMatrix : HoaMatrix {
 		// --------------------------------
 		// 3) generate prototype planewave (basic) encoding matrix
 		encodingMatrix = Matrix.with(
-			directions.collect({arg item;
+			directions.collect({ |item|
 				hoaOrder.sph(item.at(0), item.at(1));  // encoding coefficients
 			}).flop
 		);
@@ -736,7 +726,7 @@ HoaDecoderMatrix : HoaMatrix {
 		// 4a) if 2D (re-)insert non-sectoral (3D) harmonics
 		(dim == 2).if({
 			zerosMatrix = Matrix.newClear(numOutputs, (outputOrder + 1).squared);
-			hoaOrder.indices(subset: \sectoral).do({ arg index, i;
+			hoaOrder.indices(subset: \sectoral).do({ |index, i|
 				zerosMatrix.putCol(
 					index,
 					decodingMatrix.getCol(i)

@@ -53,27 +53,27 @@
 HoaRadius {
     var <>radius;
 
-    *new { arg radius = 0.12406851245573;
+    *new { |radius = 0.12406851245573|
         ^super.newCopyArgs(radius)
     }
 
     // Set radius from delay (in seconds).
-    *newDelay { arg delay = 0.00036171577975431;
+    *newDelay { |delay = 0.00036171577975431|
         ^this.new(delay*Atk.speedOfSound)
     }
 
     // Set radius from wavenumber and order
-    *newWaveNumber { arg waveNumber = 8.0600627847202, order = 1;
+    *newWaveNumber { |waveNumber = 8.0600627847202, order = 1|
         ^this.new(order/waveNumber)
     }
 
     // Set radius from frequency and order
-    *newFreq { arg freq = 440.0, order = 1;
+    *newFreq { |freq = 440.0, order = 1|
         ^this.new((order*Atk.speedOfSound) / (2*pi*freq))
     }
 
     // Set radius from normalised frequency and order
-    *newWn { arg wn, sr, order = 1;
+    *newWn { |wn, sr, order = 1|
         ^this.new((order*Atk.speedOfSound) / (pi*wn*sr))
     }
 
@@ -87,17 +87,17 @@ HoaRadius {
     // Order
 
     // Return effective order.
-    orderAtWaveNumber { arg waveNumber = 8.0600627847202;
+    orderAtWaveNumber { |waveNumber = 8.0600627847202|
         ^(this.radius*waveNumber)
     }
 
     // Return effective order.
-    orderAtFreq { arg freq = 440.0;
+    orderAtFreq { |freq = 440.0|
         ^(2*pi*this.radius*freq) / Atk.speedOfSound
     }
 
     // Return effective order.
-    orderAtWn { arg wn, sr;
+    orderAtWn { |wn, sr|
         ^(pi*this.radius*wn*sr) / Atk.speedOfSound
     }
 
@@ -105,17 +105,17 @@ HoaRadius {
     // Wavenumber / frequency
 
     // Return effective wavenumber.
-    waveNumber { arg order = 1;
+    waveNumber { |order = 1|
         ^(order/this.radius)
     }
 
     // Return effective frequency.
-    freq { arg order = 1;
+    freq { |order = 1|
         ^(order*Atk.speedOfSound) / (2*pi*this.radius)
     }
 
     // Return effective normalized frequency.
-    wn { arg order, sr;
+    wn { |order, sr|
         ^(order*Atk.speedOfSound) / (pi*this.radius*sr)
     }
 

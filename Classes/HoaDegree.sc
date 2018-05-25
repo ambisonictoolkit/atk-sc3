@@ -53,7 +53,7 @@
 HoaDegree {
     var <>degree;
 
-    *new { arg degree;
+    *new { |degree|
         ^super.newCopyArgs(degree)
     }
 
@@ -82,15 +82,15 @@ HoaDegree {
     // ------------
     // Return indices
 
-    indices { arg ordering = \acn, subset = \all;
+    indices { |ordering = \acn, subset = \all|
         (subset == \all).if({
             // all
-            ^this.lm.collect({ arg lm;
+            ^this.lm.collect({ |lm|
                 HoaLm.new(lm).index(ordering)
             })
         }, {
             // subset
-            ^this.lm.collect({ arg lm;
+            ^this.lm.collect({ |lm|
                 var hoaLm = HoaLm.new(lm);
                 hoaLm.isInSubset(subset).if({
                     hoaLm.index(ordering)
@@ -102,8 +102,8 @@ HoaDegree {
     // ------------
     // Return reflection coefficients
 
-    reflection { arg mirror = \reflect;
-        ^this.lm.collect({ arg lm;
+    reflection { |mirror = \reflect|
+        ^this.lm.collect({ |lm|
             HoaLm.new(lm).reflection(mirror)
         })
     }
@@ -111,8 +111,8 @@ HoaDegree {
     // ------------
     // Return normalisation coefficients
 
-    normalisation { arg scheme = \n3d;
-        ^this.lm.collect({ arg lm;
+    normalisation { |scheme = \n3d|
+        ^this.lm.collect({ |lm|
             HoaLm.new(lm).normalisation(scheme)
         })
     }
@@ -121,8 +121,8 @@ HoaDegree {
     // Return encoding coefficients
 
     // N3D normalized coefficients
-    sph { arg theta = 0.0, phi = 0.0;
-        ^this.lm.collect({ arg lm;
+    sph { |theta = 0.0, phi = 0.0|
+        ^this.lm.collect({ |lm|
             HoaLm.new(lm).sph(theta, phi)
         })
     }

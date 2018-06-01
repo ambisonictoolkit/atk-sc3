@@ -434,7 +434,12 @@ HoaXformerMatrix : HoaMatrix {
 			rx = this.class.newRotateAxis(\x, 0.5pi, this.order).matrix;
 			my = this.class.newMirror(\y, this.order).matrix;
 
-			matrix = my * rx;
+			// matrix = my * rx;
+
+			// TODO: bake in this omptimization? larger question of migrating from Matrix to MatrixArray
+			rx = MatrixArray.with(rx.asArray);
+			my = MatrixArray.with(my.asArray);
+			matrix = Matrix.with(my * rx);
 		}
 		{axes == \xz or: {axes == \zx}} // swap Z<>X axes, , "K-matrix"
 		{
@@ -443,7 +448,12 @@ HoaXformerMatrix : HoaMatrix {
 			ry = this.class.newRotateAxis(\y, 0.5pi, this.order).matrix;
 			mx = this.class.newMirror(\x, this.order).matrix;
 
-			matrix = mx * ry;
+			// matrix = mx * ry;
+
+			// TODO: bake in this omptimization? larger question of migrating from Matrix to MatrixArray
+			mx = MatrixArray.with(mx.asArray);
+			ry = MatrixArray.with(ry.asArray);
+			matrix = Matrix.with(mx * ry);
 		}
 		{axes == \xy or: {axes == \yx}} // swap X<>Y axes
 		{

@@ -63,7 +63,11 @@ MatrixArray {
 	at { |row, col| ^matrix[row][col] }
 	rowAt { |row| ^matrix[row] }
 	colAt { |col| ^this.flopped[col] }
+
+	// return the array that is the matrix.
+	// NOTE: this isn't a copy of the array but the array itself
 	asArray { ^matrix }
+
 	put { |row, col, val|
 		matrix[row][col] = val;
 		flopped = nil; // trigger re-calc of transpose on next request

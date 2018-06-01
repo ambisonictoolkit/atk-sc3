@@ -187,11 +187,11 @@ HoaMatrix : AtkMatrix {
 	dim {
 		var is2D;
 
-		if (this.kind == \format, {
-			^3
-		},{
+		^if (this.kind == \format, {
+			3
+		}, {
 			is2D = this.dirChannels.collect(_.last).every(_ == 0.0);
-			if (is2D, { ^2 }, { ^3 });
+			if (is2D, { 2 }, { 3 });
 		})
 	}
 

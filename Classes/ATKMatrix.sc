@@ -50,16 +50,17 @@
 //	For more information visit http://ambisonictoolkit.net/ or
 //	email info[at]ambisonictoolkit.net
 //
-//---------------------------------------------------------------------
+//-----------------------------------------------------------------------
 
 
-//------------------------------------------------------------------------
+//-----------------------------------------------------------------------
 // Third Party Notices
-//------------------------------------------------------------------------
+//-----------------------------------------------------------------------
 //
 //-----------------------------------------------------------------------
-// Support for Gerzon's Diametric Decoder Theorem (DDT) decoding algorithm is derived
-// from Aaron Heller's Octave code available at: http://www.ai.sri.com/ajh/ambisonics/
+// Support for Gerzon's Diametric Decoder Theorem (DDT) decoding
+// algorithm is derived from Aaron Heller's Octave code available at:
+// http://www.ai.sri.com/ajh/ambisonics/
 //
 // Benjamin, et al., "Localization in Horizontal-Only Ambisonic Systems"
 // Preprint from AES-121, 10/2006, San Francisco
@@ -69,11 +70,12 @@
 //-----------------------------------------------------------------------
 //
 //-----------------------------------------------------------------------
-// Irregular array decoding coefficients (5.0, 7.0) are kindly provided by
-// Bruce Wiggins: http://www.brucewiggins.co.uk/
+// Irregular array decoding coefficients (5.0, 7.0) are kindly provided
+// by Bruce Wiggins: http://www.brucewiggins.co.uk/
 //
-// B. Wiggins, "An Investigation into the Real-time Manipulation and Control of
-// Three-dimensional Sound Fields," PhD Thesis, University of Derby, Derby, 2004.
+// B. Wiggins, "An Investigation into the Real-time Manipulation and
+// Control of Three-dimensional Sound Fields," PhD Thesis, University of
+// Derby, Derby, 2004.
 //-----------------------------------------------------------------------
 
 

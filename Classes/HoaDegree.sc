@@ -127,4 +127,7 @@ HoaDegree {
         })
     }
 
+	numCoeffs {
+		^Hoa.numDegreeCoeffs(this.degree)
+	}
 }

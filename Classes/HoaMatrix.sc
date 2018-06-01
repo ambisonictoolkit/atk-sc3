@@ -53,7 +53,7 @@ HoaMatrix : AtkMatrix {
 
 	initDirChannels { |directions|
 		dirChannels = (directions == nil).if({
-			(this.order + 1).squared.collect({ inf })
+			Hoa.numOrderCoeffs(this.order).collect({ inf })
 		}, {
 			directions.rank.switch(
 				0, { Array.with(directions, 0.0).reshape(1, 2) },
@@ -86,7 +86,7 @@ HoaMatrix : AtkMatrix {
 		outputFormat = formatKeyword.value(outputFormat);
 
 		hoaOrder = HoaOrder.new(this.order);  // instance order
-		size = (this.order + 1).squared;
+		size = hoaOrder.numCoeffs(this.order);
 
 		(inputFormat == outputFormat).if({  // equal formats?
 			matrix = Matrix.newIdentity(size).asFloat
@@ -173,7 +173,7 @@ HoaMatrix : AtkMatrix {
 	numOutputs { ^matrix.rows }
 
 	numChannels {
-		^(this.order + 1).squared
+		^Hoa.numOrderCoeffs(this.order)
 	}
 
 	dirInputs {

@@ -252,5 +252,7 @@ HoaOrder {
         )
     }
 
-
+	numCoeffs {
+		^Hoa.numOrderCoeffs(this.order)
+	}
 }

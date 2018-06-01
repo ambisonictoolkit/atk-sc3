@@ -16,4 +16,8 @@ Hoa {
 	*numDegreeCoeffs { |degree|
 		^(degree*2 + 1)
 	}
+
+	*numOrderCoeffs { |order|
+		^(order + 1).squared
+	}
 }

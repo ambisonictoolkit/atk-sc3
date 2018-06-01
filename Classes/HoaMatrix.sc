@@ -215,7 +215,7 @@ HoaEncoderMatrix : HoaMatrix {
     }
 
 	// Projection Encoding beams - 'basic' pattern
-	*newDirections { arg directions = [[ 0, 0 ]], order;
+	*newDirections { |directions = ([[ 0, 0 ]]), order|
         ^super.new('dirs', order).initDirChannels(directions).initBasic;
     }
 
@@ -232,12 +232,12 @@ HoaEncoderMatrix : HoaMatrix {
     }
 
 	// Projection Encoding beams - multi pattern
-	*newBeams { arg directions = [[ 0, 0 ]], k = \basic, match = \beam, order;
+	*newBeams { |directions = ([[ 0, 0 ]]), k = \basic, match = \beam, order|
         ^super.new('beams', order).initDirChannels(directions).initBeam(k, match);
     }
 
 	// Modal Encoding beams - multi pattern
-	*newModes { arg directions = [[ 0, 0 ]], k = \basic, match = \beam, order;
+	*newModes { |directions = ([[ 0, 0 ]]), k = \basic, match = \beam, order|
         ^super.new('modes', order).initDirChannels(directions).initModes(k, match);
     }
 
@@ -549,7 +549,7 @@ HoaDecoderMatrix : HoaMatrix {
     }
 
 	// Projection Decoding beams - 'basic' pattern
-	*newDirections { arg directions = [[ 0, 0 ]], order;
+	*newDirections { |directions = ([[ 0, 0 ]]), order|
         ^super.new('dirs', order).initDirChannels(directions).initBasic;
     }
 
@@ -560,7 +560,7 @@ HoaDecoderMatrix : HoaMatrix {
 	}
 
 	// Projection Decoding beams - multi pattern
-	*newBeams { arg directions = [[ 0, 0 ]], k = \basic, match = \beam, order;
+	*newBeams { |directions = [[ 0, 0 ]], k = \basic, match = \beam, order|
         ^super.new('beams', order).initDirChannels(directions).initBeam(k, match);
     }
 

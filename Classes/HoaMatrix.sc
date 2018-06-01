@@ -185,14 +185,13 @@ HoaMatrix : AtkMatrix {
 	}
 
 	dim {
-		^(this.kind == \format).if({
-			3
-		}, {
-			this.dirChannels.flatten.unlace.last.every({ |item| item == 0.0 }).if({  // test - 2D
-				2
-			}, {
-				3
-			})
+		var is2D;
+
+		if (this.kind == \format, {
+			^3
+		},{
+			is2D = this.dirChannels.collect(_.last).every(_ == 0.0);
+			if (is2D, { ^2 }, { ^3 });
 		})
 	}
 

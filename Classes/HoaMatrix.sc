@@ -370,10 +370,12 @@ HoaXformerMatrix : HoaMatrix {
 		^super.new('rotateAxis', order).initDirChannels.initRotation(r1, r2, r3, \xyz, order)
 	}
 
+	// TODO: why not super.new('rotation', order) ?
 	*newRTT { |rotate = 0, tilt = 0, tumble = 0, order|
 		^super.new('rotation').initDirChannels.initRotation(rotate, tilt, tumble, \zxy, order)
 	}
 
+	// TODO: why not super.new('rotation', order) ?
 	*newYPR { |yaw = 0, pitch = 0, roll = 0, order|
 		^super.new('rotation').initDirChannels.initRotation(roll, pitch, yaw, \xyz, order)
 	}
@@ -381,6 +383,14 @@ HoaXformerMatrix : HoaMatrix {
 	//  Mirroring
 	*newMirror { |mirror = \reflect, order|
 		^super.new('mirror', order).initDirChannels.initMirror(mirror);
+	}
+
+	//  Swap one axis for another
+	// TODO: is this a subset of mirroring?
+	// - if yes, would need a way to fork to initSwapAxes in *newMirror
+	// - if yes, kind = 'mirror', otherwise need new kind e.g. 'axisSwap'
+	*newSwapAxes { |axes = \yz, order|
+		^super.new('mirror', order).initDirChannels.initSwapAxes(axes);
 	}
 
     // ------------
@@ -408,12 +418,51 @@ HoaXformerMatrix : HoaMatrix {
         hoaOrder = HoaOrder.new(this.order);  // instance order
         size = (this.order + 1).squared;
 
-        // 1) generate coefficients - ordered \acn
+        // 1) generate mirror coefficients - ordered \acn
         coeffs = hoaOrder.reflection(mirror);
 
         // 2) generate matrix
         matrix = Matrix.newDiagonal(coeffs);
     }
+
+	initSwapAxes { |axes|
+		case
+		{axes == \yz or: {axes == \zy}} // swap Z<>Y axes, "J-matrix"
+		{
+			var rx, my;
+
+			rx = this.class.newRotateAxis(\x, 0.5pi, this.order).matrix;
+			my = this.class.newMirror(\y, this.order).matrix;
+
+			matrix = my * rx;
+		}
+		{axes == \xz or: {axes == \zx}} // swap Z<>X axes, , "K-matrix"
+		{
+			var ry, mx;
+
+			ry = this.class.newRotateAxis(\y, 0.5pi, this.order).matrix;
+			mx = this.class.newMirror(\x, this.order).matrix;
+
+			matrix = mx * ry;
+		}
+		{axes == \xy or: {axes == \yx}} // swap X<>Y axes
+		{
+			var rz, mx;
+
+			rz = this.class.newRotateAxis(\z, 0.5pi, this.order).matrix;
+			mx = this.class.newMirror(\x, this.order).matrix;
+
+			matrix = mx * rz;
+		}
+		{
+			"Cannot swap axes '%'".format(axes).throw
+		};
+
+		// optimization for synth graphs:
+		// zero out matrix elements which are close to zero
+		// TODO: is this the proper place for this optimization?
+		matrix = matrix.zeroWithin(-300.dbamp);
+	}
 
 	initBeam { |k|
 		var theta, phi, order;

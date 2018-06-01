@@ -560,7 +560,7 @@ HoaDecoderMatrix : HoaMatrix {
 	}
 
 	// Projection Decoding beams - multi pattern
-	*newBeams { |directions = [[ 0, 0 ]], k = \basic, match = \beam, order|
+	*newBeams { |directions = ([[ 0, 0 ]]), k = \basic, match = \beam, order|
         ^super.new('beams', order).initDirChannels(directions).initBeam(k, match);
     }
 

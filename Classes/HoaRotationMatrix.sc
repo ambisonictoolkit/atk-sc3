@@ -152,7 +152,7 @@ HoaRotationMatrix {
 
 	/*
 	Recursively generate a matrix for rotating real SHs up to maxDegree.
-	rXYZ: the normal 3x3 rotation matrix for the cartesian system (via -eulerToRO3)
+	rXYZ: the normal 3x3 rotation matrix for the cartesian system (via eulerToR3 method)
 	*/
 	buildSHRotMtx { |rXYZ, maxDegree|
 		var r;         // output rotation matrix

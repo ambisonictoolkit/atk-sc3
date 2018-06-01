@@ -74,7 +74,7 @@ HoaMatrix : AtkMatrix {
 
 		formatKeyword = { |format|
 			switch (format,
-				\atk, { [ \acn, \n3d ] },  // atk, mpegH
+				\atk, { [ \acn, \n3d ] },     // atk, mpegH
 				\ambix, { [ \acn, \sn3d ] },  // ambix
 				\fuma, { [ \fuma, \fuma ] },  // fuma
 				{ format }  // default

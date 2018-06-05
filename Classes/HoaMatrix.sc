@@ -49,7 +49,6 @@
 //---------------------------------------------------------------------
 
 HoaMatrix : AtkMatrix {
-    var <dirChannels;
 
 	initDirChannels { |directions|
 		dirChannels = (directions == nil).if({
@@ -86,7 +85,7 @@ HoaMatrix : AtkMatrix {
 		outputFormat = formatKeyword.value(outputFormat);
 
 		hoaOrder = HoaOrder.new(this.order);  // instance order
-		size = hoaOrder.numCoeffs(this.order);
+		size = hoaOrder.numCoeffs;
 
 		(inputFormat == outputFormat).if({  // equal formats?
 			matrix = Matrix.newIdentity(size).asFloat
@@ -176,22 +175,21 @@ HoaMatrix : AtkMatrix {
 		^Hoa.numOrderCoeffs(this.order)
 	}
 
-	dirInputs {
-		^this.dirChannels
-	}
-
-	dirOutputs {
-		^this.dirChannels
-	}
-
 	dim {
 		var is2D;
 
 		^if (this.kind == \format, {
 			3
 		}, {
-			is2D = this.dirChannels.collect(_.last).every(_ == 0.0);
-			if (is2D, { 2 }, { 3 });
+			if (dirChannels[0] == 'unspecified') { // catch unspecified dirChannels
+				"[HoaMatrix:-dim] dirChannels is 'unspecified' (was your HoaMatrix loaded "
+				"from a Matrix directly?). Set dirChannels before requesting -dim.".warn;
+				// TODO: consider how returning a symbol will affect other calls on dim
+				'unspecified' // return
+			} {
+				is2D = this.dirChannels.collect(_.last).every(_ == 0.0);
+				if (is2D, { 2 }, { 3 });
+			}
 		})
 	}
 
@@ -248,6 +246,7 @@ HoaEncoderMatrix : HoaMatrix {
     // *newFromFile { arg filePathOrName;
     //     ^super.new.initFromFile(filePathOrName, 'encoder', true).initEncoderVarsForFiles
     // }
+
 
     // ------------
     // Basic
@@ -333,6 +332,10 @@ HoaEncoderMatrix : HoaMatrix {
 
 	dirOutputs {
 		^this.numOutputs.collect({ inf })
+	}
+
+	dirInputs {
+		^this.dirChannels
 	}
 
     type { ^\encoder }
@@ -526,6 +529,14 @@ HoaXformerMatrix : HoaMatrix {
     dim { ^3 }  // all transforms are 3D
 
     type { ^\xformer }
+
+	dirOutputs {
+		^this.dirChannels
+	}
+
+	dirInputs {
+		^this.dirChannels
+	}
 
 }
 
@@ -834,6 +845,10 @@ HoaDecoderMatrix : HoaMatrix {
 
 	dirInputs {
 		^this.numInputs.collect({ inf })
+	}
+
+	dirOutputs {
+		^this.dirChannels
 	}
 
 	type { ^\decoder }

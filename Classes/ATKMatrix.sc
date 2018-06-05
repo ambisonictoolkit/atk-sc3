@@ -164,6 +164,7 @@ FoaSpeakerMatrix {
 	}
 }
 
+
 AtkMatrix {
 	// copyArgs
 	var <kind;
@@ -173,6 +174,7 @@ AtkMatrix {
 	var <filePath;		// matrices from files only
 	var <fileParse;		// data parsed from YAML file
 	var <op = 'matrix';
+	var <>dirChannels;  // setter added for matrix-to-file & file-to-matrix support
 
 	// most typically called by subclass
 	*new { |kind, order, type|

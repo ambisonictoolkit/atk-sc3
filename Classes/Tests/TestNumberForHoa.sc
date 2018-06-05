@@ -1,4 +1,4 @@
-TestNumber : HoaTest {
+TestNumberForHoa : UnitTest {
 
 	test_sphericalHarmonic {
 		var t;

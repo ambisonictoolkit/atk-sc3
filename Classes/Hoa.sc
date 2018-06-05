@@ -20,4 +20,16 @@ Hoa {
 	*numOrderCoeffs { |order|
 		^(order + 1).squared
 	}
+
+	// Detect the order from the number of channels/coefficients
+	// Currently expects full 3D signals
+	// TODO: support 2D? mixed order?
+	*detectOrder { |numChans|
+		var o = (numChans.sqrt - 1);
+		if (o % 1 != 0) {
+			"Could not detect order from % channels".format(numChans).throw
+		};
+		^o.asInt;
+	}
+
 }

@@ -1,23 +1,26 @@
-// HoaTest is a convenience class to run all Hoa Tests:
-// HoaTest.run
+// AtkTests is a convenience class to run all Atk Tests:
+// AtkTests.run
 //
 // You can also change the reporting flag and testing
 // order through the classvar before running the test.
 
 
-HoaTests {
-	classvar <>report=false, <>order=3, <>floatWithin=1e-8;
+AtkTests {
+	classvar
+	<>report = false,
+	<>order = 3,          // for HOA tests
+	<>floatWithin = 1e-8; // float error tolerance
 
 	// Run all HOA tests
 	*run { |verbose=false, hoaOrder|
 		report = verbose;
 		hoaOrder !? {order = hoaOrder};
-		[   // list of Test classes
-			TestHoaEncoderMatrix,
-			TestHoaDecoderMatrix,
+		[
+			// list of Test classes
 			TestHoaRotationMatrix,
 			TestHoaXformerMatrix,
-			TestNumberForHoa, // tests sphericalHarmonic method
+			TestNumberForHoa,      // tests sphericalHarmonic method
+			TestFoaMatrix,         // includes matrix encoders, decoders, xformers
 		].do(_.run)
 
 	}
@@ -50,12 +53,12 @@ HoaTests {
 	}
 
 	// NOTE: making all Test classes a subclass of
-	// HoaTest : UnitTest resulted in silent failure.
+	// AtkTest:UnitTest resulted in silent failure.
 	// It appears all Test classes need to be direct
 	// decendants of UnitTest.
 
 	// test_subclasses {
-	//    HoaTest.subclasses.do(_.run)
+	//    AtkTest.subclasses.do(_.run)
 	// }
 
 }

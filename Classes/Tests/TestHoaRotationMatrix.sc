@@ -3,9 +3,9 @@ TestHoaRotationMatrix : UnitTest {
 	var initializedPws, targetPws;
 
 	setUp {
-		order = HoaTests.order;
-		report = HoaTests.report;
-		floatWithin = HoaTests.floatWithin;
+		order = AtkTests.order;
+		report = AtkTests.report;
+		floatWithin = AtkTests.floatWithin;
 	}
 
 	initPlanewaves { |dirsArray, axes, r1, r2, r3, argOrder|
@@ -108,10 +108,10 @@ TestHoaRotationMatrix : UnitTest {
 		};
 
 		// run tests on each of the direction groups
-		testDirs.(HoaTests.getDirs(\axis), "axes", 5);
-		testDirs.(HoaTests.getDirs(\tetra, \flu), "a tetrahedon", 5);
-		testDirs.(HoaTests.getDirs(\cube), "a cube", 5);
-		testDirs.(HoaTests.getDirs(\random, 10), "randomness", 5);
+		testDirs.(AtkTests.getDirs(\axis), "axes", 5);
+		testDirs.(AtkTests.getDirs(\tetra, \flu), "a tetrahedon", 5);
+		testDirs.(AtkTests.getDirs(\cube), "a cube", 5);
+		testDirs.(AtkTests.getDirs(\random, 10), "randomness", 5);
 	}
 
 	test_FoaRttVsHoaRtt {

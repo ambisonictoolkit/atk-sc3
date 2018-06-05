@@ -4,9 +4,9 @@ TestHoaXformerMatrix : UnitTest {
 	var initializedPlanewaves, targetPlanewaves;
 
 	setUp {
-		order = HoaTests.order;
-		report = HoaTests.report;
-		floatWithin = HoaTests.floatWithin;
+		order = AtkTests.order;
+		report = AtkTests.report;
+		floatWithin = AtkTests.floatWithin;
 	}
 
 	initPlanewaves { |dirsArray, yaw, pitch, roll|

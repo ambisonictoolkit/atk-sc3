@@ -165,7 +165,8 @@ HoaMatrix : AtkMatrix {
         stream << this.class.name << "(" <<* [kind, this.dim, this.numChannels] <<")";
     }
 
-	order { ^this.set.asString.drop(3).asInteger }
+	// replaced by instance variable in AtkMatrix
+	// order { ^this.set.asString.drop(3).asInteger }
 
 	numInputs { ^matrix.cols }
 

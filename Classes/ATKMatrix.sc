@@ -175,6 +175,8 @@ AtkMatrix {
 	var <filePath;		// matrices from files only
 	var <fileParse;		// data parsed from YAML file
 	var <op = 'matrix';
+	var <detail;        // optionally store details about the matrix, e.g. kind: mirror, detail: 'x'
+	// TODO: set detail in init methods!! Test detail in matrix file read/write and -info
 	var <>dirChannels;  // setter added for matrix-to-file & file-to-matrix support
 
 	// most typically called by subclass
@@ -320,7 +322,7 @@ AtkMatrix {
 		var attributes;
 
 		// gather attributes in order of posting
-		attributes = [ \kind, \dirInputs, \dirOutputs, \dim, \matrix ];
+		attributes = [ \kind, \detail, \dirInputs, \dirOutputs, \dim, \matrix ];
 
 		if (this.isKindOf(FoaDecoderMatrix)) {
 			attributes = attributes ++ [\shelfK, \shelfFreq]

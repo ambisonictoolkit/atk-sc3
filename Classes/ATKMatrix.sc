@@ -113,9 +113,9 @@ FoaSpeakerMatrix {
 
 	initDiametric {
 
-    		// n = number of output channel (speaker) pairs
-    		// m = number of dimensions,
-    		//        2=horizontal, 3=periphonic
+		// n = number of output channel (speaker) pairs
+		// m = number of dimensions,
+		//        2=horizontal, 3=periphonic
 		m = this.positions.cols;
 		n = this.positions.rows;
 	}
@@ -171,6 +171,7 @@ AtkMatrix {
 	var <set, <type;
 
 	var <matrix;
+	var <order;			// order for this matrix
 	var <filePath;		// matrices from files only
 	var <fileParse;		// data parsed from YAML file
 	var <op = 'matrix';
@@ -182,13 +183,16 @@ AtkMatrix {
 	}
 
 	init { |argOrder, argType|
-		set = if (argOrder.notNil) {
-			format("HOA%", argOrder).asSymbol;
+		if (argOrder.notNil) {
+			order = argOrder;
+			set = format("HOA%", argOrder).asSymbol;
 		} { // detect from class
 			if (this.class.asString.keep(3) == "Foa") {
-				'FOA';
+				order = 1;
+				set = 'FOA';
 			} {
-				format("HOA%", Hoa.globalOrder).asSymbol;
+				order = Hoa.globalOrder;
+				set = format("HOA%", order).asSymbol;
 			}
 		};
 

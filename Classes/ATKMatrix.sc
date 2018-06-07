@@ -609,6 +609,8 @@ AtkMatrix {
 		)
 	}
 
+	asArray { ^matrix.asArray }
+
 	prInferType {
 		^switch( this.class,
 			FoaEncoderMatrix, {'encoder'},

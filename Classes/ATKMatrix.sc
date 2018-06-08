@@ -233,8 +233,6 @@ AtkMatrix {
 			'xformer', { matrix.rows }  // assumed that an xformer is a square matrix, row == cols
 		).collect{ 'unspecified' };
 
-		[type, matrix.cols, dirChannels].postln;
-
 		// set the 'set' instance var
 		if (argSet.notNil) {
 			if (setStr != "FOA" and: { setStr != "HOA" }) {

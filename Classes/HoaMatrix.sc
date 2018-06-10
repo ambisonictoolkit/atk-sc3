@@ -428,9 +428,11 @@ HoaXformerMatrix : HoaMatrix {
         matrix = Matrix.newDiagonal(coeffs);
     }
 
+	// NOTE: this contains near-zero values.
+	// You can optimize these out by calling Matrix:-zeroWithin
 	initSwapAxes { |axes|
 		case
-		{axes == \yz or: {axes == \zy}} // swap Z<>Y axes, "J-matrix"
+		{ axes == \yz or: { axes == \zy } } // swap Z<>Y axes, "J-matrix"
 		{
 			var rx, my;
 
@@ -444,7 +446,7 @@ HoaXformerMatrix : HoaMatrix {
 			my = MatrixArray.with(my.asArray);
 			matrix = Matrix.with(my * rx);
 		}
-		{axes == \xz or: {axes == \zx}} // swap Z<>X axes, , "K-matrix"
+		{ axes == \xz or: { axes == \zx } } // swap Z<>X axes, , "K-matrix"
 		{
 			var ry, mx;
 
@@ -458,7 +460,7 @@ HoaXformerMatrix : HoaMatrix {
 			ry = MatrixArray.with(ry.asArray);
 			matrix = Matrix.with(mx * ry);
 		}
-		{axes == \xy or: {axes == \yx}} // swap X<>Y axes
+		{ axes == \xy or: { axes == \yx } } // swap X<>Y axes
 		{
 			var rz, mx;
 
@@ -470,11 +472,6 @@ HoaXformerMatrix : HoaMatrix {
 		{
 			"Cannot swap axes '%'".format(axes).throw
 		};
-
-		// optimization for synth graphs:
-		// zero out matrix elements which are close to zero
-		// TODO: is this the proper place for this optimization?
-		matrix = matrix.zeroWithin(-300.dbamp);
 	}
 
 	initBeam { |k|

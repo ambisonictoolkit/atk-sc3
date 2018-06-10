@@ -75,14 +75,30 @@ MatrixArray {
 		flopped = nil; // trigger re-calc of transpose on next request
 	}
 
+	// this is a destructive operation:
+	// force values to zero that are within threshold distance (positive or negative)
+	zeroWithin { |within = (-300.dbamp)|
+		var item;
+
+		rows.do{ |r|
+			cols.do{ |c|
+				item = matrix[r][c];
+				matrix[r][c] = if(item.abs <= within, { 0 }, { item });
+			}
+		};
+
+		flopped = nil; // trigger re-calc of transpose on next request
+	}
+
+
 	// returns an Array of multiplying with either a number or matrix
 	// A(m,n) * B(n,r) = AB(m,r)
 	* { |that|
-		if ( that.isNumber, {
-			^this.mulNumber(that);
-		},{
-			^this.mulMatrix(that);
-		});
+		^if (that.isNumber) {
+			this.mulNumber(that);
+		} {
+			this.mulMatrix(that);
+		};
 	}
 
 	// returns an Array of multiplying with a matrix

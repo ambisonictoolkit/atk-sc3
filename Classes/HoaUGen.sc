@@ -96,43 +96,42 @@ HoaUGen {
 	// }
 
 	getJKMatrix { |which, order|
-		var nCoeffs;
+		var nCoeffs, mtx;
 
-		case
-		{ jkOrder.isNil or: { order > jkOrder } } {
-			// j-k matrices haven't yet been calculated
+		if (jkOrder.isNil or: { order > jkOrder }) {
+			// j,k matrices haven't been calculated
 			// or requesting higher order than has been
-			// calculated, recalculate
+			// calculated... (re)calculate
 			this.prCalcJKMatrices(order)
-		}
-		{ jkOrder > order } {
-			nCoeffs = Hoa.numOrderCoeffs(order);
-
-			^switch (which,
-				'k', {kMatrix},
-				'j', {jMatrix},
-				'jk', {jkMatrix},
-				'kj', {kjMatrix}
-			).getSub(0, 0, nCoeffs, nCoeffs);
 		};
 
-		^switch (which,
-			'k', {kMatrix},
-			'j', {jMatrix},
-			'jk', {jkMatrix},
-			'kj', {kjMatrix}
-		)
+		mtx = switch (which,
+			'k',  { kMatrix },
+			'j',  { jMatrix },
+			'jk', { jkMatrix},
+			'kj', { kjMatrix }
+		);
+
+		^if (jkOrder > order) {
+			nCoeffs = Hoa.numOrderCoeffs(order);
+			mtx.getSub(0, 0, nCoeffs, nCoeffs);
+		} {
+			mtx
+		}
 	}
 
 	prCalcJKMatrices { |order|
 		var xz, yz;
+		var zeroWithin = -300.dbamp;
 
 		xz = HoaXformerMatrix.newSwapAxes(\xz, order);
 		yz = HoaXformerMatrix.newSwapAxes(\yz, order);
 
 		// save a MatrixArrays for efficiency
-		kMatrix = MatrixArray.with(xz.asArray);
-		jMatrix = MatrixArray.with(yz.asArray);
+		// zeroWithin - optimization for synth graphs:
+		// Zero out matrix elements which are close to zero so they're optimized out.
+		kMatrix = MatrixArray.with(xz.asArray).zeroWithin(zeroWithin);
+		jMatrix = MatrixArray.with(yz.asArray).zeroWithin(zeroWithin);
 
 		jkMatrix = MatrixArray.with(jMatrix * kMatrix);
 		kjMatrix = MatrixArray.with(kMatrix * jMatrix);
@@ -141,10 +140,12 @@ HoaUGen {
 	}
 
 	// faster than AtkMatrixMix, doens't replace zeros with silence
-	// mtx is a MatrixArray
-	mixMatrix { |in, mtx|
-		^Mix.fill(mtx.cols, { |i|
-			mtx.flopped[i] * in[i]
+	// mtxarr is a MatrixArray
+	mixMatrix { |in, mtxarr|
+		var flopped = mtxarr.flopped;
+
+		^Mix.fill(mtxarr.cols, { |i|
+			flopped[i] * in[i]
 		})
 	}
 
@@ -183,9 +184,62 @@ HoaRTT : HoaUGen {
 	}
 }
 
+// Rotation about Z axis
 HoaRotate : HoaUGen {
-	*ar { |in, radians, order|
 
+	*ar { |in, radians, order|
+		var n;
+		var i = 0;
+		var out, cos, sin;
+		var dex_m, dex_mneg;
+		var s, c, c2;
+		var ang, ang2;
+
+		n = HoaUGen.confirmOrder(in, order);
+
+		out = Array.newClear(Hoa.numOrderCoeffs(n));
+		out[0] = in[0]; // l == 0
+
+		if (n > 0) {
+			s = Array.newClear(n); // [sin(1*ang), sin(2*ang), ... sin(n*ang)]
+			c = Array.newClear(n); // [cos(1*ang), cos(2*ang), ... cos(n*ang)]
+
+			ang = radians;
+			ang2 = ang * 2;
+
+			// precompute first 2 sin/cos for recurrence
+			s[0] = sin(ang);
+			c[0] = cos(ang);
+			s[1] = sin(ang2);
+			c[1] = cos(ang2);
+
+			// modified indexing to replace subtraction with addition, and 2 multiplications
+			c2 = 2*c[0];
+			(1..n-2).do{|idx|
+				s[idx+1] = (c2*s[idx]) - s[idx-1];
+				c[idx+1] = (c2*c[idx]) - c[idx-1];
+			};
+
+			(1..n).do{ |l|
+
+				i = 2*l+i;      // out index to the middle of the band
+				out[i] = in[i]; // center coeff is 1, so pass val through
+
+				(1..l).do{ |m|
+					cos = c[m-1];
+					sin = s[m-1];
+
+					dex_m = i+m;
+					dex_mneg = i-m;
+
+					out[dex_mneg] = (cos * in[dex_mneg]) + (sin * in[dex_m]);
+					out[dex_m]    = (cos * in[dex_m]) - (sin * in[dex_mneg]);
+
+				}
+			}
+		};
+
+		^out
 	}
 }
 

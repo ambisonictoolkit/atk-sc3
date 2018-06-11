@@ -53,9 +53,22 @@
 	// NOTE: set and type aren't currently enforced, but it's a
 	//       good idea to provide it for writing to file
 	asAtkMatrix { arg set, type;
-		var mtx;
+		var mtx, prefix, mType, class;
+
 		mtx = Matrix.with(this.asArray);
-		^AtkMatrix.newFromMatrix(mtx, set, type);
+
+		prefix = if (set.asString.keep(3) == "FOA") {"Foa"} {"Hoa"};
+
+		mType = switch( type,
+			\encoder, { "EncoderMatrix" },
+			\decoder, { "DecoderMatrix" },
+			\xformer, { "XformerMatrix" },
+			{"[Array:-asAtkMatrix] Invalid type (%), must be \encoder, \decoder, or \xformer".format(type).throw }
+		);
+
+		class = (prefix ++ mType).asSymbol.asClass;
+
+		^class.newFromMatrix(mtx, set, type)
 	}
 
 }

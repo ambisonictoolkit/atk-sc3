@@ -334,3 +334,28 @@ HoaTumble : HoaUGen {
 HoaYaw : HoaRotate {}
 HoaPitch : HoaTumble {}
 HoaRoll : HoaTilt {}
+
+
+// Planewave panning.
+HoaPan : HoaUGen {
+
+	*ar { |in, theta, phi, order|
+		var n, pw, pwCoeffs, toPhi, tumble;
+
+		n = order ?? { Hoa.globalOrder };
+
+		// planewave coefficients at zenith
+		pwCoeffs = HoaOrder(n).sph(0, 0.5pi);
+		// round to optimize near-zeros out
+		pwCoeffs = pwCoeffs.round(-180.dbamp);
+		// input signal encoded as a planewave
+		pw = in * pwCoeffs;
+
+		// calculate a tumble angle that
+		// will bring the zenith to phi
+		toPhi = phi - 0.5pi;
+
+		tumble = HoaTumble.ar(pw, toPhi, n);
+		^HoaRotate.ar(tumble, theta, n);
+	}
+}

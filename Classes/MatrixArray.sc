@@ -312,6 +312,23 @@ MatrixArray {
 		^det // return
 	}
 
+	// Mix coefficients with the matrix
+	// (e.g. applying a tranform to ambisonic coefficients)
+	// Returns a new Array of size this.rows
+	mixCoeffs { |coeffs|
+
+		if (coeffs.size != cols) {
+			format("[MatrixArray:-mixCoeffs] - coeffs.size [%] != cols [%]", coeffs.size, cols).throw
+		};
+
+		// NOTE: .asList added to force Collection:flop.
+		// Array:flop uses a primitive that has a GC bug:
+		// https://github.com/supercollider/supercollider/issues/3454
+		^cols.collect({|i|
+			this.colAt(i) * coeffs[i]
+		}).asList.flop.collect(_.sum);
+	}
+
 
 	printOn { | stream |
 		if (stream.atLimit) { ^this };

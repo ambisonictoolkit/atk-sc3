@@ -446,7 +446,7 @@ HoaXformerMatrix : HoaMatrix {
 			my = MatrixArray.with(my.asArray);
 			matrix = Matrix.with(my * rx);
 		}
-		{ axes == \xz or: { axes == \zx } } // swap Z<>X axes, , "K-matrix"
+		{ axes == \xz or: { axes == \zx } } // swap Z<>X axes, "K-matrix"
 		{
 			var ry, mx;
 

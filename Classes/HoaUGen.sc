@@ -95,21 +95,22 @@ HoaUGen {
 	// 	}
 	// }
 
-	getJKMatrix { |which, order|
+
+	*getJKMatrix { |which, order|
 		var nCoeffs, mtx;
 
 		if (jkOrder.isNil or: { order > jkOrder }) {
 			// j,k matrices haven't been calculated
 			// or requesting higher order than has been
 			// calculated... (re)calculate
-			this.prCalcJKMatrices(order)
+			HoaUGen.prCalcJKMatrices(order)
 		};
 
 		mtx = switch (which,
-			'k',  { kMatrix },
-			'j',  { jMatrix },
-			'jk', { jkMatrix},
-			'kj', { kjMatrix }
+			'k',  { kMatrix }, // swap Z<>X axes
+			'j',  { jMatrix }, // swap Z<>Y axes
+			'jk', { jkMatrix}, // J * K
+			'kj', { kjMatrix } // K * J
 		);
 
 		^if (jkOrder > order) {
@@ -120,7 +121,11 @@ HoaUGen {
 		}
 	}
 
-	prCalcJKMatrices { |order|
+	// TODO: revisit whether these should be class methods:
+	//       There's a larger question of how HoaUGen inheretence
+	//       should work or if it's unnecessary
+
+	*prCalcJKMatrices { |order|
 		var xz, yz;
 		var zeroWithin = -180.dbamp;
 
@@ -141,7 +146,7 @@ HoaUGen {
 
 	// faster than AtkMatrixMix, doens't replace zeros with silence
 	// mtxarr is a MatrixArray
-	mixMatrix { |in, mtxarr|
+	*mixMatrix { |in, mtxarr|
 		var flopped = mtxarr.flopped;
 
 		^Mix.fill(mtxarr.cols, { |i|
@@ -201,8 +206,8 @@ HoaRotate : HoaUGen {
 		out[0] = in[0]; // l == 0
 
 		if (n > 0) {
-			s = Array.newClear(n); // [sin(1*ang), sin(2*ang), ... sin(n*ang)]
-			c = Array.newClear(n); // [cos(1*ang), cos(2*ang), ... cos(n*ang)]
+			s = Array.newClear(n);  // [sin(1*ang), sin(2*ang), ... sin(n*ang)]
+			c = Array.newClear(n);  // [cos(1*ang), cos(2*ang), ... cos(n*ang)]
 
 			ang = radians;
 			ang2 = ang * 2;
@@ -214,26 +219,26 @@ HoaRotate : HoaUGen {
 			c[1] = cos(ang2);
 
 			// modified indexing to replace subtraction with addition, and 2 multiplications
-			c2 = 2*c[0];
+			c2 = 2 * c[0];
 			(1..n-2).do{|idx|
-				s[idx+1] = (c2*s[idx]) - s[idx-1];
-				c[idx+1] = (c2*c[idx]) - c[idx-1];
+				s[idx+1] = (c2 * s[idx]) - s[idx-1];
+				c[idx+1] = (c2 * c[idx]) - c[idx-1];
 			};
 
 			(1..n).do{ |l|
 
-				i = 2*l+i;      // out index to the middle of the band
-				out[i] = in[i]; // center coeff is 1, so pass val through
+				i = 2 * l + i;    // out index to the middle of the band
+				out[i] = in[i];   // center coeff is 1, so pass val through
 
 				(1..l).do{ |m|
 					cos = c[m-1];
 					sin = s[m-1];
 
-					dex_m = i+m;
-					dex_mneg = i-m;
+					dex_m = i + m;
+					dex_mneg = i - m;
 
 					out[dex_mneg] = (cos * in[dex_mneg]) + (sin * in[dex_m]);
-					out[dex_m]    = (cos * in[dex_m]) - (sin * in[dex_mneg]);
+					out[dex_m] = (cos * in[dex_m]) - (sin * in[dex_mneg]);
 
 				}
 			}
@@ -245,17 +250,17 @@ HoaRotate : HoaUGen {
 
 HoaTilt : HoaUGen {
 	*ar { |in, radians, order|
-		var o, mK, hoa;
+		var n, mK, hoa;
 
-		o = HoaUGen.confirmOrder(in, order);
+		n = HoaUGen.confirmOrder(in, order);
 
-		// "K" matrix;
-		mK = this.getJKMatrix('k', o);
+		// "K" matrix: swap Z<>X axes
+		mK = HoaUGen.getJKMatrix('k', n);
 
 		// tilt/roll : K -> Z(tilt.neg) -> K
-		hoa = this.mixMatrix(in, mK);
-		hoa = HoaRotate.ar(hoa, radians.neg, o);   // << TODO: tilt.neg, can be removed?
-		hoa = this.mixMatrix(hoa, mK);
+		hoa = HoaUGen.mixMatrix(in, mK);
+		hoa = HoaRotate.ar(hoa, radians, n);
+		hoa = HoaUGen.mixMatrix(hoa, mK);
 
 		^hoa
 	}
@@ -268,13 +273,13 @@ HoaTumble : HoaUGen {
 
 		o = HoaUGen.confirmOrder(in, order);
 
-		// "J" matrix;
-		mJ = this.getJKMatrix('j', o);
+		// "J" matrix: swap Z<>Y axes
+		mJ = HoaUGen.getJKMatrix('j', o);
 
 		// tumple/pitch : J -> Z(tumble) -> J
-		hoa = this.mixMatrix(in, mJ);
+		hoa = HoaUGen.mixMatrix(in, mJ);
 		hoa = HoaRotate.ar(hoa, radians, o);
-		hoa = this.mixMatrix(hoa, mJ);
+		hoa = HoaUGen.mixMatrix(hoa, mJ);
 
 		^hoa
 	}

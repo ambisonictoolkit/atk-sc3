@@ -122,7 +122,7 @@ HoaUGen {
 
 	prCalcJKMatrices { |order|
 		var xz, yz;
-		var zeroWithin = -300.dbamp;
+		var zeroWithin = -180.dbamp;
 
 		xz = HoaXformerMatrix.newSwapAxes(\xz, order);
 		yz = HoaXformerMatrix.newSwapAxes(\yz, order);

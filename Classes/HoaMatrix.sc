@@ -139,7 +139,7 @@ HoaMatrix : AtkMatrix {
 	}
 
 	// force values to zero that are within threshold distance (positive or negative)
-	zeroWithin { |within = (-300.dbamp)|
+	zeroWithin { |within = (-180.dbamp)|
 		this.matrix.zeroWithin(within);
 	}
 

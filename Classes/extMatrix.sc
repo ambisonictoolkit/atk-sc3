@@ -135,7 +135,7 @@
 
 	// this is a destructive operation:
 	// force values to zero that are within threshold distance (positive or negative)
-	zeroWithin { |within = (-300.dbamp)|
+	zeroWithin { |within = (-180.dbamp)|
 		this.rowsDo({ |rArray, ri|
 			rArray.do{ |item, ci|
 				this.put(ri, ci, if(item.abs <= within, {0},{item}))}

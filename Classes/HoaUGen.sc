@@ -8,9 +8,12 @@ HoaUGen {
 	// confirming proper hoa order between ins/outs, etc.
 	*/
 
-	*confirmOrder { |in, targetOrder| // would you like fries with that?
+	//  Confirm that the input signal size matches
+	//  the number of harmonics for the order.
+	//  Returns the order if signal size is valid.
+	*confirmOrder { |in, order|
 		var io, to;
-		to = targetOrder ?? { Hoa.globalOrder };
+		to = order ?? { Hoa.globalOrder };
 		io = Hoa.detectOrder(in.size);
 		if (io != to) {
 			"[HoaUGen] In order (%) does not match target order (%).".format(io, to).throw
@@ -157,7 +160,8 @@ HoaUGen {
 }
 
 
-// Rotations applied in order RTT, extrinsic
+// Rotations applied in order Rotate-Tilt-Tumble.
+// Extrinsic, "laboratory-fixed" axes.
 HoaRTT : HoaUGen {
 
 	*ar { |in, rotate, tilt, tumble, order|
@@ -174,7 +178,7 @@ HoaRTT : HoaUGen {
 
 		// tilt : K -> Z(tilt.neg) -> K
 		til = this.mixMatrix(rot, mK);
-		til = HoaRotate.ar(til, tilt.neg, o);   // << TODO: tilt.neg, can be removed?
+		til = HoaRotate.ar(til, tilt, o);
 		til = this.mixMatrix(til, mK);
 
 		// combine (J*K)
@@ -196,7 +200,7 @@ HoaRotate : HoaUGen {
 		var n;
 		var i = 0;
 		var out, cos, sin;
-		var dex_m, dex_mneg;
+		var im, imneg;
 		var s, c, c2;
 		var ang, ang2;
 
@@ -218,7 +222,8 @@ HoaRotate : HoaUGen {
 			s[1] = sin(ang2);
 			c[1] = cos(ang2);
 
-			// modified indexing to replace subtraction with addition, and 2 multiplications
+			// Note: modified indexing from source to replace subtraction
+			// with addition, and 2 multiplications
 			c2 = 2 * c[0];
 			(1..n-2).do{|idx|
 				s[idx+1] = (c2 * s[idx]) - s[idx-1];
@@ -227,18 +232,18 @@ HoaRotate : HoaUGen {
 
 			(1..n).do{ |l|
 
-				i = 2 * l + i;    // out index to the middle of the band
-				out[i] = in[i];   // center coeff is 1, so pass val through
+				i = 2 * l + i;   // output index of the middle of the band
+				out[i] = in[i];  // center coeff is 1, so pass val through
 
 				(1..l).do{ |m|
 					cos = c[m-1];
 					sin = s[m-1];
 
-					dex_m = i + m;
-					dex_mneg = i - m;
+					im = i + m;    // positive m index
+					imneg = i - m; // negative m index
 
-					out[dex_mneg] = (cos * in[dex_mneg]) + (sin * in[dex_m]);
-					out[dex_m] = (cos * in[dex_m]) - (sin * in[dex_mneg]);
+					out[imneg] = (cos * in[imneg]) + (sin * in[im]);
+					out[im] = (cos * in[im]) - (sin * in[imneg]);
 
 				}
 			}
@@ -257,7 +262,7 @@ HoaTilt : HoaUGen {
 		// "K" matrix: swap Z<>X axes
 		mK = HoaUGen.getJKMatrix('k', n);
 
-		// tilt/roll : K -> Z(tilt.neg) -> K
+		// tilt/roll : K -> Z(tilt) -> K
 		hoa = HoaUGen.mixMatrix(in, mK);
 		hoa = HoaRotate.ar(hoa, radians, n);
 		hoa = HoaUGen.mixMatrix(hoa, mK);
@@ -269,16 +274,16 @@ HoaTilt : HoaUGen {
 
 HoaTumble : HoaUGen {
 	*ar { |in, radians, order|
-		var o, mJ, hoa;
+		var n, mJ, hoa;
 
-		o = HoaUGen.confirmOrder(in, order);
+		n = HoaUGen.confirmOrder(in, order);
 
 		// "J" matrix: swap Z<>Y axes
-		mJ = HoaUGen.getJKMatrix('j', o);
+		mJ = HoaUGen.getJKMatrix('j', n);
 
 		// tumple/pitch : J -> Z(tumble) -> J
 		hoa = HoaUGen.mixMatrix(in, mJ);
-		hoa = HoaRotate.ar(hoa, radians, o);
+		hoa = HoaRotate.ar(hoa, radians, n);
 		hoa = HoaUGen.mixMatrix(hoa, mJ);
 
 		^hoa

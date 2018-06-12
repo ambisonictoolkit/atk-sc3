@@ -370,26 +370,26 @@ HoaXformerMatrix : HoaMatrix {
 			\pitch, {r2=angle},
 			\roll, {r1=angle},
 		);
-		^super.new('rotateAxis', order).initDirChannels.initRotation(r1, r2, r3, \xyz, order)
+		^super.new('rotateAxis', order).initDirChannels.initRotation(r1, r2, r3, \xyz)
 	}
 
-	// TODO: why not super.new('rotation', order) ?
 	*newRTT { |rotate = 0, tilt = 0, tumble = 0, order|
-		^super.new('rotation').initDirChannels.initRotation(rotate, tilt, tumble, \zxy, order)
+		^super.new('rotation', order).initDirChannels.initRotation(rotate, tilt, tumble, \zxy)
 	}
 
-	// TODO: why not super.new('rotation', order) ?
 	*newYPR { |yaw = 0, pitch = 0, roll = 0, order|
-		^super.new('rotation').initDirChannels.initRotation(roll, pitch, yaw, \xyz, order)
+		^super.new('rotation', order).initDirChannels.initRotation(roll, pitch, yaw, \xyz)
 	}
 
-	//  Mirroring
+	/// ------------
+    // Mirroring
+
 	*newMirror { |mirror = \reflect, order|
 		^super.new('mirror', order).initDirChannels.initMirror(mirror);
 	}
 
-	//  Swap one axis for another
-	// TODO: is this a subset of mirroring?
+	// Swap one axis for another.
+	// TODO: This a subset of mirroring. Wrap into *newMirror method?
 	// - if yes, would need a way to fork to initSwapAxes in *newMirror
 	// - if yes, kind = 'mirror', otherwise need new kind e.g. 'axisSwap'
 	*newSwapAxes { |axes = \yz, order|
@@ -405,12 +405,12 @@ HoaXformerMatrix : HoaMatrix {
     }
 
     *newNull { |theta = 0, phi = 0, k = \basic, order|
-		var directions = [[ theta, phi ]];
+		var directions = [[theta, phi]];
         ^super.new('null', order).initDirChannels(directions).initNull(k);
     }
 
-	initRotation { |r1, r2, r3, convention, order|
-		matrix = HoaRotationMatrix(r1, r2, r3, convention, order).matrix;
+	initRotation { |r1, r2, r3, convention|
+		matrix = HoaRotationMatrix(r1, r2, r3, convention, this.order).matrix;
 	}
 
     initMirror { |mirror|

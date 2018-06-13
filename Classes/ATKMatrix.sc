@@ -256,7 +256,12 @@ AtkMatrix {
 			};
 
 			matrix = Matrix.with(fileParse.matrix.asFloat);
-			kind = fileParse.kind ?? resolvedPathName.fileNameWithoutExtension.asSymbol;
+
+			kind = if (fileParse.kind.notNil, {
+				fileParse.kind
+			}, {
+				resolvedPathName.fileNameWithoutExtension
+			}).asSymbol;
 		}
 		{ Error("Unsupported file extension.").throw };
 	}

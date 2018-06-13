@@ -49,7 +49,8 @@ TestFoaMatrix : UnitTest {
 		this.assertEquals( // appears assertArrayFloatEquals doens't work on inf's?
 			m.dirOutputs,
 			inf ! 4, // 4 harmonics for FOA
-			"FoaEncoderMatrix:-dirOutputs should return and array of inf's whose size matches the number of b-format channels",
+			"FoaEncoderMatrix:-dirOutputs should return and array of "
+			"inf's whose size matches the number of b-format channels",
 			report
 		);
 
@@ -103,7 +104,7 @@ TestFoaMatrix : UnitTest {
 		// dirChannels
 		this.assertArrayFloatEquals(
 			m.dirChannels,
-			[ 45.0, 135.0, -135.0, -45.0 ].degrad, // quad decoder
+			[45.0, 135.0, -135.0, -45.0].degrad, // quad decoder
 			"FoaDecoderMatrix:-dirChannels should match decoded directions",
 			floatWithin, report
 		);
@@ -120,14 +121,15 @@ TestFoaMatrix : UnitTest {
 		this.assertEquals( // appears assertArrayFloatEquals doens't work on inf's?
 			m.dirInputs,
 			inf ! 3, // 3 harmonics for 2D FOA (no Z)
-			"FoaDecoderMatrix:-dirInputs should return and array of inf's whose size matches the number of b-format channels",
+			"FoaDecoderMatrix:-dirInputs should return and array of inf's "
+			"whose size matches the number of b-format channels",
 			report
 		);
 
 		// shelfK - for dual band decoder
 		this.assertArrayFloatEquals(
 			m.shelfK,
-			[ 1.2247448713916, 0.86602540378444 ],
+			[1.2247448713916, 0.86602540378444],
 			"FoaDecoderMatrix:-shelfK should should be [ 1.2247448713916, 0.86602540378444 ] (default )",
 			floatWithin, report
 		);
@@ -172,29 +174,16 @@ TestFoaMatrix : UnitTest {
 			report
 		);
 
-		// dirOutputs
-		this.assertEquals( // appears assertArrayFloatEquals doens't work on inf's?
-			m.dirOutputs,
-			inf ! 4,
-			"FoaXformerMatrix:-dirOutputs should return and array of inf's whose size matches the number of b-format channels",
-			report
-		);
-
-		// dirInputs
-		this.assertEquals(
-			m.dirInputs,
-			inf ! 4,
-			"FoaXformerMatrix:-dirInputs should return and array of inf's whose size matches the number of b-format channels",
-			report
-		);
-
-		// dirChannels
-		this.assertEquals(
-			m.dirChannels,
-			inf ! 4,
-			"FoaXformerMatrix:-dirChannels should return and array of inf's whose size matches the number of b-format channels",
-			report
-		);
+		// dirOutputs, dirInputs, dirChannels
+		[\dirOutputs, \dirInputs, \dirChannels].do{ |attribute|
+			this.assertEquals(  // appears assertArrayFloatEquals doens't work on inf's?
+				m.perform(attribute),
+				inf ! 4,
+				"FoaXformerMatrix:-% should return and array of inf's whose size "
+				"matches the number of b-format channels".format(attribute),
+				report
+			)
+		};
 
 		[
 			\kind, 'focus',
@@ -236,31 +225,28 @@ TestFoaMatrix : UnitTest {
 		this.assertEquals(
 			m.numInputs,
 			directions.size,
-			"FoaEncoderMatrix(*newFromMatrix):-numInputs should match the number of encoded directions",
+			"FoaEncoderMatrix(*newFromMatrix):-numInputs should "
+			"match the number of encoded directions",
 			report
 		);
 
-		// dirChannels
-		this.assertEquals(
-			m.dirChannels,
-			'unspecified' ! directions.size,
-			"FoaEncoderMatrix(*newFromMatrix):-dirChannels should be an array of 'unspecified' of size directions",
-			report
-		);
-
-		// dirInputs
-		this.assertEquals(
-			m.dirInputs,
-			'unspecified' ! directions.size,
-			"FoaEncoderMatrix(*newFromMatrix):-dirInputs should be an array of 'unspecified' of size directions",
-			report
-		);
+		// dirChannels, dirInputs
+		[\dirChannels, \dirInputs].do{ |attribute|
+			this.assertEquals(
+				m.perform(attribute),
+				'unspecified' ! directions.size,
+				"FoaEncoderMatrix(*newFromMatrix):-% should be an array "
+				"of 'unspecified' of size directions".format(attribute),
+				report
+			)
+		};
 
 		// dirOutputs
 		this.assertEquals( // appears assertArrayFloatEquals doens't work on inf's?
 			m.dirOutputs,
 			inf ! 4, // 4 harmonics for FOA
-			"FoaEncoderMatrix(*newFromMatrix):-dirOutputs should return and array of inf's whose size matches the number of b-format channels",
+			"FoaEncoderMatrix(*newFromMatrix):-dirOutputs should return and array "
+			"of inf's whose size matches the number of b-format channels",
 			report
 		);
 
@@ -290,43 +276,86 @@ TestFoaMatrix : UnitTest {
 		};
 	}
 
-	// // TODO: complete once .writeToFile method is updated from master
-	// test_matrixFileRdWr {
-	// 	var m, not, properties, atkMatrix, enc, note, path;
-	// 	var directions = AtkTests.getDirs('tetra');
-	//
-	// 	// start with "raw" A-to-B encoder matrix:
-	// 	m = Matrix.with(directions);
-	// 	note = "TestFoaMatrix:-test_matrixFileRdWr test";
-	//
-	// 	// A Dictionary of more metadata to add.
-	// 	properties =  (
-	// 		    author: "Me, the author",
-	// 		    ordering: 'FuMa',
-	// 		    normalisation: 'MaxN',
-	// 		    dirInputs: directions
-	// 	);
-	//
-	// 	atkMatrix = m.asAtkMatrix('FOA', 'encoder'); // set, type
-	//
-	// 	path = PathName.tmp++"testA2B_Matrix.yml";
-	// 	// be sure to use .yml extension for metadata
-	// 	atkMatrix.writeToFile(path, note, properties, overwrite: true);
-	// 	1.wait;
-	//
-	// 	// read encoder back in
-	// 	enc = FoaEncoderMatrix.newFromFile(path);
-	//
-	// 	// compare encoder properties to the original atkMatrix
-	// 	[
-	// 		\dirChannels,
-	// 		\dirInputs,
-	// 		\dirOutputs,
-	// 	].do{ |p|
-	// 		var test, target;
-	// 		target = atkMatrix.tryPerform(p);
-	// 		test = enc.tryPerform(p);
-	// 		"%: %".format(p, [target, test]).postln;
-	// 	}
-	// }
+	test_matrixFileRdWr {
+		var m, not, properties, atkMatrix, enc, note, path;
+		var directions = AtkTests.getDirs('tetra');
+		var att, orig, fromFile;
+
+		// start with "raw" A-to-B encoder matrix:
+		m = Matrix.with(directions);
+		note = "TestFoaMatrix:-test_matrixFileRdWr test";
+
+		// A Dictionary of more metadata to add.
+		properties =  (
+			author: "Me, the author",
+			ordering: 'FuMa',
+			normalisation: 'MaxN',
+			dirInputs: directions
+		);
+
+		atkMatrix = m.asAtkMatrix('FOA', 'encoder'); // set, type
+
+		path = PathName.tmp++"testA2B_Matrix.yml";
+		// be sure to use .yml extension for metadata
+		atkMatrix.writeToFile(path, note, properties, overwrite: true);
+		1.wait;
+
+		// read encoder back in from a file
+		enc = FoaEncoderMatrix.newFromFile(path);
+
+		// compare properties of the encoder loaded from file to
+		// properties of the original atkMatrix
+		[\kind, \set, \type, \op, \dim].do{ |p|
+			orig = atkMatrix.tryPerform(p);
+			fromFile = enc.tryPerform(p);
+			this.assertEquals(
+				fromFile, orig,
+				"FoaEncoderMatrix(*newFromFile):-% should match the source "
+				"FoaEncoderMatrix that was written to file. '%' was written, "
+				"'%' was read and loaded".format(p, orig, fromFile),
+				report
+			);
+		};
+
+		// .matrix
+		this.assertArrayFloatEquals(
+			enc.matrix.asArray.flat, atkMatrix.matrix.asArray.flat,
+			"FoaEncoderMatrix(*newFromFile):-matrix should match the "
+			"matrix of the source FoaEncoderMatrix.",
+			floatWithin, report
+		);
+
+		// user-defined attributes
+		properties.keys.do{ |a|
+			orig = properties[a];
+			fromFile = enc.fileParse[a];
+		};
+
+		// These properties may differ, as they're "unspecified" when created, but the
+		// attributeDictionary may overwrite them (as in dirIniputs, in this case)
+
+		// .dirInputs
+		this.assertArrayFloatEquals(
+			enc.dirInputs.flat, properties.dirInputs.flat,
+			"FoaEncoderMatrix(*newFromFile):-dirInputs should match the dirInputs property "
+			"assigned in the attributeDictionary of the source FoaEncoderMatrix.",
+			floatWithin, report
+		);
+
+		// .dirChannels
+		this.assertArrayFloatEquals(enc.dirChannels.flat, properties.dirInputs.flat,
+			"FoaEncoderMatrix(*newFromFile):-dirChannels should match the dirInputs property "
+			"assigned in the attributeDictionary of the source FoaEncoderMatrix.",
+			floatWithin, report
+		);
+
+		// .dirOutputs
+		this.assertEquals(  // appears assertArrayFloatEquals doens't work on inf's?
+			enc.dirOutputs,
+			inf ! 4,        // 4 harmonics for FOA
+			"FoaEncoderMatrix(*newFromFile):-dirOutputs should return and array of inf's whose "
+			"size matches the number of b-format channels",
+			report
+		);
+	}
 }

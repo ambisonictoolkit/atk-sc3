@@ -294,14 +294,14 @@ AtkMatrix {
 			};
 
 			if (fileParse[\type].isNil) {
-				"Matrix 'type' is undefined in the .yml file: cannot confirm the type "
-				"matches the loaded object (encoder/decoder/xformer)".warn
+				"Matrix 'type' is undefined in the .yml file: cannot confirm the "
+				"type matches the loaded object (encoder/decoder/xformer)".warn
 			} {
 				if (fileParse[\type].asSymbol != mtxType.asSymbol) {
 					Error(
 						format(
-							"Matrix 'type' defined in the .yml file (%) doesn't match the type "
-							"of matrix you're trying to load (%)",
+							"Matrix 'type' defined in the .yml file (%) doesn't match "
+							"the type of matrix you're trying to load (%)",
 							fileParse[\type], mtxType
 						).throw
 					)
@@ -320,30 +320,29 @@ AtkMatrix {
 		var attributes;
 
 		// gather attributes in order of posting
-		attributes = [ \kind, \detail, \dirInputs, \dirOutputs, \dim, \matrix ];
-
-		if (this.isKindOf(FoaDecoderMatrix)) {
-			attributes = attributes ++ [\shelfK, \shelfFreq]
-		};
-
-		filePath !? {
-			attributes = attributes ++ [\fileName, \filePath]
-		};
+		attributes = List.with( \kind, \dim );
+		if (this.isKindOf(FoaDecoderMatrix)) { attributes.add(\shelfK).add(\shelfFreq) };
 
 		// other non-standard metadata provided in yml file
 		fileParse !? {
 			fileParse.keys.do{|key|
 				attributes.includes(key.asSymbol).not.if{
-					attributes = attributes ++ key.asSymbol;
+					attributes.add(key.asSymbol);
 				}
 			}
 		};
 
-		if (attributes.includes(\type)) {
-			// bump 'type' to the top of the post
-			attributes.remove(\type);
-			attributes.addFirst(\type);
+		// bump 'type' to the top of the post
+		if (attributes.includes(\type)) { attributes.remove(\type) };
+		attributes.addFirst(\type);
+
+		// bump to the bottom of the post
+		[\dirInputs, \dirOutputs, \matrix].do{|att|
+			if (attributes.includes(att)) { attributes.remove(att) };
+			attributes.add(att);
 		};
+
+		filePath !? { attributes.add(\fileName).add(\filePath) };
 
 		postf("\n*** % Info ***\n", this.class);
 
@@ -377,7 +376,7 @@ AtkMatrix {
 	// argSet: FOA, HOA1, HOA2, etc
 	// argType: \encoder, \decoder, \xformer
 	prWriteToFile { arg fileNameOrPath, argSet, argType, note, attributeDictionary, overwrite=false;
-		var pn, writer, ext;
+		var pn, ext;
 		var mtxPath, relPath;
 
 		pn = PathName(fileNameOrPath);
@@ -447,90 +446,99 @@ AtkMatrix {
 
 
 	prWriteMatrixToTXT { arg pn; // a PathName
-		var writer;
-		writer = FileWriter( pn.fullPath );
+		var wr;
+		wr = FileWriter( pn.fullPath );
 		// write the matrix into it by row, and close
-		matrix.rows.do{ |i| writer.writeLine( matrix.getRow(i) ) };
-		writer.close
+		matrix.rows.do{ |i| wr.writeLine( matrix.getRow(i) ) };
+		wr.close;
 	}
 
 	prWriteMatrixToMOSL { arg pn; // a PathName
-		var writer;
-		writer = FileWriter( pn.fullPath );
+		var wr;
+		wr = FileWriter( pn.fullPath );
 
 		// write num rows and cols to first 2 lines
-		writer.writeLine(["// Dimensions: rows, columns"]);
-		writer.writeLine(matrix.rows.asArray);
-		writer.writeLine(matrix.cols.asArray);
+		wr.writeLine(["// Dimensions: rows, columns"]);
+		wr.writeLine(matrix.rows.asArray);
+		wr.writeLine(matrix.cols.asArray);
 		// write the matrix into it by row, and close
 		matrix.rows.do{ |i|
 			var row;
-			writer.writeLine([""]); // blank line
-			writer.writeLine([format("// Row %", i)]);
+			wr.writeLine([""]); // blank line
+			wr.writeLine([format("// Row %", i)]);
 
 			row = matrix.getRow(i);
-			row.do{ |j| writer.writeLine( j.asArray ) };
+			row.do{ |j| wr.writeLine( j.asArray ) };
 		};
-		writer.close;
+		wr.close;
 	}
 
 	prWriteMatrixToYML { arg pn, set, type, note, attributeDictionary;
-		var writer, defAttributes;
+		var wr, wrAtt, wrAttArr, defaults;
+		var dirIns, dirOuts;
 
-		writer = FileWriter( pn.fullPath );
+		wr = FileWriter( pn.fullPath );
 
-		// writer.writeLine(["matrix :"] ++ m.asArray.asString.split($ )); // all one line
-
-		// overkill on formatting, but more readable...
-		writer.writeLine(["matrix : ["]);
-		matrix.rows.do{ |i|
-			var line, row;
-			row = matrix.getRow(i);
-			line = row.asString.split($ );
-			if ((i+1) != matrix.rows) {line[line.size-1] = line.last ++ ","};
-			writer.writeLine(line);
+		// write a one-line attribute
+		wrAtt = { |att, val|
+			wr.write("% : ".format(att));
+			wr.write(
+				(
+					val ?? {this.tryPerform(att)}
+				).asCompileString; // allow for large strings
+			);
+			wr.write("\n\n");
 		};
-		writer.writeLine(["]"]);
 
-		type !? {
-			writer.writeLine([]);
-			writer.writeLine( ["type", ":", type] )
+		// write a multi-line attribute (2D array)
+		wrAttArr = { |att, arr|
+			var vals = arr ?? {this.tryPerform(att)};
+			if (vals.isNil) {
+				wr.writeLine(["% : nil".format(att)]);
+			} {
+				wr.writeLine(["% : [".format(att)]);
+				vals.asArray.do{ |elem, i|
+					wr.write(elem.asCompileString); // allow for large row strings
+					if (i == (vals.size-1)) { wr.write("\n]\n") } { wr.write(",\n") };
+				};
+			};
+			wr.write("\n");
 		};
+
+		note !? { wrAtt.(\note, note) };
+
+		type !? { wrAtt.(\type) };
 
 		// write default attributes
-		defAttributes = [\kind, \dirOutputs, \dirInputs];
-		if (type=='decoder') {
-			defAttributes = defAttributes ++ [\shelfK,\shelfFreq]
-		};
+		defaults = if (type == 'decoder') { [\kind, \shelfK, \shelfFreq] } { [\kind] };
 
 		if (attributeDictionary.notNil) {
 			// make sure attribute dict doesn't explicitly set the attribute first
-			defAttributes.do{ |attribute|
-				attributeDictionary[attribute] ?? {
-					writer.writeLine([]); //newline for readability
-					writer.writeLine( [attribute, ":", this.tryPerform(attribute)] )
-				}
+			defaults.do{ |att|
+				attributeDictionary[att] ?? { wrAtt.(att) }
 			};
 		} {
-			defAttributes.do{ |attribute|
-				writer.writeLine([]); //newline for readability
-				writer.writeLine( [attribute, ":", this.tryPerform(attribute)] )
-			};
-		};
-
-		note !? {
-			writer.writeLine([]);
-			writer.writeLine( ["note", ":", note] )
+			defaults.do{ |att| wrAtt.(att) };
 		};
 
 		attributeDictionary !? {
 			attributeDictionary.keysValuesDo{ |k,v|
-				writer.writeLine([]);
-				writer.writeLine( [k.asString, ":", v] )
+				// catch overridden dirIn/Outputs
+				switch( k,
+					'dirInputs', { dirIns = v },
+					'dirOutputs', { dirOuts = v },
+					{
+						if (v.isKindOf(Array)) { wrAttArr.(k, v) } { wrAtt.(k, v) }
+					}
+				);
 			}
 		};
 
-		writer.close;
+		wrAttArr.(\dirInputs, dirIns);
+		wrAttArr.(\dirOutputs, dirOuts);
+		wrAttArr.(\matrix);
+
+		wr.close;
 	}
 
 	prParseMOSL { |pn|

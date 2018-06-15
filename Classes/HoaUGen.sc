@@ -8,6 +8,10 @@ HoaUGen {
 	// confirming proper hoa order between ins/outs, etc.
 	*/
 
+	// TODO: revisit whether these should be class methods:
+	//       There's a larger question of how HoaUGen inheretence
+	//       should work or if it's unnecessary
+
 	//  Confirm that the input signal size matches
 	//  the number of harmonics for the order.
 	//  Returns the order if signal size is valid.
@@ -21,83 +25,6 @@ HoaUGen {
 
 		^to
 	}
-
-	// xzMatrix { |order|
-	//
-	// 	xzMatrix ?? {
-	// 		// calculate, set and return the matrix for the given order
-	// 		^xzMatrix = HoaXformerMatrix.newSwapAxes(\xz, order);
-	// 	};
-	//
-	// 	case
-	// 	{ xzMatrix.order == order } { // matrix already calculated for requested order
-	// 		^xzMatrix
-	// 	}
-	// 	{ xzMatrix.order > order }{   // matrix already calculated for a higher order
-	// 		var ncoeffs = Hoa.numOrderCoeffs(order);
-	//
-	// 		// return a matrix subset up to the requested order
-	// 		^HoaMatrix.newFromMatrix(
-	// 			xzMatrix.getSub(0, 0, ncoeffs, ncoeffs),
-	// 			xzMatrix.set, xzMatrix.type
-	// 		)
-	// 	}
-	// 	{ xzMatrix.order < order }{   // matrix already calculated for lower order, recalculate
-	// 		// force recalc
-	// 		xzMatrix = nil;
-	// 		^HoaUGen.xzMatrix(order)
-	// 	}
-	// }
-
-
-	// getSwapAxisMatrix { |axes, order|
-	// 	var mtx;
-	//
-	// 	case
-	// 	{ axes == \xz or: { axes == \zx }} {
-	// 		if (xzMatrix.isNil) {
-	// 			// calculate, set and return the matrix for the given order
-	// 			^xzMatrix = HoaXformerMatrix.newSwapAxes(\xz, order);
-	// 		} {
-	// 			mtx = xzMatrix
-	// 		}
-	// 	}
-	// 	{ axes == \yz or: { axes == \zy }} {
-	// 		if (yzMatrix.isNil) {
-	// 			// calculate, set and return the matrix for the given order
-	// 			^yzMatrix = HoaXformerMatrix.newSwapAxes(\yz, order);
-	// 		} {
-	// 			mtx = yzMatrix
-	// 		}
-	// 	}
-	// 	{
-	// 		"[FoaUGen:getSwapAxisMatrix] Invalid combination of axes (%)".format(axes.asString).throw
-	// 	};
-	//
-	// 	case
-	// 	{ mtx.order == order } { // matrix already calculated for requested order
-	// 		^mtx
-	// 	}
-	// 	{ mtx.order > order }{   // matrix already calculated for a higher order
-	// 		var ncoeffs = Hoa.numOrderCoeffs(order);
-	//
-	// 		// return a matrix subset up to the requested order
-	// 		^HoaMatrix.newFromMatrix(
-	// 			mtx.getSub(0, 0, ncoeffs, ncoeffs),
-	// 			mtx.set, mtx.type
-	// 		)
-	// 	}
-	// 	{ mtx.order < order }{   // matrix already calculated for lower order, recalculate
-	// 		// force recalc
-	// 		switch(mtx.detail,
-	// 			\xz, { xzMatrix = nil },
-	// 			\yz, { yzMatrix = nil }
-	// 		);
-	//
-	// 		^HoaUGen.getSwapAxisMatrix(axes, order)
-	// 	}
-	// }
-
 
 	*getJKMatrix { |which, order|
 		var nCoeffs, mtx;
@@ -124,10 +51,6 @@ HoaUGen {
 		}
 	}
 
-	// TODO: revisit whether these should be class methods:
-	//       There's a larger question of how HoaUGen inheretence
-	//       should work or if it's unnecessary
-
 	*prCalcJKMatrices { |order|
 		var xz, yz;
 		var zeroWithin = -180.dbamp;
@@ -147,12 +70,12 @@ HoaUGen {
 		jkOrder = order;
 	}
 
-	// faster than AtkMatrixMix, doens't replace zeros with silence
-	// mtxarr is a MatrixArray
-	*mixMatrix { |in, mtxarr|
-		var flopped = mtxarr.flopped;
+	// Faster than AtkMatrixMix: doens't replace zeros with silence.
+	// 'mtxArr' is a MatrixArray.
+	*mixMatrix { |in, mtxArr|
+		var flopped = mtxArr.flopped;
 
-		^Mix.fill(mtxarr.cols, { |i|
+		^Mix.fill(mtxArr.cols, { |i|
 			flopped[i] * in[i]
 		})
 	}
@@ -160,40 +83,7 @@ HoaUGen {
 }
 
 
-// Rotations applied in order Rotate-Tilt-Tumble.
-// Extrinsic, "laboratory-fixed" axes.
-HoaRTT : HoaUGen {
-
-	*ar { |in, rotate, tilt, tumble, order|
-		var o, mJ, mK, mJK;
-		var rot, til, tum;
-
-		o = HoaUGen.confirmOrder(in, order);
-
-		mK = this.getJKMatrix('k', o); // "K" matrix;
-		mJ = this.getJKMatrix('j', o); // "J" matrix;
-
-		// rotate : Z(rotate)
-		rot  = HoaRotate.ar(in, rotate, o);
-
-		// tilt : K -> Z(tilt.neg) -> K
-		til = this.mixMatrix(rot, mK);
-		til = HoaRotate.ar(til, tilt, o);
-		til = this.mixMatrix(til, mK);
-
-		// combine (J*K)
-		mJK = this.getJKMatrix('jk', o);
-
-		// tumble : (J*K) -> Z(pitch) -> J
-		tum = this.mixMatrix(til, mJK);
-		tum = HoaRotate.ar(tum, tumble, o);
-		tum = this.mixMatrix(tum, mJ);
-
-		^tum
-	}
-}
-
-// Rotation about Z axis
+// Rotation about Z axis.
 HoaRotate : HoaUGen {
 
 	*ar { |in, radians, order|
@@ -244,7 +134,6 @@ HoaRotate : HoaUGen {
 
 					out[imneg] = (cos * in[imneg]) + (sin * in[im]);
 					out[im] = (cos * in[im]) - (sin * in[imneg]);
-
 				}
 			}
 		};
@@ -253,6 +142,7 @@ HoaRotate : HoaUGen {
 	}
 }
 
+// Rotation about X axis.
 HoaTilt : HoaUGen {
 	*ar { |in, radians, order|
 		var n, mK, hoa;
@@ -263,15 +153,18 @@ HoaTilt : HoaUGen {
 		mK = HoaUGen.getJKMatrix('k', n);
 
 		// tilt/roll : K -> Z(tilt) -> K
+		// Note: the rotation is negated here to conform with
+		// ambisonic rotation conventions: a positive tilt brings
+		// +Y toward +Z. Once X and Z are swapped (via "K" matrix),
+		// bringing +Y toward +Z requires a rotation in the clockwise
+		// (negative) direction.
 		hoa = HoaUGen.mixMatrix(in, mK);
-		hoa = HoaRotate.ar(hoa, radians, n);
-		hoa = HoaUGen.mixMatrix(hoa, mK);
-
-		^hoa
+		hoa = HoaRotate.ar(hoa, radians.neg, n);
+		^HoaUGen.mixMatrix(hoa, mK);
 	}
 }
 
-
+// Rotation about Y axis.
 HoaTumble : HoaUGen {
 	*ar { |in, radians, order|
 		var n, mJ, hoa;
@@ -284,56 +177,78 @@ HoaTumble : HoaUGen {
 		// tumple/pitch : J -> Z(tumble) -> J
 		hoa = HoaUGen.mixMatrix(in, mJ);
 		hoa = HoaRotate.ar(hoa, radians, n);
-		hoa = HoaUGen.mixMatrix(hoa, mJ);
-
-		^hoa
+		^HoaUGen.mixMatrix(hoa, mJ);
 	}
 }
 
-// // perform yaw-pitch-roll rotation set (intrinsic)
-// // order of operations differs from HoaRTT (extrinsic)
-// HoaYPR : HoaUGen {
-//
-// 	*ar { |in, yaw, pitch, roll, order|
-// 		var r, p, y;
-// 		var o = HoaUGen.confirmOrder(in, order);
-//
-// 		/* Rotation */
-// 		// note reverse order of rotations to achieve intrinsic YPR
-//
-// 		// roll : K -> Z(roll.neg) ->
-// 		// rot = mtxMix.(hoa, r.kMtx);
-// 		// rot = z_direct.(rot, roll.neg);        // << NOTE: roll.neg, can be removed?
-// 		r = this.mixMatrix(in, this.getSwapAxisMatrix(\xz, o));
-// 		r = HoaRotate.ar(r, roll.neg, o);   // << TODO: roll.neg, can be removed?
-//
-// 		// -> K*J ->
-// 		// combine K matrix and J matrix in one to save a matrix mix
-// 		// rot = mtxMix.(rot, r.jMtx_homegrown * r.kMtx); // correct matrix multiply order
-// 		p = this.mixMatrix(r,
-// 			this.getSwapAxisMatrix(\yz, o) *
-// 			this.getSwapAxisMatrix(\xz, o)
-// 		);
-//
-// 		// pitch : -> Z(Pitch) -> J ->
-// 		// rot = z_direct.(rot, pitch);
-// 		// rot = mtxMix.(rot, r.jMtx_homegrown);
-// 		p = HoaRotate.ar(p, p, o);
-// 		p = this.mixMatrix(p, this.getSwapAxisMatrix(\yz, o));
-//
-// 		// yaw : -> Z(yaw) ->
-// 		// rotate = z_direct.(tumble, yaw);
-// 		y = HoaRotate.ar(p, yaw, o);
-//
-// 		^y
-// 	}
-// }
 
-
-// synonyms
+// Synonyms.
 HoaYaw : HoaRotate {}
 HoaPitch : HoaTumble {}
 HoaRoll : HoaTilt {}
+
+
+// Compound rotations applied in sequential order:
+// Rotate > Tilt > Tumble.
+// Extrinsic, "laboratory-fixed" axes.
+HoaRTT : HoaUGen {
+	*ar { |in, rotate, tilt, tumble, order|
+		var n, mJ, mK, mJK;
+		var hoa;
+
+		n = HoaUGen.confirmOrder(in, order);
+
+		mK = this.getJKMatrix('k', n);   // "K" matrix: swap Z<>X axes
+		mJ = this.getJKMatrix('j', n);   // "J" matrix: swap Z<>Y axes
+		mJK = this.getJKMatrix('jk', n); // combine (J * K)
+
+		// rotate : Z(rotate)
+		hoa  = HoaRotate.ar(in, rotate, n);
+
+		// tilt : K -> Z(tilt) ->
+		hoa = HoaUGen.mixMatrix(hoa, mK);
+		hoa = HoaRotate.ar(hoa, tilt.neg, n); // tilt.neg: see note in HoaTilt
+
+		// combine (J * K)
+		hoa = HoaUGen.mixMatrix(hoa, mJK);
+
+		// tumble : -> Z(pitch) -> J
+		hoa = HoaRotate.ar(hoa, tumble, n);
+		^HoaUGen.mixMatrix(hoa, mJ);
+	}
+}
+
+// Compound rotation: Yaw-Pitch-Roll.
+// Mixed intrinsic/extrinsic.
+// This rotation differs from HoaRTT, which is extrinsic.
+HoaYPR : HoaUGen {
+
+	*ar { |in, yaw, pitch, roll, order|
+		var n, mK, mJ, mJK, hoa;
+
+		n = HoaUGen.confirmOrder(in, order);
+
+		// Note reversed order of rotations to achieve intrinsic YPR
+
+		mK = this.getJKMatrix('k', n);    // "K" matrix: swap Z<>X axes
+		mJ = this.getJKMatrix('j', n);    // "J" matrix: swap Z<>Y axes
+		mJK = this.getJKMatrix('jk', n);  // combine (J * K)
+
+		// roll (tilt) : K -> Z(tilt) ->
+		hoa = HoaUGen.mixMatrix(in, mK);
+		hoa = HoaRotate.ar(hoa, roll.neg, n); // roll.neg: see note in HoaTilt
+
+		// combine (J * K)
+		hoa = HoaUGen.mixMatrix(hoa, mJK);
+
+		// pitch (tumble) : -> Z(tumble) -> J
+		hoa = HoaRotate.ar(hoa, pitch, n);
+		hoa = HoaUGen.mixMatrix(hoa, mJ);
+
+		// yaw (rotate)
+		^HoaRotate.ar(hoa, yaw, n);
+	}
+}
 
 
 // Planewave panning.
@@ -348,11 +263,10 @@ HoaPan : HoaUGen {
 		pwCoeffs = HoaOrder(n).sph(0, 0.5pi);
 		// round to optimize near-zeros out
 		pwCoeffs = pwCoeffs.round(-180.dbamp);
-		// input signal encoded as a planewave
+		// input signal encoded as a planewave at zenith
 		pw = in * pwCoeffs;
 
-		// calculate a tumble angle that
-		// will bring the zenith to phi
+		// angle to bring the zenith to phi
 		toPhi = phi - 0.5pi;
 
 		tumble = HoaTumble.ar(pw, toPhi, n);

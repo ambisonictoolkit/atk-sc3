@@ -1,3 +1,66 @@
+/*
+Copyright the ATK Community and Joseph Anderson, 2011-2018
+J Anderson  j.anderson[at]ambisonictoolkit.net
+M McCrea    mtm5[at]uw.edu
+
+This file is part of SuperCollider3 version of the Ambisonic Toolkit (ATK).
+
+The SuperCollider3 version of the Ambisonic Toolkit (ATK) is free software:
+you can redistribute it and/or modify it under the terms of the GNU General
+Public License as published by the Free Software Foundation, either version 3
+of the License, or (at your option) any later version.
+
+The SuperCollider3 version of the Ambisonic Toolkit (ATK) is distributed in
+the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the
+implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See
+the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with the
+SuperCollider3 version of the Ambisonic Toolkit (ATK). If not, see
+<http://www.gnu.org/licenses/>.
+*/
+
+
+//---------------------------------------------------------------------
+//	The Ambisonic Toolkit (ATK) is a soundfield kernel support library.
+//
+// 	Classes: HoaUGen, HoaRotate, HoaTilt, HoaTumble, HoaYaw,
+//           HoaPitch, HoaRoll, HoaPan, HoaRTT, HoaYPR
+//
+//	The Ambisonic Toolkit (ATK) is intended to bring together a number of tools and
+//	methods for working with Ambisonic surround sound. The intention is for the toolset
+//	to be both ergonomic and comprehensive, providing both classic and novel algorithms
+//	to creatively manipulate and synthesise complex Ambisonic soundfields.
+//
+//	The tools are framed for the user to think in terms of the soundfield kernel. By
+//	this, it is meant the ATK addresses the holistic problem of creatively controlling a
+//	complete soundfield, allowing and encouraging the composer to think beyond the placement
+//	of sounds in a sound-space and instead attend to the impression and image of a soundfield.
+//	This approach takes advantage of the model the Ambisonic technology presents, and is
+//	viewed to be the idiomatic mode for working with the Ambisonic technique.
+//
+//	We hope you enjoy the ATK!
+//
+//	For more information visit http://ambisonictoolkit.net/ or
+//	email info[at]ambisonictoolkit.net
+//
+//---------------------------------------------------------------------
+
+
+/*
+
+~-- Attribution --~
+
+The method for calculating SH rotation around Z by operating directly
+on signal coefficients can be found in Appendix C of:
+Jaroslav Krivánek, Jaakko Konttinen, Sumanta Pattanaik, Kadi Bouatouch.
+Fast Approximation to Spherical Harmonic Rotation. [Research Report] PI 1728, 2005, pp.14.
+
+The algorithm was modified slightly to conform to ATK's orientation
+convention as well as a slight refactor.
+
+*/
+
 HoaUGen {
 	classvar xzMatrix, yzMatrix;
 	classvar jMatrix, kMatrix, jkMatrix, kjMatrix, jkOrder; // stored as MatrixArrays

@@ -314,8 +314,8 @@ HoaYPR : HoaUGen {
 }
 
 
-// Planewave panning.
-HoaPan : HoaUGen {
+// Basic encoding. I.e. endoding at the decode radius.
+HoaBasic : HoaUGen {
 
 	*ar { |in, theta, phi, order|
 		var n, pw, pwCoeffs, toPhi, tumble;

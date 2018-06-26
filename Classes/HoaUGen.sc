@@ -315,7 +315,7 @@ HoaYPR : HoaUGen {
 
 
 // Basic encoding. I.e. endoding at the decode radius.
-HoaBasic : HoaUGen {
+HoaDirection : HoaUGen {
 
 	*ar { |in, theta, phi, order|
 		var n, pw, pwCoeffs, toPhi, tumble;

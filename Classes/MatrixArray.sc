@@ -2,7 +2,7 @@
 // involving the matrix determinant.
 // Certain error checks are omitted, for example for operations that
 // require a square matrix, this shape is assumed.
-// Most methods will return an Array, so if you expect to call further methods
+// Most methods will return a new Array, so if you expect to call further methods
 // on a result, you may need to "cast" it into a new MatrixArray using *with.
 //
 // This is a partial refactoring of the Matrix class from the MathLib quark
@@ -60,23 +60,45 @@ MatrixArray {
 		^flopped ?? {flopped = matrix.flop}
 	}
 
+	// returns the elements/row/col objects from the matrix,
+	// not copies of them (so if you change them, the matrix changes)
 	at { |row, col| ^matrix[row][col] }
 	rowAt { |row| ^matrix[row] }
 	colAt { |col| ^this.flopped[col] }
+
+	// return the array that is the matrix.
+	// NOTE: this isn't a copy of the array but the array itself
 	asArray { ^matrix }
+
 	put { |row, col, val|
 		matrix[row][col] = val;
 		flopped = nil; // trigger re-calc of transpose on next request
 	}
 
+	// this is a destructive operation:
+	// force values to zero that are within threshold distance (positive or negative)
+	zeroWithin { |within = (-180.dbamp)|
+		var item;
+
+		rows.do{ |r|
+			cols.do{ |c|
+				item = matrix[r][c];
+				matrix[r][c] = if(item.abs <= within, { 0 }, { item });
+			}
+		};
+
+		flopped = nil; // trigger re-calc of transpose on next request
+	}
+
+
 	// returns an Array of multiplying with either a number or matrix
 	// A(m,n) * B(n,r) = AB(m,r)
 	* { |that|
-		if ( that.isNumber, {
-			^this.mulNumber(that);
-		},{
-			^this.mulMatrix(that);
-		});
+		^if (that.isNumber) {
+			this.mulNumber(that);
+		} {
+			this.mulMatrix(that);
+		};
 	}
 
 	// returns an Array of multiplying with a matrix
@@ -88,7 +110,7 @@ MatrixArray {
 		mulArr = mArray.asArray; // allow aMatrix as MatrixArray or Array
 
 		// TODO: efficiency: could remove this check
-		if( cols == mulArr.size, { // this.cols == aMatrix.rows
+		if( cols == mulArr.size, { // this.cols == mArray.rows
 			mulArrFlopped = mulArr.flop;
 			result = Array.fill(rows, { Array.newClear(mulArr[0].size) });
 
@@ -107,18 +129,18 @@ MatrixArray {
 		});
 	}
 
-	// returns an Array of multiplying with a number
+	// returns a new Array of multiplying with a number
 	mulNumber { |aNumber|
 		^matrix * aNumber;
 	}
 
-	// returns an Array without row
+	// returns a new Array without row
 	withoutRow { |row|
 		var mtx = matrix.copy;
 		mtx.removeAt(row);
 		^mtx
 	}
-	// returns an Array without col
+	// returns a new Array without col
 	withoutCol { |col|
 		var mtx = this.flopped.copy;
 		mtx.removeAt(col);
@@ -143,32 +165,67 @@ MatrixArray {
 		this.init(matrix); // matrix changed, need to re-initialize state variables
 	}
 
+	// return a new Array of arrays representing sub matrix within the matrix
+	getSub { |rowStart=0, colStart=0, rowLength, colHeight|
+		var w, h, sub, maxw, maxh;
+		var rFrom, rTo;
+
+		maxw = cols - rowStart;
+		maxh = rows - colStart;
+
+		w = rowLength ?? {maxw};
+		h = colHeight ?? {maxh};
+
+		if ((w > maxw) or: (h > maxh)) {
+			format(
+				"[MatrixArray:-getSub] Dimensions of requested sub-matrix exceed bounds: "
+				"you asked for %x%, remaining space after starting index is %x%",
+				rowLength, colHeight, maxw, maxh
+			).throw
+		};
+
+		sub = Array.newClear(h);
+
+		rFrom = rowStart;
+		rTo = rFrom + rowLength - 1;
+
+		(colStart..colStart+h-1).do{ |row, i|
+			sub[i] = this.rowAt(row)[rFrom..rTo];
+		};
+
+		^sub
+	}
+
+
 	// return single value cofactor
-	// NOTE: for efficiency, doesn't check and is assumed to be square matrix
+	// NOTE: for efficiency, assumed to be square matrix (doesn't check)
 	cofactor { |row, col|
 		^((-1) ** (row+col)) * this.withoutRowCol(row, col).det
 	}
 
-	// return an Array that is the gram of this matrix
+	// return a new Array that is the gram of this matrix
 	gram {
-		// "cast" to a Matrix array to force mulMatrix
+		// "cast" to a MatrixArray to force mulMatrix
 		^MatrixArray.with(this.flopped) * this
 	}
 
-	// return an Array that is the adjoint of this matrix
+	// return a new Array that is the adjoint of this matrix
 	adjoint { // return the adjoint of the matrix
 		var adjoint = Array.fill(rows, {Array.newClear(cols)});
+
 		rows.do{ |i|
 			cols.do{ |j|
 				adjoint[i][j] = this.cofactor(i,j);
 			}
 		};
+
 		^adjoint.flop;
 	}
 
-	// return an Array that is the inverse of this matrix
+	// return a new Array that is the inverse of this matrix
 	inverse {
 		var det = this.det;
+
 		if (det != 0.0) {
 			^this.adjoint / det;
 		} {
@@ -176,7 +233,7 @@ MatrixArray {
 		};
 	}
 
-	// returns an Array which is the pseudoInverse of the matrix
+	// returns a new Array which is the pseudoInverse of the matrix
 	pseudoInverse {
 		var gram, grami, mul, muli;
 
@@ -253,6 +310,23 @@ MatrixArray {
 		det = det * m[ri[nm1]][nm1];
 
 		^det // return
+	}
+
+	// Mix coefficients with the matrix
+	// (e.g. applying a tranform to ambisonic coefficients)
+	// Returns a new Array of size this.rows
+	mixCoeffs { |coeffs|
+
+		if (coeffs.size != cols) {
+			format("[MatrixArray:-mixCoeffs] - coeffs.size [%] != cols [%]", coeffs.size, cols).throw
+		};
+
+		// NOTE: .asList added to force Collection:flop.
+		// Array:flop uses a primitive that has a GC bug:
+		// https://github.com/supercollider/supercollider/issues/3454
+		^cols.collect({|i|
+			this.colAt(i) * coeffs[i]
+		}).asList.flop.collect(_.sum);
 	}
 
 

@@ -49,11 +49,10 @@
 //---------------------------------------------------------------------
 
 HoaMatrix : AtkMatrix {
-    var <dirChannels;
 
 	initDirChannels { |directions|
 		dirChannels = (directions == nil).if({
-			(this.order + 1).squared.collect({ inf })
+			Hoa.numOrderCoeffs(this.order).collect({ inf })
 		}, {
 			directions.rank.switch(
 				0, { Array.with(directions, 0.0).reshape(1, 2) },
@@ -74,7 +73,7 @@ HoaMatrix : AtkMatrix {
 
 		formatKeyword = { |format|
 			switch (format,
-				\atk, { [ \acn, \n3d ] },  // atk, mpegH
+				\atk, { [ \acn, \n3d ] },     // atk, mpegH
 				\ambix, { [ \acn, \sn3d ] },  // ambix
 				\fuma, { [ \fuma, \fuma ] },  // fuma
 				{ format }  // default
@@ -86,7 +85,7 @@ HoaMatrix : AtkMatrix {
 		outputFormat = formatKeyword.value(outputFormat);
 
 		hoaOrder = HoaOrder.new(this.order);  // instance order
-		size = (this.order + 1).squared;
+		size = hoaOrder.numCoeffs;
 
 		(inputFormat == outputFormat).if({  // equal formats?
 			matrix = Matrix.newIdentity(size).asFloat
@@ -140,7 +139,7 @@ HoaMatrix : AtkMatrix {
 	}
 
 	// force values to zero that are within threshold distance (positive or negative)
-	zeroWithin { |within = (-300.dbamp)|
+	zeroWithin { |within = (-180.dbamp)|
 		this.matrix.zeroWithin(within);
 	}
 
@@ -166,33 +165,32 @@ HoaMatrix : AtkMatrix {
         stream << this.class.name << "(" <<* [kind, this.dim, this.numChannels] <<")";
     }
 
-	order { ^this.set.asString.drop(3).asInteger }
+	// replaced by instance variable in AtkMatrix
+	// order { ^this.set.asString.drop(3).asInteger }
 
 	numInputs { ^matrix.cols }
 
 	numOutputs { ^matrix.rows }
 
 	numChannels {
-		^(this.order + 1).squared
-	}
-
-	dirInputs {
-		^this.dirChannels
-	}
-
-	dirOutputs {
-		^this.dirChannels
+		^Hoa.numOrderCoeffs(this.order)
 	}
 
 	dim {
-		^(this.kind == \format).if({
+		var is2D;
+
+		^if (this.kind == \format, {
 			3
 		}, {
-			this.dirChannels.flatten.unlace.last.every({ |item| item == 0.0 }).if({  // test - 2D
-				2
-			}, {
-				3
-			})
+			if (dirChannels[0] == 'unspecified') { // catch unspecified dirChannels
+				"[HoaMatrix:-dim] dirChannels is 'unspecified' (was your HoaMatrix loaded "
+				"from a Matrix directly?). Set dirChannels before requesting -dim.".warn;
+				// TODO: consider how returning a symbol will affect other calls on dim
+				'unspecified' // return
+			} {
+				is2D = this.dirChannels.collect(_.last).every(_ == 0.0);
+				if (is2D, { 2 }, { 3 });
+			}
 		})
 	}
 
@@ -215,7 +213,7 @@ HoaEncoderMatrix : HoaMatrix {
     }
 
 	// Projection Encoding beams - 'basic' pattern
-	*newDirections { arg directions = [[ 0, 0 ]], order;
+	*newDirections { |directions = ([[ 0, 0 ]]), order|
         ^super.new('dirs', order).initDirChannels(directions).initBasic;
     }
 
@@ -232,12 +230,12 @@ HoaEncoderMatrix : HoaMatrix {
     }
 
 	// Projection Encoding beams - multi pattern
-	*newBeams { arg directions = [[ 0, 0 ]], k = \basic, match = \beam, order;
+	*newBeams { |directions = ([[ 0, 0 ]]), k = \basic, match = \beam, order|
         ^super.new('beams', order).initDirChannels(directions).initBeam(k, match);
     }
 
 	// Modal Encoding beams - multi pattern
-	*newModes { arg directions = [[ 0, 0 ]], k = \basic, match = \beam, order;
+	*newModes { |directions = ([[ 0, 0 ]]), k = \basic, match = \beam, order|
         ^super.new('modes', order).initDirChannels(directions).initModes(k, match);
     }
 
@@ -249,6 +247,7 @@ HoaEncoderMatrix : HoaMatrix {
     // *newFromFile { arg filePathOrName;
     //     ^super.new.initFromFile(filePathOrName, 'encoder', true).initEncoderVarsForFiles
     // }
+
 
     // ------------
     // Basic
@@ -336,6 +335,10 @@ HoaEncoderMatrix : HoaMatrix {
 		^this.numOutputs.collect({ inf })
 	}
 
+	dirInputs {
+		^this.dirChannels
+	}
+
     type { ^\encoder }
 
 }
@@ -367,20 +370,30 @@ HoaXformerMatrix : HoaMatrix {
 			\pitch, {r2=angle},
 			\roll, {r1=angle},
 		);
-		^super.new('rotateAxis', order).initDirChannels.initRotation(r1, r2, r3, \xyz, order)
+		^super.new('rotateAxis', order).initDirChannels.initRotation(r1, r2, r3, \xyz)
 	}
 
 	*newRTT { |rotate = 0, tilt = 0, tumble = 0, order|
-		^super.new('rotation').initDirChannels.initRotation(rotate, tilt, tumble, \zxy, order)
+		^super.new('rotation', order).initDirChannels.initRotation(rotate, tilt, tumble, \zxy)
 	}
 
 	*newYPR { |yaw = 0, pitch = 0, roll = 0, order|
-		^super.new('rotation').initDirChannels.initRotation(roll, pitch, yaw, \xyz, order)
+		^super.new('rotation', order).initDirChannels.initRotation(roll, pitch, yaw, \xyz)
 	}
 
-	//  Mirroring
+	/// ------------
+    // Mirroring
+
 	*newMirror { |mirror = \reflect, order|
 		^super.new('mirror', order).initDirChannels.initMirror(mirror);
+	}
+
+	// Swap one axis for another.
+	// TODO: This a subset of mirroring. Wrap into *newMirror method?
+	// - if yes, would need a way to fork to initSwapAxes in *newMirror
+	// - if yes, kind = 'mirror', otherwise need new kind e.g. 'axisSwap'
+	*newSwapAxes { |axes = \yz, order|
+		^super.new('mirror', order).initDirChannels.initSwapAxes(axes);
 	}
 
     // ------------
@@ -392,12 +405,12 @@ HoaXformerMatrix : HoaMatrix {
     }
 
     *newNull { |theta = 0, phi = 0, k = \basic, order|
-		var directions = [[ theta, phi ]];
+		var directions = [[theta, phi]];
         ^super.new('null', order).initDirChannels(directions).initNull(k);
     }
 
-	initRotation { |r1, r2, r3, convention, order|
-		matrix = HoaRotationMatrix(r1, r2, r3, convention, order).matrix;
+	initRotation { |r1, r2, r3, convention|
+		matrix = HoaRotationMatrix(r1, r2, r3, convention, this.order).matrix;
 	}
 
     initMirror { |mirror|
@@ -408,12 +421,58 @@ HoaXformerMatrix : HoaMatrix {
         hoaOrder = HoaOrder.new(this.order);  // instance order
         size = (this.order + 1).squared;
 
-        // 1) generate coefficients - ordered \acn
+        // 1) generate mirror coefficients - ordered \acn
         coeffs = hoaOrder.reflection(mirror);
 
         // 2) generate matrix
         matrix = Matrix.newDiagonal(coeffs);
     }
+
+	// NOTE: this contains near-zero values.
+	// You can optimize these out by calling Matrix:-zeroWithin
+	initSwapAxes { |axes|
+		case
+		{ axes == \yz or: { axes == \zy } } // swap Z<>Y axes, "J-matrix"
+		{
+			var rx, my;
+
+			rx = this.class.newRotateAxis(\x, 0.5pi, this.order).matrix;
+			my = this.class.newMirror(\y, this.order).matrix;
+
+			// matrix = my * rx;
+
+			// TODO: bake in this omptimization? larger question of migrating from Matrix to MatrixArray
+			rx = MatrixArray.with(rx.asArray);
+			my = MatrixArray.with(my.asArray);
+			matrix = Matrix.with(my * rx);
+		}
+		{ axes == \xz or: { axes == \zx } } // swap Z<>X axes, "K-matrix"
+		{
+			var ry, mx;
+
+			ry = this.class.newRotateAxis(\y, 0.5pi, this.order).matrix;
+			mx = this.class.newMirror(\x, this.order).matrix;
+
+			// matrix = mx * ry;
+
+			// TODO: bake in this omptimization? larger question of migrating from Matrix to MatrixArray
+			mx = MatrixArray.with(mx.asArray);
+			ry = MatrixArray.with(ry.asArray);
+			matrix = Matrix.with(mx * ry);
+		}
+		{ axes == \xy or: { axes == \yx } } // swap X<>Y axes
+		{
+			var rz, mx;
+
+			rz = this.class.newRotateAxis(\z, 0.5pi, this.order).matrix;
+			mx = this.class.newMirror(\x, this.order).matrix;
+
+			matrix = mx * rz;
+		}
+		{
+			"Cannot swap axes '%'".format(axes).throw
+		};
+	}
 
 	initBeam { |k|
 		var theta, phi, order;
@@ -469,6 +528,14 @@ HoaXformerMatrix : HoaMatrix {
 
     type { ^\xformer }
 
+	dirOutputs {
+		^this.dirChannels
+	}
+
+	dirInputs {
+		^this.dirChannels
+	}
+
 }
 
 
@@ -490,7 +557,7 @@ HoaDecoderMatrix : HoaMatrix {
     }
 
 	// Projection Decoding beams - 'basic' pattern
-	*newDirections { arg directions = [[ 0, 0 ]], order;
+	*newDirections { |directions = ([[ 0, 0 ]]), order|
         ^super.new('dirs', order).initDirChannels(directions).initBasic;
     }
 
@@ -501,7 +568,7 @@ HoaDecoderMatrix : HoaMatrix {
 	}
 
 	// Projection Decoding beams - multi pattern
-	*newBeams { arg directions = [[ 0, 0 ]], k = \basic, match = \beam, order;
+	*newBeams { |directions = ([[ 0, 0 ]]), k = \basic, match = \beam, order|
         ^super.new('beams', order).initDirChannels(directions).initBeam(k, match);
     }
 
@@ -776,6 +843,10 @@ HoaDecoderMatrix : HoaMatrix {
 
 	dirInputs {
 		^this.numInputs.collect({ inf })
+	}
+
+	dirOutputs {
+		^this.dirChannels
 	}
 
 	type { ^\decoder }

@@ -50,16 +50,17 @@
 //	For more information visit http://ambisonictoolkit.net/ or
 //	email info[at]ambisonictoolkit.net
 //
-//---------------------------------------------------------------------
+//-----------------------------------------------------------------------
 
 
-//------------------------------------------------------------------------
+//-----------------------------------------------------------------------
 // Third Party Notices
-//------------------------------------------------------------------------
+//-----------------------------------------------------------------------
 //
 //-----------------------------------------------------------------------
-// Support for Gerzon's Diametric Decoder Theorem (DDT) decoding algorithm is derived
-// from Aaron Heller's Octave code available at: http://www.ai.sri.com/ajh/ambisonics/
+// Support for Gerzon's Diametric Decoder Theorem (DDT) decoding
+// algorithm is derived from Aaron Heller's Octave code available at:
+// http://www.ai.sri.com/ajh/ambisonics/
 //
 // Benjamin, et al., "Localization in Horizontal-Only Ambisonic Systems"
 // Preprint from AES-121, 10/2006, San Francisco
@@ -69,11 +70,12 @@
 //-----------------------------------------------------------------------
 //
 //-----------------------------------------------------------------------
-// Irregular array decoding coefficients (5.0, 7.0) are kindly provided by
-// Bruce Wiggins: http://www.brucewiggins.co.uk/
+// Irregular array decoding coefficients (5.0, 7.0) are kindly provided
+// by Bruce Wiggins: http://www.brucewiggins.co.uk/
 //
-// B. Wiggins, "An Investigation into the Real-time Manipulation and Control of
-// Three-dimensional Sound Fields," PhD Thesis, University of Derby, Derby, 2004.
+// B. Wiggins, "An Investigation into the Real-time Manipulation and
+// Control of Three-dimensional Sound Fields," PhD Thesis, University of
+// Derby, Derby, 2004.
 //-----------------------------------------------------------------------
 
 
@@ -111,9 +113,9 @@ FoaSpeakerMatrix {
 
 	initDiametric {
 
-    		// n = number of output channel (speaker) pairs
-    		// m = number of dimensions,
-    		//        2=horizontal, 3=periphonic
+		// n = number of output channel (speaker) pairs
+		// m = number of dimensions,
+		//        2=horizontal, 3=periphonic
 		m = this.positions.cols;
 		n = this.positions.rows;
 	}
@@ -162,15 +164,20 @@ FoaSpeakerMatrix {
 	}
 }
 
+
 AtkMatrix {
 	// copyArgs
 	var <kind;
 	var <set, <type;
 
 	var <matrix;
+	var <order;			// order for this matrix
 	var <filePath;		// matrices from files only
 	var <fileParse;		// data parsed from YAML file
 	var <op = 'matrix';
+	var <detail;        // optionally store details about the matrix, e.g. kind: mirror, detail: 'x'
+	// TODO: set detail in init methods!! Test detail in matrix file read/write and -info
+	var <>dirChannels;  // setter added for matrix-to-file & file-to-matrix support
 
 	// most typically called by subclass
 	*new { |kind, order, type|
@@ -178,27 +185,20 @@ AtkMatrix {
 	}
 
 	init { |argOrder, argType|
-		set = if (argOrder.notNil) {
-			format("HOA%", argOrder).asSymbol;
+		if (argOrder.notNil) {
+			order = argOrder;
+			set = format("HOA%", argOrder).asSymbol;
 		} { // detect from class
 			if (this.class.asString.keep(3) == "Foa") {
-				'FOA';
+				order = 1;
+				set = 'FOA';
 			} {
-				format("HOA%", Hoa.globalOrder).asSymbol;
+				order = Hoa.globalOrder;
+				set = format("HOA%", order).asSymbol;
 			}
 		};
 
-		type = if (argType.notNil) {
-			argType
-		} { // detect from class
-			switch( this.class,
-				FoaEncoderMatrix, {'encoder'},
-				FoaEncoderKernel, {'encoder'},
-				FoaDecoderMatrix, {'decoder'},
-				FoaDecoderKernel, {'decoder'},
-				FoaXformerMatrix, {'xformer'}
-			);
-		};
+		type = if (argType.notNil, { argType }, { this.prInferType });
 	}
 
 	// used when writing a Matrix to file:
@@ -207,9 +207,59 @@ AtkMatrix {
 		^super.newCopyArgs('fromMatrix').initFromMatrix(aMatrix, set, type)
 	}
 
+
 	initFromMatrix { |aMatrix, argSet, argType|
-		this.init(argSet, argType);
+		var setStr = this.class.asString.keep(3).toUpper;
+
+		// set the 'matrix' instance var
 		matrix = aMatrix;
+
+		// set the 'type' instance var
+		if (argType.notNil) {
+			type = argType
+		} {
+			type = this.prInferType;
+			"[AtkMatrix:-initFromMatrix] 'type' unspecified, inferred to be '%'".format(type).warn
+		};
+
+		// Directions can't be inferred from a matrix,
+		// needs to be written manually by user via
+		// dirChannels setter if desired.
+		// e.g. if writing to a file and you want to have
+		// directions written into metadata
+		dirChannels = switch (type,
+			'encoder', { matrix.cols },
+			'decoder', { matrix.rows },
+			'xformer', { matrix.rows }  // assumed that an xformer is a square matrix, row == cols
+		).collect{ 'unspecified' };
+
+		// set the 'set' instance var
+		if (argSet.notNil) {
+			if (setStr != "FOA" and: { setStr != "HOA" }) {
+				"[AtkMatrix:-initFromMatrix] % initialized with unknown set: %".format(this.class, argSet).warn
+			};
+			set = argSet.asSymbol;
+		} {
+			// set isn't specified, try to infer
+			var numCoeffs, order;
+			numCoeffs = switch (type,
+				'encoder', {matrix.rows},
+				'decoder', {matrix.cols},
+				'xformer', {matrix.rows},
+				{matrix.rows}
+			);
+			// TODO: should ATK matrix expect have access to HOA "namespace"?
+			//       Assumes ATK will host FOA and HOA together
+			order = Hoa.detectOrder(numCoeffs);
+
+			if (order == 1 and: {setStr == "FOA"}, {
+				set = 'FOA'
+			}, {
+				set = (setStr++order).asSymbol;
+				"[AtkMatrix:-initFromMatrix] 'set' unspecified, inferred to be '%'".format(set).warn
+			});
+		};
+
 	}
 
 	initFromFile { arg filePathOrName, mtxType, searchExtensions=false;
@@ -244,12 +294,14 @@ AtkMatrix {
 			};
 
 			if (fileParse[\type].isNil) {
-				"Matrix 'type' is undefined in the .yml file: cannot confirm the type matches the loaded object (encoder/decoder/xformer)".warn
+				"Matrix 'type' is undefined in the .yml file: cannot confirm the "
+				"type matches the loaded object (encoder/decoder/xformer)".warn
 			} {
 				if (fileParse[\type].asSymbol != mtxType.asSymbol) {
 					Error(
 						format(
-							"Matrix 'type' defined in the .yml file (%) doesn't match the type of matrix you're trying to load (%)",
+							"Matrix 'type' defined in the .yml file (%) doesn't match "
+							"the type of matrix you're trying to load (%)",
 							fileParse[\type], mtxType
 						).throw
 					)
@@ -257,7 +309,12 @@ AtkMatrix {
 			};
 
 			matrix = Matrix.with(fileParse.matrix.asFloat);
-			kind = fileParse.kind ?? resolvedPathName.fileNameWithoutExtension.asSymbol;
+
+			kind = if (fileParse.kind.notNil, {
+				fileParse.kind
+			}, {
+				resolvedPathName.fileNameWithoutExtension
+			}).asSymbol;
 		}
 		{ Error("Unsupported file extension.").throw };
 	}
@@ -266,24 +323,31 @@ AtkMatrix {
 	// post readable matrix information
 	info {
 		var attributes;
+
 		// gather attributes in order of posting
-		attributes = [ \kind, \dirInputs, \dirOutputs, \dim, \matrix ];
-		if (this.isKindOf(FoaDecoderMatrix)) { attributes = attributes ++ [\shelfK, \shelfFreq] };
-		filePath !? { attributes = attributes ++ [\fileName, \filePath] };
+		attributes = List.with( \kind, \dim );
+		if (this.isKindOf(FoaDecoderMatrix)) { attributes.add(\shelfK).add(\shelfFreq) };
 
 		// other non-standard metadata provided in yml file
 		fileParse !? {
 			fileParse.keys.do{|key|
 				attributes.includes(key.asSymbol).not.if{
-					attributes = attributes ++ key.asSymbol;
+					attributes.add(key.asSymbol);
 				}
 			}
 		};
 
-		if (attributes.includes(\type)) {
-			// bump 'type' to the top of the post
-			attributes.remove(\type); attributes.addFirst(\type);
+		// bump 'type' to the top of the post
+		if (attributes.includes(\type)) { attributes.remove(\type) };
+		attributes.addFirst(\type);
+
+		// bump to the bottom of the post
+		[\dirInputs, \dirOutputs, \matrix].do{|att|
+			if (attributes.includes(att)) { attributes.remove(att) };
+			attributes.add(att);
 		};
+
+		filePath !? { attributes.add(\fileName).add(\filePath) };
 
 		postf("\n*** % Info ***\n", this.class);
 
@@ -317,7 +381,7 @@ AtkMatrix {
 	// argSet: FOA, HOA1, HOA2, etc
 	// argType: \encoder, \decoder, \xformer
 	prWriteToFile { arg fileNameOrPath, argSet, argType, note, attributeDictionary, overwrite=false;
-		var pn, writer, ext;
+		var pn, ext;
 		var mtxPath, relPath;
 
 		pn = PathName(fileNameOrPath);
@@ -387,90 +451,99 @@ AtkMatrix {
 
 
 	prWriteMatrixToTXT { arg pn; // a PathName
-		var writer;
-		writer = FileWriter( pn.fullPath );
+		var wr;
+		wr = FileWriter( pn.fullPath );
 		// write the matrix into it by row, and close
-		matrix.rows.do{ |i| writer.writeLine( matrix.getRow(i) ) };
-		writer.close
+		matrix.rows.do{ |i| wr.writeLine( matrix.getRow(i) ) };
+		wr.close;
 	}
 
 	prWriteMatrixToMOSL { arg pn; // a PathName
-		var writer;
-		writer = FileWriter( pn.fullPath );
+		var wr;
+		wr = FileWriter( pn.fullPath );
 
 		// write num rows and cols to first 2 lines
-		writer.writeLine(["// Dimensions: rows, columns"]);
-		writer.writeLine(matrix.rows.asArray);
-		writer.writeLine(matrix.cols.asArray);
+		wr.writeLine(["// Dimensions: rows, columns"]);
+		wr.writeLine(matrix.rows.asArray);
+		wr.writeLine(matrix.cols.asArray);
 		// write the matrix into it by row, and close
 		matrix.rows.do{ |i|
 			var row;
-			writer.writeLine([""]); // blank line
-			writer.writeLine([format("// Row %", i)]);
+			wr.writeLine([""]); // blank line
+			wr.writeLine([format("// Row %", i)]);
 
 			row = matrix.getRow(i);
-			row.do{ |j| writer.writeLine( j.asArray ) };
+			row.do{ |j| wr.writeLine( j.asArray ) };
 		};
-		writer.close;
+		wr.close;
 	}
 
 	prWriteMatrixToYML { arg pn, set, type, note, attributeDictionary;
-		var writer, defAttributes;
+		var wr, wrAtt, wrAttArr, defaults;
+		var dirIns, dirOuts;
 
-		writer = FileWriter( pn.fullPath );
+		wr = FileWriter( pn.fullPath );
 
-		// writer.writeLine(["matrix :"] ++ m.asArray.asString.split($ )); // all one line
-
-		// overkill on formatting, but more readable...
-		writer.writeLine(["matrix : ["]);
-		matrix.rows.do{ |i|
-			var line, row;
-			row = matrix.getRow(i);
-			line = row.asString.split($ );
-			if ((i+1) != matrix.rows) {line[line.size-1] = line.last ++ ","};
-			writer.writeLine(line);
+		// write a one-line attribute
+		wrAtt = { |att, val|
+			wr.write("% : ".format(att));
+			wr.write(
+				(
+					val ?? {this.tryPerform(att)}
+				).asCompileString; // allow for large strings
+			);
+			wr.write("\n\n");
 		};
-		writer.writeLine(["]"]);
 
-		type !? {
-			writer.writeLine([]);
-			writer.writeLine( ["type", ":", type] )
+		// write a multi-line attribute (2D array)
+		wrAttArr = { |att, arr|
+			var vals = arr ?? {this.tryPerform(att)};
+			if (vals.isNil) {
+				wr.writeLine(["% : nil".format(att)]);
+			} {
+				wr.writeLine(["% : [".format(att)]);
+				vals.asArray.do{ |elem, i|
+					wr.write(elem.asCompileString); // allow for large row strings
+					if (i == (vals.size-1)) { wr.write("\n]\n") } { wr.write(",\n") };
+				};
+			};
+			wr.write("\n");
 		};
+
+		note !? { wrAtt.(\note, note) };
+
+		type !? { wrAtt.(\type) };
 
 		// write default attributes
-		defAttributes = [\kind, \dirOutputs, \dirInputs];
-		if (type=='decoder') {
-			defAttributes = defAttributes ++ [\shelfK,\shelfFreq]
-		};
+		defaults = if (type == 'decoder') { [\kind, \shelfK, \shelfFreq] } { [\kind] };
 
 		if (attributeDictionary.notNil) {
 			// make sure attribute dict doesn't explicitly set the attribute first
-			defAttributes.do{ |attribute|
-				attributeDictionary[attribute] ?? {
-					writer.writeLine([]); //newline for readability
-					writer.writeLine( [attribute, ":", this.tryPerform(attribute)] )
-				}
+			defaults.do{ |att|
+				attributeDictionary[att] ?? { wrAtt.(att) }
 			};
 		} {
-			defAttributes.do{ |attribute|
-				writer.writeLine([]); //newline for readability
-				writer.writeLine( [attribute, ":", this.tryPerform(attribute)] )
-			};
-		};
-
-		note !? {
-			writer.writeLine([]);
-			writer.writeLine( ["note", ":", note] )
+			defaults.do{ |att| wrAtt.(att) };
 		};
 
 		attributeDictionary !? {
 			attributeDictionary.keysValuesDo{ |k,v|
-				writer.writeLine([]);
-				writer.writeLine( [k.asString, ":", v] )
+				// catch overridden dirIn/Outputs
+				switch( k,
+					'dirInputs', { dirIns = v },
+					'dirOutputs', { dirOuts = v },
+					{
+						if (v.isKindOf(Array)) { wrAttArr.(k, v) } { wrAtt.(k, v) }
+					}
+				);
 			}
 		};
 
-		writer.close;
+		wrAttArr.(\dirInputs, dirIns);
+		wrAttArr.(\dirOutputs, dirOuts);
+		wrAttArr.(\matrix);
+
+		wr.close;
 	}
 
 	prParseMOSL { |pn|
@@ -553,10 +626,24 @@ AtkMatrix {
 		)
 	}
 
+	asArray { ^matrix.asArray }
+
+	prInferType {
+		^switch( this.class,
+			FoaEncoderMatrix, {'encoder'},
+			FoaEncoderKernel, {'encoder'},
+			FoaDecoderMatrix, {'decoder'},
+			FoaDecoderKernel, {'decoder'},
+			FoaXformerMatrix, {'xformer'},
+			HoaEncoderMatrix, {'encoder'},
+			HoaDecoderMatrix, {'decoder'},
+			HoaXformerMatrix, {'xformer'}
+		);
+	}
+
 }
 
 FoaDecoderMatrix : AtkMatrix {
-	var <dirOutputs;
 	var <>shelfFreq, <shelfK;
 
 	*newDiametric { arg directions = [ pi/4, 3*pi/4 ], k = 'single';
@@ -567,10 +654,8 @@ FoaDecoderMatrix : AtkMatrix {
 		^super.new('panto').initPanto(numChans, orientation, k);
 	}
 
-	*newPeri { arg numChanPairs = 4, elevation = 0.61547970867039,
-				   orientation = 'flat', k = 'single';
-		^super.new('peri').initPeri(numChanPairs, elevation,
-			orientation, k);
+	*newPeri { arg numChanPairs = 4, elevation = 0.61547970867039, orientation = 'flat', k = 'single';
+		^super.new('peri').initPeri(numChanPairs, elevation, orientation, k);
 	}
 
 	*newQuad { arg angle = pi/4, k = 'single';
@@ -609,41 +694,39 @@ FoaDecoderMatrix : AtkMatrix {
 	initK2D { arg k;
 
 		if ( k.isNumber, {
-				^k
-			}, {
-				switch ( k,
-					'velocity', 	{ ^1 },
-					'energy', 	{ ^2.reciprocal.sqrt },
-					'controlled', { ^2.reciprocal },
-					'single', 	{ ^2.reciprocal.sqrt },
-					'dual', 		{
-						shelfFreq = 400.0;
-						shelfK = [(3/2).sqrt, 3.sqrt/2];
-						^1;
-					}
-				)
-			}
-		)
+			^k
+		}, {
+			^switch ( k,
+				'velocity', { 1 },
+				'energy', { 2.reciprocal.sqrt },
+				'controlled', { 2.reciprocal },
+				'single', { 2.reciprocal.sqrt },
+				'dual', {
+					shelfFreq = 400.0;
+					shelfK = [(3/2).sqrt, 3.sqrt/2];
+					1; // return
+				}
+			)
+		})
 	}
 
 	initK3D { arg k;
 
 		if ( k.isNumber, {
-				^k
-			}, {
-				switch ( k,
-					'velocity', 	{ ^1 },
-					'energy', 	{ ^3.reciprocal.sqrt },
-					'controlled', { ^3.reciprocal },
-					'single', 	{ ^3.reciprocal.sqrt },
-					'dual', 		{
-						shelfFreq = 400.0;
-						shelfK = [2.sqrt, (2/3).sqrt];
-						^1;
-					}
-				)
-			}
-		)
+			^k
+		}, {
+			^switch ( k,
+				'velocity', { 1 },
+				'energy', { 3.reciprocal.sqrt },
+				'controlled', { 3.reciprocal },
+				'single', { 3.reciprocal.sqrt },
+				'dual', {
+					shelfFreq = 400.0;
+					shelfK = [2.sqrt, (2/3).sqrt];
+					1; // return
+				}
+			)
+		})
 	}
 
 	initDiametric { arg directions, k;
@@ -651,8 +734,8 @@ FoaDecoderMatrix : AtkMatrix {
 		var positions, positions2;
 		var speakerMatrix, n;
 
-		switch (directions.rank,			// 2D or 3D?
-			1, {									// 2D
+		switch (directions.rank,  // 2D or 3D?
+			1, {  // 2D
 
 				// find positions
 				positions = Matrix.with(
@@ -665,16 +748,15 @@ FoaDecoderMatrix : AtkMatrix {
 				// i.e., expand to actual pairs
 				positions2 = positions ++ (positions.neg);
 
-
-			    // set output channel (speaker) directions for instance
-				dirOutputs = positions2.asArray.collect({ arg item;
+				// set output channel (speaker) directions for instance
+				dirChannels = positions2.asArray.collect({ arg item;
 					item.asPoint.asPolar.angle
 				});
 
 				// initialise k
 				k = this.initK2D(k);
 			},
-			2, {									// 3D
+			2, {  // 3D
 
 				// find positions
 				positions = Matrix.with(
@@ -687,9 +769,8 @@ FoaDecoderMatrix : AtkMatrix {
 				// i.e., expand to actual pairs
 				positions2 = positions ++ (positions.neg);
 
-
-			    // set output channel (speaker) directions for instance
-				dirOutputs = positions2.asArray.collect({ arg item;
+				// set output channel (speaker) directions for instance
+				dirChannels = positions2.asArray.collect({ arg item;
 					item.asCartesian.asSpherical.angles
 				});
 
@@ -699,15 +780,15 @@ FoaDecoderMatrix : AtkMatrix {
 		);
 
 
-	    	// get velocity gains
-	    	// NOTE: this comment from Heller seems to be slightly
-	    	//       misleading, in that the gains returned will be
-	    	//       scaled by k, which may not request a velocity
-	    	//       gain. I.e., k = 1 isn't necessarily true, as it
-	    	//       is assigned as an argument to this function.
-	    	speakerMatrix = FoaSpeakerMatrix.newPositions(positions2, k).matrix;
+		// get velocity gains
+		// NOTE: this comment from Heller seems to be slightly
+		//       misleading, in that the gains returned will be
+		//       scaled by k, which may not request a velocity
+		//       gain. I.e., k = 1 isn't necessarily true, as it
+		//       is assigned as an argument to this function.
+		speakerMatrix = FoaSpeakerMatrix.newPositions(positions2, k).matrix;
 
-	    	// n = number of output channels (speakers)
+		// n = number of output channels (speakers)
 		n = speakerMatrix.cols;
 
 		// build decoder matrix
@@ -726,8 +807,8 @@ FoaDecoderMatrix : AtkMatrix {
 
 		var g0, g1, theta;
 
-	    	g0 = 1.0;								// decoder gains
-	    	g1 = 2.sqrt;							// 0, 1st order
+		g0 = 1.0;     // decoder gains
+		g1 = 2.sqrt;  // 0, 1st order
 
 
 		// return theta from output channel (speaker) number
@@ -739,8 +820,8 @@ FoaDecoderMatrix : AtkMatrix {
 		});
 		theta = (theta + pi).mod(2pi) - pi;
 
-	    // set output channel (speaker) directions for instance
-		dirOutputs = theta;
+		// set output channel (speaker) directions for instance
+		dirChannels = theta;
 
 		// initialise k
 		k = this.initK2D(k);
@@ -752,10 +833,10 @@ FoaDecoderMatrix : AtkMatrix {
 		numChans.do({ arg i;
 			matrix.putRow(i, [
 				g0,
-	              k * g1 * theta.at(i).cos,
-	              k * g1 * theta.at(i).sin
+				k * g1 * theta.at(i).cos,
+				k * g1 * theta.at(i).sin
 			])
-			});
+		});
 		matrix = 2.sqrt/numChans * matrix
 	}
 
@@ -766,11 +847,13 @@ FoaDecoderMatrix : AtkMatrix {
 		// generate output channel (speaker) pair positions
 		// start with polar positions. . .
 		theta = [];
-		numChanPairs.do({arg i;
-			theta = theta ++ [2 * pi * i / numChanPairs]}
-		);
-		if ( orientation == 'flat',
-			{ theta = theta + (pi / numChanPairs) });       // 'flat' case
+		numChanPairs.do({ arg i;
+			theta = theta ++ [2 * pi * i / numChanPairs]
+		});
+
+		if ( orientation == 'flat', {
+			theta = theta + (pi / numChanPairs)  // 'flat' case
+		});
 
 		// collect directions [ [theta, phi], ... ]
 		// upper ring only
@@ -799,20 +882,18 @@ FoaDecoderMatrix : AtkMatrix {
 		downMatrix = matrix[(numChanPairs)..];
 
 		if ( (orientation == 'flat') && (numChanPairs.mod(2) == 1),
-			{									 // odd, 'flat'
-
+			{    // odd, 'flat'
 				downDirs = downDirs.rotate((numChanPairs/2 + 1).asInteger);
 				downMatrix = downMatrix.rotate((numChanPairs/2 + 1).asInteger)
 
-			}, {     								// 'flat' case, default
-
+			}, { // 'flat' case, default
 				downDirs = downDirs.rotate((numChanPairs/2).asInteger);
 				downMatrix = downMatrix.rotate((numChanPairs/2).asInteger)
 			}
 		);
 
-		dirOutputs = upDirs ++ downDirs;		// set output channel (speaker) directions
-		matrix = upMatrix ++ downMatrix;			// set matrix
+		dirChannels = upDirs ++ downDirs;  // set output channel (speaker) directions
+		matrix = upMatrix ++ downMatrix;  // set matrix
 
 	}
 
@@ -821,7 +902,7 @@ FoaDecoderMatrix : AtkMatrix {
 		var g0, g1, g2;
 
 	    // set output channel (speaker) directions for instance
-	    dirOutputs = [ angle, pi - angle, (pi - angle).neg, angle.neg ];
+	    dirChannels = [ angle, pi - angle, (pi - angle).neg, angle.neg ];
 
 
 		// initialise k
@@ -846,7 +927,7 @@ FoaDecoderMatrix : AtkMatrix {
 		var g0, g1, g2;
 
 	    // set output channel (speaker) directions for instance
-	    dirOutputs = [ pi/6, pi.neg/6 ];
+	    dirChannels = [ pi/6, pi.neg/6 ];
 
 		// calculate g0, g1, g2 (scaled by pattern)
 		g0	= (1.0 - pattern) * 2.sqrt;
@@ -863,7 +944,7 @@ FoaDecoderMatrix : AtkMatrix {
 	initMono { arg theta, phi, pattern;
 
 	    // set output channel (speaker) directions for instance
-	    dirOutputs = [ 0 ];
+	    dirChannels = [ 0 ];
 
 		// build decoder matrix, and set for instance
 	    matrix = Matrix.with([
@@ -878,7 +959,8 @@ FoaDecoderMatrix : AtkMatrix {
 
 	initDecoderVarsForFiles {
 		if (fileParse.notNil) {
-			dirOutputs = if (fileParse.dirOutputs.notNil) {
+			// TODO: check use of dirOutputs vs. dirChannels here
+			dirChannels = if (fileParse.dirOutputs.notNil) {
 				fileParse.dirOutputs.asFloat
 			} { // output directions are unspecified in the provided matrix
 				matrix.rows.collect({ 'unspecified' })
@@ -886,13 +968,15 @@ FoaDecoderMatrix : AtkMatrix {
 			shelfK = fileParse.shelfK !? {fileParse.shelfK.asFloat};
 			shelfFreq = fileParse.shelfFreq !? {fileParse.shelfFreq.asFloat};
 		} { // txt file provided, no fileParse
-			dirOutputs = matrix.rows.collect({ 'unspecified' });
+			dirChannels = matrix.rows.collect({ 'unspecified' });
 		};
 	}
 
 	dirInputs { ^this.numInputs.collect({ inf }) }
 
-	dirChannels { ^this.dirOutputs }
+	dirOutputs { ^dirChannels }
+
+	// dirChannels { ^this.dirOutputs }
 
 	numInputs { ^matrix.cols }
 
@@ -914,7 +998,6 @@ FoaDecoderMatrix : AtkMatrix {
 // martrix encoders
 
 FoaEncoderMatrix : AtkMatrix {
-	var <dirInputs;
 
 	*newAtoB { arg orientation = 'flu', weight = 'dec';
 		^super.new('AtoB').loadFromLib(orientation, weight)
@@ -966,10 +1049,8 @@ FoaEncoderMatrix : AtkMatrix {
 		^super.new('panto').initPanto(numChans, orientation);
 	}
 
-	*newPeri { arg numChanPairs = 4, elevation = 0.61547970867039,
-				orientation = 'flat';
-		^super.new('peri').initPeri(numChanPairs, elevation,
-			orientation);
+	*newPeri { arg numChanPairs = 4, elevation = 0.61547970867039, orientation = 'flat';
+		^super.new('peri').initPeri(numChanPairs, elevation, orientation);
 	}
 
 	*newZoomH2 { arg angles = [pi/3, 3/4*pi], pattern = 0.5857, k = 1;
@@ -985,13 +1066,13 @@ FoaEncoderMatrix : AtkMatrix {
 		var g0 = 2.sqrt.reciprocal;
 
 		// build encoder matrix, and set for instance
-		matrix = Matrix.newClear(3, dirInputs.size); // start w/ empty matrix
+		matrix = Matrix.newClear(3, dirChannels.size); // start w/ empty matrix
 
-		dirInputs.do({ arg theta, i;
+		dirChannels.do({ arg theta, i;
 			matrix.putCol(i, [
 				g0,
-	              theta.cos,
-	              theta.sin
+				theta.cos,
+				theta.sin
 			])
 		})
 	}
@@ -1001,14 +1082,14 @@ FoaEncoderMatrix : AtkMatrix {
 		var g0 = 2.sqrt.reciprocal;
 
 		// build encoder matrix, and set for instance
-		matrix = Matrix.newClear(4, dirInputs.size); // start w/ empty matrix
+		matrix = Matrix.newClear(4, dirChannels.size); // start w/ empty matrix
 
-		dirInputs.do({ arg thetaPhi, i;
+		dirChannels.do({ arg thetaPhi, i;
 			matrix.putCol(i, [
 				g0,
-	              thetaPhi.at(1).cos * thetaPhi.at(0).cos,
-	              thetaPhi.at(1).cos * thetaPhi.at(0).sin,
-	              thetaPhi.at(1).sin
+				thetaPhi.at(1).cos * thetaPhi.at(0).cos,
+				thetaPhi.at(1).cos * thetaPhi.at(0).sin,
+				thetaPhi.at(1).sin
 			])
 		})
 	}
@@ -1018,23 +1099,23 @@ FoaEncoderMatrix : AtkMatrix {
 		var g0 = 2.sqrt.reciprocal;
 
 		// build 'decoder' matrix, and set for instance
-		matrix = Matrix.newClear(dirInputs.size, 3); 	// start w/ empty matrix
+		matrix = Matrix.newClear(dirChannels.size, 3); // start w/ empty matrix
 
 		if ( pattern.isArray,
 			{
-				dirInputs.do({ arg theta, i;			// mic positions, indivd patterns
+				dirChannels.do({ arg theta, i;  // mic positions, indivd patterns
 					matrix.putRow(i, [
 						(1.0 - pattern.at(i)),
-			              pattern.at(i) * theta.cos,
-			              pattern.at(i) * theta.sin
+						pattern.at(i) * theta.cos,
+						pattern.at(i) * theta.sin
 					])
 				})
 			}, {
-				dirInputs.do({ arg theta, i;			// mic positions
+				dirChannels.do({ arg theta, i;  // mic positions
 					matrix.putRow(i, [
 						(1.0 - pattern),
-			              pattern * theta.cos,
-			              pattern * theta.sin
+						pattern * theta.cos,
+						pattern * theta.sin
 					])
 				})
 			}
@@ -1055,25 +1136,25 @@ FoaEncoderMatrix : AtkMatrix {
 		var g0 = 2.sqrt.reciprocal;
 
 		// build 'decoder' matrix, and set for instance
-		matrix = Matrix.newClear(dirInputs.size, 4); 	// start w/ empty matrix
+		matrix = Matrix.newClear(dirChannels.size, 4);  // start w/ empty matrix
 
 		if ( pattern.isArray,
 			{
-				dirInputs.do({ arg thetaPhi, i;		// mic positions, indivd patterns
+				dirChannels.do({ arg thetaPhi, i;  // mic positions, indivd patterns
 					matrix.putRow(i, [
 						(1.0 - pattern.at(i)),
-			              pattern.at(i) * thetaPhi.at(1).cos * thetaPhi.at(0).cos,
-			              pattern.at(i) * thetaPhi.at(1).cos * thetaPhi.at(0).sin,
-			              pattern.at(i) * thetaPhi.at(1).sin
+						pattern.at(i) * thetaPhi.at(1).cos * thetaPhi.at(0).cos,
+						pattern.at(i) * thetaPhi.at(1).cos * thetaPhi.at(0).sin,
+						pattern.at(i) * thetaPhi.at(1).sin
 					])
 				})
 			}, {
-				dirInputs.do({ arg thetaPhi, i;		// mic positions
+				dirChannels.do({ arg thetaPhi, i;  // mic positions
 					matrix.putRow(i, [
 						(1.0 - pattern),
-			              pattern * thetaPhi.at(1).cos * thetaPhi.at(0).cos,
-			              pattern * thetaPhi.at(1).cos * thetaPhi.at(0).sin,
-			              pattern * thetaPhi.at(1).sin
+						pattern * thetaPhi.at(1).cos * thetaPhi.at(0).cos,
+						pattern * thetaPhi.at(1).cos * thetaPhi.at(0).sin,
+						pattern * thetaPhi.at(1).sin
 					])
 				})
 			}
@@ -1094,10 +1175,10 @@ FoaEncoderMatrix : AtkMatrix {
 	    // set input channel directions for instance
 	    (phi == 0).if (
 		    {
-				dirInputs = [ theta ];
+				dirChannels = [ theta ];
     				this.init2D
 			}, {
-	    			dirInputs = [ [theta, phi] ];
+	    			dirChannels = [ [theta, phi] ];
     				this.init3D
 			}
 		)
@@ -1106,7 +1187,7 @@ FoaEncoderMatrix : AtkMatrix {
 	initStereo { arg angle;
 
 	    // set input channel directions for instance
-	    dirInputs = [ pi/2 - angle, (pi/2 - angle).neg ];
+	    dirChannels = [ pi/2 - angle, (pi/2 - angle).neg ];
 
 	    this.init2D
 	}
@@ -1114,7 +1195,7 @@ FoaEncoderMatrix : AtkMatrix {
 	initDirections { arg directions, pattern;
 
 	    // set input channel directions for instance
-	    dirInputs = directions;
+	    dirChannels = directions;
 
 		switch (directions.rank,					// 2D or 3D?
 			1, {									// 2D
@@ -1141,14 +1222,14 @@ FoaEncoderMatrix : AtkMatrix {
 		// return theta from output channel (speaker) number
 		theta = numChans.collect({ arg channel;
 			switch (orientation,
-				'flat',	{ ((1.0 + (2.0 * channel))/numChans) * pi },
-				'point',	{ ((2.0 * channel)/numChans) * pi }
+				'flat', { ((1.0 + (2.0 * channel))/numChans) * pi },
+				'point', { ((2.0 * channel)/numChans) * pi }
 			)
 		});
 		theta = (theta + pi).mod(2pi) - pi;
 
 	    // set input channel directions for instance
-		dirInputs = theta;
+		dirChannels = theta;
 
 		this.init2D
 	}
@@ -1191,7 +1272,7 @@ FoaEncoderMatrix : AtkMatrix {
 		);
 
 	    // set input channel directions for instance
-		dirInputs = upDirs ++ downDirs;
+		dirChannels = upDirs ++ downDirs;
 
 		this.init3D
 	}
@@ -1199,7 +1280,7 @@ FoaEncoderMatrix : AtkMatrix {
 	initZoomH2 { arg angles, pattern, k;
 
 	    // set input channel directions for instance
-	    dirInputs = [ angles.at(0), angles.at(0).neg, angles.at(1), angles.at(1).neg ];
+	    dirChannels = [ angles.at(0), angles.at(0).neg, angles.at(1), angles.at(1).neg ];
 
 		this.initInv2D(pattern);
 
@@ -1207,7 +1288,8 @@ FoaEncoderMatrix : AtkMatrix {
 	}
 
 	initEncoderVarsForFiles {
-		dirInputs = if (fileParse.notNil) {
+		dirChannels = if (fileParse.notNil) {
+			// TODO: check use of dirInputs vs. dirChannels here
 			if (fileParse.dirInputs.notNil) {
 				fileParse.dirInputs.asFloat
 			} { // so input directions are unspecified in the provided matrix
@@ -1221,7 +1303,9 @@ FoaEncoderMatrix : AtkMatrix {
 
 	dirOutputs { ^this.numOutputs.collect({ inf }) }
 
-	dirChannels { ^this.dirInputs }
+	dirInputs { ^dirChannels }
+
+	// dirChannels { ^this.dirInputs }
 
 	numInputs { ^matrix.cols }
 
@@ -1245,7 +1329,7 @@ FoaEncoderMatrix : AtkMatrix {
 
 FoaXformerMatrix : AtkMatrix {
 
-// ~~
+	// ~~
 	// Note: the 'kind' of the mirror transforms will be
 	// superceded by the kind specified in the .yml file
 	// e.g. 'mirrorX'
@@ -1264,7 +1348,7 @@ FoaXformerMatrix : AtkMatrix {
 	*newMirrorO {
 		^super.new('mirrorAxis').loadFromLib('o');
 	}
-//~~~
+	//~~~
 
 	*newRotate { arg angle = 0;
 		^super.new('rotate').initRotate(angle);
@@ -1406,12 +1490,12 @@ FoaXformerMatrix : AtkMatrix {
 		cosAngle	= angle.cos;
 		sinAngle	= angle.sin;
 
-	    matrix = Matrix.with([
-	    		[ 1, 0, 			0,			0 ],
-	    		[ 0, cosAngle,	sinAngle.neg,	0 ],
-	    		[ 0, sinAngle, 	cosAngle,		0 ],
-	    		[ 0, 0, 			0,			1 ]
-	    ])
+		matrix = Matrix.with([
+			[ 1, 0, 			0,			0 ],
+			[ 0, cosAngle,	sinAngle.neg,	0 ],
+			[ 0, sinAngle, 	cosAngle,		0 ],
+			[ 0, 0, 			0,			1 ]
+		])
 	}
 
 	initTilt { arg angle;
@@ -1422,12 +1506,12 @@ FoaXformerMatrix : AtkMatrix {
 		cosAngle	= angle.cos;
 		sinAngle	= angle.sin;
 
-	    matrix = Matrix.with([
-	    		[ 1, 0, 0,		0 			],
-	    		[ 0, 1, 0,		0 			],
-	    		[ 0,	0, cosAngle,	sinAngle.neg 	],
-	    		[ 0,	0, sinAngle, 	cosAngle 		]
-	    ])
+		matrix = Matrix.with([
+			[ 1, 0, 0,		0 			],
+			[ 0, 1, 0,		0 			],
+			[ 0,	0, cosAngle,	sinAngle.neg 	],
+			[ 0,	0, sinAngle, 	cosAngle 		]
+		])
 	}
 
 	initTumble { arg angle;
@@ -1438,12 +1522,12 @@ FoaXformerMatrix : AtkMatrix {
 		cosAngle	= angle.cos;
 		sinAngle	= angle.sin;
 
-	    matrix = Matrix.with([
-	    		[ 1, 0, 			0,	0 			],
-	    		[ 0, cosAngle,	0,	sinAngle.neg	],
-	    		[ 0, 0,			1, 	0 			],
-	    		[ 0, sinAngle,	0, 	cosAngle 		]
-	    ])
+		matrix = Matrix.with([
+			[ 1, 0, 			0,	0 			],
+			[ 0, cosAngle,	0,	sinAngle.neg	],
+			[ 0, 0,			1, 	0 			],
+			[ 0, sinAngle,	0, 	cosAngle 		]
+		])
 	}
 
 	initDirectO { arg angle;
@@ -1453,12 +1537,12 @@ FoaXformerMatrix : AtkMatrix {
 		g0 = (1 + angle.sin).sqrt;
 		g1 = (1 - angle.sin).sqrt;
 
-	    matrix = Matrix.with([
-	    		[ g0,	0,	0,	0 	],
-	    		[ 0, 	g1,	0,	0	],
-	    		[ 0, 	0,	g1, 	0 	],
-	    		[ 0, 	0,	0, 	g1 	]
-	    ])
+		matrix = Matrix.with([
+			[ g0,	0,	0,	0 	],
+			[ 0, 	g1,	0,	0	],
+			[ 0, 	0,	g1, 	0 	],
+			[ 0, 	0,	0, 	g1 	]
+		])
 	}
 
 	initDirectX { arg angle;
@@ -1468,12 +1552,12 @@ FoaXformerMatrix : AtkMatrix {
 		g0 = (1 + angle.sin).sqrt;
 		g1 = (1 - angle.sin).sqrt;
 
-	    matrix = Matrix.with([
-	    		[ g0,	0,	0,	0 	],
-	    		[ 0, 	g1,	0,	0	],
-	    		[ 0, 	0,	g0, 	0 	],
-	    		[ 0, 	0,	0, 	g0 	]
-	    ])
+		matrix = Matrix.with([
+			[ g0,	0,	0,	0 	],
+			[ 0, 	g1,	0,	0	],
+			[ 0, 	0,	g0, 	0 	],
+			[ 0, 	0,	0, 	g0 	]
+		])
 	}
 
 	initDirectY { arg angle;
@@ -1483,12 +1567,12 @@ FoaXformerMatrix : AtkMatrix {
 		g0 = (1 + angle.sin).sqrt;
 		g1 = (1 - angle.sin).sqrt;
 
-	    matrix = Matrix.with([
-	    		[ g0,	0,	0,	0 	],
-	    		[ 0, 	g0,	0,	0	],
-	    		[ 0, 	0,	g1, 	0 	],
-	    		[ 0, 	0,	0, 	g0 	]
-	    ])
+		matrix = Matrix.with([
+			[ g0,	0,	0,	0 	],
+			[ 0, 	g0,	0,	0	],
+			[ 0, 	0,	g1, 	0 	],
+			[ 0, 	0,	0, 	g0 	]
+		])
 	}
 
 	initDirectZ { arg angle;
@@ -1498,12 +1582,12 @@ FoaXformerMatrix : AtkMatrix {
 		g0 = (1 + angle.sin).sqrt;
 		g1 = (1 - angle.sin).sqrt;
 
-	    matrix = Matrix.with([
-	    		[ g0,	0,	0,	0 	],
-	    		[ 0, 	g0,	0,	0	],
-	    		[ 0, 	0,	g0, 	0 	],
-	    		[ 0, 	0,	0, 	g1 	]
-	    ])
+		matrix = Matrix.with([
+			[ g0,	0,	0,	0 	],
+			[ 0, 	g0,	0,	0	],
+			[ 0, 	0,	g0, 	0 	],
+			[ 0, 	0,	0, 	g1 	]
+		])
 	}
 
 	initDominateX { arg gain;
@@ -1515,12 +1599,12 @@ FoaXformerMatrix : AtkMatrix {
 		g0 = (k + k.reciprocal) / 2;
 		g1 = (k - k.reciprocal) / 2.sqrt;
 
-	    matrix = Matrix.with([
-	    		[ g0,	g1/2,	0,	0 	],
-	    		[ g1, 	g0,		0,	0	],
-	    		[ 0, 	0,		1, 	0 	],
-	    		[ 0, 	0,		0, 	1 	]
-	    ])
+		matrix = Matrix.with([
+			[ g0,	g1/2,	0,	0 	],
+			[ g1, 	g0,		0,	0	],
+			[ 0, 	0,		1, 	0 	],
+			[ 0, 	0,		0, 	1 	]
+		])
 	}
 
 	initDominateY { arg gain;
@@ -1532,12 +1616,12 @@ FoaXformerMatrix : AtkMatrix {
 		g0 = (k + k.reciprocal) / 2;
 		g1 = (k - k.reciprocal) / 2.sqrt;
 
-	    matrix = Matrix.with([
-	    		[ g0,	0,	g1/2,	0 	],
-	    		[ 0, 	1,	0, 		0 	],
-	    		[ g1, 	0,	g0,		0	],
-	    		[ 0, 	0,	0, 		1 	]
-	    ])
+		matrix = Matrix.with([
+			[ g0,	0,	g1/2,	0 	],
+			[ 0, 	1,	0, 		0 	],
+			[ g1, 	0,	g0,		0	],
+			[ 0, 	0,	0, 		1 	]
+		])
 	}
 
 	initDominateZ { arg gain;
@@ -1549,12 +1633,12 @@ FoaXformerMatrix : AtkMatrix {
 		g0 = (k + k.reciprocal) / 2;
 		g1 = (k - k.reciprocal) / 2.sqrt;
 
-	    matrix = Matrix.with([
-	    		[ g0,	0,	0,	g1/2	],
-	    		[ 0, 	1,	0, 	0 	],
-	    		[ 0, 	0,	1, 	0 	],
-	    		[ g1, 	0,	0,	g0	]
-	    ])
+		matrix = Matrix.with([
+			[ g0,	0,	0,	g1/2	],
+			[ 0, 	1,	0, 	0 	],
+			[ 0, 	0,	1, 	0 	],
+			[ g1, 	0,	0,	g0	]
+		])
 	}
 
 	initZoomX { arg angle;
@@ -1564,12 +1648,12 @@ FoaXformerMatrix : AtkMatrix {
 		g0 = angle.sin;
 		g1 = angle.cos;
 
-	    matrix = Matrix.with([
-	    		[ 1,			g0/2.sqrt,	0,	0 	],
-	    		[ 2.sqrt*g0, 	1,			0,	0	],
-	    		[ 0, 		0,			g1, 	0 	],
-	    		[ 0, 		0,			0, 	g1 	]
-	    ])
+		matrix = Matrix.with([
+			[ 1,			g0/2.sqrt,	0,	0 	],
+			[ 2.sqrt*g0, 	1,			0,	0	],
+			[ 0, 		0,			g1, 	0 	],
+			[ 0, 		0,			0, 	g1 	]
+		])
 	}
 
 	initZoomY { arg angle;
@@ -1579,12 +1663,12 @@ FoaXformerMatrix : AtkMatrix {
 		g0 = angle.sin;
 		g1 = angle.cos;
 
-	    matrix = Matrix.with([
-	    		[ 1,			0,	g0/2.sqrt,	0 	],
-	    		[ 0, 		g1,	0, 			0 	],
-	    		[ 2.sqrt*g0, 	0,	1,			0	],
-	    		[ 0, 		0,	0, 			g1 	]
-	    ])
+		matrix = Matrix.with([
+			[ 1,			0,	g0/2.sqrt,	0 	],
+			[ 0, 		g1,	0, 			0 	],
+			[ 2.sqrt*g0, 	0,	1,			0	],
+			[ 0, 		0,	0, 			g1 	]
+		])
 	}
 
 	initZoomZ { arg angle;
@@ -1594,12 +1678,12 @@ FoaXformerMatrix : AtkMatrix {
 		g0 = angle.sin;
 		g1 = angle.cos;
 
-	    matrix = Matrix.with([
-	    		[ 1,			0,	0,	g0/2.sqrt	],
-	    		[ 0, 		g1,	0, 	0 		],
-	    		[ 0, 		0, 	g1,	0 		],
-	    		[ 2.sqrt*g0, 	0,	0,	1		]
-	    ])
+		matrix = Matrix.with([
+			[ 1,			0,	0,	g0/2.sqrt	],
+			[ 0, 		g1,	0, 	0 		],
+			[ 0, 		0, 	g1,	0 		],
+			[ 2.sqrt*g0, 	0,	0,	1		]
+		])
 	}
 
 	initFocusX { arg angle;
@@ -1610,12 +1694,12 @@ FoaXformerMatrix : AtkMatrix {
 		g1 = 2.sqrt * angle.sin * g0;
 		g2 = angle.cos * g0;
 
-	    matrix = Matrix.with([
-	    		[ g0,	g1/2,	0,	0	],
-	    		[ g1,	g0,		0,	0	],
-	    		[ 0,		0,		g2, 	0 	],
-	    		[ 0,		0,		0, 	g2	]
-	    ])
+		matrix = Matrix.with([
+			[ g0,	g1/2,	0,	0	],
+			[ g1,	g0,		0,	0	],
+			[ 0,		0,		g2, 	0 	],
+			[ 0,		0,		0, 	g2	]
+		])
 	}
 
 	initFocusY { arg angle;
@@ -1626,12 +1710,12 @@ FoaXformerMatrix : AtkMatrix {
 		g1 = 2.sqrt * angle.sin * g0;
 		g2 = angle.cos * g0;
 
-	    matrix = Matrix.with([
-	    		[ g0,	0,	g1/2,	0	],
-	    		[ 0,		g2,	0, 		0 	],
-	    		[ g1,	0,	g0,		0	],
-	    		[ 0,		0,	0, 		g2	]
-	    ])
+		matrix = Matrix.with([
+			[ g0,	0,	g1/2,	0	],
+			[ 0,		g2,	0, 		0 	],
+			[ g1,	0,	g0,		0	],
+			[ 0,		0,	0, 		g2	]
+		])
 	}
 
 	initFocusZ { arg angle;
@@ -1642,12 +1726,12 @@ FoaXformerMatrix : AtkMatrix {
 		g1 = 2.sqrt * angle.sin * g0;
 		g2 = angle.cos * g0;
 
-	    matrix = Matrix.with([
-	    		[ g0,	0,	0,	g1/2	],
-	    		[ 0,		g2,	0, 	0 	],
-	    		[ 0,		0, 	g2,	0	],
-	    		[ g1,	0,	0,	g0	]
-	    ])
+		matrix = Matrix.with([
+			[ g0,	0,	0,	g1/2	],
+			[ 0,		g2,	0, 	0 	],
+			[ 0,		0, 	g2,	0	],
+			[ g1,	0,	0,	g0	]
+		])
 	}
 
 	initPushX { arg angle;
@@ -1657,12 +1741,12 @@ FoaXformerMatrix : AtkMatrix {
 		g0 = 2.sqrt * angle.sin * angle.abs.sin;
 		g1 = angle.cos.squared;
 
-	    matrix = Matrix.with([
-	    		[ 1,		0,	0,	0	],
-	    		[ g0,	g1,	0,	0	],
-	    		[ 0,		0,	g1, 	0 	],
-	    		[ 0,		0,	0, 	g1	]
-	    ])
+		matrix = Matrix.with([
+			[ 1,		0,	0,	0	],
+			[ g0,	g1,	0,	0	],
+			[ 0,		0,	g1, 	0 	],
+			[ 0,		0,	0, 	g1	]
+		])
 	}
 
 	initPushY { arg angle;
@@ -1672,12 +1756,12 @@ FoaXformerMatrix : AtkMatrix {
 		g0 = 2.sqrt * angle.sin * angle.abs.sin;
 		g1 = angle.cos.squared;
 
-	    matrix = Matrix.with([
-	    		[ 1,		0,	0,	0	],
-	    		[ 0,		g1,	0, 	0 	],
-	    		[ g0,	0,	g1,	0	],
-	    		[ 0,		0,	0, 	g1	]
-	    ])
+		matrix = Matrix.with([
+			[ 1,		0,	0,	0	],
+			[ 0,		g1,	0, 	0 	],
+			[ g0,	0,	g1,	0	],
+			[ 0,		0,	0, 	g1	]
+		])
 	}
 
 	initPushZ { arg angle;
@@ -1687,12 +1771,12 @@ FoaXformerMatrix : AtkMatrix {
 		g0 = 2.sqrt * angle.sin * angle.abs.sin;
 		g1 = angle.cos.squared;
 
-	    matrix = Matrix.with([
-	    		[ 1,		0,	0,	0	],
-	    		[ 0,		g1,	0, 	0 	],
-	    		[ 0,		0, 	g1,	0	],
-	    		[ g0,	0,	0,	g1	]
-	    ])
+		matrix = Matrix.with([
+			[ 1,		0,	0,	0	],
+			[ 0,		g1,	0, 	0 	],
+			[ 0,		0, 	g1,	0	],
+			[ g0,	0,	0,	g1	]
+		])
 	}
 
 	initPressX { arg angle;
@@ -1703,12 +1787,12 @@ FoaXformerMatrix : AtkMatrix {
 		g1 = angle.cos.squared;
 		g2 = angle.cos;
 
-	    matrix = Matrix.with([
-	    		[ 1,		0,	0,	0	],
-	    		[ g0,	g1,	0,	0	],
-	    		[ 0,		0,	g2, 	0 	],
-	    		[ 0,		0,	0, 	g2	]
-	    ])
+		matrix = Matrix.with([
+			[ 1,		0,	0,	0	],
+			[ g0,	g1,	0,	0	],
+			[ 0,		0,	g2, 	0 	],
+			[ 0,		0,	0, 	g2	]
+		])
 	}
 
 	initPressY { arg angle;
@@ -1719,12 +1803,12 @@ FoaXformerMatrix : AtkMatrix {
 		g1 = angle.cos.squared;
 		g2 = angle.cos;
 
-	    matrix = Matrix.with([
-	    		[ 1,		0,	0,	0	],
-	    		[ 0,		g2,	0, 	0 	],
-	    		[ g0,	0,	g1,	0	],
-	    		[ 0,		0,	0, 	g2	]
-	    ])
+		matrix = Matrix.with([
+			[ 1,		0,	0,	0	],
+			[ 0,		g2,	0, 	0 	],
+			[ g0,	0,	g1,	0	],
+			[ 0,		0,	0, 	g2	]
+		])
 	}
 
 	initPressZ { arg angle;
@@ -1735,12 +1819,12 @@ FoaXformerMatrix : AtkMatrix {
 		g1 = angle.cos.squared;
 		g2 = angle.cos;
 
-	    matrix = Matrix.with([
-	    		[ 1,		0,	0,	0	],
-	    		[ 0,		g2,	0, 	0 	],
-	    		[ 0,		0, 	g2,	0	],
-	    		[ g0,	0,	0,	g1	]
-	    ])
+		matrix = Matrix.with([
+			[ 1,		0,	0,	0	],
+			[ 0,		g2,	0, 	0 	],
+			[ 0,		0, 	g2,	0	],
+			[ g0,	0,	0,	g1	]
+		])
 	}
 
 	initAsymmetry { arg angle;
@@ -1753,98 +1837,98 @@ FoaXformerMatrix : AtkMatrix {
 		g3 = angle.cos * angle.sin;
 		g4 = angle.cos;
 
-	    matrix = Matrix.with([
-	    		[ 1,			    0, 2.sqrt.reciprocal*g0, 0 ],
-	    		[ 2.sqrt*g1,	   g2, g0,				 0 ],
-	    		[ 2.sqrt.neg*g3, g3, g4, 				 0 ],
-	    		[ 0,			   0,  0, 				g4 ]
-	    ])
+		matrix = Matrix.with([
+			[ 1,			    0, 2.sqrt.reciprocal*g0, 0 ],
+			[ 2.sqrt*g1,	   g2, g0,				 0 ],
+			[ 2.sqrt.neg*g3, g3, g4, 				 0 ],
+			[ 0,			   0,  0, 				g4 ]
+		])
 	}
 
 	initRTT { arg rotAngle, tilAngle, tumAngle;
 
 		matrix = (
-		    	FoaXformerMatrix.newTumble(tumAngle).matrix *
-		    	FoaXformerMatrix.newTilt(tilAngle).matrix *
-		    	FoaXformerMatrix.newRotate(rotAngle).matrix
-	    	)
+			FoaXformerMatrix.newTumble(tumAngle).matrix *
+			FoaXformerMatrix.newTilt(tilAngle).matrix *
+			FoaXformerMatrix.newRotate(rotAngle).matrix
+		)
 	}
 
 	initMirror { arg theta, phi;
 
 		matrix = (
-		    	FoaXformerMatrix.newRotate(theta).matrix *
-		    	FoaXformerMatrix.newTumble(phi).matrix *
-		    	FoaXformerMatrix.newMirrorX.matrix *
-		    	FoaXformerMatrix.newTumble(phi.neg).matrix *
-		    	FoaXformerMatrix.newRotate(theta.neg).matrix
-	    	)
+			FoaXformerMatrix.newRotate(theta).matrix *
+			FoaXformerMatrix.newTumble(phi).matrix *
+			FoaXformerMatrix.newMirrorX.matrix *
+			FoaXformerMatrix.newTumble(phi.neg).matrix *
+			FoaXformerMatrix.newRotate(theta.neg).matrix
+		)
 	}
 
 	initDirect { arg angle, theta, phi;
 
 		matrix = (
-		    	FoaXformerMatrix.newRotate(theta).matrix *
-		    	FoaXformerMatrix.newTumble(phi).matrix *
-		    	FoaXformerMatrix.newDirectX(angle).matrix *
-		    	FoaXformerMatrix.newTumble(phi.neg).matrix *
-		    	FoaXformerMatrix.newRotate(theta.neg).matrix
-	    	)
+			FoaXformerMatrix.newRotate(theta).matrix *
+			FoaXformerMatrix.newTumble(phi).matrix *
+			FoaXformerMatrix.newDirectX(angle).matrix *
+			FoaXformerMatrix.newTumble(phi.neg).matrix *
+			FoaXformerMatrix.newRotate(theta.neg).matrix
+		)
 	}
 
 	initDominate { arg gain, theta, phi;
 
 		matrix = (
-		    	FoaXformerMatrix.newRotate(theta).matrix *
-		    	FoaXformerMatrix.newTumble(phi).matrix *
-		    	FoaXformerMatrix.newDominateX(gain).matrix *
-		    	FoaXformerMatrix.newTumble(phi.neg).matrix *
-		    	FoaXformerMatrix.newRotate(theta.neg).matrix
-	    	)
+			FoaXformerMatrix.newRotate(theta).matrix *
+			FoaXformerMatrix.newTumble(phi).matrix *
+			FoaXformerMatrix.newDominateX(gain).matrix *
+			FoaXformerMatrix.newTumble(phi.neg).matrix *
+			FoaXformerMatrix.newRotate(theta.neg).matrix
+		)
 	}
 
 	initZoom { arg angle, theta, phi;
 
 		matrix = (
-		    	FoaXformerMatrix.newRotate(theta).matrix *
-		    	FoaXformerMatrix.newTumble(phi).matrix *
-		    	FoaXformerMatrix.newZoomX(angle).matrix *
-		    	FoaXformerMatrix.newTumble(phi.neg).matrix *
-		    	FoaXformerMatrix.newRotate(theta.neg).matrix
-	    	)
+			FoaXformerMatrix.newRotate(theta).matrix *
+			FoaXformerMatrix.newTumble(phi).matrix *
+			FoaXformerMatrix.newZoomX(angle).matrix *
+			FoaXformerMatrix.newTumble(phi.neg).matrix *
+			FoaXformerMatrix.newRotate(theta.neg).matrix
+		)
 	}
 
 	initFocus { arg angle, theta, phi;
 
 		matrix = (
-		    	FoaXformerMatrix.newRotate(theta).matrix *
-		    	FoaXformerMatrix.newTumble(phi).matrix *
-		    	FoaXformerMatrix.newFocusX(angle).matrix *
-		    	FoaXformerMatrix.newTumble(phi.neg).matrix *
-		    	FoaXformerMatrix.newRotate(theta.neg).matrix
-	    	)
+			FoaXformerMatrix.newRotate(theta).matrix *
+			FoaXformerMatrix.newTumble(phi).matrix *
+			FoaXformerMatrix.newFocusX(angle).matrix *
+			FoaXformerMatrix.newTumble(phi.neg).matrix *
+			FoaXformerMatrix.newRotate(theta.neg).matrix
+		)
 	}
 
 	initPush { arg angle, theta, phi;
 
 		matrix = (
-		    	FoaXformerMatrix.newRotate(theta).matrix *
-		    	FoaXformerMatrix.newTumble(phi).matrix *
-		    	FoaXformerMatrix.newPushX(angle).matrix *
-		    	FoaXformerMatrix.newTumble(phi.neg).matrix *
-		    	FoaXformerMatrix.newRotate(theta.neg).matrix
-	    	)
+			FoaXformerMatrix.newRotate(theta).matrix *
+			FoaXformerMatrix.newTumble(phi).matrix *
+			FoaXformerMatrix.newPushX(angle).matrix *
+			FoaXformerMatrix.newTumble(phi.neg).matrix *
+			FoaXformerMatrix.newRotate(theta.neg).matrix
+		)
 	}
 
 	initPress { arg angle, theta, phi;
 
 		matrix = (
-		    	FoaXformerMatrix.newRotate(theta).matrix *
-		    	FoaXformerMatrix.newTumble(phi).matrix *
-		    	FoaXformerMatrix.newPressX(angle).matrix *
-		    	FoaXformerMatrix.newTumble(phi.neg).matrix *
-		    	FoaXformerMatrix.newRotate(theta.neg).matrix
-	    	)
+			FoaXformerMatrix.newRotate(theta).matrix *
+			FoaXformerMatrix.newTumble(phi).matrix *
+			FoaXformerMatrix.newPressX(angle).matrix *
+			FoaXformerMatrix.newTumble(phi.neg).matrix *
+			FoaXformerMatrix.newRotate(theta.neg).matrix
+		)
 	}
 
 	dirInputs { ^this.numInputs.collect({ inf }) }

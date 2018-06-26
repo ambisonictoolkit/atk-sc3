@@ -336,3 +336,17 @@ HoaPan : HoaUGen {
 		^HoaRotate.ar(tumble, theta, n);
 	}
 }
+
+// Soundfield mirroring.
+HoaMirror : HoaUGen {
+
+	*ar { |in, reflect, order|
+		var n, mirrorCoeffs, mirrored;
+
+		n = HoaUGen.confirmOrder(in, order);
+
+		mirrorCoeffs = HoaOrder(n).reflection(reflect);
+
+		^in * mirrorCoeffs;
+	}
+}

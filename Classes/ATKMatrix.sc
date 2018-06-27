@@ -515,7 +515,7 @@ AtkMatrix {
 		type !? { wrAtt.(\type) };
 
 		// write default attributes
-		defaults = if (type == 'decoder') { [\kind, \shelfK, \shelfFreq] } { [\kind] };
+		defaults = if ((type == 'decoder') && (set == 'FOA')) { [\kind, \shelfK, \shelfFreq] } { [\kind] };
 
 		if (attributeDictionary.notNil) {
 			// make sure attribute dict doesn't explicitly set the attribute first

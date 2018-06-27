@@ -170,7 +170,7 @@ HoaOrder {
 
         ^(k == 'energy').if({
             (dim == 2).if ({
-                chebyshevZeros(m+1).maxItem  // 2D
+                chebyshevTZeros(m+1).maxItem  // 2D
             }, {
                 legendrePZeros(m+1).maxItem  // 3D
             })

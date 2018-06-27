@@ -64,6 +64,70 @@ HoaMatrix : AtkMatrix {
 		})
 	}
 
+	initDirTDesign { |numChans, order|
+		var minT = 2 * order;
+		var designs, design, designIndex;
+		var allDesigns, validDesignIndices;
+
+		// init library - may need to catch an error here...
+		TDesignLib.initLib;
+
+		// retreive possible designs
+		designs = TDesignLib.getDesign(numChans);
+
+		// catch design of numChans not available
+		dirChannels = (designs.size != 0).if({
+
+			// sort by t
+			designs.sortBy(\t);
+
+			// select index for largest available t >= minT
+			// ... allows low to high order compatibility
+			designIndex = designs.selectIndices({ |des|
+				des[\t] >= minT
+			}).last;
+
+			// found a design for given order?
+			(designIndex != nil).if({
+				// retreive design
+				design = TDesign.new(
+					designs[designIndex][\nPnts],
+					designs[designIndex][\t],
+					designs[designIndex][\dim]
+				);
+
+				// return directions, e.g., dirChannels
+				design.directions.collect({|sph| sph.angles });
+			}, {
+				// no design found!
+				// report back possible choices
+
+				// find valid designs
+				allDesigns = TDesignLib.lib.asArray;
+
+				validDesignIndices = allDesigns.selectIndices({ |des|
+					des[\t] >= minT
+				});
+
+				"Available t-designs, numChans: ".post;
+				allDesigns[validDesignIndices].collect({ |des|
+					des[\nPnts]
+				}).sort.postcs;
+
+				format(
+					"A t-design of numChans % is not available for order %!",
+					numChans,
+					order
+				).throw
+			})
+		}, {
+			format(
+				"A t-design of numChans % is not available!",
+				numChans
+			).throw
+		})
+	}
+
 	initFormat { |inputFormat = \atk, outputFormat = \atk|
 		var hoaOrder;
 		var size;
@@ -239,10 +303,10 @@ HoaEncoderMatrix : HoaMatrix {
         ^super.new('modes', order).initDirChannels(directions).initModes(k, match);
     }
 
-	// TBD: t-design wrapper for *newBeams
-    // *newAtoB { arg orientation = 'flu', weight = 'dec';
-    //     ^super.new('AtoB').loadFromLib(orientation, weight)
-    // }
+	// t-design wrapper for *newBeams
+    *newAtoB { |numChans = 4, k = \basic, order|
+        ^super.new('AtoB', order).initDirTDesign(numChans, order).initBeam(k, \beam);
+    }
 
     // *newFromFile { arg filePathOrName;
     //     ^super.new.initFromFile(filePathOrName, 'encoder', true).initEncoderVarsForFiles
@@ -577,6 +641,12 @@ HoaDecoderMatrix : HoaMatrix {
 		^super.new('projection', order).initDirChannels(directions).initSAD(k, match);
     }
 
+	// Projection: Simple Ambisonic Decoding, aka SAD (convenience to match FOA: may wish to deprecate)
+	*newPanto { |numChans = 4, orientation = \flat, k = \basic, match = \amp, order|
+		var directions = Array.regularPolygon(numChans, orientation, pi);
+		^super.new('panto', order).initDirChannels(directions).initSAD(k, match);
+	}
+
 	// Mode Match: Mode Matched Decoding, aka Pseudoinverse
     *newModeMatch { |directions, k = \basic, match = \amp, order|
 		^super.new('modeMatch', order).initDirChannels(directions).initMMD(k, match)
@@ -599,11 +669,11 @@ HoaDecoderMatrix : HoaMatrix {
 		^super.new('diametric', order).initDirChannels(directionPairs).initMMD(k, match)
 	}
 
-	// TBD: t-design wrapper for *newBeams
-    // *newBtoA { arg orientation = 'flu', weight = 'dec';
-    //     ^super.new('BtoA').loadFromLib(orientation, weight);
-    // }
-    //
+	// t-design wrapper for *newBeams
+    *newBtoA { |numChans = 4, k = \basic, order|
+        ^super.new('BtoA', order).initDirTDesign(numChans, order).initBeam(k, \beam);
+    }
+
     // *newFromFile { arg filePathOrName;
     //     ^super.new.initFromFile(filePathOrName, 'decoder', true).initDecoderVarsForFiles;
     // }

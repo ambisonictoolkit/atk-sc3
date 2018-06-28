@@ -91,7 +91,7 @@ HoaMatrix : AtkMatrix {
 			(designIndex != nil).if({
 				// retreive design
 				design = TDesign.new(
-					designs[designIndex][\nPnts],
+					designs[designIndex][\numPoints],
 					designs[designIndex][\t],
 					designs[designIndex][\dim]
 				);

@@ -111,7 +111,7 @@ HoaMatrix : AtkMatrix {
 
 				"Available t-designs, numChans: ".post;
 				allDesigns[validDesignIndices].collect({ |des|
-					des[\nPnts]
+					des[\numPoints]
 				}).sort.postcs;
 
 				format(
@@ -119,6 +119,17 @@ HoaMatrix : AtkMatrix {
 					numChans,
 					order
 				).throw
+
+				// // TODO: clean up error posting when call stack isn't useful?
+				// Error(
+				// 	format(
+				// 		"A t-design of numChans % is not available for order %!",
+				// 		numChans,
+				// 		order
+				// 	)
+				// ).errorString.postln;
+				//
+				// this.halt;
 			})
 		}, {
 			format(

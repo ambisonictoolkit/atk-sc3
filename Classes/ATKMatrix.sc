@@ -193,8 +193,8 @@ AtkMatrix {
 				order = 1;
 				set = 'FOA';
 			} {
-				order = Hoa.globalOrder;
-				set = format("HOA%", order).asSymbol;
+				// order = Hoa.globalOrder; // order should be set by user or from inferring from the matrix
+				// set = format("HOA%", order).asSymbol;
 			}
 		};
 
@@ -256,30 +256,57 @@ AtkMatrix {
 		};
 
 		// infer set from class name + order
-		set = this.class.asString.keep(3).toUpper.asSymbol;
-		if (set != 'FOA') { set = (set ++ order).asSymbol };
+		set = this.getSetFromClass(order);
+		// set = this.class.asString.keep(3).toUpper.asSymbol;
+		// if (set != 'FOA') { set = (set ++ order).asSymbol };
 	}
 
-	initFromFile { arg filePathOrName, mtxType, searchExtensions=false;
-		var resolvedPathName = Atk.resolveMtxPath(filePathOrName, mtxType, searchExtensions);
-		var dict;
+	getSetFromClass { |order|
+		var s;
+		s = this.class.asString.keep(3).toUpper.asSymbol;
+		if (s != 'FOA') {
+			if (order.notNil) {
+				s = (s ++ order).asSymbol
+			} {
+				Error(
+					"[AtkMatrix:-getSetFromClass] order argument required to determin HOA set"
+				).throw
+				// .errorString.postln;
+				// this.halt;
+			}
+		};
+		^s
+	}
+
+
+	initFromFile { arg filePathOrName, mtxType, argOrder, searchExtensions=false;
+		var pn, dict;
+
+		// first try with path name only
+		pn = Atk.resolveMtxPath(filePathOrName);
+
+		pn ?? { // partial path reqires set to resolve
+			set = this.getSetFromClass(argOrder ?? this.order);
+			pn = Atk.resolveMtxPath(filePathOrName, mtxType, set, searchExtensions);
+		};
+
 		// instance var
-		filePath = resolvedPathName.fullPath;
+		filePath = pn.fullPath;
 
 		case
-		{ resolvedPathName.extension == "txt"} {
-			if (resolvedPathName.fileName.contains(".mosl")) {
+		{ pn.extension == "txt"} {
+			if (pn.fileName.contains(".mosl")) {
 				// .mosl.txt file: expected to be matrix only,
 				// single values on each line, by rows
-				matrix = Matrix.with( this.prParseMOSL(resolvedPathName) );
+				matrix = Matrix.with( this.prParseMOSL(pn) );
 			} {
 				// .txt file: expected to be matrix only, cols separated by spaces,
 				// rows by newlines
 				matrix = Matrix.with( FileReader.read(filePath).asFloat );
 			};
-			kind = resolvedPathName.fileName.asSymbol; // kind defaults to filename
+			kind = pn.fileName.asSymbol; // kind defaults to filename
 		}
-		{ resolvedPathName.extension == "yml"} {
+		{ pn.extension == "yml"} {
 			dict = filePath.parseYAMLFile;
 			fileParse = IdentityDictionary(know: true);
 
@@ -298,10 +325,11 @@ AtkMatrix {
 				if (fileParse[\type].asSymbol != mtxType.asSymbol) {
 					Error(
 						format(
-							"Matrix 'type' defined in the .yml file (%) doesn't match "
+							"[%:-initFromFile] Matrix 'type' defined in the .yml file (%) doesn't match "
 							"the type of matrix you're trying to load (%)",
-							fileParse[\type], mtxType
-						).throw
+							this.class.asString, fileParse[\type], mtxType
+						).errorString.postln;
+						this.halt
 					)
 				}
 			};
@@ -311,10 +339,15 @@ AtkMatrix {
 			kind = if (fileParse.kind.notNil, {
 				fileParse.kind
 			}, {
-				resolvedPathName.fileNameWithoutExtension
+				pn.fileNameWithoutExtension
 			}).asSymbol;
 		}
-		{ Error("Unsupported file extension.").throw };
+		{ // catch all
+			Error(
+				"[%:-initFromFile] Unsupported file extension.".format(this.class.asString)
+			).errorString.postln;
+			this.halt;
+		};
 	}
 
 
@@ -617,6 +650,7 @@ AtkMatrix {
 
 	fileName { ^try {PathName(filePath).fileName} }
 
+	// FOA only, HoaMatrix overrides
 	loadFromLib { |...args|
 		var pathStr;
 		pathStr = this.kind.asString ++ "/";
@@ -626,7 +660,7 @@ AtkMatrix {
 			pathStr = this.kind.asString;
 		} {
 			args.do{ |argParam, i|
-				pathStr = if (i>0) {
+				pathStr = if (i > 0) {
 					format("%-%", pathStr, argParam.asString)
 				} {
 					format("%%", pathStr, argParam.asString)
@@ -634,10 +668,7 @@ AtkMatrix {
 			};
 		};
 
-		this.initFromFile(
-			pathStr++".yml",
-			this.type
-		);
+		this.initFromFile(pathStr++".yml", this.type, 1, false);
 
 		switch( this.type,
 			'\encoder', {this.initEncoderVarsForFiles}, // properly set dirInputs
@@ -708,7 +739,7 @@ FoaDecoderMatrix : AtkMatrix {
 	}
 
 	*newFromFile { arg filePathOrName;
-		^super.new.initFromFile(filePathOrName, 'decoder', true).initDecoderVarsForFiles;
+		^super.new.initFromFile(filePathOrName, 'decoder', 1, true).initDecoderVarsForFiles;
 	}
 
 	initK2D { arg k;
@@ -1078,7 +1109,7 @@ FoaEncoderMatrix : AtkMatrix {
 	}
 
 	*newFromFile { arg filePathOrName;
-		^super.new.initFromFile(filePathOrName, 'encoder', true).initEncoderVarsForFiles
+		^super.new.initFromFile(filePathOrName, 'encoder', 1, true).initEncoderVarsForFiles
 	}
 
 	init2D {
@@ -1499,7 +1530,7 @@ FoaXformerMatrix : AtkMatrix {
 	}
 
 	*newFromFile { arg filePathOrName;
-		^super.new.initFromFile(filePathOrName, 'xformer', true);
+		^super.new.initFromFile(filePathOrName, 'xformer', 1, true);
 	}
 
 	initRotate { arg angle;

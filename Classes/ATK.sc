@@ -260,7 +260,7 @@ Atk {
 
 		Atk.checkSet(set);
 
-		subPath = Atk.getAtkOpPath(op, isExtension:true);
+		subPath = Atk.getAtkOpPath(op, isExtension: true);
 
 		typePath = PathName.new(
 			set.asString.toUpper ++ "/" ++ // folder structure is uppercase
@@ -288,7 +288,7 @@ Atk {
 
 		Atk.checkSet(set);
 
-		subPath = Atk.getAtkOpPath(op, isExtension:false);
+		subPath = Atk.getAtkOpPath(op, isExtension: false);
 
 		typePath = PathName.new(
 			set.asString.toUpper ++ "/" ++ // folder structure is uppercase
@@ -336,14 +336,15 @@ Atk {
 			if (throwOnFail) {
 				Error(
 					format("No directory found at\n\t%\n", folderPathName.fullPath)
-				).throw
+				).errorString.postln;
+				this.halt;
 			} { ^false }
 		};
 	}
 
-
 	// NOTE: could be generalized for other user extensions, e.g. kernels, etc.
-	*resolveMtxPath { arg filePathOrName, mtxType, searchExtensions=false;
+	// set: 'FOA', 'HOA1', 'HOA2', etc., required if filePathOrName isn't a full path
+	*resolveMtxPath { |filePathOrName, mtxType, set, searchExtensions = false|
 		var usrPN, srcPath, relPath, mtxDirPath;
 		var hasExtension, hasRelPath;
 		var name, matches;
@@ -351,94 +352,106 @@ Atk {
 		var foundCnt;
 		var str;
 
+		this.class.postln;
 		usrPN = PathName( filePathOrName ); // as PathName
 
-		if (usrPN.isFile,
-			{	// valid absolute path, easy!
-				srcPath = usrPN;
-			}, {
-				hasExtension = usrPN.extension.size > 0;
-				hasRelPath = usrPN.colonIndices.size > 0;
+		if (usrPN.isFile) {
+			// valid absolute path, easy!
+			srcPath = usrPN;
+		} {
+			set ?? { ^nil }; // can't resolve partial path without set
 
-				mtxDirPath = if (searchExtensions) {
-					Atk.getMatrixExtensionSubPath('FOA', mtxType);  // hard coded to 'FOA'..
-				} {
-					Atk.getAtkMatrixSubPath('FOA', mtxType);   // .. for now
+			hasExtension = usrPN.extension.size > 0;
+			hasRelPath = usrPN.colonIndices.size > 0;
+
+			mtxDirPath = if (searchExtensions) {
+				Atk.getMatrixExtensionSubPath(set, mtxType); // hard coded to 'FOA'..
+			} {
+				Atk.getAtkMatrixSubPath(set, mtxType); // .. for now
+			};
+
+			relPath = mtxDirPath +/+ usrPN;
+
+			if (hasRelPath) {
+				// search specific path within matrix directory
+				if (hasExtension) {
+					if (relPath.isFile) {
+						srcPath = relPath; // valid relative path, with file extension
+					} {
+						Error(
+							format(
+								"[%:*resolveMtxPath] No file found at\n\t%\n",
+								this.class.asString, relPath
+							)
+						).errorString.postln;
+						this.halt;
+					};
+
+				} { // user gives a path, but no file extension
+
+					relWithoutLast = PathName( relPath.fullPath.dirname );
+
+					if (relWithoutLast.isFolder) { // test enclosing folder
+						foundCnt = 0;
+						name = usrPN.fileNameWithoutExtension;
+
+						// NOTE: filesDo searches recursively in the parent folder,
+						// so keep track of matches in case there are multiple
+						relWithoutLast.filesDo{ |file|
+							if (file.fileNameWithoutExtension == name, {
+								srcPath = file;
+								foundCnt = foundCnt+1;
+							});
+						};
+
+						if (foundCnt >1) {
+							Error( format(
+								"Found multiple matches in recursive search of\n\t%\n"
+								"Please provide a more specific path",
+								relWithoutLast.fullPath
+							) ).errorString.postln;
+							this.halt;
+						};
+					} {
+						Error( format(
+							"Parent directory isn't a folder:\n\t%\n",
+							relWithoutLast.fullPath )
+						).errorString.postln;
+						this.halt;
+					}
+				};
+			} {	// single filename, no other path
+				matches = [];
+
+				// name = usrPN.fileNameWithoutExtension;
+				name = usrPN.fileName;
+
+				// recursively search whole directory
+				mtxDirPath.filesDo { |file|
+					var test;
+					test = if (hasExtension) {file.fileName} {file.fileNameWithoutExtension};
+					if (test == name, { matches  = matches.add(file) });
 				};
 
-				relPath = mtxDirPath +/+ usrPN;
-
-				if (hasRelPath,
-					{	// search specific path within matrix directory
-						if (hasExtension, {
-
-							if( relPath.isFile, {
-								srcPath = relPath;  // valid relative path, with file extension
-							},{
-								Error(format("No file found at\n\t%\n", relPath)).throw;
-							});
-
-						}, { // user gives a path, but no file extension
-
-							relWithoutLast = PathName( relPath.fullPath.dirname );
-
-							if (relWithoutLast.isFolder, // test enclosing folder
-								{
-									foundCnt = 0;
-									name = usrPN.fileNameWithoutExtension;
-									// NOTE: filesDo searches recursively in the parent folder,
-									// so keep track of matches in case there are multiple
-									relWithoutLast.filesDo{
-										|file|
-										if (file.fileNameWithoutExtension == name, {
-											srcPath = file;
-											foundCnt = foundCnt+1;
-										});
-									};
-
-									if (foundCnt >1) {
-										Error( format(
-											"Found multiple matches in recursive search of\n\t%\nPlease provide a more specific path",
-											relWithoutLast.fullPath
-										) ).throw;
-									};
-
-								},{
-									Error( format(
-										"Parent directory isn't a folder:\n\t%\n",
-										relWithoutLast.fullPath )
-									).throw;
-								}
-							)
-						}
-						);
-					}, {	// single filename, no other path
-						matches = [];
-
-						// name = usrPN.fileNameWithoutExtension;
-						name = usrPN.fileName;
-
-						// recursively search whole directory
-						mtxDirPath.filesDo { |file|
-							var test;
-							test = if (hasExtension) {file.fileName} {file.fileNameWithoutExtension};
-							if (test == name, { matches  = matches.add(file) });
-						};
-
-						case
-						{ matches.size == 1 } { srcPath = matches[0] }
-						{ matches.size == 0 } { Error( format("No file found for %", name) ).throw }
-						{ matches.size   > 1 } {
-							str = format("Multiple matches found for filename:\t%\n", usrPN.fileName);
-							matches.do{|file| str = str ++ "\t" ++ file.asRelativePath( mtxDirPath ) ++ "\n" };
-							str = str ++ format(
-								"Provide either an absolute path to the matrix, or one relative to\n\t%\n",
-								mtxDirPath);
-							Error( str ).throw;
-						};
-				});
-			}
-		);
+				case
+				{ matches.size == 1 } { srcPath = matches[0] }
+				{ matches.size == 0 } {
+					Error("No file found for %".format(name)).errorString.postln;
+					this.halt
+				}
+				{ matches.size   > 1 } {
+					str = "Multiple matches found for filename:\t%\n".format(usrPN.fileName);
+					matches.do{ |file|
+						str = str ++ "\t" ++ file.asRelativePath( mtxDirPath ) ++ "\n"
+					};
+					str = str ++ format(
+						"Provide either an absolute path to the matrix, or one relative to\n\t%\n",
+						mtxDirPath
+					);
+					Error(str).errorString.postln; this.halt;
+				};
+			};
+		};
 
 		if( srcPath.notNil,
 			{

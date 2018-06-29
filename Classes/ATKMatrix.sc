@@ -201,65 +201,63 @@ AtkMatrix {
 		type = if (argType.notNil, { argType }, { this.prInferType });
 	}
 
-	// used when writing a Matrix to file:
-	// need to convert to AtkMatrix first
-	*newFromMatrix { |aMatrix, set, type|
-		^super.newCopyArgs('fromMatrix').initFromMatrix(aMatrix, set, type)
+	*newFromMatrix { |matrix, order|
+		^super.newCopyArgs('fromMatrix').initFromMatrix(matrix, order)
 	}
 
+	initFromMatrix { |aMatrix, argOrder|
+		var numCoeffs;
 
-	initFromMatrix { |aMatrix, argSet, argType|
-		var setStr = this.class.asString.keep(3).toUpper;
-
-		// set the 'matrix' instance var
+		// infer type from the class name
+		type = this.prInferType;
 		matrix = aMatrix;
 
-		// set the 'type' instance var
-		if (argType.notNil) {
-			type = argType
-		} {
-			type = this.prInferType;
-			"[AtkMatrix:-initFromMatrix] 'type' unspecified, inferred to be '%'".format(type).warn
+		if (type == 'xformer') {
+			if (matrix.isSquare.not) {
+				Error(
+					format(
+						"[%:-initFromMatrix] An 'xformer' matrix "
+						"should be square. rows = %, cols = %",
+						matrix.rows, matrix.cols
+					)
+				).errorString.postln;
+				this.halt;
+			}
 		};
 
-		// Directions can't be inferred from a matrix,
-		// needs to be written manually by user via
-		// dirChannels setter if desired.
-		// e.g. if writing to a file and you want to have
-		// directions written into metadata
+		// Directions can't be inferred from a matrix, needs to be
+		// written manually by user via dirChannels setter if desired.
+		// e.g. if writing to a file and you want to have directions
+		// written into metadata.
 		dirChannels = switch (type,
 			'encoder', { matrix.cols },
 			'decoder', { matrix.rows },
-			'xformer', { matrix.rows }  // assumed that an xformer is a square matrix, row == cols
+			'xformer', { matrix.rows } // xformer rows == cols
 		).collect{ 'unspecified' };
 
-		// set the 'set' instance var
-		if (argSet.notNil) {
-			if (setStr != "FOA" and: { setStr != "HOA" }) {
-				"[AtkMatrix:-initFromMatrix] % initialized with unknown set: %".format(this.class, argSet).warn
-			};
-			set = argSet.asSymbol;
-		} {
-			// set isn't specified, try to infer
-			var numCoeffs, order;
-			numCoeffs = switch (type,
-				'encoder', {matrix.rows},
-				'decoder', {matrix.cols},
-				'xformer', {matrix.rows},
-				{matrix.rows}
-			);
-			// TODO: should ATK matrix expect have access to HOA "namespace"?
-			//       Assumes ATK will host FOA and HOA together
-			order = Hoa.detectOrder(numCoeffs);
+		numCoeffs = switch (type,
+			'encoder', {matrix.rows},
+			'decoder', {matrix.cols},
+			'xformer', {matrix.rows},
+			{matrix.rows}
+		);
 
-			if (order == 1 and: {setStr == "FOA"}, {
-				set = 'FOA'
-			}, {
-				set = (setStr++order).asSymbol;
-				"[AtkMatrix:-initFromMatrix] 'set' unspecified, inferred to be '%'".format(set).warn
-			});
+		order = Hoa.detectOrder(numCoeffs);
+
+		if (argOrder.notNil and: { argOrder != order }) {
+			Error(
+				format(
+					"[%:-initFromMatrix] Order specified doesn't match the order "
+					"detected from the size of the matrix. (specified: %, detected: %)",
+					this.class.asString, argOrder, order
+				)
+			).errorString.postln;
+			this.halt;
 		};
 
+		// infer set from class name + order
+		set = this.class.asString.keep(3).toUpper.asSymbol;
+		if (set != 'FOA') { set = (set ++ order).asSymbol };
 	}
 
 	initFromFile { arg filePathOrName, mtxType, searchExtensions=false;
@@ -352,8 +350,10 @@ AtkMatrix {
 		postf("\n*** % Info ***\n", this.class);
 
 		attributes.do{ |attribute|
-			var value;
+			var value, str;
+
 			value = this.tryPerform(attribute);
+
 			if (value.isNil and: fileParse.notNil) {
 				value = fileParse[attribute] // this can still return nil
 			};
@@ -362,7 +362,19 @@ AtkMatrix {
 				value = value.asArray; // cast the Matrix to array for posting
 				if (value.rank > 1) {
 					postf("-> %\n  [\n", attribute);
-					value.do{ |elem| postf("\t%\n", elem) };
+					value.do{ |elem|
+						postf("\t%\n",
+							try {
+								elem.round(0.0001).collect({ |num|
+									str = num.asString.padRight(
+										if (num.isPositive) { 6 } { 7 },
+										"0"
+									);
+									str.padLeft(7, " ")
+								})
+							} { elem }
+						)
+					};
 					"  ]".postln;
 				} {
 					postf("-> %\n\t%\n", attribute, value);
@@ -394,7 +406,10 @@ AtkMatrix {
 
 			// This is only needed for relative file paths in user-matrices directory
 			['encoder', 'decoder', 'xformer'].includes(argType).not.if{
-				Error("'type' argument must be 'encoder', 'decoder', or 'xformer'").throw; ^this
+				Error(
+					"'type' argument must be 'encoder', 'decoder', or 'xformer'"
+				).errorString.postln;
+				this.halt;
 			};
 
 			case
@@ -415,8 +430,8 @@ AtkMatrix {
 							"Specified relative folder path was not found in %\n",
 							relPath.fullPath
 						)
-					).throw;
-					^this
+					).errorString.postln;
+					this.halt;
 				}
 			};
 		}; // otherwise, provided path is absolute
@@ -426,10 +441,14 @@ AtkMatrix {
 
 		overwrite.not.if{
 			pn.isFile.if{
-				Error(format(
-					"File already exists:\n\t%\nChoose another name or location, or set overwrite:true",
-					pn.fullPath
-			)).throw; ^this}
+				Error(
+					format(
+						"File already exists:\n\t%\nChoose another name or location, "
+						"or set overwrite: true", pn.fullPath
+					)
+				).errorString.postln;
+				this.halt;
+			}
 		};
 
 		case
@@ -442,10 +461,11 @@ AtkMatrix {
 		}
 		{ext == "yml"} {this.prWriteMatrixToYML(pn, argSet, argType, note, attributeDictionary)}
 		{	// catch all
-			Error( format( "%%",
-				"Invalid file extension: provide '.txt' for writing matrix only, ",
-				"or '.yml' or no extension to write matrix with metadata (as YAML)")
-			).throw;
+			Error(
+				"Invalid file extension: provide '.txt' for writing matrix only, "
+				"or '.yml' or no extension to write matrix with metadata (as YAML)"
+			).errorString.postln;
+			this.halt;
 		};
 	}
 

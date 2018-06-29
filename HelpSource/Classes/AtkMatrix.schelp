@@ -18,21 +18,17 @@ link::Classes/FoaEncoderMatrix::, link::Classes/FoaDecoderMatrix::, or link::Cla
 METHOD:: newFromMatrix
 Create an instance from a raw 2D link::Classes/Matrix::.
 
-ARGUMENT:: aMatrix
+ARGUMENT:: matrix
 A link::Classes/Matrix:: in the form of
 code::
 Matrix.with([[row1],[row2],...[rowN]])
 ::
 
-ARGUMENT:: set
-code::'FOA', 'HOA1', 'HOA2', ... etc::.
-Set describes both the signal set and the tool set, encompassing the Ambisonic order, as well as channel ordering and normalisation.
-
-ARGUMENT:: type
-code::'decoder', 'encoder', or 'xformer'::.
+ARGUMENT:: order
+An link::Classes/Integer:: specifying the ambisonic order. If not provided, it will be inferred from the strong::matrix::.
 
 NOTE::
-strong::set:: and strong::type:: will be required if the code::AtkMatrix:: will subsequently be written to a file.
+The instance variable code::-dirChannels:: cannot be inferred from a matrix so will be code::'unspecified':: unless you set it explicitly.
 ::
 
 

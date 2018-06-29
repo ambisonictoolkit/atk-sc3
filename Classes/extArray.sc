@@ -74,11 +74,19 @@
 	// NOTE: set and type aren't currently enforced, but it's a
 	//       good idea to provide it for writing to file
 	asAtkMatrix { arg set, type;
-		var mtx, prefix, mType, class;
+		var mtx, prefix, mType, class, order;
 
 		mtx = Matrix.with(this.asArray);
 
-		prefix = if (set.asString.keep(3) == "FOA") {"Foa"} {"Hoa"};
+		case
+		{ set.asString.keep(3) == "FOA" } {
+			order = 1;
+			prefix = "Foa"
+		}
+		{ set.asString.keep(3) == "HOA" } {
+			order = set.asString[3].asInt;
+			prefix = "Hoa"
+		};
 
 		mType = switch( type,
 			\encoder, { "EncoderMatrix" },
@@ -89,7 +97,7 @@
 
 		class = (prefix ++ mType).asSymbol.asClass;
 
-		^class.newFromMatrix(mtx, set, type)
+		^class.newFromMatrix(mtx, order)
 	}
 
 }

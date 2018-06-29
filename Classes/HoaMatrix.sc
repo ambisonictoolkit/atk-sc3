@@ -257,11 +257,10 @@ HoaMatrix : AtkMatrix {
 		^if (this.kind == \format, {
 			3
 		}, {
-			if (dirChannels[0] == 'unspecified') { // catch unspecified dirChannels
-				"[HoaMatrix:-dim] dirChannels is 'unspecified' (was your HoaMatrix loaded "
-				"from a Matrix directly?). Set dirChannels before requesting -dim.".warn;
-				// TODO: consider how returning a symbol will affect other calls on dim
-				'unspecified' // return
+			// catch unspecified dirChannels, e.g. if *newFromMatrix
+			if (dirChannels[0] == 'unspecified') {
+				// TODO: consider how returning a Symbol will affect other calls on -dim
+				'unspecified'
 			} {
 				is2D = this.dirChannels.collect(_.last).every(_ == 0.0);
 				if (is2D, { 2 }, { 3 });
@@ -319,9 +318,9 @@ HoaEncoderMatrix : HoaMatrix {
         ^super.new('AtoB', order).initDirTDesign(numChans, order).initBeam(k, \beam);
     }
 
-    // *newFromFile { arg filePathOrName;
-    //     ^super.new.initFromFile(filePathOrName, 'encoder', true).initEncoderVarsForFiles
-    // }
+    *newFromFile { arg filePathOrName;
+        ^super.new.initFromFile(filePathOrName, 'encoder', true).initEncoderVarsForFiles
+    }
 
 
     // ------------

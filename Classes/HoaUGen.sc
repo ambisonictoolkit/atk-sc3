@@ -146,6 +146,36 @@ HoaUGen {
 }
 
 
+//-----------------------------------------------------------------------
+// encoders
+
+// Basic encoding. I.e. endoding at the decode radius.
+HoaDirection : HoaUGen {
+
+	*ar { |in, theta, phi, order|
+		var n, pw, pwCoeffs, toPhi, tumble;
+
+		n = order ?? { Hoa.globalOrder };
+
+		// basic (real) coefficients at zenith
+		pwCoeffs = HoaOrder(n).sph(0, 0.5pi);
+		// round to optimize near-zeros out
+		pwCoeffs = pwCoeffs.round(-180.dbamp);  // NOTE: will want to consolidate -round
+		// input signal encoded as a basic (real) wave at zenith
+		pw = in * pwCoeffs;
+
+		// angle to bring the zenith to phi
+		toPhi = phi - 0.5pi;
+
+		tumble = HoaTumble.ar(pw, toPhi, n);
+		^HoaRotate.ar(tumble, theta, n);
+	}
+}
+
+
+//-----------------------------------------------------------------------
+// transformers
+
 // Rotation about Z axis.
 HoaRotate : HoaUGen {
 
@@ -313,30 +343,6 @@ HoaYPR : HoaUGen {
 	}
 }
 
-
-// Basic encoding. I.e. endoding at the decode radius.
-HoaDirection : HoaUGen {
-
-	*ar { |in, theta, phi, order|
-		var n, pw, pwCoeffs, toPhi, tumble;
-
-		n = order ?? { Hoa.globalOrder };
-
-		// planewave coefficients at zenith
-		pwCoeffs = HoaOrder(n).sph(0, 0.5pi);
-		// round to optimize near-zeros out
-		pwCoeffs = pwCoeffs.round(-180.dbamp);
-		// input signal encoded as a planewave at zenith
-		pw = in * pwCoeffs;
-
-		// angle to bring the zenith to phi
-		toPhi = phi - 0.5pi;
-
-		tumble = HoaTumble.ar(pw, toPhi, n);
-		^HoaRotate.ar(tumble, theta, n);
-	}
-}
-
 // Soundfield mirroring.
 HoaMirror : HoaUGen {
 
@@ -350,3 +356,9 @@ HoaMirror : HoaUGen {
 		^in * mirrorCoeffs;
 	}
 }
+
+
+//-----------------------------------------------------------------------
+// matrix decoders
+
+

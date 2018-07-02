@@ -83,12 +83,16 @@ HoaUGen {
 		to = order ?? { Hoa.globalOrder };
 		io = Hoa.detectOrder(in.size);
 		if (io != to) {
-			"[HoaUGen] In order (%) does not match target order (%).".format(io, to).throw
+			Error(
+				"[HoaUGen] In order (%) does not match target order (%).".format(io, to)
+			).errorString.postln;
+			this.halt;
 		};
 
 		^to
 	}
 
+	// returns a MatrixArray
 	*getJKMatrix { |which, order|
 		var nCoeffs, mtx;
 
@@ -108,7 +112,9 @@ HoaUGen {
 
 		^if (jkOrder > order) {
 			nCoeffs = Hoa.numOrderCoeffs(order);
-			mtx.getSub(0, 0, nCoeffs, nCoeffs);
+			MatrixArray.with(
+				mtx.getSub(0, 0, nCoeffs, nCoeffs);
+			);
 		} {
 			mtx
 		}

@@ -373,7 +373,7 @@ HoaMono : HoaUGen {
 		// angle to bring the zenith to phi
 		toPhi = phi - 0.5pi;
 
-		n = order ?? { Hoa.globalOrder };
+		n = HoaUGen.confirmOrder(in, order);
 
 		hoaOrder = HoaOrder.new(n);  // instance order
 		degreeSeries = Array.series(n+1, 1, 2);

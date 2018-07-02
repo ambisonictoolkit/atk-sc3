@@ -208,21 +208,24 @@ HoaRotate : HoaUGen {
 			s = Array.newClear(n);  // [sin(1*ang), sin(2*ang), ... sin(n*ang)]
 			c = Array.newClear(n);  // [cos(1*ang), cos(2*ang), ... cos(n*ang)]
 
-			ang = radians;
-			ang2 = ang * 2;
-
 			// precompute first 2 sin/cos for recurrence
+			ang = radians;
 			s[0] = sin(ang);
 			c[0] = cos(ang);
-			s[1] = sin(ang2);
-			c[1] = cos(ang2);
+			if (n > 1) {
+				ang2 = ang * 2;
+				s[1] = sin(ang2);
+				c[1] = cos(ang2);
+			};
 
 			// Note: modified indexing from source to replace subtraction
 			// with addition, and 2 multiplications
-			c2 = 2 * c[0];
-			(1..n-2).do{|idx|
-				s[idx+1] = (c2 * s[idx]) - s[idx-1];
-				c[idx+1] = (c2 * c[idx]) - c[idx-1];
+			if (n > 2) {
+				c2 = 2 * c[0];
+				(1..n-2).do{|idx|
+					s[idx+1] = (c2 * s[idx]) - s[idx-1];
+					c[idx+1] = (c2 * c[idx]) - c[idx-1];
+				};
 			};
 
 			(1..n).do{ |l|
@@ -239,8 +242,8 @@ HoaRotate : HoaUGen {
 
 					out[imneg] = (cos * in[imneg]) + (sin * in[im]);
 					out[im] = (cos * in[im]) - (sin * in[imneg]);
-				}
-			}
+				};
+			};
 		};
 
 		^out

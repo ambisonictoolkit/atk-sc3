@@ -83,12 +83,16 @@ HoaUGen {
 		to = order ?? { Hoa.globalOrder };
 		io = Hoa.detectOrder(in.size);
 		if (io != to) {
-			"[HoaUGen] In order (%) does not match target order (%).".format(io, to).throw
+			Error(
+				"[HoaUGen] In order (%) does not match target order (%).".format(io, to)
+			).errorString.postln;
+			this.halt;
 		};
 
 		^to
 	}
 
+	// returns a MatrixArray
 	*getJKMatrix { |which, order|
 		var nCoeffs, mtx;
 
@@ -108,7 +112,9 @@ HoaUGen {
 
 		^if (jkOrder > order) {
 			nCoeffs = Hoa.numOrderCoeffs(order);
-			mtx.getSub(0, 0, nCoeffs, nCoeffs);
+			MatrixArray.with(
+				mtx.getSub(0, 0, nCoeffs, nCoeffs);
+			);
 		} {
 			mtx
 		}
@@ -146,6 +152,48 @@ HoaUGen {
 }
 
 
+//-----------------------------------------------------------------------
+// encoders
+
+// Basic encoding. I.e. encoding at the decode radius.
+HoaDirection : HoaUGen {
+
+	*ar { |in, theta, phi, order|
+		var n, basic, coeffs, toPhi;
+		var hoaOrder;
+
+		// angle to bring the zenith to phi
+		toPhi = phi - 0.5pi;
+
+		n = order ?? { Hoa.globalOrder };  // check/assign order
+
+		hoaOrder = HoaOrder.new(n);  // instance order
+
+		// 1) generate basic (real) coefficients at zenith and round to optimize near-zeros out
+		coeffs = hoaOrder.sph(0, 0.5pi);
+		coeffs = coeffs.round(-180.dbamp);  // NOTE: will want to consolidate -round
+
+		// 2) encode as a basic (real) wave at zenith
+		basic = in * coeffs;
+
+		// 3) tumble and rotate to re-align soundfield
+		^HoaRotate.ar(
+			HoaTumble.ar(
+				basic,
+				toPhi,
+				n
+			),
+			theta,
+			n
+		)
+	}
+}
+
+
+
+//-----------------------------------------------------------------------
+// transformers
+
 // Rotation about Z axis.
 HoaRotate : HoaUGen {
 
@@ -166,21 +214,24 @@ HoaRotate : HoaUGen {
 			s = Array.newClear(n);  // [sin(1*ang), sin(2*ang), ... sin(n*ang)]
 			c = Array.newClear(n);  // [cos(1*ang), cos(2*ang), ... cos(n*ang)]
 
-			ang = radians;
-			ang2 = ang * 2;
-
 			// precompute first 2 sin/cos for recurrence
+			ang = radians;
 			s[0] = sin(ang);
 			c[0] = cos(ang);
-			s[1] = sin(ang2);
-			c[1] = cos(ang2);
+			if (n > 1) {
+				ang2 = ang * 2;
+				s[1] = sin(ang2);
+				c[1] = cos(ang2);
+			};
 
 			// Note: modified indexing from source to replace subtraction
 			// with addition, and 2 multiplications
-			c2 = 2 * c[0];
-			(1..n-2).do{|idx|
-				s[idx+1] = (c2 * s[idx]) - s[idx-1];
-				c[idx+1] = (c2 * c[idx]) - c[idx-1];
+			if (n > 2) {
+				c2 = 2 * c[0];
+				(1..n-2).do{|idx|
+					s[idx+1] = (c2 * s[idx]) - s[idx-1];
+					c[idx+1] = (c2 * c[idx]) - c[idx-1];
+				};
 			};
 
 			(1..n).do{ |l|
@@ -197,8 +248,8 @@ HoaRotate : HoaUGen {
 
 					out[imneg] = (cos * in[imneg]) + (sin * in[im]);
 					out[im] = (cos * in[im]) - (sin * in[imneg]);
-				}
-			}
+				};
+			};
 		};
 
 		^out
@@ -313,30 +364,6 @@ HoaYPR : HoaUGen {
 	}
 }
 
-
-// Basic encoding. I.e. endoding at the decode radius.
-HoaDirection : HoaUGen {
-
-	*ar { |in, theta, phi, order|
-		var n, pw, pwCoeffs, toPhi, tumble;
-
-		n = order ?? { Hoa.globalOrder };
-
-		// planewave coefficients at zenith
-		pwCoeffs = HoaOrder(n).sph(0, 0.5pi);
-		// round to optimize near-zeros out
-		pwCoeffs = pwCoeffs.round(-180.dbamp);
-		// input signal encoded as a planewave at zenith
-		pw = in * pwCoeffs;
-
-		// angle to bring the zenith to phi
-		toPhi = phi - 0.5pi;
-
-		tumble = HoaTumble.ar(pw, toPhi, n);
-		^HoaRotate.ar(tumble, theta, n);
-	}
-}
-
 // Soundfield mirroring.
 HoaMirror : HoaUGen {
 
@@ -350,3 +377,123 @@ HoaMirror : HoaUGen {
 		^in * mirrorCoeffs;
 	}
 }
+
+// Basic beaming. I.e. decoding/encoding at the decode radius.
+// Gain matched to beam.
+HoaBeam : HoaUGen {
+
+	*ar { |in, theta, phi, k = \basic, order|
+		var n, basicCoeffs, beamCoeffs, toPhi;
+		var hoaOrder, degreeSeries, beamWeights;
+		var rotateTumble, beam;
+
+		// angle to bring the zenith to phi
+		toPhi = phi - 0.5pi;
+
+		n = HoaUGen.confirmOrder(in, order);
+
+		hoaOrder = HoaOrder.new(n);  // instance order
+		degreeSeries = Array.series(n+1, 1, 2);
+
+		// 1) generate and normalize beam weights
+		beamWeights = hoaOrder.beamWeights(k);
+		beamWeights = beamWeights / (degreeSeries * beamWeights).sum;
+
+		// 2) generate basic (real) coefficients at zenith and round to optimize near-zeros out
+		basicCoeffs = hoaOrder.sph(0, 0.5pi);
+		basicCoeffs = basicCoeffs.round(-180.dbamp);  // NOTE: will want to consolidate -round
+
+		// 3) form beam coefficients
+		beamCoeffs = beamWeights[hoaOrder.l] * basicCoeffs;
+
+		// 3) rotate and tumble to align soundfield with beam (at zenith)
+		rotateTumble = HoaTumble.ar(
+			HoaRotate.ar(
+				in,
+				-1 * theta,
+				n
+			),
+			-1 * toPhi,
+			n
+		);
+
+		// 4) apply beam coefficients, and re-encode as a basic (real) wave at zenith
+		beam = (beamCoeffs * rotateTumble).sum;
+		beam = basicCoeffs * beam;
+
+		// 5) tumble and rotate to re-align soundfield
+		^HoaRotate.ar(
+			HoaTumble.ar(
+				beam,
+				toPhi,
+				n
+			),
+			theta,
+			n
+		)
+	}
+}
+
+// Basic beaming. I.e. decoding/encoding at the decode radius.
+// Gain matched to beam.
+HoaNull : HoaUGen {
+
+	*ar { |in, theta, phi, k = \basic, order|
+		var null;
+
+		// form null
+		null = in - HoaBeam.ar(in, theta, phi, k, order);
+
+		^null
+	}
+}
+
+
+//-----------------------------------------------------------------------
+// decoders
+
+// Basic decoding / beaming. I.e. decoding at the decode radius.
+// Gain matched to beam.
+HoaMono : HoaUGen {
+
+	*ar { |in, theta, phi, k = \basic, order|
+		var n, coeffs, toPhi;
+		var hoaOrder, degreeSeries, beamWeights;
+		var rotateTumble;
+
+		// angle to bring the zenith to phi
+		toPhi = phi - 0.5pi;
+
+		n = HoaUGen.confirmOrder(in, order);
+
+		hoaOrder = HoaOrder.new(n);  // instance order
+		degreeSeries = Array.series(n+1, 1, 2);
+
+		// 1) generate and normalize beam weights
+		beamWeights = hoaOrder.beamWeights(k);
+		beamWeights = beamWeights / (degreeSeries * beamWeights).sum;
+
+		// 2) generate basic (real) coefficients at zenith and round to optimize near-zeros out
+		coeffs = hoaOrder.sph(0, 0.5pi);
+		coeffs = coeffs.round(-180.dbamp);  // NOTE: will want to consolidate -round
+
+		// 3) form beam coefficients
+		coeffs = beamWeights[hoaOrder.l] * coeffs;
+
+		// 3) rotate and tumble to align soundfield with beam (at zenith)
+		rotateTumble = HoaTumble.ar(
+			HoaRotate.ar(
+				in,
+				-1 * theta,
+				n
+			),
+			-1 * toPhi,
+			n
+		);
+
+		// 4) apply beam
+		^(coeffs * rotateTumble).sum;
+	}
+}
+
+

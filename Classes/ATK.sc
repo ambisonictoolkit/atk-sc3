@@ -114,8 +114,13 @@ Atk {
 		systemMatrixDir = systemSupportDir ++ "/matrices";
 		systemExtensionsDir = systemSupportDir ++ "/extensions";
 
-		// supported sets
-		sets = [ 'FOA', 'HOA1', 'HOA2', 'HOA3', 'HOA4', 'HOA5'];
+		// Supported sets—this is only for directory management and
+		// should be revisited. No need for arbitrary set limit.
+		sets = [
+			'FOA', 'HOA1', 'HOA2', 'HOA3', 'HOA4', 'HOA5',
+			'HOA6', 'HOA7', 'HOA8', 'HOA9', 'HOA10', 'HOA11',
+			'HOA12', 'HOA13', 'HOA14', 'HOA15'
+		];
 
         // HOA support
         speedOfSound = 343.0;  // (m/s)
@@ -166,8 +171,8 @@ Atk {
 	*createExtensionsDir {
 		var exists=false, dir, ops, mtxTypes, makeDirs;
 
-		ops =	["kernels", "matrices"];  // i.e., ops
-		mtxTypes =	["encoders", "decoders", "xformers"];  // i.e., types
+		ops =	["kernels", "matrices"];
+		mtxTypes =	["encoders", "decoders", "xformers"];
 
 		makeDirs = { |baseDir|
 			Atk.sets.do{ |set|
@@ -181,22 +186,22 @@ Atk {
 			}
 		};
 
-		if( File.exists(userExtensionsDir) ) {
+		if (File.exists(userExtensionsDir)) {
 			exists = true;
 			dir = userExtensionsDir;
 		};
 
-		if( File.exists(systemExtensionsDir) ) {
+		if (File.exists(systemExtensionsDir)) {
 			exists = true;
 			dir = userExtensionsDir;
 		};
 
-		if (exists) { ^format("ATK extensions directory already found at: %\n", dir).warn; };
+		if (exists) { ^"ATK extensions directory already found at: %\n".format(dir).warn };
 
-		if (File.exists( userSupportDir )) { // try user dir first
+		if (File.exists(userSupportDir)) { // try user dir first
 			makeDirs.(Atk.userExtensionsDir);
 		} {
-			if (File.exists( systemSupportDir )) { // then system dir
+			if (File.exists(systemSupportDir)) { // then system dir
 				makeDirs.(systemExtensionsDir);
 			} {
 				format("No /ATK directory found in\n\t%\nor\n\t%\n",
@@ -214,11 +219,11 @@ Atk {
 		tested = List();
 
 		str = switch (op.asSymbol,
-			'matrices', {"/matrices"},
-			'kernels',  {"/kernels"},
+			'matrices', { "/matrices" },
+			'kernels',  { "/kernels" },
 			// include singular
-			'matrix',   {"/matrices"},
-			'kernel',   {"/kernels"}
+			'matrix',   { "/matrices" },
+			'kernel',   { "/kernels" }
 		);
 
 		// assume user directory first
@@ -243,11 +248,11 @@ Atk {
 			tested.add(subPath);
 		});
 
-		if ( subPath.isFolder.not, {
+		if (subPath.isFolder.not) {
 			Error(
 				format("\nNo folder found in\n\t%\nor\n\t%\n", *tested)
 			).throw;
-		});
+		};
 
 		^subPath
 	}
@@ -260,18 +265,18 @@ Atk {
 
 		Atk.checkSet(set);
 
-		subPath = Atk.getAtkOpPath(op, isExtension:true);
+		subPath = Atk.getAtkOpPath(op, isExtension: true);
 
 		typePath = PathName.new(
 			set.asString.toUpper ++ "/" ++ // folder structure is uppercase
 			switch( type.asSymbol,
-				'decoders', {"decoders"},
-				'encoders', {"encoders"},
-				'xformers', {"xformers"},
+				'decoders', { "decoders" },
+				'encoders', { "encoders" },
+				'xformers', { "xformers" },
 				// include singular
-				'decoder', {"decoders"},
-				'encoder', {"encoders"},
-				'xformer', {"xformers"}
+				'decoder', { "decoders" },
+				'encoder', { "encoders" },
+				'xformer', { "xformers" }
 			);
 		);
 
@@ -288,18 +293,18 @@ Atk {
 
 		Atk.checkSet(set);
 
-		subPath = Atk.getAtkOpPath(op, isExtension:false);
+		subPath = Atk.getAtkOpPath(op, isExtension: false);
 
 		typePath = PathName.new(
 			set.asString.toUpper ++ "/" ++ // folder structure is uppercase
 			switch( type.asSymbol,
-				'decoders', {"decoders"},
-				'encoders', {"encoders"},
-				'xformers', {"xformers"},
+				'decoders', { "decoders" },
+				'encoders', { "encoders" },
+				'xformers', { "xformers" },
 				// include singular
-				'decoder', {"decoders"},
-				'encoder', {"encoders"},
-				'xformer', {"xformers"}
+				'decoder', { "decoders" },
+				'encoder', { "encoders" },
+				'xformer', { "xformers" }
 			);
 		);
 
@@ -336,14 +341,15 @@ Atk {
 			if (throwOnFail) {
 				Error(
 					format("No directory found at\n\t%\n", folderPathName.fullPath)
-				).throw
+				).errorString.postln;
+				this.halt;
 			} { ^false }
 		};
 	}
 
-
 	// NOTE: could be generalized for other user extensions, e.g. kernels, etc.
-	*resolveMtxPath { arg filePathOrName, mtxType, searchExtensions=false;
+	// set: 'FOA', 'HOA1', 'HOA2', etc., required if filePathOrName isn't a full path
+	*resolveMtxPath { |filePathOrName, mtxType, set, searchExtensions = false|
 		var usrPN, srcPath, relPath, mtxDirPath;
 		var hasExtension, hasRelPath;
 		var name, matches;
@@ -353,118 +359,135 @@ Atk {
 
 		usrPN = PathName( filePathOrName ); // as PathName
 
-		if (usrPN.isFile,
-			{	// valid absolute path, easy!
-				srcPath = usrPN;
-			}, {
-				hasExtension = usrPN.extension.size > 0;
-				hasRelPath = usrPN.colonIndices.size > 0;
+		if (usrPN.isFile) {
+			srcPath = usrPN; // valid absolute path, easy!
+		} {
+			// TODO: consider implementing, if no set provided, recursively
+			// search through the appropriate directory for a file matching
+			// the name, posting results if multiple are found.
+			set ?? { ^nil }; // can't resolve partial path without set
 
-				mtxDirPath = if (searchExtensions) {
-					Atk.getMatrixExtensionSubPath('FOA', mtxType);  // hard coded to 'FOA'..
-				} {
-					Atk.getAtkMatrixSubPath('FOA', mtxType);   // .. for now
+			hasExtension = usrPN.extension.size > 0;
+			hasRelPath = usrPN.colonIndices.size > 0;
+
+			mtxDirPath = if (searchExtensions) {
+				Atk.getMatrixExtensionSubPath(set, mtxType);
+			} {
+				Atk.getAtkMatrixSubPath(set, mtxType);
+			};
+
+			relPath = mtxDirPath +/+ usrPN;
+
+			if (hasRelPath) {
+				// search specific path within matrix directory
+				if (hasExtension) {
+					if (relPath.isFile) {
+						srcPath = relPath; // valid relative path, with file extension
+					} {
+						Error(format(
+							"[%:*resolveMtxPath] No file found at\n\t%\n",
+							this.class.asString, relPath
+						)).errorString.postln;
+						this.halt;
+					};
+
+				} { // user gives a path, but no file extension
+
+					relWithoutLast = PathName(relPath.fullPath.dirname);
+
+					if (relWithoutLast.isFolder) { // test enclosing folder
+						foundCnt = 0;
+						name = usrPN.fileNameWithoutExtension;
+
+						// NOTE: filesDo searches recursively in the parent folder,
+						// so keep track of matches in case there are multiple
+						relWithoutLast.filesDo{ |file|
+							if (file.fileNameWithoutExtension == name) {
+								srcPath = file;
+								foundCnt = foundCnt + 1;
+							};
+						};
+
+						if (foundCnt > 1) {
+							Error(format(
+								"Found multiple matches in recursive search of\n\t%\n"
+								"Please provide a more specific path",
+								relWithoutLast.fullPath
+							)).errorString.postln;
+							this.halt;
+						};
+					} {
+						Error(format(
+							"Parent directory isn't a folder:\n\t%\n",
+							relWithoutLast.fullPath
+						)).errorString.postln;
+						this.halt;
+					}
+				};
+			} {	// single filename, no other path
+				matches = [];
+
+				// name = usrPN.fileNameWithoutExtension;
+				name = usrPN.fileName;
+
+				// recursively search whole directory
+				mtxDirPath.filesDo { |file|
+					var test;
+					test = if (hasExtension) {
+						file.fileName
+					} {
+						file.fileNameWithoutExtension
+					};
+					if (test == name) { matches = matches.add(file) };
 				};
 
-				relPath = mtxDirPath +/+ usrPN;
+				case
+				{ matches.size == 1 } {
+					srcPath = matches[0]
+				}
+				{ matches.size == 0 } {
+					Error("No file found for %".format(name)).errorString.postln;
+					this.halt
+				}
+				{ matches.size > 1 } {
+					str = "Multiple matches found for filename:\t%\n".format(usrPN.fileName);
+					matches.do{ |file|
+						str = str ++ "\t" ++ file.asRelativePath( mtxDirPath ) ++ "\n"
+					};
+					str = str ++ format(
+						"Provide either an absolute path to the matrix, or one relative to\n\t%\n",
+						mtxDirPath
+					);
+					Error(str).errorString.postln; this.halt;
+				};
+			};
+		};
 
-				if (hasRelPath,
-					{	// search specific path within matrix directory
-						if (hasExtension, {
-
-							if( relPath.isFile, {
-								srcPath = relPath;  // valid relative path, with file extension
-							},{
-								Error(format("No file found at\n\t%\n", relPath)).throw;
-							});
-
-						}, { // user gives a path, but no file extension
-
-							relWithoutLast = PathName( relPath.fullPath.dirname );
-
-							if (relWithoutLast.isFolder, // test enclosing folder
-								{
-									foundCnt = 0;
-									name = usrPN.fileNameWithoutExtension;
-									// NOTE: filesDo searches recursively in the parent folder,
-									// so keep track of matches in case there are multiple
-									relWithoutLast.filesDo{
-										|file|
-										if (file.fileNameWithoutExtension == name, {
-											srcPath = file;
-											foundCnt = foundCnt+1;
-										});
-									};
-
-									if (foundCnt >1) {
-										Error( format(
-											"Found multiple matches in recursive search of\n\t%\nPlease provide a more specific path",
-											relWithoutLast.fullPath
-										) ).throw;
-									};
-
-								},{
-									Error( format(
-										"Parent directory isn't a folder:\n\t%\n",
-										relWithoutLast.fullPath )
-									).throw;
-								}
-							)
-						}
-						);
-					}, {	// single filename, no other path
-						matches = [];
-
-						// name = usrPN.fileNameWithoutExtension;
-						name = usrPN.fileName;
-
-						// recursively search whole directory
-						mtxDirPath.filesDo { |file|
-							var test;
-							test = if (hasExtension) {file.fileName} {file.fileNameWithoutExtension};
-							if (test == name, { matches  = matches.add(file) });
-						};
-
-						case
-						{ matches.size == 1 } { srcPath = matches[0] }
-						{ matches.size == 0 } { Error( format("No file found for %", name) ).throw }
-						{ matches.size   > 1 } {
-							str = format("Multiple matches found for filename:\t%\n", usrPN.fileName);
-							matches.do{|file| str = str ++ "\t" ++ file.asRelativePath( mtxDirPath ) ++ "\n" };
-							str = str ++ format(
-								"Provide either an absolute path to the matrix, or one relative to\n\t%\n",
-								mtxDirPath);
-							Error( str ).throw;
-						};
-				});
-			}
-		);
-
-		if( srcPath.notNil,
-			{
-				// postf("Found matrix file: \n\t> %\n\t> %\n", srcPath.asRelativePath(mtxDirPath), srcPath);
-				^srcPath
-			},{ Error("No matrix file found!").throw }
-		);
+		if (srcPath.notNil) {
+			^srcPath
+		} {
+			Error("No matrix file found!").throw
+		};
 	}
 
+	// TODO: revisit how available sets are handled.
+	// Not ideal to have hardcoded sets in Atk.sets.
 	*checkSet { |set|
-		Atk.sets.includes(set.asString.toUpper.asSymbol).not.if {^Error("Invalid set").throw};
+		if (Atk.sets.includes(set.asString.toUpper.asSymbol).not) {
+			Error("Invalid set").errorString.postln;
+			this.halt;
+		};
 	}
 
-
-	// NOTE: could be generalized for other user extensions, e.g. kernels, etc.
-	// type: 'decoders', 'encoders', 'xformers'
+	// NOTE: could be generalized for other user extensions.
+	// e.g. kernels, etc. type: 'decoders', 'encoders', 'xformers'
 	*postMyMatrices { |set, type|
 		var postContents;
 
 		block { |break|
-
 			if (set.isNil) {
 				// no set provided, show all sets
-				Atk.sets.do{ |thisSet|
-					Atk.postMyMatrices(thisSet, type)
-				};
+				Atk.sets.do(Atk.postMyMatrices(_, type));
 				break.()
 			} {
 				Atk.checkSet(set);
@@ -478,9 +501,7 @@ Atk {
 				f_offset = ("\t"!(depth-1)).join;
 				postf("%:: % ::\n", f_offset, folderPN.folderName);
 
-				// folderPN.fileName.postln;
 				folderPN.entries.do{ |entry|
-
 					offset = ("\t"!depth).join;
 					offset.post;
 					entry.isFolder.if(
@@ -491,20 +512,24 @@ Atk {
 			};
 
 			postContents.(
-				type.isNil.if(
-					{  Atk.getAtkOpPath('matrices', isExtension:true) +/+ set.asString.toUpper },
-					{
-						if (
-							[
-								'decoders', 'encoders', 'xformers',
-								'decoder', 'encoder', 'xformer'		// include singular
-							].includes(type.asSymbol)
-						)
-						{ Atk.getMatrixExtensionSubPath(set, type) }
-						{ Error("'type' must be 'decoder', 'encoder', 'xformer', or nil (to see all matrix directories)").throw; };
-					}
-				);
-
+				if (type.isNil) {
+					Atk.getAtkOpPath('matrices', isExtension:true) +/+ set.asString.toUpper
+				} {
+					if (
+						[
+							'decoders', 'encoders', 'xformers',
+							'decoder', 'encoder', 'xformer'		// include singular
+						].includes(type.asSymbol)
+					) {
+						Atk.getMatrixExtensionSubPath(set, type)
+					} {
+						Error(
+							"'type' must be 'decoder', 'encoder', 'xformer', "
+							"or nil (to see all matrix directories)"
+						).errorString.postln;
+						this.halt;
+					};
+				};
 			);
 		}
 	}

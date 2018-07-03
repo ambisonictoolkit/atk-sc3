@@ -435,7 +435,7 @@ HoaEncoderMatrix : HoaMatrix {
 		dirChannels = if (fileParse.notNil) {
 			if (fileParse.dirInputs.notNil) {
 				fileParse.dirInputs.asFloat
-			} { // so input directions are unspecified in the provided matrix
+			} {
 				matrix.cols.collect({'unspecified'})
 			};
 		} { // txt file provided, no fileParse

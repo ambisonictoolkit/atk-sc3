@@ -257,35 +257,34 @@ AtkMatrix {
 
 		// infer set from class name + order
 		set = this.getSetFromClass(order);
-		// set = this.class.asString.keep(3).toUpper.asSymbol;
-		// if (set != 'FOA') { set = (set ++ order).asSymbol };
 	}
 
 	getSetFromClass { |order|
-		var s;
-		s = this.class.asString.keep(3).toUpper.asSymbol;
+		var s = this.class.asString.keep(3).toUpper.asSymbol;
+
 		if (s != 'FOA') {
 			if (order.notNil) {
 				s = (s ++ order).asSymbol
 			} {
 				Error(
 					"[AtkMatrix:-getSetFromClass] order argument required to determin HOA set"
-				).throw
-				// .errorString.postln;
-				// this.halt;
-			}
+				).errorString.postln;
+				this.halt;
+			};
 		};
+
 		^s
 	}
 
 
-	initFromFile { arg filePathOrName, mtxType, argOrder, searchExtensions=false;
+	initFromFile { arg filePathOrName, mtxType, argOrder, searchExtensions = false;
 		var pn, dict;
 
 		// first try with path name only
 		pn = Atk.resolveMtxPath(filePathOrName);
 
-		pn ?? { // partial path reqires set to resolve
+		pn ?? {
+			// partial path reqires set to resolve
 			set = this.getSetFromClass(argOrder ?? this.order);
 			pn = Atk.resolveMtxPath(filePathOrName, mtxType, set, searchExtensions);
 		};
@@ -295,15 +294,16 @@ AtkMatrix {
 
 		case
 		{ pn.extension == "txt"} {
-			if (pn.fileName.contains(".mosl")) {
+			matrix = if (pn.fileName.contains(".mosl")) {
 				// .mosl.txt file: expected to be matrix only,
 				// single values on each line, by rows
-				matrix = Matrix.with( this.prParseMOSL(pn) );
+				Matrix.with( this.prParseMOSL(pn) );
 			} {
-				// .txt file: expected to be matrix only, cols separated by spaces,
-				// rows by newlines
-				matrix = Matrix.with( FileReader.read(filePath).asFloat );
+				// .txt file: expected to be matrix only, cols
+				// separated by spaces, rows by newlines
+				Matrix.with( FileReader.read(filePath).asFloat );
 			};
+
 			kind = pn.fileName.asSymbol; // kind defaults to filename
 		}
 		{ pn.extension == "yml"} {
@@ -311,10 +311,9 @@ AtkMatrix {
 			fileParse = IdentityDictionary(know: true);
 
 			// replace String keys with Symbol keys, make "knowable"
-			dict.keysValuesDo{
-				|k,v|
+			dict.keysValuesDo{ |k,v|
 				fileParse.put( k.asSymbol,
-					if (v=="nil", {nil},{v}) // so .info parsing doesn't see nil as array
+					if (v == "nil") { nil } { v } // so .info parsing doesn't see nil as array
 				)
 			};
 
@@ -336,11 +335,11 @@ AtkMatrix {
 
 			matrix = Matrix.with(fileParse.matrix.asFloat);
 
-			kind = if (fileParse.kind.notNil, {
-				fileParse.kind
-			}, {
-				pn.fileNameWithoutExtension
-			}).asSymbol;
+			kind = if (fileParse.kind.notNil) {
+				fileParse.kind.asSymbol
+			} {
+				pn.fileNameWithoutExtension.asSymbol
+			};
 		}
 		{ // catch all
 			Error(

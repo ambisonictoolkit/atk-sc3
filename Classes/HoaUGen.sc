@@ -155,12 +155,12 @@ HoaUGen {
 //-----------------------------------------------------------------------
 // encoders
 
-// Basic encoding. I.e. encoding at the decode radius.
+// Basic & holophonic encoding.
 HoaDirection : HoaUGen {
 
-	*ar { |in, theta, phi, order|
-		var n, basic, coeffs, toPhi;
-		var hoaOrder;
+	*ar { |in, theta, phi, radius, order|
+		var toPhi, n, hoaOrder, coeffs;
+		var zenith;
 
 		// angle to bring the zenith to phi
 		toPhi = phi - 0.5pi;
@@ -173,13 +173,22 @@ HoaDirection : HoaUGen {
 		coeffs = hoaOrder.sph(0, 0.5pi);
 		coeffs = coeffs.round(-180.dbamp);  // NOTE: will want to consolidate -round
 
-		// 2) encode as a basic (real) wave at zenith
-		basic = in * coeffs;
+		// 2) encode as basic (real) or NFE (complex) wave at zenith
+		zenith = (radius == nil).if({
+			// basic
+			in
+		}, {
+			// NFE
+			(n+1).collect({ |l|
+				DegreeCtrl.ar(in, radius, Atk.decRadius, l)
+			})[hoaOrder.l]
+		});
+		zenith = coeffs * zenith;  // apply coeffs
 
 		// 3) tumble and rotate to re-align soundfield
 		^HoaRotate.ar(
 			HoaTumble.ar(
-				basic,
+				zenith,
 				toPhi,
 				n
 			),

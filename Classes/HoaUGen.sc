@@ -497,3 +497,98 @@ HoaMono : HoaUGen {
 }
 
 
+//-----------------------------------------------------------------------
+// Near-field Effect by Degree utilities
+
+DegreeProx {
+	*ar { |in, encRadius, degree = 0, mul = 1.0, add = 0|
+		var out;
+
+		// degree 0
+		out = in;
+
+		// degree >= 1
+		(degree > 0).if({
+			var coeffDict = NFECoeffs.new(degree).prox(encRadius, SampleRate.ir);
+
+			// FOS
+			coeffDict.keys.includes(\fos).if({
+				coeffDict[\fos].do({ |coeffs|
+					out = FOS.ar(out, coeffs[0], coeffs[1], coeffs[2])
+				})
+			});
+
+			// SOS
+			coeffDict[\sos].do({ |coeffs|
+				out = SOS.ar(out, coeffs[0], coeffs[1], coeffs[2], coeffs[3], coeffs[4])
+			});
+
+			// g
+			out = coeffDict[\g] * out;
+		});
+
+		^out.madd(mul, add)
+	}
+}
+
+DegreeDist {
+	*ar { |in, decRadius, degree = 0, mul = 1.0, add = 0|
+		var out;
+
+		// degree 0
+		out = in;
+
+		// degree >= 1
+		(degree > 0).if({
+			var coeffDict = NFECoeffs.new(degree).dist(decRadius, SampleRate.ir);
+
+			// FOS
+			coeffDict.keys.includes(\fos).if({
+				coeffDict[\fos].do({ |coeffs|
+					out = FOS.ar(out, coeffs[0], coeffs[1], coeffs[2])
+				})
+			});
+
+			// SOS
+			coeffDict[\sos].do({ |coeffs|
+				out = SOS.ar(out, coeffs[0], coeffs[1], coeffs[2], coeffs[3], coeffs[4])
+			});
+
+			// g
+			out = coeffDict[\g] * out;
+		});
+
+		^out.madd(mul, add)
+	}
+}
+
+DegreeCtrl {
+	*ar { |in, encRadius, decRadius, degree = 0, mul = 1.0, add = 0|
+		var out;
+
+		// degree 0
+		out = in;
+
+		// degree >= 1
+		(degree > 0).if({
+			var coeffDict = NFECoeffs.new(degree).ctrl(encRadius, decRadius, SampleRate.ir);
+
+			// FOS
+			coeffDict.keys.includes(\fos).if({
+				coeffDict[\fos].do({ |coeffs|
+					out = FOS.ar(out, coeffs[0], coeffs[1], coeffs[2])
+				})
+			});
+
+			// SOS
+			coeffDict[\sos].do({ |coeffs|
+				out = SOS.ar(out, coeffs[0], coeffs[1], coeffs[2], coeffs[3], coeffs[4])
+			});
+
+			// g
+			out = coeffDict[\g] * out;
+		});
+
+		^out.madd(mul, add)
+	}
+}

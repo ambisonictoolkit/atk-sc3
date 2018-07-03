@@ -187,6 +187,34 @@ HoaMatrix : AtkMatrix {
 		})
 	}
 
+	// overrides AtkMatrix:loadFromLib - order required to resolve set path
+	loadFromLib { |order ...args|
+		var pathStr;
+		pathStr = this.kind.asString ++ "/";
+
+		if (args.size==0) {
+			// no args... filename is assumed to be this.kind
+			pathStr = this.kind.asString;
+		} {
+			args.do{ |argParam, i|
+				pathStr = if (i > 0) {
+					format("%-%", pathStr, argParam.asString)
+				} {
+					format("%%", pathStr, argParam.asString)
+				};
+			};
+		};
+
+		this.initFromFile(pathStr++".yml", this.type, order, false);
+
+		switch( this.type,
+			'\encoder', {this.initEncoderVarsForFiles}, // properly set dirInputs
+			'\decoder', {this.initDecoderVarsForFiles}, // properly set dirOutputs
+			'\xformer', {}
+		)
+	}
+
+
 	// TODO: these utilities could move to AtkMatrix, or elsewhere?
 
 	getSub { |rowStart=0, colStart=0, rowLength, colLength|
@@ -318,8 +346,8 @@ HoaEncoderMatrix : HoaMatrix {
         ^super.new('AtoB', order).initDirTDesign(numChans, order).initBeam(k, \beam);
     }
 
-    *newFromFile { arg filePathOrName;
-        ^super.new.initFromFile(filePathOrName, 'encoder', true).initEncoderVarsForFiles
+    *newFromFile { arg filePathOrName, order;
+        ^super.new.initFromFile(filePathOrName, 'encoder', order, true).initEncoderVarsForFiles
     }
 
 
@@ -389,18 +417,6 @@ HoaEncoderMatrix : HoaMatrix {
 		matrix = decodingMatrix.pseudoInverse;
 	}
 
-    // initEncoderVarsForFiles {
-    //     dirInputs = if (fileParse.notNil) {
-    //         if (fileParse.dirInputs.notNil) {
-    //             fileParse.dirInputs.asFloat
-    //         } { // so input directions are unspecified in the provided matrix
-    //             matrix.cols.collect({'unspecified'})
-    //         };
-    //     } { // txt file provided, no fileParse
-    //         matrix.cols.collect({'unspecified'});
-    //     };
-    // }
-
 	numChannels {
 		^this.numInputs
 	}
@@ -415,6 +431,17 @@ HoaEncoderMatrix : HoaMatrix {
 
     type { ^\encoder }
 
+	initEncoderVarsForFiles {
+		dirChannels = if (fileParse.notNil) {
+			if (fileParse.dirInputs.notNil) {
+				fileParse.dirInputs.asFloat
+			} {
+				matrix.cols.collect({'unspecified'})
+			};
+		} { // txt file provided, no fileParse
+			matrix.cols.collect({'unspecified'});
+		};
+	}
 }
 
 

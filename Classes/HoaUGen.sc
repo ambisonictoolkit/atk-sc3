@@ -389,6 +389,57 @@ HoaMirror : HoaUGen {
 	}
 }
 
+// Near-field Effect - Distance: encode to Atk.decRadius
+HoaNFDist : HoaUGen {
+
+	*ar { |in, order|
+		var n, hoaOrder;
+
+		n = HoaUGen.confirmOrder(in, order);
+		hoaOrder = HoaOrder.new(n);  // instance order
+
+		// NFE
+		^hoaOrder.l.collect({ |l, index|
+			DegreeDist.ar(
+				in[index],
+				Atk.decRadius,
+				l
+			)
+		})
+	}
+}
+
+// Near-field Effect - Control
+// Use cases:
+//     1) Decoder compensation & NFE "looking":
+//            encRadius = Atk.decRadius
+//            decRadius = target decoder radius
+//     2) NFE encoding, encode NFE from basic:
+//            encRadius = target encoding radius
+//            decRadius = Atk.decRadius
+//     3) NFE re-imaging, move source to target:
+//            encRadius = re-imaged (re-imaged) encoding radius
+//            decRadius = source encoding radius
+HoaNFCtrl : HoaUGen {
+
+	*ar { |in, encRadius, decRadius, order|
+		var n, hoaOrder;
+
+		n = HoaUGen.confirmOrder(in, order);
+		hoaOrder = HoaOrder.new(n);  // instance order
+
+		// NFE
+		^hoaOrder.l.collect({ |l, index|
+			DegreeCtrl.ar(
+				in[index],
+				encRadius,
+				decRadius,
+				l
+			)
+		})
+	}
+}
+
 // Basic beaming. I.e. decoding/encoding at the decode radius.
 // Gain matched to beam.
 HoaBeam : HoaUGen {

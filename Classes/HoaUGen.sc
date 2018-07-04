@@ -160,7 +160,7 @@ HoaDirection : HoaUGen {
 
 	*ar { |in, theta, phi, radius, order|
 		var toPhi, n, hoaOrder, coeffs;
-		var zenith;
+		var zenith, tumbleRotate;
 
 		// angle to bring the zenith to phi
 		toPhi = phi - 0.5pi;
@@ -186,7 +186,7 @@ HoaDirection : HoaUGen {
 		zenith = coeffs * zenith;  // apply coeffs
 
 		// 3) tumble and rotate to re-align soundfield
-		^HoaRotate.ar(
+		tumbleRotate = HoaRotate.ar(
 			HoaTumble.ar(
 				zenith,
 				toPhi,
@@ -194,10 +194,12 @@ HoaDirection : HoaUGen {
 			),
 			theta,
 			n
-		)
+		);
+
+		// 4) replace zeros
+		^UGen.replaceZeroesWithSilence(tumbleRotate)
 	}
 }
-
 
 
 //-----------------------------------------------------------------------

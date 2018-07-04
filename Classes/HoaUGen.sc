@@ -418,7 +418,7 @@ HoaNFDist : HoaUGen {
 //            encRadius = target encoding radius
 //            decRadius = Atk.decRadius
 //     3) NFE re-imaging, move source to target:
-//            encRadius = re-imaged (re-imaged) encoding radius
+//            encRadius = target (re-imaged) encoding radius
 //            decRadius = source encoding radius
 HoaNFCtrl : HoaUGen {
 

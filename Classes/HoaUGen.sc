@@ -543,14 +543,14 @@ HoaNull : HoaUGen {
 //-----------------------------------------------------------------------
 // decoders
 
-// Basic decoding / beaming. I.e. decoding at the decode radius.
+// Basic & NFE decoding / beaming.
 // Gain matched to beam.
 HoaMono : HoaUGen {
 
-	*ar { |in, theta, phi, k = \basic, order|
+	*ar { |in, theta, phi, radius, k = \basic, order|
 		var n, coeffs, toPhi;
 		var hoaOrder, degreeSeries, beamWeights;
-		var rotateTumble;
+		var rotateTumble, nfe;
 
 		// angle to bring the zenith to phi
 		toPhi = phi - 0.5pi;
@@ -582,8 +582,23 @@ HoaMono : HoaUGen {
 			n
 		);
 
-		// 4) apply beam
-		^(coeffs * rotateTumble).sum;
+		// 4) apply NFE
+		nfe = ((radius == nil) || (radius == Atk.refRadius)).if({
+			// basic: beamform @ radius = Atk.refRadius
+			rotateTumble
+		}, {
+			// NFE
+			(radius == inf).if({
+				// planewave - unstable!
+				HoaNFProx.ar(rotateTumble, n)
+			}, {
+				// spherical wave
+				HoaNFCtrl.ar(rotateTumble, Atk.refRadius, radius, n)
+			})
+		});
+
+		// 5) apply beam
+		^(coeffs * nfe).sum;
 	}
 }
 

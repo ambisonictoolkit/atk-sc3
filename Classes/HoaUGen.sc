@@ -563,7 +563,7 @@ HoaMono : HoaUGen {
 // Near-field Effect by Degree utilities
 
 DegreeProx {
-	*ar { |in, encRadius, degree = 0, mul = 1.0, add = 0|
+	*ar { |in, radius, degree = 0, mul = 1.0, add = 0|
 		var out;
 
 		// degree 0
@@ -571,7 +571,7 @@ DegreeProx {
 
 		// degree >= 1
 		(degree > 0).if({
-			var coeffDict = NFECoeffs.new(degree).prox(encRadius, SampleRate.ir);
+			var coeffDict = NFECoeffs.new(degree).prox(radius, SampleRate.ir);
 
 			// FOS
 			coeffDict.keys.includes(\fos).if({
@@ -594,7 +594,7 @@ DegreeProx {
 }
 
 DegreeDist {
-	*ar { |in, decRadius, degree = 0, mul = 1.0, add = 0|
+	*ar { |in, radius, degree = 0, mul = 1.0, add = 0|
 		var out;
 
 		// degree 0
@@ -602,7 +602,7 @@ DegreeDist {
 
 		// degree >= 1
 		(degree > 0).if({
-			var coeffDict = NFECoeffs.new(degree).dist(decRadius, SampleRate.ir);
+			var coeffDict = NFECoeffs.new(degree).dist(radius, SampleRate.ir);
 
 			// FOS
 			coeffDict.keys.includes(\fos).if({

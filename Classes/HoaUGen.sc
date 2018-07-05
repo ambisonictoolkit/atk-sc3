@@ -389,7 +389,7 @@ HoaMirror : HoaUGen {
 	}
 }
 
-// Near-field Effect - Distance: encode to Atk.refRadius
+// Near-field Effect - Distance: Atk.refRadius
 HoaNFDist : HoaUGen {
 
 	*ar { |in, order|
@@ -401,6 +401,27 @@ HoaNFDist : HoaUGen {
 		// NFE
 		^hoaOrder.l.collect({ |l, index|
 			DegreeDist.ar(
+				in[index],
+				Atk.refRadius,
+				l
+			)
+		})
+	}
+}
+
+// Near-field Effect - Proximity: Atk.refRadius
+// NOTE: unstable, requires suitably pre-conditioned input to avoid overflow
+HoaNFProx : HoaUGen {
+
+	*ar { |in, order|
+		var n, hoaOrder;
+
+		n = HoaUGen.confirmOrder(in, order);
+		hoaOrder = HoaOrder.new(n);  // instance order
+
+		// NFE
+		^hoaOrder.l.collect({ |l, index|
+			DegreeProx.ar(
 				in[index],
 				Atk.refRadius,
 				l

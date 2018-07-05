@@ -174,14 +174,22 @@ HoaDirection : HoaUGen {
 		coeffs = coeffs.round(-180.dbamp);  // NOTE: will want to consolidate -round
 
 		// 2) encode as basic (real) or NFE (complex) wave at zenith
-		zenith = (radius == nil).if({
-			// basic
+		zenith = ((radius == nil) || (radius == Atk.refRadius)).if({
+			// basic: spherical wave @ radius = Atk.refRadius
 			in
 		}, {
 			// NFE
-			(n+1).collect({ |l|
-				DegreeCtrl.ar(in, radius, Atk.refRadius, l)
-			})[hoaOrder.l]
+			(radius == inf).if({
+				// planewave
+				(n+1).collect({ |l|
+					DegreeDist.ar(in, Atk.refRadius, l)
+				})[hoaOrder.l]
+			}, {
+				// spherical wave
+				(n+1).collect({ |l|
+					DegreeCtrl.ar(in, radius, Atk.refRadius, l)
+				})[hoaOrder.l]
+			})
 		});
 		zenith = coeffs * zenith;  // apply coeffs
 

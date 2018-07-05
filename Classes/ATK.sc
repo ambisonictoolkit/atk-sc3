@@ -99,7 +99,7 @@ Atk {
 	classvar <userSupportDir, <userSoundsDir, <userKernelDir, <userMatrixDir, <userExtensionsDir;
 	classvar <systemSupportDir, <systemSoundsDir, <systemKernelDir, <systemMatrixDir, <systemExtensionsDir;
 	classvar <sets;
-    classvar <>speedOfSound, <>encRadius, <>decRadius;
+    classvar <>speedOfSound, <>refRadius;
 
 	*initClass {
 		userSupportDir = Platform.userAppSupportDir.dirname ++ "/ATK";

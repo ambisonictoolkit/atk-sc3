@@ -88,7 +88,7 @@ NFECoeffs {
         numFOS = reX.size - numSOS;
     }
 
-    prox { arg radius = Atk.encRadius, sampleRate;
+    prox { arg radius = Atk.refRadius, sampleRate;
         var mOdd;
         var alpha;
         var coeffs, g;
@@ -160,7 +160,7 @@ NFECoeffs {
         ^Dictionary.with(*[\sos->coeffsSOS, \fos->coeffsFOS, \g->g])
     }
 
-    dist { arg radius = Atk.decRadius, sampleRate;
+    dist { arg radius = Atk.refRadius, sampleRate;
         var mOdd;
         var alpha;
         var coeffs, g;
@@ -232,7 +232,7 @@ NFECoeffs {
         ^Dictionary.with(*[\sos->coeffsSOS, \fos->coeffsFOS, \g->g])
     }
 
-    ctrl { arg encRadius = Atk.encRadius, decRadius = Atk.decRadius, sampleRate;
+    ctrl { arg encRadius = Atk.refRadius, decRadius = Atk.refRadius, sampleRate;
         var mOdd;
         var alpha0, alpha1;
         var coeffs, g;

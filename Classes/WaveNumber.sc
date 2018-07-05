@@ -114,7 +114,7 @@ WaveNumber {
     // NFE Utilities
 
     // Return complex degree weights
-    proxDegreeWeights { arg order, radius = Atk.encRadius;
+    proxDegreeWeights { arg order, radius = Atk.refRadius;
         var m = order;
         var nearZero = 1e-08;
 
@@ -134,7 +134,7 @@ WaveNumber {
     }
 
     // Return complex degree weights
-    distDegreeWeights { arg order, radius = Atk.decRadius;
+    distDegreeWeights { arg order, radius = Atk.refRadius;
         var m = order;
         var nearZero = 1e-08;
 
@@ -152,7 +152,7 @@ WaveNumber {
     }
 
     // Return complex degree weights
-    ctrlDegreeWeights { arg order, encRadius = Atk.encRadius, decRadius = Atk.decRadius;
+    ctrlDegreeWeights { arg order, encRadius = Atk.refRadius, decRadius = Atk.refRadius;
         var m = order;
         var nearZero = 1e-08;
 

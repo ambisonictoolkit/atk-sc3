@@ -122,10 +122,12 @@ Atk {
 			'HOA12', 'HOA13', 'HOA14', 'HOA15'
 		];
 
-        // HOA support
-        speedOfSound = 343.0;  // (m/s)
-        encRadius = 1.5;  // reference encoding radius, i.e., r0
-        decRadius = 1.5;  // reference decoding radius, i.e., r1
+		// NOTE: Move to class Hoa??
+		// HOA support
+		speedOfSound = 343.0;  // (m/s)
+		// encRadius = 1.5;  // reference encoding radius, i.e., r0
+		// decRadius = 1.5;  // reference decoding radius, i.e., r1
+		refRadius = 1.5;  // reference encoding / decoding radius, i.e., basic radius
 	}
 
 	*userSupportDir_ {arg userSupportDirIn;

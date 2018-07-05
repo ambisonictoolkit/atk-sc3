@@ -180,7 +180,7 @@ HoaDirection : HoaUGen {
 		}, {
 			// NFE
 			(n+1).collect({ |l|
-				DegreeCtrl.ar(in, radius, Atk.decRadius, l)
+				DegreeCtrl.ar(in, radius, Atk.refRadius, l)
 			})[hoaOrder.l]
 		});
 		zenith = coeffs * zenith;  // apply coeffs
@@ -389,7 +389,7 @@ HoaMirror : HoaUGen {
 	}
 }
 
-// Near-field Effect - Distance: encode to Atk.decRadius
+// Near-field Effect - Distance: encode to Atk.refRadius
 HoaNFDist : HoaUGen {
 
 	*ar { |in, order|
@@ -402,7 +402,7 @@ HoaNFDist : HoaUGen {
 		^hoaOrder.l.collect({ |l, index|
 			DegreeDist.ar(
 				in[index],
-				Atk.decRadius,
+				Atk.refRadius,
 				l
 			)
 		})
@@ -412,11 +412,11 @@ HoaNFDist : HoaUGen {
 // Near-field Effect - Control
 // Use cases:
 //     1) Decoder compensation & NFE "looking":
-//            encRadius = Atk.decRadius
+//            encRadius = Atk.refRadius
 //            decRadius = target decoder radius
 //     2) NFE encoding, encode NFE from basic:
 //            encRadius = target encoding radius
-//            decRadius = Atk.decRadius
+//            decRadius = Atk.refRadius
 //     3) NFE re-imaging, move source to target:
 //            encRadius = target (re-imaged) encoding radius
 //            decRadius = source encoding radius

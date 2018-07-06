@@ -397,26 +397,6 @@ HoaMirror : HoaUGen {
 	}
 }
 
-// Near-field Effect - Distance: Atk.refRadius
-HoaNFDist : HoaUGen {
-
-	*ar { |in, order|
-		var n, hoaOrder;
-
-		n = HoaUGen.confirmOrder(in, order);
-		hoaOrder = HoaOrder.new(n);  // instance order
-
-		// NFE
-		^hoaOrder.l.collect({ |l, index|
-			DegreeDist.ar(
-				in[index],
-				Atk.refRadius,
-				l
-			)
-		})
-	}
-}
-
 // Near-field Effect - Proximity: Atk.refRadius
 // NOTE: unstable, requires suitably pre-conditioned input to avoid overflow
 HoaNFProx : HoaUGen {
@@ -430,6 +410,26 @@ HoaNFProx : HoaUGen {
 		// NFE
 		^hoaOrder.l.collect({ |l, index|
 			DegreeProx.ar(
+				in[index],
+				Atk.refRadius,
+				l
+			)
+		})
+	}
+}
+
+// Near-field Effect - Distance: Atk.refRadius
+HoaNFDist : HoaUGen {
+
+	*ar { |in, order|
+		var n, hoaOrder;
+
+		n = HoaUGen.confirmOrder(in, order);
+		hoaOrder = HoaOrder.new(n);  // instance order
+
+		// NFE
+		^hoaOrder.l.collect({ |l, index|
+			DegreeDist.ar(
 				in[index],
 				Atk.refRadius,
 				l
@@ -469,14 +469,14 @@ HoaNFCtrl : HoaUGen {
 	}
 }
 
-// Basic beaming. I.e. decoding/encoding at the decode radius.
+// Basic & NFE beaming.
 // Gain matched to beam.
 HoaBeam : HoaUGen {
 
-	*ar { |in, theta, phi, k = \basic, order|
+	*ar { |in, theta, phi, radius, k = \basic, order|
 		var n, basicCoeffs, beamCoeffs, toPhi;
 		var hoaOrder, degreeSeries, beamWeights;
-		var rotateTumble, beam;
+		var rotateTumble, nfe, mono, zenith, tumbleRotate;
 
 		// angle to bring the zenith to phi
 		toPhi = phi - 0.5pi;
@@ -508,32 +508,69 @@ HoaBeam : HoaUGen {
 			n
 		);
 
-		// 4) apply beam coefficients, and re-encode as a basic (real) wave at zenith
-		beam = (beamCoeffs * rotateTumble).sum;
-		beam = basicCoeffs * beam;
+		// 4) apply NFE
+		nfe = ((radius == nil) || (radius == Atk.refRadius)).if({
+			// basic: beamform @ radius = Atk.refRadius
+			rotateTumble
+		}, {
+			// NFE
+			(radius == inf).if({
+				// planewave - unstable!
+				HoaNFProx.ar(rotateTumble, n)
+			}, {
+				// spherical wave
+				HoaNFCtrl.ar(rotateTumble, Atk.refRadius, radius, n)
+			})
+		});
 
-		// 5) tumble and rotate to re-align soundfield
-		^HoaRotate.ar(
+		// 5) apply beam coefficients, i.e., decode
+		mono = (beamCoeffs * nfe).sum;
+
+		// 6) encode as basic (real) or NFE (complex) wave at zenith
+		zenith = ((radius == nil) || (radius == Atk.refRadius)).if({
+			// basic: spherical wave @ radius = Atk.refRadius
+			mono
+		}, {
+			// NFE
+			(radius == inf).if({
+				// planewave
+				(n+1).collect({ |l|
+					DegreeDist.ar(mono, Atk.refRadius, l)
+				})[hoaOrder.l]
+			}, {
+				// spherical wave
+				(n+1).collect({ |l|
+					DegreeCtrl.ar(mono, radius, Atk.refRadius, l)
+				})[hoaOrder.l]
+			})
+		});
+		zenith = basicCoeffs * zenith;  // apply coeffs
+
+		// 7) tumble and rotate to re-align soundfield
+		tumbleRotate = HoaRotate.ar(
 			HoaTumble.ar(
-				beam,
+				zenith,
 				toPhi,
 				n
 			),
 			theta,
 			n
-		)
+		);
+
+		// 8) replace zeros
+		^UGen.replaceZeroesWithSilence(tumbleRotate)
 	}
 }
 
-// Basic beaming. I.e. decoding/encoding at the decode radius.
+// Basic & NFE nulling.
 // Gain matched to beam.
 HoaNull : HoaUGen {
 
-	*ar { |in, theta, phi, k = \basic, order|
+	*ar { |in, theta, phi, radius, k = \basic, order|
 		var null;
 
 		// form null
-		null = in - HoaBeam.ar(in, theta, phi, k, order);
+		null = in - HoaBeam.ar(in, theta, phi, radius, k, order);
 
 		^null
 	}

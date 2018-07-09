@@ -476,7 +476,7 @@ HoaBeam : HoaUGen {
 	*ar { |in, theta, phi, radius, k = \basic, order|
 		var n, basicCoeffs, beamCoeffs, toPhi;
 		var hoaOrder, degreeSeries, beamWeights;
-		var rotateTumble, nfe, mono, zenith, tumbleRotate;
+		var rotateTumble, weighted, mono, zenith, tumbleRotate;
 
 		// angle to bring the zenith to phi
 		toPhi = phi - 0.5pi;
@@ -508,23 +508,36 @@ HoaBeam : HoaUGen {
 			n
 		);
 
-		// 4) apply NFE
-		nfe = ((radius == nil) || (radius == Atk.refRadius)).if({
+		// 4) apply beam weights
+		weighted = beamCoeffs * rotateTumble;
+
+		// 5) apply NFE (optimized by degree) and form beam
+		mono = ((radius == nil) || (radius == Atk.refRadius)).if({
 			// basic: beamform @ radius = Atk.refRadius
-			rotateTumble
+			weighted.sum
 		}, {
 			// NFE
 			(radius == inf).if({
 				// planewave - unstable!
-				HoaNFProx.ar(rotateTumble, n)
+				(n+1).collect({ |l|
+					DegreeProx.ar(
+						weighted[HoaDegree.new(l).indices].sum,
+						Atk.refRadius,
+						l
+					)
+				}).sum
 			}, {
 				// spherical wave
-				HoaNFCtrl.ar(rotateTumble, Atk.refRadius, radius, n)
+				(n+1).collect({ |l|
+					DegreeCtrl.ar(
+						weighted[HoaDegree.new(l).indices].sum,
+						Atk.refRadius,
+						radius,
+						l
+					)
+				}).sum
 			})
 		});
-
-		// 5) apply beam coefficients, i.e., decode
-		mono = (beamCoeffs * nfe).sum;
 
 		// 6) encode as basic (real) or NFE (complex) wave at zenith
 		zenith = ((radius == nil) || (radius == Atk.refRadius)).if({
@@ -587,7 +600,7 @@ HoaMono : HoaUGen {
 	*ar { |in, theta, phi, radius, k = \basic, order|
 		var n, coeffs, toPhi;
 		var hoaOrder, degreeSeries, beamWeights;
-		var rotateTumble, nfe;
+		var rotateTumble, weighted;
 
 		// angle to bring the zenith to phi
 		toPhi = phi - 0.5pi;
@@ -619,23 +632,36 @@ HoaMono : HoaUGen {
 			n
 		);
 
-		// 4) apply NFE
-		nfe = ((radius == nil) || (radius == Atk.refRadius)).if({
+		// 4) apply beam weights
+		weighted = coeffs * rotateTumble;
+
+		// 5) apply NFE (optimized by degree) and form beam
+		^((radius == nil) || (radius == Atk.refRadius)).if({
 			// basic: beamform @ radius = Atk.refRadius
-			rotateTumble
+			weighted.sum
 		}, {
 			// NFE
 			(radius == inf).if({
 				// planewave - unstable!
-				HoaNFProx.ar(rotateTumble, n)
+				(n+1).collect({ |l|
+					DegreeProx.ar(
+						weighted[HoaDegree.new(l).indices].sum,
+						Atk.refRadius,
+						l
+					)
+				}).sum
 			}, {
 				// spherical wave
-				HoaNFCtrl.ar(rotateTumble, Atk.refRadius, radius, n)
+				(n+1).collect({ |l|
+					DegreeCtrl.ar(
+						weighted[HoaDegree.new(l).indices].sum,
+						Atk.refRadius,
+						radius,
+						l
+					)
+				}).sum
 			})
-		});
-
-		// 5) apply beam
-		^(coeffs * nfe).sum;
+		})
 	}
 }
 

@@ -680,14 +680,14 @@ AtkMatrix {
 
 	prInferType {
 		^switch( this.class,
-			FoaEncoderMatrix, {'encoder'},
+			FoaEncoderMatrix, {'encoder'},  // FOA
 			FoaEncoderKernel, {'encoder'},
 			FoaDecoderMatrix, {'decoder'},
 			FoaDecoderKernel, {'decoder'},
 			FoaXformerMatrix, {'xformer'},
-			HoaEncoderMatrix, {'encoder'},
-			HoaDecoderMatrix, {'decoder'},
-			HoaXformerMatrix, {'xformer'}
+			HoaMatrixEncoder, {'encoder'},  // HOA
+			HoaMatrixDecoder, {'decoder'},
+			HoaMatrixXformer, {'xformer'}
 		);
 	}
 

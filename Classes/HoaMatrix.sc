@@ -24,9 +24,9 @@
 //---------------------------------------------------------------------
 //	The Ambisonic Toolkit (ATK) is a soundfield kernel support library.
 //
-// 	Class: HoaEncoderMatrix
-// 	Class: HoaDecoderMatrix
-// 	Class: HoaXformerMatrix
+// 	Class: HoaMatrixEncoder
+// 	Class: HoaMatrixDecoder
+// 	Class: HoaMatrixXformer
 //
 //	The Ambisonic Toolkit (ATK) is intended to bring together a number of tools and
 //	methods for working with Ambisonic surround sound. The intention is for the toolset
@@ -301,7 +301,7 @@ HoaMatrix : AtkMatrix {
 //-----------------------------------------------------------------------
 // matrix encoders
 
-HoaEncoderMatrix : HoaMatrix {
+HoaMatrixEncoder : HoaMatrix {
 
 	// Format Encoder
 	*newFormat { |format =\atk, order|
@@ -406,7 +406,7 @@ HoaEncoderMatrix : HoaMatrix {
 		order = this.order;  // instance order
 
 		// build decoder matrix
-		decodingMatrix = HoaDecoderMatrix.newBeams(
+		decodingMatrix = HoaMatrixDecoder.newBeams(
 			directions,
 			k,
 			match,
@@ -449,7 +449,7 @@ HoaEncoderMatrix : HoaMatrix {
 // matrix transforms
 
 
-HoaXformerMatrix : HoaMatrix {
+HoaMatrixXformer : HoaMatrix {
 
     // ------------
     // Rotation
@@ -583,7 +583,7 @@ HoaXformerMatrix : HoaMatrix {
 		order = this.order;  // instance order
 
 		// build decoder matrix
-		decodingMatrix = HoaDecoderMatrix.newBeam(
+		decodingMatrix = HoaMatrixDecoder.newBeam(
 			theta,
 			phi,
 			k,
@@ -591,7 +591,7 @@ HoaXformerMatrix : HoaMatrix {
 		).matrix;
 
 		// build encoder matrix
-		encodingMatrix = HoaEncoderMatrix.newDirection(
+		encodingMatrix = HoaMatrixEncoder.newDirection(
 			theta,
 			phi,
 			order
@@ -610,7 +610,7 @@ HoaXformerMatrix : HoaMatrix {
 		order = this.order;  // instance order
 
 		// build xforming matrix
-		xformingMatrix = HoaXformerMatrix.newBeam(
+		xformingMatrix = HoaMatrixXformer.newBeam(
 			theta,
 			phi,
 			k,
@@ -644,7 +644,7 @@ HoaXformerMatrix : HoaMatrix {
 // matrix decoders
 
 
-HoaDecoderMatrix : HoaMatrix {
+HoaMatrixDecoder : HoaMatrix {
 
 	// Format Encoder
 	*newFormat { |format = \atk, order|

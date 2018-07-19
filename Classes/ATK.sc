@@ -99,7 +99,6 @@ Atk {
 	classvar <userSupportDir, <userSoundsDir, <userKernelDir, <userMatrixDir, <userExtensionsDir;
 	classvar <systemSupportDir, <systemSoundsDir, <systemKernelDir, <systemMatrixDir, <systemExtensionsDir;
 	classvar <sets;
-    classvar <>speedOfSound, <>refRadius;
 
 	*initClass {
 		userSupportDir = Platform.userAppSupportDir.dirname ++ "/ATK";
@@ -121,13 +120,6 @@ Atk {
 			'HOA6', 'HOA7', 'HOA8', 'HOA9', 'HOA10', 'HOA11',
 			'HOA12', 'HOA13', 'HOA14', 'HOA15'
 		];
-
-		// NOTE: Move to class Hoa??
-		// HOA support
-		speedOfSound = 343.0;  // (m/s)
-		// encRadius = 1.5;  // reference encoding radius, i.e., r0
-		// decRadius = 1.5;  // reference decoding radius, i.e., r1
-		refRadius = 1.5;  // reference encoding / decoding radius, i.e., basic radius
 	}
 
 	*userSupportDir_ {arg userSupportDirIn;

@@ -69,4 +69,12 @@
             })
         })
     }
+
+	asHoaOrder {
+		^HoaOrder.new(this)
+	}
+
+	asHoaDegree {
+		^HoaDegree.new(this)
+	}
 }

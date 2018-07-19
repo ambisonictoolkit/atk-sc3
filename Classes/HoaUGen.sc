@@ -167,7 +167,7 @@ HoaEncodeDirection : HoaUGen {
 
 		n = order ?? { Hoa.globalOrder };  // check/assign order
 
-		hoaOrder = HoaOrder.new(n);  // instance order
+		hoaOrder = n.asHoaOrder;  // instance order
 
 		// 1) generate basic (real) coefficients at zenith and round to optimize near-zeros out
 		coeffs = hoaOrder.sph(0, 0.5pi);
@@ -405,7 +405,7 @@ HoaNFProx : HoaUGen {
 		var n, hoaOrder;
 
 		n = HoaUGen.confirmOrder(in, order);
-		hoaOrder = HoaOrder.new(n);  // instance order
+		hoaOrder = n.asHoaOrder;  // instance order
 
 		// NFE
 		^hoaOrder.l.collect({ |l, index|
@@ -425,7 +425,7 @@ HoaNFDist : HoaUGen {
 		var n, hoaOrder, mul = 1, add = 0;
 
 		n = HoaUGen.confirmOrder(in, order);
-		hoaOrder = HoaOrder.new(n);  // instance order
+		hoaOrder = n.asHoaOrder;  // instance order
 
 		// NFE
 		^hoaOrder.l.collect({ |l, index|
@@ -455,7 +455,7 @@ HoaNFCtrl : HoaUGen {
 		var n, hoaOrder;
 
 		n = HoaUGen.confirmOrder(in, order);
-		hoaOrder = HoaOrder.new(n);  // instance order
+		hoaOrder = n.asHoaOrder;  // instance order
 
 		// NFE
 		^hoaOrder.l.collect({ |l, index|
@@ -483,7 +483,7 @@ HoaBeam : HoaUGen {
 
 		n = HoaUGen.confirmOrder(in, order);
 
-		hoaOrder = HoaOrder.new(n);  // instance order
+		hoaOrder = n.asHoaOrder;  // instance order
 		degreeSeries = Array.series(n+1, 1, 2);
 
 		// 1) generate and normalize beam weights
@@ -521,7 +521,7 @@ HoaBeam : HoaUGen {
 				// planewave - unstable!
 				(n+1).collect({ |l|
 					DegreeProx.ar(
-						weighted[HoaDegree.new(l).indices].sum,
+						weighted[l.asHoaDegree.indices].sum,
 						Atk.refRadius,
 						l
 					)
@@ -530,7 +530,7 @@ HoaBeam : HoaUGen {
 				// spherical wave
 				(n+1).collect({ |l|
 					DegreeCtrl.ar(
-						weighted[HoaDegree.new(l).indices].sum,
+						weighted[l.asHoaDegree.indices].sum,
 						Atk.refRadius,
 						radius,
 						l
@@ -607,7 +607,7 @@ HoaDecodeDirection : HoaUGen {
 
 		n = HoaUGen.confirmOrder(in, order);
 
-		hoaOrder = HoaOrder.new(n);  // instance order
+		hoaOrder = n.asHoaOrder;  // instance order
 		degreeSeries = Array.series(n+1, 1, 2);
 
 		// 1) generate and normalize beam weights
@@ -645,7 +645,7 @@ HoaDecodeDirection : HoaUGen {
 				// planewave - unstable!
 				(n+1).collect({ |l|
 					DegreeProx.ar(
-						weighted[HoaDegree.new(l).indices].sum,
+						weighted[l.asHoaDegree.indices].sum,
 						Atk.refRadius,
 						l
 					)
@@ -654,7 +654,7 @@ HoaDecodeDirection : HoaUGen {
 				// spherical wave
 				(n+1).collect({ |l|
 					DegreeCtrl.ar(
-						weighted[HoaDegree.new(l).indices].sum,
+						weighted[l.asHoaDegree.indices].sum,
 						Atk.refRadius,
 						radius,
 						l

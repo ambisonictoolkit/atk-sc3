@@ -159,7 +159,7 @@ HoaMatrix : AtkMatrix {
 		inputFormat = formatKeyword.value(inputFormat);
 		outputFormat = formatKeyword.value(outputFormat);
 
-		hoaOrder = HoaOrder.new(this.order);  // instance order
+		hoaOrder = this.order.asHoaOrder;  // instance order
 		size = hoaOrder.numCoeffs;
 
 		(inputFormat == outputFormat).if({  // equal formats?
@@ -358,7 +358,7 @@ HoaMatrixEncoder : HoaMatrix {
 		var directions, hoaOrder;
 
 		directions = this.dirChannels;
-        hoaOrder = HoaOrder.new(this.order);  // instance order
+        hoaOrder = this.order.asHoaOrder;  // instance order
 
         // build encoder matrix, and set for instance
 		// norm = 1.0, beamWeights = [ 1, 1, ..., 1 ]
@@ -377,7 +377,7 @@ HoaMatrixEncoder : HoaMatrix {
 		var degreeSeries, norm;
 
 		directions = this.dirChannels;
-        hoaOrder = HoaOrder.new(this.order);  // instance order
+        hoaOrder = this.order.asHoaOrder;  // instance order
         beamWeights = hoaOrder.beamWeights(k);
 
 		degreeSeries = Array.series(this.order+1, 1, 2);
@@ -519,7 +519,7 @@ HoaMatrixXformer : HoaMatrix {
         var size;
         var coeffs;
 
-        hoaOrder = HoaOrder.new(this.order);  // instance order
+        hoaOrder = this.order.asHoaOrder;  // instance order
         size = (this.order + 1).squared;
 
         // 1) generate mirror coefficients - ordered \acn
@@ -725,7 +725,7 @@ HoaMatrixDecoder : HoaMatrix {
 		var degreeSeries, norm;
 
 		directions = this.dirChannels;
-        hoaOrder = HoaOrder.new(this.order);  // instance order
+        hoaOrder = this.order.asHoaOrder;  // instance order
 
 		degreeSeries = Array.series(this.order+1, 1, 2);
 		norm = 1 / degreeSeries.sum;
@@ -747,7 +747,7 @@ HoaMatrixDecoder : HoaMatrix {
 		var degreeSeries, norm;
 
 		directions = this.dirChannels;
-		hoaOrder = HoaOrder.new(this.order);  // instance order
+		hoaOrder = this.order.asHoaOrder;  // instance order
 		beamWeights = hoaOrder.beamWeights(k);
 
 		degreeSeries = Array.series(this.order+1, 1, 2);
@@ -798,7 +798,7 @@ HoaMatrixDecoder : HoaMatrix {
 				})
 			}
 		);
-		hoaOrder = HoaOrder.new(outputOrder);
+		hoaOrder = outputOrder.asHoaOrder;
 
 		// 2) calculate weights: matching weight, beam weights
 		weights = hoaOrder.matchWeight(k, dim, match, numOutputs) * hoaOrder.beamWeights(k, dim);
@@ -881,7 +881,7 @@ HoaMatrixDecoder : HoaMatrix {
 				})
 			}
 		);
-		hoaOrder = HoaOrder.new(outputOrder);
+		hoaOrder = outputOrder.asHoaOrder;
 
 		// 2) calculate weights: matching weight, beam weights
 		weights = hoaOrder.matchWeight(k, dim, match, numOutputs) * hoaOrder.beamWeights(k, dim);

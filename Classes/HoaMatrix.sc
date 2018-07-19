@@ -308,18 +308,6 @@ HoaMatrixEncoder : HoaMatrix {
 		^super.new('format', order).initDirChannels.initFormat(format, \atk);
 	}
 
-	// // Projection Encoding beam - 'basic' pattern: (\basic, \amp)
-	// *newDirection { |theta = 0, phi = 0, order|
-	// 	var directions = [[ theta, phi ]];
-	// 	^super.new('dir', order).initDirChannels(directions).initBasic;
-	// }
-	//
-	// // Projection Encoding beam - multi pattern: (k, \amp)
-	// *newBeam { |theta = 0, phi = 0, k = \basic, order|
-	// 	var directions = [[ theta, phi ]];
-	// 	^super.new('beam', order).initDirChannels(directions).initBeam(k, nil);
-	// }
-
 	// Projection Encoding beam - 'basic' & multi pattern
 	*newDirection { |theta = 0, phi = 0, k, order|
 		var directions = [[ theta, phi ]];
@@ -331,16 +319,6 @@ HoaMatrixEncoder : HoaMatrix {
 			instance.initBeam(k, nil)  // (k, \amp)
 		})
 	}
-
-	// // Projection Encoding beams - 'basic' pattern: (\basic, \amp)
-	// *newDirections { |directions = ([[ 0, 0 ]]), order|
-	// 	^super.new('dirs', order).initDirChannels(directions).initBasic;
-	// }
-	//
-	// // Projection Encoding beams - multi pattern: k, match
-	// *newBeams { |directions = ([[ 0, 0 ]]), k = \basic, match = \beam, order|
-	// 	^super.new('beams', order).initDirChannels(directions).initBeam(k, match);
-	// }
 
 	// Projection Encoding beams - 'basic' & multi pattern
 	*newDirections { |directions = ([[ 0, 0 ]]), k, match, order|
@@ -674,18 +652,6 @@ HoaMatrixDecoder : HoaMatrix {
 		^super.new('format', order).initDirChannels.initFormat(\atk, format);
 	}
 
-	// // Projection Decoding beam - 'basic' pattern: (\basic, \beam)
-	// *newDirection { |theta = 0, phi = 0, order|
-	// 	var directions = [[ theta, phi ]];
-	// 	^super.new('dir', order).initDirChannels(directions).initBasic;
-	// }
-	//
-	// // Projection Decoding beam - multi pattern: (k, \beam)
-	// *newBeam { |theta = 0, phi = 0, k = \basic, order|
-	// 	var directions = [[ theta, phi ]];
-	// 	^super.new('beam', order).initDirChannels(directions).initBeam(k, nil);
-	// }
-
 	// Projection Decoding beam - 'basic' & multi pattern
 	*newDirection { |theta = 0, phi = 0, k, order|
 		var directions = [[ theta, phi ]];
@@ -697,16 +663,6 @@ HoaMatrixDecoder : HoaMatrix {
 			instance.initBeam(k, nil)  // (k, \beam)
 		})
 	}
-
-	// // Projection Decoding beams - 'basic' pattern: (\basic, \beam)
-	// *newDirections { |directions = ([[ 0, 0 ]]), order|
-	// 	^super.new('dirs', order).initDirChannels(directions).initBasic;
-	// }
-	//
-	// // Projection Decoding beams - multi pattern: (k, match)
-	// *newBeams { |directions = ([[ 0, 0 ]]), k = \basic, match = \beam, order|
-	// 	^super.new('beams', order).initDirChannels(directions).initBeam(k, match);
-	// }
 
 	// Projection Decoding beams - 'basic' & multi pattern
 	*newDirections { |directions = ([[ 0, 0 ]]), k, match, order|

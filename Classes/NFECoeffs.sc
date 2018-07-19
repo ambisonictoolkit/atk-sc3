@@ -88,7 +88,8 @@ NFECoeffs {
         numFOS = reX.size - numSOS;
     }
 
-    prox { arg radius = Hoa.refRadius, sampleRate;
+    prox { arg radius, sampleRate;
+		var r0 = radius ?? { Hoa.refRadius };
         var mOdd;
         var alpha;
         var coeffs, g;
@@ -96,7 +97,7 @@ NFECoeffs {
 
         mOdd = this.degree.odd;
 
-        alpha = 2*sampleRate*radius/Hoa.speedOfSound;
+        alpha = 2*sampleRate*r0/Hoa.speedOfSound;
 
         coeffs = numSOS.collect({ |q|
             var c1, c2;
@@ -160,7 +161,8 @@ NFECoeffs {
         ^Dictionary.with(*[\sos->coeffsSOS, \fos->coeffsFOS, \g->g])
     }
 
-    dist { arg radius = Hoa.refRadius, sampleRate;
+    dist { arg radius, sampleRate;
+		var r1 = radius ?? { Hoa.refRadius };
         var mOdd;
         var alpha;
         var coeffs, g;
@@ -168,7 +170,7 @@ NFECoeffs {
 
         mOdd = this.degree.odd;
 
-        alpha = 2*sampleRate*radius/Hoa.speedOfSound;
+        alpha = 2*sampleRate*r1/Hoa.speedOfSound;
 
         coeffs = numSOS.collect({ |q|
             var c1, c2;
@@ -232,7 +234,9 @@ NFECoeffs {
         ^Dictionary.with(*[\sos->coeffsSOS, \fos->coeffsFOS, \g->g])
     }
 
-    ctrl { arg encRadius = Hoa.refRadius, decRadius = Hoa.refRadius, sampleRate;
+    ctrl { arg encRadius, decRadius, sampleRate;
+		var r0 = encRadius ?? { Hoa.refRadius };
+		var r1 = decRadius ?? { Hoa.refRadius };
         var mOdd;
         var alpha0, alpha1;
         var coeffs, g;
@@ -240,8 +244,8 @@ NFECoeffs {
 
         mOdd = this.degree.odd;
 
-        alpha0 = 2*sampleRate*encRadius/Hoa.speedOfSound;  // proximity
-        alpha1 = 2*sampleRate*decRadius/Hoa.speedOfSound;  // distance
+        alpha0 = 2*sampleRate*r0/Hoa.speedOfSound;  // proximity
+        alpha1 = 2*sampleRate*r1/Hoa.speedOfSound;  // distance
 
         coeffs = numSOS.collect({ |q|
             var c10, c20, c11, c21;

@@ -130,17 +130,17 @@ HoaOrder {
     // Return NFE coefficients
 
     // Proximity complex degree weights
-    proxWeights { arg freq = 440.0, radius = Hoa.refRadius;
+    proxWeights { arg freq = 440.0, radius;
 		^WaveNumber.newFreq(freq).proxWeights(radius, this.order)
     }
 
 	// Distance complex degree weights
-    distWeights { arg freq = 440.0, radius = Hoa.refRadius;
+    distWeights { arg freq = 440.0, radius;
 		^WaveNumber.newFreq(freq).distWeights(radius, this.order)
     }
 
     // Control complex degree weights
-    ctrlWeights { arg freq = 440.0, encRadius = Hoa.refRadius, decRadius = Hoa.refRadius;
+    ctrlWeights { arg freq = 440.0, encRadius, decRadius;
 		^WaveNumber.newFreq(freq).ctrlWeights(encRadius, decRadius, this.order)
     }
 

@@ -114,8 +114,9 @@ WaveNumber {
     // NFE Utilities
 
     // Return complex degree weights
-    proxWeights { arg radius = Hoa.refRadius, order = 1;
+    proxWeights { arg radius, order = 1;
         var m = order;
+		var r0 = radius ?? { Hoa.refRadius };
         var nearZero = 1e-08;
 
         (this.waveNumber.abs <= nearZero).if({
@@ -127,15 +128,16 @@ WaveNumber {
                 (j+1).collect({ |k|
                     var fact;
                     fact = (j+k).asFloat.factorial/((j-k).asFloat.factorial*k.asFloat.factorial);
-                    fact * Complex.new(0, -1/(2*this.waveNumber*radius)).pow(k)
+                    fact * Complex.new(0, -1/(2*this.waveNumber*r0)).pow(k)
                 }).sum
             })
         })
     }
 
     // Return complex degree weights
-    distWeights { arg radius = Hoa.refRadius, order = 1;
+    distWeights { arg radius, order = 1;
         var m = order;
+		var r1 = radius ?? { Hoa.refRadius };
         var nearZero = 1e-08;
 
         (this.waveNumber.abs <= nearZero).if({
@@ -145,31 +147,33 @@ WaveNumber {
                 (j+1).collect({ |k|
                     var fact;
                     fact = (j+k).asFloat.factorial/((j-k).asFloat.factorial*k.asFloat.factorial);
-                    fact * Complex.new(0, -1/(2*this.waveNumber*radius)).pow(k)
+                    fact * Complex.new(0, -1/(2*this.waveNumber*r1)).pow(k)
                 }).sum.reciprocal
             })
         })
     }
 
     // Return complex degree weights
-    ctrlWeights { arg encRadius = Hoa.refRadius, decRadius = Hoa.refRadius, order = 1;
+    ctrlWeights { arg encRadius, decRadius, order = 1;
         var m = order;
+		var r0 = encRadius ?? { Hoa.refRadius };
+		var r1 = decRadius ?? { Hoa.refRadius };
         var nearZero = 1e-08;
 
         (this.waveNumber.abs <= nearZero).if({
             ^(m+1).collect({ |k|
-                Complex.new((decRadius/encRadius).pow(k), 0)
+                Complex.new((r1/r0).pow(k), 0)
             })
         }, {
             ^(m+1).collect({ |j|
                 ((j+1).collect({ |k|
                     var fact;
                     fact = (j+k).asFloat.factorial/((j-k).asFloat.factorial*k.asFloat.factorial);
-                    fact * Complex.new(0, -1/(2*this.waveNumber*encRadius)).pow(k)
+                    fact * Complex.new(0, -1/(2*this.waveNumber*r0)).pow(k)
                 }).sum) / ((j+1).collect({ |k|
                     var fact;
                     fact = (j+k).asFloat.factorial/((j-k).asFloat.factorial*k.asFloat.factorial);
-                    fact * Complex.new(0, -1/(2*this.waveNumber*decRadius)).pow(k)
+                    fact * Complex.new(0, -1/(2*this.waveNumber*r1)).pow(k)
                 }).sum)
             })
         })

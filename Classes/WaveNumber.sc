@@ -51,7 +51,7 @@
 // Wavenumber Utilities
 
 WaveNumber {
-    var <>waveNumber;
+    var <waveNumber;
 
     *new { |waveNumber = 8.0600627847202|
         ^super.newCopyArgs(waveNumber)

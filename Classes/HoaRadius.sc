@@ -51,7 +51,7 @@
 // Radius Utilities
 
 HoaRadius {
-    var <>radius;
+    var <radius;
 
     *new { |radius = 0.12406851245573|
         ^super.newCopyArgs(radius)

@@ -51,7 +51,7 @@
 // NFE - Near-field Effect, coefficients
 
 NFECoeffs {
-    var <>degree, <reX, <absX, <numSOS, <numFOS;
+    var <degree, <reX, <absX, <numSOS, <numFOS;
 
     *new { |degree|
         ^super.newCopyArgs(degree).init

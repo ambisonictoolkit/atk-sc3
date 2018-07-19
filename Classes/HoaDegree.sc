@@ -51,7 +51,7 @@
 // Hoa Degree Utilities
 
 HoaDegree {
-    var <>degree;
+    var <degree;
 
     *new { |degree|
         ^super.newCopyArgs(degree)

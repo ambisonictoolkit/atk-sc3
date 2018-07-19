@@ -51,7 +51,7 @@
 // Hoa [l, m] Utilities
 
 HoaLm {
-    var <>lm;
+    var <lm;
 
     *new { |lm|
         ^super.newCopyArgs(lm)

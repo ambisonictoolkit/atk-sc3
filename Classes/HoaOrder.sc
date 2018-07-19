@@ -51,7 +51,7 @@
 // Hoa Order Utilities
 
 HoaOrder {
-    var <>order;
+    var <order;
 
     *new { |order|
         ^super.newCopyArgs(order)

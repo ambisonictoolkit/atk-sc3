@@ -127,6 +127,24 @@ HoaOrder {
     }
 
     // ------------
+    // Return NFE coefficients
+
+    // Proximity complex degree weights
+    proxWeights { arg freq = 440.0, radius = Atk.refRadius;
+		^WaveNumber.newFreq(freq).proxWeights(radius, this.order)
+    }
+
+	// Distance complex degree weights
+    distWeights { arg freq = 440.0, radius = Atk.refRadius;
+		^WaveNumber.newFreq(freq).distWeights(radius, this.order)
+    }
+
+    // Control complex degree weights
+    ctrlWeights { arg freq = 440.0, encRadius = Atk.refRadius, decRadius = Atk.refRadius;
+		^WaveNumber.newFreq(freq).ctrlWeights(encRadius, decRadius, this.order)
+    }
+
+	// ------------
     // Return decoder measures or coefficients
 
     // effective decoding radius

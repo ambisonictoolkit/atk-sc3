@@ -73,8 +73,8 @@ HoaRadius {
     }
 
     // Set radius from normalised frequency and order
-    *newWn { |wn, sr, order = 1|
-        ^this.new((order*Atk.speedOfSound) / (pi*wn*sr))
+    *newWn { |wn, sampleRate, order = 1|
+        ^this.new((order*Atk.speedOfSound) / (pi*wn*sampleRate))
     }
 
 
@@ -97,8 +97,8 @@ HoaRadius {
     }
 
     // Return effective order.
-    orderAtWn { |wn, sr|
-        ^(pi*this.radius*wn*sr) / Atk.speedOfSound
+    orderAtWn { |wn, sampleRate|
+        ^(pi*this.radius*wn*sampleRate) / Atk.speedOfSound
     }
 
     // ----------
@@ -115,8 +115,8 @@ HoaRadius {
     }
 
     // Return effective normalized frequency.
-    wn { |order, sr|
-        ^(order*Atk.speedOfSound) / (pi*this.radius*sr)
+    wn { |sampleRate, order = 1|
+        ^(order*Atk.speedOfSound) / (pi*this.radius*sampleRate)
     }
 
 }

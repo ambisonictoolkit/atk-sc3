@@ -63,8 +63,8 @@ WaveNumber {
     }
 
     // Set wavenumber from normalised frequency.
-    *newWn { |wn, sr|
-        ^this.new(pi*wn*sr / Atk.speedOfSound)
+    *newWn { |wn, sampleRate|
+        ^this.new(pi*wn*sampleRate / Atk.speedOfSound)
     }
 
     // Set wavenumber from delay and effective order.
@@ -83,8 +83,8 @@ WaveNumber {
     }
 
     // Return normalised frequency from wavenumber.
-    wn { |sr|
-        ^this.num*Atk.speedOfSound / (pi*sr)
+    wn { |sampleRate|
+        ^this.num*Atk.speedOfSound / (pi*sampleRate)
     }
 
     // ------------
@@ -114,7 +114,7 @@ WaveNumber {
     // NFE Utilities
 
     // Return complex degree weights
-    proxDegreeWeights { arg order, radius = Atk.refRadius;
+    proxDegreeWeights { |radius = Atk.refRadius, order = 1|
         var m = order;
         var nearZero = 1e-08;
 
@@ -134,7 +134,7 @@ WaveNumber {
     }
 
     // Return complex degree weights
-    distDegreeWeights { arg order, radius = Atk.refRadius;
+    distDegreeWeights { |radius = Atk.refRadius, order = 1|
         var m = order;
         var nearZero = 1e-08;
 
@@ -152,7 +152,7 @@ WaveNumber {
     }
 
     // Return complex degree weights
-    ctrlDegreeWeights { arg order, encRadius = Atk.refRadius, decRadius = Atk.refRadius;
+    ctrlDegreeWeights { |encRadius = Atk.refRadius, decRadius = Atk.refRadius, order = 1|
         var m = order;
         var nearZero = 1e-08;
 

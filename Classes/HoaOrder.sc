@@ -130,17 +130,17 @@ HoaOrder {
     // Return NFE coefficients
 
     // Proximity complex degree weights
-    proxWeights { arg freq = 440.0, radius = Atk.refRadius;
+    proxWeights { arg freq = 440.0, radius = Hoa.refRadius;
 		^WaveNumber.newFreq(freq).proxWeights(radius, this.order)
     }
 
 	// Distance complex degree weights
-    distWeights { arg freq = 440.0, radius = Atk.refRadius;
+    distWeights { arg freq = 440.0, radius = Hoa.refRadius;
 		^WaveNumber.newFreq(freq).distWeights(radius, this.order)
     }
 
     // Control complex degree weights
-    ctrlWeights { arg freq = 440.0, encRadius = Atk.refRadius, decRadius = Atk.refRadius;
+    ctrlWeights { arg freq = 440.0, encRadius = Hoa.refRadius, decRadius = Hoa.refRadius;
 		^WaveNumber.newFreq(freq).ctrlWeights(encRadius, decRadius, this.order)
     }
 
@@ -149,12 +149,12 @@ HoaOrder {
 
     // effective decoding radius
     radiusAtFreq { |freq|
-        ^(this.order*Atk.speedOfSound) / (2*pi*freq)
+        ^(this.order*Hoa.speedOfSound) / (2*pi*freq)
     }
 
     // effective decoding frequency
     freqAtRadius { |radius|
-        ^(this.order*Atk.speedOfSound) / (2*pi*radius)
+        ^(this.order*Hoa.speedOfSound) / (2*pi*radius)
     }
 
     /*

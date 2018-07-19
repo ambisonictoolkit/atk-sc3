@@ -93,7 +93,7 @@ HoaRotationMatrix {
 	}
 
 	init { |argOrder|
-		order = argOrder ?? {Hoa.globalOrder};
+		order = argOrder ?? {Hoa.defaultOrder};
 
 		rO3 = this.eulerToR3(r1, r2, r3, axes);
 		matrix = this.buildSHRotMtx(rO3, order, 'real');

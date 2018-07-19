@@ -80,7 +80,7 @@ HoaUGen {
 	//  Returns the order if signal size is valid.
 	*confirmOrder { |in, order|
 		var io, to;
-		to = order ?? { Hoa.globalOrder };
+		to = order ?? { Hoa.defaultOrder };
 		io = Hoa.detectOrder(in.size);
 		if (io != to) {
 			Error(
@@ -165,7 +165,7 @@ HoaEncodeDirection : HoaUGen {
 		// angle to bring the zenith to phi
 		toPhi = phi - 0.5pi;
 
-		n = order ?? { Hoa.globalOrder };  // check/assign order
+		n = order ?? { Hoa.defaultOrder };  // check/assign order
 
 		hoaOrder = n.asHoaOrder;  // instance order
 
@@ -174,20 +174,20 @@ HoaEncodeDirection : HoaUGen {
 		coeffs = coeffs.round(-180.dbamp);  // NOTE: will want to consolidate -round
 
 		// 2) encode as basic (real) or NFE (complex) wave at zenith
-		zenith = ((radius == nil) || (radius == Atk.refRadius)).if({
-			// basic: spherical wave @ radius = Atk.refRadius
+		zenith = ((radius == nil) || (radius == Hoa.refRadius)).if({
+			// basic: spherical wave @ radius = Hoa.refRadius
 			in
 		}, {
 			// NFE
 			(radius == inf).if({
 				// planewave
 				(n+1).collect({ |l|
-					DegreeDist.ar(in, Atk.refRadius, l)
+					DegreeDist.ar(in, Hoa.refRadius, l)
 				})[hoaOrder.l]
 			}, {
 				// spherical wave
 				(n+1).collect({ |l|
-					DegreeCtrl.ar(in, radius, Atk.refRadius, l)
+					DegreeCtrl.ar(in, radius, Hoa.refRadius, l)
 				})[hoaOrder.l]
 			})
 		});
@@ -397,7 +397,7 @@ HoaMirror : HoaUGen {
 	}
 }
 
-// Near-field Effect - Proximity: Atk.refRadius
+// Near-field Effect - Proximity: Hoa.refRadius
 // NOTE: unstable, requires suitably pre-conditioned input to avoid overflow
 HoaNFProx : HoaUGen {
 
@@ -411,14 +411,14 @@ HoaNFProx : HoaUGen {
 		^hoaOrder.l.collect({ |l, index|
 			DegreeProx.ar(
 				in[index],
-				Atk.refRadius,
+				Hoa.refRadius,
 				l
 			)
 		}).madd(mul, add)
 	}
 }
 
-// Near-field Effect - Distance: Atk.refRadius
+// Near-field Effect - Distance: Hoa.refRadius
 HoaNFDist : HoaUGen {
 
 	*ar { |in, order|
@@ -431,7 +431,7 @@ HoaNFDist : HoaUGen {
 		^hoaOrder.l.collect({ |l, index|
 			DegreeDist.ar(
 				in[index],
-				Atk.refRadius,
+				Hoa.refRadius,
 				l
 			)
 		}).madd(mul, add)
@@ -441,11 +441,11 @@ HoaNFDist : HoaUGen {
 // Near-field Effect - Control
 // Use cases:
 //     1) Decoder compensation & NFE "looking":
-//            encRadius = Atk.refRadius
+//            encRadius = Hoa.refRadius
 //            decRadius = target decoder radius
 //     2) NFE encoding, encode NFE from basic:
 //            encRadius = target encoding radius
-//            decRadius = Atk.refRadius
+//            decRadius = Hoa.refRadius
 //     3) NFE re-imaging, move source to target:
 //            encRadius = target (re-imaged) encoding radius
 //            decRadius = source encoding radius
@@ -512,8 +512,8 @@ HoaBeam : HoaUGen {
 		weighted = beamCoeffs * rotateTumble;
 
 		// 5) apply NFE (optimized by degree) and form beam
-		mono = ((radius == nil) || (radius == Atk.refRadius)).if({
-			// basic: beamform @ radius = Atk.refRadius
+		mono = ((radius == nil) || (radius == Hoa.refRadius)).if({
+			// basic: beamform @ radius = Hoa.refRadius
 			weighted.sum
 		}, {
 			// NFE
@@ -522,7 +522,7 @@ HoaBeam : HoaUGen {
 				(n+1).collect({ |l|
 					DegreeProx.ar(
 						weighted[l.asHoaDegree.indices].sum,
-						Atk.refRadius,
+						Hoa.refRadius,
 						l
 					)
 				}).sum
@@ -531,7 +531,7 @@ HoaBeam : HoaUGen {
 				(n+1).collect({ |l|
 					DegreeCtrl.ar(
 						weighted[l.asHoaDegree.indices].sum,
-						Atk.refRadius,
+						Hoa.refRadius,
 						radius,
 						l
 					)
@@ -540,20 +540,20 @@ HoaBeam : HoaUGen {
 		});
 
 		// 6) encode as basic (real) or NFE (complex) wave at zenith
-		zenith = ((radius == nil) || (radius == Atk.refRadius)).if({
-			// basic: spherical wave @ radius = Atk.refRadius
+		zenith = ((radius == nil) || (radius == Hoa.refRadius)).if({
+			// basic: spherical wave @ radius = Hoa.refRadius
 			mono
 		}, {
 			// NFE
 			(radius == inf).if({
 				// planewave
 				(n+1).collect({ |l|
-					DegreeDist.ar(mono, Atk.refRadius, l)
+					DegreeDist.ar(mono, Hoa.refRadius, l)
 				})[hoaOrder.l]
 			}, {
 				// spherical wave
 				(n+1).collect({ |l|
-					DegreeCtrl.ar(mono, radius, Atk.refRadius, l)
+					DegreeCtrl.ar(mono, radius, Hoa.refRadius, l)
 				})[hoaOrder.l]
 			})
 		});
@@ -636,8 +636,8 @@ HoaDecodeDirection : HoaUGen {
 		weighted = coeffs * rotateTumble;
 
 		// 5) apply NFE (optimized by degree) and form beam
-		^((radius == nil) || (radius == Atk.refRadius)).if({
-			// basic: beamform @ radius = Atk.refRadius
+		^((radius == nil) || (radius == Hoa.refRadius)).if({
+			// basic: beamform @ radius = Hoa.refRadius
 			weighted.sum
 		}, {
 			// NFE
@@ -646,7 +646,7 @@ HoaDecodeDirection : HoaUGen {
 				(n+1).collect({ |l|
 					DegreeProx.ar(
 						weighted[l.asHoaDegree.indices].sum,
-						Atk.refRadius,
+						Hoa.refRadius,
 						l
 					)
 				}).sum
@@ -655,7 +655,7 @@ HoaDecodeDirection : HoaUGen {
 				(n+1).collect({ |l|
 					DegreeCtrl.ar(
 						weighted[l.asHoaDegree.indices].sum,
-						Atk.refRadius,
+						Hoa.refRadius,
 						radius,
 						l
 					)

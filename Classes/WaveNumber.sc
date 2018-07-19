@@ -59,12 +59,12 @@ WaveNumber {
 
     // Set wavenumber from freq (in hz).
     *newFreq { |freq = 440.0|
-        ^this.new(2*pi*freq / Atk.speedOfSound);
+        ^this.new(2*pi*freq / Hoa.speedOfSound);
     }
 
     // Set wavenumber from normalised frequency.
     *newWn { |wn, sampleRate|
-        ^this.new(pi*wn*sampleRate / Atk.speedOfSound)
+        ^this.new(pi*wn*sampleRate / Hoa.speedOfSound)
     }
 
     // Set wavenumber from delay and effective order.
@@ -79,12 +79,12 @@ WaveNumber {
 
     // Return freq (in hz) from wavenumber.
     freq {
-        ^this.waveNumber*Atk.speedOfSound / (2*pi)
+        ^this.waveNumber*Hoa.speedOfSound / (2*pi)
     }
 
     // Return normalised frequency from wavenumber.
     wn { |sampleRate|
-        ^this.num*Atk.speedOfSound / (pi*sampleRate)
+        ^this.num*Hoa.speedOfSound / (pi*sampleRate)
     }
 
     // ------------
@@ -97,7 +97,7 @@ WaveNumber {
 
     // Return effective delay.
     delay { |order = 1|
-        ^order / (Atk.speedOfSound*this.waveNumber)
+        ^order / (Hoa.speedOfSound*this.waveNumber)
     }
 
     // Return effective order.
@@ -107,14 +107,14 @@ WaveNumber {
 
     // Return effective order.
     orderAtDelay { |delay = 0.00036171577975431|
-        ^delay*this.waveNumber*Atk.speedOfSound
+        ^delay*this.waveNumber*Hoa.speedOfSound
     }
 
     // ------------
     // NFE Utilities
 
     // Return complex degree weights
-    proxWeights { arg radius = Atk.refRadius, order = 1;
+    proxWeights { arg radius = Hoa.refRadius, order = 1;
         var m = order;
         var nearZero = 1e-08;
 
@@ -134,7 +134,7 @@ WaveNumber {
     }
 
     // Return complex degree weights
-    distWeights { arg radius = Atk.refRadius, order = 1;
+    distWeights { arg radius = Hoa.refRadius, order = 1;
         var m = order;
         var nearZero = 1e-08;
 
@@ -152,7 +152,7 @@ WaveNumber {
     }
 
     // Return complex degree weights
-    ctrlWeights { arg encRadius = Atk.refRadius, decRadius = Atk.refRadius, order = 1;
+    ctrlWeights { arg encRadius = Hoa.refRadius, decRadius = Hoa.refRadius, order = 1;
         var m = order;
         var nearZero = 1e-08;
 

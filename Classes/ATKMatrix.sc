@@ -193,7 +193,7 @@ AtkMatrix {
 				order = 1;
 				set = 'FOA';
 			} {
-				// order = Hoa.globalOrder; // order should be set by user or from inferring from the matrix
+				// order = Hoa.defaultOrder; // order should be set by user or from inferring from the matrix
 				// set = format("HOA%", order).asSymbol;
 			}
 		};

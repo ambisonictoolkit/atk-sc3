@@ -1,12 +1,55 @@
 Hoa {
-	classvar <globalOrder = 3;
+    classvar <speedOfSound, <refRadius;
+	classvar <within;
+	classvar <defaultOrder;
+	classvar <ordering = \acn, <normalisation = \n3d;
 
-	*setGlobalOrder { |order|
+	*initClass {
+		speedOfSound = 343.0;  // (m/s)
+		refRadius = 1.5;  // reference encoding / decoding radius, i.e., basic radius
+		within = -180.dbamp;  // zero optimisation threshold
+
+		defaultOrder = 3;
+	}
+
+	*format {
+		^Array.with(this.ordering, this.normalisation)
+	}
+
+	*setSpeedOfSound { |argSpeedOfSound|
+		/*
+		TODO: run initializations necessary when changing speedOfSound
+		after resources have already been allocated at a different speedOfSound
+		*/
+		speedOfSound = argSpeedOfSound.asFloat;
+	}
+
+	*setRefRadius { |radius|
+		/*
+		TODO: run initializations necessary when changing refRadius
+		after resources have already been allocated at a different refRadius
+		*/
+		refRadius = radius.asFloat;
+	}
+
+	*setWithin { |argWithin|
+		within = argWithin.abs;
+	}
+
+	*setWithinDb { |withinDb|
+		within = withinDb.dbamp;
+	}
+
+	*withinDb {
+		^within.ampdb;
+	}
+
+	*setDefaultOrder { |order|
 		/*
 		TODO: run initializations necessary when changing order
 		after resources have already been allocated at a different order
 		*/
-		globalOrder = order;
+		defaultOrder = order.asInteger;
 	}
 
 	*degreeStIdx { |degree|
@@ -21,15 +64,19 @@ Hoa {
 		^(order + 1).squared
 	}
 
-	// Detect the order from the number of channels/coefficients
-	// Currently expects full 3D signals
-	// TODO: support 2D? mixed order?
-	*detectOrder { |numChans|
-		var o = (numChans.sqrt - 1);
-		if (o % 1 != 0) {
-			"Could not detect order from % channels".format(numChans).throw
-		};
-		^o.asInt;
+	// full 3D only
+	*detectOrder { |numCoeffs|
+		var squareOf = numCoeffs.squareOf;
+		(squareOf == nil).if({
+			"Could not detect order from % coefficients".format(numCoeffs).throw
+		}, {
+			^(squareOf - 1)
+		});
+	}
+
+	*confirmOrder { |numCoeffs, order|
+		var n = order ?? { Hoa.defaultOrder };
+		^(this.detectOrder(numCoeffs) == n)
 	}
 
 }

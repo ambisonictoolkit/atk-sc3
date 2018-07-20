@@ -88,13 +88,11 @@ HoaRotationMatrix {
 	var <matrix;
 	var order, rO3;
 
-	*new { |r1 = 0, r2 = 0, r3 = 0, axes = \xyz, order|
+	*new { |r1 = 0, r2 = 0, r3 = 0, axes = \xyz, order = (Hoa.defaultOrder)|
 		^super.newCopyArgs(r1,r2,r3,axes).init(order)
 	}
 
-	init { |argOrder|
-		order = argOrder ?? {Hoa.defaultOrder};
-
+	init { |order|
 		rO3 = this.eulerToR3(r1, r2, r3, axes);
 		matrix = this.buildSHRotMtx(rO3, order, 'real');
 	}

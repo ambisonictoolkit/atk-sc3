@@ -66,9 +66,8 @@ Hoa {
 		});
 	}
 
-	*confirmOrder { |numCoeffs, order|
-		var n = order ?? { Hoa.defaultOrder };
-		^(this.detectOrder(numCoeffs) == n)
+	*confirmOrder { |numCoeffs, order = (Hoa.defaultOrder)|
+		^(this.detectOrder(numCoeffs) == order)
 	}
 
 }

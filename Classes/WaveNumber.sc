@@ -68,13 +68,15 @@ WaveNumber {
     }
 
     // Set wavenumber from delay and effective order.
-    *newDelay { |delay = 0.00036171577975431, order = 1|
-        ^this.new(order/(delay*this.c))
+    *newDelay { |delay = 0.0010851473392629, order|
+		var n = order ?? { Hoa.defaultOrder };
+        ^this.new(n / (delay*Hoa.speedOfSound))
     }
 
     // Set wavenumber from radius and effective order.
-    *newRadius { |radius = 0.12406851245573, order = 1|
-        ^this.new(order / radius)
+    *newRadius { |radius = 0.37220553736718, order|
+		var n = order ?? { Hoa.defaultOrder };
+        ^this.new(n / radius)
     }
 
     // Return freq (in hz) from wavenumber.
@@ -91,22 +93,24 @@ WaveNumber {
     // Radius Utilities
 
     // Return effective radius.
-    radius { |order = 1|
-        ^order / this.waveNumber
+    radius { |order|
+		var n = order ?? { Hoa.defaultOrder };
+        ^n / this.waveNumber
     }
 
     // Return effective delay.
-    delay { |order = 1|
-        ^order / (Hoa.speedOfSound*this.waveNumber)
+    delay { |order|
+		var n = order ?? { Hoa.defaultOrder };
+        ^n / (Hoa.speedOfSound*this.waveNumber)
     }
 
     // Return effective order.
-    orderAtRadius { |radius = 0.12406851245573|
+    orderAtRadius { |radius = 0.37220553736718|
         ^radius*this.waveNumber
     }
 
     // Return effective order.
-    orderAtDelay { |delay = 0.00036171577975431|
+    orderAtDelay { |delay = 0.0010851473392629|
         ^delay*this.waveNumber*Hoa.speedOfSound
     }
 
@@ -114,8 +118,8 @@ WaveNumber {
     // NFE Utilities
 
     // Return complex degree weights
-    proxWeights { arg radius, order = 1;
-        var m = order;
+    proxWeights { arg radius, order;
+        var m = order ?? { Hoa.defaultOrder };
 		var r0 = radius ?? { Hoa.refRadius };
         var nearZero = 1e-08;
 
@@ -135,8 +139,8 @@ WaveNumber {
     }
 
     // Return complex degree weights
-    distWeights { arg radius, order = 1;
-        var m = order;
+    distWeights { arg radius, order;
+        var m = order ?? { Hoa.defaultOrder };
 		var r1 = radius ?? { Hoa.refRadius };
         var nearZero = 1e-08;
 
@@ -154,8 +158,8 @@ WaveNumber {
     }
 
     // Return complex degree weights
-    ctrlWeights { arg encRadius, decRadius, order = 1;
-        var m = order;
+    ctrlWeights { arg encRadius, decRadius, order;
+        var m = order ?? { Hoa.defaultOrder };
 		var r0 = encRadius ?? { Hoa.refRadius };
 		var r1 = decRadius ?? { Hoa.refRadius };
         var nearZero = 1e-08;

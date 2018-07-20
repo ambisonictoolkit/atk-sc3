@@ -185,18 +185,31 @@ AtkMatrix {
 	}
 
 	init { |argOrder, argType|
-		if (argOrder.notNil) {
-			order = argOrder;
-			set = format("HOA%", argOrder).asSymbol;
-		} { // detect from class
-			if (this.class.asString.keep(3) == "Foa") {
-				order = 1;
-				set = 'FOA';
-			} {
-				// order = Hoa.defaultOrder; // order should be set by user or from inferring from the matrix
-				// set = format("HOA%", order).asSymbol;
-			}
-		};
+		// if (argOrder.notNil) {
+		// 	order = argOrder;
+		// 	set = format("HOA%", argOrder).asSymbol;
+		// } { // detect from class
+		// 	if (this.class.asString.keep(3) == "Foa") {
+		// 		order = 1;
+		// 		set = 'FOA';
+		// 	} {
+		// 		// order = Hoa.defaultOrder; // order should be set by user or from inferring from the matrix
+		// 		// set = format("HOA%", order).asSymbol;
+		// 	}
+		// };
+		(this.class.asString.keep(3) == "Foa").if({
+			// detect FOA from class
+			order = 1;
+			set = 'FOA';
+		}, {
+			// resolve HOA
+			argOrder.notNil.if({
+				order = argOrder;
+			}, {
+				order = Hoa.defaultOrder;
+			});
+			set = format("HOA%", this.order).asSymbol;
+		});
 
 		type = if (argType.notNil, { argType }, { this.prInferType });
 	}

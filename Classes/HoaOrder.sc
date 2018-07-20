@@ -54,7 +54,7 @@ HoaOrder {
     var <order;
 
     *new { |order|
-        ^super.newCopyArgs(order)
+        ^super.newCopyArgs(order ?? { Hoa.defaultOrder })
     }
 
     // ------------

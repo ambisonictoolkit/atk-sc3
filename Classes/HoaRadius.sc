@@ -53,28 +53,31 @@
 HoaRadius {
     var <radius;
 
-    *new { |radius = 0.12406851245573|
+    *new { |radius = 0.37220553736718|
         ^super.newCopyArgs(radius)
     }
 
     // Set radius from delay (in seconds).
-    *newDelay { |delay = 0.00036171577975431|
+    *newDelay { |delay = 0.0010851473392629|
         ^this.new(delay*Hoa.speedOfSound)
     }
 
     // Set radius from wavenumber and order
-    *newWaveNumber { |waveNumber = 8.0600627847202, order = 1|
-        ^this.new(order/waveNumber)
+    *newWaveNumber { |waveNumber = 8.0600627847202, order|
+		var n = order ?? { Hoa.defaultOrder };
+        ^this.new(n/waveNumber)
     }
 
     // Set radius from frequency and order
-    *newFreq { |freq = 440.0, order = 1|
-        ^this.new((order*Hoa.speedOfSound) / (2*pi*freq))
+    *newFreq { |freq = 440.0, order|
+		var n = order ?? { Hoa.defaultOrder };
+        ^this.new((n*Hoa.speedOfSound) / (2*pi*freq))
     }
 
     // Set radius from normalised frequency and order
-    *newWn { |wn, sampleRate, order = 1|
-        ^this.new((order*Hoa.speedOfSound) / (pi*wn*sampleRate))
+    *newWn { |wn, sampleRate, order|
+		var n = order ?? { Hoa.defaultOrder };
+        ^this.new((n*Hoa.speedOfSound) / (pi*wn*sampleRate))
     }
 
 
@@ -105,18 +108,21 @@ HoaRadius {
     // Wavenumber / frequency
 
     // Return effective wavenumber.
-    waveNumber { |order = 1|
-        ^(order/this.radius)
+    waveNumber { |order|
+		var n = order ?? { Hoa.defaultOrder };
+        ^(n/this.radius)
     }
 
     // Return effective frequency.
-    freq { |order = 1|
-        ^(order*Hoa.speedOfSound) / (2*pi*this.radius)
+    freq { |order|
+		var n = order ?? { Hoa.defaultOrder };
+        ^(n*Hoa.speedOfSound) / (2*pi*this.radius)
     }
 
     // Return effective normalized frequency.
-    wn { |sampleRate, order = 1|
-        ^(order*Hoa.speedOfSound) / (pi*this.radius*sampleRate)
+    wn { |sampleRate, order|
+		var n = order ?? { Hoa.defaultOrder };
+        ^(n*Hoa.speedOfSound) / (pi*this.radius*sampleRate)
     }
 
 }

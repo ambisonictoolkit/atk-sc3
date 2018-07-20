@@ -242,8 +242,9 @@ HoaMatrix : AtkMatrix {
 	}
 
 	// force values to zero that are within threshold distance (positive or negative)
-	zeroWithin { |within = (-180.dbamp)|
-		this.matrix.zeroWithin(within);
+	zeroWithin { |within|
+		var wi = within ?? { Hoa.within };
+		this.matrix.zeroWithin(wi);
 	}
 
 
@@ -365,8 +366,8 @@ HoaMatrixEncoder : HoaMatrix {
         matrix = Matrix.with(
 			directions.collect({ |thetaPhi|
                 hoaOrder.sph(thetaPhi.at(0), thetaPhi.at(1))
-            }).flop
-        )
+			}).flop
+        ).zeroWithin(Hoa.within)
     }
 
     // ------------
@@ -392,7 +393,7 @@ HoaMatrixEncoder : HoaMatrix {
             directions.collect({ |thetaPhi|
 				(1/beamWeights)[hoaOrder.l] * hoaOrder.sph(thetaPhi.at(0), thetaPhi.at(1));
             }).flop
-        )
+        ).zeroWithin(Hoa.within)
     }
 
     // ------------
@@ -414,7 +415,7 @@ HoaMatrixEncoder : HoaMatrix {
 		).matrix;
 
 		// match modes
-		matrix = decodingMatrix.pseudoInverse;
+		matrix = decodingMatrix.pseudoInverse.zeroWithin(Hoa.within)
 	}
 
 	numChannels {
@@ -511,7 +512,7 @@ HoaMatrixXformer : HoaMatrix {
     }
 
 	initRotation { |r1, r2, r3, convention|
-		matrix = HoaRotationMatrix(r1, r2, r3, convention, this.order).matrix;
+		matrix = HoaRotationMatrix(r1, r2, r3, convention, this.order).matrix.zeroWithin(Hoa.within);
 	}
 
     initMirror { |mirror|
@@ -736,7 +737,7 @@ HoaMatrixDecoder : HoaMatrix {
             directions.collect({ |thetaPhi|
                hoaOrder.sph(thetaPhi.at(0), thetaPhi.at(1))
             })
-        )
+        ).zeroWithin(Hoa.within)
     }
 
     // ------------
@@ -762,7 +763,7 @@ HoaMatrixDecoder : HoaMatrix {
 			directions.collect({ |thetaPhi|
 				beamWeights[hoaOrder.l] * hoaOrder.sph(thetaPhi.at(0), thetaPhi.at(1));
 			})
-		)
+		).zeroWithin(Hoa.within)
 	}
 
     // ------------
@@ -845,7 +846,7 @@ HoaMatrixDecoder : HoaMatrix {
 		});
 
 		// assign
-		matrix = decodingMatrix
+		matrix = decodingMatrix.zeroWithin(Hoa.within)
 	}
 
     // ------------
@@ -929,7 +930,7 @@ HoaMatrixDecoder : HoaMatrix {
 		});
 
 		// assign
-		matrix = decodingMatrix
+		matrix = decodingMatrix.zeroWithin(Hoa.within)
 	}
 
     // initDecoderVarsForFiles {

@@ -54,7 +54,7 @@ HoaOrder {
     var <order;
 
     *new { |order|
-        ^super.newCopyArgs(order ?? { Hoa.defaultOrder })
+        ^super.newCopyArgs(order)
     }
 
     // ------------
@@ -130,31 +130,31 @@ HoaOrder {
     // Return NFE coefficients
 
     // Proximity complex degree weights
-    proxWeights { arg freq = 440.0, radius;
-		^WaveNumber.newFreq(freq).proxWeights(radius, this.order)
+    proxWeights { arg freq, radius, speedOfSound = (Hoa.speedOfSound);
+		^WaveNumber.newFreq(freq, speedOfSound).proxWeights(radius, this.order)
     }
 
 	// Distance complex degree weights
-    distWeights { arg freq = 440.0, radius;
-		^WaveNumber.newFreq(freq).distWeights(radius, this.order)
+    distWeights { arg freq, radius, speedOfSound = (Hoa.speedOfSound);
+		^WaveNumber.newFreq(freq, speedOfSound).distWeights(radius, this.order)
     }
 
     // Control complex degree weights
-    ctrlWeights { arg freq = 440.0, encRadius, decRadius;
-		^WaveNumber.newFreq(freq).ctrlWeights(encRadius, decRadius, this.order)
+    ctrlWeights { arg freq, encRadius, decRadius, speedOfSound = (Hoa.speedOfSound);
+		^WaveNumber.newFreq(freq, speedOfSound).ctrlWeights(encRadius, decRadius, this.order)
     }
 
 	// ------------
     // Return decoder measures or coefficients
 
     // effective decoding radius
-    radiusAtFreq { |freq|
-        ^(this.order*Hoa.speedOfSound) / (2*pi*freq)
+    radiusAtFreq { |freq, speedOfSound = (Hoa.speedOfSound)|
+        ^(this.order*speedOfSound) / (2*pi*freq)
     }
 
     // effective decoding frequency
-    freqAtRadius { |radius|
-        ^(this.order*Hoa.speedOfSound) / (2*pi*radius)
+    freqAtRadius { |radius, speedOfSound = (Hoa.speedOfSound)|
+        ^(this.order*speedOfSound) / (2*pi*radius)
     }
 
     /*

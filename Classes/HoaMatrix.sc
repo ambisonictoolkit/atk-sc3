@@ -310,7 +310,7 @@ HoaMatrixEncoder : HoaMatrix {
 	}
 
 	// Projection Encoding beam - 'basic' & multi pattern
-	*newDirection { |theta = 0, phi = 0, k, order|
+	*newDirection { |theta = 0, phi = 0, k = nil, order = (Hoa.defaultOrder)|
 		var directions = [[ theta, phi ]];
 		var instance = super.new('dir', order).initDirChannels(directions);
 
@@ -322,7 +322,7 @@ HoaMatrixEncoder : HoaMatrix {
 	}
 
 	// Projection Encoding beams - 'basic' & multi pattern
-	*newDirections { |directions = ([[ 0, 0 ]]), k, match, order|
+	*newDirections { |directions = ([[ 0, 0 ]]), k = nil, match = nil, order = (Hoa.defaultOrder)|
 		var instance = super.new('dirs', order).initDirChannels(directions);
 		^case
 		{ (k == nil) && (match == nil) } { instance.initBasic }  // (\basic, \amp)
@@ -332,22 +332,22 @@ HoaMatrixEncoder : HoaMatrix {
 	}
 
 	// Projection Encoding beams (convenience to match FOA: may wish to deprecate) - 'basic' pattern
-    *newPanto { |numChans = 4, orientation = \flat, order|
+    *newPanto { |numChans = 4, orientation = \flat, order = (Hoa.defaultOrder)|
 		var directions = Array.regularPolygon(numChans, orientation, pi);
 		^super.new('panto', order).initDirChannels(directions).initBasic;
     }
 
 	// Modal Encoding beams - multi pattern
-	*newModes { |directions = ([[ 0, 0 ]]), k = \basic, match = \beam, order|
+	*newModes { |directions = ([[ 0, 0 ]]), k = \basic, match = \beam, order = (Hoa.defaultOrder)|
         ^super.new('modes', order).initDirChannels(directions).initModes(k, match);
     }
 
 	// t-design wrapper for *newBeams
-    *newAtoB { |numChans = 4, k = \basic, order|
+    *newAtoB { |numChans = 4, k = \basic, order = (Hoa.defaultOrder)|
         ^super.new('AtoB', order).initDirTDesign(numChans, order).initBeam(k, \beam);
     }
 
-    *newFromFile { arg filePathOrName, order;
+    *newFromFile { arg filePathOrName, order = (Hoa.defaultOrder);
         ^super.new.initFromFile(filePathOrName, 'encoder', order, true).initEncoderVarsForFiles
     }
 
@@ -455,11 +455,11 @@ HoaMatrixXformer : HoaMatrix {
     // ------------
     // Rotation
 
-	*newRotate { |r1 = 0, r2 = 0, r3 = 0, axes = \xyz, order|
+	*newRotate { |r1 = 0, r2 = 0, r3 = 0, axes = \xyz, order = (Hoa.defaultOrder)|
 		^super.new('rotate', order).initDirChannels.initRotation(r1, r2, r3, axes, order)
 	}
 
-	*newRotateAxis { |axis = \z, angle = 0, order|
+	*newRotateAxis { |axis = \z, angle = 0, order = (Hoa.defaultOrder)|
 		var r1=0,r2=0,r3=0;
 		switch( axis,
 			\x, {r1=angle},
@@ -475,18 +475,18 @@ HoaMatrixXformer : HoaMatrix {
 		^super.new('rotateAxis', order).initDirChannels.initRotation(r1, r2, r3, \xyz)
 	}
 
-	*newRTT { |rotate = 0, tilt = 0, tumble = 0, order|
+	*newRTT { |rotate = 0, tilt = 0, tumble = 0, order = (Hoa.defaultOrder)|
 		^super.new('rotation', order).initDirChannels.initRotation(rotate, tilt, tumble, \zxy)
 	}
 
-	*newYPR { |yaw = 0, pitch = 0, roll = 0, order|
+	*newYPR { |yaw = 0, pitch = 0, roll = 0, order = (Hoa.defaultOrder)|
 		^super.new('rotation', order).initDirChannels.initRotation(roll, pitch, yaw, \xyz)
 	}
 
 	/// ------------
     // Mirroring
 
-	*newMirror { |mirror = \reflect, order|
+	*newMirror { |mirror = \reflect, order = (Hoa.defaultOrder)|
 		^super.new('mirror', order).initDirChannels.initMirror(mirror);
 	}
 
@@ -494,19 +494,19 @@ HoaMatrixXformer : HoaMatrix {
 	// TODO: This a subset of mirroring. Wrap into *newMirror method?
 	// - if yes, would need a way to fork to initSwapAxes in *newMirror
 	// - if yes, kind = 'mirror', otherwise need new kind e.g. 'axisSwap'
-	*newSwapAxes { |axes = \yz, order|
+	*newSwapAxes { |axes = \yz, order = (Hoa.defaultOrder)|
 		^super.new('mirror', order).initDirChannels.initSwapAxes(axes);
 	}
 
     // ------------
     // Beaming & nulling
 
-    *newBeam { |theta = 0, phi = 0, k = \basic, order|
+    *newBeam { |theta = 0, phi = 0, k = \basic, order = (Hoa.defaultOrder)|
 		var directions = [[ theta, phi ]];
         ^super.new('beam', order).initDirChannels(directions).initBeam(k);
     }
 
-    *newNull { |theta = 0, phi = 0, k = \basic, order|
+    *newNull { |theta = 0, phi = 0, k = \basic, order = (Hoa.defaultOrder)|
 		var directions = [[theta, phi]];
         ^super.new('null', order).initDirChannels(directions).initNull(k);
     }
@@ -649,12 +649,12 @@ HoaMatrixXformer : HoaMatrix {
 HoaMatrixDecoder : HoaMatrix {
 
 	// Format Encoder
-	*newFormat { |format = \atk, order|
+	*newFormat { |format = \atk, order = (Hoa.defaultOrder)|
 		^super.new('format', order).initDirChannels.initFormat(\atk, format);
 	}
 
 	// Projection Decoding beam - 'basic' & multi pattern
-	*newDirection { |theta = 0, phi = 0, k, order|
+	*newDirection { |theta = 0, phi = 0, k, order = (Hoa.defaultOrder)|
 		var directions = [[ theta, phi ]];
 		var instance = super.new('dir', order).initDirChannels(directions);
 
@@ -666,7 +666,7 @@ HoaMatrixDecoder : HoaMatrix {
 	}
 
 	// Projection Decoding beams - 'basic' & multi pattern
-	*newDirections { |directions = ([[ 0, 0 ]]), k, match, order|
+	*newDirections { |directions = ([[ 0, 0 ]]), k = nil, match = nil, order = (Hoa.defaultOrder)|
 		var instance = super.new('dirs', order).initDirChannels(directions);
 		^case
 		{ (k == nil) && (match == nil) } { instance.initBeam(\basic, \amp) }
@@ -677,23 +677,23 @@ HoaMatrixDecoder : HoaMatrix {
 	}
 
 	// Projection: Simple Ambisonic Decoding, aka SAD
-    *newProjection { |directions, k = \basic, match = \amp, order|
+    *newProjection { |directions, k = \basic, match = \amp, order = (Hoa.defaultOrder)|
 		^super.new('projection', order).initDirChannels(directions).initSAD(k, match);
     }
 
 	// Projection: Simple Ambisonic Decoding, aka SAD (convenience to match FOA: may wish to deprecate)
-	*newPanto { |numChans = 4, orientation = \flat, k = \basic, match = \amp, order|
+	*newPanto { |numChans = 4, orientation = \flat, k = \basic, match = \amp, order = (Hoa.defaultOrder)|
 		var directions = Array.regularPolygon(numChans, orientation, pi);
 		^super.new('panto', order).initDirChannels(directions).initSAD(k, match);
 	}
 
 	// Mode Match: Mode Matched Decoding, aka Pseudoinverse
-    *newModeMatch { |directions, k = \basic, match = \amp, order|
+    *newModeMatch { |directions, k = \basic, match = \amp, order = (Hoa.defaultOrder)|
 		^super.new('modeMatch', order).initDirChannels(directions).initMMD(k, match)
     }
 
 	// Diametric: Mode Matched Decoding, aka Diametric Pseudoinverse
-	*newDiametric { |directions, k = \basic, match = \amp, order|
+	*newDiametric { |directions, k = \basic, match = \amp, order = (Hoa.defaultOrder)|
 		var directionPairs = directions ++ directions.rank.switch(
 			1, {  // 2D
 				directions.collect({ |item|
@@ -710,7 +710,7 @@ HoaMatrixDecoder : HoaMatrix {
 	}
 
 	// t-design wrapper for *newBeams
-    *newBtoA { |numChans = 4, k = \basic, order|
+    *newBtoA { |numChans = 4, k = \basic, order = (Hoa.defaultOrder)|
         ^super.new('BtoA', order).initDirTDesign(numChans, order).initBeam(k, \beam);
     }
 

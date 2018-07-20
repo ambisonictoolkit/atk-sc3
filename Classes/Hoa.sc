@@ -36,14 +36,6 @@ Hoa {
 		within = argWithin.abs;
 	}
 
-	*setWithinDb { |withinDb|
-		within = withinDb.dbamp;
-	}
-
-	*withinDb {
-		^within.ampdb;
-	}
-
 	*setDefaultOrder { |order|
 		/*
 		TODO: run initializations necessary when changing order

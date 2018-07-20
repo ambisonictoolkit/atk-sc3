@@ -203,11 +203,7 @@ AtkMatrix {
 			set = 'FOA';
 		}, {
 			// resolve HOA
-			argOrder.notNil.if({
-				order = argOrder;
-			}, {
-				order = Hoa.defaultOrder;
-			});
+			order = argOrder ?? { Hoa.defaultOrder };
 			set = format("HOA%", this.order).asSymbol;
 		});
 

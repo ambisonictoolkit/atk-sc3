@@ -122,7 +122,6 @@ HoaUGen {
 
 	*prCalcJKMatrices { |order|
 		var xz, yz;
-		var zeroWithin = -180.dbamp;
 
 		xz = HoaXformerMatrix.newSwapAxes(\xz, order);
 		yz = HoaXformerMatrix.newSwapAxes(\yz, order);
@@ -130,8 +129,8 @@ HoaUGen {
 		// save a MatrixArrays for efficiency
 		// zeroWithin - optimization for synth graphs:
 		// Zero out matrix elements which are close to zero so they're optimized out.
-		kMatrix = MatrixArray.with(xz.asArray).zeroWithin(zeroWithin);
-		jMatrix = MatrixArray.with(yz.asArray).zeroWithin(zeroWithin);
+		kMatrix = MatrixArray.with(xz.asArray).zeroWithin(Hoa.nearZero);
+		jMatrix = MatrixArray.with(yz.asArray).zeroWithin(Hoa.nearZero);
 
 		jkMatrix = MatrixArray.with(jMatrix * kMatrix);
 		kjMatrix = MatrixArray.with(kMatrix * jMatrix);
@@ -169,9 +168,15 @@ HoaEncodeDirection : HoaUGen {
 
 		hoaOrder = n.asHoaOrder;  // instance order
 
-		// 1) generate basic (real) coefficients at zenith and round to optimize near-zeros out
+		// 1) generate basic (real) coefficients at zenith and optimize near-zeros out
 		coeffs = hoaOrder.sph(0, 0.5pi);
-		coeffs = coeffs.round(-180.dbamp);  // NOTE: will want to consolidate -round
+		coeffs = coeffs.collect({ |item|
+			(item.abs <= Hoa.nearZero).if({
+				0
+			}, {
+				item
+			})
+		});
 
 		// 2) encode as basic (real) or NFE (complex) wave at zenith
 		zenith = ((radius == nil) || (radius == Hoa.refRadius)).if({
@@ -490,9 +495,15 @@ HoaBeam : HoaUGen {
 		beamWeights = hoaOrder.beamWeights(k);
 		beamWeights = beamWeights / (degreeSeries * beamWeights).sum;
 
-		// 2) generate basic (real) coefficients at zenith and round to optimize near-zeros out
+		// 2) generate basic (real) coefficients at zenith and optimize near-zeros out
 		basicCoeffs = hoaOrder.sph(0, 0.5pi);
-		basicCoeffs = basicCoeffs.round(-180.dbamp);  // NOTE: will want to consolidate -round
+		basicCoeffs = basicCoeffs.collect({ |item|
+			(item.abs <= Hoa.nearZero).if({
+				0
+			}, {
+				item
+			})
+		});
 
 		// 3) form beam coefficients
 		beamCoeffs = beamWeights[hoaOrder.l] * basicCoeffs;
@@ -614,9 +625,15 @@ HoaDecodeDirection : HoaUGen {
 		beamWeights = hoaOrder.beamWeights(k);
 		beamWeights = beamWeights / (degreeSeries * beamWeights).sum;
 
-		// 2) generate basic (real) coefficients at zenith and round to optimize near-zeros out
+		// 2) generate basic (real) coefficients at zenith and optimize near-zeros out
 		coeffs = hoaOrder.sph(0, 0.5pi);
-		coeffs = coeffs.round(-180.dbamp);  // NOTE: will want to consolidate -round
+		coeffs = coeffs.collect({ |item|
+			(item.abs <= Hoa.nearZero).if({
+				0
+			}, {
+				item
+			})
+		});
 
 		// 3) form beam coefficients
 		coeffs = beamWeights[hoaOrder.l] * coeffs;

@@ -147,12 +147,11 @@ HoaMatrix : AtkMatrix {
 		var formatKeyword;
 
 		formatKeyword = { |format|
-			switch (format,
-				\atk, { [ \acn, \n3d ] },     // atk, mpegH
-				\ambix, { [ \acn, \sn3d ] },  // ambix
-				\fuma, { [ \fuma, \fuma ] },  // fuma
-				{ format }  // default
-			)
+			(format.class == Symbol).if({
+				Hoa.formatDict[format]  // retreive named formats
+			}, {
+				format  // otherwise, presume valid array
+			})
 		};
 
 		// test for single keyword format
@@ -242,9 +241,8 @@ HoaMatrix : AtkMatrix {
 	}
 
 	// force values to zero that are within threshold distance (positive or negative)
-	zeroWithin { |within|
-		var wi = within ?? { Hoa.within };
-		this.matrix.zeroWithin(wi);
+	zeroWithin { |within = (Hoa.nearZero)|
+		this.matrix.zeroWithin(within);
 	}
 
 
@@ -305,7 +303,7 @@ HoaMatrix : AtkMatrix {
 HoaMatrixEncoder : HoaMatrix {
 
 	// Format Encoder
-	*newFormat { |format =\atk, order|
+	*newFormat { |format =\atk, order = (Hoa.defaultOrder)|
 		^super.new('format', order).initDirChannels.initFormat(format, \atk);
 	}
 
@@ -367,7 +365,7 @@ HoaMatrixEncoder : HoaMatrix {
 			directions.collect({ |thetaPhi|
                 hoaOrder.sph(thetaPhi.at(0), thetaPhi.at(1))
 			}).flop
-        ).zeroWithin(Hoa.within)
+        ).zeroWithin(Hoa.nearZero)
     }
 
     // ------------
@@ -393,7 +391,7 @@ HoaMatrixEncoder : HoaMatrix {
             directions.collect({ |thetaPhi|
 				(1/beamWeights)[hoaOrder.l] * hoaOrder.sph(thetaPhi.at(0), thetaPhi.at(1));
             }).flop
-        ).zeroWithin(Hoa.within)
+        ).zeroWithin(Hoa.nearZero)
     }
 
     // ------------
@@ -415,7 +413,7 @@ HoaMatrixEncoder : HoaMatrix {
 		).matrix;
 
 		// match modes
-		matrix = decodingMatrix.pseudoInverse.zeroWithin(Hoa.within)
+		matrix = decodingMatrix.pseudoInverse.zeroWithin(Hoa.nearZero)
 	}
 
 	numChannels {
@@ -512,7 +510,7 @@ HoaMatrixXformer : HoaMatrix {
     }
 
 	initRotation { |r1, r2, r3, convention|
-		matrix = HoaRotationMatrix(r1, r2, r3, convention, this.order).matrix.zeroWithin(Hoa.within);
+		matrix = HoaRotationMatrix(r1, r2, r3, convention, this.order).matrix.zeroWithin(Hoa.nearZero);
 	}
 
     initMirror { |mirror|
@@ -737,7 +735,7 @@ HoaMatrixDecoder : HoaMatrix {
             directions.collect({ |thetaPhi|
                hoaOrder.sph(thetaPhi.at(0), thetaPhi.at(1))
             })
-        ).zeroWithin(Hoa.within)
+        ).zeroWithin(Hoa.nearZero)
     }
 
     // ------------
@@ -763,7 +761,7 @@ HoaMatrixDecoder : HoaMatrix {
 			directions.collect({ |thetaPhi|
 				beamWeights[hoaOrder.l] * hoaOrder.sph(thetaPhi.at(0), thetaPhi.at(1));
 			})
-		).zeroWithin(Hoa.within)
+		).zeroWithin(Hoa.nearZero)
 	}
 
     // ------------
@@ -846,7 +844,7 @@ HoaMatrixDecoder : HoaMatrix {
 		});
 
 		// assign
-		matrix = decodingMatrix.zeroWithin(Hoa.within)
+		matrix = decodingMatrix.zeroWithin(Hoa.nearZero)
 	}
 
     // ------------
@@ -930,7 +928,7 @@ HoaMatrixDecoder : HoaMatrix {
 		});
 
 		// assign
-		matrix = decodingMatrix.zeroWithin(Hoa.within)
+		matrix = decodingMatrix.zeroWithin(Hoa.nearZero)
 	}
 
     // initDecoderVarsForFiles {

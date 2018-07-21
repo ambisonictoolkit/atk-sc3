@@ -515,11 +515,9 @@ HoaMatrixXformer : HoaMatrix {
 
     initReflect { |mirror|
         var hoaOrder;
-        var size;
         var coeffs;
 
         hoaOrder = this.order.asHoaOrder;  // instance order
-        size = (this.order + 1).squared;
 
         // 1) generate mirror coefficients - ordered \acn
         coeffs = hoaOrder.reflection(mirror);

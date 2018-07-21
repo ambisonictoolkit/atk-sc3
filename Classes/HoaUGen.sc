@@ -389,14 +389,14 @@ HoaYPR : HoaUGen {
 }
 
 // Soundfield mirroring.
-HoaMirror : HoaUGen {
+HoaReflect : HoaUGen {
 
-	*ar { |in, reflect, order = (Hoa.defaultOrder), mul = 1, add = 0|
-		var n, mirrorCoeffs, mirrored;
+	*ar { |in, reflect = \reflect, order = (Hoa.defaultOrder), mul = 1, add = 0|
+		var n, mirrorCoeffs;
 
 		n = HoaUGen.confirmOrder(in, order);
 
-		mirrorCoeffs = HoaOrder(n).reflection(reflect);
+		mirrorCoeffs = n.asHoaOrder.reflection(reflect);
 
 		^(mirrorCoeffs * in).madd(mul, add);
 	}

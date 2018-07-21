@@ -484,16 +484,16 @@ HoaMatrixXformer : HoaMatrix {
 	/// ------------
     // Mirroring
 
-	*newMirror { |mirror = \reflect, order = (Hoa.defaultOrder)|
-		^super.new('mirror', order).initDirChannels.initMirror(mirror);
+	*newReflect { |mirror = \reflect, order = (Hoa.defaultOrder)|
+		^super.new('reflect', order).initDirChannels.initReflect(mirror);
 	}
 
 	// Swap one axis for another.
-	// TODO: This a subset of mirroring. Wrap into *newMirror method?
-	// - if yes, would need a way to fork to initSwapAxes in *newMirror
+	// TODO: This a subset of mirroring. Wrap into *newReflect method?
+	// - if yes, would need a way to fork to initSwapAxes in *newReflect
 	// - if yes, kind = 'mirror', otherwise need new kind e.g. 'axisSwap'
 	*newSwapAxes { |axes = \yz, order = (Hoa.defaultOrder)|
-		^super.new('mirror', order).initDirChannels.initSwapAxes(axes);
+		^super.new('swap', order).initDirChannels.initSwapAxes(axes);
 	}
 
     // ------------
@@ -513,7 +513,7 @@ HoaMatrixXformer : HoaMatrix {
 		matrix = HoaRotationMatrix(r1, r2, r3, convention, this.order).matrix.zeroWithin(Hoa.nearZero);
 	}
 
-    initMirror { |mirror|
+    initReflect { |mirror|
         var hoaOrder;
         var size;
         var coeffs;
@@ -537,7 +537,7 @@ HoaMatrixXformer : HoaMatrix {
 			var rx, my;
 
 			rx = this.class.newRotateAxis(\x, 0.5pi, this.order).matrix;
-			my = this.class.newMirror(\y, this.order).matrix;
+			my = this.class.newReflect(\y, this.order).matrix;
 
 			// matrix = my * rx;
 
@@ -551,7 +551,7 @@ HoaMatrixXformer : HoaMatrix {
 			var ry, mx;
 
 			ry = this.class.newRotateAxis(\y, 0.5pi, this.order).matrix;
-			mx = this.class.newMirror(\x, this.order).matrix;
+			mx = this.class.newReflect(\x, this.order).matrix;
 
 			// matrix = mx * ry;
 
@@ -565,7 +565,7 @@ HoaMatrixXformer : HoaMatrix {
 			var rz, mx;
 
 			rz = this.class.newRotateAxis(\z, 0.5pi, this.order).matrix;
-			mx = this.class.newMirror(\x, this.order).matrix;
+			mx = this.class.newReflect(\x, this.order).matrix;
 
 			matrix = mx * rz;
 		}

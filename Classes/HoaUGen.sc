@@ -92,6 +92,22 @@ HoaUGen {
 		^to
 	}
 
+	//  Confirm that the input signal size matches
+	//  the number of expected inputs.
+	//  Returns the input signal size if match is valid.
+	*confirmNumInputs { |in, numInputs = (Hoa.defaultOrder.asHoaOrder.numCoeffs)|
+		var inNumChannels;
+
+		inNumChannels = in.numChannels;
+		if (inNumChannels != numInputs) {
+			Error(
+				"[HoaUGen] In number of channels (%) does not match expected numInputs (%).".format(inNumChannels, numInputs)
+			).errorString.postln;
+			this.halt;
+		};
+		^inNumChannels
+	}
+
 	// returns a MatrixArray
 	*getJKMatrix { |which, order|
 		var nCoeffs, mtx;
@@ -149,6 +165,50 @@ HoaUGen {
 	}
 
 }
+
+
+//-----------------------------------------------------------------------
+// matrix rendering
+
+// Generic matrix renderer
+// More efficient than AtkMatrixMix, as doesn't replace zeros until the end.
+// Also, confirms in and matrix match.
+HoaRenderMatrix : HoaUGen {
+	*ar { |in, hoaMatrix, mul = 1, add = 0|
+
+		// catch
+		(hoaMatrix.class.superclass != HoaMatrix).if({
+			Error(
+				"[HoaUGen] hoaMatrix is not class HoaMatrix."
+			).errorString.postln;
+			this.halt;
+		});
+
+		// wrap input as array if needed, for mono inputs
+		in.isArray.not.if({ in = [in] });
+
+		// check inputs
+		this.confirmNumInputs(in, hoaMatrix.numInputs);
+
+		^UGen.replaceZeroesWithSilence(
+			this.mixMatrix(in, MatrixArray.with(hoaMatrix.matrix.asArray), mul, add)
+		)
+	}
+}
+
+// Synonyms.
+HoaEncodeMatrix : HoaRenderMatrix {}
+HoaDecodeMatrix : HoaRenderMatrix {}
+HoaXformMatrix : HoaRenderMatrix {}
+
+/*
+NOTE: we could do more complex error checking, confirming
+matrix type (\encoder, &c.) matches class.
+
+Doing so would require more complex design of HoaRenderMatrix,
+or separate implementation details for the named type matched classes.
+
+*/
 
 
 //-----------------------------------------------------------------------

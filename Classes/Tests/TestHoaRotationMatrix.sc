@@ -96,18 +96,18 @@ TestHoaRotationMatrix : UnitTest {
 		#r1, r2, r3 = 3.collect{rrand(-2pi,2pi)};
 
 		// TODO: check the following 2 tests to make sure it's a valid comparison
-		t1 = HoaXformerMatrix.newRTT(r1, r2, r3, order);
+		t1 = HoaMatrixXformer.newRTT(r1, r2, r3, order);
 		t2 = HoaRotationMatrix(r1, r2, r3, \zxy, order);
 		this.assertArrayFloatEquals(
 			t1.matrix.asArray.flat, t2.matrix.asArray.flat,
-			"HoaXformerMatrix.newRTT should be equivalent to HoaRotationMatrix with axes: 'zxy'", floatWithin, report
+			"HoaMatrixXformer.newRTT should be equivalent to HoaRotationMatrix with axes: 'zxy'", floatWithin, report
 		);
 
-		t1 = HoaXformerMatrix.newYPR(r1, r2, r3, order);
+		t1 = HoaMatrixXformer.newYPR(r1, r2, r3, order);
 		t2 = HoaRotationMatrix(r3, r2, r1, \xyz, order);
 		this.assertArrayFloatEquals(
 			t1.matrix.asArray.flat, t2.matrix.asArray.flat,
-			"HoaXformerMatrix.newYPR should be equivalent to HoaRotationMatrix with axes: 'xyz', with rotations applied in reverse order to make the rotation conform to intrinsic convention.", floatWithin, report
+			"HoaMatrixXformer.newYPR should be equivalent to HoaRotationMatrix with axes: 'xyz', with rotations applied in reverse order to make the rotation conform to intrinsic convention.", floatWithin, report
 		);
 
 	}

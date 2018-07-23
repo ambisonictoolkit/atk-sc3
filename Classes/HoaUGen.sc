@@ -123,8 +123,8 @@ HoaUGen {
 	*prCalcJKMatrices { |order|
 		var xz, yz;
 
-		xz = HoaXformerMatrix.newSwapAxes(\xz, order);
-		yz = HoaXformerMatrix.newSwapAxes(\yz, order);
+		xz = HoaMatrixXformer.newSwapAxes(\xz, order);
+		yz = HoaMatrixXformer.newSwapAxes(\yz, order);
 
 		// save a MatrixArrays for efficiency
 		// zeroWithin - optimization for synth graphs:

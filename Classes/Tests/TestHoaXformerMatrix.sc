@@ -24,7 +24,7 @@ SuperCollider3 version of the Ambisonic Toolkit (ATK). If not, see
 //---------------------------------------------------------------------
 //	The Ambisonic Toolkit (ATK) is a soundfield kernel support library.
 //
-// 	Class: TestHoaXformerMatrix
+// 	Class: TestHoaMatrixXformer
 //
 //	The Ambisonic Toolkit (ATK) is intended to bring together a number of tools and
 //	methods for working with Ambisonic surround sound. The intention is for the toolset
@@ -45,7 +45,7 @@ SuperCollider3 version of the Ambisonic Toolkit (ATK). If not, see
 //
 //---------------------------------------------------------------------
 
-TestHoaXformerMatrix : UnitTest {
+TestHoaMatrixXformer : UnitTest {
 	var order, report, floatWithin;
 	var axisDirs, tetraDirs, cubeDirs, randomDirs;
 	var initializedPlanewaves, targetPlanewaves;
@@ -111,13 +111,13 @@ TestHoaXformerMatrix : UnitTest {
 
 		numTests.do{
 			var angle = rrand(-2pi, 2pi);
-			var rMtx = HoaXformerMatrix.newRotateAxis(\z, angle, order);
+			var rMtx = HoaMatrixXformer.newRotateAxis(\z, angle, order);
 			comparePwFunc.(pw00, rMtx, angle, 0, \z);
 
-			rMtx = HoaXformerMatrix.newRotateAxis(\y, angle, order);
+			rMtx = HoaMatrixXformer.newRotateAxis(\y, angle, order);
 			comparePwFunc.(pw00, rMtx, 0, angle, \y);
 
-			rMtx = HoaXformerMatrix.newRotateAxis(\x, angle, order);
+			rMtx = HoaMatrixXformer.newRotateAxis(\x, angle, order);
 			comparePwFunc.(pw90, rMtx, pi/2, angle, \x);
 		};
 	}
@@ -131,12 +131,12 @@ TestHoaXformerMatrix : UnitTest {
 			axes = "xyz".scramble;      // randomize the axis convention
 			// *newRotateAxis
 			#r1, r2, r3 = 3.collect{ |i|
-				HoaXformerMatrix.newRotateAxis(axes[i].asSymbol, angles[i], order).matrix;
+				HoaMatrixXformer.newRotateAxis(axes[i].asSymbol, angles[i], order).matrix;
 			};
 			compoundRot = r3 * (r2 * r1);
 
 			// *newRotate
-			r123 = HoaXformerMatrix.newRotate(angles[0], angles[1], angles[2], axes.asSymbol, order).matrix;
+			r123 = HoaMatrixXformer.newRotate(angles[0], angles[1], angles[2], axes.asSymbol, order).matrix;
 
 			this.assertArrayFloatEquals(r123.asArray.flat, compoundRot.asArray.flat,
 				"3 individual axis rotations (*newRotateAxis) should equal the compound rotation (*newRotate)",

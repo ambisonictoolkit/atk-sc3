@@ -64,7 +64,7 @@ AtkTests {
 		[
 			// list of Test classes
 			TestHoaRotationMatrix,
-			TestHoaXformerMatrix,
+			TestHoaMatrixXformer,
 			TestNumberForHoa,      // tests sphericalHarmonic method
 			TestFoaMatrix,         // includes matrix encoders, decoders, xformers
 		].do(_.run)

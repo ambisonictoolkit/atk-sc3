@@ -340,8 +340,8 @@ HoaMatrixEncoder : HoaMatrix {
     }
 
 	// Modal Encoding beams - multi pattern
-	*newModes { |directions = ([[ 0, 0 ]]), k = \basic, match = \beam, order = (Hoa.defaultOrder)|
-        ^super.new('modes', order).initDirChannels(directions).initModes(k, match);
+	*newModeMatch { |directions = ([[ 0, 0 ]]), k = \basic, match = \beam, order = (Hoa.defaultOrder)|
+        ^super.new('modeMatch', order).initDirChannels(directions).initMode(k, match);
     }
 
 	// t-design wrapper for *newBeams
@@ -401,7 +401,7 @@ HoaMatrixEncoder : HoaMatrix {
     // ------------
 	// Multi-pattern (modal)
 
-    initModes {  |k, match| // modal encoder
+    initMode {  |k, match| // modal encoder
 		var directions, order;
 		var decodingMatrix;
 

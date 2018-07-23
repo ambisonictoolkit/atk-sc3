@@ -245,7 +245,6 @@ HoaMatrix : AtkMatrix {
 		this.matrix.zeroWithin(within);
 	}
 
-
 	// mix coefficients with a transform matrix
 	mixCoeffs { |coeffs|
 
@@ -276,6 +275,11 @@ HoaMatrix : AtkMatrix {
 
 	numChannels {
 		^Hoa.numOrderCoeffs(this.order)
+	}
+
+	// type is a classvar in AtkMatrix...
+	type {
+		^this.class.asString.drop("HoaMatrix".size).toLower.asSymbol
 	}
 
 	dim {
@@ -427,8 +431,6 @@ HoaMatrixEncoder : HoaMatrix {
 	dirInputs {
 		^this.dirChannels
 	}
-
-    type { ^\encoder }
 
 	initEncoderVarsForFiles {
 		dirChannels = if (fileParse.notNil) {
@@ -624,8 +626,6 @@ HoaMatrixXformer : HoaMatrix {
 	// }
 
     dim { ^3 }  // all transforms are 3D
-
-    type { ^\xformer }
 
 	dirOutputs {
 		^this.dirChannels
@@ -954,7 +954,5 @@ HoaMatrixDecoder : HoaMatrix {
 	dirOutputs {
 		^this.dirChannels
 	}
-
-	type { ^\decoder }
 
 }

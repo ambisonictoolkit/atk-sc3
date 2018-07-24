@@ -57,26 +57,12 @@
 		}).last;
 
 		// catch no designs
+		hoaDesign ?? {
+			"[TDesign:-init] No t-designs found in TDesignLib.lib matching "
+			"nPnts %, t >= %, dim %".format(numChans, 2*order, 3).throw
+		};
 
 		^super.new.init(hoaDesign[\numPoints], hoaDesign[\t], 3);
 	}
-
-	// initHoaTDesign { |numChans, order|
-	// 	var hoaDesigns;
-	//
-	// 	TDesignLib.lib ?? {TDesignLib.initLib};
-	//
-	// 	// find possible designs
-	// 	hoaDesigns= TDesignLib.getHoaDesigns(order);
-	//
-	// 	// catch no designs - empty array
-	//
-	// 	// matched design - set instance vars
-	// 	#nPnts, t, dim = hoaDesigns.select({ |item|
-	// 		item[\numPoints] == numChans
-	// 	}).last;
-	//
-	// 	this.prSaveInitState;
-	// }
 
 }

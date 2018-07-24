@@ -64,77 +64,16 @@ HoaMatrix : AtkMatrix {
 		})
 	}
 
-	initDirTDesign { |numChans, order|
+	initDirTDesign { |design, order|
 		var minT = 2 * order;
-		var designs, design, designIndex;
-		var allDesigns, validDesignIndices;
 
-		// init library - may need to catch an error here...
-		TDesignLib.initLib;
-
-		// retreive possible designs
-		designs = TDesignLib.getDesign(numChans);
-
-		// catch design of numChans not available
-		dirChannels = (designs.size != 0).if({
-
-			// sort by t
-			designs.sortBy(\t);
-
-			// select index for largest available t >= minT
-			// ... allows low to high order compatibility
-			designIndex = designs.selectIndices({ |des|
-				des[\t] >= minT
-			}).last;
-
-			// found a design for given order?
-			(designIndex != nil).if({
-				// retreive design
-				design = TDesign.new(
-					designs[designIndex][\numPoints],
-					designs[designIndex][\t],
-					designs[designIndex][\dim]
-				);
-
-				// return directions, e.g., dirChannels
-				design.directions.collect({|sph| sph.angles });
-			}, {
-				// no design found!
-				// report back possible choices
-
-				// find valid designs
-				allDesigns = TDesignLib.lib.asArray;
-
-				validDesignIndices = allDesigns.selectIndices({ |des|
-					des[\t] >= minT
-				});
-
-				"Available t-designs, numChans: ".post;
-				allDesigns[validDesignIndices].collect({ |des|
-					des[\numPoints]
-				}).sort.postcs;
-
-				format(
-					"A t-design of numChans % is not available for order %!",
-					numChans,
-					order
-				).throw
-
-				// // TODO: clean up error posting when call stack isn't useful?
-				// Error(
-				// 	format(
-				// 		"A t-design of numChans % is not available for order %!",
-				// 		numChans,
-				// 		order
-				// 	)
-				// ).errorString.postln;
-				//
-				// this.halt;
-			})
+		// check for valid t
+		(design.t >= minT).if({
+			dirChannels = design.directions
 		}, {
 			format(
-				"A t-design of numChans % is not available!",
-				numChans
+				"[HoaMatrix -initDirTDesign] A t-design of t >= % is required for order %.\nSupplied design t: ",
+				minT, order, design.t
 			).throw
 		})
 	}
@@ -344,12 +283,22 @@ HoaMatrixEncoder : HoaMatrix {
         ^super.new('modeMatch', order).initDirChannels(directions).initMode(k, match);
     }
 
-	// t-design wrapper for *newBeams
-    *newAtoB { |numChans = 4, k = \basic, order = (Hoa.defaultOrder)|
-        ^super.new('AtoB', order).initDirTDesign(numChans, order).initBeam(k, \beam);
-    }
+	// spherical design wrapper for *newBeams, match = \beam
+	*newSphericalDesign { |design, k = \basic, order = (Hoa.defaultOrder)|
+		var instance = super.new('spherical', order);
 
-    *newFromFile { arg filePathOrName, order = (Hoa.defaultOrder);
+		^switch
+		( design.class,
+			TDesign, { instance.initDirTDesign(design, order).initBeam(k, \beam) },  // TDesign only, for now
+			{ format(  // ... or, catch un-supported
+				"[HoaMatrixEncoder *newSphericalDesign] Design % is not supported!",
+				design.class
+			).throw
+			}
+		)
+	}
+
+	*newFromFile { arg filePathOrName, order = (Hoa.defaultOrder);
         ^super.new.initFromFile(filePathOrName, 'encoder', order, true).initEncoderVarsForFiles
     }
 
@@ -705,10 +654,20 @@ HoaMatrixDecoder : HoaMatrix {
 		^super.new('diametric', order).initDirChannels(directionPairs).initMMD(k, match)
 	}
 
-	// t-design wrapper for *newBeams
-    *newBtoA { |numChans = 4, k = \basic, order = (Hoa.defaultOrder)|
-        ^super.new('BtoA', order).initDirTDesign(numChans, order).initBeam(k, \beam);
-    }
+	// spherical design wrapper for *newBeams, match = \beam
+	*newSphericalDesign { |design, k = \basic, order = (Hoa.defaultOrder)|
+		var instance = super.new('spherical', order);
+
+		^switch
+		( design.class,
+			TDesign, { instance.initDirTDesign(design, order).initBeam(k, \beam) },  // TDesign only, for now
+			{ format(  // ... or, catch un-supported
+				"[HoaMatrixEncoder *newSphericalDesign] Design % is not supported!",
+				design.class
+			).throw
+			}
+		)
+	}
 
     // *newFromFile { arg filePathOrName;
     //     ^super.new.initFromFile(filePathOrName, 'decoder', true).initDecoderVarsForFiles;

@@ -909,7 +909,7 @@ HoaMatrixDecoder : HoaMatrix {
 		var encDirs, xyzEncDirs, xyzDecDirs;
 		var xyzDirections;
 		var encodingMatrix;
-		var g, g2, amp, energy, rms, ampAverage, energyAverage, rmsAverage;
+		var g, g2, amp, energy, rms;
 		var numDecHarms;
 		var rVxyz, rVsphr, rVmag, rVdir, rVu;
 		var rExyz, rEsphr, rEmag, rEdir, rEu;
@@ -948,20 +948,17 @@ HoaMatrixDecoder : HoaMatrix {
 		// use -squared rather than -abs.squared
 		g2 = g.squared;
 
-		// average pressure and pressure for each (test) encoding direction
-		ampAverage = this.matrix.sumCol(0);
+		// pressure for each (test) encoding direction
 		amp = g.sumCols;
 
-		// average energy and energy for each (test) encoding direction
-		energyAverage = this.matrix.squared.sum;
+		// energy for each (test) encoding direction
 		energy = g2.sumCols;
 
-		// rms
+		// rms for each (test) encoding direction
 		numDecHarms = this.dim.switch(
 			2, { (2 * this.order) + 1},  // 2D -- sectoral
 			3, { (this.order + 1).squared }   // 3D -- all
 		);
-		rmsAverage = (this.numChannels/numDecHarms) * energyAverage;
 		rms = (this.numChannels/numDecHarms) * energy;
 
 		// ------------
@@ -1020,9 +1017,6 @@ HoaMatrixDecoder : HoaMatrix {
 
 		// return
 		^Dictionary.with(*[
-			\ampAverage->ampAverage,
-			\rmsAverage->rmsAverage,
-			\energyAverage->energyAverage,
 			\amp->amp,
 			\rms->rms,
 			\energy->energy,
@@ -1034,6 +1028,39 @@ HoaMatrixDecoder : HoaMatrix {
 				\xyz->rExyz, \mag->rEmag, \directions->rEdir,
 				\err->rEerr, \rVerr->rVrEerr
 			]),
+		])
+	}
+
+	analyzeAverage {
+		var encodingMatrix;
+		var amp, energy, rms;
+		var numDecHarms;
+		// var rVmag, rEmag
+
+		// average pressure
+		amp = this.matrix.sumCol(0);
+
+		// average energy and energy for each (test) encoding direction
+		energy = this.matrix.squared.sum;
+
+		// rms
+		numDecHarms = this.dim.switch(
+			2, { (2 * this.order) + 1},  // 2D -- sectoral
+			3, { (this.order + 1).squared }   // 3D -- all
+		);
+		rms = (this.numChannels/numDecHarms) * energy;
+
+		// ------------
+		// rV
+
+		// ------------
+		// rE
+
+		// return
+		^Dictionary.with(*[
+			\amp->amp,
+			\rms->rms,
+			\energy->energy,
 		])
 	}
 

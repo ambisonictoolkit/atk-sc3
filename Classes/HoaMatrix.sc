@@ -888,19 +888,146 @@ HoaMatrixDecoder : HoaMatrix {
 		matrix = decodingMatrix.zeroWithin(Hoa.nearZero)
 	}
 
-    // initDecoderVarsForFiles {
-    //     if (fileParse.notNil) {
-    //         dirOutputs = if (fileParse.dirOutputs.notNil) {
-    //             fileParse.dirOutputs.asFloat
-    //         } { // output directions are unspecified in the provided matrix
-    //             matrix.rows.collect({ 'unspecified' })
-    //         };
-    //         shelfK = fileParse.shelfK !? {fileParse.shelfK.asFloat};
-    //         shelfFreq = fileParse.shelfFreq !? {fileParse.shelfFreq.asFloat};
-    //     } { // txt file provided, no fileParse
-    //         dirOutputs = matrix.rows.collect({ 'unspecified' });
-    //     };
-    // }
+	// initDecoderVarsForFiles {
+	//     if (fileParse.notNil) {
+	//         dirOutputs = if (fileParse.dirOutputs.notNil) {
+	//             fileParse.dirOutputs.asFloat
+	//         } { // output directions are unspecified in the provided matrix
+	//             matrix.rows.collect({ 'unspecified' })
+	//         };
+	//         shelfK = fileParse.shelfK !? {fileParse.shelfK.asFloat};
+	//         shelfFreq = fileParse.shelfFreq !? {fileParse.shelfFreq.asFloat};
+	//     } { // txt file provided, no fileParse
+	//         dirOutputs = matrix.rows.collect({ 'unspecified' });
+	//     };
+	// }
+
+	// ------------
+	// Analysis
+
+	analyzeDirections { |directions|
+		var encDirs, xyzEncDirs, xyzDecDirs;
+		var xyzDirections;
+		var encodingMatrix;
+		var g, g2, amp, energy, rms;
+		var numDecHarms;
+		var rVxyz, rVsphr, rVmag, rVdir, rVu;
+		var rExyz, rEsphr, rEmag, rEdir, rEu;
+		var rVerr, rEerr, rVrEerr;
+
+		// reshape (test) encoding directions, as need be...
+		// ... then find test unit vectors
+		xyzEncDirs = directions.rank.switch(
+			0, { Array.with(directions, 0.0).reshape(1, 2) },
+			1, { directions.collect({ |dir| Array.with(dir, 0.0)}) },
+			2, { directions },
+		).collect({ |thetaPhi|
+			Spherical.new(1, thetaPhi.at(0), thetaPhi.at(1)).asCartesian.asArray
+		});
+		// ... and back to [ theta, phi ]...
+		encDirs = xyzEncDirs.collect({ |xyz|  // wrap to [ +/-pi, +/-pi/2 ]
+			Cartesian.new(xyz.at(0), xyz.at(1), xyz.at(2), ).asSpherical.angles
+		});
+
+		// find decoding unit vectors
+		xyzDecDirs = this.dirChannels.collect({ |thetaPhi|
+			Spherical.new(1, thetaPhi.at(0), thetaPhi.at(1)).asCartesian.asArray
+		});
+
+		// encode test directions (basic), return encoding matrix
+		encodingMatrix = HoaMatrixEncoder.newDirections(
+			encDirs,
+			order: this.order
+		).matrix;
+
+		// decode, to return resulting loudspeaker gains (amps)
+		// for each (test) encoding direction
+		g = this.matrix.mulMatrix(encodingMatrix);
+
+		// energy, expected matrix is Real only,
+		// use -squared rather than -abs.squared
+		g2 = g.squared;
+
+		// total pressure and energy, for each (test) encoding direction
+		amp = g.sumCols;
+		energy = g2.sumCols;
+
+		// rms
+		numDecHarms = this.dim.switch(
+			2, { (2 * this.order) + 1},  // 2D -- sectoral
+			3, { (this.order + 1).squared }   // 3D -- all
+		);
+		rms = (this.numChannels/numDecHarms) * energy;
+
+		// ------------
+		// rV
+
+		// rV vector, expected matrix is Real only
+		rVxyz = g.flop.mulMatrix(Matrix.with(xyzDecDirs)) / amp;
+		rVxyz = Matrix.with(rVxyz).zeroWithin(Hoa.nearZero).asArray;
+
+		// in spherical, for convenience to find rVmag, rVdir
+		rVsphr = rVxyz.collect({ |xyz|
+			var x, y, z;
+			#x, y, z = xyz;
+			Cartesian.new(x, y, z).asSpherical
+		});
+		rVmag = rVsphr.collect({ |sphr| sphr.rho });
+		rVdir = rVsphr.collect({ |sphr| sphr.angles });
+
+		// normalize rVxyz to unit vector
+		rVu = rVxyz / rVmag;
+
+		// ------------
+		// rE
+
+		// rE vector, expected matrix is Real only
+		rExyz = g2.flop.mulMatrix(Matrix.with(xyzDecDirs)) / energy;
+		rExyz = Matrix.with(rExyz).zeroWithin(Hoa.nearZero).asArray;
+
+		// in spherical, for convenience to find rVmag, rVdir
+		rEsphr = rExyz.collect({ |xyz|
+			var x, y, z;
+			#x, y, z = xyz;
+			Cartesian.new(x, y, z).asSpherical
+		});
+		rEmag = rEsphr.collect({ |sphr| sphr.rho });
+		rEdir = rEsphr.collect({ |sphr| sphr.angles });
+
+		// normalize rVxyz to unit vector
+		rEu = rExyz / rEmag;
+
+		// ------------
+		// measure rV & rE direction distortion
+
+		// (test) encoding directions vs rV
+		rVerr = (xyzEncDirs * rVu).collect({ |item|  	// arccos(dot product)
+			item.sum.acos
+		});
+		// (test) encoding directions vs rE
+		rEerr = (xyzEncDirs * rEu).collect({ |item|  	// arccos(dot product)
+			item.sum.acos
+		});
+		// rV vs rE
+		rVrEerr = (rVu * rEu).collect({ |item|  	// arccos(dot product)
+			item.sum.acos
+		});
+
+		// return
+		^Dictionary.with(*[
+			\amp->amp,
+			\energy->energy,
+			\rms->rms,
+			\rV->Dictionary.with(*[
+				\xyz->rVxyz, \mag->rVmag, \directions->rVdir,
+				\err->rVerr, \rEerr->rVrEerr
+			]),
+			\rE->Dictionary.with(*[
+				\xyz->rExyz, \mag->rEmag, \directions->rEdir,
+				\err->rEerr, \rVerr->rVrEerr
+			]),
+		])
+	}
 
 	numChannels {
 		^this.numOutputs

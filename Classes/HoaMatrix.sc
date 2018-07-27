@@ -909,7 +909,7 @@ HoaMatrixDecoder : HoaMatrix {
 		var encDirs, xyzEncDirs, xyzDecDirs;
 		var xyzDirections;
 		var encodingMatrix;
-		var g, g2, amp, energy, rms;
+		var g, g2, amp, energy, rms, ampAverage, energyAverage, rmsAverage;
 		var numDecHarms;
 		var rVxyz, rVsphr, rVmag, rVdir, rVu;
 		var rExyz, rEsphr, rEmag, rEdir, rEu;
@@ -948,8 +948,12 @@ HoaMatrixDecoder : HoaMatrix {
 		// use -squared rather than -abs.squared
 		g2 = g.squared;
 
-		// total pressure and energy, for each (test) encoding direction
+		// average pressure and pressure for each (test) encoding direction
+		ampAverage = this.matrix.sumCol(0);
 		amp = g.sumCols;
+
+		// average energy and energy for each (test) encoding direction
+		energyAverage = this.matrix.squared.sum;
 		energy = g2.sumCols;
 
 		// rms
@@ -957,6 +961,7 @@ HoaMatrixDecoder : HoaMatrix {
 			2, { (2 * this.order) + 1},  // 2D -- sectoral
 			3, { (this.order + 1).squared }   // 3D -- all
 		);
+		rmsAverage = (this.numChannels/numDecHarms) * energyAverage;
 		rms = (this.numChannels/numDecHarms) * energy;
 
 		// ------------
@@ -1015,9 +1020,12 @@ HoaMatrixDecoder : HoaMatrix {
 
 		// return
 		^Dictionary.with(*[
+			\ampAverage->ampAverage,
+			\rmsAverage->rmsAverage,
+			\energyAverage->energyAverage,
 			\amp->amp,
-			\energy->energy,
 			\rms->rms,
+			\energy->energy,
 			\rV->Dictionary.with(*[
 				\xyz->rVxyz, \mag->rVmag, \directions->rVdir,
 				\err->rVerr, \rEerr->rVrEerr

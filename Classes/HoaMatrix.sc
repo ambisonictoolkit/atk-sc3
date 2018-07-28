@@ -1034,21 +1034,25 @@ HoaMatrixDecoder : HoaMatrix {
 	analyzeAverage {
 		var encodingMatrix;
 		var amp, energy, rms;
+		var meanE;
 		var numDecHarms;
 		// var rVmag, rEmag
 
 		// average pressure
 		amp = this.matrix.sumCol(0);
 
-		// average energy and energy for each (test) encoding direction
+		// average energy
 		energy = this.matrix.squared.sum;
 
-		// rms
+		// average rms
 		numDecHarms = this.dim.switch(
 			2, { (2 * this.order) + 1},  // 2D -- sectoral
 			3, { (this.order + 1).squared }   // 3D -- all
 		);
 		rms = (this.numChannels/numDecHarms) * energy;
+
+		// meanE
+		meanE = this.numChannels * energy / amp.squared;
 
 		// ------------
 		// rV
@@ -1061,6 +1065,7 @@ HoaMatrixDecoder : HoaMatrix {
 			\amp->amp,
 			\rms->rms,
 			\energy->energy,
+			\meanE->meanE,
 		])
 	}
 

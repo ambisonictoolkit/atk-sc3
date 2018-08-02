@@ -48,10 +48,16 @@
 
 + TDesignLib {
 
-	// return an array of all designs with t >= 2 * order
-	*getHoaDesigns{ |order|
+	// return an array of all designs, optimized for order
+	*getHoaDesigns{ |optimize = \energy, order = (Hoa.defaultOrder)|
 		var minT = 2 * order;
 		var designList;
+
+		minT = switch
+		( optimize,
+			\energy, { 2 * order },  // energy
+			\spreadE, { 2 * order + 1 },  // energy spread
+		);
 
 		lib ?? {this.initLib};
 

@@ -913,6 +913,7 @@ HoaMatrixDecoder : HoaMatrix {
 		var numDecHarms;
 		var rVxyz, rVsphr, rVmag, rVdir, rVu;
 		var rExyz, rEsphr, rEmag, rEdir, rEu;
+		var spreadE;
 		var rVerr, rEerr, rVrEerr;
 
 		// reshape (test) encoding directions, as need be...
@@ -999,6 +1000,10 @@ HoaMatrixDecoder : HoaMatrix {
 		// normalize rVxyz to unit vector
 		rEu = rExyz / rEmag;
 
+		// find energy spread
+		spreadE = 2 * ((2 * rEmag) - 1).acos;  // Carpentier, Politis
+		// spreadE = 2 * rEmag.acos;  // Zotter & Frank
+
 		// ------------
 		// measure rV & rE direction distortion
 
@@ -1020,6 +1025,7 @@ HoaMatrixDecoder : HoaMatrix {
 			\amp->amp,
 			\rms->rms,
 			\energy->energy,
+			\spreadE->spreadE,
 			\rV->Dictionary.with(*[
 				\xyz->rVxyz, \mag->rVmag, \directions->rVdir,
 				\err->rVerr, \rEerr->rVrEerr
@@ -1032,24 +1038,36 @@ HoaMatrixDecoder : HoaMatrix {
 	}
 
 	analyzeAverage {
-		var encodingMatrix;
+		var testMatrix;
 		var amp, energy, rms;
 		var meanE;
-		var numDecHarms;
-		// var rVmag, rEmag
+		var numCoeffs;
+
+		// Resolve testing matrix: 2D or 3D
+		this.dim.switch(
+			2, {  // 2D -- N2D
+				testMatrix = this.matrix.mulMatrix(
+					HoaMatrixEncoder.newFormat(
+						[\acn, \n2d],
+						this.order
+					).matrix
+				);
+				numCoeffs = (2 * this.order) + 1  // sectoral coeffs
+			},
+			3, {  // 3D -- N3D
+				testMatrix = this.matrix;
+				numCoeffs = (this.order + 1).squared  // all coeffs
+			}
+		);
 
 		// average pressure
-		amp = this.matrix.sumCol(0);
+		amp = testMatrix.sumCol(0);
 
 		// average energy
-		energy = this.matrix.squared.sum;
+		energy = testMatrix.squared.sum;
 
 		// average rms
-		numDecHarms = this.dim.switch(
-			2, { (2 * this.order) + 1},  // 2D -- sectoral
-			3, { (this.order + 1).squared }   // 3D -- all
-		);
-		rms = (this.numChannels/numDecHarms) * energy;
+		rms = (this.numChannels/numCoeffs) * energy;
 
 		// meanE
 		meanE = this.numChannels * energy / amp.squared;
@@ -1066,6 +1084,11 @@ HoaMatrixDecoder : HoaMatrix {
 			\rms->rms,
 			\energy->energy,
 			\meanE->meanE,
+			\matchWeight->Dictionary.with(*[
+				\amp->amp.reciprocal,
+				\rms->rms.sqrt.reciprocal,
+				\energy->energy.sqrt.reciprocal,
+			])
 		])
 	}
 

@@ -201,7 +201,13 @@ HoaOrder {
         })
     }
 
-    // 'l’énergie réduite E' for an Ambisonic decoder
+    // maximum average energy spread for an Ambisonic decoder
+    spreadE { |k = 'basic', dim = 3|
+		^2 * ((2 * this.rE(k, dim)) - 1).acos  // Carpentier, Politis
+		// ^2 * this.rE(k, dim)).acos;  // Zotter & Frank
+    }
+
+	// 'l’énergie réduite E' for an Ambisonic decoder
     meanE { |k = 'basic', dim = 3|
         var m = this.order;
         var beamWeights;

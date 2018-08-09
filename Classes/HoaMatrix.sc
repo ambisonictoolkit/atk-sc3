@@ -574,6 +574,40 @@ HoaMatrixXformer : HoaMatrix {
 	// 	^super.new.initFromFile(filePathOrName, 'xformer', true);
 	// }
 
+	// ------------
+	// Analysis
+
+	analyzeAverage {
+		var amp, energy, rms;
+
+		// average pressure
+		amp = this.matrix.get(0, 0);
+
+		// average energy
+		energy = this.matrix.squared.sum / this.numChannels;
+
+		// average rms: numChannels = numCoeffs
+		rms = energy;
+
+		// ------------
+		// rV
+
+		// ------------
+		// rE
+
+		// return
+		^Dictionary.with(*[
+			\amp->amp,
+			\rms->rms,
+			\energy->energy,
+			\matchWeight->Dictionary.with(*[
+				\amp->amp.reciprocal,
+				\rms->rms.sqrt.reciprocal,
+				\energy->energy.sqrt.reciprocal,
+			])
+		])
+	}
+
     dim { ^3 }  // all transforms are 3D
 
 	dirOutputs {

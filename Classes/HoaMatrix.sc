@@ -577,8 +577,169 @@ HoaMatrixXformer : HoaMatrix {
 	// ------------
 	// Analysis
 
+	analyzeDirections { |directions|
+		var encDirs, xyzEncDirs;
+		var encodingMatrix;
+		var b, b2, amp, energy, rms;
+		var designDict, design;
+		var g, g2, e;
+		var rVxyz, rVsphr, rVmag, rVdir, rVu;
+		var rExyz, rEsphr, rEmag, rEdir, rEu;
+		var spreadE;
+		var rVdist, rEdist, rVrEdist;
+
+		// reshape (test) encoding directions, as need be...
+		// ... then find test unit vectors
+		xyzEncDirs = directions.rank.switch(
+			0, { Array.with(directions, 0.0).reshape(1, 2) },
+			1, { directions.collect({ |dir| Array.with(dir, 0.0)}) },
+			2, { directions },
+		).collect({ |thetaPhi|
+			Spherical.new(1, thetaPhi.at(0), thetaPhi.at(1)).asCartesian.asArray
+		});
+		// ... and back to [ theta, phi ]...
+		encDirs = xyzEncDirs.collect({ |xyz|  // wrap to [ +/-pi, +/-pi/2 ]
+			Cartesian.new(xyz.at(0), xyz.at(1), xyz.at(2), ).asSpherical.angles
+		});
+
+		// encode test directions (basic), return encoding matrix
+		encodingMatrix = HoaMatrixEncoder.newDirections(
+			encDirs,
+			order: this.order
+		).matrix;
+
+		// encode, to return resulting spherical coefficients
+		// for each (test) encoding direction
+		b = this.matrix.mulMatrix(encodingMatrix);
+
+		// energy, expected matrix is Real only,
+		// use -squared rather than -abs.squared
+		b2 = b.squared;
+
+		// pressure for each (test) encoding direction
+		amp = b.getRow(0);
+
+		// energy for each (test) encoding direction
+		energy = b2.sumCols / (this.order + 1).squared;
+
+		// rms for each (test) encoding direction
+		rms = energy;
+
+		// ------------
+		// rV
+
+		// rV (Active Admittance) can be directly found from
+		// the Real degree 0 & 1 SN3D spherical coefficients
+		// for each (test) encoding direction
+		rVxyz = HoaMatrixDecoder.newFormat(
+			[\acn, \sn3d],
+			this.order
+		).matrix.mulMatrix(b).flop.asArray.collect({ |bSn3d|
+			(bSn3d[HoaDegree.new(1).indices] / bSn3d[HoaDegree.new(0).indices]).rotate(1)
+		});
+		rVxyz = Matrix.with(rVxyz).zeroWithin(Hoa.nearZero).asArray;
+
+		// in spherical, for convenience to find rVmag, rVdir
+		rVsphr = rVxyz.collect({ |xyz|
+			var x, y, z;
+			#x, y, z = xyz;
+			Cartesian.new(x, y, z).asSpherical
+		});
+		rVmag = rVsphr.collect({ |sphr| sphr.rho });
+		rVdir = rVsphr.collect({ |sphr| sphr.angles });
+
+		// normalize rVxyz to unit vector
+		rVu = rVxyz / rVmag;
+
+		// ------------
+		// rE
+
+		// decode transformed test directions to energy optimized sphere,
+		// to return resulting virtual loudspeaker gains (amps)
+		// for each (test) encoding direction
+		designDict = TDesignLib.getHoaDesigns(\spreadE, this.order).first;
+		design = TDesign.new(designDict[\numPoints], designDict[\t], designDict[\dim]);
+
+		g = HoaMatrixDecoder.newSphericalDesign(
+			design,
+			\energy,
+			this.order
+		).matrix.mulMatrix(b);
+
+		// energy, expected matrix is Real only,
+		// use -squared rather than -abs.squared
+		g2 = g.squared;
+
+		// re-encode from energy optimized sphere
+		e = HoaMatrixEncoder.newSphericalDesign(
+			design,
+			\basic,
+			this.order
+		).matrix.mulMatrix(g2);
+
+		// rE (as energy optimized Active Admittance) can be directly found from
+		// the Real degree 0 & 1 SN3D spherical coefficients
+		// for each (test) encoding direction
+		rExyz = HoaMatrixDecoder.newFormat(
+			[\acn, \sn3d],
+			this.order
+		).matrix.mulMatrix(e).flop.asArray.collect({ |bSn3d|
+			(bSn3d[HoaDegree.new(1).indices] / bSn3d[HoaDegree.new(0).indices]).rotate(1)
+		});
+		rExyz = Matrix.with(rExyz).zeroWithin(Hoa.nearZero).asArray;
+
+		// in spherical, for convenience to find rEmag, rEdir
+		rEsphr = rExyz.collect({ |xyz|
+			var x, y, z;
+			#x, y, z = xyz;
+			Cartesian.new(x, y, z).asSpherical
+		});
+		rEmag = rEsphr.collect({ |sphr| sphr.rho });
+		rEdir = rEsphr.collect({ |sphr| sphr.angles });
+
+		// normalize rExyz to unit vector
+		rEu = rExyz / rEmag;
+
+		// find energy spread
+		spreadE = 2 * ((2 * rEmag) - 1).acos;  // Carpentier, Politis: ~-6dB
+		// spreadE = 2 * rEmag.acos;  // Zotter & Frank: ~-3dB
+
+		// ------------
+		// measure rV & rE direction distortion
+
+		// (test) encoding directions vs rV
+		rVdist = (xyzEncDirs * rVu).collect({ |item|  	// arccos(dot product)
+			item.sum.acos
+		});
+		// (test) encoding directions vs rE
+		rEdist = (xyzEncDirs * rEu).collect({ |item|  	// arccos(dot product)
+			item.sum.acos
+		});
+		// rV vs rE
+		rVrEdist = (rVu * rEu).collect({ |item|  	// arccos(dot product)
+			item.sum.acos
+		});
+
+		// return
+		^Dictionary.with(*[
+			\amp->amp,
+			\rms->rms,
+			\energy->energy,
+			\spreadE->spreadE,
+			\rV->Dictionary.with(*[
+				\xyz->rVxyz, \mag->rVmag, \directions->rVdir,
+				\dist->rVdist, \rEdist->rVrEdist
+			]),
+			\rE->Dictionary.with(*[
+				\xyz->rExyz, \mag->rEmag, \directions->rEdir,
+				\dist->rEdist, \rVdist->rVrEdist
+			]),
+		])
+	}
+
 	analyzeAverage {
 		var amp, energy, rms;
+		var meanE;
 
 		// average pressure
 		amp = this.matrix.get(0, 0);
@@ -589,17 +750,15 @@ HoaMatrixXformer : HoaMatrix {
 		// average rms: numChannels = numCoeffs
 		rms = energy;
 
-		// ------------
-		// rV
-
-		// ------------
-		// rE
+		// meanE
+		meanE = this.numChannels * energy / amp.squared;
 
 		// return
 		^Dictionary.with(*[
 			\amp->amp,
 			\rms->rms,
 			\energy->energy,
+			\meanE->meanE,
 			\matchWeight->Dictionary.with(*[
 				\amp->amp.reciprocal,
 				\rms->rms.sqrt.reciprocal,
@@ -941,14 +1100,13 @@ HoaMatrixDecoder : HoaMatrix {
 
 	analyzeDirections { |directions|
 		var encDirs, xyzEncDirs, xyzDecDirs;
-		var xyzDirections;
 		var encodingMatrix;
 		var g, g2, amp, energy, rms;
 		var numDecHarms;
 		var rVxyz, rVsphr, rVmag, rVdir, rVu;
 		var rExyz, rEsphr, rEmag, rEdir, rEu;
 		var spreadE;
-		var rVerr, rEerr, rVrEerr;
+		var rVdist, rEdist, rVrEdist;
 
 		// reshape (test) encoding directions, as need be...
 		// ... then find test unit vectors
@@ -1022,7 +1180,7 @@ HoaMatrixDecoder : HoaMatrix {
 		rExyz = g2.flop.mulMatrix(Matrix.with(xyzDecDirs)) / energy;
 		rExyz = Matrix.with(rExyz).zeroWithin(Hoa.nearZero).asArray;
 
-		// in spherical, for convenience to find rVmag, rVdir
+		// in spherical, for convenience to find rEmag, rEdir
 		rEsphr = rExyz.collect({ |xyz|
 			var x, y, z;
 			#x, y, z = xyz;
@@ -1031,26 +1189,26 @@ HoaMatrixDecoder : HoaMatrix {
 		rEmag = rEsphr.collect({ |sphr| sphr.rho });
 		rEdir = rEsphr.collect({ |sphr| sphr.angles });
 
-		// normalize rVxyz to unit vector
+		// normalize rExyz to unit vector
 		rEu = rExyz / rEmag;
 
 		// find energy spread
-		spreadE = 2 * ((2 * rEmag) - 1).acos;  // Carpentier, Politis
-		// spreadE = 2 * rEmag.acos;  // Zotter & Frank
+		spreadE = 2 * ((2 * rEmag) - 1).acos;  // Carpentier, Politis: ~-6dB
+		// spreadE = 2 * rEmag.acos;  // Zotter & Frank: ~-3dB
 
 		// ------------
 		// measure rV & rE direction distortion
 
 		// (test) encoding directions vs rV
-		rVerr = (xyzEncDirs * rVu).collect({ |item|  	// arccos(dot product)
+		rVdist = (xyzEncDirs * rVu).collect({ |item|  	// arccos(dot product)
 			item.sum.acos
 		});
 		// (test) encoding directions vs rE
-		rEerr = (xyzEncDirs * rEu).collect({ |item|  	// arccos(dot product)
+		rEdist = (xyzEncDirs * rEu).collect({ |item|  	// arccos(dot product)
 			item.sum.acos
 		});
 		// rV vs rE
-		rVrEerr = (rVu * rEu).collect({ |item|  	// arccos(dot product)
+		rVrEdist = (rVu * rEu).collect({ |item|  	// arccos(dot product)
 			item.sum.acos
 		});
 
@@ -1062,11 +1220,11 @@ HoaMatrixDecoder : HoaMatrix {
 			\spreadE->spreadE,
 			\rV->Dictionary.with(*[
 				\xyz->rVxyz, \mag->rVmag, \directions->rVdir,
-				\err->rVerr, \rEerr->rVrEerr
+				\dist->rVdist, \rEdist->rVrEdist
 			]),
 			\rE->Dictionary.with(*[
 				\xyz->rExyz, \mag->rEmag, \directions->rEdir,
-				\err->rEerr, \rVerr->rVrEerr
+				\dist->rEdist, \rVdist->rVrEdist
 			]),
 		])
 	}
@@ -1105,12 +1263,6 @@ HoaMatrixDecoder : HoaMatrix {
 
 		// meanE
 		meanE = this.numChannels * energy / amp.squared;
-
-		// ------------
-		// rV
-
-		// ------------
-		// rE
 
 		// return
 		^Dictionary.with(*[

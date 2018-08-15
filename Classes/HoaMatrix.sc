@@ -700,9 +700,11 @@ HoaMatrixXformer : HoaMatrix {
 		// normalize rExyz to unit vector
 		rEu = rExyz / rEmag;
 
-		// find energy spread
-		spreadE = 2 * ((2 * rEmag) - 1).acos;  // Carpentier, Politis: ~-6dB
-		// spreadE = 2 * rEmag.acos;  // Zotter & Frank: ~-3dB
+		// find 1/2 angle energy spread
+		spreadE = Dictionary.with(*[
+			\cos->rEmag.acos,  // Zotter & Frank: ~-3dB
+			\hvc->((2 * rEmag) - 1).acos  // Carpentier, Politis: ~-6dB
+		]);
 
 		// ------------
 		// measure rV & rE direction distortion
@@ -1192,9 +1194,11 @@ HoaMatrixDecoder : HoaMatrix {
 		// normalize rExyz to unit vector
 		rEu = rExyz / rEmag;
 
-		// find energy spread
-		spreadE = 2 * ((2 * rEmag) - 1).acos;  // Carpentier, Politis: ~-6dB
-		// spreadE = 2 * rEmag.acos;  // Zotter & Frank: ~-3dB
+		// find 1/2 angle energy spread
+		spreadE = Dictionary.with(*[
+			\cos->rEmag.acos,  // Zotter & Frank: ~-3dB
+			\hvc->((2 * rEmag) - 1).acos  // Carpentier, Politis: ~-6dB
+		]);
 
 		// ------------
 		// measure rV & rE direction distortion

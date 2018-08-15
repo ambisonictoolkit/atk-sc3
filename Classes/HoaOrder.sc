@@ -166,12 +166,12 @@ HoaOrder {
     */
 
     // maximum average rV for an Ambisonic decoder
-    rV { |k = 'basic', dim = 3|
+    rV { |beamShape = 'basic', dim = 3|
         var m = this.order;
 
-        ^switch( k,
+        ^switch( beamShape,
             'basic', { 1 },
-            'energy', { this.rE(k, dim) },
+            'energy', { this.rE(beamShape, dim) },
             'controlled', {
                 (dim == 2).if({
                     m / (m + 1)  // 2D
@@ -183,10 +183,10 @@ HoaOrder {
     }
 
     // maximum average rE for an Ambisonic decoder
-    rE { |k = 'basic', dim = 3|
+    rE { |beamShape = 'basic', dim = 3|
         var m = this.order;
 
-        ^(k == 'energy').if({
+        ^(beamShape == 'energy').if({
             (dim == 2).if ({
                 chebyshevTZeros(m+1).maxItem  // 2D
             }, {
@@ -202,19 +202,19 @@ HoaOrder {
     }
 
     // 1/2 angle maximum average energy spread for an Ambisonic decoder
-	spreadE { |k = 'basic', dim = 3|
+	spreadE { |beamShape = 'basic', dim = 3|
 		^Dictionary.with(*[
-			\cos->this.rE(k, dim).acos,  // Zotter & Frank: ~-3dB
-			\hvc->((2 * this.rE(k, dim)) - 1).acos  // Carpentier, Politis: ~-6dB
+			\cos->this.rE(beamShape, dim).acos,  // Zotter & Frank: ~-3dB
+			\hvc->((2 * this.rE(beamShape, dim)) - 1).acos  // Carpentier, Politis: ~-6dB
 		])
 	}
 
 	// 'l’énergie réduite E' for an Ambisonic decoder
-    meanE { |k = 'basic', dim = 3|
+    meanE { |beamShape = 'basic', dim = 3|
         var m = this.order;
         var beamWeights;
 
-        beamWeights = this.beamWeights(k, dim);
+        beamWeights = this.beamWeights(beamShape, dim);
 
         ^(dim == 2).if({
             beamWeights.removeAt(0).squared + (2*beamWeights.squared.sum) // 2D
@@ -224,7 +224,7 @@ HoaOrder {
     }
 
     // 'matching gain' (scale) for a given Ambisonic decoder
-    matchWeight { |k = 'basic', dim = 3, match = 'amp', numSpkrs = nil|
+    matchWeight { |beamShape = 'basic', dim = 3, match = 'amp', numSpkrs = nil|
         var m = this.order;
         var n;
 
@@ -236,24 +236,24 @@ HoaOrder {
                 }, {
                     n = (m + 1).squared  // 3D
                 });
-                (n/this.meanE(k, dim)).sqrt
+                (n/this.meanE(beamShape, dim)).sqrt
             },
             'energy', {
                 n = numSpkrs;
-                (n/this.meanE(k, dim)).sqrt
+                (n/this.meanE(beamShape, dim)).sqrt
             }
         )
     }
 
     // beamWeights, aka, "decoder order gains" or Gamma vector of per-degree (beam forming) scalars
-    beamWeights { |k = 'basic', dim = 3|
+    beamWeights { |beamShape = 'basic', dim = 3|
         var m = this.order;
         var max_rE;
 
-        ^switch( k,
+        ^switch( beamShape,
             'basic', { 1.dup(m + 1) },
             'energy', {
-                max_rE = this.rE(k, dim);
+                max_rE = this.rE(beamShape, dim);
                 (dim == 2).if({ // 2D
                     (m+1).collect({ |degree|
                         chebyshevT(degree, max_rE)

@@ -538,7 +538,7 @@ HoaNFCtrl : HoaUGen {
 // Gain matched to beam.
 HoaBeam : HoaUGen {
 
-	*ar { |in, theta, phi, radius, k = \basic, order = (Hoa.defaultOrder), mul = 1, add = 0|
+	*ar { |in, theta, phi, radius, beamShape = \basic, order = (Hoa.defaultOrder), mul = 1, add = 0|
 		var n, basicCoeffs, beamCoeffs, toPhi;
 		var hoaOrder, degreeSeries, beamWeights;
 		var rotateTumble, weighted, mono, zenith, tumbleRotate;
@@ -552,7 +552,7 @@ HoaBeam : HoaUGen {
 		degreeSeries = Array.series(n+1, 1, 2);
 
 		// 1) generate and normalize beam weights
-		beamWeights = hoaOrder.beamWeights(k);
+		beamWeights = hoaOrder.beamWeights(beamShape);
 		beamWeights = beamWeights / (degreeSeries * beamWeights).sum;
 
 		// 2) generate basic (real) coefficients at zenith and optimize near-zeros out
@@ -650,11 +650,11 @@ HoaBeam : HoaUGen {
 // Gain matched to beam.
 HoaNull : HoaUGen {
 
-	*ar { |in, theta, phi, radius, k = \basic, order = (Hoa.defaultOrder), mul = 1, add = 0|
+	*ar { |in, theta, phi, radius, beamShape = \basic, order = (Hoa.defaultOrder), mul = 1, add = 0|
 		var null;
 
 		// form null
-		null = in - HoaBeam.ar(in, theta, phi, radius, k, order);
+		null = in - HoaBeam.ar(in, theta, phi, radius, beamShape, order);
 
 		^null.madd(mul, add)
 	}
@@ -668,7 +668,7 @@ HoaNull : HoaUGen {
 // Gain matched to beam.
 HoaDecodeDirection : HoaUGen {
 
-	*ar { |in, theta, phi, radius, k = \basic, order = (Hoa.defaultOrder), mul = 1, add = 0|
+	*ar { |in, theta, phi, radius, beamShape = \basic, order = (Hoa.defaultOrder), mul = 1, add = 0|
 		var n, coeffs, toPhi;
 		var hoaOrder, degreeSeries, beamWeights;
 		var rotateTumble, weighted;
@@ -682,7 +682,7 @@ HoaDecodeDirection : HoaUGen {
 		degreeSeries = Array.series(n+1, 1, 2);
 
 		// 1) generate and normalize beam weights
-		beamWeights = hoaOrder.beamWeights(k);
+		beamWeights = hoaOrder.beamWeights(beamShape);
 		beamWeights = beamWeights / (degreeSeries * beamWeights).sum;
 
 		// 2) generate basic (real) coefficients at zenith and optimize near-zeros out

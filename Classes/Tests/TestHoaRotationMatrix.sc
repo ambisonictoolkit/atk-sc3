@@ -80,13 +80,13 @@ TestHoaRotationMatrix : UnitTest {
 
 		// generate the planewaves from the initial directions
 		initializedPws = initialDirs.collect{|sph|
-			HoaEncoderMatrix.newDirection(sph.theta, sph.phi, order: argOrder ?? order).matrix.flop.getRow(0);
+			HoaMatrixEncoder.newDirection(sph.theta, sph.phi, order: argOrder ?? order).matrix.flop.getRow(0);
 		};
 
 		// Encode the rotated directions as planewaves.
 		// These are the targets for comparison
 		targetPws = rotatedDirs.collect{|sph|
-			HoaEncoderMatrix.newDirection(sph.theta, sph.phi, order: argOrder ?? order).matrix.flop.getRow(0);
+			HoaMatrixEncoder.newDirection(sph.theta, sph.phi, order: argOrder ?? order).matrix.flop.getRow(0);
 		};
 	}
 
@@ -170,10 +170,10 @@ TestHoaRotationMatrix : UnitTest {
 			// A first order planewave, encoded with HOA rotation matrix
 			test = (
 				HoaRotationMatrix(rtt.at(0), rtt.at(1), rtt.at(2), 'zxy', 1).matrix *
-				HoaEncoderMatrix.newDirection(0,0, order: 1).matrix;
+				HoaMatrixEncoder.newDirection(0, 0, order: 1).matrix;
 			);
 			// "decode" the HOA (acn-n3d) to FOA (fuma-maxN), for test comparison
-			test = HoaDecoderMatrix.newFormat(\fuma, 1).matrix * test;
+			test = HoaMatrixDecoder.newFormat(\fuma, 1).matrix * test;
 			// test
 			ref.round(0.00001) == test.round(0.00001)
 		};

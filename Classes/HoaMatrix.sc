@@ -50,6 +50,61 @@
 
 HoaMatrix : AtkMatrix {
 
+	// call by subclass, only
+	*newFromMatrix { |matrix, directions = ([[ 0, 0 ]]), order = (Hoa.defaultOrder)|
+		^super.new('fromMatrix', order).initDirChannels(directions).initFromMatrix(matrix)
+	}
+
+	initFromMatrix { |aMatrix|
+		var numCoeffs, matrixOrder;
+
+		// set instance matrix
+		matrix = aMatrix;
+
+		// 1) Check: matrix numChannels == directions.size
+		(this.numChannels != this.dirChannels.size).if({
+			Error(
+				format(
+					"[%:-initFromMatrix] Matrix number of channels "
+					"should matches directions. Number of channels = %, number of directions = %",
+					this.class.asString, this.numChannels, this.dirChannels.size
+				)
+			).errorString.postln;
+			this.halt;
+		});
+
+		// 2) Check: matrix numCoeffs == declared order
+		numCoeffs = switch (this.type,
+			'encoder', {matrix.rows},
+			'decoder', {matrix.cols},
+			'xformer', {matrix.rows},
+		);
+		matrixOrder = Hoa.detectOrder(numCoeffs);
+
+		(this.order != matrixOrder).if({
+			Error(
+				format(
+					"[%:-initFromMatrix] Order specified doesn't match order "
+					"detected from the size of the matrix. (specified: %, detected: %)",
+					this.class.asString, this.order, matrixOrder
+				)
+			).errorString.postln;
+			this.halt;
+		});
+
+		// 3) Check: xformer is square matrix
+		((this.type == 'xformer') && (matrix.isSquare.not)).if({
+			Error(
+				format(
+					"[%:-initFromMatrix] An 'xformer' matrix "
+					"should be square. rows = %, cols = %",
+					this.class.asString, matrix.rows, matrix.cols
+				)
+			).errorString.postln;
+			this.halt;
+		})
+	}
+
 	initDirChannels { |directions|
 		dirChannels = (directions == nil).if({
 			Hoa.numOrderCoeffs(this.order).collect({ inf })
@@ -201,24 +256,19 @@ HoaMatrix : AtkMatrix {
 
 	// ---------
 	// return info
-    printOn { |stream|
-        stream << this.class.name << "(" <<* [kind, this.dim, this.numChannels] <<")";
-    }
 
-	// replaced by instance variable in AtkMatrix
-	// order { ^this.set.asString.drop(3).asInteger }
+	// infer from subclass and order
+	set { ^(this.class.asString.keep(3).toUpper ++ this.order.asString).asSymbol }
 
-	numInputs { ^matrix.cols }
-
-	numOutputs { ^matrix.rows }
+	// infer from subclass
+	type { ^this.class.asString.keep(-7).toLower.asSymbol }
 
 	numChannels {
-		^Hoa.numOrderCoeffs(this.order)
-	}
-
-	// type is a classvar in AtkMatrix...
-	type {
-		^this.class.asString.drop("HoaMatrix".size).toLower.asSymbol
+		^switch( this.type,
+			'\encoder', { this.numInputs },
+			'\decoder', { this.numOutputs },
+			'\xformer', { Hoa.numOrderCoeffs(this.order) }
+		)
 	}
 
 	dim {
@@ -369,18 +419,6 @@ HoaMatrixEncoder : HoaMatrix {
 		matrix = decodingMatrix.pseudoInverse.zeroWithin(Hoa.nearZero)
 	}
 
-	numChannels {
-		^this.numInputs
-	}
-
-	dirOutputs {
-		^this.numOutputs.collect({ inf })
-	}
-
-	dirInputs {
-		^this.dirChannels
-	}
-
 	initEncoderVarsForFiles {
 		dirChannels = if (fileParse.notNil) {
 			if (fileParse.dirInputs.notNil) {
@@ -400,6 +438,14 @@ HoaMatrixEncoder : HoaMatrix {
 
 
 HoaMatrixXformer : HoaMatrix {
+
+    // ------------
+    // From matrix
+
+	// overload HoaMatrix *newFromMatrix
+	*newFromMatrix { |matrix, order = (Hoa.defaultOrder)|
+		^super.new('fromMatrix', order).initDirChannels(nil).initFromMatrix(matrix)
+	}
 
     // ------------
     // Rotation
@@ -770,14 +816,6 @@ HoaMatrixXformer : HoaMatrix {
 	}
 
     dim { ^3 }  // all transforms are 3D
-
-	dirOutputs {
-		^this.dirChannels
-	}
-
-	dirInputs {
-		^this.dirChannels
-	}
 
 }
 
@@ -1280,18 +1318,6 @@ HoaMatrixDecoder : HoaMatrix {
 				\energy->energy.sqrt.reciprocal,
 			])
 		])
-	}
-
-	numChannels {
-		^this.numOutputs
-	}
-
-	dirInputs {
-		^this.numInputs.collect({ inf })
-	}
-
-	dirOutputs {
-		^this.dirChannels
 	}
 
 }

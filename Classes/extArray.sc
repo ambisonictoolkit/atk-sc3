@@ -69,35 +69,4 @@
 		^theta
 	}
 
-	// set: FOA, HOA1, HOA2, etc.
-	// type: \encoder, \decoder, \xformer
-	// NOTE: set and type aren't currently enforced, but it's a
-	//       good idea to provide it for writing to file
-	asAtkMatrix { arg set, type;
-		var mtx, prefix, mType, class, order;
-
-		mtx = Matrix.with(this.asArray);
-
-		case
-		{ set.asString.keep(3) == "FOA" } {
-			order = 1;
-			prefix = "Foa"
-		}
-		{ set.asString.keep(3) == "HOA" } {
-			order = set.asString[3].asInt;
-			prefix = "Hoa"
-		};
-
-		mType = switch( type,
-			\encoder, { "EncoderMatrix" },
-			\decoder, { "DecoderMatrix" },
-			\xformer, { "XformerMatrix" },
-			{"[Array:-asAtkMatrix] Invalid type (%), must be \encoder, \decoder, or \xformer".format(type).throw }
-		);
-
-		class = (prefix ++ mType).asSymbol.asClass;
-
-		^class.newFromMatrix(mtx, order)
-	}
-
 }

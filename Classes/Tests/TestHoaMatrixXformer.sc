@@ -70,13 +70,13 @@ TestHoaMatrixXformer : UnitTest {
 		};
 
 		initializedPlanewaves = initialDirs.collect{|sph|
-			HoaEncoderMatrix.newDirection(sph.theta, sph.phi, order).matrix.flop.getRow(0);
+			HoaMatrixEncoder.newDirection(sph.theta, sph.phi, nil, order).matrix.flop.getRow(0);
 		};
 
 		// Encode the resulting rotated directions as planewaves.
 		// These are the targets for comparison
 		targetPlanewaves = rotatedDirs.collect{|sph|
-			HoaEncoderMatrix.newDirection(sph.theta, sph.phi, order).matrix.flop.getRow(0);
+			HoaMatrixEncoder.newDirection(sph.theta, sph.phi, nil, order).matrix.flop.getRow(0);
 		};
 	}
 
@@ -89,7 +89,7 @@ TestHoaMatrixXformer : UnitTest {
 			var pwRot, pwRef;
 
 			// generate reference planewave coefficeints (as matrix), encoded directly at [theta, phi]
-			pwRef = HoaEncoderMatrix.newDirection(theta, phi, order).matrix;
+			pwRef = HoaMatrixEncoder.newDirection(theta, phi, nil, order).matrix;
 
 			this.assert(initPw.matrix.rows == rMtx.matrix.cols, "rotated planewave coefficient rows should match rotation matrix cols", report);
 
@@ -105,9 +105,9 @@ TestHoaMatrixXformer : UnitTest {
 		};
 
 		// planewave coefficients, encoded at [0,0]
-		pw00 = HoaEncoderMatrix.newDirection(0,0, order);
+		pw00 = HoaMatrixEncoder.newDirection(0, 0, nil, order);
 		// planewave coefficients, encoded at [pi/2,0] (+Y)
-		pw90 = HoaEncoderMatrix.newDirection(pi/2,0, order);
+		pw90 = HoaMatrixEncoder.newDirection(pi/2, 0, nil, order);
 
 		numTests.do{
 			var angle = rrand(-2pi, 2pi);

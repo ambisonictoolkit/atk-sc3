@@ -253,77 +253,76 @@ FoaMatrix : AtkMatrix {
 		})
 	}
 
-	// initFromFile { arg filePathOrName, mtxType, argOrder, searchExtensions = false;
-	// 	var pn, dict;
-	//
-	// 	// first try with path name only
-	// 	pn = Atk.resolveMtxPath(filePathOrName);
-	//
-	// 	pn ?? {
-	// 		// partial path reqires set to resolve
-	// 		set = this.getSetFromClass(argOrder ?? this.order);
-	// 		pn = Atk.resolveMtxPath(filePathOrName, mtxType, set, searchExtensions);
-	// 	};
-	//
-	// 	// instance var
-	// 	filePath = pn.fullPath;
-	//
-	// 	case
-	// 	{ pn.extension == "txt"} {
-	// 		matrix = if (pn.fileName.contains(".mosl")) {
-	// 			// .mosl.txt file: expected to be matrix only,
-	// 			// single values on each line, by rows
-	// 			Matrix.with( this.prParseMOSL(pn) );
-	// 		} {
-	// 			// .txt file: expected to be matrix only, cols
-	// 			// separated by spaces, rows by newlines
-	// 			Matrix.with( FileReader.read(filePath).asFloat );
-	// 		};
-	//
-	// 		kind = pn.fileName.asSymbol; // kind defaults to filename
-	// 	}
-	// 	{ pn.extension == "yml"} {
-	// 		dict = filePath.parseYAMLFile;
-	// 		fileParse = IdentityDictionary(know: true);
-	//
-	// 		// replace String keys with Symbol keys, make "knowable"
-	// 		dict.keysValuesDo{ |k,v|
-	// 			fileParse.put( k.asSymbol,
-	// 				if (v == "nil") { nil } { v } // so .info parsing doesn't see nil as array
-	// 			)
-	// 		};
-	//
-	// 		if (fileParse[\type].isNil) {
-	// 			"Matrix 'type' is undefined in the .yml file: cannot confirm the "
-	// 			"type matches the loaded object (encoder/decoder/xformer)".warn
-	// 		} {
-	// 			if (fileParse[\type].asSymbol != mtxType.asSymbol) {
-	// 				Error(
-	// 					format(
-	// 						"[%:-initFromFile] Matrix 'type' defined in the .yml file (%) doesn't match "
-	// 						"the type of matrix you're trying to load (%)",
-	// 						this.class.asString, fileParse[\type], mtxType
-	// 					).errorString.postln;
-	// 					this.halt
-	// 				)
-	// 			}
-	// 		};
-	//
-	// 		matrix = Matrix.with(fileParse.matrix.asFloat);
-	//
-	// 		kind = if (fileParse.kind.notNil) {
-	// 			fileParse.kind.asSymbol
-	// 		} {
-	// 			pn.fileNameWithoutExtension.asSymbol
-	// 		};
-	// 	}
-	// 	{ // catch all
-	// 		Error(
-	// 			"[%:-initFromFile] Unsupported file extension.".format(this.class.asString)
-	// 		).errorString.postln;
-	// 		this.halt;
-	// 	};
-	// }
+	initFromFile { arg filePathOrName, mtxType, searchExtensions = false;
+		var pn, dict;
+
+		// first try with path name only
+		pn = Atk.resolveMtxPath(filePathOrName);
+
+		pn ?? {
+			// partial path reqires set to resolve
+			pn = Atk.resolveMtxPath(filePathOrName, mtxType, this.set, searchExtensions);
+		};
+
+		// instance var
+		filePath = pn.fullPath;
+
+		case
+		{ pn.extension == "txt"} {
+			matrix = if (pn.fileName.contains(".mosl")) {
+				// .mosl.txt file: expected to be matrix only,
+				// single values on each line, by rows
+				Matrix.with( this.prParseMOSL(pn) );
+			} {
+				// .txt file: expected to be matrix only, cols
+				// separated by spaces, rows by newlines
+				Matrix.with( FileReader.read(filePath).asFloat );
+			};
+
+			kind = pn.fileName.asSymbol; // kind defaults to filename
+		}
+		{ pn.extension == "yml"} {
+			dict = filePath.parseYAMLFile;
+			fileParse = IdentityDictionary(know: true);
+
+			// replace String keys with Symbol keys, make "knowable"
+			dict.keysValuesDo{ |k,v|
+				fileParse.put( k.asSymbol,
+					if (v == "nil") { nil } { v } // so .info parsing doesn't see nil as array
+				)
+			};
+
+			if (fileParse[\type].isNil) {
+				"Matrix 'type' is undefined in the .yml file: cannot confirm the "
+				"type matches the loaded object (encoder/decoder/xformer)".warn
+			} {
+				if (fileParse[\type].asSymbol != mtxType.asSymbol) {
+					Error(
+						format(
+							"[%:-initFromFile] Matrix 'type' defined in the .yml file (%) doesn't match "
+							"the type of matrix you're trying to load (%)",
+							this.class.asString, fileParse[\type], mtxType
+						).errorString.postln;
+						this.halt
+					)
+				}
+			};
+
+			matrix = Matrix.with(fileParse.matrix.asFloat);
+
+			kind = if (fileParse.kind.notNil) {
+				fileParse.kind.asSymbol
+			} {
+				pn.fileNameWithoutExtension.asSymbol
+			};
+		}
+		{ // catch all
+			Error(
+				"[%:-initFromFile] Unsupported file extension.".format(this.class.asString)
+			).errorString.postln;
+			this.halt;
+		};
+	}
 
 	// For subclasses of AtkMatrix
 	writeToFile { arg fileNameOrPath, note, attributeDictionary, overwrite=false;
@@ -475,7 +474,7 @@ FoaMatrix : AtkMatrix {
 		type !? { wrAtt.(\type) };
 
 		// write default attributes
-		defaults = if ((type == 'decoder') && (set == 'FOA')) { [\kind, \shelfK, \shelfFreq] } { [\kind] };
+		defaults = if ((type == 'decoder') && (this.set == 'FOA')) { [\kind, \shelfK, \shelfFreq] } { [\kind] };
 
 		if (attributeDictionary.notNil) {
 			// make sure attribute dict doesn't explicitly set the attribute first
@@ -575,7 +574,7 @@ FoaMatrix : AtkMatrix {
 			};
 		};
 
-		this.initFromFile(pathStr++".yml", this.type, 1, false);
+		this.initFromFile(pathStr++".yml", this.type, false);
 
 		switch( this.type,
 			'\encoder', {this.initEncoderVarsForFiles}, // properly set dirInputs
@@ -652,7 +651,7 @@ FoaDecoderMatrix : FoaMatrix {
 	}
 
 	*newFromFile { arg filePathOrName;
-		^super.new.initFromFile(filePathOrName, 'decoder', 1, true).initDecoderVarsForFiles;
+		^super.new.initFromFile(filePathOrName, 'decoder', true).initDecoderVarsForFiles;
 	}
 
 	initK2D { arg k;
@@ -1003,7 +1002,7 @@ FoaEncoderMatrix : FoaMatrix {
 	}
 
 	*newFromFile { arg filePathOrName;
-		^super.new.initFromFile(filePathOrName, 'encoder', 1, true).initEncoderVarsForFiles
+		^super.new.initFromFile(filePathOrName, 'encoder', true).initEncoderVarsForFiles
 	}
 
 	init2D {
@@ -1412,7 +1411,7 @@ FoaXformerMatrix : FoaMatrix {
 	}
 
 	*newFromFile { arg filePathOrName;
-		^super.new.initFromFile(filePathOrName, 'xformer', 1, true);
+		^super.new.initFromFile(filePathOrName, 'xformer', true);
 	}
 
 	initRotate { arg angle;

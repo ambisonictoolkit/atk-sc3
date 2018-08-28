@@ -257,7 +257,8 @@ TestFoaMatrix : UnitTest {
 
 		// encoder
 		m = FoaEncoderMatrix.newFromMatrix(
-			FoaEncoderMatrix.newDirections(directions).matrix
+			FoaEncoderMatrix.newDirections(directions).matrix,
+			directions
 			// set, type are unspecified to test internal inference
 		);
 
@@ -281,7 +282,7 @@ TestFoaMatrix : UnitTest {
 		[\dirChannels, \dirInputs].do{ |attribute|
 			this.assertEquals(
 				m.perform(attribute),
-				'unspecified' ! directions.size,
+				directions,
 				"FoaEncoderMatrix(*newFromMatrix):-% should be an array "
 				"of 'unspecified' of size directions".format(attribute),
 				report
@@ -324,12 +325,11 @@ TestFoaMatrix : UnitTest {
 	}
 
 	test_matrixFileRdWr {
-		var m, not, properties, atkMatrix, enc, note, path;
+		var not, properties, atkMatrix, enc, note, path;
 		var directions = AtkTests.getDirs('tetra');
 		var att, orig, fromFile;
 
 		// start with "raw" A-to-B encoder matrix:
-		m = Matrix.with(directions);
 		note = "TestFoaMatrix:-test_matrixFileRdWr test";
 
 		// A Dictionary of more metadata to add.
@@ -340,7 +340,8 @@ TestFoaMatrix : UnitTest {
 			dirInputs: directions
 		);
 
-		atkMatrix = m.asAtkMatrix('FOA', 'encoder'); // set, type
+		// atkMatrix = m.asAtkMatrix('FOA', 'encoder'); // set, type
+		atkMatrix = FoaEncoderMatrix.newDirections(directions);
 
 		path = PathName.tmp++"testA2B_Matrix.yml";
 		// be sure to use .yml extension for metadata

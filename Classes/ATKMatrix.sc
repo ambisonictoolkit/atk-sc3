@@ -63,8 +63,6 @@ AtkMatrix {
 	var <order;			// order for this matrix
 	var <filePath;		// matrices from files only
 	var <fileParse;		// data parsed from YAML file
-	var <detail;        // optionally store details about the matrix, e.g. kind: mirror, detail: 'x'
-	// TODO: set detail in init methods!! Test detail in matrix file read/write and -info
 
 	// call by subclass, only
 	*new { |kind, order|

@@ -326,120 +326,8 @@ FoaMatrix : AtkMatrix {
 		};
 	}
 
-	// For subclasses of AtkMatrix
-	writeToFile { arg fileNameOrPath, note, attributeDictionary, overwrite=false;
-		this.prWriteToFile(fileNameOrPath, this.set, this.type, note, attributeDictionary, overwrite);
-	}
-
-	// argSet: FOA, HOA1, HOA2, etc
-	// argType: \encoder, \decoder, \xformer
-	prWriteToFile { arg fileNameOrPath, argSet, argType, note, attributeDictionary, overwrite=false;
-		var pn, ext;
-		var mtxPath, relPath;
-
-		pn = PathName(fileNameOrPath);
-
-		if (PathName(pn.parentPath).isFolder.not) { // check for an enclosing folder
-			// ... no enclosing folder found so assumed
-			// to be relative to extensions/matrices/'type' directory
-
-			Atk.checkSet(argSet);
-
-			// This is only needed for relative file paths in user-matrices directory
-			['encoder', 'decoder', 'xformer'].includes(argType).not.if{
-				Error(
-					"'type' argument must be 'encoder', 'decoder', or 'xformer'"
-				).errorString.postln;
-				this.halt;
-			};
-
-			case
-			{ pn.colonIndices.size == 0} {
-				// only filename provided, write to dir matching 'type'
-				pn = Atk.getMatrixExtensionSubPath(argSet, argType) +/+ pn;
-
-			} { pn.colonIndices.size > 0} {
-				// relative path given, look for it
-				mtxPath = Atk.getMatrixExtensionSubPath(argSet, argType);
-				relPath = (mtxPath +/+ PathName(pn.parentPath));
-				if (relPath.isFolder) {
-					// valid relative path confirmed
-					pn = mtxPath +/+ pn;
-				} {
-					Error(
-						format(
-							"Specified relative folder path was not found in %\n",
-							relPath.fullPath
-						)
-					).errorString.postln;
-					this.halt;
-				}
-			};
-		}; // otherwise, provided path is absolute
-
-		ext = pn.extension;
-		if (ext == "") {pn = pn +/+ PathName(".yml")};
-
-		overwrite.not.if{
-			pn.isFile.if{
-				Error(
-					format(
-						"File already exists:\n\t%\nChoose another name or location, "
-						"or set overwrite: true", pn.fullPath
-					)
-				).errorString.postln;
-				this.halt;
-			}
-		};
-
-		case
-		{ext == "txt"} {
-			if (pn.fileName.contains(".mosl")) {
-				this.prWriteMatrixToMOSL(pn)
-			} {
-				this.prWriteMatrixToTXT(pn)
-			}
-		}
-		{ext == "yml"} {this.prWriteMatrixToYML(pn, argSet, argType, note, attributeDictionary)}
-		{	// catch all
-			Error(
-				"Invalid file extension: provide '.txt' for writing matrix only, "
-				"or '.yml' or no extension to write matrix with metadata (as YAML)"
-			).errorString.postln;
-			this.halt;
-		};
-	}
-
-
-	prWriteMatrixToTXT { arg pn; // a PathName
-		var wr;
-		wr = FileWriter( pn.fullPath );
-		// write the matrix into it by row, and close
-		matrix.rows.do{ |i| wr.writeLine( matrix.getRow(i) ) };
-		wr.close;
-	}
-
-	prWriteMatrixToMOSL { arg pn; // a PathName
-		var wr;
-		wr = FileWriter( pn.fullPath );
-
-		// write num rows and cols to first 2 lines
-		wr.writeLine(["// Dimensions: rows, columns"]);
-		wr.writeLine(matrix.rows.asArray);
-		wr.writeLine(matrix.cols.asArray);
-		// write the matrix into it by row, and close
-		matrix.rows.do{ |i|
-			var row;
-			wr.writeLine([""]); // blank line
-			wr.writeLine([format("// Row %", i)]);
-
-			row = matrix.getRow(i);
-			row.do{ |j| wr.writeLine( j.asArray ) };
-		};
-		wr.close;
-	}
-
-	prWriteMatrixToYML { arg pn, set, type, note, attributeDictionary;
+	// separate YML writer for FOA
+	prWriteMatrixToYML { arg pn, note, attributeDictionary;
 		var wr, wrAtt, wrAttArr, defaults;
 		var dirIns, dirOuts;
 
@@ -473,10 +361,10 @@ FoaMatrix : AtkMatrix {
 
 		note !? { wrAtt.(\note, note) };
 
-		type !? { wrAtt.(\type) };
+		wrAtt.(\type);
 
 		// write default attributes
-		defaults = if ((type == 'decoder') && (this.set == 'FOA')) { [\kind, \shelfK, \shelfFreq] } { [\kind] };
+		defaults = if (this.type == 'decoder') { [\kind, \shelfK, \shelfFreq] } { [\kind] };
 
 		if (attributeDictionary.notNil) {
 			// make sure attribute dict doesn't explicitly set the attribute first

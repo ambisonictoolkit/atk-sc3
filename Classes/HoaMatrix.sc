@@ -209,6 +209,67 @@ HoaMatrix : AtkMatrix {
 		)
 	}
 
+	// separate YML writer for HOA
+	prWriteMatrixToYML { arg pn, note, attributeDictionary;
+		var wr, wrAtt, wrAttArr, defaults;
+
+		wr = FileWriter( pn.fullPath );
+
+		// function to write a one-line attribute
+		wrAtt = { |att, val|
+			wr.write("% : ".format(att));
+			wr.write(
+				(
+					val ?? {this.tryPerform(att)}
+				).asCompileString; // allow for large strings
+			);
+			wr.write("\n\n");
+		};
+
+		// function to write a multi-line attribute (2D array)
+		wrAttArr = { |att, arr|
+			var vals = arr ?? {this.tryPerform(att)};
+			if (vals.isNil) {
+				wr.writeLine(["% : nil".format(att)]);
+			} {
+				wr.writeLine(["% : [".format(att)]);
+				vals.asArray.do{ |elem, i|
+					wr.write(elem.asCompileString); // allow for large row strings
+					if (i == (vals.size-1)) { wr.write("\n]\n") } { wr.write(",\n") };
+				};
+			};
+			wr.write("\n");
+		};
+
+		// specify default attributes to write - use to catch
+		// conflicting values if found in user supplied attributeDictionary
+		defaults = [ \set, \type, \kind, \dim, \directions ];
+
+		// write attributes
+		wrAtt.(\fileName, pn.fileNameWithoutExtension);
+		note !? { wrAtt.(\note, note) };
+
+		// remove defaults from supplied attributeDictionary
+		// and write out
+		attributeDictionary.notNil.if({
+			defaults.do({ |att|
+				attributeDictionary.removeAt(att)
+			});
+			attributeDictionary.keysValuesDo({ |k, v|
+				(v.isKindOf(Array)).if({ wrAttArr.(k, v) }, { wrAtt.(k, v) })
+			})
+		});
+
+		// the rest of the attributes
+		wrAtt.(\set);
+		wrAtt.(\type);
+		wrAtt.(\kind);
+		wrAtt.(\dim);
+		wrAttArr.(\directions);
+		wrAttArr.(\matrix);
+
+		wr.close;
+	}
 
 	// TODO: these utilities could move to AtkMatrix, or elsewhere?
 

@@ -156,12 +156,10 @@ AtkMatrix {
 
 	// For subclasses of AtkMatrix
 	writeToFile { arg fileNameOrPath, note, attributeDictionary, overwrite=false;
-		this.prWriteToFile(fileNameOrPath, this.set, this.type, note, attributeDictionary, overwrite);
+		this.prWriteToFile(fileNameOrPath, note, attributeDictionary, overwrite);
 	}
 
-	// argSet: FOA, HOA1, HOA2, etc
-	// argType: \encoder, \decoder, \xformer
-	prWriteToFile { arg fileNameOrPath, argSet, argType, note, attributeDictionary, overwrite=false;
+	prWriteToFile { arg fileNameOrPath, note, attributeDictionary, overwrite=false;
 		var pn, ext;
 		var mtxPath, relPath;
 
@@ -171,10 +169,10 @@ AtkMatrix {
 			// ... no enclosing folder found so assumed
 			// to be relative to extensions/matrices/'type' directory
 
-			Atk.checkSet(argSet);
+			Atk.checkSet(this.set);
 
 			// This is only needed for relative file paths in user-matrices directory
-			['encoder', 'decoder', 'xformer'].includes(argType).not.if{
+			['encoder', 'decoder', 'xformer'].includes(this.type).not.if{
 				Error(
 					"'type' argument must be 'encoder', 'decoder', or 'xformer'"
 				).errorString.postln;
@@ -184,11 +182,11 @@ AtkMatrix {
 			case
 			{ pn.colonIndices.size == 0} {
 				// only filename provided, write to dir matching 'type'
-				pn = Atk.getMatrixExtensionSubPath(argSet, argType) +/+ pn;
+				pn = Atk.getMatrixExtensionSubPath(this.set, this.type) +/+ pn;
 
 			} { pn.colonIndices.size > 0} {
 				// relative path given, look for it
-				mtxPath = Atk.getMatrixExtensionSubPath(argSet, argType);
+				mtxPath = Atk.getMatrixExtensionSubPath(this.set, this.type);
 				relPath = (mtxPath +/+ PathName(pn.parentPath));
 				if (relPath.isFolder) {
 					// valid relative path confirmed
@@ -228,7 +226,7 @@ AtkMatrix {
 				this.prWriteMatrixToTXT(pn)
 			}
 		}
-		{ext == "yml"} {this.prWriteMatrixToYML(pn, argSet, argType, note, attributeDictionary)}
+		{ext == "yml"} {this.prWriteMatrixToYML(pn, note, attributeDictionary)}
 		{	// catch all
 			Error(
 				"Invalid file extension: provide '.txt' for writing matrix only, "
@@ -267,73 +265,8 @@ AtkMatrix {
 		wr.close;
 	}
 
-	prWriteMatrixToYML { arg pn, set, type, note, attributeDictionary;
-		var wr, wrAtt, wrAttArr, defaults;
-		var dirIns, dirOuts;
-
-		wr = FileWriter( pn.fullPath );
-
-		// write a one-line attribute
-		wrAtt = { |att, val|
-			wr.write("% : ".format(att));
-			wr.write(
-				(
-					val ?? {this.tryPerform(att)}
-				).asCompileString; // allow for large strings
-			);
-			wr.write("\n\n");
-		};
-
-		// write a multi-line attribute (2D array)
-		wrAttArr = { |att, arr|
-			var vals = arr ?? {this.tryPerform(att)};
-			if (vals.isNil) {
-				wr.writeLine(["% : nil".format(att)]);
-			} {
-				wr.writeLine(["% : [".format(att)]);
-				vals.asArray.do{ |elem, i|
-					wr.write(elem.asCompileString); // allow for large row strings
-					if (i == (vals.size-1)) { wr.write("\n]\n") } { wr.write(",\n") };
-				};
-			};
-			wr.write("\n");
-		};
-
-		note !? { wrAtt.(\note, note) };
-
-		type !? { wrAtt.(\type) };
-
-		// write default attributes
-		defaults = if ((type == 'decoder') && (set == 'FOA')) { [\kind, \shelfK, \shelfFreq] } { [\kind] };
-
-		if (attributeDictionary.notNil) {
-			// make sure attribute dict doesn't explicitly set the attribute first
-			defaults.do{ |att|
-				attributeDictionary[att] ?? { wrAtt.(att) }
-			};
-		} {
-			defaults.do{ |att| wrAtt.(att) };
-		};
-
-		attributeDictionary !? {
-			attributeDictionary.keysValuesDo{ |k,v|
-				// catch overridden dirIn/Outputs
-				switch( k,
-					'dirInputs', { dirIns = v },
-					'dirOutputs', { dirOuts = v },
-					{
-						if (v.isKindOf(Array)) { wrAttArr.(k, v) } { wrAtt.(k, v) }
-					}
-				);
-			}
-		};
-
-		wrAttArr.(\dirInputs, dirIns);
-		wrAttArr.(\dirOutputs, dirOuts);
-		wrAttArr.(\matrix);
-
-		wr.close;
-	}
+	// separate YML writer for FOA & HOA
+	// prWriteMatrixToYML
 
 	prParseMOSL { |pn|
 		var file, numRows, numCols, mtx, row;
@@ -425,8 +358,9 @@ AtkMatrix {
 	-type               : FoaMatrix, HoaMatrix
 	-numChannels : FoaMatrix, HoaMatrix
 	-dim                : FoaMatrix, HoaMatrix
-	-dirInputs
-	-dirOutputs
+	-dirInputs        : FoaMatrix
+	-dirOutputs     : FoaMatrix
+	-directions      : FoaMatrix, HoaMatrix
 
 	*/
 

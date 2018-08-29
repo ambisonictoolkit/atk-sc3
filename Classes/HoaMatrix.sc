@@ -50,6 +50,8 @@
 
 HoaMatrix : AtkMatrix {
 
+	var <>dirChannels;  // setter added for matrix-to-file & file-to-matrix support
+
 	// call by subclass, only
 	*newFromMatrix { |matrix, directions = ([[ 0, 0 ]]), order = (Hoa.defaultOrder)|
 		^super.new('fromMatrix', order).initDirChannels(directions).initFromMatrix(matrix)
@@ -286,6 +288,24 @@ HoaMatrix : AtkMatrix {
 				if (is2D, { 2 }, { 3 });
 			}
 		})
+	}
+
+	dirInputs {
+		^switch( this.type,
+			'\encoder', { this.dirChannels },
+			'\decoder', { this.numInputs.collect({ inf }) },
+			// '\xformer', { this.numInputs.collect({ inf }) },
+			'\xformer', { this.dirChannels }  // requires set to inf
+		)
+	}
+
+	dirOutputs {
+		^switch( this.type,
+			'\encoder', { this.numOutputs.collect({ inf }) },
+			'\decoder', { this.dirChannels },
+			// '\xformer', { this.numInputs.collect({ inf }) },
+			'\xformer', { this.dirChannels }  // requires set to inf
+		)
 	}
 
 }

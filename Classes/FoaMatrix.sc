@@ -174,6 +174,8 @@ FoaSpeakerMatrix {
 
 FoaMatrix : AtkMatrix {
 
+	var <>dirChannels;  // setter added for matrix-to-file & file-to-matrix support
+
 	// most typically called by subclass
 	*new { |kind|
 		^super.new(kind).init
@@ -603,6 +605,25 @@ FoaMatrix : AtkMatrix {
 			'\xformer', { 3 }  // all transforms are 3D
 		)
 	}
+
+	dirInputs {
+		^switch( this.type,
+			'\encoder', { this.dirChannels },
+			'\decoder', { this.numInputs.collect({ inf }) },
+			// '\xformer', { this.numInputs.collect({ inf }) },
+			'\xformer', { this.dirChannels }  // requires set to inf
+		)
+	}
+
+	dirOutputs {
+		^switch( this.type,
+			'\encoder', { this.numOutputs.collect({ inf }) },
+			'\decoder', { this.dirChannels },
+			// '\xformer', { this.numInputs.collect({ inf }) },
+			'\xformer', { this.dirChannels }  // requires set to inf
+		)
+	}
+
 }
 
 

@@ -65,7 +65,6 @@ AtkMatrix {
 	var <fileParse;		// data parsed from YAML file
 	var <detail;        // optionally store details about the matrix, e.g. kind: mirror, detail: 'x'
 	// TODO: set detail in init methods!! Test detail in matrix file read/write and -info
-	var <>dirChannels;  // setter added for matrix-to-file & file-to-matrix support
 
 	// call by subclass, only
 	*new { |kind, order|
@@ -428,6 +427,9 @@ AtkMatrix {
 	-type               : FoaMatrix, HoaMatrix
 	-numChannels : FoaMatrix, HoaMatrix
 	-dim                : FoaMatrix, HoaMatrix
+	-dirInputs
+	-dirOutputs
+
 	*/
 
 	op { ^\matrix }
@@ -435,24 +437,6 @@ AtkMatrix {
 	numInputs { ^matrix.cols }
 
 	numOutputs { ^matrix.rows }
-
-	dirInputs {
-		^switch( this.type,
-			'\encoder', { this.dirChannels },
-			'\decoder', { this.numInputs.collect({ inf }) },
-			// '\xformer', { this.numInputs.collect({ inf }) },
-			'\xformer', { this.dirChannels }  // requires set to inf
-		)
-	}
-
-	dirOutputs {
-		^switch( this.type,
-			'\encoder', { this.numOutputs.collect({ inf }) },
-			'\decoder', { this.dirChannels },
-			// '\xformer', { this.numInputs.collect({ inf }) },
-			'\xformer', { this.dirChannels }  // requires set to inf
-		)
-	}
 
 	printOn { |stream|
         stream << this.class.name << "(" <<* [kind, this.dim, this.numChannels] <<")";

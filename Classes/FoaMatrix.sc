@@ -624,6 +624,8 @@ FoaMatrix : AtkMatrix {
 		)
 	}
 
+	directions { ^this.dirChannels }
+
 }
 
 

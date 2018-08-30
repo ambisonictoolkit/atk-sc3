@@ -446,7 +446,7 @@ FoaMatrix : AtkMatrix {
 
 	fileName { ^try {PathName(filePath).fileName} }
 
-	// FOA only, HoaMatrix overrides
+	// FOA only
 	loadFromLib { |...args|
 		var pathStr;
 		pathStr = this.kind.asString ++ "/";

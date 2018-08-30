@@ -319,33 +319,6 @@ AtkMatrix {
 
 	fileName { ^try {PathName(filePath).fileName} }
 
-	// FOA only, HoaMatrix overrides
-	loadFromLib { |...args|
-		var pathStr;
-		pathStr = this.kind.asString ++ "/";
-
-		if (args.size==0) {
-			// no args... filename is assumed to be this.kind
-			pathStr = this.kind.asString;
-		} {
-			args.do{ |argParam, i|
-				pathStr = if (i > 0) {
-					format("%-%", pathStr, argParam.asString)
-				} {
-					format("%%", pathStr, argParam.asString)
-				};
-			};
-		};
-
-		this.initFromFile(pathStr++".yml", this.type, 1, false);
-
-		switch( this.type,
-			'\encoder', {this.initEncoderVarsForFiles}, // properly set dirInputs
-			'\decoder', {this.initDecoderVarsForFiles}, // properly set dirOutputs
-			'\xformer', {}
-		)
-	}
-
 	asArray { ^matrix.asArray }
 
 	// ---------

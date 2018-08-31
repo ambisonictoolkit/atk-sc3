@@ -444,8 +444,6 @@ FoaMatrix : AtkMatrix {
 		^mtx
 	}
 
-	fileName { ^try {PathName(filePath).fileName} }
-
 	// FOA only
 	loadFromLib { |...args|
 		var pathStr;

@@ -81,79 +81,6 @@ AtkMatrix {
 		})
 	}
 
-	// initFromFile { arg filePathOrName, mtxType, argOrder, searchExtensions = false;
-	// 	var pn, dict;
-	//
-	// 	// first try with path name only
-	// 	pn = Atk.resolveMtxPath(filePathOrName);
-	//
-	// 	pn ?? {
-	// 		// partial path reqires set to resolve
-	// 		set = this.getSetFromClass(argOrder ?? this.order);
-	// 		pn = Atk.resolveMtxPath(filePathOrName, mtxType, set, searchExtensions);
-	// 	};
-	//
-	// 	// instance var
-	// 	filePath = pn.fullPath;
-	//
-	// 	case
-	// 	{ pn.extension == "txt"} {
-	// 		matrix = if (pn.fileName.contains(".mosl")) {
-	// 			// .mosl.txt file: expected to be matrix only,
-	// 			// single values on each line, by rows
-	// 			Matrix.with( this.prParseMOSL(pn) );
-	// 		} {
-	// 			// .txt file: expected to be matrix only, cols
-	// 			// separated by spaces, rows by newlines
-	// 			Matrix.with( FileReader.read(filePath).asFloat );
-	// 		};
-	//
-	// 		kind = pn.fileName.asSymbol; // kind defaults to filename
-	// 	}
-	// 	{ pn.extension == "yml"} {
-	// 		dict = filePath.parseYAMLFile;
-	// 		fileParse = IdentityDictionary(know: true);
-	//
-	// 		// replace String keys with Symbol keys, make "knowable"
-	// 		dict.keysValuesDo{ |k,v|
-	// 			fileParse.put( k.asSymbol,
-	// 				if (v == "nil") { nil } { v } // so .info parsing doesn't see nil as array
-	// 			)
-	// 		};
-	//
-	// 		if (fileParse[\type].isNil) {
-	// 			"Matrix 'type' is undefined in the .yml file: cannot confirm the "
-	// 			"type matches the loaded object (encoder/decoder/xformer)".warn
-	// 		} {
-	// 			if (fileParse[\type].asSymbol != mtxType.asSymbol) {
-	// 				Error(
-	// 					format(
-	// 						"[%:-initFromFile] Matrix 'type' defined in the .yml file (%) doesn't match "
-	// 						"the type of matrix you're trying to load (%)",
-	// 						this.class.asString, fileParse[\type], mtxType
-	// 					).errorString.postln;
-	// 					this.halt
-	// 				)
-	// 			}
-	// 		};
-	//
-	// 		matrix = Matrix.with(fileParse.matrix.asFloat);
-	//
-	// 		kind = if (fileParse.kind.notNil) {
-	// 			fileParse.kind.asSymbol
-	// 		} {
-	// 			pn.fileNameWithoutExtension.asSymbol
-	// 		};
-	// 	}
-	// 	{ // catch all
-	// 		Error(
-	// 			"[%:-initFromFile] Unsupported file extension.".format(this.class.asString)
-	// 		).errorString.postln;
-	// 		this.halt;
-	// 	};
-	// }
-
-
 	// For subclasses of AtkMatrix
 	writeToFile { arg fileNameOrPath, note, attributeDictionary, overwrite=false;
 		this.prWriteToFile(fileNameOrPath, note, attributeDictionary, overwrite);
@@ -268,55 +195,6 @@ AtkMatrix {
 	// separate YML writer for FOA & HOA
 	// prWriteMatrixToYML
 
-	prParseMOSL { |pn|
-		var file, numRows, numCols, mtx, row;
-		file = FileReader.read(pn.fullPath);
-		numRows = nil;
-		numCols = nil;
-		mtx = [];
-		row = [];
-		file.do{ |line|
-			var val = line[0];
-			switch( val,
-				"//",	{}, // ignore comments
-				"",		{},	// ignore blank line
-				{	// found valid line
-					case
-					{numRows.isNil} { numRows = val.asInt }
-					{numCols.isNil} { numCols = val.asInt }
-					{
-						row = row.add(val.asFloat);
-						if (row.size==numCols) {
-							mtx = mtx.add(row);
-							row = [];
-						}
-					}
-				}
-			)
-		};
-		// test matrix dimensions
-		(mtx.size==numRows).not.if{
-			Error(
-				format(
-					"Mismatch in matrix dimensions: rows specified [%], rows parsed from file [%]",
-					numRows, mtx.size
-				)
-			).throw
-		};
-		mtx.do{ |row, i|
-			if (row.size!=numCols) {
-				Error(
-					format(
-						"Mismatch in matrix dimensions: rows % has % columns, but file species %",
-						i, row.size, numCols
-					)
-				).throw
-			}
-		};
-
-		^mtx
-	}
-
 	fileName { ^try {PathName(filePath).fileName} }
 
 	asArray { ^matrix.asArray }
@@ -379,6 +257,9 @@ AtkMatrix {
 		};
 
 		filePath !? { attributes.add(\fileName).add(\filePath) };
+
+		// remove any duplicated attributes
+		attributes = OrderedIdentitySet.newFrom(attributes.reverse).asList.reverse;
 
 		postf("\n*** % Info ***\n", this.class);
 

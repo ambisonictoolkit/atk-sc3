@@ -57,6 +57,25 @@ HoaMatrix : AtkMatrix {
 		^super.new('fromMatrix', order).initDirections(directions).initFromMatrix(matrix)
 	}
 
+	// call by subclass, only
+	*newFromFile { |filePathOrName, searchExtensions = true, order = (Hoa.defaultOrder)|
+		^super.new('fromFile', order).initFromFile(filePathOrName, searchExtensions)
+	}
+
+	initDirections { |argDirections|
+		directions = (argDirections == nil).if({
+			Hoa.numOrderCoeffs(this.order).collect({ inf })
+		}, {
+			argDirections.rank.switch(
+				0, { Array.with(argDirections, 0.0).reshape(1, 2) },
+				1, { argDirections.collect({ |dir| Array.with(dir, 0.0)}) },
+				2, { argDirections },
+			).collect({ |thetaPhi|  // wrap to [ +/-pi, +/-pi/2 ]
+				Spherical.new(1, thetaPhi.at(0), thetaPhi.at(1)).asCartesian.asSpherical.angles
+			})
+		})
+	}
+
 	initFromMatrix { |aMatrix|
 		var numCoeffs, matrixOrder;
 
@@ -107,18 +126,103 @@ HoaMatrix : AtkMatrix {
 		})
 	}
 
-	initDirections { |argDirections|
-		directions = (argDirections == nil).if({
-			Hoa.numOrderCoeffs(this.order).collect({ inf })
-		}, {
-			argDirections.rank.switch(
-				0, { Array.with(argDirections, 0.0).reshape(1, 2) },
-				1, { argDirections.collect({ |dir| Array.with(dir, 0.0)}) },
-				2, { argDirections },
-			).collect({ |thetaPhi|  // wrap to [ +/-pi, +/-pi/2 ]
-				Spherical.new(1, thetaPhi.at(0), thetaPhi.at(1)).asCartesian.asSpherical.angles
-			})
-		})
+	initFromFile { |filePathOrName, searchExtensions|
+		var pn, dict;
+		var instVars, instMeths;
+
+		// (redundant) instance variables & methods to remove from fileParse
+		instVars = List.with( \kind, \matrix, \order, \filePath, \directions );
+		instMeths = List.with( \op, \set, \type, \dim, \fileName,
+			\numChannels, \numInputs, \numOutputs, \dirInputs, \dirOutputs );
+
+		// first try with path name only
+		pn = Atk.resolveMtxPath(filePathOrName);
+
+		pn ?? {
+			// partial path reqires set to resolve
+			pn = Atk.resolveMtxPath(filePathOrName, this.type, this.set, searchExtensions);
+		};
+
+		// instance var
+		filePath = pn.fullPath;
+
+		case
+		{ pn.extension == "yml"} {
+			dict = filePath.parseYAMLFile;
+			fileParse = IdentityDictionary(know: true);
+
+			// replace String keys with Symbol keys, make "knowable"
+			dict.keysValuesDo{ |k,v|
+				fileParse.put( k.asSymbol,
+					if (v == "nil") { nil } { v } // so .info parsing doesn't see nil as array
+				)
+			};
+
+			// check against \set
+			if (fileParse[\set].isNil) {
+				"Matrix 'set' is undefined in the .yml file: cannot confirm the "
+				"set matches the loaded object".warn
+			} {
+				if (fileParse[\set].asSymbol != this.set.asSymbol) {
+					Error(
+						format(
+							"[%:-initFromFile] Matrix 'set' defined in the .yml file (%) doesn't match "
+							"the object set trying to load (%)",
+							this.class.asString, fileParse[\set], this.set
+						).errorString.postln;
+						this.halt
+					)
+				}
+			};
+
+			// check against \type
+			if (fileParse[\type].isNil) {
+				"Matrix 'type' is undefined in the .yml file: cannot confirm the "
+				"type matches the loaded object (encoder/decoder/xformer)".warn
+			} {
+				if (fileParse[\type].asSymbol != this.type.asSymbol) {
+					Error(
+						format(
+							"[%:-initFromFile] Matrix 'type' defined in the .yml file (%) doesn't match "
+							"the type of matrix you're trying to load (%)",
+							this.class.asString, fileParse[\type], this.type
+						).errorString.postln;
+						this.halt
+					)
+				}
+			};
+
+			// set unset instance vars
+			kind = if (fileParse.kind.notNil) {  // reset kind
+				fileParse.kind.asSymbol
+			} {
+				pn.fileNameWithoutExtension.asSymbol
+			};
+			matrix = Matrix.with(fileParse.matrix.asFloat);
+			directions = fileParse.directions.asFloat;
+
+			// Remove parsed Instance variables & methods from fileParse.
+			// Keep just the user defined attributes and values.
+			//
+			// May wish to revisit.
+			instVars.do({ |att|
+				fileParse.includesKey(att).if({
+					fileParse.removeAt(att)
+				});
+			});
+			instMeths.do({ |att|
+				fileParse.includesKey(att).if({
+					fileParse.removeAt(att)
+				});
+			});
+
+		}
+		{ // catch all, including .txt
+			Error(
+				"[%:-initFromFile] Unsupported file extension.".format(this.class.asString)
+			).errorString.postln;
+			this.halt;
+		};
 	}
 
 	initDirTDesign { |design, order|
@@ -182,33 +286,6 @@ HoaMatrix : AtkMatrix {
 		})
 	}
 
-	// overrides AtkMatrix:loadFromLib - order required to resolve set path
-	loadFromLib { |order ...args|
-		var pathStr;
-		pathStr = this.kind.asString ++ "/";
-
-		if (args.size==0) {
-			// no args... filename is assumed to be this.kind
-			pathStr = this.kind.asString;
-		} {
-			args.do{ |argParam, i|
-				pathStr = if (i > 0) {
-					format("%-%", pathStr, argParam.asString)
-				} {
-					format("%%", pathStr, argParam.asString)
-				};
-			};
-		};
-
-		this.initFromFile(pathStr++".yml", this.type, order, false);
-
-		switch( this.type,
-			'\encoder', {this.initEncoderVarsForFiles}, // properly set dirInputs
-			'\decoder', {this.initDecoderVarsForFiles}, // properly set dirOutputs
-			'\xformer', {}
-		)
-	}
-
 	// separate YML writer for HOA
 	prWriteMatrixToYML { arg pn, note, attributeDictionary;
 		var wr, wrAtt, wrAttArr, defaults;
@@ -246,7 +323,7 @@ HoaMatrix : AtkMatrix {
 		defaults = [ \set, \type, \kind, \dim, \directions ];
 
 		// write attributes
-		wrAtt.(\fileName, pn.fileNameWithoutExtension);
+		wrAtt.(\fileName, pn.fileName);
 		note !? { wrAtt.(\note, note) };
 
 		// remove defaults from supplied attributeDictionary
@@ -429,9 +506,9 @@ HoaMatrixEncoder : HoaMatrix {
 		)
 	}
 
-	*newFromFile { arg filePathOrName, order = (Hoa.defaultOrder);
-        ^super.new.initFromFile(filePathOrName, 'encoder', order, true).initEncoderVarsForFiles
-    }
+	// *newFromFile { arg filePathOrName, order = (Hoa.defaultOrder);
+	// 	^super.new.initFromFile(filePathOrName, 'encoder', order, true).initEncoderVarsForFiles
+	// }
 
 
     // ------------

@@ -50,7 +50,7 @@
 
 HoaMatrix : AtkMatrix {
 
-	var <>directions;  // setter added for matrix-to-file & file-to-matrix support
+	var <directions;
 
 	// call by subclass, only
 	*newFromMatrix { |matrix, directions = ([[ 0, 0 ]]), order = (Hoa.defaultOrder)|
@@ -417,14 +417,8 @@ HoaMatrix : AtkMatrix {
 		^if (this.kind == \format, {
 			3
 		}, {
-			// catch unspecified directions, e.g. if *newFromMatrix
-			if (this.directions[0] == 'unspecified') {
-				// TODO: consider how returning a Symbol will affect other calls on -dim
-				'unspecified'
-			} {
-				is2D = this.directions.collect(_.last).every(_ == 0.0);
-				if (is2D, { 2 }, { 3 });
-			}
+			is2D = this.directions.collect(_.last).every(_ == 0.0);
+			if (is2D, { 2 }, { 3 });
 		})
 	}
 

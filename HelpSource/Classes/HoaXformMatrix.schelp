@@ -1,0 +1,146 @@
+TITLE:: HoaXformMatrix
+summary:: Matrix transformer from the Ambisonic Toolkit (ATK)
+categories:: Libraries>Ambisonic Toolkit>HOA>Transforming>UGens, UGens>Multichannel>Ambisonics, UGens>Multichannel>Panners
+related:: Classes/Mix, Classes/AtkMatrixMix, Classes/HoaRenderMatrix, Classes/HoaEncodeMatrix, Classes/HoaDecodeMatrix
+
+DESCRIPTION::
+
+Transform a higher order ambisonic signal (HOA) via an link::Classes/HoaMatrixXformer::.
+
+
+CLASSMETHODS::
+
+METHOD:: ar
+
+ARGUMENT:: in
+The input signal, an array.
+
+ARGUMENT:: hoaMatrix
+An instance of link::Classes/HoaMatrixXformer::.
+
+ARGUMENT:: mul
+Output will be multiplied by this value.
+
+ARGUMENT:: add
+This value will be added to the output.
+
+discussion::
+
+Signals are decoded from the emphasis::reference radius::.
+
+
+EXAMPLES::
+
+subsection:: Beamform
+
+This example is equivalent to beamforming via link::Classes/HoaBeam::, where code::radius = Hoa.refRadius::.
+
+Encode six sinusoids on the axes, then beamform a single beam.
+
+
+code::
+// simple test...
+
+// boot rt server
+s.boot;
+
+// choose Ambisonic order
+~order = 1
+~order = 2
+~order = 3
+
+// choose an outbus, if need be
+~outbus = 0
+
+// open scope
+s.scope(~order.asHoaOrder.numCoeffs, ~outbus);
+
+// design encoding matrix
+~directions = [ [0.0, 0.0], [90.0, 0.0], [180.0, 0.0], [-90.0, 0.0], [0.0, 90.0], [0.0, -90.0], ].degrad;
+~matrixEncoder = HoaMatrixEncoder.newDirections(~directions, order: ~order);
+
+// design beaming matrix
+~theta = 0.0;
+~phi = 0.0;
+~matrixXformer = HoaMatrixXformer.newBeam(~theta, ~phi, order: ~order);
+
+
+// freqs
+~freqs = Array.series(~directions.size, 110.0, 110.0);
+~amps = Array.series(~directions.size, 1, 1).reciprocal;
+
+// audition
+(
+{
+    var gain = -12;
+
+    var sig, hoa;
+
+    sig = SinOsc.ar(~freqs, mul: gain.dbamp * ~amps);
+
+    hoa = HoaEncodeMatrix.ar(sig, ~matrixEncoder);
+
+    HoaXformMatrix.ar(hoa, ~matrixXformer);
+
+}.play(outbus: ~outbus)
+)
+
+// quit rt server
+s.quit
+::
+
+
+subsection:: Mirror
+
+This example is equivalent to mirroring via link::Classes/HoaReflect::.
+
+Encode six sinusoids on the axes, then reflect across the origin.
+
+code::
+// simple test...
+
+// boot rt server
+s.boot;
+
+// choose Ambisonic order
+~order = 1
+~order = 2
+~order = 3
+
+// choose an outbus, if need be
+~outbus = 0
+
+// open scope
+s.scope(~order.asHoaOrder.numCoeffs, ~outbus);
+
+// design encoding matrix
+~directions = [ [0.0, 0.0], [90.0, 0.0], [180.0, 0.0], [-90.0, 0.0], [0.0, 90.0], [0.0, -90.0], ].degrad;
+~matrixEncoder = HoaMatrixEncoder.newDirections(~directions, order: ~order);
+
+// design mirroring matrix
+~matrixXformer = HoaMatrixXformer.newReflect(\reflect, ~order);
+
+
+// freqs
+~freqs = Array.series(~directions.size, 110.0, 110.0);
+~amps = Array.series(~directions.size, 1, 1).reciprocal;
+
+// audition
+(
+{
+    var gain = -18;
+
+    var sig, hoa;
+
+    sig = SinOsc.ar(~freqs, mul: gain.dbamp * ~amps);
+
+    hoa = HoaEncodeMatrix.ar(sig, ~matrixEncoder);
+
+    HoaXformMatrix.ar(hoa, ~matrixXformer);
+
+}.play(outbus: ~outbus)
+)
+
+// quit rt server
+s.quit
+::

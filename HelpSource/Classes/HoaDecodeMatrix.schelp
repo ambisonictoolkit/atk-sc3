@@ -1,0 +1,147 @@
+TITLE:: HoaDecodeMatrix
+summary:: Matrix renderer from the Ambisonic Toolkit (ATK)
+categories:: Libraries>Ambisonic Toolkit>HOA>Decoding>UGens, UGens>Multichannel>Ambisonics, UGens>Multichannel>Panners
+related:: Classes/Mix, Classes/AtkMatrixMix, Classes/HoaRenderMatrix, Classes/HoaEncodeMatrix, Classes/HoaXformMatrix
+
+DESCRIPTION::
+
+Decode (render) a higher order ambisonic signal (HOA) via an link::Classes/HoaMatrixDecoder::.
+
+
+CLASSMETHODS::
+
+METHOD:: ar
+
+ARGUMENT:: in
+The input signal, an array.
+
+ARGUMENT:: hoaMatrix
+An instance of link::Classes/HoaMatrixDecoder::.
+
+ARGUMENT:: mul
+Output will be multiplied by this value.
+
+ARGUMENT:: add
+This value will be added to the output.
+
+discussion::
+
+Signals are decoded from the emphasis::reference radius::.
+
+
+EXAMPLES::
+
+subsection:: Decode single beam
+
+This example is equivalent to decoding via link::Classes/HoaDecodeDirection::, where code::radius = Hoa.refRadius::.
+
+Encode six sinusoids on the axes, then decode a single beam.
+
+
+code::
+// simple test...
+
+// boot rt server
+s.boot;
+
+// choose Ambisonic order
+~order = 1
+~order = 2
+~order = 3
+
+// choose an outbus, if need be
+~outbus = 0
+
+// open scope
+s.scope(1, ~outbus);
+
+// design encoding matrix
+~directions = [ [0.0, 0.0], [90.0, 0.0], [180.0, 0.0], [-90.0, 0.0], [0.0, 90.0], [0.0, -90.0], ].degrad;
+~matrixEncoder = HoaMatrixEncoder.newDirections(~directions, order: ~order);
+
+// design decoding matrix
+~theta = 0.0;
+~phi = 0.0;
+~matrixDecoder = HoaMatrixDecoder.newDirection(~theta, ~phi, order: ~order);
+
+
+// freqs
+~freqs = Array.series(~directions.size, 110.0, 110.0);
+~amps = Array.series(~directions.size, 1, 1).reciprocal;
+
+// audition
+(
+{
+    var gain = -18;
+
+    var sig, hoa;
+
+    sig = SinOsc.ar(~freqs, mul: gain.dbamp * ~amps);
+
+    hoa = HoaEncodeMatrix.ar(sig, ~matrixEncoder);
+
+    HoaDecodeMatrix.ar(hoa, ~matrixDecoder);
+
+}.play(outbus: ~outbus)
+)
+
+// quit rt server
+s.quit
+::
+
+
+subsection:: Decode multiple beams
+
+This example is equivalent to decoding via link::Classes/HoaDecodeDirection::, where code::radius = Hoa.refRadius::.
+
+Encode six sinusoids on the axes, then decode six beams.
+
+
+code::
+// simple test...
+
+// boot rt server
+s.boot;
+
+// choose Ambisonic order
+~order = 1
+~order = 2
+~order = 3
+
+// choose an outbus, if need be
+~outbus = 0
+
+// open scope
+s.scope(6, ~outbus);
+
+// design encoding matrix
+~directions = [ [0.0, 0.0], [90.0, 0.0], [180.0, 0.0], [-90.0, 0.0], [0.0, 90.0], [0.0, -90.0], ].degrad;
+~matrixEncoder = HoaMatrixEncoder.newDirections(~directions, order: ~order);
+
+// design decoding matrix
+~matrixDecoder = HoaMatrixDecoder.newDirections(~directions, order: ~order);
+
+
+// freqs
+~freqs = Array.series(~directions.size, 110.0, 110.0);
+~amps = Array.series(~directions.size, 1, 1).reciprocal;
+
+// audition
+(
+{
+    var gain = -18;
+
+    var sig, hoa;
+
+    sig = SinOsc.ar(~freqs, mul: gain.dbamp * ~amps);
+
+    hoa = HoaEncodeMatrix.ar(sig, ~matrixEncoder);
+
+    HoaDecodeMatrix.ar(hoa, ~matrixDecoder);
+
+}.play(outbus: ~outbus)
+)
+
+// quit rt server
+s.quit
+::

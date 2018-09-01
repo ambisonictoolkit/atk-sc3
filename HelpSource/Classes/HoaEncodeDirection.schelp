@@ -1,0 +1,103 @@
+TITLE:: HoaEncodeDirection
+summary:: Higher Order Ambisonic (HOA) panner
+categories:: Libraries>Ambisonic Toolkit>HOA>Encoding>UGens, UGens>Multichannel>Ambisonics, UGens>Multichannel>Panners
+related:: Classes/HoaUGen, Classes/HoaEncodeMatrix
+
+DESCRIPTION::
+Encode a monophonic input to a higher order ambisonic signal (HOA), with near-field effect (NFE).
+
+
+CLASSMETHODS::
+
+METHOD:: ar
+
+
+ARGUMENT:: in
+The input signal.
+
+ARGUMENT:: theta
+Azimuth, in radians.
+
+ARGUMENT:: phi
+Elevation, in radians.
+
+ARGUMENT:: radius
+Radius, in meters.
+
+ARGUMENT:: order
+Ambisonic order.
+
+ARGUMENT:: mul
+Output will be multiplied by this value.
+
+ARGUMENT:: add
+This value will be added to the output.
+
+
+discussion::
+
+link::Classes/HoaEncodeDirection:: offers HOA encoding equivalent to link::Classes/FoaPanB:: followed by link::Classes/FoaProximity::, in the first order case.
+
+subsection:: Radial encoding
+
+EXAMPLES::
+
+code::
+// Inspect the ATK's speed of sound reference
+"Speed of sound: % m/s".format(Hoa.speedOfSound);
+
+// Inspect the ATK's reference radius
+"Reference radius: % m".format(Hoa.refRadius);
+
+// Inspect the ATK's channel/coefficient ordering
+"Coefficient ordering: %".format(Hoa.ordering);
+
+// Inspect the ATK's channel/coefficient ordering
+"Coefficient normalisation: %".format(Hoa.normalisation);
+
+
+// simple test...
+
+// boot rt server
+s.boot;
+
+// choose Ambisonic order
+~order = 1
+~order = 2
+~order = 3
+
+// choose an outbus, if need be
+~outbus = 0
+
+// open scope
+s.scope(~order.asHoaOrder.numCoeffs, ~outbus);
+
+
+// audition
+(
+{
+	// saw params
+	var freq = 110.0;
+	var gain = -12;
+
+	// azimuth & elevation
+	var theta = 0.0;
+	var phi = 0.0;
+
+	// radius
+	// var radius = 1.0;  // inside reference radius
+	var radius = 1.5;  // at reference radius
+	// var radius = 2.0;  // beyond reference radius
+
+	var sig;
+
+	sig = Saw.ar(freq, gain.dbamp);
+
+	HoaEncodeDirection.ar(sig, theta, phi, radius, ~order);
+
+}.play(outbus: ~outbus)
+)
+
+// quit rt server
+s.quit
+::

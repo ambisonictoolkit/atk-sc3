@@ -1,0 +1,31 @@
+TITLE:: HoaRenderMatrix
+summary:: Matrix renderer from the Ambisonic Toolkit (ATK)
+categories:: Libraries>Ambisonic Toolkit>Internals, UGens>Multichannel>Ambisonics
+related:: Classes/Mix, Classes/AtkMatrixMix, Classes/HoaEncodeMatrix, Classes/HoaXformMatrix, Classes/HoaDecodeMatrix
+
+DESCRIPTION::
+Mix an link::Classes/Array:: of channels to an link::Classes/Array:: of channels.
+
+note::
+link::Classes/HoaRenderMatrix:: is usually called via the synonyms link::Classes/HoaEncodeMatrix::, link::Classes/HoaXformMatrix::, link::Classes/HoaDecodeMatrix::
+::
+
+
+CLASSMETHODS::
+
+METHOD:: ar
+
+ARGUMENT:: in
+The input signal, an array.
+
+ARGUMENT:: hoaMatrix
+An instance of link::Classes/HoaMatrix::.
+
+ARGUMENT:: mul
+Output will be multiplied by this value.
+
+ARGUMENT:: add
+This value will be added to the output.
+
+returns::
+An array of channels.

@@ -1,0 +1,126 @@
+TITLE:: HoaEncodeMatrix
+summary:: Matrix renderer from the Ambisonic Toolkit (ATK)
+categories:: Libraries>Ambisonic Toolkit>HOA>Encoding>UGens, UGens>Multichannel>Ambisonics, UGens>Multichannel>Panners
+related:: Classes/Mix, Classes/AtkMatrixMix, Classes/HoaRenderMatrix, Classes/HoaXformMatrix, Classes/HoaDecodeMatrix
+
+DESCRIPTION::
+
+Encode an link::Classes/Array:: input of channels to a higher order ambisonic signal (HOA) via an link::Classes/HoaMatrixEncoder::.
+
+
+CLASSMETHODS::
+
+METHOD:: ar
+
+ARGUMENT:: in
+The input signal, an array.
+
+ARGUMENT:: hoaMatrix
+An instance of link::Classes/HoaMatrixEncoder::.
+
+ARGUMENT:: mul
+Output will be multiplied by this value.
+
+ARGUMENT:: add
+This value will be added to the output.
+
+discussion::
+
+Signals are encoded to the emphasis::reference radius::.
+
+
+EXAMPLES::
+
+subsection:: Monophonic to HOA
+
+This example is equivalent to encoding via link::Classes/HoaEncodeDirection::, where code::radius = Hoa.refRadius::.
+
+code::
+// simple test...
+
+// boot rt server
+s.boot;
+
+// choose Ambisonic order
+~order = 1
+~order = 2
+~order = 3
+
+// choose an outbus, if need be
+~outbus = 0
+
+// open scope
+s.scope(~order.asHoaOrder.numCoeffs, ~outbus);
+
+// design encoding matrix
+~theta = 0.0;
+~phi = 0.0;
+~matrixEncoder = HoaMatrixEncoder.newDirection(~theta, ~phi, order: ~order);
+
+
+// audition
+(
+{
+    // saw params
+    var freq = 110.0;
+    var gain = -12;
+
+    var sig;
+
+    sig = Saw.ar(freq, gain.dbamp);
+
+    HoaEncodeMatrix.ar(sig, ~matrixEncoder);
+
+}.play(outbus: ~outbus)
+)
+
+// quit rt server
+s.quit
+::
+
+subsection:: Axial encoding
+
+Nothing fancy, just place six sinusoids on the axes.
+
+code::
+// simple test...
+
+// boot rt server
+s.boot;
+
+// choose Ambisonic order
+~order = 1
+~order = 2
+~order = 3
+
+// choose an outbus, if need be
+~outbus = 0
+
+// open scope
+s.scope(~order.asHoaOrder.numCoeffs, ~outbus);
+
+// design encoding matrix
+~directions = [ [0.0, 0.0], [90.0, 0.0], [180.0, 0.0], [-90.0, 0.0], [0.0, 90.0], [0.0, -90.0], ].degrad;
+~matrixEncoder = HoaMatrixEncoder.newDirections(~directions, order: ~order);
+
+// freqs
+~freqs = Array.series(~directions.size, 110.0, 110.0);
+~amps = Array.series(~directions.size, 1, 1).reciprocal;
+
+// audition
+(
+{
+    var gain = -18;
+
+    var sig;
+
+    sig = SinOsc.ar(~freqs, mul: gain.dbamp * ~amps);
+
+    HoaEncodeMatrix.ar(sig, ~matrixEncoder);
+
+}.play(outbus: ~outbus)
+)
+
+// quit rt server
+s.quit
+::

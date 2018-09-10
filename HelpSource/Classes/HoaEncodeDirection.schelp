@@ -38,9 +38,9 @@ discussion::
 
 link::Classes/HoaEncodeDirection:: offers HOA encoding equivalent to link::Classes/FoaPanB:: followed by link::Classes/FoaProximity::, in the first order case.
 
-subsection:: Radial encoding
-
 EXAMPLES::
+
+subsection:: Radial encoding
 
 code::
 // Inspect the ATK's speed of sound reference

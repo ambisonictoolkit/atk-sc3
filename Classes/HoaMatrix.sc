@@ -562,7 +562,10 @@ HoaMatrixEncoder : HoaMatrix {
 		).matrix;
 
 		// match modes
-		matrix = decodingMatrix.pseudoInverse.zeroWithin(Hoa.nearZero)
+		// matrix = decodingMatrix.pseudoInverse.zeroWithin(Hoa.nearZero)
+		matrix = Matrix.with(  // Matrix -pseudoInverse not optimal for HOA
+			MatrixArray.with(decodingMatrix.asArray).pseudoInverse
+		).zeroWithin(Hoa.nearZero)
 	}
 
 	initEncoderVarsForFiles {
@@ -1233,7 +1236,11 @@ HoaMatrixDecoder : HoaMatrix {
 		});
 
 		// 4) pseudo inverse
-		decodingMatrix = encodingMatrix.pseudoInverse;
+		// decodingMatrix = encodingMatrix.pseudoInverse;
+		decodingMatrix = Matrix.with(  // Matrix -pseudoInverse not optimal for HOA
+			MatrixArray.with(encodingMatrix.asArray).pseudoInverse
+		).zeroWithin(Hoa.nearZero);
+
 
 		// 4a) if 2D (re-)insert non-sectoral (3D) harmonics
 		(dim == 2).if({

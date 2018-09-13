@@ -6,15 +6,19 @@ keyword:: Atk
 definitionlist::
 ## A-format
 keyword:: format
-|| TBD.
+|| Component or signal set in the emphasis::angular domain::, evenly distributed across the surface of the sphere in a emphasis::spherical design::. Within the context of the Ambisonic Toolkit, any required equalisation or radial filtering is expected to have been applied.
+
+## acoustic wavenumber
+keyword:: wavenumber
+|| Spatial frequency of a sound wave, measured in radians per meter.
 
 ## AL degree (ℓ)
 keyword:: degree
-|| TBD.
+|| emphasis::Associated Legendre:: degree. A complete coefficient set of a given emphasis::Ambisonic order:: n includes emphasis::AL degrees:: ℓ <= n. See link::https://en.wikipedia.org/wiki/Associated_Legendre_polynomials##Associated Legendre polynomials::
 
 ## AL index (m)
 keyword:: index
-|| TBD.
+|| emphasis::Associated Legendre:: index. (Confusingly, also known as emphasis::Associated Legendre:: order.) In conjunction with emphasis::Associated Legendre:: degrees reference individual emphasis::spherical harmonic:: components, in the form (ℓ, m). emphasis::Associated Legendre:: indices range |m| <= ℓ for a complete coefficient set of a given degrees. See link::https://en.wikipedia.org/wiki/Associated_Legendre_polynomials##Associated Legendre polynomials::
 
 ## Ambisonic equivalent panning (AEP)
 keyword:: panning
@@ -22,39 +26,39 @@ keyword:: panning
 
 ## Ambisonic order
 keyword:: order
-|| Specifies the maximum emphasis::AL degree (ℓ):: of a given signal set.
+|| Specifies the maximum emphasis::AL degree::, ℓ, of a given signal set.
 
 ## Associated Legendre functions (AL)
 keyword:: Legendre
-|| TBD.
+|| The well-behaved solutions of the general Legendre equation, which play an important role in the definition of emphasis::spherical harmonics::. See link::https://en.wikipedia.org/wiki/Associated_Legendre_polynomials##Associated Legendre polynomials::
 
 ## B-format
 keyword:: format
-|| TBD.
+|| Component or signal set in the emphasis::spherical domain::. In classic emphasis::first order Ambisonics::, aka Gerzonic, B-format indicates a signal encoded where Ambisonic order n = 1, and components are ordered and normalised by the (now named) Furse-Malham and MaxN conventions. emphasis::B-format:: is often used to indicate any Ambisonic signal set, without regard to Ambisonic order, component ordering or normalisation.
+
+## acoustic admittance
+keyword:: admittance
+|| Vector quantity, reciprocal of emphasis::acoustic impedance::, which may regarded as a normalised form of emphasis::sound intensity::. See link::https://en.wikipedia.org/wiki/Acoustic_impedance##Acoustic impedance::.
 
 ## active
 keyword:: active
 || Describes the real, emphasis::in phase::, part of a complex soundfield. See also emphasis::reactive::.
 
-## admittance vector
-keyword:: admittance
-|| TBD.
-
 ## angular domain
 keyword:: angular
-|| TBD.
+|| Information represented in terms of angular components.
 
 ## basic
 keyword:: basic
-|| TBD.
+|| Ambisonic Toolkit soundfield designation. A signal, transform or coefficient set with all real modal components.
 
 ## basic wave
 keyword:: basic, wave
-|| A travelling wave encoded with all real modal components. I.e., a emphasis::spherical wave:: encoded at the emphasis::reference radius::.
+|| Ambisonic Toolkit soundfield designation. A travelling wave encoded with all real modal components. I.e., a emphasis::spherical wave:: encoded at the emphasis::reference radius::.
 
 ## basis function
 keyword:: basis
-|| TBD.
+|| An element of a particular basis for a function space. See link::https://en.wikipedia.org/wiki/Basis_function##Basis function::.
 
 ## beam
 keyword:: beam
@@ -62,7 +66,7 @@ keyword:: beam
 
 ## component normalisation
 keyword:: normalisation
-|| Spherical harmonic coefficient normalisation convention. E.g., maxN, N3D, SN3D. See link::https://en.wikipedia.org/wiki/Ambisonic_data_exchange_formats#Normalisation#normalisation::.
+|| emphasis::Spherical harmonic:: coefficient normalisation convention. E.g., maxN, N3D, SN3D. See link::https://en.wikipedia.org/wiki/Ambisonic_data_exchange_formats#Normalisation#normalisation::.
 
 ## component ordering
 keyword:: ordering
@@ -70,11 +74,11 @@ keyword:: ordering
 
 ## decode
 keyword:: decode
-|| Transform a spherical domain signal to the angular domain. Decoding is the end of the Ambisonic panning law.
+|| Transform a emphasis::spherical domain:: signal to the angular domain. Decoding is the end of the Ambisonic panning law.
 
 ## decoding radius
 keyword:: radius
-|| TBD.
+|| The radius at which a given signal set is decoded to the emphasis::angular domain::. If no emphasis::radial filter:: is applied, the decoding is described as emphasis::basic::, and as a result is decoded at the emphasis::reference radius::.
 
 ## diffuse field
 keyword:: diffuse
@@ -90,15 +94,15 @@ keyword:: effective, radius
 
 ## encode
 keyword:: encode
-|| Transform a signal set into the spherical domain. Encoding is the beginning of the Ambisonic panning law.
+|| Transform a signal set into the emphasis::spherical domain::. Encoding is the beginning of the Ambisonic panning law.
 
 ## encoding radius
 keyword:: radius
-|| TBD.
+|| The radius at which a given signal set is encoded into the emphasis::spherical domain::. If no emphasis::radial filter:: is applied, the encoding is described as emphasis::basic::, and as a result is encoded at the emphasis::reference radius::.
 
-## energy vector
+## energy localisation vector (rE)
 keyword:: rE
-|| TBD.
+|| Vector quantity offering an estimate of the perceived localisation of a phantom source in terms of energy, expected to predict imaging between 500 and 5000 Hz.
 
 ## farfield
 keyword:: farfield
@@ -106,7 +110,7 @@ keyword:: farfield
 
 ## first order Ambisonics
 keyword:: FOA
-|| TBD.
+|| Ambisonics employing components up to emphasis::AL degrees:: ℓ <= 1.
 
 ## focused source
 keyword:: focused
@@ -120,13 +124,17 @@ keyword:: format
 keyword:: field
 || TBD.
 
+## Gerzon energy vector
+keyword:: energy
+|| See emphasis::energy localisation vector::.
+
 ## higher order Ambisonics (HOA)
 keyword:: HOA
-|| TBD.
+|| Ambisonics employing components up to emphasis::AL degrees:: ℓ <= emphasis::Ambisonic order:: n.
 
 ## holographic
 keyword:: holographic
-|| Capable of capturing, reproducing or otherwise synthesizing the complex features of a soundfield, including the emphasis::sound pressure:: field, emphasis::particle velocity:: field, and emphasis::acoustic intensity:: field.
+|| Capable of capturing, reproducing or otherwise synthesizing the complex features of a soundfield, including the emphasis::sound pressure:: field, emphasis::particle velocity:: field, and emphasis::sound intensity:: field.
 
 ## holophonic
 keyword:: holophonic
@@ -136,10 +144,6 @@ keyword:: holophonic
 keyword:: image
 || TBD.
 
-## intensity vector
-keyword:: intensity
-|| TBD.
-
 ## isotropic
 keyword:: isotropic
 || Uniform in all directions.
@@ -147,6 +151,10 @@ keyword:: isotropic
 ## kind
 keyword:: kind
 || Ambisonic Toolkit operation ID, e.g., code::\quad::.
+
+## Makita localisation vector
+keyword:: makita
+|| See emphasis::velocity localisation vector::.
 
 ## nearfield
 keyword:: nearfield
@@ -168,10 +176,6 @@ keyword:: NFC
 keyword:: NFE
 || TBD.
 
-## first order Ambisonics (FOA)
-keyword:: FOA
-|| TBD.
-
 ## operation
 keyword:: operation, op
 || TBD.
@@ -182,7 +186,7 @@ keyword:: pan
 
 ## particle velocity
 keyword:: velocity
-|| TBD.
+|| Vector quantity specifying the velocity of a particle in a medium as it transmits a wave. Ambisonic components of emphasis::AL degree:: ℓ = 1 are proportional to emphasis::particle velocity::. See link::https://en.wikipedia.org/wiki/Particle_velocity##Particle velocity::.
 
 ## planewave
 keyword:: wave
@@ -190,7 +194,7 @@ keyword:: wave
 
 ## radial filter
 keyword:: radial
-|| TBD.
+|| Transform modifying the radial encoding of an Ambisonic signal. emphasis::Radial filtering:: is required to implement the emphasis::nearfield effect::.
 
 ## reactive
 keyword:: reactive
@@ -198,7 +202,7 @@ keyword:: reactive
 
 ## reference radius
 keyword:: radius
-|| TBD.
+|| Encoding radius where all modal components are real. See also emphasis::basic:: and emphasis::basic wave::.
 
 ## sectoral modes
 keyword:: sectoral, modes
@@ -208,37 +212,41 @@ keyword:: sectoral, modes
 keyword:: set
 || Ambisonic Toolkit designation indicating emphasis::Ambisonic order:: and encoding emphasis::format::. E.g., code::\FOA::, code::\HOA3::.
 
+## sound intensity
+keyword:: intensity
+|| Vector quantity specifying sound power per unit area. See link::https://en.wikipedia.org/wiki/Sound_intensity##Sound intensity::.
+
 ## sound pressure
 keyword:: pressure
-|| TBD.
+|| Quantity specifying the local pressure deviation caused by a sound wave. The Ambisonic component of AL degree ℓ = 0 is proportional to emphasis::sound pressure::. See link::https://en.wikipedia.org/wiki/Sound_pressure##Sound pressure::.
 
 ## soundfield
 keyword:: soundfield
-|| TBD.
+|| Region of an elastic medium containing sound waves. See link::http://www.acoustic-glossary.co.uk/sound-fields.htm##Sound fields::.
 
 ## soundfield kernel composition
 keyword:: kernel, soundfield
-|| TBD.
+|| An idiomatic composition strategy addressing the holistic problem of creatively controlling a complete soundfield for aesthetic purposes. The Ambisonic Toolkit is designed to facilitate this approach.
 
 ## spherical coefficient
 keyword:: spherical
-|| TBD.
+|| Real or complex scalar applied to emphasis::encode:: a signal set into the emphasis::spherical domain::. See emphasis::spherical harmonic::.
 
 ## spherical design
 keyword:: spherical
-|| Minimal equal-weight quadrature on S^d.
+|| Minimal equal-weight quadrature on S^d. See link::http://mathworld.wolfram.com/SphericalDesign.html##Spherical design::.
 
 ## spherical domain
 keyword:: spherical
-|| TBD.
+|| Information represented in terms of spherical emphasis::basis functions::. See emphasis::spherical harmonics::.
 
-## spherical harmonic (SH)
+## spherical harmonics (SH)
 keyword:: spherical, harmonic
-|| TBD.
+|| A complete set of orthogonal, Fourier emphasis::basis functions:: on the sphere. For Ambisonics, a set of real form harmonics truncated to a highest emphasis::Associated Legendre:: degree, i.e., a given emphasis::Ambisonic order::, encodes a soundfield. See link::https://en.wikipedia.org/wiki/Spherical_harmonics##Spherical harmonics::.
 
-## spherical mode
+## spherical modes
 keyword:: spherical, mode
-|| See emphasis::spherical harmonic::.
+|| See emphasis::spherical harmonics::.
 
 ## spherical wave
 keyword:: wave
@@ -254,7 +262,7 @@ keyword:: tesseral, modes
 
 ## transform
 keyword:: transform
-|| Modify a spherical domain signal in the spherical domain.
+|| Modify a emphasis::spherical domain:: signal in the emphasis::spherical domain::.
 
 ## travelling wave
 keyword:: wave
@@ -264,13 +272,9 @@ keyword:: wave
 keyword:: type
 || Ambisonic Toolkit soundfield operation designation. E.g., code::\encode::, code::\xform::, code::\decode::.
 
-## velocity vector
-keyword:: velocity, rV
-|| TBD.
-
-## wavenumber
-keyword:: wavenumber
-|| TBD.
+## velocity localisation vector (rV)
+keyword:: rV
+|| Vector quantity offering an estimate of the perceived localisation of a phantom source at low frequency, predicting imaging up to around 1.5 kHz. Can be found as the real part of emphasis::acoustic admittance::.
 
 ## zonal modes
 keyword:: zonal, modes

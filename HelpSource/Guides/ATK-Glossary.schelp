@@ -1,16 +1,12 @@
 title:: ATK Glossary
-summary:: Glossary of some relevant Ambisonic and ATK words
+summary:: Glossary of some relevant Ambisonic and Ambisonic Toolkit words
 categories:: Libraries>Ambisonic Toolkit
 keyword:: Atk
 
 definitionlist::
 ## A-format
 keyword:: format
-|| Component or signal set in the emphasis::angular domain::, evenly distributed across the surface of the sphere in a emphasis::spherical design::. Within the context of the Ambisonic Toolkit, any required equalisation or radial filtering is expected to have been applied.
-
-## acoustic wavenumber
-keyword:: wavenumber
-|| Spatial frequency of a sound wave, measured in radians per meter.
+|| Component or signal set in the emphasis::angular domain::, evenly distributed across the surface of the sphere in a emphasis::spherical design::. Within the context of the Ambisonic Toolkit, any required equalisation or radial filtering is expected to have been applied. In other words, the Ambisonic Toolkit views emphasis::A-format:: as a uniform spherical decomposition of the soundfield.
 
 ## AL degree (ℓ)
 keyword:: degree
@@ -18,7 +14,19 @@ keyword:: degree
 
 ## AL index (m)
 keyword:: index
-|| emphasis::Associated Legendre:: index. (Confusingly, also known as emphasis::Associated Legendre:: order.) In conjunction with emphasis::Associated Legendre:: degrees reference individual emphasis::spherical harmonic:: components, in the form (ℓ, m). emphasis::Associated Legendre:: indices range |m| <= ℓ for a complete coefficient set of a given degrees. See link::https://en.wikipedia.org/wiki/Associated_Legendre_polynomials##Associated Legendre polynomials::
+|| emphasis::Associated Legendre:: index. (Confusingly, also known as emphasis::Associated Legendre:: order.) In conjunction with emphasis::Associated Legendre:: degrees references individual emphasis::spherical harmonic:: components, in the form (ℓ, m). emphasis::Associated Legendre:: indices range |m| <= ℓ for a complete coefficient set of a given degrees. See link::https://en.wikipedia.org/wiki/Associated_Legendre_polynomials##Associated Legendre polynomials::
+
+## acoustic admittance
+keyword:: admittance
+|| Vector quantity, reciprocal of emphasis::acoustic impedance::, which may be regarded as a normalised form of emphasis::sound intensity::. See link::https://en.wikipedia.org/wiki/Acoustic_impedance##Acoustic impedance::.
+
+## acoustic wavenumber
+keyword:: wavenumber
+|| Spatial frequency of a sound wave, measured in radians per meter.
+
+## active
+keyword:: active
+|| Describes the real, emphasis::in phase::, part of a complex soundfield. See also emphasis::reactive::.
 
 ## Ambisonic equivalent panning (AEP)
 keyword:: panning
@@ -28,6 +36,10 @@ keyword:: panning
 keyword:: order
 || Specifies the maximum emphasis::AL degree::, ℓ, of a given signal set.
 
+## angular domain
+keyword:: angular
+|| Information represented in terms of angular components.
+
 ## Associated Legendre functions (AL)
 keyword:: Legendre
 || The well-behaved solutions of the general Legendre equation, which play an important role in the definition of emphasis::spherical harmonics::. See link::https://en.wikipedia.org/wiki/Associated_Legendre_polynomials##Associated Legendre polynomials::
@@ -35,18 +47,6 @@ keyword:: Legendre
 ## B-format
 keyword:: format
 || Component or signal set in the emphasis::spherical domain::. In classic emphasis::first order Ambisonics::, aka Gerzonic, B-format indicates a signal encoded where Ambisonic order n = 1, and components are ordered and normalised by the (now named) Furse-Malham and MaxN conventions. emphasis::B-format:: is often used to indicate any Ambisonic signal set, without regard to Ambisonic order, component ordering or normalisation.
-
-## acoustic admittance
-keyword:: admittance
-|| Vector quantity, reciprocal of emphasis::acoustic impedance::, which may regarded as a normalised form of emphasis::sound intensity::. See link::https://en.wikipedia.org/wiki/Acoustic_impedance##Acoustic impedance::.
-
-## active
-keyword:: active
-|| Describes the real, emphasis::in phase::, part of a complex soundfield. See also emphasis::reactive::.
-
-## angular domain
-keyword:: angular
-|| Information represented in terms of angular components.
 
 ## basic
 keyword:: basic
@@ -62,7 +62,7 @@ keyword:: basis
 
 ## beam
 keyword:: beam
-|| TBD.
+|| Window in the spatial domain.
 
 ## component normalisation
 keyword:: normalisation
@@ -106,7 +106,7 @@ keyword:: rE
 
 ## farfield
 keyword:: farfield
-|| TBD.
+|| Characterized by a minimally emphasis::reactive:: emphasis::travelling wave::. I.e., a wave with minimal quadrature components. A emphasis::planewave:: is in the emphasis::farfield::. See also emphasis::nearfield::.
 
 ## first order Ambisonics
 keyword:: FOA
@@ -114,15 +114,11 @@ keyword:: FOA
 
 ## focused source
 keyword:: focused
-|| An auditory event appearing within the radius of the reproducing loudspeaker array.
+|| Phantom image appearing within the radius of the reproducing loudspeaker array.
 
 ## format
 keyword:: format
 || Ambisonic Toolkit designation indicating Ambisonic emphasis::component ordering:: and emphasis::component normalisation::. E.g., ACN-N3D.
-
-## free field
-keyword:: field
-|| TBD.
 
 ## Gerzon energy vector
 keyword:: energy
@@ -138,11 +134,11 @@ keyword:: holographic
 
 ## holophonic
 keyword:: holophonic
-|| See holographic.
+|| See emphasis::holographic::.
 
 ## image
 keyword:: image
-|| TBD.
+|| Synthesize, modify or otherwise control the phantom images generated by a panning law.
 
 ## isotropic
 keyword:: isotropic
@@ -158,31 +154,27 @@ keyword:: makita
 
 ## nearfield
 keyword:: nearfield
-|| TBD.
-
-## nearfield acoustic holography (NAH)
-keyword:: NAH
-|| TBD.
+|| Characterized by a highly emphasis::reactive:: emphasis::travelling wave::, where emphasis::active:: and emphasis::reactive intensity:: vectors are aligned. A emphasis::spherical wave:: is in the emphasis::nearfield::. See also emphasis::farfield::.
 
 ## nearfield compensated (NFC)
 keyword:: NFC
-|| TBD.
+|| In classic Gerzonic emphasis::first order Ambisonics::, emphasis::nearfield compensation:: describes the emphasis::nearfield control:: applied to accommodate for decoding loudspeakers placed at finite radii. I.e., emphasis::nearfield compensation:: compensates for the fact real loudspeakers cannot be placed at the infinite emphasis::reference radius:: of Gerzonic emphasis::Ambisonics::. note::The Ambisonic Toolkit's code::\FOA:: set observes this convention.::
 
-## nearfield controlled (NFC)
+## nearfield controlled (NFC or NFCtrl)
 keyword:: NFC
-|| TBD.
+|| Characterizing the synthesis or control of a soundfield with nearfield properties. Implemnted via emphasis::radial filtering::. The explicit use of the term emphasis::control:: is preferred to avoid confusion with the classic Gerzonic use of the term emphasis::nearfield compensated::. note::The Ambisonic Toolkit's code::\HOA:: sets observes this convention. ::
 
 ## nearfield effect (NFE)
 keyword:: NFE
-|| TBD.
+|| See emphasis::nearfield:: and emphasis::nearfield controlled::.
 
-## operation
+## operation (op)
 keyword:: operation, op
-|| TBD.
+|| Ambisonic Toolkit designation indicating the processing domain of an Ambisonic signal set transform: code::\matrix:: or code::\kernel::.
 
 ## panning law
 keyword:: pan
-|| TBD.
+|| Algorithm for generating phantom imaging.
 
 ## particle velocity
 keyword:: velocity
@@ -226,7 +218,7 @@ keyword:: soundfield
 
 ## soundfield kernel composition
 keyword:: kernel, soundfield
-|| An idiomatic composition strategy addressing the holistic problem of creatively controlling a complete soundfield for aesthetic purposes. The Ambisonic Toolkit is designed to facilitate this approach.
+|| An idiomatic composition strategy addressing the holistic problem of creatively controlling a complete soundfield for aesthetic purposes. The Ambisonic Toolkit is designed to facilitate this paradigm.
 
 ## spherical coefficient
 keyword:: spherical
@@ -274,7 +266,7 @@ keyword:: type
 
 ## velocity localisation vector (rV)
 keyword:: rV
-|| Vector quantity offering an estimate of the perceived localisation of a phantom source at low frequency, predicting imaging up to around 1.5 kHz. Can be found as the real part of emphasis::acoustic admittance::.
+|| Vector quantity offering an estimate of the perceived localisation of a phantom source at low frequency, predicting imaging up to around 1.5 kHz. Can be found as the real part of emphasis::acoustic admittance::, the emphasis::active acoustic admittance::.
 
 ## zonal modes
 keyword:: zonal, modes

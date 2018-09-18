@@ -119,13 +119,13 @@ HoaLm {
                 ^l.squared + l + m
             },
             \sid, {
-                ^(l**2 + (2 * (l - m.abs))) - m.sign.clip(-1, 0)
+				^((l**2 + (2 * (l - m.abs))) - m.sign.clip(-1, 0)).asInteger
             },
             \fuma, {
                 ^(l <= 1).if ({
                     this.index(\sid)
                 }, {
-                    (l.squared + (2 * m.abs)) - m.sign.clip(0, 1);
+					((l.squared + (2 * m.abs)) - m.sign.clip(0, 1)).asInteger;
                 })
             }
         )

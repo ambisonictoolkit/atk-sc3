@@ -12,6 +12,7 @@
                  "FileLog",
                  "Hilbert",
                  "wslib",
+                 "Ctk"
                 ],
   \organization: "ATK Community: http://www.ambisonictoolkit.net",
          \since: "2011",

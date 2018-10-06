@@ -1874,15 +1874,15 @@ FoaDecoderKernel {
 
 		// init kernelSize if need be (usually for HRIRs)
 		if ( kernelSize == nil, {
-			kernelSize = Dictionary.newFrom([
-				"None", 512,
-				"44100", 512,
-				"48000", 512,
-				"88200", 1024,
-				"96000", 1024,
-				"176400", 2048,
-				"192000", 2048,
-			]).at(sampleRateStr)
+			kernelSize = switch(sampleRateStr.asSymbol,
+				'None', 512,
+				'44100', 512,
+				'48000', 512,
+				'88200', 1024,
+				'96000', 1024,
+				'176400', 2048,
+				'192000', 2048
+			);
 		});
 
 
@@ -2201,15 +2201,15 @@ FoaEncoderKernel {
 
 		// init kernelSize if need be
 		if ( kernelSize == nil, {
-			kernelSize = Dictionary.newFrom([
-				"None", 512,
-				"44100", 512,
-				"48000", 512,
-				"88200", 1024,
-				"96000", 1024,
-				"176400", 2048,
-				"192000", 2048,
-			]).at(sampleRateStr)
+			kernelSize = switch(sampleRateStr.asSymbol,
+				'None', 512,
+				'44100', 512,
+				'48000', 512,
+				'88200', 1024,
+				'96000', 1024,
+				'176400', 2048,
+				'192000', 2048
+			);
 		});
 
 

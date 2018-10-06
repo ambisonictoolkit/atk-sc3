@@ -1842,8 +1842,12 @@ FoaDecoderKernel {
 		var databasePath, subjectPath;
 		var chans;
 		var errorMsg;
+		var sampleRateStr;
+		if(sampleRate.notNil, {
+			sampleRateStr = sampleRate.asInteger.asString;
+		});
 
-		if((server.serverRunning.not) && (sampleRate.isNil) && (score.isNil), {
+		if((server.serverRunning.not) && (sampleRateStr.isNil) && (score.isNil), {
 			Error(
 				"Please boot server: %, or provide a CtkScore or Score.".format(
 					server.name.asString
@@ -1860,27 +1864,25 @@ FoaDecoderKernel {
 		// init dirChannels (output channel (speaker) directions) and kernel sr
 		if ( kind == 'uhj', {
 			dirChannels = [ pi/6, pi.neg/6 ];
-			sampleRate = "None";
+			sampleRateStr = "None";
 		}, {
 			dirChannels = [ 5/9 * pi, 5/9 * pi.neg ];
-			if(sampleRate.isNil, {
-				sampleRate = server.sampleRate.asString;
-			}, {
-				sampleRate = sampleRate.asString;
+			if(sampleRateStr.isNil, {
+				sampleRateStr = server.sampleRate.asInteger.asString;
 			});
 		});
 
 		// init kernelSize if need be (usually for HRIRs)
 		if ( kernelSize == nil, {
-			kernelSize = Dictionary.newFrom([
+			kernelSize = switch(sampleRateStr.asSymbol,
 				'None', 512,
 				'44100', 512,
 				'48000', 512,
 				'88200', 1024,
 				'96000', 1024,
 				'176400', 2048,
-				'192000', 2048,
-			]).at(sampleRate.asSymbol)
+				'192000', 2048
+			);
 		});
 
 
@@ -1888,7 +1890,7 @@ FoaDecoderKernel {
 		databasePath = this.initPath;
 
 		subjectPath = databasePath +/+ PathName.new(
-			sampleRate ++ "/" ++
+			sampleRateStr ++ "/" ++
 			kernelSize ++ "/" ++
 			subjectID.asString.padLeft(4, "0")
 		);
@@ -1914,7 +1916,7 @@ FoaDecoderKernel {
 					("\t" + folder.folderName).postln;
 				});
 
-				errorMsg = "Samplerate = % is not available for".format(sampleRate)
+				errorMsg = "Samplerate = % is not available for".format(sampleRateStr)
 				+
 							"% kernel decoder.".format(kind)
 			}
@@ -2130,8 +2132,12 @@ FoaEncoderKernel {
 		var databasePath, subjectPath;
 		var chans;
 		var errorMsg;
+		var sampleRateStr;
+		if(sampleRate.notNil, {
+			sampleRateStr = sampleRate.asInteger.asString;
+		});
 
-		if((server.serverRunning.not) && (sampleRate.isNil) && (score.isNil), {
+		if((server.serverRunning.not) && (sampleRateStr.isNil) && (score.isNil), {
 			Error(
 				"Please boot server: %, or provide a CtkScore or Score.".format(
 					server.name.asString
@@ -2147,30 +2153,26 @@ FoaEncoderKernel {
 		switch ( kind,
 			'super', {
 				dirChannels = [ pi/4, pi.neg/4 ];	 // approx, doesn't include phasiness
-				sampleRate = "None";
+				sampleRateStr = "None";
 				chans = 3;					// [w, x, y]
 			},
 			'uhj', {
 				dirChannels = [ inf, inf ];
-				if(sampleRate.isNil, {
-					sampleRate = server.sampleRate.asString;
-				}, {
-					sampleRate = sampleRate.asString;
+				if(sampleRateStr.isNil, {
+					sampleRateStr = server.sampleRate.asInteger.asString;
 				});
 				chans = 3;					// [w, x, y]
 			},
 			'spread', {
 				dirChannels = [ inf ];
-				if(sampleRate.isNil, {
-					sampleRate = server.sampleRate.asString;
-				}, {
-					sampleRate = sampleRate.asString;
+				if(sampleRateStr.isNil, {
+					sampleRateStr = server.sampleRate.asInteger.asString;
 				});
 				chans = 4;					// [w, x, y, z]
 			},
 			'diffuse', {
 				dirChannels = [ inf ];
-				sampleRate = "None";
+				sampleRateStr = "None";
 				chans = 4;					// [w, x, y, z]
 			}
 
@@ -2182,32 +2184,32 @@ FoaEncoderKernel {
 			//			},
 			//			'greathall', {
 			//				dirChannels = [ inf ];
-			//				sampleRate = server.sampleRate.asString;
+			//				sampleRateStr = server.sampleRate.asInteger.asString;
 			//				chans = 4;					// [w, x, y, z]
 			//			},
 			//			'octagon', {
 			//				dirChannels = [ inf ];
-			//				sampleRate = server.sampleRate.asString;
+			//				sampleRateStr = server.sampleRate.asInteger.asString;
 			//				chans = 4;					// [w, x, y, z]
 			//			},
 			//			'classroom', {
 			//				dirChannels = [ inf ];
-			//				sampleRate = server.sampleRate.asString;
+			//				sampleRateStr = server.sampleRate.asInteger.asString;
 			//				chans = 4;					// [w, x, y, z]
 			//			}
 		);
 
 		// init kernelSize if need be
 		if ( kernelSize == nil, {
-			kernelSize = Dictionary.newFrom([
+			kernelSize = switch(sampleRateStr.asSymbol,
 				'None', 512,
 				'44100', 512,
 				'48000', 512,
 				'88200', 1024,
 				'96000', 1024,
 				'176400', 2048,
-				'192000', 2048,
-			]).at(sampleRate.asSymbol)
+				'192000', 2048
+			);
 		});
 
 
@@ -2215,7 +2217,7 @@ FoaEncoderKernel {
 		databasePath = this.initPath;
 
 		subjectPath = databasePath +/+ PathName.new(
-			sampleRate ++ "/" ++
+			sampleRateStr ++ "/" ++
 			kernelSize ++ "/" ++
 			subjectID.asString.padLeft(4, "0")
 		);
@@ -2241,7 +2243,7 @@ FoaEncoderKernel {
 					("\t" + folder.folderName).postln;
 				});
 
-				errorMsg = "Samplerate = % is not available for".format(sampleRate)
+				errorMsg = "Samplerate = % is not available for".format(sampleRateStr)
 				+
 				"% kernel encoder.".format(kind)
 			}

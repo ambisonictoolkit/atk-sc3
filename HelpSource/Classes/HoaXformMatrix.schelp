@@ -18,12 +18,6 @@ The input signal, an array.
 ARGUMENT:: hoaMatrix
 An instance of link::Classes/HoaMatrixXformer::.
 
-ARGUMENT:: mul
-Output will be multiplied by this value.
-
-ARGUMENT:: add
-This value will be added to the output.
-
 discussion::
 
 Signals are decoded from the emphasis::reference radius::.

@@ -156,12 +156,12 @@ HoaUGen {
 
 	// Faster than AtkMatrixMix: doens't replace zeros with silence.
 	// 'mtxArr' is a MatrixArray.
-	*mixMatrix { |in, mtxArr, mul = 1, add = 0|
+	*mixMatrix { |in, mtxArr|
 		var flopped = mtxArr.flopped;
 
 		^Mix.fill(mtxArr.cols, { |i|
 			flopped[i] * in[i]
-		}).madd(mul, add)
+		})
 	}
 
 }
@@ -174,7 +174,7 @@ HoaUGen {
 // More efficient than AtkMatrixMix, as doesn't replace zeros until the end.
 // Also, confirms in and matrix match.
 HoaRenderMatrix : HoaUGen {
-	*ar { |in, hoaMatrix, mul = 1, add = 0|
+	*ar { |in, hoaMatrix|
 
 		// catch
 		(hoaMatrix.class.superclass != HoaMatrix).if({
@@ -191,7 +191,7 @@ HoaRenderMatrix : HoaUGen {
 		this.confirmNumInputs(in, hoaMatrix.numInputs);
 
 		^UGen.replaceZeroesWithSilence(
-			this.mixMatrix(in, MatrixArray.with(hoaMatrix.matrix.asArray), mul, add)
+			this.mixMatrix(in, MatrixArray.with(hoaMatrix.matrix.asArray))
 		)
 	}
 }
@@ -217,7 +217,7 @@ or separate implementation details for the named type matched classes.
 // Basic & holophonic encoding.
 HoaEncodeDirection : HoaUGen {
 
-	*ar { |in, theta, phi, radius, order = (Hoa.defaultOrder), mul = 1, add = 0|
+	*ar { |in, theta, phi, radius, order = (Hoa.defaultOrder)|
 		var toPhi, n, hoaOrder, coeffs;
 		var zenith, tumbleRotate;
 
@@ -270,7 +270,7 @@ HoaEncodeDirection : HoaUGen {
 		);
 
 		// 4) replace zeros
-		^UGen.replaceZeroesWithSilence(tumbleRotate).madd(mul, add)
+		^UGen.replaceZeroesWithSilence(tumbleRotate)
 	}
 }
 
@@ -281,7 +281,7 @@ HoaEncodeDirection : HoaUGen {
 // Rotation about Z axis.
 HoaRotate : HoaUGen {
 
-	*ar { |in, radians, order = (Hoa.defaultOrder), mul = 1, add = 0|
+	*ar { |in, radians, order = (Hoa.defaultOrder)|
 		var n;
 		var i = 0;
 		var out, cos, sin;
@@ -336,13 +336,13 @@ HoaRotate : HoaUGen {
 			};
 		};
 
-		^out.madd(mul, add)
+		^out
 	}
 }
 
 // Rotation about X axis.
 HoaTilt : HoaUGen {
-	*ar { |in, radians, order = (Hoa.defaultOrder), mul = 1, add = 0|
+	*ar { |in, radians, order = (Hoa.defaultOrder)|
 		var n, mK, hoa;
 
 		n = HoaUGen.confirmOrder(in, order);
@@ -358,13 +358,13 @@ HoaTilt : HoaUGen {
 		// (negative) direction.
 		hoa = HoaUGen.mixMatrix(in, mK);
 		hoa = HoaRotate.ar(hoa, radians.neg, n);
-		^HoaUGen.mixMatrix(hoa, mK).madd(mul, add);
+		^HoaUGen.mixMatrix(hoa, mK);
 	}
 }
 
 // Rotation about Y axis.
 HoaTumble : HoaUGen {
-	*ar { |in, radians, order = (Hoa.defaultOrder), mul = 1, add = 0|
+	*ar { |in, radians, order = (Hoa.defaultOrder)|
 		var n, mJ, hoa;
 
 		n = HoaUGen.confirmOrder(in, order);
@@ -375,7 +375,7 @@ HoaTumble : HoaUGen {
 		// tumple/pitch : J -> Z(tumble) -> J
 		hoa = HoaUGen.mixMatrix(in, mJ);
 		hoa = HoaRotate.ar(hoa, radians, n);
-		^HoaUGen.mixMatrix(hoa, mJ).madd(mul, add);
+		^HoaUGen.mixMatrix(hoa, mJ);
 	}
 }
 
@@ -390,7 +390,7 @@ HoaRoll : HoaTilt {}
 // Rotate > Tilt > Tumble.
 // Extrinsic, "laboratory-fixed" axes.
 HoaRTT : HoaUGen {
-	*ar { |in, rotate, tilt, tumble, order = (Hoa.defaultOrder), mul = 1, add = 0|
+	*ar { |in, rotate, tilt, tumble, order = (Hoa.defaultOrder)|
 		var n, mJ, mK, mJK;
 		var hoa;
 
@@ -412,7 +412,7 @@ HoaRTT : HoaUGen {
 
 		// tumble : -> Z(pitch) -> J
 		hoa = HoaRotate.ar(hoa, tumble, n);
-		^HoaUGen.mixMatrix(hoa, mJ).madd(mul, add);
+		^HoaUGen.mixMatrix(hoa, mJ);
 	}
 }
 
@@ -421,7 +421,7 @@ HoaRTT : HoaUGen {
 // This rotation differs from HoaRTT, which is extrinsic.
 HoaYPR : HoaUGen {
 
-	*ar { |in, yaw, pitch, roll, order = (Hoa.defaultOrder), mul = 1, add = 0|
+	*ar { |in, yaw, pitch, roll, order = (Hoa.defaultOrder)|
 		var n, mK, mJ, mJK, hoa;
 
 		n = HoaUGen.confirmOrder(in, order);
@@ -444,21 +444,21 @@ HoaYPR : HoaUGen {
 		hoa = HoaUGen.mixMatrix(hoa, mJ);
 
 		// yaw (rotate)
-		^HoaRotate.ar(hoa, yaw, n).madd(mul, add);
+		^HoaRotate.ar(hoa, yaw, n);
 	}
 }
 
 // Soundfield mirroring.
 HoaReflect : HoaUGen {
 
-	*ar { |in, reflect = \reflect, order = (Hoa.defaultOrder), mul = 1, add = 0|
+	*ar { |in, reflect = \reflect, order = (Hoa.defaultOrder)|
 		var n, mirrorCoeffs;
 
 		n = HoaUGen.confirmOrder(in, order);
 
 		mirrorCoeffs = n.asHoaOrder.reflection(reflect);
 
-		^(mirrorCoeffs * in).madd(mul, add);
+		^(mirrorCoeffs * in);
 	}
 }
 
@@ -466,7 +466,7 @@ HoaReflect : HoaUGen {
 // NOTE: unstable, requires suitably pre-conditioned input to avoid overflow
 HoaNFProx : HoaUGen {
 
-	*ar { |in, order = (Hoa.defaultOrder), mul = 1, add = 0|
+	*ar { |in, order = (Hoa.defaultOrder)|
 		var n, hoaOrder;
 
 		n = HoaUGen.confirmOrder(in, order);
@@ -479,7 +479,7 @@ HoaNFProx : HoaUGen {
 				Hoa.refRadius,
 				l
 			)
-		}).madd(mul, add)
+		})
 	}
 }
 
@@ -487,7 +487,7 @@ HoaNFProx : HoaUGen {
 HoaNFDist : HoaUGen {
 
 	*ar { |in, order = (Hoa.defaultOrder)|
-		var n, hoaOrder, mul = 1, add = 0;
+		var n, hoaOrder;
 
 		n = HoaUGen.confirmOrder(in, order);
 		hoaOrder = n.asHoaOrder;  // instance order
@@ -499,7 +499,7 @@ HoaNFDist : HoaUGen {
 				Hoa.refRadius,
 				l
 			)
-		}).madd(mul, add)
+		})
 	}
 }
 
@@ -516,7 +516,7 @@ HoaNFDist : HoaUGen {
 //            decRadius = source encoding radius
 HoaNFCtrl : HoaUGen {
 
-	*ar { |in, encRadius, decRadius, order = (Hoa.defaultOrder), mul = 1, add = 0|
+	*ar { |in, encRadius, decRadius, order = (Hoa.defaultOrder)|
 		var n, hoaOrder;
 
 		n = HoaUGen.confirmOrder(in, order);
@@ -530,7 +530,7 @@ HoaNFCtrl : HoaUGen {
 				decRadius,
 				l
 			)
-		}).madd(mul, add)
+		})
 	}
 }
 
@@ -538,7 +538,7 @@ HoaNFCtrl : HoaUGen {
 // Gain matched to beam.
 HoaBeam : HoaUGen {
 
-	*ar { |in, theta, phi, radius, beamShape = \basic, order = (Hoa.defaultOrder), mul = 1, add = 0|
+	*ar { |in, theta, phi, radius, beamShape = \basic, order = (Hoa.defaultOrder)|
 		var n, basicCoeffs, beamCoeffs, toPhi;
 		var hoaOrder, degreeSeries, beamWeights;
 		var rotateTumble, weighted, mono, zenith, tumbleRotate;
@@ -642,7 +642,7 @@ HoaBeam : HoaUGen {
 		);
 
 		// 8) replace zeros
-		^UGen.replaceZeroesWithSilence(tumbleRotate).madd(mul, add)
+		^UGen.replaceZeroesWithSilence(tumbleRotate)
 	}
 }
 
@@ -650,13 +650,13 @@ HoaBeam : HoaUGen {
 // Gain matched to beam.
 HoaNull : HoaUGen {
 
-	*ar { |in, theta, phi, radius, beamShape = \basic, order = (Hoa.defaultOrder), mul = 1, add = 0|
+	*ar { |in, theta, phi, radius, beamShape = \basic, order = (Hoa.defaultOrder)|
 		var null;
 
 		// form null
 		null = in - HoaBeam.ar(in, theta, phi, radius, beamShape, order);
 
-		^null.madd(mul, add)
+		^null
 	}
 }
 
@@ -668,7 +668,7 @@ HoaNull : HoaUGen {
 // Gain matched to beam.
 HoaDecodeDirection : HoaUGen {
 
-	*ar { |in, theta, phi, radius, beamShape = \basic, order = (Hoa.defaultOrder), mul = 1, add = 0|
+	*ar { |in, theta, phi, radius, beamShape = \basic, order = (Hoa.defaultOrder)|
 		var n, coeffs, toPhi;
 		var hoaOrder, degreeSeries, beamWeights;
 		var rotateTumble, weighted;
@@ -738,7 +738,7 @@ HoaDecodeDirection : HoaUGen {
 					)
 				}).sum
 			})
-		}).madd(mul, add)
+		})
 	}
 }
 
@@ -747,7 +747,7 @@ HoaDecodeDirection : HoaUGen {
 // Near-field Effect by Degree utilities
 
 DegreeProx {
-	*ar { |in, radius, degree = 0, mul = 1, add = 0|
+	*ar { |in, radius, degree = 0|
 		var out;
 
 		// degree 0
@@ -773,12 +773,12 @@ DegreeProx {
 			out = coeffDict[\g] * out;
 		});
 
-		^out.madd(mul, add)
+		^out
 	}
 }
 
 DegreeDist {
-	*ar { |in, radius, degree = 0, mul = 1, add = 0|
+	*ar { |in, radius, degree = 0|
 		var out;
 
 		// degree 0
@@ -804,12 +804,12 @@ DegreeDist {
 			out = coeffDict[\g] * out;
 		});
 
-		^out.madd(mul, add)
+		^out
 	}
 }
 
 DegreeCtrl {
-	*ar { |in, encRadius, decRadius, degree = 0, mul = 1, add = 0|
+	*ar { |in, encRadius, decRadius, degree = 0|
 		var out;
 
 		// degree 0
@@ -835,6 +835,6 @@ DegreeCtrl {
 			out = coeffDict[\g] * out;
 		});
 
-		^out.madd(mul, add)
+		^out
 	}
 }

@@ -27,12 +27,6 @@ Radius, in meters.
 ARGUMENT:: order
 Ambisonic order.
 
-ARGUMENT:: mul
-Output will be multiplied by this value.
-
-ARGUMENT:: add
-This value will be added to the output.
-
 
 discussion::
 

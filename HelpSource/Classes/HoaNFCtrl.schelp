@@ -1,0 +1,413 @@
+TITLE:: HoaNFCtrl
+summary:: Higher Order Ambisonic (HOA) NFE control transformer
+categories:: Libraries>Ambisonic Toolkit>HOA>Transforming>UGens, UGens>Multichannel>Ambisonics, UGens>Multichannel>Panners
+related:: Classes/HoaNFDist, Classes/HoaNFProx, Classes/DegreeDist, Classes/DegreeProx, Classes/DegreeCtrl
+
+DESCRIPTION::
+Higher order ambisonic signal (HOA) near-field effect (NFE) control transformer.
+
+
+CLASSMETHODS::
+
+METHOD:: ar
+
+ARGUMENT:: in
+The input signal.
+
+ARGUMENT:: encRadius
+The encoding radius in meters.
+
+ARGUMENT:: decRadius
+The decoding radius in meters.
+
+ARGUMENT:: order
+Ambisonic order.
+
+DISCUSSION::
+
+Three use cases:
+
+table::
+## strong::case:: || strong::radial transform:: || strong::encRadius:: || strong::decRadius::
+## NFE decoding footnote::Aka, NFE "looking".:: || decode NFE to basic || code::Hoa.refRadius:: || target decoding radius
+## NFE encoding || encode NFE from basic || target encoding radius || code::Hoa.refRadius::
+## NFE imaging || translate source to target || target encoding radius || source encoding radius
+::
+
+link::Classes/HoaNFCtrl:: offers comprehensive control of the near-field effect (NFE) by combining link::Classes/HoaNFDist:: and link::Classes/HoaNFProx:: into a single, stable transform.
+
+This transform offers an HOA equivalent to link::Classes/FoaNFC:: followed by link::Classes/FoaProximity::, in the first order case.
+
+
+EXAMPLES::
+
+subsection:: HOA with NFE decoding
+
+Radial encoding followed by decoding with loudspeaker near-field compensation.
+
+code::
+// Inspect the ATK's speed of sound reference
+"Speed of sound: % m/s".format(Hoa.speedOfSound);
+
+// Inspect the ATK's reference radius
+"Reference radius: % m".format(Hoa.refRadius);
+
+// Inspect the ATK's channel/coefficient ordering
+"Coefficient ordering: %".format(Hoa.ordering);
+
+// Inspect the ATK's channel/coefficient ordering
+"Coefficient normalisation: %".format(Hoa.normalisation);
+
+
+// simple test...
+
+// boot rt server
+s.boot;
+
+// choose Ambisonic order
+~order = 1
+~order = 2
+~order = 3
+
+// choose an outbus, if need be
+~outbus = 0
+
+// encoding angles
+// azimuth & elevation
+~theta = 0.0;
+~phi = 0.0;
+
+// explicitly set encoding radius
+// i.e., radius != Hoa.refRadius
+~encRadius = 2.0;  // > Hoa.refRadius
+~encRadius = 1.5;  // = Hoa.refRadius
+~encRadius = 1.0;  // < Hoa.refRadius
+
+
+// decoding - panto decoder
+~numChans = 8;
+~orientation = \flat;
+~beamShape = \basic;
+~beamShape = \energy;  // <-- good choice!
+~beamShape = \controlled;
+~match = \amp;
+~match = \rms;
+~match = \energy;  // <-- good choice!
+~decRadius = 2.0;  // decoding / (actual) loudspeaker radius
+
+
+// open scope
+s.scope(~numChans, ~outbus);
+
+
+// audition
+(
+{
+	// saw params
+	var freq = 110.0;
+	var gain = -12;
+
+	var sig;
+	var hoa;
+
+	sig = Saw.ar(freq, gain.dbamp);
+
+	// encode with NFE
+	hoa = HoaEncodeDirection.ar(sig, ~theta, ~phi, ~encRadius, ~order);
+
+	// decode with NFE / loudspeaker near-field compensation
+	HoaDecodeMatrix.ar(
+		HoaNFCtrl.ar(  // NFE control
+			hoa,
+			Hoa.refRadius,
+			~decRadius,
+			~order
+		),
+		HoaMatrixDecoder.newPanto(  // panto decoder
+			~numChans,
+			~orientation,
+			~beamShape,
+			~match,
+			~order
+		)
+	);
+
+}.play(outbus: ~outbus)
+)
+
+// quit rt server
+s.quit
+::
+
+
+subsection:: HOA with NFE encoding
+
+Synthesise diffuse field at an encoding radius.
+
+code::
+// Inspect the ATK's speed of sound reference
+"Speed of sound: % m/s".format(Hoa.speedOfSound);
+
+// Inspect the ATK's reference radius
+"Reference radius: % m".format(Hoa.refRadius);
+
+// Inspect the ATK's channel/coefficient ordering
+"Coefficient ordering: %".format(Hoa.ordering);
+
+// Inspect the ATK's channel/coefficient ordering
+"Coefficient normalisation: %".format(Hoa.normalisation);
+
+
+// simple test...
+
+// boot rt server
+s.boot;
+
+// choose Ambisonic order
+~order = 1
+~order = 2
+~order = 3
+
+// choose an outbus, if need be
+~outbus = 0
+
+// open scope
+s.scope(~order.asHoaOrder.numCoeffs, ~outbus);
+
+
+// explicitly set encoding radius
+// i.e., radius != Hoa.refRadius
+~encRadius = 10.0;  // >> Hoa.refRadius
+~encRadius = 5.0;  // > Hoa.refRadius
+~encRadius = 2.0;  // > Hoa.refRadius
+~encRadius = 1.5;  // = Hoa.refRadius
+~encRadius = 1.0;  // < Hoa.refRadius
+
+
+// audition
+(
+{
+	// params
+	var gain = -12;
+
+	var hoa;
+
+	// diffuse field (synthesized at Hoa.refRadius)
+	hoa = HoaOrder.new(~order).numCoeffs.collect({ BrownNoise.ar(gain.dbamp) });
+
+	// encode with NFE
+	HoaNFCtrl.ar(  // NFE control
+		hoa,
+		~encRadius,
+		Hoa.refRadius,
+		~order
+	);
+
+}.play(outbus: ~outbus)
+)
+
+// quit rt server
+s.quit
+::
+
+
+subsection:: HOA with NFE imaging
+
+Translate from source radius to target radius.
+
+code::
+// Inspect the ATK's speed of sound reference
+"Speed of sound: % m/s".format(Hoa.speedOfSound);
+
+// Inspect the ATK's reference radius
+"Reference radius: % m".format(Hoa.refRadius);
+
+// Inspect the ATK's channel/coefficient ordering
+"Coefficient ordering: %".format(Hoa.ordering);
+
+// Inspect the ATK's channel/coefficient ordering
+"Coefficient normalisation: %".format(Hoa.normalisation);
+
+
+// simple test...
+
+// boot rt server
+s.boot;
+
+// choose Ambisonic order
+~order = 1
+~order = 2
+~order = 3
+
+// choose an outbus, if need be
+~outbus = 0
+
+// open scope
+s.scope(~order.asHoaOrder.numCoeffs, ~outbus);
+
+
+// encoding angles
+// azimuth & elevation
+~theta = 0.0;
+~phi = 0.0;
+
+// explicitly set (source) encoding radius
+// i.e., radius != Hoa.refRadius
+~encRadius = 2.0;  // > Hoa.refRadius
+~encRadius = 1.5;  // = Hoa.refRadius
+~encRadius = 1.0;  // < Hoa.refRadius
+
+// target (translation) radius
+~reEncRadius = 3.0;  // re-encoding radius > Hoa.refRadius
+~reEncRadius = 1.5;  // re-encoding radius = Hoa.refRadius
+~reEncRadius = 1.0;  // re-encoding radius < Hoa.refRadius
+
+
+// audition
+(
+{
+	// saw params
+	var freq = 110.0;
+	var gain = -12;
+
+	var sig;
+	var hoa;
+
+	sig = Saw.ar(freq, gain.dbamp);
+
+	// encode with NFE
+	hoa = HoaEncodeDirection.ar(sig, ~theta, ~phi, ~encRadius, ~order);
+
+	// re-encode NFE
+	HoaNFCtrl.ar(
+		hoa,
+		~reEncRadius,
+		~encRadius,
+		~order
+	);
+
+}.play(outbus: ~outbus)
+)
+
+// quit rt server
+s.quit
+::
+
+
+subsection:: Radial modulation
+
+The use of two link::Classes/HoaNFCtrl:: transformers offers the possibility of modulation at a given radius.
+
+code::
+// Inspect the ATK's speed of sound reference
+"Speed of sound: % m/s".format(Hoa.speedOfSound);
+
+// Inspect the ATK's reference radius
+"Reference radius: % m".format(Hoa.refRadius);
+
+// Inspect the ATK's channel/coefficient ordering
+"Coefficient ordering: %".format(Hoa.ordering);
+
+// Inspect the ATK's channel/coefficient ordering
+"Coefficient normalisation: %".format(Hoa.normalisation);
+
+
+// simple test...
+
+// boot rt server
+s.boot;
+
+// choose Ambisonic order
+~order = 1
+~order = 2
+~order = 3
+
+// choose an outbus, if need be
+~outbus = 0
+
+// encoding angles
+// azimuth & elevation
+~theta = 0.0;
+~phi = 0.0;
+
+// explicitly set encoding radius
+// i.e., radius != Hoa.refRadius
+~encRadius = 2.0;  // > Hoa.refRadius
+~encRadius = 1.5;  // = Hoa.refRadius
+~encRadius = 1.0;  // < Hoa.refRadius
+
+
+// decoding / re-encoding - spherical design (A/B-format)
+~numChans = 24;
+~beamShape = \basic;
+~beamShape = \energy;
+~beamShape = \controlled;
+~sphDesign = TDesign.newHoa(~numChans, order: ~order);
+
+
+// modulation
+~modRate = 20.0;
+~modRate = 10.0;
+~modRate = 5.0;
+
+
+// open scope
+s.scope(~order.asHoaOrder.numCoeffs, ~outbus);
+
+
+// audition
+(
+{
+	// saw params
+	var freq = 110.0;
+	var gain = -12;
+
+	var sig;
+	var hoa;
+	var aformat;
+
+	sig = Saw.ar(freq, gain.dbamp);
+
+	// encode with NFE
+	hoa = HoaEncodeDirection.ar(sig, ~theta, ~phi, ~encRadius, ~order);
+
+	// decode with NFE
+	aformat = HoaDecodeMatrix.ar(
+		HoaNFCtrl.ar(  // NFE control - decode at encoding radius, the "look" radius
+			hoa,
+			Hoa.refRadius,
+			~encRadius,
+			~order
+		),
+		HoaMatrixDecoder.newSphericalDesign(  // a-format decoder
+			~sphDesign,
+			~beamShape,
+			~order
+		)
+	);
+
+	// modulate amplitude of "virtual loudspeakers" - in a-format
+	aformat = aformat * ~numChans.collect({ LFNoise2.ar(~modRate).range });
+	// aformat = aformat * ~numChans.collect({ LFNoise2.ar(~modRate) });
+
+	// re-encode with NFE
+	HoaNFCtrl.ar(  // NFE control - re-encode at encoding radius, the "look" radius
+		HoaEncodeMatrix.ar(
+			aformat,
+			HoaMatrixEncoder.newSphericalDesign(  // a-format encoder
+				~sphDesign,
+				~beamShape,
+				~order
+			)
+		),
+		~encRadius,
+		Hoa.refRadius,
+		~order
+	);
+
+}.play(outbus: ~outbus)
+)
+
+// quit rt server
+s.quit
+::

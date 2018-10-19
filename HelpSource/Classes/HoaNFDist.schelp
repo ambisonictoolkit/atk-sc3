@@ -1,0 +1,115 @@
+TITLE:: HoaNFDist
+summary:: Higher Order Ambisonic (HOA) distance transformer
+categories:: Libraries>Ambisonic Toolkit>HOA>Transforming>UGens, UGens>Multichannel>Ambisonics, UGens>Multichannel>Panners
+related:: Classes/HoaNFProx, Classes/HoaNFCtrl, Classes/DegreeDist, Classes/DegreeProx, Classes/DegreeCtrl
+
+DESCRIPTION::
+Higher order ambisonic signal (HOA) near-field effect (NFE) distance transformer.
+
+
+CLASSMETHODS::
+
+METHOD:: ar
+
+ARGUMENT:: in
+The input signal.
+
+ARGUMENT:: order
+Ambisonic order.
+
+DISCUSSION::
+
+link::Classes/HoaNFDist:: translates an input HOA signal where code::refRadius = inf:: to code::refRadius = Hoa.refRadius::.
+
+This transform offers an HOA equivalent to link::Classes/FoaNFC:: where code::distance = Hoa.refRadius::, in the first order case.
+
+
+NOTE::This operation is required to import FOA or third party signals into the ATK's HOA with NFE signal set format.::
+
+
+
+EXAMPLES::
+
+subsection:: Re-encode from FOA to HOA1 with NFE
+
+code::
+// Inspect the ATK's speed of sound reference
+"Speed of sound: % m/s".format(Hoa.speedOfSound);
+
+// Inspect the ATK's reference radius
+"Reference radius: % m".format(Hoa.refRadius);
+
+// Inspect the ATK's channel/coefficient ordering
+"Coefficient ordering: %".format(Hoa.ordering);
+
+// Inspect the ATK's channel/coefficient ordering
+"Coefficient normalisation: %".format(Hoa.normalisation);
+
+
+// simple test...
+
+// boot rt server
+s.boot;
+
+// choose Ambisonic order
+~order = 1  // match FOA, first order!
+
+// choose an outbus, if need be
+~outbus = 0
+
+// open scope
+s.scope(~order.asHoaOrder.numCoeffs, ~outbus);
+
+// encoding angles
+// azimuth & elevation
+~theta = 0.0;
+~phi = 0.0;
+
+// explicitly set encoding radius
+// i.e., radius != Hoa.refRadius
+~encRadius = 2.0;  // > Hoa.refRadius
+~encRadius = 1.5;  // = Hoa.refRadius
+~encRadius = 1.0;  // < Hoa.refRadius
+
+
+// audition
+(
+{
+	// saw params
+	var freq = 110.0;
+	var gain = -12;
+
+	var sig;
+	var foa;
+
+	sig = Saw.ar(freq, gain.dbamp);  // saw
+	// sig = SinOsc.ar(freq, mul: gain.dbamp);  // sine
+
+	// FOA encoding, refRadius = inf
+	foa = FoaProximity.ar(  // FOA radial encoding
+		FoaPanB.ar(  // FOA angular encoding
+			HPF.ar(sig, freq/3),  // precondition sig, i.e., "make safe" for proximity
+			~theta,
+			~phi
+		),
+		~encRadius
+	);
+
+	// HOA re-encoding, refRadius = Hoa.refRadius (= 1.5)
+	HoaNFDist.ar(
+		HoaEncodeMatrix.ar(
+			foa,
+			HoaMatrixEncoder.newFormat(\fuma, ~order)  // from fuma to atk
+		),
+		~order
+	);
+
+	// // compare to direct HOA1 encoding
+	// HoaEncodeDirection.ar(sig, ~theta, ~phi, ~encRadius, ~order);  // no need to precondition sig!
+
+}.play(outbus: ~outbus)
+)
+
+// quit rt server
+s.quit
+::

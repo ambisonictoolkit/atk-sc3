@@ -1,0 +1,117 @@
+TITLE:: HoaNull
+summary:: Higher Order Ambisonic (HOA) null transformer
+categories:: Libraries>Ambisonic Toolkit>HOA>Transforming>UGens, UGens>Multichannel>Ambisonics, UGens>Multichannel>Panners
+related:: Classes/HoaBeam, Classes/HoaXformMatrix
+
+DESCRIPTION::
+Nullform into a higher order ambisonic signal (HOA), with near-field effect (NFE).
+
+
+CLASSMETHODS::
+
+METHOD:: ar
+
+ARGUMENT:: in
+The input signal.
+
+ARGUMENT:: theta
+Azimuth, in radians.
+
+ARGUMENT:: phi
+Elevation, in radians.
+
+ARGUMENT:: radius
+Radius, in meters.
+
+ARGUMENT:: beamShape
+Keyword argument for beam shape. See discussion below.
+
+ARGUMENT:: order
+Ambisonic order.
+
+DISCUSSION::
+
+Three standard beam shapes are offered:
+
+table::
+## strong::keyword:: || strong::beam shape:: || strong::localisation vector:: || strong::virtual microphone::
+## code::\basic:: || strict soundfield || maximum velocity rV || Hyper-cardioid
+## code::\energy:: || energy optimised || maximum energy rE || Super-cardioid
+## code::\controlled:: || controlled opposites || minimum diametric energy || Cardioid
+::
+
+The null is realised as the emphasis::difference:: between the initial soundfield and the beamformed soundfield.
+
+
+EXAMPLES::
+
+subsection:: Nullform
+
+This example illustrates nullforming equivalent to the beamforming found link::Classes/HoaBeam#Beamform#here::.
+
+Encode six sinusoids on the axes, then nullform a single null.
+
+code::
+// simple test...
+
+// boot rt server
+s.boot;
+
+// choose Ambisonic order
+~order = 1
+~order = 2
+~order = 3
+
+// choose an outbus, if need be
+~outbus = 0
+
+// open scope
+s.scope(~order.asHoaOrder.numCoeffs, ~outbus);
+
+// design encoding matrix
+~directions = [ [0.0, 0.0], [90.0, 0.0], [180.0, 0.0], [-90.0, 0.0], [0.0, 90.0], [0.0, -90.0], ].degrad;
+~matrixEncoder = HoaMatrixEncoder.newDirections(~directions, order: ~order);
+
+// explicitly set encoding radius
+// i.e., radius != Hoa.refRadius
+~encRadius = 2.0;  // > Hoa.refRadius
+~encRadius = 1.5;  // = Hoa.refRadius
+~encRadius = 1.0;  // < Hoa.refRadius
+
+
+// nulling
+~thetaRate = 0.125;  // modulation rate for null look direction
+~phi = 0.0;
+~beamShape = \basic;
+~beamShape = \energy;
+~beamShape = \controlled;
+
+
+// freqs
+~freqs = Array.series(~directions.size, 110.0, 110.0);
+~amps = Array.series(~directions.size, 1, 1).reciprocal;
+
+// audition
+(
+{
+    var gain = -12;
+
+    var sig, hoa;
+
+    sig = SinOsc.ar(~freqs, mul: gain.dbamp * ~amps);
+
+    hoa = HoaNFCtrl.ar(
+		HoaEncodeMatrix.ar(sig, ~matrixEncoder),
+		~encRadius,  // encoding radius
+		Hoa.refRadius,  // reference radius
+		~order
+	);
+
+	HoaNull.ar(hoa, LFTri.kr(~thetaRate, mul: pi), ~phi, ~encRadius, ~beamShape, ~order);
+
+}.play(outbus: ~outbus)
+)
+
+// quit rt server
+s.quit
+::

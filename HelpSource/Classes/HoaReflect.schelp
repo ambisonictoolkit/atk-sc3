@@ -1,0 +1,124 @@
+TITLE:: HoaReflect
+summary:: Higher Order Ambisonic (HOA) mirror transformer
+categories:: Libraries>Ambisonic Toolkit>HOA>Transforming>UGens, UGens>Multichannel>Ambisonics, UGens>Multichannel>Panners
+related:: Classes/HoaXformMatrix
+
+DESCRIPTION::
+Mirror a higher order ambisonic signal (HOA).
+
+
+CLASSMETHODS::
+
+METHOD:: ar
+
+ARGUMENT:: in
+The input signal.
+
+ARGUMENT:: reflect
+Keyword argument for reflection. See discussion below.
+
+ARGUMENT:: order
+Ambisonic order.
+
+DISCUSSION::
+
+A variety of reflection transforms are offered:
+
+table::
+## strong::keyword:: || strong::mirror::
+## code::\reflect:: || Mirror across the origin. Equivalent to: code::\flip * \flop * \flap::. FOOTNOTE::HOA transform equivalent to link::Classes/FoaXformerMatrix#*newMirrorO::.::
+## code::\flip:: || Mirror in the y-axis. FOOTNOTE::HOA transform equivalent to link::Classes/FoaXformerMatrix#*newMirrorY::.::
+## code::\flop:: || Mirror in the x-axis. FOOTNOTE::HOA transform equivalent to link::Classes/FoaXformerMatrix#*newMirrorX::.::
+## code::\flap:: || Mirror in the z-axis. FOOTNOTE::HOA transform equivalent to link::Classes/FoaXformerMatrix#*newMirrorZ::.::
+## code::\CondonShortleyPhase:: || Condon-Shortley Phase. Equivalent to: code::\flip * \flop::.
+## code::\origin:: || Synonym for code::\reflect::.
+## code::\x:: || Synonym for code::\flop::.
+## code::\y:: || Synonym for code::\flip::.
+## code::\z:: || Synonym for code::\flap::.
+::
+
+
+
+
+EXAMPLES::
+
+subsection:: Mirror in the y-axis
+
+code::
+// Inspect the ATK's speed of sound reference
+"Speed of sound: % m/s".format(Hoa.speedOfSound);
+
+// Inspect the ATK's reference radius
+"Reference radius: % m".format(Hoa.refRadius);
+
+// Inspect the ATK's channel/coefficient ordering
+"Coefficient ordering: %".format(Hoa.ordering);
+
+// Inspect the ATK's channel/coefficient ordering
+"Coefficient normalisation: %".format(Hoa.normalisation);
+
+
+// simple test...
+
+// boot rt server
+s.boot;
+
+// choose Ambisonic order
+~order = 1
+~order = 2
+~order = 3
+
+// choose an outbus, if need be
+~outbus = 0
+
+// open scope
+s.scope(~order.asHoaOrder.numCoeffs, ~outbus);
+
+
+// audition
+(
+{
+	// saw params
+	var freq = 110.0;
+	var gain = -12;
+
+	// azimuth & elevation
+	var theta;  // modulate, below
+	var phi = 0.0;
+	var thetaRate = 0.25;
+
+	// radius
+	// var radius = 1.0;  // inside reference radius
+	var radius = 1.5;  // at reference radius
+	// var radius = 2.0;  // beyond reference radius
+
+	// delay
+	var delay = 0.25;
+
+	// signals
+	var sig;
+	var sigHoa;
+	var sigHoaDel;
+
+	theta = LFTri.kr(thetaRate, mul: pi/2);
+
+	sig = Saw.ar(freq, gain.dbamp);
+
+	// encode
+	sigHoa = HoaEncodeDirection.ar(sig, theta, phi, radius, ~order);
+
+	// mirror and delay
+	sigHoaDel = DelayN.ar(
+		HoaReflect.ar(sigHoa, \flip, ~order),
+		delay,
+		delay
+	);
+
+	// out
+	(sigHoa + sigHoaDel) / 2
+}.play(outbus: ~outbus)
+)
+
+// quit rt server
+s.quit
+::

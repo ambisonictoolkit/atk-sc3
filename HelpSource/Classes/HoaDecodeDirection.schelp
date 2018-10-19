@@ -1,0 +1,125 @@
+TITLE:: HoaDecodeDirection
+summary:: Higher Order Ambisonic (HOA) panner
+categories:: Libraries>Ambisonic Toolkit>HOA>Encoding>UGens, UGens>Multichannel>Ambisonics, UGens>Multichannel>Panners
+related:: Classes/HoaDecodeMatrix, Classes/HoaEncodeDirection
+
+DESCRIPTION::
+Decode a monophonic output from a higher order ambisonic signal (HOA), with near-field effect (NFE).
+
+
+CLASSMETHODS::
+
+METHOD:: ar
+
+
+ARGUMENT:: in
+The input signal.
+
+ARGUMENT:: theta
+Azimuth, in radians.
+
+ARGUMENT:: phi
+Elevation, in radians.
+
+ARGUMENT:: radius
+Radius, in meters.
+
+ARGUMENT:: beamShape
+Keyword argument for beam shape. See discussion below.
+
+ARGUMENT:: order
+Ambisonic order.
+
+
+discussion::
+
+Three standard beam shapes are offered:
+
+table::
+## strong::keyword:: || strong::beam shape:: || strong::localisation vector:: || strong::virtual microphone::
+## code::\basic:: || strict soundfield || maximum velocity rV || Hyper-cardioid
+## code::\energy:: || energy optimised || maximum energy rE || Super-cardioid
+## code::\controlled:: || controlled opposites || minimum diametric energy || Cardioid
+::
+
+link::Classes/HoaDecodeDirection:: offers HOA decoding equivalent to link::Classes/FoaNFC:: followed by link::Classes/FoaDecode:: where link::Classes/FoaDecoderMatrix#*newMono:: is the supplied decoder, in the first order case.
+
+EXAMPLES::
+
+subsection:: Radial decoding
+
+code::
+// Inspect the ATK's speed of sound reference
+"Speed of sound: % m/s".format(Hoa.speedOfSound);
+
+// Inspect the ATK's reference radius
+"Reference radius: % m".format(Hoa.refRadius);
+
+// Inspect the ATK's channel/coefficient ordering
+"Coefficient ordering: %".format(Hoa.ordering);
+
+// Inspect the ATK's channel/coefficient ordering
+"Coefficient normalisation: %".format(Hoa.normalisation);
+
+
+// simple test...
+
+// boot rt server
+s.boot;
+
+// choose Ambisonic order
+~order = 1
+~order = 2
+~order = 3
+
+// choose an outbus, if need be
+~outbus = 0
+
+// open scope
+s.scope(2, ~outbus);  // view original signal & mono decode
+
+// encoding angles
+// azimuth & elevation
+~theta = 0.0;
+~phi = 0.0;
+
+// explicitly set encoding radius
+// i.e., radius != Hoa.refRadius
+~encRadius = 2.0;  // > Hoa.refRadius
+~encRadius = 1.5;  // = Hoa.refRadius
+~encRadius = 1.0;  // < Hoa.refRadius
+
+
+// beaming
+~thetaRate = 0.125;  // modulation rate for beam look direction
+~beamShape = \basic;
+~beamShape = \energy;
+~beamShape = \controlled;
+~decRadius = ~encRadius; // explicitly set to match encoding radius
+
+
+// audition
+(
+{
+	// saw params
+	var freq = 110.0;
+	var gain = -12;
+
+	var sig;
+	var hoa;
+	var dec;
+
+	sig = Saw.ar(freq, gain.dbamp);
+
+	hoa = HoaEncodeDirection.ar(sig, ~theta, ~phi, ~encRadius, ~order);
+
+	dec = HoaDecodeDirection.ar(hoa, LFTri.kr(~thetaRate, mul: pi), ~phi, ~encRadius, ~beamShape, ~order);
+
+	[ sig,  dec];
+
+}.play(outbus: ~outbus)
+)
+
+// quit rt server
+s.quit
+::

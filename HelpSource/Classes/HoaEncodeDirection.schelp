@@ -1,7 +1,7 @@
 TITLE:: HoaEncodeDirection
 summary:: Higher Order Ambisonic (HOA) panner
 categories:: Libraries>Ambisonic Toolkit>HOA>Encoding>UGens, UGens>Multichannel>Ambisonics, UGens>Multichannel>Panners
-related:: Classes/HoaUGen, Classes/HoaEncodeMatrix
+related:: Classes/HoaEncodeMatrix, Classes/HoaDecodeDirection
 
 DESCRIPTION::
 Encode a monophonic input to a higher order ambisonic signal (HOA), with near-field effect (NFE).
@@ -66,6 +66,17 @@ s.boot;
 // open scope
 s.scope(~order.asHoaOrder.numCoeffs, ~outbus);
 
+// encoding angles
+// azimuth & elevation
+~theta = 0.0;
+~phi = 0.0;
+
+// explicitly set encoding radius
+// i.e., radius != Hoa.refRadius
+~encRadius = 2.0;  // > Hoa.refRadius
+~encRadius = 1.5;  // = Hoa.refRadius
+~encRadius = 1.0;  // < Hoa.refRadius
+
 
 // audition
 (
@@ -74,20 +85,11 @@ s.scope(~order.asHoaOrder.numCoeffs, ~outbus);
 	var freq = 110.0;
 	var gain = -12;
 
-	// azimuth & elevation
-	var theta = 0.0;
-	var phi = 0.0;
-
-	// radius
-	// var radius = 1.0;  // inside reference radius
-	var radius = 1.5;  // at reference radius
-	// var radius = 2.0;  // beyond reference radius
-
 	var sig;
 
 	sig = Saw.ar(freq, gain.dbamp);
 
-	HoaEncodeDirection.ar(sig, theta, phi, radius, ~order);
+	HoaEncodeDirection.ar(sig, ~theta, ~phi, ~encRadius, ~order);
 
 }.play(outbus: ~outbus)
 )

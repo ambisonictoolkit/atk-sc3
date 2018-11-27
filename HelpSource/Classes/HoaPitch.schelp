@@ -1,0 +1,107 @@
+TITLE:: HoaPitch
+summary:: Higher Order Ambisonic (HOA) rotation transformer
+categories:: Libraries>Ambisonic Toolkit>HOA>Transforming>UGens, UGens>Multichannel>Ambisonics, UGens>Multichannel>Panners
+related:: Classes/HoaRotate, Classes/HoaTilt, Classes/HoaTumble, Classes/HoaRTT, Classes/HoaYaw, Classes/HoaRoll, Classes/HoaYPR
+
+DESCRIPTION::
+Rotate a higher order ambisonic signal (HOA) around the y-axis.
+
+note::
+link::Classes/HoaPitch:: is a synonym for link::Classes/HoaTumble::
+::
+
+
+CLASSMETHODS::
+
+METHOD:: ar
+
+ARGUMENT:: in
+The input signal.
+
+ARGUMENT:: radians
+Rotation angle, in radians.
+
+ARGUMENT:: order
+Ambisonic order.
+
+discussion::
+A rotation of pi/2 will rotate a source at code:: [0, 0] :: to code:: [0, pi/2] ::.
+
+
+EXAMPLES::
+
+subsection:: Rotate around the y-axis
+
+code::
+// Inspect the ATK's speed of sound reference
+"Speed of sound: % m/s".format(Hoa.speedOfSound);
+
+// Inspect the ATK's reference radius
+"Reference radius: % m".format(Hoa.refRadius);
+
+// Inspect the ATK's channel/coefficient ordering
+"Coefficient ordering: %".format(Hoa.ordering);
+
+// Inspect the ATK's channel/coefficient ordering
+"Coefficient normalisation: %".format(Hoa.normalisation);
+
+
+// simple test...
+
+// boot rt server
+s.boot;
+
+// choose Ambisonic order
+~order = 1
+~order = 2
+~order = 3
+
+// choose an outbus, if need be
+~outbus = 0
+
+// open scope
+s.scope(~order.asHoaOrder.numCoeffs, ~outbus);
+
+
+// audition
+(
+{
+	// saw params
+	var freq = 110.0;
+	var gain = -12;
+
+	// azimuth & elevation
+	var theta = 0.0;
+	var phi = 0.0;
+	var rotateRate = 0.25;
+
+	// radius
+	// var radius = 1.0;  // inside reference radius
+	var radius = 1.5;  // at reference radius
+	// var radius = 2.0;  // beyond reference radius
+
+	// signals
+	var sig;
+	var sigHoa;
+	var sigHoaRot;
+
+	sig = Saw.ar(freq, gain.dbamp);
+
+	// encode
+	sigHoa = HoaEncodeDirection.ar(sig, theta, phi, radius, ~order);
+
+	// rotate
+	sigHoaRot = HoaPitch.ar(
+		sigHoa,
+		LFSaw.kr(rotateRate, mul: pi),
+		~order
+	);
+
+	// out
+	sigHoaRot
+}.play(outbus: ~outbus)
+)
+
+// quit rt server
+s.quit
+::

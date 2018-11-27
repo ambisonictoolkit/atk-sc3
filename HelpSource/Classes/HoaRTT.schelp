@@ -1,0 +1,122 @@
+TITLE:: HoaRTT
+summary:: Higher Order Ambisonic (HOA) rotation transformer
+categories:: Libraries>Ambisonic Toolkit>HOA>Transforming>UGens, UGens>Multichannel>Ambisonics, UGens>Multichannel>Panners
+related:: Classes/HoaRotate, Classes/HoaTilt, Classes/HoaTumble, Classes/HoaYaw, Classes/HoaPitch, Classes/HoaRoll, Classes/HoaYPR
+
+DESCRIPTION::
+Rotate a higher order ambisonic signal (HOA) around the z, x and y axes.
+
+Compound rotations applied in sequential order: rotate, tilt, tumble.
+
+note::
+emphasis::Extrinsic::, "laboratory-fixed" axes.
+::
+
+CLASSMETHODS::
+
+METHOD:: ar
+
+ARGUMENT:: in
+The input signal.
+
+ARGUMENT:: rotate
+Rotation angle around z-axis, in radians.
+
+ARGUMENT:: tilt
+Rotation angle around x-axis, in radians.
+
+ARGUMENT:: tumble
+Rotation angle around y-axis, in radians.
+
+
+ARGUMENT:: order
+Ambisonic order.
+
+discussion::
+
+Transform is equivalent to link::Classes/HoaRotate:: followed by link::Classes/HoaTilt:: and then link::Classes/HoaTumble::.
+
+
+
+EXAMPLES::
+
+subsection:: Rotate around z, x and y axes
+
+code::
+// Inspect the ATK's speed of sound reference
+"Speed of sound: % m/s".format(Hoa.speedOfSound);
+
+// Inspect the ATK's reference radius
+"Reference radius: % m".format(Hoa.refRadius);
+
+// Inspect the ATK's channel/coefficient ordering
+"Coefficient ordering: %".format(Hoa.ordering);
+
+// Inspect the ATK's channel/coefficient ordering
+"Coefficient normalisation: %".format(Hoa.normalisation);
+
+
+// simple test...
+
+// boot rt server
+s.boot;
+
+// choose Ambisonic order
+~order = 1
+~order = 2
+~order = 3
+
+// choose an outbus, if need be
+~outbus = 0
+
+// open scope
+s.scope(~order.asHoaOrder.numCoeffs, ~outbus);
+
+
+// audition
+(
+{
+    // saw params
+    var freq = 110.0;
+    var gain = -12;
+
+    // azimuth & elevation
+    var theta = 0.0;
+    var phi = 0.0;
+    var rotateRate = 0.25;
+
+    // radius
+    // var radius = 1.0;  // inside reference radius
+    var radius = 1.5;  // at reference radius
+    // var radius = 2.0;  // beyond reference radius
+
+    // signals
+    var sig;
+    var sigHoa;
+    var sigHoaRot;
+	var rtt;
+
+    sig = Saw.ar(freq, gain.dbamp);
+
+	rtt = LFSaw.kr(LFNoise2.kr(1.dup(3)).range(0.75 * rotateRate, 1.25 * rotateRate), mul: pi);
+
+    // encode
+    sigHoa = HoaEncodeDirection.ar(sig, theta, phi, radius, ~order);
+
+    // rotate
+    sigHoaRot = HoaRTT.ar(
+        sigHoa,
+		rtt.at(0),
+		rtt.at(1),
+		rtt.at(2),
+        ~order
+    );
+
+    // out
+    sigHoaRot
+}.play(outbus: ~outbus)
+)
+
+// quit rt server
+s.quit
+::

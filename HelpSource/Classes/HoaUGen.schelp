@@ -1,0 +1,64 @@
+TITLE:: HoaUGen
+summary:: Higher Order Ambisonic (HOA) UGen Superclass
+categories:: Libraries>Ambisonic Toolkit>HOA>Transforming>UGens, UGens>Multichannel>Ambisonics, UGens>Multichannel>Panners
+
+
+DESCRIPTION::
+Utilities supporting Higher Order Ambisonic (HOA) UGens.
+
+
+CLASSMETHODS::
+
+METHOD:: confirmOrder
+Confirm input signal array size matches expected number of harmonics for the given order.
+
+ARGUMENT:: in
+The input signal.
+
+ARGUMENT:: order
+Ambisonic order.
+
+returns:: The order if signal size is valid, else halts.
+
+METHOD:: confirmNumInputs
+Confirm input signal array size matches expected number of inputs.
+
+ARGUMENT:: in
+The input signal.
+
+ARGUMENT:: numInputs
+Number of inputs.
+
+returns:: The input signal size if match is valid, else halts.
+
+METHOD:: mixMatrix
+A fast matrix mixer.
+
+note::Does not replace zeros with silence.::
+
+ARGUMENT:: in
+The input signal.
+
+ARGUMENT:: mtxArr
+A link::Classes/MatrixArray::
+
+
+METHOD:: getJKMatrix
+Generates emphasis::J:: and emphasis::K:: axis swap matrices.
+
+ARGUMENT:: which
+table::
+## strong::keyword:: || strong::operation::
+## code::\j:: || swap axes: Z & Y
+## code::\k:: || swap axes: Z & X
+## code::\jk:: || emphasis::J:: * emphasis::K::
+## code::\kj:: || emphasis::K:: * emphasis::J::
+::
+
+
+ARGUMENT:: order
+Ambisonic order.
+
+returns:: A link::Classes/MatrixArray::
+
+PRIVATE:: prCalcJKMatrices

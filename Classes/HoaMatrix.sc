@@ -770,7 +770,7 @@ HoaMatrixXformer : HoaMatrix {
 	// ------------
 	// Analysis
 
-	analyzeDirections { |testDirections|
+	analyzeDirections { |directions|
 		var encDirs, xyzEncDirs;
 		var encodingMatrix;
 		var b, b2, amp, energy, rms;
@@ -783,10 +783,10 @@ HoaMatrixXformer : HoaMatrix {
 
 		// reshape (test) encoding directions, as need be...
 		// ... then find test unit vectors
-		xyzEncDirs = testDirections.rank.switch(
-			0, { Array.with(testDirections, 0.0).reshape(1, 2) },
-			1, { testDirections.collect({ |dir| Array.with(dir, 0.0)}) },
-			2, { testDirections },
+		xyzEncDirs = directions.rank.switch(
+			0, { Array.with(directions, 0.0).reshape(1, 2) },
+			1, { directions.collect({ |dir| Array.with(dir, 0.0)}) },
+			2, { directions },
 		).collect({ |thetaPhi|
 			Spherical.new(1, thetaPhi.at(0), thetaPhi.at(1)).asCartesian.asArray
 		});
@@ -1285,7 +1285,7 @@ HoaMatrixDecoder : HoaMatrix {
 	// ------------
 	// Analysis
 
-	analyzeDirections { |testDirections|
+	analyzeDirections { |directions|
 		var encDirs, xyzEncDirs, xyzDecDirs;
 		var encodingMatrix;
 		var g, g2, amp, energy, rms;
@@ -1297,10 +1297,10 @@ HoaMatrixDecoder : HoaMatrix {
 
 		// reshape (test) encoding directions, as need be...
 		// ... then find test unit vectors
-		xyzEncDirs = testDirections.rank.switch(
-			0, { Array.with(testDirections, 0.0).reshape(1, 2) },
-			1, { testDirections.collect({ |dir| Array.with(dir, 0.0)}) },
-			2, { testDirections },
+		xyzEncDirs = directions.rank.switch(
+			0, { Array.with(directions, 0.0).reshape(1, 2) },
+			1, { directions.collect({ |dir| Array.with(dir, 0.0)}) },
+			2, { directions },
 		).collect({ |thetaPhi|
 			Spherical.new(1, thetaPhi.at(0), thetaPhi.at(1)).asCartesian.asArray
 		});

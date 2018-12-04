@@ -1,0 +1,599 @@
+TITLE:: HoaMatrixDecoder
+summary:: Higher Order Ambisonic (HOA) matrix decoders
+categories:: Libraries>Ambisonic Toolkit>HOA>Decoding
+related:: Classes/HoaDecodeMatrix
+
+DESCRIPTION::
+Generate matrix decoders required by the Ambisonic Toolkit's higher order ambisonic (HOA) decoder, link::Classes/HoaDecodeMatrix::.
+
+Matrix decoding is offered via four different methods:
+
+LIST::
+## emphasis::projection::
+## emphasis::mode matching::
+## emphasis::beamforming::
+## emphasis::format exchange::
+::
+
+The first two, emphasis::projection:: and emphasis::mode matching::, are suitable for designing decoders for loudspeaker arrays and apply a simple HOA emphasis::degree truncation:: where the number of desired outputs is less than the number required for an input Ambisonic emphasis::order::.
+
+The third, emphasis::beamforming::, returns (emphasis::projection::) spatial windows of the input Ambisonic emphasis::order::, without applying emphasis::degree truncation::. This decoding method is suitable for emphasis::spherical decomposition:: and beamforming for signal processing.
+
+link::https://en.wikipedia.org/wiki/Ambisonic_data_exchange_formats##Format exchange:: decoding offers interfacing with other Ambisonic formats and systems.
+
+
+CLASSMETHODS::
+
+METHOD:: newProjection
+Decode a higher order ambisonic signal (HOA) via the emphasis::projection:: method.
+
+ARGUMENT:: directions
+An array of directions. Specify in radians.
+
+Rank 1 arrays return pantophonic, while rank 2 arrays return periphonic. E.g.,
+code::
+// 2D:
+~directions = [ theta0, theta1, ... thetaN ];
+::
+code::
+// 3D:
+~directions = [ [ theta0, phi0 ], [ theta1, phi1 ], ... [ thetaN, phiN ] ];
+::
+
+ARGUMENT:: beamShape
+Keyword argument for beam shape. See link::#Beam%20shape#discussion below::.
+
+ARGUMENT:: match
+Keyword argument for gain matching. See link::#Gain%20match#discussion below::.
+
+ARGUMENT:: order
+Ambisonic order.
+
+discussion::
+
+Also known as emphasis::Simple Ambisonic Decoding::, aka emphasis::SAD::.
+
+note::In order to return a valid reconstruction decoder, strong::directions:: should be evenly distributed.::
+
+
+METHOD:: newModeMatch
+Decode a higher order ambisonic signal (HOA) via the emphasis::mode matching:: method.
+
+ARGUMENT:: directions
+An array of directions. Specify in radians.
+
+Rank 1 arrays return pantophonic, while rank 2 arrays return periphonic. E.g.,
+code::
+// 2D:
+~directions = [ theta0, theta1, ... thetaN ];
+::
+code::
+// 3D:
+~directions = [ [ theta0, phi0 ], [ theta1, phi1 ], ... [ thetaN, phiN ] ];
+::
+
+ARGUMENT:: beamShape
+Keyword argument for beam shape. See link::#Beam%20shape#discussion below::.
+
+ARGUMENT:: match
+Keyword argument for gain matching. See link::#Gain%20match#discussion below::.
+
+ARGUMENT:: order
+Ambisonic order.
+
+discussion::
+
+Also known as emphasis::Pseudoinverse Decoding::, aka emphasis::Pinv::.
+
+note::Comprehensive modal discarding is not applied. More evely distributed strong::directions:: will return a more stable decoder.::
+
+
+METHOD:: newDiametric
+Decode a higher order ambisonic signal (HOA) via the emphasis::mode matching:: method, given diametrically matched loudspeaker pairs. Gerzon's classic emphasis::diametric:: decoder. footnote::See: M. A. Gerzon, "Practical Periphony: The Reproduction of Full-Sphere Sound," in Proceedings of the 65th Audio Engineering Engineering Society Convention, London, 1980, p. 10.::
+
+ARGUMENT:: directions
+An array of directions for half of the loudspeaker feeds for the desired decoder. Specify in radians.
+
+Rank 1 arrays return pantophonic, while rank 2 arrays return periphonic. E.g.,
+code::
+// 2D:
+~directions = [ theta0, theta1, ... thetaN ];
+::
+code::
+// 3D:
+~directions = [ [ theta0, phi0 ], [ theta1, phi1 ], ... [ thetaN, phiN ] ];
+::
+
+ARGUMENT:: beamShape
+Keyword argument for beam shape. See link::#Beam%20shape#discussion below::.
+
+ARGUMENT:: match
+Keyword argument for gain matching. See link::#Gain%20match#discussion below::.
+
+ARGUMENT:: order
+Ambisonic order.
+
+discussion::
+
+Also known as emphasis::Diametric Decoding::.
+
+strong::directions:: specifies only half of the loudspeakers for the resulting array, the remaining loudspeakers are diametrically opposite (through the origin). link::Classes/HoaMatrix#-directions#-directions:: may be used to query resulting loudspeaker directions.
+
+code::
+// Pantophonic (2D) decoder with four channels arranged in a rectangle:
+// [ 30, -30, -150, 150 ]
+
+// specify 1/2 the desired directions
+~directions = [ 30, -30 ].degrad;
+~decoder = HoaMatrixDecoder.newDiametric(~directions, order: 1);
+
+// inspect
+~decoder.directions.raddeg
+::
+
+code::
+// Periphonic (3D) decoder with eight channels arranged in a bi-rectangle:
+//[ [ 30.0, 0.0 ], [ -30.0, 0.0 ], [ 90.0, 35.3 ], [ 90.0, -35.3 ],
+//  [ -150.0, -0.0 ], [ 150.0, -0.0 ], [ -90.0, -35.3 ], [ -90.0, 35.3 ] ]
+
+// specify 1/2 the desired directions
+~directions = [[ 30, 0 ], [ -30, 0 ], [ 90, 35.3 ], [ 90, -35.3]].degrad;
+~decoder = HoaMatrixDecoder.newDiametric(~directions, order: 1);
+
+// inspect
+~decoder.directions.raddeg
+::
+
+
+METHOD:: newPanto
+Decode a higher order ambisonic signal (HOA) via the emphasis::projection:: method to a Pantophonic (2D) regular polygon array.
+
+ARGUMENT:: numChans
+number of outputs
+
+ARGUMENT:: orientation
+code::\vertex:: or code::\side::
+
+ARGUMENT:: beamShape
+Keyword argument for beam shape. See link::#Beam%20shape#discussion below::.
+
+ARGUMENT:: match
+Keyword argument for gain matching. See link::#Gain%20match#discussion below::.
+
+ARGUMENT:: order
+Ambisonic order.
+
+discussion:: The outputs are in anti-clockwise order. The position of the first speaker is either centre or left of centre. link::#-directions:: may be used to query resulting loudspeaker directions.
+
+Used in conjunction with link::Classes/HoaDecodeMatrix:: the resulting decoder is equivalent to link::Classes/DecodeB2:: (SuperCollider's inbuilt decoder), albeit with the addition of variable link::#Beam%20shape#beam shape:: and link::#Gain%20match#gain matching::. link::Classes/DecodeB2:: is a emphasis::controlled opposites:: decoder.
+
+code::
+// Pantophonic (2D) decoder with nine channels arranged in a regular polygon:
+// [ 0.0, 40.0, 80.0, 120.0, 160.0, -160.0, -120.0, -80.0, -40.0 ]
+
+// specify parameters & design
+~numChans = 9
+~orientation = \vertex
+~orientation = \side
+~order = 3
+~decoder = HoaMatrixDecoder.newPanto(~numChans, ~orientation, order: ~order)
+
+// inspect
+~decoder.directions.raddeg
+::
+
+
+METHOD:: newSphericalDesign
+emphasis::Beamform:: into a higher order ambisonic signal (HOA), returning multiple beams evenly distributed in a link::Classes/SphericalDesign::.
+
+ARGUMENT:: design
+link::Classes/SphericalDesign:: instance
+
+ARGUMENT:: beamShape
+Keyword argument for beam shape. See link::#Beam%20shape#discussion below::.
+
+ARGUMENT:: order
+Ambisonic order.
+
+discussion:: emphasis::A-format:: decoding, aka emphasis::spherical decomposition::, is offered by link::#*newSphericalDesign::.
+
+code::
+// HOA3 A-format spherical decomposition
+
+// specify parameters & design
+~order = 3
+~numChans = 24
+~numChans = 32
+~numChans = 64
+
+// design spherical design & decoder
+~design = TDesign.newHoa(~numChans, order: ~order)
+~decoder = HoaMatrixDecoder.newSphericalDesign(~design, order: ~order)
+
+// inspect
+~decoder.directions.raddeg
+::
+
+
+METHOD:: newDirection
+emphasis::Beamform:: into a higher order ambisonic signal (HOA), returning a single beam.
+
+ARGUMENT:: theta
+Azimuth, in radians.
+
+ARGUMENT:: phi
+Elevation, in radians.
+
+ARGUMENT:: beamShape
+Keyword argument for beam shape. See link::#Beam%20shape#discussion below::.
+
+ARGUMENT:: order
+Ambisonic order.
+
+discussion:: Returns a single beam, and can be used to "listen in" to the soundfield at the specified azimuth and elevation. Gain is emphasis::matched:: to the beam. See link::#Gain%20match#discussion below::
+
+
+METHOD:: newDirections
+emphasis::Beamform:: into a higher order ambisonic signal (HOA), returning multiple beams.
+
+ARGUMENT:: directions
+An array of directions. Specify in radians.
+
+Rank 1 arrays return pantophonic, while rank 2 arrays return periphonic. E.g.,
+code::
+// 2D:
+~directions = [ theta0, theta1, ... thetaN ];
+::
+code::
+// 3D:
+~directions = [ [ theta0, phi0 ], [ theta1, phi1 ], ... [ thetaN, phiN ] ];
+::
+
+ARGUMENT:: beamShape
+Keyword argument for beam shape. See link::#Beam%20shape#discussion below::.
+
+ARGUMENT:: match
+Keyword argument for gain matching. See link::#Gain%20match#discussion below::.
+
+ARGUMENT:: order
+Ambisonic order.
+
+discussion:: Returns a collection of beams, and can be used to "listen in" to the soundfield at the specified azimuths and elevations.
+
+warning::As a emphasis::projection beamformer::, does not return a valid emphasis::reconstruction decoder:: for arbitrary loudspeaker directions. Similarly, Ambisonic order is not truncated given an insufficient number of loudspeakers or distribution of directions.::
+
+
+METHOD:: newFormat
+An link::https://en.wikipedia.org/wiki/Ambisonic_data_exchange_formats##Ambisonic format exchange:: decoder. Decodes from ACN-N3D to a variety of formats.
+
+ARGUMENT:: format
+An array of kewords designating emphasis::component:: strong::ordering:: and strong::normalisation::.
+
+E.g., target output strong::format:: ACN-SN3D is expressed code::[ \acn, \sn3d ]::. See discussion below.
+
+ARGUMENT:: order
+Ambisonic order.
+
+discussion::
+
+A variety of emphasis::component:: strong::ordering:: and strong::normalisation:: schemes are supported. These are:
+
+strong::ordering::
+
+table::
+## code::\acn:: || Ambisonic Channel Number (ACN)
+## code::\sid:: || Single Index Designation (SID)
+## code::\fuma:: || Furse-Malham (FuMa)
+::
+
+
+strong::normalisation::
+
+table::
+## code::\n3d:: || Orthonormal basis for 3D decomposition (N3D)
+## code::\sn3d:: || Semi-normalised basis for 3D decomposition (SN3D)
+## code::\n2d:: || Orthonormal basis for 2D decomposition (N2D)
+## code::\sn2d:: || Semi-normalised basis for 2D decomposition (SN2D)
+## code::\maxN:: || Maximum normalisation (maxN)
+## code::\MaxN:: || Gerzon / Furse-Malham (MaxN)
+## code::\fuma:: || Synonym for MaxN (FuMa)
+::
+
+Additionally, a number of strong::common formats:: are available as a single keyword:
+
+table::
+## code::\atk:: || Ambisonic Toolkit (ATK)
+## code::\ambix:: || Ambisonics Exchangeable (AmbiX)
+## code::\fuma:: || Furse-Malham (FuMa)
+::
+
+
+
+SUBSECTION:: Beam shape
+
+Three standard beam shapes are offered:
+
+table::
+## strong::keyword:: || strong::beam shape:: || strong::localisation vector:: || strong::virtual microphone::
+## code::\basic:: || strict soundfield || maximum velocity rV || Hyper-cardioid
+## code::\energy:: || energy optimised || maximum energy rE || Super-cardioid
+## code::\controlled:: || controlled opposites || minimum diametric energy || Cardioid
+::
+
+note:: For large-scale concert presentation, the authors advise choosing the emphasis::energy optimised::  beam shape.::
+
+
+SUBSECTION:: Gain match
+
+Decoder gains can be normalised, aka emphasis::matched::, via various criteria:
+
+table::
+## strong::keyword:: || strong::matching criteria:: || strong::valid decoding methods::
+## code::\beam:: || maximum beam amplitude || emphasis::beamforming:: only
+## code::\amp:: || pressure (loudspeaker sum) || all methods
+## code::\rms:: || spherical harmonic energy || emphasis::projection:: & emphasis::mode matching:: only
+## code::\energy:: || loudspeaker energy || emphasis::projection:: & emphasis::mode matching:: only
+::
+
+Normalising gain to the emphasis::beam amplitude:: is appropriate for a emphasis::virtual microphone:: or emphasis::spherical decomposition:: context. In this case, maximum amplitude of each returned beam is normalised to 0dB.
+
+The other three criteria, emphasis::pressure::, total emphasis::spherical harmonic energy::, and total emphasis::loudspeaker energy::, are preferred for building decoders for loudspeaker audition.
+
+
+INSTANCEMETHODS::
+PRIVATE:: initSAD, initBeam, initMMD, initBasic
+
+
+METHOD:: analyzeAverage
+Return an average analysis of decoder amplitude and energies.
+
+returns::
+
+Analysis is returned in a link::Classes/Dictionary::, with the following keys:
+
+table::
+## strong::keyword:: || strong::analysis::
+## code::\amp:: || pressure (loudspeaker sum)
+## code::\rms:: || spherical harmonic energy
+## code::\energy:: || loudspeaker energy
+## code::\meanE:: || decoder emphasis::reduced energy::
+## code::\matchWeight:: || decoder matching weights (a Dictionary)
+::
+
+The required weights for link::#Gain%20match#gain matching:: are returned in the code::\matchWeight:: Dictionary:
+
+table::
+## strong::keyword:: || strong::analysis::
+## code::\amp:: || match weight for pressure (loudspeaker sum)
+## code::\rms:: || match weight for spherical harmonic energy
+## code::\energy:: || match weight for loudspeaker energy
+::
+
+
+DISCUSSION::
+
+Offers a convenient way to check whether designed decoders meet the theoretical performance predicted by link::Classes/HoaOrder::.
+
+A regular array, evenly distributed loudspeakers:
+
+code::
+// Pantophonic (2D) decoder with nine channels arranged in a regular polygon
+
+// specify parameters & design
+~numChans = 9
+~beamShape = \basic
+~beamShape = \energy
+~beamShape = \controlled
+~match = \amp
+~match = \rms
+~match = \energy
+~order = 3
+~decoder = HoaMatrixDecoder.newPanto(~numChans, beamShape: ~beamShape, match: ~match, order: ~order)
+
+// HoaOrder - theoretical values
+~hoaOrder = HoaOrder.new(~order)
+
+// analyze average - 'reduced energy E' for an Ambisonic decoder
+~decoder.analyzeAverage[\meanE]
+
+// compare to theoretical - 'reduced energy E' for an Ambisonic decoder
+~hoaOrder.meanE(~beamShape, ~decoder.dim)
+
+// analyze average - measured amplitude
+~decoder.analyzeAverage[\amp]
+
+// compare to theoretical - expected amplitude
+~hoaOrder.matchWeight(~beamShape, ~decoder.dim, ~match, ~decoder.numChannels)
+::
+
+Unevenly distributed loudspeakers:
+
+code::
+// Pantophonic (2D) decoder with four channels arranged in a rectangle:
+// [ 30, -30, -150, 150 ]
+
+// specify parameters & design
+~directions = [ 30, -30 ].degrad  // 1/2 the desired directions
+~beamShape = \basic
+~beamShape = \energy
+~beamShape = \controlled
+~match = \amp
+~match = \rms
+~match = \energy
+~order = 1
+
+~decoder = HoaMatrixDecoder.newDiametric(~directions, ~beamShape, ~match, ~order);
+
+// HoaOrder - theoretical values
+~hoaOrder = HoaOrder.new(~order)
+
+// analyze average - 'reduced energy E' for an Ambisonic decoder
+~decoder.analyzeAverage[\meanE]
+
+// compare to theoretical - 'reduced energy E' for an Ambisonic decoder
+~hoaOrder.meanE(~beamShape, ~decoder.dim)
+
+// analyze average - measured amplitude
+~decoder.analyzeAverage[\amp]
+
+// compare to theoretical - expected amplitude
+~hoaOrder.matchWeight(~beamShape, ~decoder.dim, ~match, ~decoder.numChannels)
+::
+
+
+METHOD:: analyzeDirections
+
+Return a directional analysis of decoder performance.
+
+
+ARGUMENT:: directions
+
+A single azimuth value, or an array of test directions. Specify in radians.
+
+Rank 1 arrays return pantophonic, while rank 2 arrays return periphonic. E.g.,
+code::
+// 2D:
+~testDirections = [ theta0, theta1, ... thetaN ];
+::
+code::
+// 3D:
+~testDirections = [ [ theta0, phi0 ], [ theta1, phi1 ], ... [ thetaN, phiN ] ];
+::
+
+
+returns::
+
+Analysis is returned in a link::Classes/Dictionary::, with the following keys:
+
+table::
+## strong::keyword:: || strong::analysis::
+## code::\amp:: || pressure (loudspeaker sum)
+## code::\rms:: || spherical harmonic energy
+## code::\energy:: || loudspeaker energy
+## code::\spreadE:: || energy spread (a Dictionary)
+## code::\rV:: || emphasis::velocity localisation vector::, strong::rV:: (a Dictionary)
+## code::\rE:: || emphasis::energy localisation vector::, strong::rE:: (a Dictionary)
+::
+
+Two measures of energy spread are offered in the code::\spreadE:: Dictionary:
+
+table::
+## strong::keyword:: || strong::analysis::
+## code::\cos:: || roll-off to ~-3dB, in radians
+## code::\hvc:: || roll-off to ~-6dB, in radians
+::
+
+Information regarding strong::rV::, the emphasis::velocity localisation vector::, is returned in the code::\rV:: Dictionary:
+
+table::
+## strong::keyword:: || strong::analysis::
+## code::\mag:: || vector magnitudes
+## code::\directions:: || vector directions, in radians
+## code::\dist:: || distortion from test directions, in radians
+## code::\rEdist:: || distortion from strong::rE::, in radians
+## code::\xyz:: || strong::rV::, in cartesian coordinates
+::
+
+Similarly, information regarding strong::rE::, the emphasis::energy localisation vector::, is returned in the code::\rE:: Dictionary:
+
+table::
+## strong::keyword:: || strong::analysis::
+## code::\mag:: || vector magnitudes
+## code::\directions:: || vector directions, in radians
+## code::\dist:: || distortion from test directions, in radians
+## code::\rVdist:: || distortion from strong::rV::, in radians
+## code::\xyz:: || strong::rE::, in cartesian coordinates
+::
+
+
+Offers detailed analysis of decoder performance.
+
+A regular array, evenly distributed loudspeakers:
+
+code::
+// Pantophonic (2D) decoder with seven channels arranged in a regular polygon
+
+// specify parameters & design
+~numChans = 7
+~beamShape = \basic
+~beamShape = \energy
+~beamShape = \controlled
+~match = \amp
+~match = \rms
+~match = \energy
+~order = 2
+~order = 1
+
+~decoder = HoaMatrixDecoder.newPanto(~numChans, beamShape: ~beamShape, match: ~match, order: ~order)
+
+
+//----
+// analysis
+~numTestDirections = 16
+~testDirections = Array.regularPolygon(~numTestDirections)
+
+// analyze
+~analysis = ~decoder.analyzeDirections(~testDirections)
+
+~analysis[\amp].ampdb.round(0.01)
+~analysis[\rms].sqrt.ampdb.round(0.01)
+~analysis[\energy].sqrt.ampdb.round(0.01)
+
+~analysis[\spreadE][\cos].raddeg
+
+~analysis[\rV][\mag]
+~analysis[\rV][\directions].raddeg.round(0.1)
+~analysis[\rV][\dist].raddeg.round(0.1)
+~analysis[\rV][\rEdist].raddeg.round(0.1)
+
+~analysis[\rE][\mag]
+~analysis[\rE][\directions].raddeg.round(0.1)
+~analysis[\rE][\dist].raddeg.round(0.1)
+::
+
+Unevenly distributed loudspeakers:
+
+code::
+// Pantophonic (2D) decoder with seven channels arranged in a consumer orientation
+
+// specify parameters & design
+~directions = [ 0.0, 30.0, 110.0, 135.0, -135.0, -110.0, -30.0 ]  // 7.0 array
+~beamShape = \basic
+~beamShape = \energy
+~beamShape = \controlled
+~match = \amp
+~match = \rms
+~match = \energy
+~order = 2
+~order = 1
+
+~decoder = HoaMatrixDecoder.newModeMatch(~directions, ~beamShape, ~match, ~order)
+
+
+//----
+// analysis
+~numTestDirections = 16
+~testDirections = Array.regularPolygon(~numTestDirections)
+
+// analyze
+~analysis = ~decoder.analyzeDirections(~testDirections)
+
+~analysis[\amp].ampdb.round(0.01)
+~analysis[\rms].sqrt.ampdb.round(0.01)
+~analysis[\energy].sqrt.ampdb.round(0.01)
+
+~analysis[\spreadE][\cos].raddeg
+
+~analysis[\rV][\mag]
+~analysis[\rV][\directions].raddeg.round(0.1)
+~analysis[\rV][\dist].raddeg.round(0.1)
+~analysis[\rV][\rEdist].raddeg.round(0.1)
+
+~analysis[\rE][\mag]
+~analysis[\rE][\directions].raddeg.round(0.1)
+~analysis[\rE][\dist].raddeg.round(0.1)
+::
+
+EXAMPLES::
+
+TBD

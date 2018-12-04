@@ -224,12 +224,12 @@ HoaOrder {
     }
 
     // 'matching gain' (scale) for a given Ambisonic decoder
-    matchWeight { |beamShape = 'basic', dim = 3, match = 'amp', numSpkrs = nil|
+    matchWeight { |beamShape = 'basic', dim = 3, match = 'amp', numChans = nil|
         var m = this.order;
         var n;
 
         ^switch( match,
-            'amp', { 1 },
+            'amp', { 1.0 },
             'rms', {
                 (dim == 2).if({
                     n = 2*m + 1  // 2D
@@ -239,10 +239,10 @@ HoaOrder {
                 (n/this.meanE(beamShape, dim)).sqrt
             },
             'energy', {
-                n = numSpkrs;
+                n = numChans;
                 (n/this.meanE(beamShape, dim)).sqrt
             }
-        )
+        ).asFloat
     }
 
     // beamWeights, aka, "decoder order gains" or Gamma vector of per-degree (beam forming) scalars

@@ -220,7 +220,7 @@ HoaOrder {
             beamWeights.removeAt(0).squared + (2*beamWeights.squared.sum) // 2D
         }, {
             (Array.series(m + 1, 1, 2) * beamWeights.squared).sum // 3D
-        })
+        }).asFloat
     }
 
     // 'matching gain' (scale) for a given Ambisonic decoder

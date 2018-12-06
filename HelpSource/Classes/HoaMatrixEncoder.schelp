@@ -1,0 +1,173 @@
+TITLE:: HoaMatrixEncoder
+summary:: Higher Order Ambisonic (HOA) matrix encoders
+categories:: Libraries>Ambisonic Toolkit>HOA>Encoding
+related:: Classes/HoaEncodeMatrix
+
+DESCRIPTION::
+Generate matrix encoders required by the Ambisonic Toolkit's higher order ambisonic (HOA) encoder, link::Classes/HoaEncodeMatrix::.
+
+Matrix encoding is offered via three different methods:
+
+LIST::
+## emphasis::beamforming::
+## emphasis::mode matching::
+## emphasis::format exchange::
+::
+
+As implemented here, emphasis::beamforming:: offers familiar angular encoding with the added opportunity to apply matching beaming weights for reciprocal emphasis::decoding:: / emphasis::encoding:: signal processing.
+
+emphasis::Mode matching:: is suitable for designing encoders from various spatial sampling distributions.
+
+link::https://en.wikipedia.org/wiki/Ambisonic_data_exchange_formats##Format exchange:: encoding offers interfacing with other Ambisonic formats and systems.
+
+
+CLASSMETHODS::
+PRIVATE:: newPanto
+
+METHOD:: newDirection
+
+Encode a single emphasis::beam:: into a higher order ambisonic signal (HOA).
+
+ARGUMENT:: theta
+Azimuth, in radians.
+
+ARGUMENT:: phi
+Elevation, in radians.
+
+ARGUMENT:: beamShape
+Keyword argument for beam shape.
+
+code::nil == \basic::.
+
+See link::Classes/HoaMatrixDecoder#Beam%20shape#discussion here::.
+
+ARGUMENT:: order
+Ambisonic order.
+
+discussion:: Gain is emphasis::matched:: to pressure. See link::Classes/HoaMatrixDecoder#Gain%20match#discussion here::
+
+
+METHOD:: newDirections
+Encode multipe emphasis::beams:: into a higher order ambisonic signal (HOA).
+
+ARGUMENT:: directions
+An array of directions. Specify in radians.
+
+Rank 1 arrays return pantophonic, while rank 2 arrays return periphonic. E.g.,
+code::
+// 2D:
+~directions = [ theta0, theta1, ... thetaN ];
+::
+code::
+// 3D:
+~directions = [ [ theta0, phi0 ], [ theta1, phi1 ], ... [ thetaN, phiN ] ];
+::
+
+ARGUMENT:: beamShape
+Keyword argument for beam shape.
+
+code::nil == \basic::.
+
+See link::Classes/HoaMatrixDecoder#Beam%20shape#discussion here::.
+
+ARGUMENT:: match
+Keyword argument for gain matching. See link::Classes/HoaMatrixDecoder#Gain%20match#discussion here::.
+
+ARGUMENT:: order
+Ambisonic order.
+
+
+METHOD:: newModeMatch
+Encode a higher order ambisonic signal (HOA) via the emphasis::mode matching:: method.
+
+ARGUMENT:: directions
+An array of directions. Specify in radians.
+
+Rank 1 arrays return pantophonic, while rank 2 arrays return periphonic. E.g.,
+code::
+// 2D:
+~directions = [ theta0, theta1, ... thetaN ];
+::
+code::
+// 3D:
+~directions = [ [ theta0, phi0 ], [ theta1, phi1 ], ... [ thetaN, phiN ] ];
+::
+
+ARGUMENT:: beamShape
+Keyword argument for beam shape. See link::Classes/HoaMatrixDecoder#Beam%20shape#discussion here::.
+
+ARGUMENT:: match
+Keyword argument for gain matching. See link::Classes/HoaMatrixDecoder#Gain%20match#discussion here::.
+
+ARGUMENT:: order
+Ambisonic order.
+
+discussion::
+
+Also known as emphasis::Pseudoinverse Encoding::, aka emphasis::Pinv::.
+
+note::Comprehensive modal discarding is not applied. More evely distributed strong::directions:: are required to produce a stable encoder.::
+
+
+METHOD:: newSphericalDesign
+Encode multiple emphasis::beams:: evenly distributed in a link::Classes/SphericalDesign:: as a higher order ambisonic signal (HOA).
+
+
+ARGUMENT:: design
+link::Classes/SphericalDesign:: instance
+
+ARGUMENT:: beamShape
+Keyword argument for beam shape. See link::Classes/HoaMatrixDecoder#Beam%20shape#discussion here::.
+
+ARGUMENT:: order
+Ambisonic order.
+
+discussion:: emphasis::A-format:: encoding, aka emphasis::spherical (re-)composition::, is offered by link::#*newSphericalDesign::.
+
+Gain is matched to maximum beam amplitude.
+
+code::
+// HOA3 A-format spherical encoding
+
+// specify parameters & design
+~order = 3
+~numChans = 24
+~numChans = 32
+~numChans = 64
+
+// design spherical design & encoder
+~design = TDesign.newHoa(~numChans, order: ~order)
+~decoder = HoaMatrixEncoder.newSphericalDesign(~design, order: ~order)
+
+// inspect
+~decoder.directions.raddeg
+::
+
+note::
+Matching emphasis::spherical decomposition:: is provided by link::Classes/HoaMatrixDecoder#*newSphericalDesign::.
+::
+
+
+METHOD:: newFormat
+An link::https://en.wikipedia.org/wiki/Ambisonic_data_exchange_formats##Ambisonic format exchange:: encoder. Encodes from a variety of formats to ACN-N3D.
+
+ARGUMENT:: format
+An array of kewords designating emphasis::component:: strong::ordering:: and strong::normalisation::.
+
+E.g., source input strong::format:: ACN-SN3D is expressed code::[ \acn, \sn3d ]::. See discussion below.
+
+ARGUMENT:: order
+Ambisonic order.
+
+discussion::
+
+A variety of emphasis::component:: strong::ordering:: and strong::normalisation:: schemes are supported. Please review the discussion found here: link::Classes/HoaMatrixDecoder#*newFormat::
+
+
+INSTANCEMETHODS::
+PRIVATE:: initEncoderVarsForFiles, initBeam, initMode, initBasic
+
+
+EXAMPLES::
+
+TBD

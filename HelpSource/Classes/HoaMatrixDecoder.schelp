@@ -197,6 +197,8 @@ Ambisonic order.
 
 discussion:: emphasis::A-format:: decoding, aka emphasis::spherical decomposition::, is offered by link::#*newSphericalDesign::.
 
+Gain is matched to maximum beam amplitude.
+
 code::
 // HOA3 A-format spherical decomposition
 
@@ -213,6 +215,11 @@ code::
 // inspect
 ~decoder.directions.raddeg
 ::
+
+note::
+Matching emphasis::spherical (re-)composition:: is provided by link::Classes/HoaMatrixEncoder#*newSphericalDesign::.
+::
+
 
 
 METHOD:: newDirection

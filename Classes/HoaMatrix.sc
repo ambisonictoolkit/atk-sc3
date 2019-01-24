@@ -937,7 +937,7 @@ HoaMatrixXformer : HoaMatrix {
 		var meanE;
 
 		// average pressure
-		amp = this.matrix.get(0, 0);
+		amp = this.matrix.get(0, 0).asFloat;
 
 		// average energy
 		energy = this.matrix.squared.sum / this.numChannels;

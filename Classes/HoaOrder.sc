@@ -144,6 +144,48 @@ HoaOrder {
 		^WaveNumber.newFreq(freq, speedOfSound).ctrlWeights(encRadius, decRadius, this.order)
     }
 
+	// Focalisation (real) degree weights
+	foclWeights { arg freq, radius, window = \reg, speedOfSound = (Hoa.speedOfSound);
+		var wavNum = WaveNumber.newFreq(freq, speedOfSound);
+
+		^window.switch(
+			\hp, {
+				var effOrder = wavNum.orderAtRadius(radius);
+				var beta;
+
+				(this.order + 1).collect({ arg degree;
+					(degree == 0).if({
+						1.0
+					}, {
+						beta = (effOrder / degree).pow(4 * degree);
+						beta / (1.0 + beta)
+					})
+				})
+			},
+			\cos, {
+				var effOrder = wavNum.orderAtRadius(radius);
+
+				(this.order + 1).collect({ arg degree;
+					(degree == 0).if({
+						1.0
+					}, {
+						(degree > effOrder).if({
+							0.0
+						}, {
+							((pi * degree / effOrder).cos + 1.0) / 2.0
+						})
+					})
+				})
+			},
+			\sin, {
+				this.foclWeights(freq, radius, \cos, speedOfSound).sqrt
+			},
+			{  // \reg
+				2.0 / (1.0 + wavNum.proxWeights(radius, this.order).abs.squared)
+			}
+		)
+	}
+
 	// ------------
     // Return decoder measures or coefficients
 

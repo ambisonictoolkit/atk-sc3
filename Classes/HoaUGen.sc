@@ -467,19 +467,16 @@ HoaReflect : HoaUGen {
 HoaNFProx : HoaUGen {
 
 	*ar { |in, order = (Hoa.defaultOrder)|
-		var n, hoaOrder;
+		var n = HoaUGen.confirmOrder(in, order);
 
-		n = HoaUGen.confirmOrder(in, order);
-		hoaOrder = n.asHoaOrder;  // instance order
-
-		// NFE
-		^hoaOrder.l.collect({ |l, index|
+		// NFE: collect filtered harmonics, clumped by degree
+		^(n+1).collect({ |l|
 			DegreeProx.ar(
-				in[index],
+				in[l.asHoaDegree.indices],
 				Hoa.refRadius,
 				l
 			)
-		})
+		}).flat // flatten back to full order coefficients
 	}
 }
 
@@ -487,19 +484,16 @@ HoaNFProx : HoaUGen {
 HoaNFDist : HoaUGen {
 
 	*ar { |in, order = (Hoa.defaultOrder)|
-		var n, hoaOrder;
+		var n = HoaUGen.confirmOrder(in, order);
 
-		n = HoaUGen.confirmOrder(in, order);
-		hoaOrder = n.asHoaOrder;  // instance order
-
-		// NFE
-		^hoaOrder.l.collect({ |l, index|
+		// NFE: collect filtered harmonics, clumped by degree
+		^(n+1).collect({ |l|
 			DegreeDist.ar(
-				in[index],
+				in[l.asHoaDegree.indices],
 				Hoa.refRadius,
 				l
 			)
-		})
+		}).flat // flatten back to full order coefficients
 	}
 }
 
@@ -517,20 +511,19 @@ HoaNFDist : HoaUGen {
 HoaNFCtrl : HoaUGen {
 
 	*ar { |in, encRadius, decRadius, order = (Hoa.defaultOrder)|
-		var n, hoaOrder;
+		var n, nfcByDegree;
 
 		n = HoaUGen.confirmOrder(in, order);
-		hoaOrder = n.asHoaOrder;  // instance order
 
-		// NFE
-		^hoaOrder.l.collect({ |l, index|
+		// NFE: collect filtered harmonics, clumped by degree
+		^(n+1).collect({ |l|
 			DegreeCtrl.ar(
-				in[index],
+				in[l.asHoaDegree.indices],
 				encRadius,
 				decRadius,
 				l
 			)
-		})
+		}).flat // flatten back to full order coefficients
 	}
 }
 

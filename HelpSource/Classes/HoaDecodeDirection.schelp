@@ -1,6 +1,6 @@
 TITLE:: HoaDecodeDirection
 summary:: Higher Order Ambisonic (HOA) panner
-categories:: Libraries>Ambisonic Toolkit>HOA>Encoding>UGens, UGens>Multichannel>Ambisonics, UGens>Multichannel>Panners
+categories:: Libraries>Ambisonic Toolkit>HOA>Decoding>UGens, UGens>Multichannel>Ambisonics, UGens>Multichannel>Panners
 related:: Classes/HoaDecodeMatrix, Classes/HoaEncodeDirection
 
 DESCRIPTION::

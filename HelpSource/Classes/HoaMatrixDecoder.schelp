@@ -362,7 +362,7 @@ table::
 ## strong::keyword:: || strong::analysis::
 ## code::\amp:: || pressure (loudspeaker sum)
 ## code::\rms:: || spherical harmonic energy
-## code::\energy:: || loudspeaker energy
+## code::\energy:: || loudspeaker (angular) energy
 ## code::\meanE:: || decoder emphasis::reduced energy::
 ## code::\matchWeight:: || decoder matching weights (a Dictionary)
 ::

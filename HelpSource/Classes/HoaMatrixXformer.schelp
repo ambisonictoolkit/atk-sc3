@@ -1,0 +1,303 @@
+TITLE:: HoaMatrixXformer
+summary:: Higher Order Ambisonic (HOA) matrix transformers
+categories:: Libraries>Ambisonic Toolkit>HOA>Transforming
+related:: Classes/HoaXformMatrix
+
+DESCRIPTION::
+Generate matrix transformers required by the Ambisonic Toolkit's higher order ambisonic (HOA) transformer, link::Classes/HoaXformMatrix::.
+
+
+CLASSMETHODS::
+
+METHOD:: newBeam
+Beamform into a higher order ambisonic signal (HOA).
+
+ARGUMENT:: theta
+Azimuth, in radians.
+
+ARGUMENT:: phi
+Elevation, in radians.
+
+ARGUMENT:: beamShape
+Keyword argument for beam shape. See link::Classes/HoaMatrixDecoder#Beam%20shape#discussion here::.
+
+ARGUMENT:: order
+Ambisonic order.
+
+
+
+METHOD:: newNull
+Nullform into a higher order ambisonic signal (HOA).
+
+ARGUMENT:: theta
+Azimuth, in radians.
+
+ARGUMENT:: phi
+Elevation, in radians.
+
+ARGUMENT:: beamShape
+Keyword argument for beam shape. See link::Classes/HoaMatrixDecoder#Beam%20shape#discussion here::.
+
+ARGUMENT:: order
+Ambisonic order.
+
+
+METHOD:: newReflect
+Mirror a higher order ambisonic signal (HOA).
+
+ARGUMENT:: mirror
+Keyword argument for reflection. See discussion below.
+
+ARGUMENT:: order
+Ambisonic order.
+
+DISCUSSION::
+
+A variety of reflection transforms are offered:
+
+table::
+## strong::keyword:: || strong::mirror::
+## code::\reflect:: || Mirror across the origin. Equivalent to: code::\flip * \flop * \flap::. FOOTNOTE::HOA transform equivalent to link::Classes/FoaXformerMatrix#*newMirrorO::.::
+## code::\flip:: || Mirror in the y-axis. FOOTNOTE::HOA transform equivalent to link::Classes/FoaXformerMatrix#*newMirrorY::.::
+## code::\flop:: || Mirror in the x-axis. FOOTNOTE::HOA transform equivalent to link::Classes/FoaXformerMatrix#*newMirrorX::.::
+## code::\flap:: || Mirror in the z-axis. FOOTNOTE::HOA transform equivalent to link::Classes/FoaXformerMatrix#*newMirrorZ::.::
+## code::\CondonShortleyPhase:: || Condon-Shortley Phase. Equivalent to: code::\flip * \flop::.
+## code::\origin:: || Synonym for code::\reflect::.
+## code::\x:: || Synonym for code::\flop::.
+## code::\y:: || Synonym for code::\flip::.
+## code::\z:: || Synonym for code::\flap::.
+::
+
+
+METHOD:: newRotateAxis
+Rotate a higher order ambisonic signal (HOA) around an axis.
+
+ARGUMENT:: axis
+Keyword argument for axis of rotation. See discussion below.
+
+ARGUMENT:: angle
+Rotation angle, in radians.
+
+ARGUMENT:: order
+Ambisonic order.
+
+DISCUSSION::
+
+Rotation about one of the three cartesian axes are offered via these keywords:
+
+table::
+## strong::keyword:: || strong::axis of rotation::
+## code::\x:: || x-axis
+## code::\y:: || y-axis
+## code::\z:: || z-axis
+## code::\rotate:: || Synonym for code::\z::.
+## code::\tilt:: || Synonym for code::\x::.
+## code::\tumble:: || Synonym for code::\y::.
+## code::\yaw:: || Synonym for code::\z::.
+## code::\pitch:: || Synonym for code::\y::.
+## code::\roll:: || Synonym for code::\x::.
+::
+
+
+METHOD:: newRTT
+Compound rotation around the z, x and y axes, applied in sequential order: rotate, tilt, tumble.
+
+note::
+emphasis::Extrinsic::, "laboratory-fixed" axes.
+::
+
+ARGUMENT:: rotate
+Rotation angle around z-axis, in radians.
+
+ARGUMENT:: tilt
+Rotation angle around x-axis, in radians.
+
+ARGUMENT:: tumble
+Rotation angle around y-axis, in radians.
+
+ARGUMENT:: order
+Ambisonic order.
+
+
+METHOD:: newYPR
+Compound rotation around the z, y' and x" axes: yaw, pitch, roll.
+
+note::
+Mixed emphasis::intrinsic:: (z-axis), emphasis::extrinsic:: (y' & x"-axes) rotations. This rotation differs from link::#*newRTT::, which is emphasis::extrinsic::.
+::
+
+ARGUMENT:: yaw
+Rotation angle around z-axis, in radians.
+
+ARGUMENT:: pitch
+Rotation angle around y'-axis, in radians.
+
+ARGUMENT:: roll
+Rotation angle around x"-axis, in radians.
+
+ARGUMENT:: order
+Ambisonic order.
+
+
+METHOD:: newRotate
+Compound rotation around the cartesian axes, applied in sequential order.
+
+note::
+emphasis::Extrinsic::, "laboratory-fixed" axes.
+::
+
+ARGUMENT:: r1
+Rotation angle around axis-1, in radians.
+
+ARGUMENT:: r2
+Rotation angle around axis-2, in radians.
+
+ARGUMENT:: r3
+Rotation angle around axis-2, in radians.
+
+ARGUMENT:: axes
+
+Individual axes are specified via the axial keywords for link::#*newRotateAxis::.
+
+Specify order of rotations via concatenation. E.g., rotate, tilt, tumble: code::\zxy::
+
+ARGUMENT:: order
+Ambisonic order.
+
+
+METHOD:: newSwapAxes
+Swap two axes of a higher order ambisonic signal (HOA).
+
+ARGUMENT:: axes
+Individual axes are specified via the axial keywords for link::#*newRotateAxis::.
+
+Specify swap via concatenation. E.g., swap y-axis with z-azis: code::\yz::
+
+ARGUMENT:: order
+Ambisonic order.
+
+
+METHOD:: newFromMatrix
+Transform a higher order ambisonic signal (HOA) via a directly designed spatial filter.
+
+ARGUMENT:: matrix
+A link::Classes/Matrix:: instance.
+
+ARGUMENT:: order
+Ambisonic order.
+
+
+INSTANCEMETHODS::
+PRIVATE:: dim, initBeam, initNull, initReflect, initRotation, initSwapAxes
+
+METHOD:: analyzeAverage
+Return an average analysis of transformer amplitude and energies.
+
+returns::
+
+Analysis is returned in a link::Classes/Dictionary::, with the following keys:
+
+table::
+## strong::keyword:: || strong::analysis::
+## code::\amp:: || pressure (virtual loudspeaker sum)
+## code::\rms:: || spherical harmonic energy
+## code::\energy:: || virtual loudspeaker (angular) energy
+## code::\meanE:: || transformer emphasis::reduced energy::
+## code::\matchWeight:: || transformer matching weights (a Dictionary)
+::
+
+The required weights for link::Classes/HoaMatrixDecoder#Gain%20match#gain matching:: are returned in the code::\matchWeight:: Dictionary:
+
+table::
+## strong::keyword:: || strong::analysis::
+## code::\amp:: || match weight for pressure (virtual loudspeaker sum)
+## code::\rms:: || match weight for spherical harmonic energy
+## code::\energy:: || match weight for virtual loudspeaker (angular) energy
+::
+
+
+DISCUSSION::
+
+Offers a convenient way to check whether designed decoders meet the theoretical performance predicted by link::Classes/HoaOrder::.
+
+A regular array, evenly distributed loudspeakers:
+
+code::
+// Pantophonic (2D) decoder with nine channels arranged in a regular polygon
+
+// specify parameters & design
+~numChans = 9
+~beamShape = \basic
+~beamShape = \energy
+~beamShape = \controlled
+~match = \amp
+~match = \rms
+~match = \energy
+~order = 3
+~decoder = HoaMatrixDecoder.newPanto(~numChans, beamShape: ~beamShape, match: ~match, order: ~order)
+
+// HoaOrder - theoretical values
+~hoaOrder = HoaOrder.new(~order)
+
+// analyze average - 'reduced energy E' for an Ambisonic decoder
+~decoder.analyzeAverage[\meanE]
+
+// compare to theoretical - 'reduced energy E' for an Ambisonic decoder
+~hoaOrder.meanE(~beamShape, ~decoder.dim)
+
+// analyze average - measured amplitude
+~decoder.analyzeAverage[\amp]
+
+// compare to theoretical - expected amplitude
+~hoaOrder.matchWeight(~beamShape, ~decoder.dim, ~match, ~decoder.numChannels)
+::
+
+Unevenly distributed loudspeakers:
+
+code::
+// Pantophonic (2D) decoder with four channels arranged in a rectangle:
+// [ 30, -30, -150, 150 ]
+
+// specify parameters & design
+~directions = [ 30, -30 ].degrad  // 1/2 the desired directions
+~beamShape = \basic
+~beamShape = \energy
+~beamShape = \controlled
+~match = \amp
+~match = \rms
+~match = \energy
+~order = 1
+
+~decoder = HoaMatrixDecoder.newDiametric(~directions, ~beamShape, ~match, ~order);
+
+// HoaOrder - theoretical values
+~hoaOrder = HoaOrder.new(~order)
+
+// analyze average - 'reduced energy E' for an Ambisonic decoder
+~decoder.analyzeAverage[\meanE]
+
+// compare to theoretical - 'reduced energy E' for an Ambisonic decoder
+~hoaOrder.meanE(~beamShape, ~decoder.dim)
+
+// analyze average - measured amplitude
+~decoder.analyzeAverage[\amp]
+
+// compare to theoretical - expected amplitude
+~hoaOrder.matchWeight(~beamShape, ~decoder.dim, ~match, ~decoder.numChannels)
+::
+
+
+METHOD:: analyzeDirections
+(describe method here)
+
+ARGUMENT:: directions
+(describe argument here)
+
+returns:: (describe returnvalue here)
+
+
+EXAMPLES::
+
+code::
+(some example code)
+::

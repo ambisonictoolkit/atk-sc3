@@ -227,16 +227,6 @@ SUBSECTION:: Matrix
 
 COPYMETHOD:: HoaMatrix, -matrix
 
-COPYMETHOD:: HoaMatrix, -getDegreeBlock
-
-COPYMETHOD:: HoaMatrix, -postDegreeBlock
-
-COPYMETHOD:: HoaMatrix, -getSub
-
-COPYMETHOD:: HoaMatrix, -postSub
-
-COPYMETHOD:: HoaMatrix, -mixCoeffs
-
 COPYMETHOD:: HoaMatrix, -zeroWithin
 
 COPYMETHOD:: HoaMatrix, -asArray

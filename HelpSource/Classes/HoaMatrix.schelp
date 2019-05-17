@@ -60,7 +60,7 @@ See the link::Guides/Guide-to-ATK-Matrix-Files:: for more information.
 
 INSTANCEMETHODS::
 
-PRIVATE:: prWriteMatrixToYML, initDirections, initFromMatrix, initFormat, initDirTDesign, initFromFile
+PRIVATE:: prWriteMatrixToYML, initDirections, initFromMatrix, initFormat, initDirTDesign, initFromFile, getDegreeBlock, postDegreeBlock, getSub, postSub, mixCoeffs
 
 SUBSECTION:: Information
 
@@ -121,49 +121,6 @@ SUBSECTION:: Matrix
 
 COPYMETHOD:: AtkMatrix, -matrix
 
-METHOD:: getDegreeBlock
-
-Returns the block matrix for a single degree within the full matrix.
-
-ARGUMENT:: degree
-
-emphasis::Associated Legendre:: degree.
-
-ARGUMENT:: round
-Round values to this precision.
-
-METHOD:: postDegreeBlock
-
-Posts the block matrix for a single degree within the full matrix.
-
-ARGUMENT:: degree
-
-emphasis::Associated Legendre:: degree.
-
-ARGUMENT:: round
-Round values to this precision.
-
-COPYMETHOD:: Matrix, -getSub
-
-COPYMETHOD:: Matrix, -postSub
-
-METHOD:: mixCoeffs
-(describe method here)
-
-ARGUMENT:: coeffs
-(describe argument here)
-
-DISCUSSION::
-code::
-a = HoaMatrixDecoder.newPanto;
-a.order;
-
-b = HoaMatrixEncoder.newDirection;
-b.order;
-
-a.mixCoeffs(b.matrix.flop.flat);
-a.matrix.mulMatrix(b.matrix);
-::
 
 METHOD:: zeroWithin
 

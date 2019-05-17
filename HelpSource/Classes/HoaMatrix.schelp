@@ -1,0 +1,192 @@
+TITLE:: HoaMatrix
+summary:: A superclass to the Atk's various Higher Order Ambisonic (HOA) matrix classes.
+categories:: Libraries>Ambisonic Toolkit>Internals
+related:: Classes/AtkMatrix, Classes/HoaMatrixEncoder, Classes/HoaMatrixDecoder, Classes/HoaMatrixXformer, Classes/Matrix, Guides/Guide-to-ATK-Matrix-Files
+
+DESCRIPTION::
+An HoaMatrix is not typically instantiated directly, but rather through one of its subclasses:
+link::Classes/HoaMatrixEncoder::,  link::Classes/HoaMatrixDecoder::, and link::Classes/HoaMatrixXformer::.
+
+
+CLASSMETHODS::
+
+METHOD:: newFromMatrix
+Create an instance from a raw 2D link::Classes/Matrix::.
+
+ARGUMENT:: matrix
+A link::Classes/Matrix:: in the form of
+code::
+Matrix.with([[row1],[row2],...[rowN]])
+::
+
+ARGUMENT:: directions
+An array of directions. Specify in radians.
+
+Rank 1 arrays return pantophonic, while rank 2 arrays return periphonic. E.g.,
+code::
+// 2D:
+~directions = [ theta0, theta1, ... thetaN ];
+::
+code::
+// 3D:
+~directions = [ [ theta0, phi0 ], [ theta1, phi1 ], ... [ thetaN, phiN ] ];
+::
+
+ARGUMENT:: order
+Ambisonic order.
+
+
+METHOD:: newFromFile
+Create an instance by loading a matrix from a file.
+
+ARGUMENT:: filePathOrName
+Can be a path relative to your code::/extensions/matrices/decoders:: folder:
+code::
+Atk.getMatrixExtensionSubPath(\hoa1, \decoders).fullPath
+::
+Otherwise a full path to your matrix file.
+
+
+ARGUMENT:: searchExtensions
+Search extension paths.
+
+ARGUMENT:: order
+Ambisonic order.
+
+discussion::
+See the link::Guides/Guide-to-ATK-Matrix-Files:: for more information.
+
+
+
+INSTANCEMETHODS::
+
+PRIVATE:: prWriteMatrixToYML, initDirections, initFromMatrix, initFormat, initDirTDesign, initFromFile
+
+SUBSECTION:: Information
+
+COPYMETHOD:: AtkMatrix, -info
+
+COPYMETHOD:: AtkMatrix, -order
+
+METHOD:: set
+
+Describes both the emphasis::signal set:: and the emphasis::tool set::, encompassing the Ambisonic order, as well as channel ordering and normalisation.
+
+Ambisonic Toolkit designation indicating Ambisonic order and encoding format. E.g., code::\FOA::, code::\HOA3::.
+
+For instance, code::\HOA3:::
+
+table::
+## strong::Ambisonic Order:: || strong::Component Ordering:: || strong::Component Normalisation::
+## 3rd || Ambisonic Channel Number (ACN) || Full 3-D normalisation (N3D)
+::
+
+
+METHOD:: type
+
+Ambisonic Toolkit soundfield operation designation. E.g., code::\encode::, code::\xform::, code::\decode::.
+
+COPYMETHOD:: AtkMatrix, -op
+
+COPYMETHOD:: AtkMatrix, -kind
+
+METHOD:: dim
+
+Answers the number of encoder dimensions: 2D or 3D.
+
+METHOD:: numChannels
+
+Answers the number of input or output channels, depending on link::#-type::.
+
+METHOD:: directions
+
+Answers the directions of input or output channels, depending on link::#-type::.
+
+
+COPYMETHOD:: AtkMatrix, -numInputs
+
+METHOD:: dirInputs
+
+A convenience method providing polymorphism with link::#-directions::, depending on link::#-type::.
+
+
+COPYMETHOD:: AtkMatrix, -numOutputs
+
+METHOD:: dirOutputs
+
+A convenience method providing polymorphism with link::#-directions::, depending on link::#-type::.
+
+
+SUBSECTION:: Matrix
+
+COPYMETHOD:: AtkMatrix, -matrix
+
+METHOD:: getDegreeBlock
+
+Returns the block matrix for a single degree within the full matrix.
+
+ARGUMENT:: degree
+
+emphasis::Associated Legendre:: degree.
+
+ARGUMENT:: round
+Round values to this precision.
+
+METHOD:: postDegreeBlock
+
+Posts the block matrix for a single degree within the full matrix.
+
+ARGUMENT:: degree
+
+emphasis::Associated Legendre:: degree.
+
+ARGUMENT:: round
+Round values to this precision.
+
+COPYMETHOD:: Matrix, -getSub
+
+COPYMETHOD:: Matrix, -postSub
+
+METHOD:: mixCoeffs
+(describe method here)
+
+ARGUMENT:: coeffs
+(describe argument here)
+
+DISCUSSION::
+code::
+a = HoaMatrixDecoder.newPanto;
+a.order;
+
+b = HoaMatrixEncoder.newDirection;
+b.order;
+
+a.mixCoeffs(b.matrix.flop.flat);
+a.matrix.mulMatrix(b.matrix);
+::
+
+METHOD:: zeroWithin
+
+Force matrix values to zero, within threshold distance (positive or negative).
+
+ARGUMENT:: within
+
+Near zero value.
+
+COPYMETHOD:: AtkMatrix, -asArray
+
+
+SUBSECTION:: File handling
+
+COPYMETHOD:: AtkMatrix, -fileName
+
+COPYMETHOD:: AtkMatrix, -filePath
+
+COPYMETHOD:: AtkMatrix, -fileParse
+
+COPYMETHOD:: AtkMatrix, -writeToFile
+
+
+EXAMPLES::
+
+TBD

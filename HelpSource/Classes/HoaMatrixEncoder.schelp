@@ -164,8 +164,73 @@ discussion::
 A variety of emphasis::component:: strong::ordering:: and strong::normalisation:: schemes are supported. Please review the discussion found here: link::Classes/HoaMatrixDecoder#*newFormat::
 
 
+SUBSECTION:: Matrix & File
+
+COPYMETHOD:: HoaMatrix, *newFromMatrix
+
+COPYMETHOD:: HoaMatrix, *newFromFile
+
+
 INSTANCEMETHODS::
 PRIVATE:: initEncoderVarsForFiles, initBeam, initMode, initBasic
+
+SUBSECTION:: Information
+
+COPYMETHOD:: HoaMatrix, -info
+
+COPYMETHOD:: HoaMatrix, -order
+
+COPYMETHOD:: HoaMatrix, -set
+
+COPYMETHOD:: HoaMatrix, -type
+
+COPYMETHOD:: HoaMatrix, -op
+
+COPYMETHOD:: HoaMatrix, -kind
+
+COPYMETHOD:: HoaMatrix, -dim
+
+COPYMETHOD:: HoaMatrix, -numChannels
+
+COPYMETHOD:: HoaMatrix, -directions
+
+COPYMETHOD:: HoaMatrix, -numInputs
+
+COPYMETHOD:: HoaMatrix, -dirInputs
+
+COPYMETHOD:: HoaMatrix, -numOutputs
+
+COPYMETHOD:: HoaMatrix, -dirOutputs
+
+
+SUBSECTION:: Matrix
+
+COPYMETHOD:: HoaMatrix, -matrix
+
+COPYMETHOD:: HoaMatrix, -getDegreeBlock
+
+COPYMETHOD:: HoaMatrix, -postDegreeBlock
+
+COPYMETHOD:: HoaMatrix, -getSub
+
+COPYMETHOD:: HoaMatrix, -postSub
+
+COPYMETHOD:: HoaMatrix, -mixCoeffs
+
+COPYMETHOD:: HoaMatrix, -zeroWithin
+
+COPYMETHOD:: HoaMatrix, -asArray
+
+
+SUBSECTION:: File handling
+
+COPYMETHOD:: HoaMatrix, -fileName
+
+COPYMETHOD:: HoaMatrix, -filePath
+
+COPYMETHOD:: HoaMatrix, -fileParse
+
+COPYMETHOD:: HoaMatrix, -writeToFile
 
 
 EXAMPLES::

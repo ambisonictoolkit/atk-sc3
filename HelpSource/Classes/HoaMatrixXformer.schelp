@@ -176,6 +176,7 @@ Specify swap via concatenation. E.g., swap y-axis with z-azis: code::\yz::
 ARGUMENT:: order
 Ambisonic order.
 
+SUBSECTION:: Matrix & File
 
 METHOD:: newFromMatrix
 Transform a higher order ambisonic signal (HOA) via a directly designed spatial filter.
@@ -186,9 +187,73 @@ A link::Classes/Matrix:: instance.
 ARGUMENT:: order
 Ambisonic order.
 
+COPYMETHOD:: HoaMatrix, *newFromFile
+
+
 
 INSTANCEMETHODS::
 PRIVATE:: dim, initBeam, initNull, initReflect, initRotation, initSwapAxes
+
+SUBSECTION:: Information
+
+COPYMETHOD:: HoaMatrix, -info
+
+COPYMETHOD:: HoaMatrix, -order
+
+COPYMETHOD:: HoaMatrix, -set
+
+COPYMETHOD:: HoaMatrix, -type
+
+COPYMETHOD:: HoaMatrix, -op
+
+COPYMETHOD:: HoaMatrix, -kind
+
+COPYMETHOD:: HoaMatrix, -dim
+
+COPYMETHOD:: HoaMatrix, -numChannels
+
+COPYMETHOD:: HoaMatrix, -directions
+
+COPYMETHOD:: HoaMatrix, -numInputs
+
+COPYMETHOD:: HoaMatrix, -dirInputs
+
+COPYMETHOD:: HoaMatrix, -numOutputs
+
+COPYMETHOD:: HoaMatrix, -dirOutputs
+
+
+SUBSECTION:: Matrix
+
+COPYMETHOD:: HoaMatrix, -matrix
+
+COPYMETHOD:: HoaMatrix, -getDegreeBlock
+
+COPYMETHOD:: HoaMatrix, -postDegreeBlock
+
+COPYMETHOD:: HoaMatrix, -getSub
+
+COPYMETHOD:: HoaMatrix, -postSub
+
+COPYMETHOD:: HoaMatrix, -mixCoeffs
+
+COPYMETHOD:: HoaMatrix, -zeroWithin
+
+COPYMETHOD:: HoaMatrix, -asArray
+
+
+SUBSECTION:: File handling
+
+COPYMETHOD:: HoaMatrix, -fileName
+
+COPYMETHOD:: HoaMatrix, -filePath
+
+COPYMETHOD:: HoaMatrix, -fileParse
+
+COPYMETHOD:: HoaMatrix, -writeToFile
+
+
+SUBSECTION:: Analysis
 
 METHOD:: analyzeAverage
 Return an average analysis of transformer amplitude and energies.
@@ -218,86 +283,220 @@ table::
 
 DISCUSSION::
 
-Offers a convenient way to check whether designed decoders meet the theoretical performance predicted by link::Classes/HoaOrder::.
+Offers a convenient way to review modifications to the soundfield.
 
-A regular array, evenly distributed loudspeakers:
+Rotation:
 
 code::
-// Pantophonic (2D) decoder with nine channels arranged in a regular polygon
+// Axial rotation
 
 // specify parameters & design
-~numChans = 9
-~beamShape = \basic
-~beamShape = \energy
-~beamShape = \controlled
-~match = \amp
-~match = \rms
-~match = \energy
+~axis = \z
+~angle = pi/3
 ~order = 3
-~decoder = HoaMatrixDecoder.newPanto(~numChans, beamShape: ~beamShape, match: ~match, order: ~order)
+~xformer = HoaMatrixXformer.newRotateAxis(~axis, ~angle, ~order)
 
-// HoaOrder - theoretical values
-~hoaOrder = HoaOrder.new(~order)
-
-// analyze average - 'reduced energy E' for an Ambisonic decoder
-~decoder.analyzeAverage[\meanE]
-
-// compare to theoretical - 'reduced energy E' for an Ambisonic decoder
-~hoaOrder.meanE(~beamShape, ~decoder.dim)
-
-// analyze average - measured amplitude
-~decoder.analyzeAverage[\amp]
-
-// compare to theoretical - expected amplitude
-~hoaOrder.matchWeight(~beamShape, ~decoder.dim, ~match, ~decoder.numChannels)
+// analyze average - matching weights
+~xformer.analyzeAverage[\matchWeight]
 ::
 
-Unevenly distributed loudspeakers:
+Beamforming:
 
 code::
-// Pantophonic (2D) decoder with four channels arranged in a rectangle:
-// [ 30, -30, -150, 150 ]
+// Beamforming
 
 // specify parameters & design
-~directions = [ 30, -30 ].degrad  // 1/2 the desired directions
+~theta = 0.0
+~phi = 0.0
 ~beamShape = \basic
-~beamShape = \energy
-~beamShape = \controlled
-~match = \amp
-~match = \rms
-~match = \energy
-~order = 1
+~order = 3
+~xformer = HoaMatrixXformer.newBeam(~theta, ~phi, ~beamShape, ~order)
 
-~decoder = HoaMatrixDecoder.newDiametric(~directions, ~beamShape, ~match, ~order);
-
-// HoaOrder - theoretical values
-~hoaOrder = HoaOrder.new(~order)
-
-// analyze average - 'reduced energy E' for an Ambisonic decoder
-~decoder.analyzeAverage[\meanE]
-
-// compare to theoretical - 'reduced energy E' for an Ambisonic decoder
-~hoaOrder.meanE(~beamShape, ~decoder.dim)
-
-// analyze average - measured amplitude
-~decoder.analyzeAverage[\amp]
-
-// compare to theoretical - expected amplitude
-~hoaOrder.matchWeight(~beamShape, ~decoder.dim, ~match, ~decoder.numChannels)
+// analyze average - matching weights
+~xformer.analyzeAverage[\matchWeight]
 ::
 
 
 METHOD:: analyzeDirections
-(describe method here)
+
+Return a directional analysis of modifications to the soundfield.
+
 
 ARGUMENT:: directions
-(describe argument here)
 
-returns:: (describe returnvalue here)
+A single azimuth value, or an array of test directions. Specify in radians.
+
+Rank 1 arrays return pantophonic, while rank 2 arrays return periphonic. E.g.,
+code::
+// 2D:
+~testDirections = [ theta0, theta1, ... thetaN ];
+::
+code::
+// 3D:
+~testDirections = [ [ theta0, phi0 ], [ theta1, phi1 ], ... [ thetaN, phiN ] ];
+::
+
+
+returns::
+
+Analysis is returned in a link::Classes/Dictionary::, with the following keys:
+
+table::
+## strong::keyword:: || strong::analysis::
+## code::\amp:: || pressure (virtual loudspeaker sum)
+## code::\rms:: || spherical harmonic energy
+## code::\energy:: || virtual loudspeaker energy
+## code::\spreadE:: || energy spread (a Dictionary)
+## code::\rV:: || emphasis::velocity localisation vector::, strong::rV:: (a Dictionary)
+## code::\rE:: || emphasis::energy localisation vector::, strong::rE:: (a Dictionary)
+::
+
+Two measures of energy spread are offered in the code::\spreadE:: Dictionary:
+
+table::
+## strong::keyword:: || strong::analysis::
+## code::\cos:: || roll-off to ~-3dB, in radians
+## code::\hvc:: || roll-off to ~-6dB, in radians
+::
+
+Information regarding strong::rV::, the emphasis::velocity localisation vector::, is returned in the code::\rV:: Dictionary:
+
+table::
+## strong::keyword:: || strong::analysis::
+## code::\mag:: || vector magnitudes
+## code::\directions:: || vector directions, in radians
+## code::\dist:: || distortion from test directions, in radians
+## code::\rEdist:: || distortion from strong::rE::, in radians
+## code::\xyz:: || strong::rV::, in cartesian coordinates
+::
+
+Similarly, information regarding strong::rE::, the emphasis::energy localisation vector::, is returned in the code::\rE:: Dictionary:
+
+table::
+## strong::keyword:: || strong::analysis::
+## code::\mag:: || vector magnitudes
+## code::\directions:: || vector directions, in radians
+## code::\dist:: || distortion from test directions, in radians
+## code::\rVdist:: || distortion from strong::rV::, in radians
+## code::\xyz:: || strong::rE::, in cartesian coordinates
+::
+
+
+Offers detailed analysis of transformer performance.
+
+Rotation:
+
+code::
+// Axial rotation
+
+// specify parameters & design
+~axis = \z
+~angle = pi/3
+~order = 3
+~xformer = HoaMatrixXformer.newRotateAxis(~axis, ~angle, ~order)
+
+//----
+// analysis
+~numTestDirections = 16
+~testDirections = Array.regularPolygon(~numTestDirections)
+
+// analyze
+~analysis = ~xformer.analyzeDirections(~testDirections)
+
+
+~analysis[\amp].ampdb.round(0.01)
+~analysis[\rms].sqrt.ampdb.round(0.01)
+~analysis[\energy].sqrt.ampdb.round(0.01)
+
+~analysis[\spreadE][\cos].raddeg
+
+~analysis[\rV][\mag]
+~analysis[\rV][\directions].raddeg.round(0.1)
+~analysis[\rV][\dist].raddeg.round(0.1)
+~analysis[\rV][\rEdist].raddeg.round(0.1)
+
+~analysis[\rE][\mag]
+~analysis[\rE][\directions].raddeg.round(0.1)
+~analysis[\rE][\dist].raddeg.round(0.1)
+::
+
+
+Beamforming:
+
+code::
+// Beamforming
+
+// specify parameters & design
+~theta = 0.0
+~phi = 0.0
+~beamShape = \controlled
+~order = 3
+~xformer = HoaMatrixXformer.newBeam(~theta, ~phi, ~beamShape, ~order)
+
+//----
+// analysis
+~numTestDirections = 16
+~testDirections = Array.regularPolygon(~numTestDirections)
+
+// analyze
+~analysis = ~xformer.analyzeDirections(~testDirections)
+
+
+~analysis[\amp].ampdb.round(0.01)
+~analysis[\rms].sqrt.ampdb.round(0.01)
+~analysis[\energy].sqrt.ampdb.round(0.01)
+
+~analysis[\spreadE][\cos].raddeg
+
+~analysis[\rV][\mag]
+~analysis[\rV][\directions].raddeg.round(0.1)
+~analysis[\rV][\dist].raddeg.round(0.1)
+~analysis[\rV][\rEdist].raddeg.round(0.1)
+
+~analysis[\rE][\mag]
+~analysis[\rE][\directions].raddeg.round(0.1)
+~analysis[\rE][\dist].raddeg.round(0.1)
+::
+
+
+Nullforming:
+
+code::
+// Nullforming
+
+// specify parameters & design
+~theta = 0.0
+~phi = 0.0
+~beamShape = \controlled
+~order = 3
+~xformer = HoaMatrixXformer.newNull(~theta, ~phi, ~beamShape, ~order)
+
+//----
+// analysis
+~numTestDirections = 16
+~testDirections = Array.regularPolygon(~numTestDirections)
+
+// analyze
+~analysis = ~xformer.analyzeDirections(~testDirections)
+
+
+~analysis[\amp].ampdb.round(0.01)
+~analysis[\rms].sqrt.ampdb.round(0.01)
+~analysis[\energy].sqrt.ampdb.round(0.01)
+
+~analysis[\spreadE][\cos].raddeg
+
+~analysis[\rV][\mag]
+~analysis[\rV][\directions].raddeg.round(0.1)
+~analysis[\rV][\dist].raddeg.round(0.1)
+~analysis[\rV][\rEdist].raddeg.round(0.1)
+
+~analysis[\rE][\mag]
+~analysis[\rE][\directions].raddeg.round(0.1)
+~analysis[\rE][\dist].raddeg.round(0.1)
+::
 
 
 EXAMPLES::
 
-code::
-(some example code)
-::
+TBD

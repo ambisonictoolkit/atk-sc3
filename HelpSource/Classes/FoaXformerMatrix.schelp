@@ -10,6 +10,8 @@ You may wish to explore the visualizations of the available transforms via link:
 
 CLASSMETHODS::
 
+SUBSECTION:: Rotations
+
 METHOD:: newRotate
 Rotate around the z-axis.
 
@@ -64,6 +66,7 @@ link::#*newRotate#Rotate:: is followed by link::#*newTilt#Tilt:: and then link::
 note:: Corresponding UGen: link::Classes/FoaRTT:: ::
 
 
+SUBSECTION:: Reflections
 
 METHOD:: newMirrorO
 Mirror across the origin.
@@ -106,6 +109,7 @@ discussion::
 note:: Corresponding UGen: link::Classes/FoaMirror:: ::
 
 
+SUBSECTION:: Directivity
 
 METHOD:: newDirectO
 Adjust the soundfield directivity (across the origin).
@@ -186,7 +190,7 @@ strong::Angle:: = 0 retains the current directivity of the soundfield. Increasin
 note:: Corresponding UGen: link::Classes/FoaDirect:: ::
 
 
-
+SUBSECTION:: Dominance
 
 METHOD:: newDominateX
 Apply dominance along the x-axis.
@@ -244,7 +248,7 @@ discussion:: Applies dominance along the axis defined by strong::theta:: and str
 note:: Corresponding UGen: link::Classes/FoaDominate:: ::
 
 
-
+SUBSECTION:: Zoom
 
 METHOD:: newZoomX
 Apply zoom along the x-axis.
@@ -304,7 +308,7 @@ note:: Corresponding UGen: link::Classes/FoaZoom:: ::
 
 
 
-
+SUBSECTION:: Focus
 
 
 METHOD:: newFocusX
@@ -367,6 +371,7 @@ discussion:: Applies focus along the axis defined by strong::theta:: and strong:
 note:: Corresponding UGen: link::Classes/FoaFocus:: ::
 
 
+SUBSECTION:: Push
 
 METHOD:: newPushX
 Apply push along the x-axis.
@@ -423,7 +428,7 @@ note:: Corresponding UGen: link::Classes/FoaPush:: ::
 
 
 
-
+SUBSECTION:: Press
 
 METHOD:: newPressX
 Apply press along the x-axis.
@@ -479,6 +484,8 @@ discussion:: Applies press along the axis defined by strong::theta:: and strong:
 note:: Corresponding UGen: link::Classes/FoaPress:: ::
 
 
+SUBSECTION:: Asymmetry & Balance
+
 METHOD:: newAsymmetry
 Apply soundfield asymmetry
 
@@ -506,6 +513,18 @@ Imaging is illustrated link::Classes/FoaBalance#figure#here::.
 note:: Corresponding UGen: link::Classes/FoaBalance:: ::
 
 
+SUBSECTION:: Matrix & File
+
+METHOD:: newFromMatrix
+Create an instance from a raw 2D link::Classes/Matrix::.
+
+ARGUMENT:: matrix
+A link::Classes/Matrix:: in the form of
+code::
+Matrix.with([[row1],[row2],...[rowN]])
+::
+
+
 METHOD:: newFromFile
 Create an FoaEncoderMatrix by loading a matrix from a file.
 
@@ -520,8 +539,6 @@ discussion::
 See the link::Guides/Guide-to-ATK-Matrix-Files:: for more information.
 
 
-COPYMETHOD:: AtkMatrix, *newFromMatrix
-
 
 
 INSTANCEMETHODS::
@@ -529,16 +546,13 @@ INSTANCEMETHODS::
 private:: initMirrorChan, initMirrorX, initMirrorY, initMirrorZ, initMirrorO, initRotate, initTilt, initTumble, initDirectO, initDirectX, initDirectY, initDirectZ, initDominateX, initDominateY, initDominateZ, initZoomX, initZoomY, initZoomZ, initFocusX, initFocusY, initFocusZ, initPushX, initPushY, initPushZ, initPressX, initPressY, initPressZ, initAsymmetry, initRTT, initMirror, initDirect, initDominate, initZoom, initFocus, initPush, initPress, printOn
 
 
-METHOD:: set
+SUBSECTION:: Information
 
-Describes both the emphasis::signal set:: and the emphasis::tool set::, encompassing the Ambisonic order, as well as channel ordering and normalisation.
+COPYMETHOD:: FoaMatrix, -info
 
-Answers code::'FOA'::, aka traditional B-format:
+COPYMETHOD:: FoaMatrix, -order
 
-table::
-## strong::Ambisonic Order:: || strong::Channel Ordering:: || strong::Channel Normalisation::
-## 1st || Gerzon (aka Furse-Malham) || MaxN
-::
+COPYMETHOD:: FoaMatrix, -set
 
 METHOD:: type
 returns:: code::'xformer'::
@@ -546,12 +560,12 @@ returns:: code::'xformer'::
 COPYMETHOD:: AtkMatrix, -op
 
 METHOD:: kind
-Answers the kind of encoder
+Answers the kind of transformer.
 
 discussion::
 
 code::
-// encoder
+// xformer
 ~xformer = FoaXformerMatrix.newZoomX
 
 // inspect
@@ -575,16 +589,7 @@ A convenience method providing polymorphism with link::Classes/FoaEncoderMatrix#
 returns:: code:: [ inf, inf, inf , inf ] ::
 
 
-METHOD:: matrix
-Answers the transform matrix
-
-
-METHOD:: numOutputs
-A convenience method providing polymorphism with link::Classes/FoaEncoderMatrix#-numOutputs:: and link::Classes/FoaDecoderMatrix#-numOutputs::.
-
-
-METHOD:: dirOutputs
-A convenience method providing polymorphism with link::Classes/FoaEncoderMatrix#-dirOutputs:: and link::Classes/FoaDecoderMatrix#-dirOutputs::.
+COPYMETHOD:: FoaMatrix, -directions
 
 
 METHOD:: numInputs
@@ -595,15 +600,31 @@ METHOD:: dirInputs
 A convenience method providing polymorphism with link::Classes/FoaEncoderMatrix#-dirInputs:: and link::Classes/FoaDecoderMatrix#-dirInputs::.
 
 
-COPYMETHOD:: AtkMatrix, -info
+METHOD:: numOutputs
+A convenience method providing polymorphism with link::Classes/FoaEncoderMatrix#-numOutputs:: and link::Classes/FoaDecoderMatrix#-numOutputs::.
 
-COPYMETHOD:: AtkMatrix, -fileParse
 
-COPYMETHOD:: AtkMatrix, -filePath
+METHOD:: dirOutputs
+A convenience method providing polymorphism with link::Classes/FoaEncoderMatrix#-dirOutputs:: and link::Classes/FoaDecoderMatrix#-dirOutputs::.
+
+
+SUBSECTION:: Matrix
+
+COPYMETHOD:: AtkMatrix, -matrix
+
+COPYMETHOD:: AtkMatrix, -asArray
+
+
+SUBSECTION:: File handling
 
 COPYMETHOD:: AtkMatrix, -fileName
 
+COPYMETHOD:: AtkMatrix, -filePath
+
+COPYMETHOD:: AtkMatrix, -fileParse
+
 COPYMETHOD:: AtkMatrix, -writeToFile
+
 
 EXAMPLES::
 

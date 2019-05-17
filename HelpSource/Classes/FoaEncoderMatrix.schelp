@@ -313,6 +313,11 @@ discussion::
 Encoding means encoding from one Ambisonic channel componenent orderding and normalisation to that of traditional B-format. In this case, from AmbiX encoding scheme (strong::ACN:: ordering, strong::SN3D:: normalisation) to strong::Gerzon:: (aka strong::Furse-Malham::) ordering, strong::MaxN:: normalisation.
 
 
+SUBSECTION:: Matrix & File
+
+COPYMETHOD:: FoaMatrix, *newFromMatrix
+
+
 METHOD:: newFromFile
 Create an FoaEncoderMatrix by loading a matrix from a file.
 
@@ -327,23 +332,17 @@ discussion::
 See the link::Guides/Guide-to-ATK-Matrix-Files:: for more information.
 
 
-COPYMETHOD:: AtkMatrix, *newFromMatrix
-
 
 INSTANCEMETHODS::
 private:: init2D, init3D, initInv2D, initInv3D, initAtoB, initOmni, initDirection, initStereo, initQuad, init5_0, init7_0, initDirections, initPanto, initPeri, initZoomH2, initHoa1, initAmbix1, initZoomH2n, printOn, initEncoderVarsForFiles
 
+SUBSECTION:: Information
 
-METHOD:: set
+COPYMETHOD:: FoaMatrix, -info
 
-Describes both the emphasis::signal set:: and the emphasis::tool set::, encompassing the Ambisonic order, as well as channel ordering and normalisation.
+COPYMETHOD:: FoaMatrix, -order
 
-Answers code::'FOA'::, aka traditional B-format:
-
-table::
-## strong::Ambisonic Order:: || strong::Channel Ordering:: || strong::Channel Normalisation::
-## 1st || Gerzon (aka Furse-Malham) || MaxN
-::
+COPYMETHOD:: FoaMatrix, -set
 
 METHOD:: type
 returns:: code::'encoder'::
@@ -373,6 +372,7 @@ code::
 
 
 METHOD:: dim
+
 Answers the number of encoder dimensions: 2D or 3D.
 
 discussion::
@@ -448,26 +448,7 @@ code::
 ::
 
 
-
-METHOD:: matrix
-Answers the encoding matrix
-
-
-
-
-METHOD:: numOutputs
-Answers the number of outputs for the encoder. 3 for 2D and 4 for 3D.
-
-
-METHOD:: dirOutputs
-A convenience method providing polymorphism with link::Classes/FoaEncoderMatrix#-dirOutputs::.
-
-returns::
-
-list::
-## for 2D: code:: [ inf, inf, inf ] ::
-## for 3D: code:: [ inf, inf, inf , inf ] ::
-::
+COPYMETHOD:: FoaMatrix, -directions
 
 
 METHOD:: numInputs
@@ -477,15 +458,39 @@ A synonym for link::#-numChannels::
 METHOD:: dirInputs
 A synonym for link::#-dirChannels::
 
-COPYMETHOD:: AtkMatrix, -info
 
-COPYMETHOD:: AtkMatrix, -fileParse
+METHOD:: numOutputs
+Answers the number of outputs for the encoder. 3 for 2D and 4 for 3D.
 
-COPYMETHOD:: AtkMatrix, -filePath
+
+METHOD:: dirOutputs
+A convenience method providing polymorphism with link::Classes/FoaDecoderMatrix#-dirOutputs::.
+
+returns::
+
+list::
+## for 2D: code:: [ inf, inf, inf ] ::
+## for 3D: code:: [ inf, inf, inf , inf ] ::
+::
+
+
+SUBSECTION:: Matrix
+
+COPYMETHOD:: AtkMatrix, -matrix
+
+COPYMETHOD:: AtkMatrix, -asArray
+
+
+SUBSECTION:: File handling
 
 COPYMETHOD:: AtkMatrix, -fileName
 
+COPYMETHOD:: AtkMatrix, -filePath
+
+COPYMETHOD:: AtkMatrix, -fileParse
+
 COPYMETHOD:: AtkMatrix, -writeToFile
+
 
 EXAMPLES::
 

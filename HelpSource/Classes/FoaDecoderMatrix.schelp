@@ -387,6 +387,11 @@ discussion::
 Decoding means decoding from traditional B-format to another Ambisonic channel componenent orderding and normalisation. In this case, from strong::Gerzon:: (aka strong::Furse-Malham::) ordering, strong::MaxN:: normalisation to the AmbiX encoding scheme (strong::ACN:: ordering, strong::SN3D:: normalisation).
 
 
+SUBSECTION:: Matrix & File
+
+COPYMETHOD:: FoaMatrix, *newFromMatrix
+
+
 METHOD:: newFromFile
 Create an FoaEncoderMatrix by loading a matrix from a file.
 
@@ -400,8 +405,6 @@ Otherwise a full path to your matrix file.
 discussion::
 See the link::Guides/Guide-to-ATK-Matrix-Files:: for more information.
 
-
-COPYMETHOD:: AtkMatrix, *newFromMatrix
 
 
 
@@ -432,18 +435,16 @@ note:: For large-scale concert presentation, the authors advise auditioning valu
 
 
 INSTANCEMETHODS::
-private:: initPeri, initK2D, initStereo, initBtoA, initPanto, initK3D, initQuad, printOn, initMono, init5_0, initDiametric, initHoa1, initAmbix1
+private:: initPeri, initK2D, initStereo, initBtoA, initPanto, initK3D, initQuad, printOn, initMono, init5_0, initDiametric, initHoa1, initAmbix1, initDecoderVarsForFiles
 
-METHOD:: set
 
-Describes both the emphasis::signal set:: and the emphasis::tool set::, encompassing the Ambisonic order, as well as channel ordering and normalisation.
+SUBSECTION:: Information
 
-Answers code::'FOA'::, aka traditional B-format:
+COPYMETHOD:: FoaMatrix, -info
 
-table::
-## strong::Ambisonic Order:: || strong::Channel Ordering:: || strong::Channel Normalisation::
-## 1st || Gerzon (aka Furse-Malham) || MaxN
-::
+COPYMETHOD:: FoaMatrix, -order
+
+COPYMETHOD:: FoaMatrix, -set
 
 METHOD:: type
 returns:: code::'decoder'::
@@ -566,31 +567,7 @@ code::
 ::
 
 
-METHOD:: matrix
-Answers the decoding matrix
-
-
-
-METHOD:: shelfFreq
-If the decoder is dual-band psychoacoustically optimised, get or set the shelf filter frequency, in Hz.
-
-discussion:: strong::shelfFreq:: defaults to 400Hz, which is suitable for a well aligned domestic or studio space. strong::shelfFreq:: may be set up to 700Hz, for a tight sweet-spot, and very focused single user listening.
-
-
-METHOD:: shelfK
-If the decoder is dual-band psychoacoustically optimised, get or set the shelf k.
-
-discussion:: If set, strong::shelfK:: is optimised for the chosen decoder, and should be left at the assigned value unless one is an expert user.
-
-
-
-METHOD:: numOutputs
-A synonym for link::#-numChannels::
-
-
-METHOD:: dirOutputs
-A synonym for link::#-dirChannels::
-
+COPYMETHOD:: FoaMatrix, -directions
 
 
 METHOD:: numInputs
@@ -608,17 +585,45 @@ list::
 ::
 
 
-COPYMETHOD:: AtkMatrix, -info
+METHOD:: numOutputs
+A synonym for link::#-numChannels::
 
-COPYMETHOD:: AtkMatrix, -fileParse
 
-COPYMETHOD:: AtkMatrix, -filePath
+METHOD:: dirOutputs
+A synonym for link::#-dirChannels::
+
+
+SUBSECTION:: Matrix
+
+COPYMETHOD:: AtkMatrix, -matrix
+
+COPYMETHOD:: AtkMatrix, -asArray
+
+SUBSECTION:: NFC
+
+METHOD:: shelfFreq
+If the decoder is dual-band psychoacoustically optimised, get or set the shelf filter frequency, in Hz.
+
+discussion:: strong::shelfFreq:: defaults to 400Hz, which is suitable for a well aligned domestic or studio space. strong::shelfFreq:: may be set up to 700Hz, for a tight sweet-spot, and very focused single user listening.
+
+
+METHOD:: shelfK
+If the decoder is dual-band psychoacoustically optimised, get or set the shelf k.
+
+discussion:: If set, strong::shelfK:: is optimised for the chosen decoder, and should be left at the assigned value unless one is an expert user.
+
+
+
+SUBSECTION:: File handling
 
 COPYMETHOD:: AtkMatrix, -fileName
 
+COPYMETHOD:: AtkMatrix, -filePath
+
+COPYMETHOD:: AtkMatrix, -fileParse
+
 COPYMETHOD:: AtkMatrix, -writeToFile
 
-private:: initDecoderVarsForFiles
 
 EXAMPLES::
 

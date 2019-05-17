@@ -113,8 +113,10 @@ code::
 
 
 INSTANCEMETHODS::
-private:: initPath, initKernel, printOn
+private:: initPath, initKernel, printOn, buffers, kernelBundle, kernelInfo
 
+
+SUBSECTION:: Information
 
 METHOD:: set
 
@@ -266,7 +268,36 @@ code::
 ~decoder.free
 ::
 
+METHOD:: directions
 
+A synonym for link::#-dirChannels::
+
+
+METHOD:: numInputs
+Answers the number of inputs for the decoder. 3 for 2D and 4 for 3D.
+
+
+METHOD:: dirInputs
+A convenience method providing polymorphism with link::Classes/FoaEncoderKernel#-dirInputs::.
+
+returns::
+
+list::
+## for 2D: code:: [ inf, inf, inf ] ::
+## for 3D: code:: [ inf, inf, inf , inf ] ::
+::
+
+
+METHOD:: numOutputs
+A synonym for link::#-numChannels::
+
+
+METHOD:: dirOutputs
+A synonym for link::#-dirChannels::
+
+
+
+SUBSECTION:: Kernel
 
 METHOD:: kernel
 Answers the decoder kernel.
@@ -345,7 +376,6 @@ code::
 
 
 
-
 METHOD:: free
 Free the kernel.
 
@@ -354,31 +384,6 @@ discussion:: Release the kernel buffer's memory on the server and return the buf
 warning:: Only free the kernel when the link::Classes/FoaDecode#*ar:: is no longer in use!::
 
 
-
-METHOD:: numOutputs
-A synonym for link::#-numChannels::
-
-
-METHOD:: dirOutputs
-A synonym for link::#-dirChannels::
-
-
-METHOD:: numInputs
-Answers the number of inputs for the decoder. 3 for 2D and 4 for 3D.
-
-
-
-METHOD:: dirInputs
-A convenience method providing polymorphism with link::Classes/FoaEncoderKernel#-dirInputs::.
-
-returns::
-
-list::
-## for 2D: code:: [ inf, inf, inf ] ::
-## for 3D: code:: [ inf, inf, inf , inf ] ::
-::
-
-PRIVATE:: buffers, kernelBundle, kernelInfo
 
 
 EXAMPLES::

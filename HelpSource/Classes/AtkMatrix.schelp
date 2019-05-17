@@ -1,50 +1,63 @@
 TITLE:: AtkMatrix
 summary:: A superclass to the Atk's various matrix classes.
 categories:: Libraries>Ambisonic Toolkit>Internals
-related:: Classes/FoaEncoderMatrix, Classes/FoaDecoderMatrix, Classes/FoaXformerMatrix, Classes/Matrix, Guides/Guide-to-ATK-Matrix-Files
+related:: Classes/FoaEncoderMatrix, Classes/FoaDecoderMatrix, Classes/FoaXformerMatrix, Classes/HoaMatrixEncoder, Classes/HoaMatrixDecoder, Classes/HoaMatrixXformer, Classes/Matrix, Guides/Guide-to-ATK-Matrix-Files
 
 DESCRIPTION::
 An AtkMatrix is not typically instantiated directly, but rather through one of its subclasses:
-link::Classes/FoaEncoderMatrix::,  link::Classes/FoaDecoderMatrix::, and link::Classes/FoaXformerMatrix::.
+link::Classes/FoaEncoderMatrix::,  link::Classes/FoaDecoderMatrix::, link::Classes/FoaXformerMatrix::, link::Classes/HoaMatrixEncoder::,  link::Classes/HoaMatrixDecoder::, and link::Classes/HoaMatrixXformer::.
 
 
 CLASSMETHODS::
 
 METHOD:: new
 code::*new:: should not be called directly from AtkMatrix but rather is called from the various creation methods of its subclasses:
-link::Classes/FoaEncoderMatrix::, link::Classes/FoaDecoderMatrix::, or link::Classes/FoaXformerMatrix::.
-
-
-METHOD:: newFromMatrix
-Create an instance from a raw 2D link::Classes/Matrix::.
-
-ARGUMENT:: matrix
-A link::Classes/Matrix:: in the form of
-code::
-Matrix.with([[row1],[row2],...[rowN]])
-::
-
-ARGUMENT:: order
-An link::Classes/Integer:: specifying the ambisonic order. If not provided, it will be inferred from the strong::matrix::.
-
-NOTE::
-The instance variable code::-dirChannels:: cannot be inferred from a matrix so will be code::'unspecified':: unless you set it explicitly.
-::
+link::Classes/FoaEncoderMatrix::, link::Classes/FoaDecoderMatrix::, link::Classes/FoaXformerMatrix::, link::Classes/HoaMatrixEncoder::,  link::Classes/HoaMatrixDecoder::, or link::Classes/HoaMatrixXformer::.
 
 
 INSTANCEMETHODS::
 
 PRIVATE:: set, type, kind, prWriteMatrixToMOSL, prWriteMatrixToYML, prWriteMatrixToTXT, prParseMOSL, initFromMatrix, initFromFile, loadFromLib, prWriteToFile
 
-METHOD:: op
-Answers code::'matrix'::, i.e. the type of operation used to compute the resulting signals.
-
-METHOD:: matrix
-Returns the raw coefficient Matrix.
+SUBSECTION:: Information
 
 METHOD:: info
 A convenience method to post the properties of the matrix, including metadata
 if the matrix was loaded from a code::.yml:: file.
+
+METHOD:: order
+Ambisonic order.
+
+METHOD:: op
+Answers code::'matrix'::, i.e. the type of operation used to compute the resulting signals.
+
+METHOD:: kind
+Answers the kind.
+
+METHOD:: numInputs
+Number of inputs.
+
+METHOD:: numOutputs
+Number of outputs.
+
+
+SUBSECTION:: Matrix
+
+METHOD:: matrix
+Returns the raw coefficient Matrix.
+
+METHOD:: asArray
+Returns the matrix as a new link::Classes/Array:: of rows.
+
+
+
+SUBSECTION:: File handling
+
+METHOD:: filePath
+Answers the path of the file used to create the instance, or code::nil:: if not created by loading a matrix from a file.
+
+METHOD:: fileName
+Answers the name of the file used to create the instance, or code::nil:: if not created by loading a matrix from a file.
 
 METHOD:: fileParse
 If the instance was created by loading a code::.yml:: file, this method returns
@@ -52,12 +65,6 @@ the link::Classes/IdentityDictionary:: containing the parsed metadata. This can
 be useful if anything was stored in the metadata that can be subsequently used
 once reloaded, such as encoding directions, rotations, etc.
 Note:: For simply a quick glance at the metadata, it's recommended to use link::#-info::.::
-
-METHOD:: filePath
-Answers the path of the file used to create the instance, or code::nil:: if not created by loading a matrix from a file.
-
-METHOD:: fileName
-Answers the name of the file used to create the instance, or code::nil:: if not created by loading a matrix from a file.
 
 METHOD:: writeToFile
 Write the matrix to a file

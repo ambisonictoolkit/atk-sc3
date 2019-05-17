@@ -96,8 +96,9 @@ note:: As the diffusion increases, more time domain artefacts are introduced. Th
 
 
 INSTANCEMETHODS::
-private:: initPath, initKernel, printOn
+private:: initPath, initKernel, printOn, buffers, kernelBundle, kernelInfo
 
+SUBSECTION:: Information
 
 METHOD:: set
 
@@ -216,6 +217,36 @@ code::
 ::
 
 
+METHOD:: directions
+
+A synonym for link::#-dirChannels::
+
+
+METHOD:: numInputs
+A synonym for link::#-numChannels::
+
+
+METHOD:: dirInputs
+A synonym for link::#-dirChannels::
+
+
+METHOD:: numOutputs
+Answers the number of outputs for the decoder. 3 for 2D and 4 for 3D.
+
+
+METHOD:: dirOutputs
+A convenience method providing polymorphism with link::Classes/FoaDecoderKernel#-dirOutputs::.
+
+returns::
+
+list::
+## for 2D: code:: [ inf, inf, inf ] ::
+## for 3D: code:: [ inf, inf, inf , inf ] ::
+::
+
+
+SUBSECTION:: Kernel
+
 METHOD:: kernel
 Answers the encoder kernel.
 
@@ -275,31 +306,6 @@ discussion:: Release the kernel buffer's memory on the server and return the buf
 warning:: Only free the kernel when the link::Classes/FoaEncode#*ar:: is no longer in use!::
 
 
-
-METHOD:: numInputs
-A synonym for link::#-numChannels::
-
-
-METHOD:: dirInputs
-A synonym for link::#-dirChannels::
-
-
-METHOD:: numOutputs
-Answers the number of outputs for the decoder. 3 for 2D and 4 for 3D.
-
-
-METHOD:: dirOutputs
-A convenience method providing polymorphism with link::Classes/FoaDecoderKernel#-dirOutputs::.
-
-returns::
-
-list::
-## for 2D: code:: [ inf, inf, inf ] ::
-## for 3D: code:: [ inf, inf, inf , inf ] ::
-::
-
-
-PRIVATE:: buffers, kernelBundle, kernelInfo
 
 
 EXAMPLES::

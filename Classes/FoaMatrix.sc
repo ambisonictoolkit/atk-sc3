@@ -2058,6 +2058,8 @@ FoaDecoderKernel {
 
 	dirInputs { ^this.numInputs.collect({ inf }) }
 
+	directions { ^dirChannels }
+
 	type { ^'decoder' }
 
 	printOn { arg stream;
@@ -2384,6 +2386,8 @@ FoaEncoderKernel {
 	numInputs { ^kernel.shape.at(0) }
 
 	dirOutputs { ^this.numOutputs.collect({ inf }) }
+
+	directions { ^dirChannels }
 
 	type { ^'encoder' }
 

@@ -1,0 +1,298 @@
+TITLE:: HoaOrder
+summary:: Higher order ambisonic (HOA) indexing & coefficients
+categories:: Libraries>Ambisonic Toolkit>HOA>Utilities, Libraries>Ambisonic Toolkit>Internals
+related:: Classes/HoaLm, Classes/HoaDegree
+
+DESCRIPTION::
+Higher order ambisonic (HOA) emphasis::component:: indexing, coefficients and performance, by order.
+
+
+CLASSMETHODS::
+
+METHOD:: new
+Create a new instance.
+
+ARGUMENT:: order
+Ambisonic order.
+
+
+INSTANCEMETHODS::
+
+METHOD:: order
+Return higher order ambisonic order.
+
+
+SUBSECTION:: (ℓ, m) & HOA indices
+
+METHOD:: lm
+Return an array of Associated Legendre degrees (ℓ) and indices (m).
+
+METHOD:: l
+Return an array of Associated Legendre degrees (ℓ).
+
+METHOD:: m
+Return an array of Associated Legendre indices (m).
+
+METHOD:: indices
+Return higher order ambisonic (HOA) indices.
+
+ARGUMENT:: ordering
+emphasis::Component:: strong::ordering:: scheme:
+
+table::
+## code::\acn:: || Ambisonic Channel Number (ACN)
+## code::\sid:: || Single Index Designation (SID)
+## code::\fuma:: || Furse-Malham (FuMa)
+::
+
+
+ARGUMENT:: subset
+table::
+## code::\all:: || All indices
+## code::\zonal:: || link::http://mathworld.wolfram.com/ZonalHarmonic.html##Zonal::
+## code::\sectoral:: || link::http://mathworld.wolfram.com/SectorialHarmonic.html##Sectoral::
+## code::\tesseral:: || link::http://mathworld.wolfram.com/TesseralHarmonic.html##Tesseral::
+## code::\rotate:: || Rotation around z-axis, aka yaw
+::
+
+
+SUBSECTION:: Coefficients
+
+METHOD:: numCoeffs
+Return number of coefficients.
+
+
+METHOD:: sph
+Return N3D normalized angular encoding coefficients.
+
+ARGUMENT:: theta
+Azimuth, in radians.
+
+ARGUMENT:: phi
+Elevation, in radians.
+
+
+METHOD:: normalisation
+Return emphasis::component:: strong::normalisation:: coefficients.
+
+ARGUMENT:: scheme
+emphasis::Component:: strong::normalisation:: schemes:
+table::
+## code::\n3d:: || Orthonormal basis for 3D decomposition (N3D)
+## code::\sn3d:: || Semi-normalised basis for 3D decomposition (SN3D)
+## code::\n2d:: || Orthonormal basis for 2D decomposition (N2D)
+## code::\sn2d:: || Semi-normalised basis for 2D decomposition (SN2D)
+## code::\maxN:: || Maximum normalisation (maxN)
+## code::\MaxN:: || Gerzon / Furse-Malham (MaxN)
+## code::\fuma:: || Synonym for MaxN (FuMa)
+::
+
+METHOD:: reflection
+Return emphasis::component:: reflection coefficients.
+
+ARGUMENT:: mirror
+table::
+## code::\reflect:: || Mirror across the origin. Equivalent to: code::\flip * \flop * \flap::.
+## code::\flip:: || Mirror in the y-axis.
+## code::\flop:: || Mirror in the x-axis.
+## code::\flap:: || Mirror in the z-axis.
+## code::\CondonShortleyPhase:: || Condon-Shortley Phase. Equivalent to: code::\flip * \flop::.
+## code::\origin:: || Synonym for code::\reflect::.
+## code::\x:: || Synonym for code::\flop::.
+## code::\y:: || Synonym for code::\flip::.
+## code::\z:: || Synonym for code::\flap::.
+::
+
+
+SUBSECTION:: Radial & NFE
+
+
+METHOD:: radiusAtFreq
+Return the emphasis::effective decoding radius::, in meters.
+
+ARGUMENT:: freq
+Frequency, in Hz.
+
+ARGUMENT:: speedOfSound
+Speed of sound, in meters per second.
+
+
+
+METHOD:: freqAtRadius
+Return the emphasis::effective decoding frequency::, in Hz.
+
+ARGUMENT:: radius
+Radius, in meters.
+
+ARGUMENT:: speedOfSound
+Speed of sound, in meters per second.
+
+
+
+METHOD:: proxWeights
+Return complex near-field effect proximity radial filtering coefficients, collected by Associated Legendre degree (ℓ).
+
+ARGUMENT:: freq
+Frequency, in Hz.
+
+ARGUMENT:: radius
+Radius, in meters.
+
+ARGUMENT:: speedOfSound
+Speed of sound, in meters per second.
+
+
+METHOD:: distWeights
+Return complex near-field effect distance radial filtering coefficients, collected by Associated Legendre degree (ℓ).
+
+ARGUMENT:: freq
+Frequency, in Hz.
+
+ARGUMENT:: radius
+Radius, in meters.
+
+ARGUMENT:: speedOfSound
+Speed of sound, in meters per second.
+
+
+METHOD:: ctrlWeights
+Return complex near-field effect control radial filtering coefficients, collected by Associated Legendre degree (ℓ).
+
+ARGUMENT:: freq
+Frequency, in Hz.
+
+ARGUMENT:: encRadius
+Encoding radius, in meters.
+
+ARGUMENT:: decRadius
+Decoding radius, in meters.
+
+ARGUMENT:: speedOfSound
+Speed of sound, in meters per second.
+
+
+METHOD:: foclWeights
+Return real near-field effect focalisation radial filtering coefficients, collected by Associated Legendre degree (ℓ).
+
+ARGUMENT:: freq
+Frequency, in Hz.
+
+ARGUMENT:: radius
+Radius, in meters.
+
+ARGUMENT:: window
+Angular weighting window.
+table::
+## code::\reg:: || Regularised footnote::S. Favrot and J. Buchholz. 2010. “Impact of Regularization of near Field Coding Filters for 2D and 3D Higher-Order Ambisonics on Auditory Distance Cues.” in Proc. of the 2nd International Symposium on Ambisonics and Spherical Acoustics. Paris.::
+## code::\hp:: || (Butterworth) High Pass footnote::J. Daniel. 2003. “Spatial sound encoding including near field effect: Introducing distance coding filters and a viable, new ambisonic format,” in Proc. of the 23rd International Conference of the Audio Engineering Society.::
+## code::\cos:: || Cosine footnote::J. Ahrens and S. Spors. 2009. “Spatial encoding and decoding of focused virtual sound sources,” in Proc. of the 1st Ambisonics Symposium. Paris.::
+## code::\sin:: || Sine footnote::A sine function variation of the window proposed by Ahrens & Spors.::
+::
+
+
+ARGUMENT:: speedOfSound
+Speed of sound, in meters per second.
+
+
+SUBSECTION:: Beaming & Decoder matching
+
+Three standard beam shapes are offered:
+
+table::
+## strong::keyword:: || strong::beam shape:: || strong::localisation vector:: || strong::virtual microphone::
+## code::\basic:: || strict soundfield || maximum velocity rV || Hyper-cardioid
+## code::\energy:: || energy optimised || maximum energy rE || Super-cardioid
+## code::\controlled:: || controlled opposites || minimum diametric energy || Cardioid
+::
+
+
+METHOD:: beamWeights
+Return beamforming coefficients, collected by Associated Legendre degree (ℓ).
+
+ARGUMENT:: beamShape
+Keyword argument for beam shape. See link::#Beaming & Decoder matching#above::.
+
+ARGUMENT:: dim
+The number of dimensions: 2D or 3D.
+
+
+
+METHOD:: matchWeight
+Return matching weight for an ambisonic decoder.
+
+ARGUMENT:: beamShape
+Keyword argument for beam shape. See link::#Beaming & Decoder matching#above::.
+
+ARGUMENT:: dim
+The number of dimensions: 2D or 3D.
+
+ARGUMENT:: match
+Matching criteria:
+table::
+## code::\amp:: || pressure (loudspeaker sum)
+## code::\rms:: || spherical harmonic energy
+## code::\energy:: || loudspeaker energy
+::
+
+ARGUMENT:: numChans
+Number of loudspeakers.
+
+NOTE::Must be set when choosing code::match: \energy::.::
+
+
+
+SUBSECTION:: Decoder performance
+
+
+METHOD:: spreadE
+Return the half angle of the maximum average energy spread for an ambisonic decoder.
+
+ARGUMENT:: beamShape
+Keyword argument for beam shape. See link::#Beaming & Decoder matching#above::.
+
+ARGUMENT:: dim
+The number of dimensions: 2D or 3D.
+
+RETURNS:: A Dictionary of values:
+table::
+## code::\cos:: || roll-off to ~-3dB, in radians
+## code::\hvc:: || roll-off to ~-6dB, in radians
+::
+
+
+
+METHOD:: meanE
+Return emphasis::reduced energy:: for an ambisonic decoder.
+
+ARGUMENT:: beamShape
+Keyword argument for beam shape. See link::#Beaming & Decoder matching#above::.
+
+ARGUMENT:: dim
+The number of dimensions: 2D or 3D.
+
+
+
+METHOD:: rV
+Return maximum average magnitude of the velocity localisation vector (rV) for an ambisonic decoder.
+
+ARGUMENT:: beamShape
+Keyword argument for beam shape. See link::#Beaming & Decoder matching#above::.
+
+ARGUMENT:: dim
+The number of dimensions: 2D or 3D.
+
+
+METHOD:: rE
+Return maximum average magnitude of the energy localisation vector (rE) for an ambisonic decoder.
+
+ARGUMENT:: beamShape
+Keyword argument for beam shape. See link::#Beaming & Decoder matching#above::.
+
+ARGUMENT:: dim
+The number of dimensions: 2D or 3D.
+
+
+
+EXAMPLES::
+
+TBD

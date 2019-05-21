@@ -1,0 +1,127 @@
+TITLE:: HoaLm
+summary:: Higher order ambisonic (HOA) indexing & coefficients
+categories:: Libraries>Ambisonic Toolkit>HOA>Utilities, Libraries>Ambisonic Toolkit>Internals
+related:: Classes/HoaDegree, Classes/HoaOrder
+
+DESCRIPTION::
+Higher order ambisonic (HOA) emphasis::component:: indexing & coefficients.
+
+See Associated Legendre degree and Associated Legendre index in link::Guides/ATK-Glossary::.
+
+
+CLASSMETHODS::
+
+METHOD:: new
+Create a new instance by Associated Legendre degree (ℓ) and Associated Legendre index (m).
+
+ARGUMENT:: lm
+An two slot Array of integers: code::[l, m]::
+
+
+METHOD:: newIndex
+Create a new instance by higher order ambisonic (HOA) index.
+
+ARGUMENT:: index
+An integer.
+
+ARGUMENT:: ordering
+emphasis::Component:: strong::ordering:: scheme:
+
+table::
+## code::\acn:: || Ambisonic Channel Number (ACN)
+## code::\sid:: || Single Index Designation (SID)
+## code::\fuma:: || Furse-Malham (FuMa)
+::
+
+
+INSTANCEMETHODS::
+
+SUBSECTION:: (ℓ, m) & HOA index
+
+METHOD:: lm
+Return Associated Legendre degree (ℓ) and index (m).
+
+METHOD:: l
+Return Associated Legendre degree (ℓ).
+
+METHOD:: m
+Return Associated Legendre index (m).
+
+
+METHOD:: index
+Return higher order ambisonic (HOA) index.
+
+ARGUMENT:: ordering
+emphasis::Component:: strong::ordering:: scheme:
+
+table::
+## code::\acn:: || Ambisonic Channel Number (ACN)
+## code::\sid:: || Single Index Designation (SID)
+## code::\fuma:: || Furse-Malham (FuMa)
+::
+
+
+METHOD:: isInSubset
+Test sub-group membership.
+
+ARGUMENT:: subset
+table::
+## code::\zonal:: || link::http://mathworld.wolfram.com/ZonalHarmonic.html##Zonal::
+## code::\sectoral:: || link::http://mathworld.wolfram.com/SectorialHarmonic.html##Sectoral::
+## code::\tesseral:: || link::http://mathworld.wolfram.com/TesseralHarmonic.html##Tesseral::
+## code::\rotate:: || Rotation around z-axis, aka yaw
+::
+
+DISCUSSION:: See also link::https://en.wikipedia.org/wiki/Spherical_harmonics#Visualization_of_the_spherical_harmonics#Visualization of the spherical harmonics::.
+
+
+
+SUBSECTION:: Coefficients
+
+METHOD:: sph
+Return N3D normalized angular encoding coefficient.
+
+ARGUMENT:: theta
+Azimuth, in radians.
+
+ARGUMENT:: phi
+Elevation, in radians.
+
+
+METHOD:: normalisation
+Return emphasis::component:: strong::normalisation:: coefficient.
+
+ARGUMENT:: scheme
+emphasis::Component:: strong::normalisation:: schemes:
+table::
+## code::\n3d:: || Orthonormal basis for 3D decomposition (N3D)
+## code::\sn3d:: || Semi-normalised basis for 3D decomposition (SN3D)
+## code::\n2d:: || Orthonormal basis for 2D decomposition (N2D)
+## code::\sn2d:: || Semi-normalised basis for 2D decomposition (SN2D)
+## code::\maxN:: || Maximum normalisation (maxN)
+## code::\MaxN:: || Gerzon / Furse-Malham (MaxN)
+## code::\fuma:: || Synonym for MaxN (FuMa)
+::
+
+
+METHOD:: reflection
+Return emphasis::component:: reflection coefficient.
+
+ARGUMENT:: mirror
+table::
+## code::\reflect:: || Mirror across the origin. Equivalent to: code::\flip * \flop * \flap::.
+## code::\flip:: || Mirror in the y-axis.
+## code::\flop:: || Mirror in the x-axis.
+## code::\flap:: || Mirror in the z-axis.
+## code::\CondonShortleyPhase:: || Condon-Shortley Phase. Equivalent to: code::\flip * \flop::.
+## code::\origin:: || Synonym for code::\reflect::.
+## code::\x:: || Synonym for code::\flop::.
+## code::\y:: || Synonym for code::\flip::.
+## code::\z:: || Synonym for code::\flap::.
+::
+
+
+
+EXAMPLES::
+
+TBD

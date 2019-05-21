@@ -1,0 +1,171 @@
+TITLE:: WaveNumber
+summary:: Higher order ambisonic (HOA) radial utilities
+categories:: Libraries>Ambisonic Toolkit>HOA>Utilities
+related:: Classes/HoaRadius, Classes/HoaOrder
+
+DESCRIPTION::
+Higher order ambisonic (HOA) radial utilities. Useful for finding ambisonic decoder emphasis::effective radius::, emphasis::effective order:: and emphasis::effective frequency::.
+
+
+CLASSMETHODS::
+
+METHOD:: new
+Create a new instance, in terms of spatial frequency.
+
+ARGUMENT:: waveNumber
+Angular link::https://en.wikipedia.org/wiki/Wavenumber##wavenumber::, in radians per meter.
+
+
+
+METHOD:: newFreq
+Create a new instance, in terms of frequency.
+
+ARGUMENT:: freq
+Frequency, in Hz.
+
+ARGUMENT:: speedOfSound
+Speed of sound, in meters per second.
+
+
+METHOD:: newWn
+Create a new instance, in terms of normalized frequency.
+
+ARGUMENT:: wn
+Normalized frequency. DC = 0.0, Nyquist = 1.0;
+
+ARGUMENT:: sampleRate
+Sample rate, in Hz.
+
+ARGUMENT:: speedOfSound
+Speed of sound, in meters per second.
+
+
+METHOD:: newRadius
+Create a new instance, in terms of distance.
+
+ARGUMENT:: radius
+Radius, in meters.
+
+ARGUMENT:: order
+Ambisonic order.
+
+
+METHOD:: newDelay
+Create a new instance, in terms of time.
+
+ARGUMENT:: delay
+Radial delay, in seconds.
+
+ARGUMENT:: order
+Ambisonic order.
+
+ARGUMENT:: speedOfSound
+Speed of sound, in meters per second.
+
+
+
+INSTANCEMETHODS::
+
+SUBSECTION:: Radius & delay
+
+METHOD:: radius
+Return effective radius, in meters.
+
+ARGUMENT:: order
+Ambisonic order.
+
+
+METHOD:: delay
+Return effective delay, in seconds.
+
+ARGUMENT:: order
+Ambisonic order.
+
+ARGUMENT:: speedOfSound
+Speed of sound, in meters per seconds.
+
+
+
+SUBSECTION:: Effective order
+
+METHOD:: orderAtRadius
+Return effective ambisonic order, given radius.
+
+ARGUMENT:: radius
+Radius, in meters.
+
+
+METHOD:: orderAtDelay
+Return effective ambisonic order, given delay.
+
+ARGUMENT:: delay
+Delay, in seconds.
+
+ARGUMENT:: speedOfSound
+Speed of sound, in meters per second.
+
+
+
+SUBSECTION:: Frequency
+
+
+METHOD:: freq
+Return frequency, in Hz.
+
+ARGUMENT:: speedOfSound
+Speed of sound, in meters per second.
+
+
+METHOD:: wn
+Return normalized frequency. DC = 0.0, Nyquist = 1.0.
+
+ARGUMENT:: sampleRate
+Sample rate, in Hz.
+
+ARGUMENT:: speedOfSound
+Speed of sound, in meters per second.
+
+
+METHOD:: waveNumber
+Angular link::https://en.wikipedia.org/wiki/Wavenumber##wavenumber::, in radians per meter.
+
+
+SUBSECTION:: NFE
+
+
+METHOD:: proxWeights
+Return complex near-field effect proximity radial filtering coefficients, collected by Associated Legendre degree (ℓ).
+
+ARGUMENT:: radius
+Radius, in meters.
+
+ARGUMENT:: order
+Ambisonic order.
+
+
+METHOD:: distWeights
+Return complex near-field effect distance radial filtering coefficients, collected by Associated Legendre degree (ℓ).
+
+ARGUMENT:: radius
+Radius, in meters.
+
+ARGUMENT:: order
+Ambisonic order.
+
+
+METHOD:: ctrlWeights
+Return complex near-field effect control radial filtering coefficients, collected by Associated Legendre degree (ℓ).
+
+ARGUMENT:: encRadius
+Encoding radius, in meters.
+
+ARGUMENT:: decRadius
+Decoding radius, in meters.
+
+ARGUMENT:: order
+Ambisonic order.
+
+
+EXAMPLES::
+
+TBD

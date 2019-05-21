@@ -1,0 +1,155 @@
+TITLE:: HoaRadius
+summary:: Higher order ambisonic (HOA) radial utilities
+categories:: Libraries>Ambisonic Toolkit>HOA>Utilities
+related:: Classes/WaveNumber, Classes/HoaOrder
+
+DESCRIPTION::
+Higher order ambisonic (HOA) radial utilities. Useful for finding ambisonic decoder emphasis::effective radius::, emphasis::effective order:: and emphasis::effective frequency::.
+
+
+CLASSMETHODS::
+
+METHOD:: new
+Create a new instance, in terms of distance.
+
+ARGUMENT:: radius
+Radius, in meters.
+
+
+METHOD:: newFreq
+Create a new instance, in terms of frequency.
+
+ARGUMENT:: freq
+Frequency, in Hz.
+
+ARGUMENT:: order
+Ambisonic order.
+
+ARGUMENT:: speedOfSound
+Speed of sound, in meters per second.
+
+
+METHOD:: newWn
+Create a new instance, in terms of normalized frequency.
+
+ARGUMENT:: wn
+Normalized frequency. DC = 0.0, Nyquist = 1.0;
+
+ARGUMENT:: sampleRate
+Sample rate, in Hz.
+
+ARGUMENT:: order
+Ambisonic order.
+
+ARGUMENT:: speedOfSound
+Speed of sound, in meters per second.
+
+
+METHOD:: newWaveNumber
+Create a new instance, in terms of spatial frequency.
+
+ARGUMENT:: waveNumber
+Angular link::https://en.wikipedia.org/wiki/Wavenumber##wavenumber::, in radians per meter.
+
+ARGUMENT:: order
+Ambisonic order.
+
+
+METHOD:: newDelay
+Create a new instance, in terms of time.
+
+ARGUMENT:: delay
+Radial delay, in seconds.
+
+ARGUMENT:: speedOfSound
+Speed of sound, in meters per second.
+
+
+
+
+INSTANCEMETHODS::
+
+SUBSECTION:: Radius & delay
+
+METHOD:: radius
+Return radius, in meters.
+
+
+METHOD:: delay
+Return reference delay, in seconds.
+
+ARGUMENT:: speedOfSound
+Speed of sound, in meters per second.
+
+
+SUBSECTION:: Effective order
+
+
+METHOD:: orderAtFreq
+Return effective ambisonic order, given frequency.
+
+ARGUMENT:: freq
+Frequency, in Hz.
+
+ARGUMENT:: speedOfSound
+Speed of sound, in meters per second.
+
+
+METHOD:: orderAtWn
+Return effective ambisonic order, given normalized frequency.
+
+ARGUMENT:: wn
+Normalized frequency. DC = 0.0, Nyquist = 1.0.
+
+ARGUMENT:: sampleRate
+Sample rate, in Hz.
+
+ARGUMENT:: speedOfSound
+Speed of sound, in meters per second.
+
+
+METHOD:: orderAtWaveNumber
+Return effective ambisonic order, given spatial frequency.
+
+ARGUMENT:: waveNumber
+Angular link::https://en.wikipedia.org/wiki/Wavenumber##wavenumber::, in radians per meter.
+
+
+
+SUBSECTION:: Effective frequency
+
+
+METHOD:: freq
+Return effective frequency.
+
+ARGUMENT:: order
+Ambisonic order.
+
+ARGUMENT:: speedOfSound
+Speed of sound, in meters per second.
+
+
+METHOD:: wn
+Return effective normalized frequency.
+
+ARGUMENT:: sampleRate
+Sample rate, in Hz.
+
+ARGUMENT:: order
+Ambisonic order.
+
+ARGUMENT:: speedOfSound
+Speed of sound, in meters per second.
+
+
+METHOD:: waveNumber
+Return effective angular link::https://en.wikipedia.org/wiki/Wavenumber##wavenumber::.
+
+ARGUMENT:: order
+Ambisonic order.
+
+
+
+EXAMPLES::
+
+TBD

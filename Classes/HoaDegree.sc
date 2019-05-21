@@ -76,7 +76,7 @@ HoaDegree {
         ^List.with(
             this.l, // fill l
             this.m  // fill m
-        ).flop
+        ).flop.asArray
     }
 
     // ------------

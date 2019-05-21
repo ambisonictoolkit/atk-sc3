@@ -1,0 +1,99 @@
+TITLE:: NFECoeffs
+summary:: Higher Order Ambisonic (HOA) "by degree" radial filtering coefficients
+categories:: Libraries>Ambisonic Toolkit>Internals
+related:: Classes/DegreeProx, Classes/DegreeDist, Classes/DegreeCtrl
+
+DESCRIPTION::
+Higher Order Ambisonic (HOA) "by degree" radial filtering coefficients, returned for realization by link::Classes/FOS:: and link::Classes/SOS:: cascade.
+
+NOTE:: In most cases, users will use the high level near-field effect (NFE) pseudo-UGens: link::Classes/HoaNFProx::, link::Classes/HoaNFDist::, link::Classes/HoaNFCtrl::.::
+
+
+CLASSMETHODS::
+
+METHOD:: new
+Create a new instance.
+
+ARGUMENT:: degree
+Associated Legendre degree (ℓ).
+
+
+
+INSTANCEMETHODS::
+
+PRIVATE:: init, reX, absX
+
+
+METHOD:: degree
+Return Associated Legendre degree (ℓ).
+
+
+METHOD:: numFOS
+Return number of link::Classes/FOS:: required for cascade.
+
+METHOD:: numSOS
+Return number of link::Classes/SOS:: required for cascade.
+
+
+SUBSECTION:: Coefficients
+
+METHOD:: prox
+Return a dictionary of near-field effect proximity radial filtering coefficients. See link::#Coefficient%20Dictionary#Coefficient Dictionary:: below.
+
+ARGUMENT:: radius
+Radius, in meters.
+
+ARGUMENT:: sampleRate
+Sample rate, in Hz.
+
+ARGUMENT:: speedOfSound
+Speed of sound, in meters per second.
+
+
+METHOD:: dist
+Return a dictionary of near-field effect distance radial filtering coefficients. See link::#Coefficient%20Dictionary#Coefficient Dictionary:: below.
+
+ARGUMENT:: radius
+Radius, in meters.
+
+ARGUMENT:: sampleRate
+Sample rate, in Hz.
+
+ARGUMENT:: speedOfSound
+Speed of sound, in meters per second.
+
+
+METHOD:: ctrl
+Return a dictionary of near-field effect control radial filtering coefficients. See link::#Coefficient%20Dictionary#Coefficient Dictionary:: below.
+
+ARGUMENT:: encRadius
+Encoding radius, in meters.
+
+ARGUMENT:: decRadius
+Decoding radius, in meters.
+
+ARGUMENT:: sampleRate
+Sample rate, in Hz.
+
+ARGUMENT:: speedOfSound
+Speed of sound, in meters per second.
+
+
+SUBSECTION:: Coefficient Dictionary
+
+link::Classes/FOS:: and link::Classes/SOS:: coefficients are returned as link::Classes/ArrayedCollection#-rank#rank:: two arrays of coefficients, available via the code::\sos:: and code::\fos:: keys. Additionally, a a normalizing scalar is also returned via the code::\g:: key.
+
+code::
+~degree = 3;
+~encRadius = 1.0;
+~decRadius = 1.5;
+~sampleRate = 44100;
+
+NFECoeffs.new(~degree).ctrl(~encRadius, ~decRadius, ~sampleRate);
+::
+
+
+
+EXAMPLES::
+
+TBD

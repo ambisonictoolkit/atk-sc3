@@ -1,7 +1,7 @@
 TITLE:: DegreeProx
 summary:: Higher Order Ambisonic (HOA) "by degree" proximity radial filter
 categories:: Libraries>Ambisonic Toolkit>HOA>Utilities>UGens, UGens>Multichannel>Ambisonics
-related:: Classes/HoaNFDist, Classes/DegreeDist, Classes/DegreeCtrl
+related:: Classes/HoaNFProx, Classes/DegreeDist, Classes/DegreeCtrl
 
 DESCRIPTION::
 Higher order ambisonic signal (HOA) near-field effect (NFE), proximity radial filter by emphasis::Associated Legendre:: degree (ℓ).

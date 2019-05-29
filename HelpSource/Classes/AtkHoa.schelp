@@ -117,6 +117,18 @@ METHOD:: setNearZero
 Setter for link::#*nearZero::.
 
 
+SUBSECTION:: Testing & reporting
+
+
+METHOD:: detectOrder
+Given a number of coefficients, return an ambisonic order.
+
+
+METHOD:: confirmOrder
+Confirm the given number of coefficients matches that expected for an ambisonic order.
+
+
+
 EXAMPLES::
 
 TBD

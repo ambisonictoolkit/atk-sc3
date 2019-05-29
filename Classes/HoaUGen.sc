@@ -81,7 +81,7 @@ HoaUGen {
 	*confirmOrder { |in, order = (AtkHoa.defaultOrder)|
 		var io, to;
 		to = order;
-		io = Hoa.detectOrder(in.size);
+		io = AtkHoa.detectOrder(in.size);
 		if (io != to) {
 			Error(
 				"[HoaUGen] In order (%) does not match target order (%).".format(io, to)
@@ -127,7 +127,7 @@ HoaUGen {
 		);
 
 		^if (jkOrder > order) {
-			nCoeffs = Hoa.numOrderCoeffs(order);
+			nCoeffs = order.asHoaOrder.numCoeffs;
 			MatrixArray.with(
 				mtx.getSub(0, 0, nCoeffs, nCoeffs);
 			);
@@ -291,7 +291,7 @@ HoaRotate : HoaUGen {
 
 		n = HoaUGen.confirmOrder(in, order);
 
-		out = Array.newClear(Hoa.numOrderCoeffs(n));
+		out = Array.newClear(n.asHoaOrder.numCoeffs);
 		out[0] = in[0]; // l == 0
 
 		if (n > 0) {

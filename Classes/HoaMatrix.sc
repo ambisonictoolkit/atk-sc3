@@ -64,7 +64,7 @@ HoaMatrix : AtkMatrix {
 
 	initDirections { |argDirections|
 		directions = (argDirections == nil).if({
-			Hoa.numOrderCoeffs(this.order).collect({ inf })
+			this.order.asHoaOrder.numCoeffs.collect({ inf })
 		}, {
 			argDirections.rank.switch(
 				0, { Array.with(argDirections, 0.0).reshape(1, 2) },
@@ -100,7 +100,7 @@ HoaMatrix : AtkMatrix {
 			'decoder', {matrix.cols},
 			'xformer', {matrix.rows},
 		);
-		matrixOrder = Hoa.detectOrder(numCoeffs);
+		matrixOrder = AtkHoa.detectOrder(numCoeffs);
 
 		(this.order != matrixOrder).if({
 			Error(
@@ -360,16 +360,18 @@ HoaMatrix : AtkMatrix {
 
 	// get the block matrix for a single degree within the full matrix
 	getDegreeBlock { |degree, round = 0.001|
-		var st = Hoa.degreeStIdx(degree);
-		var nCoeffs = Hoa.numDegreeCoeffs(degree);
+		var hoaDegree = degree.asHoaDegree;
+		var st = hoaDegree.startIndex;
+		var nCoeffs = hoaDegree.numCoeffs;
 
 		^this.matrix.getSub(st, st, nCoeffs, nCoeffs, round);
 	}
 
 	// post the block matrix for a single degree within the full matrix
 	postDegreeBlock { |degree, round = 0.001|
-		var st = Hoa.degreeStIdx(degree);
-		var nCoeffs = Hoa.numDegreeCoeffs(degree);
+		var hoaDegree = degree.asHoaDegree;
+		var st = hoaDegree.startIndex;
+		var nCoeffs = hoaDegree.numCoeffs;
 
 		this.matrix.postSub(st, st, nCoeffs, nCoeffs, round);
 	}
@@ -407,7 +409,7 @@ HoaMatrix : AtkMatrix {
 		^switch( this.type,
 			'\encoder', { this.numInputs },
 			'\decoder', { this.numOutputs },
-			'\xformer', { Hoa.numOrderCoeffs(this.order) }
+			'\xformer', { this.order.asHoaOrder.numCoeffs }
 		)
 	}
 

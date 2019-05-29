@@ -66,4 +66,20 @@ AtkHoa {
 		defaultOrder = orderAsInteger;
 		^orderAsInteger
 	}
+
+    // testing / confirmation
+
+    // full 3D only
+    *detectOrder { |numCoeffs|
+        var squareOf = numCoeffs.squareOf;
+        (squareOf == nil).if({
+            "Could not detect order from % coefficients".format(numCoeffs).throw
+        }, {
+            ^(squareOf - 1)
+        });
+    }
+
+    *confirmOrder { |numCoeffs, order = (AtkHoa.defaultOrder)|
+        ^(this.detectOrder(numCoeffs) == order)
+    }
 }

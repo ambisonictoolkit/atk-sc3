@@ -321,6 +321,6 @@ HoaOrder {
     }
 
 	numCoeffs {
-		^Hoa.numOrderCoeffs(this.order)
+        ^(this.order + 1).squared
 	}
 }

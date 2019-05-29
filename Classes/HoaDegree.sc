@@ -99,6 +99,10 @@ HoaDegree {
         })
     }
 
+    startIndex {
+        ^this.degree.squared
+    }
+
     // ------------
     // Return reflection coefficients
 
@@ -128,6 +132,6 @@ HoaDegree {
     }
 
 	numCoeffs {
-		^Hoa.numDegreeCoeffs(this.degree)
+        ^((2 * this.degree) + 1)
 	}
 }

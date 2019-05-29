@@ -58,6 +58,9 @@ table::
 ::
 
 
+METHOD:: startIndex
+Return the starting index of this degree.
+
 
 SUBSECTION:: Coefficients
 

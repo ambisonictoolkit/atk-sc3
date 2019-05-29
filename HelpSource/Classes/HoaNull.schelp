@@ -73,10 +73,10 @@ s.scope(~order.asHoaOrder.numCoeffs, ~outbus);
 ~matrixEncoder = HoaMatrixEncoder.newDirections(~directions, order: ~order);
 
 // explicitly set encoding radius
-// i.e., radius != Hoa.refRadius
-~encRadius = 2.0;  // > Hoa.refRadius
-~encRadius = 1.5;  // = Hoa.refRadius
-~encRadius = 1.0;  // < Hoa.refRadius
+// i.e., radius != AtkHoa.refRadius
+~encRadius = 2.0;  // > AtkHoa.refRadius
+~encRadius = 1.5;  // = AtkHoa.refRadius
+~encRadius = 1.0;  // < AtkHoa.refRadius
 
 
 // nulling
@@ -103,7 +103,7 @@ s.scope(~order.asHoaOrder.numCoeffs, ~outbus);
     hoa = HoaNFCtrl.ar(
 		HoaEncodeMatrix.ar(sig, ~matrixEncoder),
 		~encRadius,  // encoding radius
-		Hoa.refRadius,  // reference radius
+		AtkHoa.refRadius,  // reference radius
 		~order
 	);
 

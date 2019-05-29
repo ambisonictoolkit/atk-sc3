@@ -78,7 +78,7 @@ HoaUGen {
 	//  Confirm that the input signal size matches
 	//  the number of harmonics for the order.
 	//  Returns the order if signal size is valid.
-	*confirmOrder { |in, order = (Hoa.defaultOrder)|
+	*confirmOrder { |in, order = (AtkHoa.defaultOrder)|
 		var io, to;
 		to = order;
 		io = Hoa.detectOrder(in.size);
@@ -95,7 +95,7 @@ HoaUGen {
 	//  Confirm that the input signal size matches
 	//  the number of expected inputs.
 	//  Returns the input signal size if match is valid.
-	*confirmNumInputs { |in, numInputs = (Hoa.defaultOrder.asHoaOrder.numCoeffs)|
+	*confirmNumInputs { |in, numInputs = (AtkHoa.defaultOrder.asHoaOrder.numCoeffs)|
 		var inNumChannels;
 
 		inNumChannels = in.numChannels;
@@ -145,8 +145,8 @@ HoaUGen {
 		// save a MatrixArrays for efficiency
 		// zeroWithin - optimization for synth graphs:
 		// Zero out matrix elements which are close to zero so they're optimized out.
-		kMatrix = MatrixArray.with(xz.asArray).zeroWithin(Hoa.nearZero);
-		jMatrix = MatrixArray.with(yz.asArray).zeroWithin(Hoa.nearZero);
+		kMatrix = MatrixArray.with(xz.asArray).zeroWithin(AtkHoa.nearZero);
+		jMatrix = MatrixArray.with(yz.asArray).zeroWithin(AtkHoa.nearZero);
 
 		jkMatrix = MatrixArray.with(jMatrix * kMatrix);
 		kjMatrix = MatrixArray.with(kMatrix * jMatrix);
@@ -217,7 +217,7 @@ or separate implementation details for the named type matched classes.
 // Basic & holophonic encoding.
 HoaEncodeDirection : HoaUGen {
 
-	*ar { |in, theta, phi, radius, order = (Hoa.defaultOrder)|
+	*ar { |in, theta, phi, radius, order = (AtkHoa.defaultOrder)|
 		var toPhi, n, hoaOrder, coeffs;
 		var zenith, tumbleRotate;
 
@@ -231,7 +231,7 @@ HoaEncodeDirection : HoaUGen {
 		// 1) generate basic (real) coefficients at zenith and optimize near-zeros out
 		coeffs = hoaOrder.sph(0, 0.5pi);
 		coeffs = coeffs.collect({ |item|
-			(item.abs <= Hoa.nearZero).if({
+			(item.abs <= AtkHoa.nearZero).if({
 				0
 			}, {
 				item
@@ -239,20 +239,20 @@ HoaEncodeDirection : HoaUGen {
 		});
 
 		// 2) encode as basic (real) or NFE (complex) wave at zenith
-		zenith = ((radius == nil) || (radius == Hoa.refRadius)).if({
-			// basic: spherical wave @ radius = Hoa.refRadius
+		zenith = ((radius == nil) || (radius == AtkHoa.refRadius)).if({
+			// basic: spherical wave @ radius = AtkHoa.refRadius
 			in
 		}, {
 			// NFE
 			(radius == inf).if({
 				// planewave
 				(n+1).collect({ |l|
-					DegreeDist.ar(in, Hoa.refRadius, l)
+					DegreeDist.ar(in, AtkHoa.refRadius, l)
 				})[hoaOrder.l]
 			}, {
 				// spherical wave
 				(n+1).collect({ |l|
-					DegreeCtrl.ar(in, radius, Hoa.refRadius, l)
+					DegreeCtrl.ar(in, radius, AtkHoa.refRadius, l)
 				})[hoaOrder.l]
 			})
 		});
@@ -281,7 +281,7 @@ HoaEncodeDirection : HoaUGen {
 // Rotation about Z axis.
 HoaRotate : HoaUGen {
 
-	*ar { |in, radians, order = (Hoa.defaultOrder)|
+	*ar { |in, radians, order = (AtkHoa.defaultOrder)|
 		var n;
 		var i = 0;
 		var out, cos, sin;
@@ -342,7 +342,7 @@ HoaRotate : HoaUGen {
 
 // Rotation about X axis.
 HoaTilt : HoaUGen {
-	*ar { |in, radians, order = (Hoa.defaultOrder)|
+	*ar { |in, radians, order = (AtkHoa.defaultOrder)|
 		var n, mK, hoa;
 
 		n = HoaUGen.confirmOrder(in, order);
@@ -364,7 +364,7 @@ HoaTilt : HoaUGen {
 
 // Rotation about Y axis.
 HoaTumble : HoaUGen {
-	*ar { |in, radians, order = (Hoa.defaultOrder)|
+	*ar { |in, radians, order = (AtkHoa.defaultOrder)|
 		var n, mJ, hoa;
 
 		n = HoaUGen.confirmOrder(in, order);
@@ -390,7 +390,7 @@ HoaRoll : HoaTilt {}
 // Rotate > Tilt > Tumble.
 // Extrinsic, "laboratory-fixed" axes.
 HoaRTT : HoaUGen {
-	*ar { |in, rotate, tilt, tumble, order = (Hoa.defaultOrder)|
+	*ar { |in, rotate, tilt, tumble, order = (AtkHoa.defaultOrder)|
 		var n, mJ, mK, mJK;
 		var hoa;
 
@@ -421,7 +421,7 @@ HoaRTT : HoaUGen {
 // This rotation differs from HoaRTT, which is extrinsic.
 HoaYPR : HoaUGen {
 
-	*ar { |in, yaw, pitch, roll, order = (Hoa.defaultOrder)|
+	*ar { |in, yaw, pitch, roll, order = (AtkHoa.defaultOrder)|
 		var n, mK, mJ, mJK, hoa;
 
 		n = HoaUGen.confirmOrder(in, order);
@@ -451,7 +451,7 @@ HoaYPR : HoaUGen {
 // Soundfield mirroring.
 HoaReflect : HoaUGen {
 
-	*ar { |in, reflect = \reflect, order = (Hoa.defaultOrder)|
+	*ar { |in, reflect = \reflect, order = (AtkHoa.defaultOrder)|
 		var n, mirrorCoeffs;
 
 		n = HoaUGen.confirmOrder(in, order);
@@ -462,35 +462,35 @@ HoaReflect : HoaUGen {
 	}
 }
 
-// Near-field Effect - Proximity: Hoa.refRadius
+// Near-field Effect - Proximity: AtkHoa.refRadius
 // NOTE: unstable, requires suitably pre-conditioned input to avoid overflow
 HoaNFProx : HoaUGen {
 
-	*ar { |in, order = (Hoa.defaultOrder)|
+	*ar { |in, order = (AtkHoa.defaultOrder)|
 		var n = HoaUGen.confirmOrder(in, order);
 
 		// NFE: collect filtered harmonics, clumped by degree
 		^(n+1).collect({ |l|
 			DegreeProx.ar(
 				in[l.asHoaDegree.indices],
-				Hoa.refRadius,
+				AtkHoa.refRadius,
 				l
 			)
 		}).flat // flatten back to full order coefficients
 	}
 }
 
-// Near-field Effect - Distance: Hoa.refRadius
+// Near-field Effect - Distance: AtkHoa.refRadius
 HoaNFDist : HoaUGen {
 
-	*ar { |in, order = (Hoa.defaultOrder)|
+	*ar { |in, order = (AtkHoa.defaultOrder)|
 		var n = HoaUGen.confirmOrder(in, order);
 
 		// NFE: collect filtered harmonics, clumped by degree
 		^(n+1).collect({ |l|
 			DegreeDist.ar(
 				in[l.asHoaDegree.indices],
-				Hoa.refRadius,
+				AtkHoa.refRadius,
 				l
 			)
 		}).flat // flatten back to full order coefficients
@@ -500,17 +500,17 @@ HoaNFDist : HoaUGen {
 // Near-field Effect - Control
 // Use cases:
 //     1) Decoder compensation & NFE "looking":
-//            encRadius = Hoa.refRadius
+//            encRadius = AtkHoa.refRadius
 //            decRadius = target decoder radius
 //     2) NFE encoding, encode NFE from basic:
 //            encRadius = target encoding radius
-//            decRadius = Hoa.refRadius
+//            decRadius = AtkHoa.refRadius
 //     3) NFE re-imaging, move source to target:
 //            encRadius = target (re-imaged) encoding radius
 //            decRadius = source encoding radius
 HoaNFCtrl : HoaUGen {
 
-	*ar { |in, encRadius, decRadius, order = (Hoa.defaultOrder)|
+	*ar { |in, encRadius, decRadius, order = (AtkHoa.defaultOrder)|
 		var n, nfcByDegree;
 
 		n = HoaUGen.confirmOrder(in, order);
@@ -531,7 +531,7 @@ HoaNFCtrl : HoaUGen {
 // Gain matched to beam.
 HoaBeam : HoaUGen {
 
-	*ar { |in, theta, phi, radius, beamShape = \basic, order = (Hoa.defaultOrder)|
+	*ar { |in, theta, phi, radius, beamShape = \basic, order = (AtkHoa.defaultOrder)|
 		var n, basicCoeffs, beamCoeffs, toPhi;
 		var hoaOrder, degreeSeries, beamWeights;
 		var rotateTumble, weighted, mono, zenith, tumbleRotate;
@@ -551,7 +551,7 @@ HoaBeam : HoaUGen {
 		// 2) generate basic (real) coefficients at zenith and optimize near-zeros out
 		basicCoeffs = hoaOrder.sph(0, 0.5pi);
 		basicCoeffs = basicCoeffs.collect({ |item|
-			(item.abs <= Hoa.nearZero).if({
+			(item.abs <= AtkHoa.nearZero).if({
 				0
 			}, {
 				item
@@ -576,8 +576,8 @@ HoaBeam : HoaUGen {
 		weighted = beamCoeffs * rotateTumble;
 
 		// 5) apply NFE (optimized by degree) and form beam
-		mono = ((radius == nil) || (radius == Hoa.refRadius)).if({
-			// basic: beamform @ radius = Hoa.refRadius
+		mono = ((radius == nil) || (radius == AtkHoa.refRadius)).if({
+			// basic: beamform @ radius = AtkHoa.refRadius
 			weighted.sum
 		}, {
 			// NFE
@@ -586,7 +586,7 @@ HoaBeam : HoaUGen {
 				(n+1).collect({ |l|
 					DegreeProx.ar(
 						weighted[l.asHoaDegree.indices].sum,
-						Hoa.refRadius,
+						AtkHoa.refRadius,
 						l
 					)
 				}).sum
@@ -595,7 +595,7 @@ HoaBeam : HoaUGen {
 				(n+1).collect({ |l|
 					DegreeCtrl.ar(
 						weighted[l.asHoaDegree.indices].sum,
-						Hoa.refRadius,
+						AtkHoa.refRadius,
 						radius,
 						l
 					)
@@ -604,20 +604,20 @@ HoaBeam : HoaUGen {
 		});
 
 		// 6) encode as basic (real) or NFE (complex) wave at zenith
-		zenith = ((radius == nil) || (radius == Hoa.refRadius)).if({
-			// basic: spherical wave @ radius = Hoa.refRadius
+		zenith = ((radius == nil) || (radius == AtkHoa.refRadius)).if({
+			// basic: spherical wave @ radius = AtkHoa.refRadius
 			mono
 		}, {
 			// NFE
 			(radius == inf).if({
 				// planewave
 				(n+1).collect({ |l|
-					DegreeDist.ar(mono, Hoa.refRadius, l)
+					DegreeDist.ar(mono, AtkHoa.refRadius, l)
 				})[hoaOrder.l]
 			}, {
 				// spherical wave
 				(n+1).collect({ |l|
-					DegreeCtrl.ar(mono, radius, Hoa.refRadius, l)
+					DegreeCtrl.ar(mono, radius, AtkHoa.refRadius, l)
 				})[hoaOrder.l]
 			})
 		});
@@ -643,7 +643,7 @@ HoaBeam : HoaUGen {
 // Gain matched to beam.
 HoaNull : HoaUGen {
 
-	*ar { |in, theta, phi, radius, beamShape = \basic, order = (Hoa.defaultOrder)|
+	*ar { |in, theta, phi, radius, beamShape = \basic, order = (AtkHoa.defaultOrder)|
 		var null;
 
 		// form null
@@ -661,7 +661,7 @@ HoaNull : HoaUGen {
 // Gain matched to beam.
 HoaDecodeDirection : HoaUGen {
 
-	*ar { |in, theta, phi, radius, beamShape = \basic, order = (Hoa.defaultOrder)|
+	*ar { |in, theta, phi, radius, beamShape = \basic, order = (AtkHoa.defaultOrder)|
 		var n, coeffs, toPhi;
 		var hoaOrder, degreeSeries, beamWeights;
 		var rotateTumble, weighted;
@@ -681,7 +681,7 @@ HoaDecodeDirection : HoaUGen {
 		// 2) generate basic (real) coefficients at zenith and optimize near-zeros out
 		coeffs = hoaOrder.sph(0, 0.5pi);
 		coeffs = coeffs.collect({ |item|
-			(item.abs <= Hoa.nearZero).if({
+			(item.abs <= AtkHoa.nearZero).if({
 				0
 			}, {
 				item
@@ -706,8 +706,8 @@ HoaDecodeDirection : HoaUGen {
 		weighted = coeffs * rotateTumble;
 
 		// 5) apply NFE (optimized by degree) and form beam
-		^((radius == nil) || (radius == Hoa.refRadius)).if({
-			// basic: beamform @ radius = Hoa.refRadius
+		^((radius == nil) || (radius == AtkHoa.refRadius)).if({
+			// basic: beamform @ radius = AtkHoa.refRadius
 			weighted.sum
 		}, {
 			// NFE
@@ -716,7 +716,7 @@ HoaDecodeDirection : HoaUGen {
 				(n+1).collect({ |l|
 					DegreeProx.ar(
 						weighted[l.asHoaDegree.indices].sum,
-						Hoa.refRadius,
+						AtkHoa.refRadius,
 						l
 					)
 				}).sum
@@ -725,7 +725,7 @@ HoaDecodeDirection : HoaUGen {
 				(n+1).collect({ |l|
 					DegreeCtrl.ar(
 						weighted[l.asHoaDegree.indices].sum,
-						Hoa.refRadius,
+						AtkHoa.refRadius,
 						radius,
 						l
 					)

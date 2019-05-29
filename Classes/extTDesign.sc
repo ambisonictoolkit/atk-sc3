@@ -48,7 +48,7 @@
 
 + TDesign {
 
-	*newHoa { |numChans = (2*Hoa.numOrderCoeffs(Hoa.defaultOrder)), optimize = \energy, order = (Hoa.defaultOrder)|
+	*newHoa { |numChans = (2*Hoa.numOrderCoeffs(AtkHoa.defaultOrder)), optimize = \energy, order = (AtkHoa.defaultOrder)|
 		var hoaDesign;
 
 		// matched design

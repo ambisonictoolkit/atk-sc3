@@ -88,7 +88,7 @@ NFECoeffs {
         numFOS = reX.size - numSOS;
     }
 
-    prox { |radius, sampleRate, speedOfSound = (Hoa.speedOfSound)|
+    prox { |radius, sampleRate, speedOfSound = (AtkHoa.speedOfSound)|
 		var r0 = radius;
         var mOdd;
         var alpha;
@@ -161,7 +161,7 @@ NFECoeffs {
         ^Dictionary.with(*[\sos->coeffsSOS, \fos->coeffsFOS, \g->g])
     }
 
-    dist { |radius, sampleRate, speedOfSound = (Hoa.speedOfSound)|
+    dist { |radius, sampleRate, speedOfSound = (AtkHoa.speedOfSound)|
 		var r1 = radius;
         var mOdd;
         var alpha;
@@ -234,7 +234,7 @@ NFECoeffs {
         ^Dictionary.with(*[\sos->coeffsSOS, \fos->coeffsFOS, \g->g])
     }
 
-    ctrl { |encRadius, decRadius, sampleRate, speedOfSound = (Hoa.speedOfSound)|
+    ctrl { |encRadius, decRadius, sampleRate, speedOfSound = (AtkHoa.speedOfSound)|
 		var r0 = encRadius;
 		var r1 = decRadius;
         var mOdd;

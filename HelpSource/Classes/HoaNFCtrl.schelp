@@ -29,8 +29,8 @@ Three use cases:
 
 table::
 ## strong::case:: || strong::radial transform:: || strong::encRadius:: || strong::decRadius::
-## NFE decoding footnote::Aka, NFE "looking".:: || decode NFE to basic || code::Hoa.refRadius:: || target decoding radius
-## NFE encoding || encode NFE from basic || target encoding radius || code::Hoa.refRadius::
+## NFE decoding footnote::Aka, NFE "looking".:: || decode NFE to basic || code::AtkHoa.refRadius:: || target decoding radius
+## NFE encoding || encode NFE from basic || target encoding radius || code::AtkHoa.refRadius::
 ## NFE imaging || translate source to target || target encoding radius || source encoding radius
 ::
 
@@ -47,16 +47,16 @@ Radial encoding followed by decoding with loudspeaker near-field compensation.
 
 code::
 // Inspect the ATK's speed of sound reference
-"Speed of sound: % m/s".format(Hoa.speedOfSound);
+"Speed of sound: % m/s".format(AtkHoa.speedOfSound);
 
 // Inspect the ATK's reference radius
-"Reference radius: % m".format(Hoa.refRadius);
+"Reference radius: % m".format(AtkHoa.refRadius);
 
 // Inspect the ATK's channel/coefficient ordering
-"Coefficient ordering: %".format(Hoa.ordering);
+"Coefficient ordering: %".format(AtkHoa.ordering);
 
 // Inspect the ATK's channel/coefficient ordering
-"Coefficient normalisation: %".format(Hoa.normalisation);
+"Coefficient normalisation: %".format(AtkHoa.normalisation);
 
 
 // simple test...
@@ -78,10 +78,10 @@ s.boot;
 ~phi = 0.0;
 
 // explicitly set encoding radius
-// i.e., radius != Hoa.refRadius
-~encRadius = 2.0;  // > Hoa.refRadius
-~encRadius = 1.5;  // = Hoa.refRadius
-~encRadius = 1.0;  // < Hoa.refRadius
+// i.e., radius != AtkHoa.refRadius
+~encRadius = 2.0;  // > AtkHoa.refRadius
+~encRadius = 1.5;  // = AtkHoa.refRadius
+~encRadius = 1.0;  // < AtkHoa.refRadius
 
 
 // decoding - panto decoder
@@ -119,7 +119,7 @@ s.scope(~numChans, ~outbus);
 	HoaDecodeMatrix.ar(
 		HoaNFCtrl.ar(  // NFE control
 			hoa,
-			Hoa.refRadius,
+			AtkHoa.refRadius,
 			~decRadius,
 			~order
 		),
@@ -146,16 +146,16 @@ Synthesise diffuse field at an encoding radius.
 
 code::
 // Inspect the ATK's speed of sound reference
-"Speed of sound: % m/s".format(Hoa.speedOfSound);
+"Speed of sound: % m/s".format(AtkHoa.speedOfSound);
 
 // Inspect the ATK's reference radius
-"Reference radius: % m".format(Hoa.refRadius);
+"Reference radius: % m".format(AtkHoa.refRadius);
 
 // Inspect the ATK's channel/coefficient ordering
-"Coefficient ordering: %".format(Hoa.ordering);
+"Coefficient ordering: %".format(AtkHoa.ordering);
 
 // Inspect the ATK's channel/coefficient ordering
-"Coefficient normalisation: %".format(Hoa.normalisation);
+"Coefficient normalisation: %".format(AtkHoa.normalisation);
 
 
 // simple test...
@@ -176,12 +176,12 @@ s.scope(~order.asHoaOrder.numCoeffs, ~outbus);
 
 
 // explicitly set encoding radius
-// i.e., radius != Hoa.refRadius
-~encRadius = 10.0;  // >> Hoa.refRadius
-~encRadius = 5.0;  // > Hoa.refRadius
-~encRadius = 2.0;  // > Hoa.refRadius
-~encRadius = 1.5;  // = Hoa.refRadius
-~encRadius = 1.0;  // < Hoa.refRadius
+// i.e., radius != AtkHoa.refRadius
+~encRadius = 10.0;  // >> AtkHoa.refRadius
+~encRadius = 5.0;  // > AtkHoa.refRadius
+~encRadius = 2.0;  // > AtkHoa.refRadius
+~encRadius = 1.5;  // = AtkHoa.refRadius
+~encRadius = 1.0;  // < AtkHoa.refRadius
 
 
 // audition
@@ -192,14 +192,14 @@ s.scope(~order.asHoaOrder.numCoeffs, ~outbus);
 
 	var hoa;
 
-	// diffuse field (synthesized at Hoa.refRadius)
+	// diffuse field (synthesized at AtkHoa.refRadius)
 	hoa = HoaOrder.new(~order).numCoeffs.collect({ BrownNoise.ar(gain.dbamp) });
 
 	// encode with NFE
 	HoaNFCtrl.ar(  // NFE control
 		hoa,
 		~encRadius,
-		Hoa.refRadius,
+		AtkHoa.refRadius,
 		~order
 	);
 
@@ -217,16 +217,16 @@ Translate from source radius to target radius.
 
 code::
 // Inspect the ATK's speed of sound reference
-"Speed of sound: % m/s".format(Hoa.speedOfSound);
+"Speed of sound: % m/s".format(AtkHoa.speedOfSound);
 
 // Inspect the ATK's reference radius
-"Reference radius: % m".format(Hoa.refRadius);
+"Reference radius: % m".format(AtkHoa.refRadius);
 
 // Inspect the ATK's channel/coefficient ordering
-"Coefficient ordering: %".format(Hoa.ordering);
+"Coefficient ordering: %".format(AtkHoa.ordering);
 
 // Inspect the ATK's channel/coefficient ordering
-"Coefficient normalisation: %".format(Hoa.normalisation);
+"Coefficient normalisation: %".format(AtkHoa.normalisation);
 
 
 // simple test...
@@ -252,15 +252,15 @@ s.scope(~order.asHoaOrder.numCoeffs, ~outbus);
 ~phi = 0.0;
 
 // explicitly set (source) encoding radius
-// i.e., radius != Hoa.refRadius
-~encRadius = 2.0;  // > Hoa.refRadius
-~encRadius = 1.5;  // = Hoa.refRadius
-~encRadius = 1.0;  // < Hoa.refRadius
+// i.e., radius != AtkHoa.refRadius
+~encRadius = 2.0;  // > AtkHoa.refRadius
+~encRadius = 1.5;  // = AtkHoa.refRadius
+~encRadius = 1.0;  // < AtkHoa.refRadius
 
 // target (translation) radius
-~reEncRadius = 3.0;  // re-encoding radius > Hoa.refRadius
-~reEncRadius = 1.5;  // re-encoding radius = Hoa.refRadius
-~reEncRadius = 1.0;  // re-encoding radius < Hoa.refRadius
+~reEncRadius = 3.0;  // re-encoding radius > AtkHoa.refRadius
+~reEncRadius = 1.5;  // re-encoding radius = AtkHoa.refRadius
+~reEncRadius = 1.0;  // re-encoding radius < AtkHoa.refRadius
 
 
 // audition
@@ -300,16 +300,16 @@ The use of two link::Classes/HoaNFCtrl:: transformers offers the possibility of 
 
 code::
 // Inspect the ATK's speed of sound reference
-"Speed of sound: % m/s".format(Hoa.speedOfSound);
+"Speed of sound: % m/s".format(AtkHoa.speedOfSound);
 
 // Inspect the ATK's reference radius
-"Reference radius: % m".format(Hoa.refRadius);
+"Reference radius: % m".format(AtkHoa.refRadius);
 
 // Inspect the ATK's channel/coefficient ordering
-"Coefficient ordering: %".format(Hoa.ordering);
+"Coefficient ordering: %".format(AtkHoa.ordering);
 
 // Inspect the ATK's channel/coefficient ordering
-"Coefficient normalisation: %".format(Hoa.normalisation);
+"Coefficient normalisation: %".format(AtkHoa.normalisation);
 
 
 // simple test...
@@ -331,10 +331,10 @@ s.boot;
 ~phi = 0.0;
 
 // explicitly set encoding radius
-// i.e., radius != Hoa.refRadius
-~encRadius = 2.0;  // > Hoa.refRadius
-~encRadius = 1.5;  // = Hoa.refRadius
-~encRadius = 1.0;  // < Hoa.refRadius
+// i.e., radius != AtkHoa.refRadius
+~encRadius = 2.0;  // > AtkHoa.refRadius
+~encRadius = 1.5;  // = AtkHoa.refRadius
+~encRadius = 1.0;  // < AtkHoa.refRadius
 
 
 // decoding / re-encoding - spherical design (A/B-format)
@@ -375,7 +375,7 @@ s.scope(~order.asHoaOrder.numCoeffs, ~outbus);
 	aformat = HoaDecodeMatrix.ar(
 		HoaNFCtrl.ar(  // NFE control - decode at encoding radius, the "look" radius
 			hoa,
-			Hoa.refRadius,
+			AtkHoa.refRadius,
 			~encRadius,
 			~order
 		),
@@ -401,7 +401,7 @@ s.scope(~order.asHoaOrder.numCoeffs, ~outbus);
 			)
 		),
 		~encRadius,
-		Hoa.refRadius,
+		AtkHoa.refRadius,
 		~order
 	);
 

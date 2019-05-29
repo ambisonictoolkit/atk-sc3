@@ -49,7 +49,7 @@
 + TDesignLib {
 
 	// return an array of all designs, optimized for order
-	*getHoaDesigns{ |optimize = \energy, order = (Hoa.defaultOrder)|
+	*getHoaDesigns{ |optimize = \energy, order = (AtkHoa.defaultOrder)|
 		var minT = 2 * order;
 		var designList;
 

@@ -27,7 +27,7 @@ EXAMPLES::
 
 subsection:: Decode single beam
 
-This example is equivalent to decoding via link::Classes/HoaDecodeDirection::, where code::radius = Hoa.refRadius::.
+This example is equivalent to decoding via link::Classes/HoaDecodeDirection::, where code::radius = AtkHoa.refRadius::.
 
 Encode six sinusoids on the axes, then decode a single beam.
 
@@ -86,7 +86,7 @@ s.quit
 
 subsection:: Decode multiple beams
 
-This example is equivalent to decoding via link::Classes/HoaDecodeDirection::, where code::radius = Hoa.refRadius::.
+This example is equivalent to decoding via link::Classes/HoaDecodeDirection::, where code::radius = AtkHoa.refRadius::.
 
 Encode six sinusoids on the axes, then decode six beams.
 

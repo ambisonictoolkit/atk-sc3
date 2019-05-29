@@ -77,7 +77,7 @@ AtkMatrix {
 			order = 1;
 		}, {
 			// resolve HOA
-			order = argOrder ?? { Hoa.defaultOrder };
+			order = argOrder ?? { AtkHoa.defaultOrder };
 		})
 	}
 

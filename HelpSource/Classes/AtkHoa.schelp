@@ -1,0 +1,122 @@
+TITLE:: AtkHoa
+summary:: A class that stores some global HOA variables for the Ambisonic Toolkit
+categories:: Libraries>Ambisonic Toolkit>Internals
+related:: Classes/Atk, Classes/AtkFoa, Guides/ATK-Glossary
+
+DESCRIPTION::
+The AtkHoa class defines variables specifying the HOA-NFE framework within the context of the ATK library.
+
+
+CLASSMETHODS::
+
+PRIVATE:: initClass
+
+
+SUBSECTION:: Ambisonic order
+
+METHOD:: defaultOrder
+Ambisonic Toolkit default ambisonic order.
+
+code::
+AtkHoa.defaultOrder
+::
+
+
+METHOD:: setDefaultOrder
+Setter for link::#*defaultOrder::.
+
+ARGUMENT:: order
+Ambisonic order.
+
+
+SUBSECTION:: Component ordering & normalisation
+
+
+METHOD:: format
+Designation indicating ambisonic emphasis::component ordering:: and emphasis::component normalisation::. The Ambisonic Toolkit convention is ACN-N3D, i.e., Ambisonic Channel Number (ACN), Orthonormal basis for 3D decomposition (N3D).
+
+code::
+AtkHoa.format
+::
+
+
+METHOD:: ordering
+Ambisonic Toolkit ambisonic emphasis::component ordering:: convention: Ambisonic Channel Number (ACN). See link::https://en.wikipedia.org/wiki/Ambisonic_data_exchange_formats#Component_ordering#ordering::.
+
+code::
+AtkHoa.ordering
+::
+
+
+METHOD:: normalisation
+Ambisonic Toolkit ambisonic emphasis::component normalisation:: convention: Orthonormal basis for 3D decomposition (N3D). See link::https://en.wikipedia.org/wiki/Ambisonic_data_exchange_formats#Normalisation#normalisation::.
+
+code::
+AtkHoa.normalisation
+::
+
+
+METHOD:: formatDict
+
+A number of common strong::formats:: are indexed by a single keyword:
+
+table::
+## code::\atk:: || Ambisonic Toolkit (ATK)
+## code::\ambix:: || Ambi
+sonics Exchangeable (AmbiX)
+## code::\fuma:: || Furse-Malham (FuMa)
+::
+
+code::
+AtkHoa.formatDict
+::
+
+
+SUBSECTION:: Radial & NFE
+
+
+METHOD:: refRadius
+Ambisonic Toolkit emphasis::reference radius::, in meters.
+
+code::
+AtkHoa.refRadius
+::
+
+
+METHOD:: setRefRadius
+Setter for link::#*refRadius::.
+
+ARGUMENT:: radius
+Radius, in meters.
+
+
+METHOD:: speedOfSound
+Ambisonic Toolkit speed of sound, in meters per second.
+
+code::
+AtkHoa.speedOfSound
+::
+
+
+METHOD:: setSpeedOfSound
+Setter for link::#*speedOfSound::.
+
+ARGUMENT:: mps
+Speed of sound, in meters per second.
+
+
+
+SUBSECTION:: Zeroing
+
+
+METHOD:: nearZero
+Ambisonic Toolkit "near zero" precision value default used by link::Classes/HoaMatrix#-zeroWithin::.
+
+
+METHOD:: setNearZero
+Setter for link::#*nearZero::.
+
+
+EXAMPLES::
+
+TBD

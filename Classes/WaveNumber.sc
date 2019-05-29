@@ -58,17 +58,17 @@ WaveNumber {
     }
 
     // Set wavenumber from freq (in hz).
-	*newFreq { |freq, speedOfSound = (Hoa.speedOfSound)|
+	*newFreq { |freq, speedOfSound = (AtkHoa.speedOfSound)|
         ^this.new(2*pi*freq / speedOfSound);
     }
 
     // Set wavenumber from normalised frequency.
-	*newWn { |wn, sampleRate, speedOfSound = (Hoa.speedOfSound)|
+	*newWn { |wn, sampleRate, speedOfSound = (AtkHoa.speedOfSound)|
         ^this.new(pi*wn*sampleRate / speedOfSound)
     }
 
     // Set wavenumber from delay and effective order.
-	*newDelay { |delay, order, speedOfSound = (Hoa.speedOfSound)|
+	*newDelay { |delay, order, speedOfSound = (AtkHoa.speedOfSound)|
         ^this.new(order / (delay*speedOfSound))
     }
 
@@ -78,12 +78,12 @@ WaveNumber {
     }
 
     // Return freq (in hz) from wavenumber.
-    freq { |speedOfSound = (Hoa.speedOfSound)|
+    freq { |speedOfSound = (AtkHoa.speedOfSound)|
         ^this.waveNumber*speedOfSound / (2*pi)
     }
 
     // Return normalised frequency from wavenumber.
-    wn { |sampleRate, speedOfSound = (Hoa.speedOfSound)|
+    wn { |sampleRate, speedOfSound = (AtkHoa.speedOfSound)|
         ^this.num*speedOfSound / (pi*sampleRate)
     }
 
@@ -96,7 +96,7 @@ WaveNumber {
     }
 
     // Return effective delay.
-    delay { |order, speedOfSound = (Hoa.speedOfSound)|
+    delay { |order, speedOfSound = (AtkHoa.speedOfSound)|
         ^order / (speedOfSound*this.waveNumber)
     }
 
@@ -106,7 +106,7 @@ WaveNumber {
     }
 
     // Return effective order.
-    orderAtDelay { |delay, speedOfSound = (Hoa.speedOfSound)|
+    orderAtDelay { |delay, speedOfSound = (AtkHoa.speedOfSound)|
         ^delay*this.waveNumber*speedOfSound
     }
 

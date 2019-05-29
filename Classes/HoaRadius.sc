@@ -58,7 +58,7 @@ HoaRadius {
     }
 
     // Set radius from delay (in seconds).
-    *newDelay { |delay, speedOfSound = (Hoa.speedOfSound)|
+    *newDelay { |delay, speedOfSound = (AtkHoa.speedOfSound)|
         ^this.new(delay*speedOfSound)
     }
 
@@ -68,18 +68,18 @@ HoaRadius {
     }
 
     // Set radius from frequency and order
-    *newFreq { |freq, order, speedOfSound = (Hoa.speedOfSound)|
+    *newFreq { |freq, order, speedOfSound = (AtkHoa.speedOfSound)|
         ^this.new((order*speedOfSound) / (2*pi*freq))
     }
 
     // Set radius from normalised frequency and order
-    *newWn { |wn, sampleRate, order, speedOfSound = (Hoa.speedOfSound)|
+    *newWn { |wn, sampleRate, order, speedOfSound = (AtkHoa.speedOfSound)|
         ^this.new((order*speedOfSound) / (pi*wn*sampleRate))
     }
 
 
     // Return reference delay.
-    delay { |speedOfSound = (Hoa.speedOfSound)|
+    delay { |speedOfSound = (AtkHoa.speedOfSound)|
         ^this.radius / speedOfSound
     }
 
@@ -92,12 +92,12 @@ HoaRadius {
     }
 
     // Return effective order.
-    orderAtFreq { |freq, speedOfSound = (Hoa.speedOfSound)|
+    orderAtFreq { |freq, speedOfSound = (AtkHoa.speedOfSound)|
         ^(2*pi*this.radius*freq) / speedOfSound
     }
 
     // Return effective order.
-    orderAtWn { |wn, sampleRate, speedOfSound = (Hoa.speedOfSound)|
+    orderAtWn { |wn, sampleRate, speedOfSound = (AtkHoa.speedOfSound)|
         ^(pi*this.radius*wn*sampleRate) / speedOfSound
     }
 
@@ -110,12 +110,12 @@ HoaRadius {
     }
 
     // Return effective frequency.
-    freq { |order, speedOfSound = (Hoa.speedOfSound)|
+    freq { |order, speedOfSound = (AtkHoa.speedOfSound)|
         ^(order*speedOfSound) / (2*pi*this.radius)
     }
 
     // Return effective normalized frequency.
-    wn { |sampleRate, order, speedOfSound = (Hoa.speedOfSound)|
+    wn { |sampleRate, order, speedOfSound = (AtkHoa.speedOfSound)|
         ^(order*speedOfSound) / (pi*this.radius*sampleRate)
     }
 

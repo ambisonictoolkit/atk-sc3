@@ -28,7 +28,7 @@ EXAMPLES::
 
 subsection:: Monophonic to HOA
 
-This example is equivalent to encoding via link::Classes/HoaEncodeDirection::, where code::radius = Hoa.refRadius::.
+This example is equivalent to encoding via link::Classes/HoaEncodeDirection::, where code::radius = AtkHoa.refRadius::.
 
 code::
 // simple test...

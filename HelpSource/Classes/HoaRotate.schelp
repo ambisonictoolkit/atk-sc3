@@ -30,16 +30,16 @@ subsection:: Rotate around the z-axis
 
 code::
 // Inspect the ATK's speed of sound reference
-"Speed of sound: % m/s".format(Hoa.speedOfSound);
+"Speed of sound: % m/s".format(AtkHoa.speedOfSound);
 
 // Inspect the ATK's reference radius
-"Reference radius: % m".format(Hoa.refRadius);
+"Reference radius: % m".format(AtkHoa.refRadius);
 
 // Inspect the ATK's channel/coefficient ordering
-"Coefficient ordering: %".format(Hoa.ordering);
+"Coefficient ordering: %".format(AtkHoa.ordering);
 
 // Inspect the ATK's channel/coefficient ordering
-"Coefficient normalisation: %".format(Hoa.normalisation);
+"Coefficient normalisation: %".format(AtkHoa.normalisation);
 
 
 // simple test...

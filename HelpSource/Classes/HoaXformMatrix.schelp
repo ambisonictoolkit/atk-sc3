@@ -27,7 +27,7 @@ EXAMPLES::
 
 subsection:: Beamform
 
-This example is equivalent to beamforming via link::Classes/HoaBeam::, where code::radius = Hoa.refRadius::.
+This example is equivalent to beamforming via link::Classes/HoaBeam::, where code::radius = AtkHoa.refRadius::.
 
 Encode six sinusoids on the axes, then beamform a single beam.
 

@@ -46,7 +46,7 @@ EXAMPLES::
 
 subsection:: Beamform
 
-This example is similar to that found to beamforming via link::Classes/HoaXformMatrix#Beamform#HoaXformMatrix::, but offers emphasis::radial beamforming:: where code::radius != Hoa.refRadius::.
+This example is similar to that found to beamforming via link::Classes/HoaXformMatrix#Beamform#HoaXformMatrix::, but offers emphasis::radial beamforming:: where code::radius != AtkHoa.refRadius::.
 
 Encode six sinusoids on the axes, then beamform a single beam.
 
@@ -72,10 +72,10 @@ s.scope(~order.asHoaOrder.numCoeffs, ~outbus);
 ~matrixEncoder = HoaMatrixEncoder.newDirections(~directions, order: ~order);
 
 // explicitly set encoding radius
-// i.e., radius != Hoa.refRadius
-~encRadius = 2.0;  // > Hoa.refRadius
-~encRadius = 1.5;  // = Hoa.refRadius
-~encRadius = 1.0;  // < Hoa.refRadius
+// i.e., radius != AtkHoa.refRadius
+~encRadius = 2.0;  // > AtkHoa.refRadius
+~encRadius = 1.5;  // = AtkHoa.refRadius
+~encRadius = 1.0;  // < AtkHoa.refRadius
 
 
 // beaming
@@ -102,7 +102,7 @@ s.scope(~order.asHoaOrder.numCoeffs, ~outbus);
     hoa = HoaNFCtrl.ar(
 		HoaEncodeMatrix.ar(sig, ~matrixEncoder),
 		~encRadius,  // encoding radius
-		Hoa.refRadius,  // reference radius
+		AtkHoa.refRadius,  // reference radius
 		~order
 	);
 

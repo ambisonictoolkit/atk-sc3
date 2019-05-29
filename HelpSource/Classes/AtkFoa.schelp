@@ -1,0 +1,66 @@
+TITLE:: AtkFoa
+summary:: A class that stores some global FOA variables for the Ambisonic Toolkit
+categories:: Libraries>Ambisonic Toolkit>Internals
+related:: Classes/Atk, Classes/AtkHoa, Guides/ATK-Glossary
+
+DESCRIPTION::
+The AtkFoa class defines variables that may be used to integrate FOA and HOA workflows within the ATK library.
+
+
+CLASSMETHODS::
+
+PRIVATE:: initClass
+
+
+SUBSECTION:: Ambisonic order
+
+METHOD:: defaultOrder
+Ambisonic order, FOA.
+
+code::
+AtkFoa.defaultOrder
+::
+
+
+SUBSECTION:: Component ordering & normalisation
+
+
+METHOD:: format
+Designation indicating ambisonic emphasis::component ordering:: and emphasis::component normalisation::. The Ambisonic Toolkit FOA convention is FuMa-FuMa, i.e., Furse-Malham (FuMa), Gerzon / Furse-Malham (MaxN).
+
+code::
+AtkFoa.format
+::
+
+
+METHOD:: ordering
+Ambisonic Toolkit FOA ambisonic emphasis::component ordering:: convention: Furse-Malham (FuMa). See link::https://en.wikipedia.org/wiki/Ambisonic_data_exchange_formats#Component_ordering#ordering::.
+
+code::
+AtkFoa.ordering
+::
+
+
+METHOD:: normalisation
+Ambisonic Toolkit ambisonic emphasis::component normalisation:: convention: Gerzon / Furse-Malham (MaxN). See link::https://en.wikipedia.org/wiki/Ambisonic_data_exchange_formats#Normalisation#normalisation::.
+
+code::
+AtkFoa.normalisation
+::
+
+
+SUBSECTION:: Radial & NFE
+
+
+METHOD:: refRadius
+Ambisonic Toolkit FOA emphasis::reference radius::, in meters.
+
+code::
+AtkFoa.refRadius
+::
+
+
+
+EXAMPLES::
+
+TBD

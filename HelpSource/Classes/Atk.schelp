@@ -1,7 +1,7 @@
 CLASS:: Atk
 summary:: a class that stores some global variables for the Ambisonic Toolkit
 categories:: Libraries>Ambisonic Toolkit>Internals
-related:: Guides/Intro-to-the-ATK
+related:: Classes/AtkFoa, Classes/AtkHoa, Guides/Intro-to-the-ATK
 
 DESCRIPTION::
 The Atk class defines variables that may be used by the rest of the ATK library, including resources for kernel encoding and decoding and sample soundfile paths.
@@ -11,8 +11,7 @@ CLASSMETHODS::
 
 METHOD:: sets
 
-returns:: an Array listing valid ATK sets. (Currently only code::'FOA':: is
-supported, code::'HOAn':: is in development!)
+returns:: an Array listing valid ATK sets.
 
 SUBSECTION:: ATK's default asset directories
 

@@ -56,7 +56,7 @@ s.boot;
 ~outbus = 0
 
 // open scope
-s.scope(~order.asHoaOrder.numCoeffs, ~outbus);
+s.scope(~order.asHoaOrder.size, ~outbus);
 
 
 // audition

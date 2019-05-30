@@ -320,7 +320,7 @@ HoaOrder {
         )
     }
 
-	numCoeffs {
+	size {
         ^(this.order + 1).squared
 	}
 }

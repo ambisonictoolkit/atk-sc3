@@ -78,6 +78,12 @@ DISCUSSION:: See also link::https://en.wikipedia.org/wiki/Spherical_harmonics#Vi
 
 SUBSECTION:: Coefficients
 
+METHOD:: size
+Return number of ambisonic emphasis::components::.
+
+Offers polymorphism with link::Classes/HoaDegree#-size:: and link::Classes/HoaOrder#-size::.
+
+
 METHOD:: sph
 Return N3D normalized angular encoding coefficient.
 

@@ -58,8 +58,8 @@ table::
 
 SUBSECTION:: Coefficients
 
-METHOD:: numCoeffs
-Return number of coefficients.
+METHOD:: size
+Return number of ambisonic emphasis::components::.
 
 
 METHOD:: sph

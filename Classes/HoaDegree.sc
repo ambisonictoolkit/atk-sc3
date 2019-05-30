@@ -131,7 +131,7 @@ HoaDegree {
         })
     }
 
-	numCoeffs {
+	size {
         ^((2 * this.degree) + 1)
 	}
 }

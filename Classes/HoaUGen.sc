@@ -95,7 +95,7 @@ HoaUGen {
 	//  Confirm that the input signal size matches
 	//  the number of expected inputs.
 	//  Returns the input signal size if match is valid.
-	*confirmNumInputs { |in, numInputs = (AtkHoa.defaultOrder.asHoaOrder.numCoeffs)|
+	*confirmNumInputs { |in, numInputs = (AtkHoa.defaultOrder.asHoaOrder.size)|
 		var inNumChannels;
 
 		inNumChannels = in.numChannels;
@@ -127,7 +127,7 @@ HoaUGen {
 		);
 
 		^if (jkOrder > order) {
-			nCoeffs = order.asHoaOrder.numCoeffs;
+			nCoeffs = order.asHoaOrder.size;
 			MatrixArray.with(
 				mtx.getSub(0, 0, nCoeffs, nCoeffs);
 			);
@@ -291,7 +291,7 @@ HoaRotate : HoaUGen {
 
 		n = HoaUGen.confirmOrder(in, order);
 
-		out = Array.newClear(n.asHoaOrder.numCoeffs);
+		out = Array.newClear(n.asHoaOrder.size);
 		out[0] = in[0]; // l == 0
 
 		if (n > 0) {

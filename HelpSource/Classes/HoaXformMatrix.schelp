@@ -47,7 +47,7 @@ s.boot;
 ~outbus = 0
 
 // open scope
-s.scope(~order.asHoaOrder.numCoeffs, ~outbus);
+s.scope(~order.asHoaOrder.size, ~outbus);
 
 // design encoding matrix
 ~directions = [ [0.0, 0.0], [90.0, 0.0], [180.0, 0.0], [-90.0, 0.0], [0.0, 90.0], [0.0, -90.0], ].degrad;
@@ -105,7 +105,7 @@ s.boot;
 ~outbus = 0
 
 // open scope
-s.scope(~order.asHoaOrder.numCoeffs, ~outbus);
+s.scope(~order.asHoaOrder.size, ~outbus);
 
 // design encoding matrix
 ~directions = [ [0.0, 0.0], [90.0, 0.0], [180.0, 0.0], [-90.0, 0.0], [0.0, 90.0], [0.0, -90.0], ].degrad;

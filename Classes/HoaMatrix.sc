@@ -64,7 +64,7 @@ HoaMatrix : AtkMatrix {
 
 	initDirections { |argDirections|
 		directions = (argDirections == nil).if({
-			this.order.asHoaOrder.numCoeffs.collect({ inf })
+			this.order.asHoaOrder.size.collect({ inf })
 		}, {
 			argDirections.rank.switch(
 				0, { Array.with(argDirections, 0.0).reshape(1, 2) },
@@ -77,7 +77,7 @@ HoaMatrix : AtkMatrix {
 	}
 
 	initFromMatrix { |aMatrix|
-		var numCoeffs, matrixOrder;
+		var size, matrixOrder;
 
 		// set instance matrix
 		matrix = aMatrix;
@@ -94,13 +94,13 @@ HoaMatrix : AtkMatrix {
 			this.halt;
 		});
 
-		// 2) Check: matrix numCoeffs == declared order
-		numCoeffs = switch (this.type,
+		// 2) Check: matrix size (numCoeffs) == declared order
+		size = switch (this.type,
 			'encoder', {matrix.rows},
 			'decoder', {matrix.cols},
 			'xformer', {matrix.rows},
 		);
-		matrixOrder = AtkHoa.detectOrder(numCoeffs);
+		matrixOrder = AtkHoa.detectOrder(size);
 
 		(this.order != matrixOrder).if({
 			Error(
@@ -259,7 +259,7 @@ HoaMatrix : AtkMatrix {
 		outputFormat = formatKeyword.value(outputFormat);
 
 		hoaOrder = this.order.asHoaOrder;  // instance order
-		size = hoaOrder.numCoeffs;
+		size = hoaOrder.size;
 
 		(inputFormat == outputFormat).if({  // equal formats?
 			matrix = Matrix.newIdentity(size).asFloat
@@ -362,7 +362,7 @@ HoaMatrix : AtkMatrix {
 	getDegreeBlock { |degree, round = 0.001|
 		var hoaDegree = degree.asHoaDegree;
 		var st = hoaDegree.startIndex;
-		var nCoeffs = hoaDegree.numCoeffs;
+		var nCoeffs = hoaDegree.size;
 
 		^this.matrix.getSub(st, st, nCoeffs, nCoeffs, round);
 	}
@@ -371,7 +371,7 @@ HoaMatrix : AtkMatrix {
 	postDegreeBlock { |degree, round = 0.001|
 		var hoaDegree = degree.asHoaDegree;
 		var st = hoaDegree.startIndex;
-		var nCoeffs = hoaDegree.numCoeffs;
+		var nCoeffs = hoaDegree.size;
 
 		this.matrix.postSub(st, st, nCoeffs, nCoeffs, round);
 	}
@@ -382,6 +382,11 @@ HoaMatrix : AtkMatrix {
 	}
 
 	// mix coefficients with a transform matrix
+	/*
+	TODO: this may be redundant. Consider refactoring.
+
+	--> Matrix -mulMatrix
+	*/
 	mixCoeffs { |coeffs|
 
 		if (coeffs.size != this.matrix.cols) {
@@ -409,7 +414,7 @@ HoaMatrix : AtkMatrix {
 		^switch( this.type,
 			'\encoder', { this.numInputs },
 			'\decoder', { this.numOutputs },
-			'\xformer', { this.order.asHoaOrder.numCoeffs }
+			'\xformer', { this.order.asHoaOrder.size }
 		)
 	}
 
@@ -1439,7 +1444,8 @@ HoaMatrixDecoder : HoaMatrix {
 			},
 			3, {  // 3D -- N3D
 				testMatrix = this.matrix;
-				numCoeffs = (this.order + 1).squared  // all coeffs
+				// numCoeffs = (this.order + 1).squared  // all coeffs
+				numCoeffs = this.order.asHoaOrder.size  // all coeffs
 			}
 		);
 

@@ -172,7 +172,7 @@ s.boot;
 ~outbus = 0
 
 // open scope
-s.scope(~order.asHoaOrder.numCoeffs, ~outbus);
+s.scope(~order.asHoaOrder.size, ~outbus);
 
 
 // explicitly set encoding radius
@@ -193,7 +193,7 @@ s.scope(~order.asHoaOrder.numCoeffs, ~outbus);
 	var hoa;
 
 	// diffuse field (synthesized at AtkHoa.refRadius)
-	hoa = HoaOrder.new(~order).numCoeffs.collect({ BrownNoise.ar(gain.dbamp) });
+	hoa = ~order.asHoaOrder.size.collect({ BrownNoise.ar(gain.dbamp) });
 
 	// encode with NFE
 	HoaNFCtrl.ar(  // NFE control
@@ -243,7 +243,7 @@ s.boot;
 ~outbus = 0
 
 // open scope
-s.scope(~order.asHoaOrder.numCoeffs, ~outbus);
+s.scope(~order.asHoaOrder.size, ~outbus);
 
 
 // encoding angles
@@ -352,7 +352,7 @@ s.boot;
 
 
 // open scope
-s.scope(~order.asHoaOrder.numCoeffs, ~outbus);
+s.scope(~order.asHoaOrder.size, ~outbus);
 
 
 // audition

@@ -64,8 +64,8 @@ Return the starting index of this degree.
 
 SUBSECTION:: Coefficients
 
-METHOD:: numCoeffs
-Return number of coefficients.
+METHOD:: size
+Return number of ambisonic emphasis::components::.
 
 
 METHOD:: sph

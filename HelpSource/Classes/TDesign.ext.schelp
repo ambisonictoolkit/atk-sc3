@@ -1,0 +1,40 @@
+
+CLASSMETHODS::
+
+
+subsection:: Ambisonic Toolkit
+
+METHOD:: newHoa
+
+Return a emphasis::t::-design sutiable for ambisonic encoding or decoding.
+
+code::
+// design
+~order = 2;
+~numChans = 14;
+~tdesign = TDesign.newHoa(~numChans, order: ~order);
+
+// inspect
+~tdesign.numPoints;
+~tdesign.directions.raddeg;
+::
+
+ARGUMENT:: numChans
+
+The number of input or output channels, i.e., the number of emphasis::t::-design points .
+
+ARGUMENT:: optimize
+
+Optimize criteria:
+
+table::
+## code::\energy:: || Total energy
+## code::\spreadE:: || Energy spread
+::
+
+NOTE:: Optimizing for energy spread, code::\spreadE::, returns a emphasis::t::-design sampled so that energy is smoothed evenely across the sphere, and uses a emphasis::t::-design with more points than code::\energy::.::
+
+
+ARGUMENT:: order
+
+Ambisonic order.

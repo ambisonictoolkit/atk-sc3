@@ -1,0 +1,31 @@
+
+CLASSMETHODS::
+
+
+subsection:: Ambisonic Toolkit
+
+METHOD:: getHoaDesigns
+
+Return a Dictionary of emphasis::t::-designs sutiable for ambisonic encoding or decoding.
+
+code::
+~order = 2;
+~optimize = \spreadE
+~dict = TDesignLib.getHoaDesigns(~optimize, ~order);
+::
+
+ARGUMENT:: optimize
+
+Optimize criteria:
+
+table::
+## code::\energy:: || Total energy
+## code::\spreadE:: || Energy spread
+::
+
+NOTE:: Optimizing for energy spread, code::\spreadE::, returns a emphasis::t::-design sampled so that energy is smoothed evenely across the sphere, and uses a emphasis::t::-design with more points than code::\energy::.::
+
+
+ARGUMENT:: order
+
+Ambisonic order.

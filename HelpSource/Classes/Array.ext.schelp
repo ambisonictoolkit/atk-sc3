@@ -1,0 +1,32 @@
+
+CLASSMETHODS::
+
+
+METHOD:: regularPolygon
+
+Fill an array with radian values representing the vertices of a link::https://en.wikipedia.org/wiki/Regular_polygon##regular convex polygon::.
+
+code::
+Array.regularPolygon(5, wrap: pi).raddeg
+::
+
+ARGUMENT:: size
+
+The number of vertices.
+
+
+ARGUMENT:: orientation
+
+A value in radians specifying the first vertex. Or, by keyword:
+
+table::
+## code::\vertex:: || code::0.0::
+## code::\side:: || code::pi /:: strong::size::
+## code::\point:: || Synonym for code::\vertex::
+## code::\flat:: || Synonym for code::\side::
+::
+
+
+ARGUMENT:: wrap
+
+Angle wrap, in radians.

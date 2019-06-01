@@ -1,0 +1,34 @@
+
+CLASSMETHODS::
+
+
+METHOD:: newDiagonal
+
+Create a new square link::https://en.wikipedia.org/wiki/Diagonal_matrix##diagonal matrix::.
+
+code::
+Matrix.newDiagonal(Array.series(8))
+::
+
+ARGUMENT:: diagonal
+
+An array of values with which to fill the diagonal.
+
+
+
+INSTANCEMETHODS::
+
+SUBSECTION:: Changing Matrices
+
+METHOD:: zeroWithin
+
+Force matrix values to zero, within threshold distance (positive or negative).
+
+code::
+a = Matrix.with(Array.rand(9, -1.0, 1.0).clump(3));
+a.zeroWithin(0.33)
+::
+
+ARGUMENT:: within
+
+Near zero value.

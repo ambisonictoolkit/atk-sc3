@@ -137,10 +137,22 @@
 	// force values to zero that are within threshold distance (positive or negative)
 	zeroWithin { |within = (-180.dbamp)|
 		this.rowsDo({ |rArray, ri|
-			rArray.do{ |item, ci|
-				this.put(ri, ci, if(item.abs <= within, {0},{item}))}
-		});
+			rArray.do({ |item, ci|
+				this.put(
+                    ri,
+                    ci,
+                    (item.abs <= within).if({
+                        item.isInteger.if({  // there could be more cases...
+                                0
+                            }, {
+                                0.0
+                            })
+                    }, {
+                        item
+                    })
+                )
+            })
+		})
 	}
 
 }
-

@@ -1,0 +1,28 @@
+
+INSTANCEMETHODS::
+
+
+subsection:: Ambisonic Toolkit
+
+METHOD:: detectHoaOrder
+
+Return detected ambisonic order as an Integer.
+
+code::
+~order = 3;
+~coeffs = ~order.asHoaOrder.sph(0, pi/4);
+~coeffs.detectHoaOrder == ~order;
+::
+
+
+METHOD:: clumpByHoaDegree
+
+Separates the collection into Associated Legendre degree sub-collections.
+
+See Associated Legendre degree and Associated Legendre index in link::Guides/ATK-Glossary##ATK Glossary::.
+
+code::
+~order = 3;
+~coeffs = ~order.asHoaOrder.sph(0, pi/4);
+~coeffs.clumpByHoaDegree;
+::

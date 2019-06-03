@@ -48,7 +48,7 @@
 
 + ArrayedCollection {
 
-	hoaOrder {
+	detectHoaOrder {
         var sizeSqrt;
 
         sizeSqrt = this.size.squareOf;
@@ -60,9 +60,9 @@
         })
 	}
 
-    clumpByDegree {
+    clumpByHoaDegree {
         ^this.clumps(
-            Array.series(this.hoaOrder+1, 1, 2)
+            Array.series(this.detectHoaOrder + 1, 1, 2)
         )
     }
 }

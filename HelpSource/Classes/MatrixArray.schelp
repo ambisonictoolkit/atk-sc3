@@ -1,0 +1,350 @@
+TITLE:: MatrixArray
+summary:: A two-dimensional array structure to facilitate matrix operations.
+categories:: Linear Algebra, Math
+related:: Classes/Matrix
+
+DESCRIPTION::
+A two-dimensional array structure to facilitate matrix operations. This is a
+partial refactoring of the link::Classes/Matrix:: class from the MathLib quark.
+The modifications enable much faster calculation of some matrix operations,
+namely the determinant (link::#-det::), which subsequently speeds up the
+code::inverse:: and others. Performance is further enhanced by storing the
+transpose , and doing in-place operations when possible.
+
+Note::
+Because this class was designed around certain methods that involve a high
+amount of recursion, like the code::pseudoInverse::, for efficiency, many of
+the underlying operations are done through  link::Classes/Array::'s methods.
+As a consequence most methods will return  a new link::Classes/Array:: rather
+than the link::Classes/MatrixArray:: object.
+So if you expect to call further methods on a result, the preferred pattern is
+to "cast" it into a new link::Classes/MatrixArray:: using link::#*with::.
+::
+Note::
+Certain error checks are omitted, for example in operations that require a
+square matrix, this shape is assumed.
+::
+
+CLASSMETHODS::
+
+METHOD:: fill
+Fill the matrix by evaluating function.
+
+ARGUMENT:: rows
+The number of rows.
+
+ARGUMENT:: cols
+The number of columns.
+
+ARGUMENT:: func
+The function used to fill the matrix. The function is passed
+strong::row:: and strong::col:: as arguments.
+
+returns:: A link::Classes/MatrixArray::.
+
+METHOD:: with
+Create a link::Classes/MatrixArray:: with values from a 2-D
+link::Classes/Array::.
+
+ARGUMENT:: array
+A 2-D link::Classes/Array:: — an array of rows.
+
+returns:: A link::Classes/MatrixArray::.
+
+METHOD:: newClear
+Create a link::Classes/MatrixArray:: of a specified size, filled with
+code::nil::s.
+
+ARGUMENT:: rows
+The number of rows.
+
+ARGUMENT:: cols
+The number of columns.
+
+returns:: A link::Classes/MatrixArray::.
+
+
+INSTANCEMETHODS::
+
+
+SUBSECTION:: Access
+Note::
+The following access methods return the objects that comprise
+link::Classes/MatrixArray::'s state, e.g. the row link::Classes/Array::s,
+strong::not a copy::, so use care not to unintentionally change these objects
+once you access them.
+::
+
+METHOD:: rowAt
+Get the row at an index.
+
+ARGUMENT:: row
+The row index.
+
+returns:: An link::Classes/Array::, not a copy!
+
+METHOD:: colAt
+Get the column at an index.
+
+ARGUMENT:: col
+The column index.
+
+returns:: An link::Classes/Array::, not a copy!
+
+METHOD:: at
+Get the value at code::[row, col]::.
+
+ARGUMENT:: row
+The row index.
+
+ARGUMENT:: col
+The column index.
+
+returns:: The value stored at code::[row, col]::.
+
+METHOD:: matrix
+Get the link::Classes/MatrixArray:: as a 2-D array. Synonymous with
+link::#-asArray::.
+
+returns:: An link::Classes/Array:: of link::Classes/Array::s (rows), not a copy!
+
+METHOD:: asArray
+Get the link::Classes/MatrixArray:: as a 2-D array. Synonymous with
+link::#-matrix::.
+
+returns:: An link::Classes/Array:: of link::Classes/Array::s (rows), not a copy!
+
+METHOD:: transpose
+Get the flopped matrix (transpose). This transpose is computed on first
+request and stored thereafter for internal use and quick access.
+
+returns:: An link::Classes/Array:: of link::Classes/Array::s (rows), not a copy!
+
+METHOD:: flopped
+Get the flopped matrix (transpose). This transpose is computed on first
+request and stored thereafter for internal use and quick access.
+
+returns:: An link::Classes/Array:: of link::Classes/Array::s (rows), not a copy!
+
+METHOD:: rows
+Get the number of rows in the matrix.
+
+METHOD:: cols
+Get the number of columns in the matrix.
+
+
+SUBSECTION:: Filtering
+The following filter methods will return new objects (link::Classes/Array::s).
+
+METHOD:: getSub
+Get a sub-matrix from within matrix.
+
+ARGUMENT:: rowStart
+Row index to begin copying.
+
+ARGUMENT:: colStart
+Column index to begin copying.
+
+ARGUMENT:: rowLength
+The number of elements to copy from each row.
+
+ARGUMENT:: colHeight
+The number of elements to copy from each column.
+
+returns:: A new link::Classes/Array:: of link::Classes/Array::s (rows).
+
+METHOD:: withoutRow
+Get a new matrix that is this one without a specified row.
+
+ARGUMENT:: row
+The index of the row to omit.
+
+returns:: A new link::Classes/Array:: of link::Classes/Array::s (rows).
+
+METHOD:: withoutCol
+Get a new matrix that is this one without a specified column.
+
+ARGUMENT:: col
+The index of the column to omit.
+
+returns:: A new link::Classes/Array:: of link::Classes/Array::s (rows).
+
+METHOD:: withoutRowCol
+A convenience method, for optimized use by link::#-cofactor::, which,
+unlike link::#-withoutRow:: and link::#-withoutCol::, returns a
+link::Classes/MatrixArray:: that is this one without a specified row and
+column.
+
+ARGUMENT:: row
+The index of the row to be removed.
+
+ARGUMENT:: col
+The index of the column to be removed.
+
+returns:: A new link::Classes/MatrixArray::.
+
+
+SUBSECTION:: Manipulation
+
+METHOD:: put
+Set the value in the matrix at a location.
+
+ARGUMENT:: row
+A row index.
+
+ARGUMENT:: col
+A column index.
+
+ARGUMENT:: val
+The value to set.
+
+METHOD:: removeRow
+Remove a row from the matrix.
+
+ARGUMENT:: row
+The index of the row to remove.
+
+returns:: This link::Classes/MatrixArray::, which is now without row
+strong::row::.
+
+METHOD:: removeCol
+Remove a column from the matrix.
+
+ARGUMENT:: col
+The index of the column to remove.
+
+returns:: This link::Classes/MatrixArray::, which is now without column
+strong::col::.
+
+METHOD:: zeroWithin
+Force values to zero that are within a threshold distance — above or below —
+zero.
+
+i.e. code::if (value <= within) { 0 } { value }::
+
+ARGUMENT:: within
+A threshold distance from zero within which values are
+forced to zero.
+
+Default is code::-180.dbamp::, or code::1e-09::.
+
+returns:: This link::Classes/MatrixArray::.
+
+
+SUBSECTION:: Characteristic Values of the Matrix
+
+METHOD:: cofactor
+Get the cofactor to element code::[row, col]::. This is the determinant of the
+sub-matrix up to code::[row, col]:: mutiplied with code::(-1)**(row+col)::.
+Note::
+The matrix is assumed to be square (no check is performed).
+::
+ARGUMENT:: row
+The row index.
+
+ARGUMENT:: col
+The column index.
+
+returns:: A link::Classes/Number::, the cofactor.
+
+METHOD:: adjoint
+Return the adjoint (adjugate) of a square matrix.
+
+returns:: A 2-D link::Classes/Array::.
+
+METHOD:: det
+Calculate the matrix determinant.
+
+returns:: A link::Classes/Number::.
+
+METHOD:: gram
+Compute the gram matrix (the transpose of this matrix multiplied with itself).
+
+code::T^t * T::
+
+returns:: A 2-D link::Classes/Array::.
+
+METHOD:: inverse
+Compute the inverse of the matrix.
+
+returns:: A 2-D link::Classes/Array::.
+
+METHOD:: pseudoInverse
+Compute the pseudoinverse of the matrix.
+
+returns:: A 2-D link::Classes/Array::.
+
+
+METHOD:: isSquare
+Return the answer to whether the matrix is square.
+
+returns:: A link::Classes/Boolean::.
+
+
+SUBSECTION:: Matrix Operations
+
+METHOD:: *
+Matrix multiplication by another matrix or a number.  If multiplying by another
+matrix, code::this * that::. code::this.cols:: must equal
+code::that.rows::. See also link::#-mulMatrix::.
+
+ARGUMENT:: that
+Can be a link::Classes/Number::, a link::Classes/MatrixArray::, or a (2D)
+link::Classes/Array::.
+
+returns:: A 2-D link::Classes/Array::.
+
+METHOD:: mulMatrix
+Matrix multiplication: code::this * that::. code::this.cols:: must equal
+code::that.rows::.
+
+code::A(m,n) * B(n,r) = AB(m,r)::
+
+ARGUMENT:: mArray
+Can be a link::Classes/MatrixArray::, or a (2D) link::Classes/Array::.
+
+returns:: A 2-D link::Classes/Array::.
+
+METHOD:: mulNumber
+Multiply the matrix by a link::Classes/Number::.
+
+ARGUMENT:: aNumber
+A link::Classes/Number::.
+
+returns:: A 2-D link::Classes/Array::.
+
+METHOD:: mixCoeffs
+A convenience method for "mixing" one-dimensional coefficients with this matrix,
+i.e. a matrix multiplication. For example, mixing ambisonic signal coefficients
+with a transform matrix.
+
+ARGUMENT:: coeffs
+An link::Classes/Array:: with a size equal to link::#-cols::.
+
+returns:: An link::Classes/Array:: with size code::this.rows::.
+
+
+EXAMPLES::
+
+code::
+m = MatrixArray.fill(5, 5, { |r, c| rrand(0.0, 1.0) });
+n = MatrixArray.with(m.transpose);
+// The determinant of of a matrix is equal to
+// the determinant of it's transpose.
+m.det.round(1e-7) == n.det.round(1e-7)
+::
+
+SECTION:: Attribution
+
+This is a partial refactoring of the Matrix class from the MathLib quark
+originally authored by sc.solar, Till Bovermann, Christofer Fraunberger,
+and Dan Stowell.
+
+This refactoring also includes a much faster determinant caclulation based on
+link::https://en.wikipedia.org/wiki/LU_decomposition##LU Decomposition::.
+
+The algorithm is published in:
+
+link::http://web.archive.org/web/20150701223512/http://download.intel.com/design/PentiumIII/sml/24504601.pdf##Intel Application Notes AP-931, Streaming SIMD Extensions - LU Decomposition::
+
+PRIVATE:: init, printOn, printItemsOn

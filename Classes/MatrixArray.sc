@@ -19,15 +19,21 @@ MatrixArray {
 	var <matrix, <rows, <cols, <isSquare;
 	var flopped;
 
-	*newClear { |rows=1, cols=1|
+	*newClear { |rows = 1, cols = 1|
 		^super.new.init(
-			rows.collect{cols.collect{nil}}
+			rows.collect{
+				cols.collect{ nil }
+			}
 		);
 	}
 
 	*fill { |rows, cols, func|
 		^super.new.init(
-			rows.collect{ |r| Array.fill(cols, {|c| func.(r, c)} ) }
+			rows.collect{ |r|
+				Array.fill(cols, { |c|
+					func.(r, c)
+				})
+			}
 		);
 	}
 
@@ -38,12 +44,14 @@ MatrixArray {
 
 	init { |array|
 		if (array.rank != 2) {
-			error( format(
-				"[MatrixArray:-init] Array must be rank 2 to create a matrix. Received rank %",
-				array.rank
-			) ).throw
-		}{
-			if( array.collect(_.size).every(_ == array[0].size).not ) {
+			error(
+				format(
+					"[MatrixArray:-init] Array must be rank 2 to create a matrix. Received rank %",
+					array.rank
+				)
+			).throw
+		} {
+			if (array.collect(_.size).every(_ == array[0].size).not) {
 				error("[MatrixArray:-init] Row sizes are not identical").throw
 			}
 		};
@@ -58,7 +66,7 @@ MatrixArray {
 
 	// get the flopped matrix (transpose), computing it if needed
 	flopped {
-		^flopped ?? {flopped = matrix.flop}
+		^flopped ?? { flopped = matrix.flop }
 	}
 
 	// returns the elements/row/col objects from the matrix,
@@ -110,8 +118,7 @@ MatrixArray {
 
 		mulArr = mArray.asArray; // allow aMatrix as MatrixArray or Array
 
-		// TODO: efficiency: could remove this check
-		if( cols == mulArr.size, { // this.cols == mArray.rows
+		if (cols == mulArr.size) { // this.cols == mArray.rows
 			mulArrFlopped = mulArr.flop;
 			result = Array.fill(rows, { Array.newClear(mulArr[0].size) });
 
@@ -122,12 +129,12 @@ MatrixArray {
 			};
 
 			^result
-		},{
-			error( format(
+		} {
+			format(
 				"[MatrixArray:-mulMatrix] cols and rows don't fit. Matrix shapes: (%) (%)",
 				matrix.shape, mulArr.shape
-			) ).throw;
-		});
+			).throw;
+		};
 	}
 
 	// returns a new Array of multiplying with a number
@@ -174,8 +181,8 @@ MatrixArray {
 		maxw = cols - rowStart;
 		maxh = rows - colStart;
 
-		w = rowLength ?? {maxw};
-		h = colHeight ?? {maxh};
+		w = rowLength ?? { maxw };
+		h = colHeight ?? { maxh };
 
 		if ((w > maxw) or: (h > maxh)) {
 			format(
@@ -212,11 +219,11 @@ MatrixArray {
 
 	// return a new Array that is the adjoint of this matrix
 	adjoint { // return the adjoint of the matrix
-		var adjoint = Array.fill(rows, {Array.newClear(cols)});
+		var adjoint = Array.fill(rows, { Array.newClear(cols) });
 
 		rows.do{ |i|
 			cols.do{ |j|
-				adjoint[i][j] = this.cofactor(i,j);
+				adjoint[i][j] = this.cofactor(i, j);
 			}
 		};
 
@@ -238,15 +245,15 @@ MatrixArray {
 	pseudoInverse {
 		var gram, grami, mul, muli;
 
-		if( cols < rows ,{
+		if (cols < rows) {
 			gram = MatrixArray.with(this.gram);
 			grami = MatrixArray.with(gram.inverse);
 			^grami * this.flopped;
-		},{
+		} {
 			mul = this * this.flopped;
 			muli = MatrixArray.with(mul).inverse;
 			^MatrixArray.with(this.flopped) * muli;
-		});
+		};
 	}
 
 	// returns determinant via LU Decomposition
@@ -262,16 +269,16 @@ MatrixArray {
 
 		n = m.size;   // size of rows or cols (square)
 		nm1 = n-1;
-		ri = n.collect{|i| i};
+		ri = n.collect{ |i| i };
 
 		// LU factorization.
 		p = 1;
-		while ({p <= (nm1)}, {
-			pm1 = p-1;
+		while ({ p <= (nm1) }, {
+			pm1 = p - 1;
 			// Find pivot element.
 			i = p + 1;
-			while ({i <= n}, {
-				im1 = i-1;
+			while ({ i <= n }, {
+				im1 = i - 1;
 				if ( abs(m[ri[im1]][pm1]) > abs(m[ri[pm1]][pm1])) {
 					var t;
 					// Switch the index for the p-1 pivot row if necessary.
@@ -280,33 +287,33 @@ MatrixArray {
 					ri[im1] = t;
 					det = det.neg;
 				};
-				i = i+1;
+				i = i + 1;
 			});
 
-			if (m[ri[pm1]][pm1] == 0) {"[MatrixArray:-det] The matrix is singular.".throw};
+			if (m[ri[pm1]][pm1] == 0) { "[MatrixArray:-det] The matrix is singular.".throw };
 
 			// Multiply the diagonal elements.
 			det = det * m[ri[pm1]][pm1];
 
 			// Form multiplier.
 			i = p + 1;
-			while ({i <= n}, {
-				im1 = i-1;
+			while ({ i <= n }, {
+				im1 = i - 1;
 				m[ri[im1]][pm1] = m[ri[im1]][pm1] / m[ri[pm1]][pm1];
 
 				// Eliminate [p-1].
 				j = p + 1;
-				while( {j <= n}, {
-					jm1 = j-1;
+				while( { j <= n }, {
+					jm1 = j - 1;
 					m[ri[im1]][jm1] = m[ri[im1]][jm1] - (m[ri[im1]][pm1] * m[ri[pm1]][jm1]);
 
-					j = j+1;
+					j = j + 1;
 				});
 
-				i = i+1;
+				i = i + 1;
 			});
 
-			p = p+1;
+			p = p + 1;
 		});
 
 		det = det * m[ri[nm1]][nm1];
@@ -320,7 +327,11 @@ MatrixArray {
 	mixCoeffs { |coeffs|
 
 		if (coeffs.size != cols) {
-			format("[MatrixArray:-mixCoeffs] - coeffs.size [%] != cols [%]", coeffs.size, cols).throw
+			format(
+				"[MatrixArray:-mixCoeffs] - coeffs.size [%] != cols [%]",
+				coeffs.size,
+				cols
+			).throw
 		};
 
 		// NOTE: .asList added to force Collection:flop.
@@ -328,7 +339,7 @@ MatrixArray {
 		// https://github.com/supercollider/supercollider/issues/3454
 		// --- fix has been merged, but not in public distro yet.
 		// --- TODO: a test of this fix can be tried in the local ATK repo file index_test.scd
-		^cols.collect({|i|
+		^cols.collect({ |i|
 			this.colAt(i) * coeffs[i]
 		}).asList.flop.collect(_.sum);
 	}
@@ -344,7 +355,7 @@ MatrixArray {
 	printItemsOn { | stream |
 		this.matrix.do { | item, i |
 			if (stream.atLimit) { ^this };
-			if (i != 0) { stream.comma; };
+			if (i != 0) { stream.comma };
 			stream << "\n";
 			stream.tab;
 			item.printOn(stream);

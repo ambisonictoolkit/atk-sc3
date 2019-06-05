@@ -10,6 +10,7 @@
 // This refactoring also includes a much faster determinant caclulation based on LU Decomposition:
 // https://en.wikipedia.org/wiki/LU_decomposition
 // algorithm published here:
+// Intel Application Notes AP-931, Streaming SIMD Extensions - LU Decomposition
 // http://web.archive.org/web/20150701223512/http://download.intel.com/design/PentiumIII/sml/24504601.pdf
 
 
@@ -250,6 +251,7 @@ MatrixArray {
 
 	// returns determinant via LU Decomposition
 	// TODO: can determinant be calculated from Upper Triangular matrix only?
+	// requires square matrix
 	det {
 		var i, p, k, j, ri, m, n;
 		var im1, pm1, jm1, nm1;
@@ -324,6 +326,8 @@ MatrixArray {
 		// NOTE: .asList added to force Collection:flop.
 		// Array:flop uses a primitive that has a GC bug:
 		// https://github.com/supercollider/supercollider/issues/3454
+		// --- fix has been merged, but not in public distro yet.
+		// --- TODO: a test of this fix can be tried in the local ATK repo file index_test.scd
 		^cols.collect({|i|
 			this.colAt(i) * coeffs[i]
 		}).asList.flop.collect(_.sum);

@@ -68,15 +68,14 @@ MatrixArray {
 	flopped {
 		^flopped ?? { flopped = matrix.flop }
 	}
+	transpose { ^this.flopped }
 
-	// returns the elements/row/col objects from the matrix,
-	// not copies of them (so if you change them, the matrix changes)
+	// returns the elements/row/col objects from the matrix (not copies!)
 	at { |row, col| ^matrix[row][col] }
 	rowAt { |row| ^matrix[row] }
 	colAt { |col| ^this.flopped[col] }
 
-	// return the array that is the matrix.
-	// NOTE: this isn't a copy of the array but the array itself
+	// return the array that is the matrix (not a copy!)
 	asArray { ^matrix }
 
 	put { |row, col, val|
@@ -174,7 +173,7 @@ MatrixArray {
 	}
 
 	// return a new Array of arrays representing sub matrix within the matrix
-	getSub { |rowStart=0, colStart=0, rowLength, colHeight|
+	getSub { |rowStart = 0, colStart = 0, rowLength, colHeight|
 		var w, h, sub, maxw, maxh;
 		var rFrom, rTo;
 
@@ -197,7 +196,7 @@ MatrixArray {
 		rFrom = rowStart;
 		rTo = rFrom + rowLength - 1;
 
-		(colStart..colStart+h-1).do{ |row, i|
+		(colStart .. (colStart + h - 1)).do{ |row, i|
 			sub[i] = this.rowAt(row)[rFrom..rTo];
 		};
 
@@ -208,7 +207,7 @@ MatrixArray {
 	// return single value cofactor
 	// NOTE: for efficiency, assumed to be square matrix (doesn't check)
 	cofactor { |row, col|
-		^((-1) ** (row+col)) * this.withoutRowCol(row, col).det
+		^((-1) ** (row + col)) * this.withoutRowCol(row, col).det
 	}
 
 	// return a new Array that is the gram of this matrix
@@ -218,7 +217,7 @@ MatrixArray {
 	}
 
 	// return a new Array that is the adjoint of this matrix
-	adjoint { // return the adjoint of the matrix
+	adjoint {
 		var adjoint = Array.fill(rows, { Array.newClear(cols) });
 
 		rows.do{ |i|

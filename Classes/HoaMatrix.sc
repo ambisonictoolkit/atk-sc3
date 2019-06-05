@@ -381,26 +381,6 @@ HoaMatrix : AtkMatrix {
 		this.matrix.zeroWithin(within);
 	}
 
-	// mix coefficients with a transform matrix
-	/*
-	TODO: this may be redundant. Consider refactoring.
-
-	--> Matrix -mulMatrix
-	*/
-	mixCoeffs { |coeffs|
-
-		if (coeffs.size != this.matrix.cols) {
-			format("AtkMatrix:mixCoeffs - coeffs.size [%] != matrix.cols [%]", coeffs.size, this.matrix.cols).throw
-		};
-
-		// NOTE: .asList added to force Collection:flop.
-		// Array:flop uses a primitive that has a GC bug:
-		// https://github.com/supercollider/supercollider/issues/3454
-		^this.matrix.cols.collect({|i|
-			this.matrix.getCol(i) * coeffs[i]
-		}).asList.flop.collect{|me| me.sum};
-	}
-
 	// ---------
 	// return info
 

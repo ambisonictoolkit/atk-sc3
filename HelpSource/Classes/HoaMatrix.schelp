@@ -60,7 +60,7 @@ See the link::Guides/Guide-to-ATK-Matrix-Files:: for more information.
 
 INSTANCEMETHODS::
 
-PRIVATE:: prWriteMatrixToYML, initDirections, initFromMatrix, initFormat, initDirTDesign, initFromFile, getDegreeBlock, postDegreeBlock, getSub, postSub, mixCoeffs
+PRIVATE:: prWriteMatrixToYML, initDirections, initFromMatrix, initFormat, initDirTDesign, initFromFile, getDegreeBlock, postDegreeBlock, getSub, postSub
 
 SUBSECTION:: Information
 

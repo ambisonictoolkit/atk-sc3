@@ -12,6 +12,7 @@
                  "FileLog",
                  "Hilbert",
                  "wslib",
+                 "https://github.com/mtmccrea/MatrixArray.quark"
                 ],
   \organization: "ATK Community: http://www.ambisonictoolkit.net",
          \since: "2011",

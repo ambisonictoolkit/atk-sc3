@@ -1,0 +1,131 @@
+
+CLASSMETHODS::
+
+subsection:: Ambisonic Toolkit
+
+METHOD:: hoaDist
+
+Return an Array of higher order ambisonic signal (HOA) near-field effect (NFE), distance radial filters collected by emphasis::Associated Legendre:: degree (ℓ).
+
+
+ARGUMENT:: size
+The number of samples in the Signal.
+
+ARGUMENT:: radius
+Radius, in meters.
+
+ARGUMENT:: order
+Ambisonic order.
+
+ARGUMENT:: sampleRate
+Sample rate, in Hz.
+
+ARGUMENT:: speedOfSound
+Speed of sound, in meters per second.
+
+
+DISCUSSION::
+
+Offers FIR coefficients, equivalent to the IIR coefficients returned by link::Classes/NFECoeffs#-dist::. Implemented as a frequency sampling design, with coefficients returned by link::Classes/HoaOrder#-distWeights::.
+
+
+NOTE:: In most cases, users will use the high level near-field effect (NFE) pseudo-UGen: link::Classes/HoaNFDist::.::
+
+
+
+METHOD:: hoaCtrl
+
+Return an Array of higher order ambisonic signal (HOA) near-field effect (NFE), control radial filters collected by emphasis::Associated Legendre:: degree (ℓ).
+
+
+ARGUMENT:: size
+The number of samples in the Signal.
+
+ARGUMENT:: encRadius
+Encoding radius, in meters.
+
+ARGUMENT:: decRadius
+Decoding radius, in meters.
+
+ARGUMENT:: order
+Ambisonic order.
+
+ARGUMENT:: sampleRate
+Sample rate, in Hz.
+
+ARGUMENT:: speedOfSound
+Speed of sound, in meters per second.
+
+
+DISCUSSION::
+
+Offers FIR coefficients, equivalent to the IIR coefficients returned by link::Classes/NFECoeffs#-ctrl::. Implemented as a frequency sampling design, with coefficients returned by link::Classes/HoaOrder#-ctrlWeights::.
+
+code::
+(
+~size = 4096;
+~order = 2;
+~sampleRate = 44100;
+~speedOfSound = AtkHoa.speedOfSound;
+~refRadius = AtkHoa.refRadius;
+
+~theta = (pi/4).rand2;
+~phi = (pi/4).rand2;
+~radius = 1.0.rrand(2.0);
+
+// design coefficients
+~hoaOrder = ~order.asHoaOrder;
+~angularCoeffs = ~hoaOrder.sph(~theta, ~phi);
+~radialKernels = Signal.hoaCtrl(~size, ~radius, ~refRadius, ~order, ~sampleRate, ~speedOfSound);
+
+// design encoding kernels @ [ ~theta, ~phi, ~radius ]
+~encodingKernels = ~angularCoeffs * ~radialKernels[~hoaOrder.l];
+
+// view!
+~encodingKernels.do({ arg kernel, index; kernel.plot(format("Encoding kernel [ %, %, % ] index: %.", ~theta.raddeg.round(1e-2), ~phi.raddeg.round(1e-2), ~radius.round(1e-2), index))})
+)
+::
+
+NOTE:: In most cases, users will use the high level near-field effect (NFE) pseudo-UGen: link::Classes/HoaNFCtrl::.::
+
+
+METHOD:: hoaFocl
+
+Return an Array of higher order ambisonic signal (HOA) near-field effect (NFE), focalisation radial filters collected by emphasis::Associated Legendre:: degree (ℓ).
+
+
+ARGUMENT:: size
+The number of samples in the Signal.
+
+ARGUMENT:: radius
+Radius, in meters.
+
+ARGUMENT:: order
+Ambisonic order.
+
+ARGUMENT:: window
+Angular weighting window.
+table::
+## code::\reg:: || Regularised footnote::S. Favrot and J. Buchholz. 2010. “Impact of Regularization of near Field Coding Filters for 2D and 3D Higher-Order Ambisonics on Auditory Distance Cues.” in Proc. of the 2nd International Symposium on Ambisonics and Spherical Acoustics. Paris.::
+## code::\hp:: || (Butterworth) High Pass footnote::J. Daniel. 2003. “Spatial sound encoding including near field effect: Introducing distance coding filters and a viable, new ambisonic format,” in Proc. of the 23rd International Conference of the Audio Engineering Society.::
+## code::\cos:: || Cosine footnote::J. Ahrens and S. Spors. 2009. “Spatial encoding and decoding of focused virtual sound sources,” in Proc. of the 1st Ambisonics Symposium. Paris.::
+## code::\sin:: || Sine footnote::A sine function variation of the window proposed by Ahrens & Spors.::
+::
+
+ARGUMENT:: phase
+Phase response.
+table::
+## code::\lin:: || linear phase
+## code::\min:: || minimum (system) phase
+::
+
+ARGUMENT:: sampleRate
+Sample rate, in Hz.
+
+ARGUMENT:: speedOfSound
+Speed of sound, in meters per second.
+
+
+DISCUSSION::
+
+Offers FIR coefficients; implemented as a frequency sampling design, with coefficients returned by link::Classes/HoaOrder#-foclWeights::.

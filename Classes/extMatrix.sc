@@ -124,13 +124,10 @@
 		pmtx = this.getSub(rowStart, colStart, rowLength, colHeight).round(round);
 		pmtx.doMatrix({|item| maxstrlen = max(maxstrlen, item.asString.size)});
 
-		pmtx.rowsDo(
-			{ |rowArray, i|
-				rowArray.collect({ |item| item.asString.padLeft(maxstrlen) }).postln;
-				"".postln; // space it out vertically
-				// min((maxstrlen/2).asInt-1, 3).do{"".postln}; // space it out vertically
-			}
-		)
+		pmtx.rowsDo({ |rowArray, i|
+			rowArray.collect({ |item| item.asString.padLeft(maxstrlen) }).postln;
+			"".postln; // space it out vertically
+		})
 	}
 
 	// this is a destructive operation:

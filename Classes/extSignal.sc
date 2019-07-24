@@ -138,8 +138,7 @@
 		})
 	}
 
-
-	*hoaFocl { |size, radius = (AtkHoa.refRadius), order = (AtkHoa.defaultOrder), window = \reg, phase = \lin, sampleRate = nil, speedOfSound = (AtkHoa.speedOfSound)|
+	*hoaFocl { |size, radius = (AtkHoa.refRadius), order = (AtkHoa.defaultOrder), window = \reg, sampleRate = nil, speedOfSound = (AtkHoa.speedOfSound)|
 		var hoaOrder = order.asHoaOrder;
 		var freqs, magnitudes, pha, complexes;
 
@@ -150,52 +149,25 @@
 			freqs = rfftsize.rfftFreqs(sampleRate);
 
 			// magnitude - collected by degree
-			magnitudes = freqs.collectAs({ arg freq;  // real coefficients (magnitudes)
-				hoaOrder.foclWeights(freq, radius, window, speedOfSound);
+			magnitudes = freqs.collectAs({ arg freq;  // +frequencies
+				hoaOrder.foclWeights(freq, radius, window, speedOfSound)
 			},
 				List
 			).flop.asArray;  // collect as List, due to Array -flop bug
+			magnitudes = magnitudes.collect({ arg item;  // mirror +/-frequencies
+				item.mirror1
+			});
 
-			switch (phase,
-				\min, {  // minimum phase
-					var phaOffset;
+			// linear phase
+			complexes = magnitudes.collect({ arg magnitude;
+				var complex = Spectrum.new(magnitude).linearPhase.asComplex;
+				complex.real.fftToRfft(complex.imag);  // convert to rcomplex
+			});
 
-					pha = magnitudes.collect({ arg mag;
-						mag.mirror1
-					}).squared.sum.sqrt.minimumPhase.keep(rfftsize);  // phase
-					phaOffset = ((pha.maxItem / 2pi) * size).asInteger;  // interger offset to rotate....
-
-					// complex spectrum - collected by degree
-					complexes = magnitudes.collect({ arg mag;
-						Polar.new(
-							mag.as(Signal),  // magnitude
-							pha.as(Signal)  // phase
-						).asComplex
-					});
-
-					// synthesize kernels
-					complexes.collect({ arg item, i;
-						var kern;
-						kern = item.real.irfft(item.imag, cosTable).rotate(phaOffset);  // integer sample rotation
-						(i > 0).if({ kern.discardDC }, { kern })  // reduce DC for higher degrees
-					})
-				}, {  // linear phase
-					pha = magnitudes.at(0).mirror1.linearPhase.keep(rfftsize);  // degree 0
-
-					// complex spectrum - collected by degree
-					complexes = magnitudes.collect({ arg mag;
-						Polar.new(
-							mag.as(Signal),  // magnitude
-							pha.as(Signal)  // phase
-						).asComplex
-					});
-
-					// synthesize kernels
-					complexes.collect({ arg item, i;
-						item.real.irfft(item.imag, cosTable)
-					})
-				}
-			)
+			// synthesize kernels
+			complexes.collect({ arg item;
+				item.real.irfft(item.imag, cosTable)
+			})
 		}, {  // dft
 			freqs = size.dftFreqs(sampleRate);
 
@@ -206,46 +178,15 @@
 				List
 			).flop.asArray;  // collect as List, due to Array -flop bug
 
-			switch (phase,
-				\min, {  // minimum phase
-					var phaOffset;
+			// linear phase
+			complexes = magnitudes.collect({ arg magnitude;
+				Spectrum.new(magnitude).linearPhase.asComplex
+			});
 
-					pha = magnitudes.collect({ arg mag;
-						mag
-					}).squared.sum.sqrt.minimumPhase;  // phase
-					phaOffset = ((pha.abs.maxItem / 2pi) * size).asInteger;  // interger offset to rotate....
-
-					// complex spectrum - collected by degree
-					complexes = magnitudes.collect({ arg mag;
-						Polar.new(
-							mag.as(Signal),  // magnitude
-							pha.as(Signal)  // phase
-						).asComplex
-					});
-
-					// synthesize kernels
-					complexes.collect({ arg item, i;
-						var kern;
-						kern = item.real.idft(item.imag).real.rotate(phaOffset);  // integer sample rotation
-						(i > 0).if({ kern.discardDC }, { kern })  // reduce DC for higher degrees
-					})
-				}, {  // linear phase
-					pha = magnitudes.at(0).linearPhase;  // degree 0
-
-					// complex spectrum - collected by degree
-					complexes = magnitudes.collect({ arg mag;
-						Polar.new(
-							mag.as(Signal),  // magnitude
-							pha.as(Signal)  // phase
-						).asComplex
-					});
-
-					// synthesize kernels
-					complexes.collect({ arg item;
-						item.real.idft(item.imag).real
-					})
-				}
-			)
+			// synthesize kernels
+			complexes.collect({ arg item;
+				item.real.idft(item.imag).real
+			})
 		})
 	}
 

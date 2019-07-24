@@ -112,13 +112,6 @@ table::
 ## code::\sin:: || Sine footnote::A sine function variation of the window proposed by Ahrens & Spors.::
 ::
 
-ARGUMENT:: phase
-Phase response.
-table::
-## code::\lin:: || linear phase
-## code::\min:: || minimum (system) phase
-::
-
 ARGUMENT:: sampleRate
 Sample rate, in Hz.
 
@@ -128,4 +121,4 @@ Speed of sound, in meters per second.
 
 DISCUSSION::
 
-Offers FIR coefficients; implemented as a frequency sampling design, with coefficients returned by link::Classes/HoaOrder#-foclWeights::.
+Offers FIR coefficients; implemented as a linear phase frequency sampling design, with coefficients returned by link::Classes/HoaOrder#-foclWeights::.

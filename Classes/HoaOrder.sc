@@ -163,7 +163,7 @@ HoaOrder {
 				})
 			},
 			\cos, {
-				var effOrder = wavNum.orderAtRadius(radius);
+				var effOrder = wavNum.orderAtRadius(radius).abs;
 
 				(this.order + 1).collect({ arg degree;
 					(degree == 0).if({

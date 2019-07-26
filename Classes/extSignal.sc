@@ -114,4 +114,26 @@
 		})
 	}
 
+	*hoaMultiFocl { |size, radius = nil, beamDict = nil, dim = 3, match = \amp, numChans = nil, order = (AtkHoa.defaultOrder), window = \reg, sampleRate = nil, speedOfSound = (AtkHoa.speedOfSound)|
+		var complexes = Spectrum.hoaMultiFocl(size, radius, beamDict, dim, match, numChans, order, window, sampleRate, speedOfSound).collect({ |spectrum|
+			spectrum.linearPhase.asComplex  // linear phase
+		});
+
+		^(size.isPowerOfTwo).if({  // rfft
+			var rfftsize = (size/2 + 1).asInteger;
+			var cosTable = Signal.rfftCosTable(rfftsize);
+
+			// synthesize kernels
+			complexes.collect({ |complex|
+				var rcomplex = complex.real.fftToRfft(complex.imag);
+				rcomplex.real.irfft(rcomplex.imag, cosTable)
+			})
+		}, {  // dft
+			// synthesize kernels
+			complexes.collect({ |complex|
+				complex.real.idft(complex.imag).real
+			})
+		})
+	}
+
 }

@@ -9,7 +9,7 @@ Return an Array of higher order ambisonic signal (HOA) near-field effect (NFE), 
 
 
 ARGUMENT:: size
-The number of samples in the Signal.
+The number of samples in the Signals.
 
 ARGUMENT:: radius
 Radius, in meters.
@@ -39,7 +39,7 @@ Return an Array of higher order ambisonic signal (HOA) near-field effect (NFE), 
 
 
 ARGUMENT:: size
-The number of samples in the Signal.
+The number of samples in the Signals.
 
 ARGUMENT:: encRadius
 Encoding radius, in meters.
@@ -95,7 +95,7 @@ Return an Array of higher order ambisonic signal (HOA) near-field effect (NFE), 
 
 
 ARGUMENT:: size
-The number of samples in the Signal.
+The number of samples in the Signals.
 
 ARGUMENT:: radius
 Radius, in meters.
@@ -122,3 +122,58 @@ Speed of sound, in meters per second.
 DISCUSSION::
 
 Offers FIR coefficients; implemented as a linear phase frequency sampling design, with coefficients returned by link::Classes/HoaOrder#-foclWeights::. See also: link::Classes/Spectrum#*hoaFocl::.
+
+
+
+METHOD:: hoaMultiFocl
+
+Return an Array of higher order ambisonic signal (HOA) filters combining multi-band beamforming and near-field effect (NFE) focalisation, collected by emphasis::Associated Legendre:: degree (ℓ).
+
+
+ARGUMENT:: size
+The number of samples in the Signals.
+
+ARGUMENT:: radius
+Radius, in meters. Set to code::nil:: to exclude focalisation.
+
+ARGUMENT:: beamDict
+A dictionary specifying beam shapes and edge frequencies.
+
+See link::Classes/HoaOrder#Beaming%20&%20Decoder%20matching#Beaming & Decoder Matching:: and discussion below.
+
+ARGUMENT:: dim
+The number of dimensions: 2D or 3D.
+
+ARGUMENT:: match
+Matching criteria, see link::Classes/HoaOrder#Beaming%20&%20Decoder%20matching#Beaming & Decoder Matching:::
+table::
+## code::\amp:: || pressure (loudspeaker sum)
+## code::\rms:: || spherical harmonic energy
+## code::\energy:: || loudspeaker energy
+::
+NOTE::Prepend code::f:: to include focalisation in normalisation. E.g., code::\frms::.::
+
+ARGUMENT:: numChans
+Number of loudspeakers.
+
+NOTE::Must be set when choosing code::match: \energy::.::
+
+
+ARGUMENT:: order
+Ambisonic order.
+
+ARGUMENT:: window
+Focalisation angular weighting window. See link::#*hoaFocl::.
+
+NOTE::Ignored if strong::radius:: is set to code::nil::.::
+
+ARGUMENT:: sampleRate
+Sample rate, in Hz.
+
+ARGUMENT:: speedOfSound
+Speed of sound, in meters per second.
+
+
+DISCUSSION::
+
+Offers FIR coefficients; implemented as a linear phase frequency sampling design, with coefficients returned by link::#*logShelf:: and link::#*hoaFocl::. See also: link::Classes/Spectrum#*hoaMultiFocl:: for design examples.

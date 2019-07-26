@@ -248,7 +248,102 @@
 		})
 	}
 
-	// *hoaMultiFocl { |size, radius = (AtkHoa.refRadius), beamDict = nil, dim = 3, match = \amp, numChans = nil, order = (AtkHoa.defaultOrder), window = \reg, sampleRate = nil, speedOfSound = (AtkHoa.speedOfSound)|
-	// }
+	*hoaMultiFocl { |size, radius = nil, beamDict = nil, dim = 3, match = \amp, numChans = nil, order = (AtkHoa.defaultOrder), window = \reg, sampleRate = nil, speedOfSound = (AtkHoa.speedOfSound)|
+		// functions to determine meanE & matchWeight from beam weights
+		var meanE = { |beamWeights, dim = 3|
+			// var m = beamWeights.size - 1;  // order
+			var m = order;  // order
+
+			(dim == 2).if({
+				beamWeights.removeAt(0).squared + (2*beamWeights.squared.sum) // 2D
+			}, {
+				(Array.series(m + 1, 1, 2) * beamWeights.squared).sum // 3D
+			}).asFloat
+		};
+		var matchWeight = { |beamWeights, dim = 3, match = 'amp', numChans = nil|
+			// var m = beamWeights.size - 1;  // order
+			var m = order;  // order
+			var n;
+
+			switch( match,
+				'amp', { 1.0 },
+				'rms', {
+					(dim == 2).if({
+						n = 2*m + 1  // 2D
+					}, {
+						n = (m + 1).squared  // 3D
+					});
+					(n/meanE.value(beamWeights, dim)).sqrt
+					},
+				'energy', {
+					n = numChans;
+					(n/meanE.value(beamWeights, dim)).sqrt
+				}
+			).asFloat
+		};
+		var matchWeights = { |magnitudes, dim, match, numChans|
+			magnitudes.flop.collect({ arg beamWeights;
+				matchWeight.value(beamWeights, dim, match, numChans)
+			}).flop
+		};
+		var hoaOrder = order.asHoaOrder;
+		var foclMags, beamMags, magnitudes;
+
+		// focalisation magnitudes?
+		(radius != nil).if({
+			// focal magnitude
+			foclMags = Spectrum.hoaFocl(size, radius, order, window, sampleRate, speedOfSound).collect({ |spectrum|
+				spectrum.magnitude
+			})
+		}, {
+			// or... just unity
+			foclMags = Array.fill((order + 1) * size, { 1.0 }).reshape((order + 1), size);
+		});
+
+		// beam magnitudes
+		switch( beamDict.at(\beamShapes).size,
+			1, {
+				beamMags = hoaOrder.beamWeights(beamDict.at(\beamShapes).first, dim)
+			},
+			2, {
+				(beamDict.at(\edgeFreqs).size != 2).if({
+					Error("Must supply two edge frequencies for a two band shelf. Supplied: % ".format(beamDict.at(\edgeFreqs).size)).throw
+				}, {
+					var freqs = beamDict.at(\edgeFreqs).sort;
+					var beamWeights = beamDict.at(\beamShapes).collect({ arg beamShape;
+						hoaOrder.beamWeights(beamShape, dim)
+					});
+					beamMags = (order + 1).collect({ arg degree;
+						Spectrum.logShelf(size, freqs.at(0), freqs.at(1), beamWeights.at(0).at(degree).ampdb, beamWeights.at(1).at(degree).ampdb, sampleRate).magnitude
+					})
+				})
+			},
+			3, {
+				(beamDict.at(\edgeFreqs).size != 4).if({
+					Error("Must supply four edge frequencies for a two band shelf. Supplied: % ".format(beamDict.at(\edgeFreqs).size)).throw
+				}, {
+					var freqs = beamDict.at(\edgeFreqs).sort;
+					var beamWeights = beamDict.at(\beamShapes).collect({ arg beamShape;
+						hoaOrder.beamWeights(beamShape, dim)
+					});
+					beamMags = (order + 1).collect({ arg degree;
+						Spectrum.logShelf(size, freqs.at(0), freqs.at(1), beamWeights.at(0).at(degree).ampdb, beamWeights.at(1).at(degree).ampdb, sampleRate).magnitude *
+						Spectrum.logShelf(size, freqs.at(2), freqs.at(3), 0.0, (beamWeights.at(2).at(degree) / beamWeights.at(1).at(degree)).ampdb, sampleRate).magnitude
+					})
+				})
+			}
+		);
+
+		// normalization - two cases
+		match.asString.beginsWith("f").if({  // include focalisation
+			magnitudes = foclMags * beamMags;
+			magnitudes = magnitudes * matchWeights.value(magnitudes, dim, match.asString.drop(1).asSymbol, numChans)
+		}, {  // exclude focalisation
+			magnitudes = foclMags * beamMags * matchWeights.value(beamMags, dim, match, numChans)
+		});
+		^magnitudes.collect({ |magnitude|
+			Spectrum.new(magnitude)
+		})
+	}
 
 }

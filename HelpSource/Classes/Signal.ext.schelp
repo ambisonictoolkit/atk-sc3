@@ -26,7 +26,7 @@ Speed of sound, in meters per second.
 
 DISCUSSION::
 
-Offers FIR coefficients, equivalent to the IIR coefficients returned by link::Classes/NFECoeffs#-dist::. Implemented as a frequency sampling design, with coefficients returned by link::Classes/HoaOrder#-distWeights::.
+Offers FIR coefficients, equivalent to the IIR coefficients returned by link::Classes/NFECoeffs#-dist::. Implemented as a frequency sampling design, with coefficients returned by link::Classes/HoaOrder#-distWeights::. See also: link::Classes/Spectrum#*hoaDist::.
 
 
 NOTE:: In most cases, users will use the high level near-field effect (NFE) pseudo-UGen: link::Classes/HoaNFDist::.::
@@ -59,7 +59,7 @@ Speed of sound, in meters per second.
 
 DISCUSSION::
 
-Offers FIR coefficients, equivalent to the IIR coefficients returned by link::Classes/NFECoeffs#-ctrl::. Implemented as a frequency sampling design, with coefficients returned by link::Classes/HoaOrder#-ctrlWeights::.
+Offers FIR coefficients, equivalent to the IIR coefficients returned by link::Classes/NFECoeffs#-ctrl::. Implemented as a frequency sampling design, with coefficients returned by link::Classes/HoaOrder#-ctrlWeights::. See also: link::Classes/Spectrum#*hoaCtrl::.
 
 code::
 (
@@ -121,4 +121,4 @@ Speed of sound, in meters per second.
 
 DISCUSSION::
 
-Offers FIR coefficients; implemented as a linear phase frequency sampling design, with coefficients returned by link::Classes/HoaOrder#-foclWeights::.
+Offers FIR coefficients; implemented as a linear phase frequency sampling design, with coefficients returned by link::Classes/HoaOrder#-foclWeights::. See also: link::Classes/Spectrum#*hoaFocl::.

@@ -49,143 +49,67 @@
 + Signal {
 
 	*hoaDist { |size, radius = (AtkHoa.refRadius), order = (AtkHoa.defaultOrder), sampleRate = nil, speedOfSound = (AtkHoa.speedOfSound)|
-		var hoaOrder = order.asHoaOrder;
-		var freqs, coeffs;
-
-		// function to return Complex of two Signals, from Array of complex values
-		var reshapeComplexArray = { arg cArr;
-			var arr = cArr.collect({ arg item; [ item.real, item.imag ] }).flop;
-			Complex.new(
-				arr.at(0).as(Signal),  // real
-				arr.at(1).as(Signal)  // imag
-			)
-		};
+		var complexes = Spectrum.hoaDist(size, radius, order, sampleRate, speedOfSound).collect({ |spectrum|
+			spectrum.asComplex
+		});
 
 		^(size.isPowerOfTwo).if({  // rfft
 			var rfftsize = (size/2 + 1).asInteger;
 			var cosTable = Signal.rfftCosTable(rfftsize);
 
-			freqs = rfftsize.rfftFreqs(sampleRate);
-			coeffs = freqs.collectAs({ arg freq;  // complex coefficients
-				hoaOrder.distWeights(freq, radius, speedOfSound);
-			},
-				List
-			).flop.asArray;  // collect as List, due to Array -flop bug
-
 			// synthesize kernels
-			coeffs.collect({ arg item;
-				var complex = reshapeComplexArray.value(item);
-				complex.real.irfft(complex.imag, cosTable)
+			complexes.collect({ |complex|
+				var rcomplex = complex.real.fftToRfft(complex.imag);
+				rcomplex.real.irfft(rcomplex.imag, cosTable)
 			})
 		}, {  // dft
-			freqs = size.dftFreqs(sampleRate);
-			coeffs = freqs.collectAs({ arg freq;  // complex coefficients
-				hoaOrder.distWeights(freq, radius, speedOfSound)
-			},
-				List
-			).flop.asArray;  // collect as List, due to Array -flop bug
-
 			// synthesize kernels
-			coeffs.collect({ arg item;
-				var complex = reshapeComplexArray.value(item);
+			complexes.collect({ |complex|
 				complex.real.idft(complex.imag).real
 			})
 		})
 	}
 
 	*hoaCtrl { |size, encRadius = (AtkHoa.refRadius), decRadius = (AtkHoa.refRadius), order = (AtkHoa.defaultOrder), sampleRate = nil, speedOfSound = (AtkHoa.speedOfSound)|
-		var hoaOrder = order.asHoaOrder;
-		var freqs, coeffs;
-
-		// function to return Complex of two Signals, from Array of complex values
-		var reshapeComplexArray = { arg cArr;
-			var arr = cArr.collect({ arg item; [ item.real, item.imag ] }).flop;
-			Complex.new(
-				arr.at(0).as(Signal),  // real
-				arr.at(1).as(Signal)  // imag
-			)
-		};
+		var complexes = Spectrum.hoaCtrl(size, encRadius, decRadius, order, sampleRate, speedOfSound).collect({ |spectrum|
+			spectrum.asComplex
+		});
 
 		^(size.isPowerOfTwo).if({  // rfft
 			var rfftsize = (size/2 + 1).asInteger;
 			var cosTable = Signal.rfftCosTable(rfftsize);
 
-			freqs = rfftsize.rfftFreqs(sampleRate);
-			coeffs = freqs.collect({ arg freq;  // complex coefficients
-				hoaOrder.ctrlWeights(freq, encRadius, decRadius, speedOfSound)
-			},
-				List
-			).flop.asArray;  // collect as List, due to Array -flop bug
-
 			// synthesize kernels
-			coeffs.collect({ arg item;
-				var complex = reshapeComplexArray.value(item);
-				complex.real.irfft(complex.imag, cosTable)
+			complexes.collect({ |complex|
+				var rcomplex = complex.real.fftToRfft(complex.imag);
+				rcomplex.real.irfft(rcomplex.imag, cosTable)
 			})
 		}, {  // dft
-			freqs = size.dftFreqs(sampleRate);
-			coeffs = freqs.collectAs({ arg freq;  // complex coefficients
-				hoaOrder.ctrlWeights(freq, encRadius, decRadius, speedOfSound)
-			},
-				List
-			).flop.asArray;  // collect as List, due to Array -flop bug
-
 			// synthesize kernels
-			coeffs.collect({ arg item;
-				var complex = reshapeComplexArray.value(item);
+			complexes.collect({ |complex|
 				complex.real.idft(complex.imag).real
 			})
 		})
 	}
 
 	*hoaFocl { |size, radius = (AtkHoa.refRadius), order = (AtkHoa.defaultOrder), window = \reg, sampleRate = nil, speedOfSound = (AtkHoa.speedOfSound)|
-		var hoaOrder = order.asHoaOrder;
-		var freqs, magnitudes, pha, complexes;
+		var complexes = Spectrum.hoaFocl(size, radius, order, window, sampleRate, speedOfSound).collect({ |spectrum|
+			spectrum.linearPhase.asComplex  // linear phase
+		});
 
 		^(size.isPowerOfTwo).if({  // rfft
 			var rfftsize = (size/2 + 1).asInteger;
 			var cosTable = Signal.rfftCosTable(rfftsize);
 
-			freqs = rfftsize.rfftFreqs(sampleRate);
-
-			// magnitude - collected by degree
-			magnitudes = freqs.collectAs({ arg freq;  // +frequencies
-				hoaOrder.foclWeights(freq, radius, window, speedOfSound)
-			},
-				List
-			).flop.asArray;  // collect as List, due to Array -flop bug
-			magnitudes = magnitudes.collect({ arg item;  // mirror +/-frequencies
-				item.mirror1
-			});
-
-			// linear phase
-			complexes = magnitudes.collect({ arg magnitude;
-				var complex = Spectrum.new(magnitude).linearPhase.asComplex;
-				complex.real.fftToRfft(complex.imag);  // convert to rcomplex
-			});
-
 			// synthesize kernels
-			complexes.collect({ arg item;
-				item.real.irfft(item.imag, cosTable)
+			complexes.collect({ |complex|
+				var rcomplex = complex.real.fftToRfft(complex.imag);
+				rcomplex.real.irfft(rcomplex.imag, cosTable)
 			})
 		}, {  // dft
-			freqs = size.dftFreqs(sampleRate);
-
-			// magnitude - collected by degree
-			magnitudes = freqs.collectAs({ arg freq;  // real coefficients (magnitudes)
-				hoaOrder.foclWeights(freq, radius, window, speedOfSound);
-			},
-				List
-			).flop.asArray;  // collect as List, due to Array -flop bug
-
-			// linear phase
-			complexes = magnitudes.collect({ arg magnitude;
-				Spectrum.new(magnitude).linearPhase.asComplex
-			});
-
 			// synthesize kernels
-			complexes.collect({ arg item;
-				item.real.idft(item.imag).real
+			complexes.collect({ |complex|
+				complex.real.idft(complex.imag).real
 			})
 		})
 	}

@@ -55,6 +55,9 @@
 		(size.isPowerOfTwo).if({  // rfft
 			var rfftsize = (size/2 + 1).asInteger;
 			freqs = rfftsize.rfftFreqs(sampleRate);
+			freqs = freqs.collect({ |freq|  // blt frequency warp
+				sampleRate / pi * tan(pi * freq / sampleRate)
+			});
 
 			complexCoeffs = freqs.collectAs({ |freq|  // complex coefficients
 				hoaOrder.proxWeights(freq, radius, speedOfSound)
@@ -81,6 +84,9 @@
 			})
 		}, {  // dft
 			freqs = size.dftFreqs(sampleRate);
+			freqs = freqs.collect({ |freq|  // blt frequency warp
+				sampleRate / pi * tan(pi * freq / sampleRate)
+			});
 
 			complexCoeffs = freqs.collectAs({ |freq|  // complex coefficients
 				hoaOrder.proxWeights(freq, radius, speedOfSound)
@@ -111,6 +117,9 @@
 		(size.isPowerOfTwo).if({  // rfft
 			var rfftsize = (size/2 + 1).asInteger;
 			freqs = rfftsize.rfftFreqs(sampleRate);
+			freqs = freqs.collect({ |freq|  // blt frequency warp
+				sampleRate / pi * tan(pi * freq / sampleRate)
+			});
 
 			complexCoeffs = freqs.collectAs({ |freq|  // complex coefficients
 				hoaOrder.distWeights(freq, radius, speedOfSound)
@@ -137,6 +146,9 @@
 			})
 		}, {  // dft
 			freqs = size.dftFreqs(sampleRate);
+			freqs = freqs.collect({ |freq|  // blt frequency warp
+				sampleRate / pi * tan(pi * freq / sampleRate)
+			});
 
 			complexCoeffs = freqs.collectAs({ |freq|  // complex coefficients
 				hoaOrder.distWeights(freq, radius, speedOfSound)
@@ -167,6 +179,9 @@
 		(size.isPowerOfTwo).if({  // rfft
 			var rfftsize = (size/2 + 1).asInteger;
 			freqs = rfftsize.rfftFreqs(sampleRate);
+			freqs = freqs.collect({ |freq|  // blt frequency warp
+				sampleRate / pi * tan(pi * freq / sampleRate)
+			});
 
 			complexCoeffs = freqs.collectAs({ |freq|  // complex coefficients
 				hoaOrder.ctrlWeights(freq, encRadius, decRadius, speedOfSound)
@@ -193,6 +208,9 @@
 			})
 		}, {  // dft
 			freqs = size.dftFreqs(sampleRate);
+			freqs = freqs.collect({ |freq|  // blt frequency warp
+				sampleRate / pi * tan(pi * freq / sampleRate)
+			});
 
 			complexCoeffs = freqs.collectAs({ |freq|  // complex coefficients
 				hoaOrder.ctrlWeights(freq, encRadius, decRadius, speedOfSound)

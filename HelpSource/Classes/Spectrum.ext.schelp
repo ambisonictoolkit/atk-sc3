@@ -159,7 +159,7 @@ DISCUSSION::
 Offers zero phase spectra; implemented as a frequency sampling design, with coefficients returned by link::Classes/HoaOrder#-foclWeights::. See also: link::Classes/Signal#*hoaFocl::.
 
 
-METHOD:: hoaMultiFocl
+METHOD:: hoaMultiBandFocl
 
 Return an Array of higher order ambisonic signal (HOA) filter spectra combining multi-band beamforming and near-field effect (NFE) focalisation, collected by emphasis::Associated Legendre:: degree (ℓ).
 
@@ -210,7 +210,7 @@ Speed of sound, in meters per second.
 
 DISCUSSION::
 
-Offers zero phase spectra; implemented as a frequency sampling design, with coefficients returned by link::#*logShelf:: and link::#*hoaFocl::. See also: link::Classes/Signal#*hoaMultiFocl::.
+Offers zero phase spectra; implemented as a frequency sampling design, with coefficients returned by link::#*logShelf:: and link::#*hoaFocl::. See also: link::Classes/Signal#*hoaMultiBandFocl::.
 
 
 One band, with focalisation normalized for spherical harmonic energy.
@@ -231,7 +231,7 @@ code::
 
 ~match = \frms;
 
-~spectra = Spectrum.hoaMultiFocl(~size, ~radius, beamDict: ~beamDict, match: ~match, order: ~order, sampleRate: ~sampleRate);
+~spectra = Spectrum.hoaMultiBandFocl(~size, ~radius, beamDict: ~beamDict, match: ~match, order: ~order, sampleRate: ~sampleRate);
 
 ~spectra.do({ arg spectrum, i; (spectrum.magnitude + -120.0.dbamp).ampdb.plot("Deegree: % ".format(i), minval: -60.0, maxval: 10.0) });
 ::
@@ -258,7 +258,7 @@ code::
 
 ~match = \rms;
 
-~spectra = Spectrum.hoaMultiFocl(~size, ~radius, beamDict: ~beamDict, match: ~match, order: ~order, sampleRate: ~sampleRate);
+~spectra = Spectrum.hoaMultiBandFocl(~size, ~radius, beamDict: ~beamDict, match: ~match, order: ~order, sampleRate: ~sampleRate);
 
 ~spectra.do({ arg spectrum, i; (spectrum.magnitude + -120.0.dbamp).ampdb.plot("Deegree: % ".format(i), minval: -60.0, maxval: 10.0) });
 ::
@@ -284,9 +284,9 @@ code::
 
 ~radius = (AtkHoa.refRadius / 2);
 
-~match = \rms;
+~match = \amp;
 
-~spectra = Spectrum.hoaMultiFocl(~size, ~radius, beamDict: ~beamDict, match: ~match, order: ~order, sampleRate: ~sampleRate);
+~spectra = Spectrum.hoaMultiBandFocl(~size, ~radius, beamDict: ~beamDict, match: ~match, order: ~order, sampleRate: ~sampleRate);
 
 ~spectra.do({ arg spectrum, i; (spectrum.magnitude + -120.0.dbamp).ampdb.plot("Deegree: % ".format(i), minval: -60.0, maxval: 10.0) });
 ::
@@ -312,7 +312,7 @@ code::
 
 ~match = \rms;
 
-~spectra = Spectrum.hoaMultiFocl(~size, beamDict: ~beamDict, match: ~match, order: ~order, sampleRate: ~sampleRate);
+~spectra = Spectrum.hoaMultiBandFocl(~size, beamDict: ~beamDict, match: ~match, order: ~order, sampleRate: ~sampleRate);
 
 ~spectra.do({ arg spectrum, i; (spectrum.magnitude + -120.0.dbamp).ampdb.plot("Deegree: % ".format(i), minval: -60.0, maxval: 10.0) });
 ::

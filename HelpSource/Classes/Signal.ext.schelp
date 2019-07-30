@@ -125,7 +125,7 @@ Offers FIR coefficients; implemented as a linear phase frequency sampling design
 
 
 
-METHOD:: hoaMultiFocl
+METHOD:: hoaMultiBandFocl
 
 Return an Array of higher order ambisonic signal (HOA) filters combining multi-band beamforming and near-field effect (NFE) focalisation, collected by emphasis::Associated Legendre:: degree (ℓ).
 
@@ -176,4 +176,4 @@ Speed of sound, in meters per second.
 
 DISCUSSION::
 
-Offers FIR coefficients; implemented as a linear phase frequency sampling design, with coefficients returned by link::#*logShelf:: and link::#*hoaFocl::. See also: link::Classes/Spectrum#*hoaMultiFocl:: for design examples.
+Offers FIR coefficients; implemented as a linear phase frequency sampling design, with coefficients returned by link::#*logShelf:: and link::#*hoaFocl::. See also: link::Classes/Spectrum#*hoaMultiBandFocl:: for design examples.

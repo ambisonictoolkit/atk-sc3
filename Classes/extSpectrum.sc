@@ -266,7 +266,7 @@
 		})
 	}
 
-	*hoaMultiFocl { |size, radius = nil, beamDict = nil, dim = 3, match = \amp, numChans = nil, order = (AtkHoa.defaultOrder), window = \reg, sampleRate = nil, speedOfSound = (AtkHoa.speedOfSound)|
+	*hoaMultiBandFocl { |size, radius = nil, beamDict = nil, dim = 3, match = \amp, numChans = nil, order = (AtkHoa.defaultOrder), window = \reg, sampleRate = nil, speedOfSound = (AtkHoa.speedOfSound)|
 		// functions to determine meanE & matchWeight from beam weights
 		var meanE = { |beamWeights, dim = 3|
 			// var m = beamWeights.size - 1;  // order

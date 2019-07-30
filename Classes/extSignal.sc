@@ -114,8 +114,8 @@
 		})
 	}
 
-	*hoaMultiFocl { |size, radius = nil, beamDict = nil, dim = 3, match = \amp, numChans = nil, order = (AtkHoa.defaultOrder), window = \reg, sampleRate = nil, speedOfSound = (AtkHoa.speedOfSound)|
-		var complexes = Spectrum.hoaMultiFocl(size, radius, beamDict, dim, match, numChans, order, window, sampleRate, speedOfSound).collect({ |spectrum|
+	*hoaMultiBandFocl { |size, radius = nil, beamDict = nil, dim = 3, match = \amp, numChans = nil, order = (AtkHoa.defaultOrder), window = \reg, sampleRate = nil, speedOfSound = (AtkHoa.speedOfSound)|
+		var complexes = Spectrum.hoaMultiBandFocl(size, radius, beamDict, dim, match, numChans, order, window, sampleRate, speedOfSound).collect({ |spectrum|
 			spectrum.linearPhase.asComplex  // linear phase
 		});
 

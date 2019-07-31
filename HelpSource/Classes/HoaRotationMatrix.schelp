@@ -1,0 +1,157 @@
+TITLE:: HoaRotationMatrix
+summary:: Matrix transformer from the Ambisonic Toolkit (ATK)
+categories:: Libraries>Ambisonic Toolkit>HOA>Transforming
+related:: Classes/HoaMatrixXformer
+
+DESCRIPTION::
+A class to generate a matrix representing a rotation of real or complex
+spherical harmonics, around three axes, in a specified order of rotations.
+
+You may find the use of link::Classes/HoaMatrixXformer::'s various
+rotation methods, which use this class internally, more convenient for most
+rotation operations. See
+link::Classes/HoaMatrixXformer#*newRotate::,
+link::Classes/HoaMatrixXformer#*newRTT#*newRTT::,
+link::Classes/HoaMatrixXformer#*newYPR#*newYPR::,
+link::Classes/HoaMatrixXformer#*newRotateAxis#*newRotateAxis::.
+
+
+CLASSMETHODS::
+
+METHOD:: new
+Generate an link::Classes/HoaRotationMatrix::
+
+ARGUMENT:: r1
+The first rotation angle, in radians.
+
+ARGUMENT:: r2
+The second rotation angle, in radians.
+
+ARGUMENT:: r3
+The third rotation angle, in radians.
+
+ARGUMENT:: axes
+A link::Classes/Symbol:: defining the order of rotations, by axis. E.g.
+code::'zyz'::.
+
+ARGUMENT:: order
+Ambisonic order. Defaults to code::AtkHoa.defaultOrder::.
+
+
+INSTANCEMETHODS::
+
+
+METHOD:: matrix
+Return the link::Classes/Matrix:: object representing the rotation.
+
+METHOD:: r3x3
+Return the link::Classes/Matrix:: representing the original 3x3 rotation of
+degree code::l = 1::, which is then used to recursively build the full rotation
+matrix of higher order. The user will not typically need this rotation kernel,
+but is provided for introspection.
+
+METHOD:: order
+Return the ambisonic order of the rotation matrix.
+
+METHOD:: buildComplexSHRotMtx
+Return a rotation link::Classes/Matrix:: of complex spherical harmonics.
+
+PRIVATE:: prU, prV, prW, prP, eulerToR3, buildR1, buildSHRotMtx
+
+EXAMPLES::
+
+Test axial rotations via link::Classes/HoaMatrixXformer#-newRotateAxis::
+(which uses link::Classes/HoaRotationMatrix:: internally).
+
+code::
+/* Generate planewave encoding coefficients for directions */
+(
+var pwDirs = [
+	[0, 0],   // front
+	[90, 0],  // left
+	[-90, 0], // right
+	[0, -90]  // nadir
+].degrad;
+~pwCoeffs = pwDirs.collect({ |dir|
+	HoaMatrixEncoder.newDirection(*dir).matrix.getCol(0)
+})
+)
+
+/* Rotate */
+(
+// Create a 90-degree rotation around Z axis
+var rotationMatrix = HoaMatrixXformer.newRotateAxis(\z, 90.degrad);
+var forwardPw = ~pwCoeffs[0]; // planewave coefficients for forward direction
+var leftPw = ~pwCoeffs[1];    // planewave coefficients for left direction
+
+// Use the matrix to rotate the coefficients of a frontal planewave
+var rotatedPw = MatrixArray.with(
+	rotationMatrix.matrix.asArray
+).mixCoeffs(forwardPw);
+
+// Compare rotated planewave with a planewave directly encoded
+// in the rotation direction
+rotatedPw.round(0.001) == leftPw.round(0.001)
+)
+
+/* Tilt */
+(
+// Create a 90-degree rotation around X axis
+var rotationMatrix = HoaMatrixXformer.newRotateAxis(\x, 90.degrad);
+var leftPw = ~pwCoeffs[1];
+var downPw = ~pwCoeffs[3];
+
+var rotatedPw = MatrixArray.with(
+	rotationMatrix.matrix.asArray
+).mixCoeffs(downPw);
+
+rotatedPw.round(0.001) == leftPw.round(0.001)
+)
+
+/* Tumble */
+(
+// Create a 90-degree rotation around Y axis
+var rotationMatrix = HoaMatrixXformer.newRotateAxis(\y, 90.degrad);
+var forwardPw = ~pwCoeffs[0];
+var downPw = ~pwCoeffs[3];
+
+var rotatedPw = MatrixArray.with(
+	rotationMatrix.matrix.asArray
+).mixCoeffs(downPw);
+
+rotatedPw.round(0.001) == forwardPw.round(0.001)
+)
+::
+
+SECTION:: Attribution
+The underlying utilities used here are largely a port of spherical harmonic
+rotations from Archontis Politis's Spherical-Harmonic-Transform Library for
+Matlab/Octave.
+FOOTNOTE::
+https://github.com/polarch/Spherical-Harmonic-Transform.
+::
+FOOTNOTE::
+Specifically:
+code::euler2rotationMatrix.m::,
+code::getSHrotMtx.m::,
+code::complex2realSHMtx.m::
+::
+
+The technique was originally authored by Ivanic and Ruedenberg.
+FOOTNOTE::
+Ivanic, J., Ruedenberg, K. (1996). Rotation Matrices for Real
+Spherical Harmonics. Direct Determination by Recursion. emphasis::The Journal
+of Physical Chemistry::, 100(15), 6342-6347.
+::
+FOOTNOTE::
+With corrections:
+Ivanic, J., Ruedenberg, K. (1998). Rotation Matrices for Real
+Spherical Harmonics. Direct Determination by Recursion Page: Additions
+and Corrections. emphasis::Journal of Physical Chemistry A::, 102(45), 9099-9100.
+::
+
+Politis's code for real SH rotations is itself a port of Bing Jian's
+implementations of the above technique.
+FOOTNOTE::
+http://www.mathworks.com/matlabcentral/fileexchange/15377-real-valued-spherical-harmonics
+::

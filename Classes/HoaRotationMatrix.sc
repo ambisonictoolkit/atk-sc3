@@ -20,11 +20,78 @@ SuperCollider3 version of the Ambisonic Toolkit (ATK). If not, see
 <http://www.gnu.org/licenses/>.
 */
 
+/*
+---------------------------------------------------------------------
+	Third Party Attribution / License
+---------------------------------------------------------------------
+
+The following is largely a port of spherical harmonic rotations from
+Archontis Politis's Spherical-Harmonic-Transform Library for Matlab/Octave.
+
+https://github.com/polarch/Spherical-Harmonic-Transform
+
+Specifically:
+euler2rotationMatrix.m
+getSHrotMtx.m
+complex2realSHMtx.m
+
+Politis's code for real SH rotations is a port of Bing Jian's
+implementations, found here:
+http://www.mathworks.com/matlabcentral/fileexchange/15377-real-valued-spherical-harmonics
+
+Copyright (c) 2016, Bing Jian
+Copyright (c) 2015, Archontis Politis
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+* Redistributions of source code must retain the above copyright notice, this
+  list of conditions and the following disclaimer.
+
+* Redistributions in binary form must reproduce the above copyright notice,
+  this list of conditions and the following disclaimer in the documentation
+  and/or other materials provided with the distribution.
+
+* Neither the name of Spherical-Harmonic-Transform nor the names of its
+  contributors may be used to endorse or promote products derived from
+  this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
+The technique was originally authored here:
+Ivanic, J., Ruedenberg, K. (1996). Rotation Matrices for Real
+Spherical Harmonics. Direct Determination by Recursion. The Journal
+of Physical Chemistry, 100(15), 6342?6347.
+
+...with corrections:
+
+Ivanic, J., Ruedenberg, K. (1998). Rotation Matrices for Real
+Spherical Harmonics. Direct Determination by Recursion Page: Additions
+and Corrections. Journal of Physical Chemistry A, 102(45), 9099-9100.
+*/
+
 
 //---------------------------------------------------------------------
 //	The Ambisonic Toolkit (ATK) is a soundfield kernel support library.
 //
 // 	Class: HoaRotationMatrix
+//
+//  Note: this implementation is used for complete static matrices,
+//  while a more efficient method is used for time-varying rotations which operates
+//  on the signal coefficients directly. See rotation (pseudo-)UGens in
+//  this library for details on that alternative method.
+//
 //
 //	The Ambisonic Toolkit (ATK) is intended to bring together a number of tools and
 //	methods for working with Ambisonic surround sound. The intention is for the toolset
@@ -46,59 +113,23 @@ SuperCollider3 version of the Ambisonic Toolkit (ATK). If not, see
 //---------------------------------------------------------------------
 
 
-/*
-
-~-- Attribution --~
-
-The following is largely a port of spherical harmonic rotations from
-Archontis Politis's Spherical-Harmonic-Transform Library for Matlab/Octave.
-
-https://github.com/polarch/Spherical-Harmonic-Transform
-
-Specifically:
-euler2rotationMatrix.m
-getSHrotMtx.m
-complex2realSHMtx.m
-
-The technique was originally authored here:
-Ivanic, J., Ruedenberg, K. (1996). Rotation Matrices for Real
-Spherical Harmonics. Direct Determination by Recursion. The Journal
-of Physical Chemistry, 100(15), 6342?6347.
-
-...with corrections:
-
-Ivanic, J., Ruedenberg, K. (1998). Rotation Matrices for Real
-Spherical Harmonics. Direct Determination by Recursion Page: Additions
-and Corrections. Journal of Physical Chemistry A, 102(45), 9099-9100.
-
-Politis's code for real SH rotations is a port of Bing Jian's
-implementations of the above technique, found here:
-http://www.mathworks.com/matlabcentral/fileexchange/15377-real-valued-spherical-harmonics
-
-Note: this implementation is used for complete static matrices,
-while a more efficient method is used for time-varying rotations which operates
-on the signal coefficients directly. See rotation (pseudo-)UGens in
-this library for details on that alternative method.
-
-*/
-
 HoaRotationMatrix {
-	// copyArgs
-	var r1, r2, r3, axes;
-	var <matrix;
-	var order, rO3;
+
+	var r1, r2, r3, axes; // copyArgs
+	var <matrix, <r3x3, <order;
 
 	*new { |r1 = 0, r2 = 0, r3 = 0, axes = \xyz, order = (AtkHoa.defaultOrder)|
 		^super.newCopyArgs(r1,r2,r3,axes).init(order)
 	}
 
 	init { |order|
-		rO3 = this.eulerToR3(r1, r2, r3, axes);
-		matrix = this.buildSHRotMtx(rO3, order, 'real');
+		r3x3 = this.eulerToR3(r1, r2, r3, axes);
+		matrix = this.buildSHRotMtx(r3x3, order, 'real');
 	}
 
 
 	/*
+	Build the basic 3x3 rotation matrix from Euler angle rotations
 	alpha, beta, gamma:  first, second, and third angle of rotation
 	axes: definition of the order of axes to rotate, e.g. 'zyz'
 	*/
@@ -150,9 +181,9 @@ HoaRotationMatrix {
 
 	/*
 	Recursively generate a matrix for rotating real SHs up to maxDegree.
-	rXYZ: the normal 3x3 rotation matrix for the cartesian system (via eulerToR3 method)
+	r3x3: the basic 3x3 rotation matrix (via eulerToR3 method)
 	*/
-	buildSHRotMtx { |rXYZ, maxDegree|
+	buildSHRotMtx { |r3x3, maxDegree|
 		var r;         // output rotation matrix
 		var r_1;       // first band rotation matrix
 		var r_l;       // current band rotation matrix
@@ -170,19 +201,19 @@ HoaRotationMatrix {
 
 		r_1 = Matrix.newClear(3, 3); // l = 1 rotation matrix
 
-		// rXYZ = [  Rxx Rxy Rxz
+		// r3x3 = [  Rxx Rxy Rxz
 		// 			 Ryx Ryy Ryz
 		// 			 Rzx Rzy Rzz  ]
 		// the first band (l=1) is directly related to the rotation matrix
-		r_1.put(0,0, rXYZ.at(1,1));
-		r_1.put(0,1, rXYZ.at(1,2));
-		r_1.put(0,2, rXYZ.at(1,0));
-		r_1.put(1,0, rXYZ.at(2,1));
-		r_1.put(1,1, rXYZ.at(2,2));
-		r_1.put(1,2, rXYZ.at(2,0));
-		r_1.put(2,0, rXYZ.at(0,1));
-		r_1.put(2,1, rXYZ.at(0,2));
-		r_1.put(2,2, rXYZ.at(0,0));
+		r_1.put(0,0, r3x3.at(1,1));
+		r_1.put(0,1, r3x3.at(1,2));
+		r_1.put(0,2, r3x3.at(1,0));
+		r_1.put(1,0, r3x3.at(2,1));
+		r_1.put(1,1, r3x3.at(2,2));
+		r_1.put(1,2, r3x3.at(2,0));
+		r_1.put(2,0, r3x3.at(0,1));
+		r_1.put(2,1, r3x3.at(0,2));
+		r_1.put(2,2, r3x3.at(0,0));
 
 		// insert this matrix into the output matrix in 1st band
 		r_1.rows.do{|rowi|
@@ -246,14 +277,14 @@ HoaRotationMatrix {
 	}
 
 
-	/* Functions to compute terms U, V, W of Eq.8.1 (Table II) */
+	/* Functions to compute terms U, V, W of Eq.8.1 (Table II) in Ivanic, J., Ruedenberg, K. (1998) */
 
-    // ~~~~~~~~~~~~~ Function V ~~~~~~~~~~~~~~~~~
+    //  Function U
     prU { |l, m, n, r_1, r_lm1|
         ^this.prP(0, l, m, n, r_1, r_lm1);
     }
 
-    // ~~~~~~~~~~~~~ Function V ~~~~~~~~~~~~~~~~~
+    //  Function V
     prV { |l, m, n, r_1, r_lm1|
         var p0, p1, d;
 
@@ -276,7 +307,7 @@ HoaRotationMatrix {
         }
     }
 
-    // ~~~~~~~~~~~~~ Function W ~~~~~~~~~~~~~~~~~
+    //  Function W
     prW { |l, m, n, r_1, r_lm1|
         var p0, p1;
 
@@ -293,7 +324,7 @@ HoaRotationMatrix {
         }
     }
 
-    // ~~~~~~~~~~~~~ Function P ~~~~~~~~~~~~~~~~~
+    //  Function P
     prP { |i, l, a, b, r_1, r_lm1|
         var ri1, rim1, ri0;
 
@@ -313,17 +344,14 @@ HoaRotationMatrix {
     }
 
 
-	// Build a rotation matrix complex SH from the one for real SH
+	// Build a rotation matrix of complex SH from that of the real SH
 	// through real-to-complex-transformation matrices
-	buildComplexSHRotMtx { |rXYZ, maxDegree|
-		var realMtx;
+	buildComplexSHRotMtx {
 		var setSize, degreeSize, idx, m;
 		var diagT, adiagT;
 		var diagTMtx, adiagTMtx, tempT, wMtx, conjW;
 
-		realMtx = this.buildSHRotMtx(rXYZ, maxDegree);
-
-		setSize = (maxDegree+1).squared;
+		setSize = (order+1).squared;
 
 		// complex -> real SH matrix
 		wMtx = Matrix.with(
@@ -336,9 +364,9 @@ HoaRotationMatrix {
 
 		wMtx.put(0,0, Complex(1,0)); // l = 0
 
-		if (maxDegree > 0) {
+		if (order > 0) {
 			idx = 1;
-			(1..maxDegree).do{ |l|
+			(1..order).do{ |l|
 				degreeSize = 2*l+1;
 
 				m = (1..l);
@@ -395,7 +423,8 @@ HoaRotationMatrix {
 			})
 		);
 
-		^wMtx.flop * realMtx * conjW;
+		// matrix is the real rotation matrix built by -buildSHRotMtx
+		^wMtx.flop * matrix * conjW;
 	}
 
 }

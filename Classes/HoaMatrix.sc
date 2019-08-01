@@ -1,7 +1,7 @@
 /*
 	Copyright the ATK Community and Joseph Anderson, 2011-2017
-        J Anderson	j.anderson[at]ambisonictoolkit.net
-        M McCrea    mtm5[at]uw.edu
+		J Anderson	j.anderson[at]ambisonictoolkit.net
+		M McCrea    mtm5[at]uw.edu
 
 	This file is part of SuperCollider3 version of the Ambisonic Toolkit (ATK).
 
@@ -462,15 +462,15 @@ HoaMatrixEncoder : HoaMatrix {
 	}
 
 	// Projection Encoding beams (convenience to match FOA: may wish to deprecate) - 'basic' pattern
-    *newPanto { |numChans = 4, orientation = \flat, order = (AtkHoa.defaultOrder)|
+	*newPanto { |numChans = 4, orientation = \flat, order = (AtkHoa.defaultOrder)|
 		var directions = Array.regularPolygon(numChans, orientation, pi);
 		^super.new('panto', order).initDirections(directions).initBasic;
-    }
+	}
 
 	// Modal Encoding beams - multi pattern
 	*newModeMatch { |directions = ([[ 0, 0 ]]), beamShape = \basic, match = \beam, order = (AtkHoa.defaultOrder)|
-        ^super.new('modeMatch', order).initDirections(directions).initMode(beamShape, match);
-    }
+		^super.new('modeMatch', order).initDirections(directions).initMode(beamShape, match);
+	}
 
 	// spherical design wrapper for *newBeams, match = \beam
 	*newSphericalDesign { |design, beamShape = \basic, order = (AtkHoa.defaultOrder)|
@@ -492,32 +492,32 @@ HoaMatrixEncoder : HoaMatrix {
 	// }
 
 
-    // ------------
-    // Basic
+	// ------------
+	// Basic
 
-    initBasic {  // basic beam encoder, beamShape = \basic, match = \amp
+	initBasic {  // basic beam encoder, beamShape = \basic, match = \amp
 		var hoaOrder;
 
-        hoaOrder = this.order.asHoaOrder;  // instance order
+		hoaOrder = this.order.asHoaOrder;  // instance order
 
-        // build encoder matrix, and set for instance
+		// build encoder matrix, and set for instance
 		// norm = 1.0, beamWeights = [ 1, 1, ..., 1 ]
-        matrix = Matrix.with(
+		matrix = Matrix.with(
 			this.directions.collect({ |thetaPhi|
-                hoaOrder.sph(thetaPhi.at(0), thetaPhi.at(1))
+				hoaOrder.sph(thetaPhi.at(0), thetaPhi.at(1))
 			}).flop
-        ).zeroWithin(AtkHoa.nearZero)
-    }
+		).zeroWithin(AtkHoa.nearZero)
+	}
 
-    // ------------
+	// ------------
 	// Multi-pattern (projection)
 
-    initBeam {  |beamShape, match| // beam encoder
-        var hoaOrder, beamWeights;
+	initBeam {  |beamShape, match| // beam encoder
+		var hoaOrder, beamWeights;
 		var degreeSeries, norm;
 
-        hoaOrder = this.order.asHoaOrder;  // instance order
-        beamWeights = hoaOrder.beamWeights(beamShape);
+		hoaOrder = this.order.asHoaOrder;  // instance order
+		beamWeights = hoaOrder.beamWeights(beamShape);
 
 		degreeSeries = Array.series(this.order+1, 1, 2);
 		norm = (degreeSeries * beamWeights).sum / degreeSeries.sum;
@@ -526,18 +526,18 @@ HoaMatrixEncoder : HoaMatrix {
 			norm = degreeSeries.sum / this.directions.size * norm
 		});
 
-        // build encoder matrix, and set for instance
-        matrix = norm * Matrix.with(
-            this.directions.collect({ |thetaPhi|
+		// build encoder matrix, and set for instance
+		matrix = norm * Matrix.with(
+			this.directions.collect({ |thetaPhi|
 				(1/beamWeights)[hoaOrder.l] * hoaOrder.sph(thetaPhi.at(0), thetaPhi.at(1));
-            }).flop
-        ).zeroWithin(AtkHoa.nearZero)
-    }
+			}).flop
+		).zeroWithin(AtkHoa.nearZero)
+	}
 
-    // ------------
+	// ------------
 	// Multi-pattern (modal)
 
-    initMode {  |beamShape, match| // modal encoder
+	initMode {  |beamShape, match| // modal encoder
 		var decodingMatrix;
 
 		// build decoder matrix
@@ -575,16 +575,16 @@ HoaMatrixEncoder : HoaMatrix {
 
 HoaMatrixXformer : HoaMatrix {
 
-    // ------------
-    // From matrix
+	// ------------
+	// From matrix
 
 	// overload HoaMatrix *newFromMatrix
 	*newFromMatrix { |matrix, order = (AtkHoa.defaultOrder)|
 		^super.new('fromMatrix', order).initDirections(nil).initFromMatrix(matrix)
 	}
 
-    // ------------
-    // Rotation
+	// ------------
+	// Rotation
 
 	*newRotate { |r1 = 0, r2 = 0, r3 = 0, axes = \xyz, order = (AtkHoa.defaultOrder)|
 		^super.new('rotate', order).initDirections.initRotation(r1, r2, r3, axes, order)
@@ -615,7 +615,7 @@ HoaMatrixXformer : HoaMatrix {
 	}
 
 	/// ------------
-    // Mirroring
+	// Mirroring
 
 	*newReflect { |mirror = \reflect, order = (AtkHoa.defaultOrder)|
 		^super.new('reflect', order).initDirections.initReflect(mirror);
@@ -629,35 +629,35 @@ HoaMatrixXformer : HoaMatrix {
 		^super.new('swap', order).initDirections.initSwapAxes(axes);
 	}
 
-    // ------------
-    // Beaming & nulling
+	// ------------
+	// Beaming & nulling
 
-    *newBeam { |theta = 0, phi = 0, beamShape = \basic, order = (AtkHoa.defaultOrder)|
+	*newBeam { |theta = 0, phi = 0, beamShape = \basic, order = (AtkHoa.defaultOrder)|
 		var directions = [[ theta, phi ]];
-        ^super.new('beam', order).initDirections(directions).initBeam(beamShape);
-    }
+		^super.new('beam', order).initDirections(directions).initBeam(beamShape);
+	}
 
-    *newNull { |theta = 0, phi = 0, beamShape = \basic, order = (AtkHoa.defaultOrder)|
+	*newNull { |theta = 0, phi = 0, beamShape = \basic, order = (AtkHoa.defaultOrder)|
 		var directions = [[theta, phi]];
-        ^super.new('null', order).initDirections(directions).initNull(beamShape);
-    }
+		^super.new('null', order).initDirections(directions).initNull(beamShape);
+	}
 
 	initRotation { |r1, r2, r3, convention|
 		matrix = HoaRotationMatrix(r1, r2, r3, convention, this.order).matrix.zeroWithin(AtkHoa.nearZero);
 	}
 
-    initReflect { |mirror|
-        var hoaOrder;
-        var coeffs;
+	initReflect { |mirror|
+		var hoaOrder;
+		var coeffs;
 
-        hoaOrder = this.order.asHoaOrder;  // instance order
+		hoaOrder = this.order.asHoaOrder;  // instance order
 
-        // 1) generate mirror coefficients - ordered \acn
-        coeffs = hoaOrder.reflection(mirror);
+		// 1) generate mirror coefficients - ordered \acn
+		coeffs = hoaOrder.reflection(mirror);
 
-        // 2) generate matrix
-        matrix = Matrix.newDiagonal(coeffs);
-    }
+		// 2) generate matrix
+		matrix = Matrix.newDiagonal(coeffs);
+	}
 
 	// NOTE: this contains near-zero values.
 	// You can optimize these out by calling Matrix:-zeroWithin
@@ -949,7 +949,7 @@ HoaMatrixXformer : HoaMatrix {
 		])
 	}
 
-    dim { ^3 }  // all transforms are 3D
+	dim { ^3 }  // all transforms are 3D
 
 }
 
@@ -989,9 +989,9 @@ HoaMatrixDecoder : HoaMatrix {
 	}
 
 	// Projection: Simple Ambisonic Decoding, aka SAD
-    *newProjection { |directions, beamShape = \basic, match = \amp, order = (AtkHoa.defaultOrder)|
+	*newProjection { |directions, beamShape = \basic, match = \amp, order = (AtkHoa.defaultOrder)|
 		^super.new('projection', order).initDirections(directions).initSAD(beamShape, match);
-    }
+	}
 
 	// Projection: Simple Ambisonic Decoding, aka SAD (convenience to match FOA: may wish to deprecate)
 	*newPanto { |numChans = 4, orientation = \flat, beamShape = \basic, match = \amp, order = (AtkHoa.defaultOrder)|
@@ -1000,9 +1000,9 @@ HoaMatrixDecoder : HoaMatrix {
 	}
 
 	// Mode Match: Mode Matched Decoding, aka Pseudoinverse
-    *newModeMatch { |directions, beamShape = \basic, match = \amp, order = (AtkHoa.defaultOrder)|
+	*newModeMatch { |directions, beamShape = \basic, match = \amp, order = (AtkHoa.defaultOrder)|
 		^super.new('modeMatch', order).initDirections(directions).initMMD(beamShape, match)
-    }
+	}
 
 	// Diametric: Mode Matched Decoding, aka Diametric Pseudoinverse
 	*newDiametric { |directions, beamShape = \basic, match = \amp, order = (AtkHoa.defaultOrder)|
@@ -1036,32 +1036,32 @@ HoaMatrixDecoder : HoaMatrix {
 		)
 	}
 
-    // *newFromFile { arg filePathOrName;
-    //     ^super.new.initFromFile(filePathOrName, 'decoder', true).initDecoderVarsForFiles;
-    // }
+	// *newFromFile { arg filePathOrName;
+	//     ^super.new.initFromFile(filePathOrName, 'decoder', true).initDecoderVarsForFiles;
+	// }
 
-    // ------------
-    // Basic
+	// ------------
+	// Basic
 
 	initBasic {  // basic beam decoder, beamShape = \basic, match = \beam
-        var hoaOrder;
+		var hoaOrder;
 		var degreeSeries, norm;
 
-        hoaOrder = this.order.asHoaOrder;  // instance order
+		hoaOrder = this.order.asHoaOrder;  // instance order
 
 		degreeSeries = Array.series(this.order+1, 1, 2);
 		norm = 1 / degreeSeries.sum;
 
-        // build decoder matrix, and set for instance
+		// build decoder matrix, and set for instance
 		// beamWeights = [ 1, 1, ..., 1 ]
-        matrix =  norm * Matrix.with(
-            this.directions.collect({ |thetaPhi|
-               hoaOrder.sph(thetaPhi.at(0), thetaPhi.at(1))
-            })
-        ).zeroWithin(AtkHoa.nearZero)
-    }
+		matrix =  norm * Matrix.with(
+			this.directions.collect({ |thetaPhi|
+			   hoaOrder.sph(thetaPhi.at(0), thetaPhi.at(1))
+			})
+		).zeroWithin(AtkHoa.nearZero)
+	}
 
-    // ------------
+	// ------------
 	// Multi-pattern (projection)
 
 	initBeam {  |beamShape, match| // beam decoder
@@ -1086,7 +1086,7 @@ HoaMatrixDecoder : HoaMatrix {
 		).zeroWithin(AtkHoa.nearZero)
 	}
 
-    // ------------
+	// ------------
 	// Projection: Simple Ambisonic Decoding, aka SAD
 
 	initSAD {  |beamShape, match| // sampling beam decoder, with matching gain
@@ -1168,7 +1168,7 @@ HoaMatrixDecoder : HoaMatrix {
 		matrix = decodingMatrix.zeroWithin(AtkHoa.nearZero)
 	}
 
-    // ------------
+	// ------------
 	// Mode Match: Mode Matched Decoding, aka Pseudoinverse
 
 	initMMD {  |beamShape, match|  // mode matching decoder, with matching gain

@@ -51,87 +51,87 @@
 // Hoa Degree Utilities
 
 HoaDegree {
-    var <degree;
+	var <degree;
 
-    *new { |degree|
-        ^super.newCopyArgs(degree)
-    }
+	*new { |degree|
+		^super.newCopyArgs(degree)
+	}
 
-    // ------------
-    // Return l, m
+	// ------------
+	// Return l, m
 
-    l {
-        ^Array.fill(2*(this.degree+1)-1, {this.degree})
-    }
+	l {
+		^Array.fill(2*(this.degree+1)-1, {this.degree})
+	}
 
-    m {
-        ^Array.series(2*(this.degree+1)-1, -1 * this.degree)
-    }
+	m {
+		^Array.series(2*(this.degree+1)-1, -1 * this.degree)
+	}
 
-    lm {
+	lm {
 		// Use List here instead of Array (temporary)
 		// added to force Collection::flop
 		// Array:flop uses primitive with has a GC bug:
 		// https://github.com/supercollider/supercollider/issues/3454
-        ^List.with(
-            this.l, // fill l
-            this.m  // fill m
-        ).flop.asArray
-    }
+		^List.with(
+			this.l, // fill l
+			this.m  // fill m
+		).flop.asArray
+	}
 
-    // ------------
-    // Return indices
+	// ------------
+	// Return indices
 
-    indices { |ordering = \acn, subset = \all|
-        (subset == \all).if({
-            // all
-            ^this.lm.collect({ |lm|
-                HoaLm.new(lm).index(ordering)
-            })
-        }, {
-            // subset
-            ^this.lm.collect({ |lm|
-                var hoaLm = HoaLm.new(lm);
-                hoaLm.isInSubset(subset).if({
-                    hoaLm.index(ordering)
-                })
-            }).removeEvery([nil])
-        })
-    }
+	indices { |ordering = \acn, subset = \all|
+		(subset == \all).if({
+			// all
+			^this.lm.collect({ |lm|
+				HoaLm.new(lm).index(ordering)
+			})
+		}, {
+			// subset
+			^this.lm.collect({ |lm|
+				var hoaLm = HoaLm.new(lm);
+				hoaLm.isInSubset(subset).if({
+					hoaLm.index(ordering)
+				})
+			}).removeEvery([nil])
+		})
+	}
 
-    startIndex {
-        ^this.degree.squared
-    }
+	startIndex {
+		^this.degree.squared
+	}
 
-    // ------------
-    // Return reflection coefficients
+	// ------------
+	// Return reflection coefficients
 
-    reflection { |mirror = \reflect|
-        ^this.lm.collect({ |lm|
-            HoaLm.new(lm).reflection(mirror)
-        })
-    }
+	reflection { |mirror = \reflect|
+		^this.lm.collect({ |lm|
+			HoaLm.new(lm).reflection(mirror)
+		})
+	}
 
-    // ------------
-    // Return normalisation coefficients
+	// ------------
+	// Return normalisation coefficients
 
-    normalisation { |scheme = \n3d|
-        ^this.lm.collect({ |lm|
-            HoaLm.new(lm).normalisation(scheme)
-        })
-    }
+	normalisation { |scheme = \n3d|
+		^this.lm.collect({ |lm|
+			HoaLm.new(lm).normalisation(scheme)
+		})
+	}
 
-    // ------------
-    // Return encoding coefficients
+	// ------------
+	// Return encoding coefficients
 
-    // N3D normalized coefficients
-    sph { |theta = 0.0, phi = 0.0|
-        ^this.lm.collect({ |lm|
-            HoaLm.new(lm).sph(theta, phi)
-        })
-    }
+	// N3D normalized coefficients
+	sph { |theta = 0.0, phi = 0.0|
+		^this.lm.collect({ |lm|
+			HoaLm.new(lm).sph(theta, phi)
+		})
+	}
 
 	size {
-        ^((2 * this.degree) + 1)
+		^((2 * this.degree) + 1)
 	}
 }

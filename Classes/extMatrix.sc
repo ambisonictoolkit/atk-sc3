@@ -1,7 +1,7 @@
 /*
 	Copyright the ATK Community and Joseph Anderson, 2011-2017
 		J Anderson	j.anderson[at]ambisonictoolkit.net
-        M McCrea    mtm5[at]uw.edu
+		M McCrea    mtm5[at]uw.edu
 
 	This file is part of SuperCollider3 version of the Ambisonic Toolkit (ATK).
 
@@ -48,18 +48,18 @@
 
 + Matrix {
 
-    // diagonal matrix - consider adding to Matrix Quark Extension
-    *newDiagonal { arg diagonal;
-        var matrix;
+	// diagonal matrix - consider adding to Matrix Quark Extension
+	*newDiagonal { arg diagonal;
+		var matrix;
 
-        matrix = Matrix.newClear(diagonal.size, diagonal.size);  // empty
-        diagonal.do({ arg item, i; matrix.put(i, i, item)});  // fill
-        diagonal.any({ arg item; item.isFloat }).if({  // test and recast to float
-            matrix = matrix.asFloat
-        });
+		matrix = Matrix.newClear(diagonal.size, diagonal.size);  // empty
+		diagonal.do({ arg item, i; matrix.put(i, i, item)});  // fill
+		diagonal.any({ arg item; item.isFloat }).if({  // test and recast to float
+			matrix = matrix.asFloat
+		});
 
-        ^matrix
-    }
+		^matrix
+	}
 
 	// TEMP (or submit to MathLib as PR) override Matrix:*with
 	// work around to avoid .flop.flop, which if called on Array, will expose
@@ -136,19 +136,19 @@
 		this.rowsDo({ |rArray, ri|
 			rArray.do({ |item, ci|
 				this.put(
-                    ri,
-                    ci,
-                    (item.abs <= within).if({
-                        item.isInteger.if({  // there could be more cases...
-                                0
-                            }, {
-                                0.0
-                            })
-                    }, {
-                        item
-                    })
-                )
-            })
+					ri,
+					ci,
+					(item.abs <= within).if({
+						item.isInteger.if({  // there could be more cases...
+								0
+							}, {
+								0.0
+							})
+					}, {
+						item
+					})
+				)
+			})
 		})
 	}
 

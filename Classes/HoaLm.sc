@@ -51,242 +51,242 @@
 // Hoa [l, m] Utilities
 
 HoaLm {
-    var <lm;
+	var <lm;
 
-    *new { |lm|
-        ^super.newCopyArgs(lm)
-    }
+	*new { |lm|
+		^super.newCopyArgs(lm)
+	}
 
-    *newIndex { |index, ordering = \acn|
-        var l, m;
+	*newIndex { |index, ordering = \acn|
+		var l, m;
 
-        switch (ordering,
-            \acn, {
-                l = (floor(sqrt(index))).asInt;
-                m = index - l.squared - l
-                ^this.new([l, m])
-            },
-            \sid, {
-                var m0, m1, bool;
-                l = index.sqrt.floor.asInt;
-                m0 = (((l + 1).squared - (index + 1)) / 2).floor.asInt;
-                m1 = -1 * (((l + 1).squared - index) / 2).floor.asInt;
-                bool = (m0 == m1.abs);
-                m = (m0 * bool.asInt) + (m1 * bool.not.asInt);
-                ^this.new([l, m])
-            },
-            \fuma, {
-                l = index.sqrt.floor.asInt;
+		switch (ordering,
+			\acn, {
+				l = (floor(sqrt(index))).asInt;
+				m = index - l.squared - l
+				^this.new([l, m])
+			},
+			\sid, {
+				var m0, m1, bool;
+				l = index.sqrt.floor.asInt;
+				m0 = (((l + 1).squared - (index + 1)) / 2).floor.asInt;
+				m1 = -1 * (((l + 1).squared - index) / 2).floor.asInt;
+				bool = (m0 == m1.abs);
+				m = (m0 * bool.asInt) + (m1 * bool.not.asInt);
+				^this.new([l, m])
+			},
+			\fuma, {
+				l = index.sqrt.floor.asInt;
 
-                ^(l<=1).if({
-                    this.newIndex(index, \sid)
-                }, {
-                    var m, m0, m1, bool;
+				^(l<=1).if({
+					this.newIndex(index, \sid)
+				}, {
+					var m, m0, m1, bool;
 
-                    m0 = -1 * ((index - l.squared) / 2).floor.asInt;
-                    m1 = ((index +1 - l.squared) / 2).floor.asInt;
+					m0 = -1 * ((index - l.squared) / 2).floor.asInt;
+					m1 = ((index +1 - l.squared) / 2).floor.asInt;
 
-                    bool = (m1 == m0.abs);
-                    m = (m0 * bool.asInt) + (m1 * bool.not.asInt);
+					bool = (m1 == m0.abs);
+					m = (m0 * bool.asInt) + (m1 * bool.not.asInt);
 
-                    this.new([l, m])
-                })
-            },
-        )
-    }
+					this.new([l, m])
+				})
+			},
+		)
+	}
 
 
-    // ------------
-    // Return l, m
+	// ------------
+	// Return l, m
 
-    l {
-        ^this.lm.at(0);
-    }
+	l {
+		^this.lm.at(0);
+	}
 
-    m {
-        ^this.lm.at(1);
-    }
+	m {
+		^this.lm.at(1);
+	}
 
-    // ------------
-    // Return indices
+	// ------------
+	// Return indices
 
-    index { |ordering = \acn|
-        var l, m;
-        #l, m = this.lm;
+	index { |ordering = \acn|
+		var l, m;
+		#l, m = this.lm;
 
-        switch (ordering,
-            \acn, {
-                ^l.squared + l + m
-            },
-            \sid, {
+		switch (ordering,
+			\acn, {
+				^l.squared + l + m
+			},
+			\sid, {
 				^((l**2 + (2 * (l - m.abs))) - m.sign.clip(-1, 0)).asInteger
-            },
-            \fuma, {
-                ^(l <= 1).if ({
-                    this.index(\sid)
-                }, {
+			},
+			\fuma, {
+				^(l <= 1).if ({
+					this.index(\sid)
+				}, {
 					((l.squared + (2 * m.abs)) - m.sign.clip(0, 1)).asInteger;
-                })
-            }
-        )
-    }
+				})
+			}
+		)
+	}
 
-    // ------------
-    // Test sub-group membership
+	// ------------
+	// Test sub-group membership
 
-    isInSubset { |subset = \zonal|
-        var l, m;
-        #l, m = this.lm;
+	isInSubset { |subset = \zonal|
+		var l, m;
+		#l, m = this.lm;
 
-        switch (subset,
-            \zonal, {
-                ^(m == 0)
-            },
-            \sectoral, {
-                ^(m.abs == l)
-            },
-            \tesseral, {
-                ^((m != 0) && (m.abs != l))
-            },
-            \rotate, {  // rotate around z-axis, aka yaw
-                ^(m != 0)
-            },
-        )
-    }
+		switch (subset,
+			\zonal, {
+				^(m == 0)
+			},
+			\sectoral, {
+				^(m.abs == l)
+			},
+			\tesseral, {
+				^((m != 0) && (m.abs != l))
+			},
+			\rotate, {  // rotate around z-axis, aka yaw
+				^(m != 0)
+			},
+		)
+	}
 
-    // ------------
-    // Return reflection coefficients
+	// ------------
+	// Return reflection coefficients
 
-    reflection { |mirror = \reflect|
-        var l, m;
-        #l, m = this.lm;
+	reflection { |mirror = \reflect|
+		var l, m;
+		#l, m = this.lm;
 
-        switch (mirror,
-            \reflect, {  // reflect - mirror across origin - flip * flop * flap
-                ^l.odd.if({-1.0}, {1.0});
-            },
-            \flip, {  // flip - mirror across y-axis
-                ^(m < 0).if({-1.0}, {1.0})
-            },
-            \flop, {  // flop - mirror across x-axis
-                ^((m < 0 && m.even) || (m > 0 && m.odd)).if({-1.0}, {1.0})
-            },
-            \flap, {  // flap - mirror across z-axis
-                ^(m + l).odd.if({-1.0}, {1.0})
-            },
-            \CondonShortleyPhase, {  // Condon-Shortley Phase - flip * flop
-                ^m.odd.if({-1.0}, {1.0});
-            },
-            \origin, {
-                ^this.reflection(\reflect)
-            },
-            \x, {
-                ^this.reflection(\flop)
-            },
-            \y, {
-                ^this.reflection(\flip)
-            },
-            \z, {
-                ^this.reflection(\flap)
-            },
-        )
-    }
+		switch (mirror,
+			\reflect, {  // reflect - mirror across origin - flip * flop * flap
+				^l.odd.if({-1.0}, {1.0});
+			},
+			\flip, {  // flip - mirror across y-axis
+				^(m < 0).if({-1.0}, {1.0})
+			},
+			\flop, {  // flop - mirror across x-axis
+				^((m < 0 && m.even) || (m > 0 && m.odd)).if({-1.0}, {1.0})
+			},
+			\flap, {  // flap - mirror across z-axis
+				^(m + l).odd.if({-1.0}, {1.0})
+			},
+			\CondonShortleyPhase, {  // Condon-Shortley Phase - flip * flop
+				^m.odd.if({-1.0}, {1.0});
+			},
+			\origin, {
+				^this.reflection(\reflect)
+			},
+			\x, {
+				^this.reflection(\flop)
+			},
+			\y, {
+				^this.reflection(\flip)
+			},
+			\z, {
+				^this.reflection(\flap)
+			},
+		)
+	}
 
-    // ------------
-    // Return normalisation coefficients
+	// ------------
+	// Return normalisation coefficients
 
-    normalisation { |scheme = \n3d|
-        var l, m;
-        #l, m = this.lm;
+	normalisation { |scheme = \n3d|
+		var l, m;
+		#l, m = this.lm;
 
-        switch (scheme,
-            \n3d, {
-                ^sqrt((2*l) + 1) * this.normalisation(\sn3d)
-            },
-            \sn3d, {
-                var dm, mabs;
-                dm = (m==0).asInt;
-                mabs = m.abs;
-                ^sqrt(
-                    (2 - dm) * (
-                        (l - mabs).asFloat.factorial / (l + mabs).asFloat.factorial
-                    )
-                )
-            },
-            \n2d, {
-                ^sqrt(
-                    2.pow(2*l) * l.asFloat.factorial.pow(2) / ((2*l) + 1).asFloat.factorial
-                ) * this.normalisation(\n3d)
-            },
-            \sn2d, {
-                var lne0;
-                lne0 = (l>0).asInt;
-                ^2.pow(-0.5 * lne0) * this.normalisation(\n2d)
-            },
-            \maxN, {
-                var twoDivSqrt3, sqrt45_32, threeDivSqrt5, sqrt8_5;
-                var norms;
-                twoDivSqrt3 = 2/3.sqrt;
-                sqrt45_32 = (45/32).sqrt;
-                threeDivSqrt5 = 3/5.sqrt;
-                sqrt8_5 = (8/5).sqrt;
+		switch (scheme,
+			\n3d, {
+				^sqrt((2*l) + 1) * this.normalisation(\sn3d)
+			},
+			\sn3d, {
+				var dm, mabs;
+				dm = (m==0).asInt;
+				mabs = m.abs;
+				^sqrt(
+					(2 - dm) * (
+						(l - mabs).asFloat.factorial / (l + mabs).asFloat.factorial
+					)
+				)
+			},
+			\n2d, {
+				^sqrt(
+					2.pow(2*l) * l.asFloat.factorial.pow(2) / ((2*l) + 1).asFloat.factorial
+				) * this.normalisation(\n3d)
+			},
+			\sn2d, {
+				var lne0;
+				lne0 = (l>0).asInt;
+				^2.pow(-0.5 * lne0) * this.normalisation(\n2d)
+			},
+			\maxN, {
+				var twoDivSqrt3, sqrt45_32, threeDivSqrt5, sqrt8_5;
+				var norms;
+				twoDivSqrt3 = 2/3.sqrt;
+				sqrt45_32 = (45/32).sqrt;
+				threeDivSqrt5 = 3/5.sqrt;
+				sqrt8_5 = (8/5).sqrt;
 
-                // scaling to convert from SN3D to maxN
-                // indexed by ACN
-                norms = [
-                    1.0,  // W
-                    1.0, 1.0, 1.0,  // Y, Z, X
-                    twoDivSqrt3, twoDivSqrt3, 1.0, twoDivSqrt3, twoDivSqrt3,  // V, T, R, S, U
-                    sqrt8_5, threeDivSqrt5, sqrt45_32, 1, sqrt45_32, threeDivSqrt5, sqrt8_5  // Q, O, M, K, L, N, P
-                ];
+				// scaling to convert from SN3D to maxN
+				// indexed by ACN
+				norms = [
+					1.0,  // W
+					1.0, 1.0, 1.0,  // Y, Z, X
+					twoDivSqrt3, twoDivSqrt3, 1.0, twoDivSqrt3, twoDivSqrt3,  // V, T, R, S, U
+					sqrt8_5, threeDivSqrt5, sqrt45_32, 1, sqrt45_32, threeDivSqrt5, sqrt8_5  // Q, O, M, K, L, N, P
+				];
 
-                ^norms[this.index(\acn)] * this.normalisation(\sn3d)
-            },
-            \MaxN, {
-                ^(this.index(\acn) == 0).if({
-                    2.sqrt.reciprocal  // W
-                }, {
-                    this.normalisation(\maxN)
-                })
-            },
-            \fuma, {
-                ^this.normalisation(\MaxN)
-            },
-        )
-    }
+				^norms[this.index(\acn)] * this.normalisation(\sn3d)
+			},
+			\MaxN, {
+				^(this.index(\acn) == 0).if({
+					2.sqrt.reciprocal  // W
+				}, {
+					this.normalisation(\maxN)
+				})
+			},
+			\fuma, {
+				^this.normalisation(\MaxN)
+			},
+		)
+	}
 
 
-    // ------------
-    // Return encoding coefficients
+	// ------------
+	// Return encoding coefficients
 
-    // N3D normalized coefficient
-    sph { |theta = 0.0, phi = 0.0|
-        var l, m, mabs;
-        var res;
+	// N3D normalized coefficient
+	sph { |theta = 0.0, phi = 0.0|
+		var l, m, mabs;
+		var res;
 
-        #l, m = this.lm;
-        mabs = m.abs;
+		#l, m = this.lm;
+		mabs = m.abs;
 
-        // remap phi
-        phi = pi/2 - phi;
+		// remap phi
+		phi = pi/2 - phi;
 
-        // evaluate spherical harmonic
-        case
-        { m < 0 } { res = 2.sqrt * sphericalHarmonicI(l, mabs, phi, theta) }  // imag
-        { m == 0 } { res = sphericalHarmonicR(l, mabs, phi, theta) }          // real
-        { m > 0 } { res = 2.sqrt * sphericalHarmonicR(l, mabs, phi, theta) }; // real
+		// evaluate spherical harmonic
+		case
+		{ m < 0 } { res = 2.sqrt * sphericalHarmonicI(l, mabs, phi, theta) }  // imag
+		{ m == 0 } { res = sphericalHarmonicR(l, mabs, phi, theta) }          // real
+		{ m > 0 } { res = 2.sqrt * sphericalHarmonicR(l, mabs, phi, theta) }; // real
 
-        // remove Condon-Shortley phase
-        res = this.reflection(\CondonShortleyPhase) * res;
+		// remove Condon-Shortley phase
+		res = this.reflection(\CondonShortleyPhase) * res;
 
-        // normalize (l, m) = (0, 0) to 1
-        res = 4pi.sqrt * res;
+		// normalize (l, m) = (0, 0) to 1
+		res = 4pi.sqrt * res;
 
-        // return
-        ^res
-    }
+		// return
+		^res
+	}
 
-    size {
-        ^1
+	size {
+		^1
 	}
 }

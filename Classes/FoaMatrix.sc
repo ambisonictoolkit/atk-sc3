@@ -735,7 +735,7 @@ FoaDecoderMatrix : FoaMatrix {
 		].flop;
 
 
-	    // prepare output channel (speaker) directions for instance
+		// prepare output channel (speaker) directions for instance
 		upDirs = (directions + pi).mod(2pi) - pi;
 
 		downDirs = upDirs.collect({ arg angles;
@@ -773,8 +773,8 @@ FoaDecoderMatrix : FoaMatrix {
 
 		var g0, g1, g2;
 
-	    // set output channel (speaker) directions for instance
-	    dirChannels = [ angle, pi - angle, (pi - angle).neg, angle.neg ];
+		// set output channel (speaker) directions for instance
+		dirChannels = [ angle, pi - angle, (pi - angle).neg, angle.neg ];
 
 
 		// initialise k
@@ -786,20 +786,20 @@ FoaDecoderMatrix : FoaMatrix {
 		g2	= k / (2.sqrt * angle.sin);
 
 		// build decoder matrix
-	    matrix = 2.sqrt/4 * Matrix.with([
-	    		[ g0, g1, 	g2 		],
-	        	[ g0, g1.neg, g2 		],
-	        	[ g0, g1.neg, g2.neg	],
-	        	[ g0, g1, 	g2.neg	]
-	    ])
+		matrix = 2.sqrt/4 * Matrix.with([
+				[ g0, g1, 	g2 		],
+				[ g0, g1.neg, g2 		],
+				[ g0, g1.neg, g2.neg	],
+				[ g0, g1, 	g2.neg	]
+		])
 	}
 
 	initStereo { arg angle, pattern;
 
 		var g0, g1, g2;
 
-	    // set output channel (speaker) directions for instance
-	    dirChannels = [ pi/6, pi.neg/6 ];
+		// set output channel (speaker) directions for instance
+		dirChannels = [ pi/6, pi.neg/6 ];
 
 		// calculate g0, g1, g2 (scaled by pattern)
 		g0	= (1.0 - pattern) * 2.sqrt;
@@ -807,26 +807,26 @@ FoaDecoderMatrix : FoaMatrix {
 		g2	= pattern * angle.sin;
 
 		// build decoder matrix, and set for instance
-	    matrix = Matrix.with([
-	    		[ g0, g1, g2		],
-	        	[ g0, g1, g2.neg	]
-	    ])
+		matrix = Matrix.with([
+				[ g0, g1, g2		],
+				[ g0, g1, g2.neg	]
+		])
 	}
 
 	initMono { arg theta, phi, pattern;
 
-	    // set output channel (speaker) directions for instance
-	    dirChannels = [ 0 ];
+		// set output channel (speaker) directions for instance
+		dirChannels = [ 0 ];
 
 		// build decoder matrix, and set for instance
-	    matrix = Matrix.with([
-	    		[
-	    			(1.0 - pattern) * 2.sqrt,
-	    			pattern * theta.cos * phi.cos,
-	    			pattern * theta.sin * phi.cos,
-	    			pattern * phi.sin
-	    		]
-	    ])
+		matrix = Matrix.with([
+				[
+					(1.0 - pattern) * 2.sqrt,
+					pattern * theta.cos * phi.cos,
+					pattern * theta.sin * phi.cos,
+					pattern * phi.sin
+				]
+		])
 	}
 
 	initDecoderVarsForFiles {
@@ -1025,30 +1025,30 @@ FoaEncoderMatrix : FoaMatrix {
 
 	initDirection { arg theta, phi;
 
-	    // set input channel directions for instance
-	    (phi == 0).if (
-		    {
+		// set input channel directions for instance
+		(phi == 0).if (
+			{
 				dirChannels = [ theta ];
-    				this.init2D
+					this.init2D
 			}, {
-	    			dirChannels = [ [theta, phi] ];
-    				this.init3D
+					dirChannels = [ [theta, phi] ];
+					this.init3D
 			}
 		)
 	}
 
 	initStereo { arg angle;
 
-	    // set input channel directions for instance
-	    dirChannels = [ pi/2 - angle, (pi/2 - angle).neg ];
+		// set input channel directions for instance
+		dirChannels = [ pi/2 - angle, (pi/2 - angle).neg ];
 
-	    this.init2D
+		this.init2D
 	}
 
 	initDirections { arg directions, pattern;
 
-	    // set input channel directions for instance
-	    dirChannels = directions;
+		// set input channel directions for instance
+		dirChannels = directions;
 
 		switch (directions.rank,					// 2D or 3D?
 			1, {									// 2D
@@ -1081,7 +1081,7 @@ FoaEncoderMatrix : FoaMatrix {
 		});
 		theta = (theta + pi).mod(2pi) - pi;
 
-	    // set input channel directions for instance
+		// set input channel directions for instance
 		dirChannels = theta;
 
 		this.init2D
@@ -1108,7 +1108,7 @@ FoaEncoderMatrix : FoaMatrix {
 		].flop;
 
 
-	    // prepare output channel (speaker) directions for instance
+		// prepare output channel (speaker) directions for instance
 		upDirs = (directions + pi).mod(2pi) - pi;
 
 		downDirs = upDirs.collect({ arg angles;
@@ -1124,7 +1124,7 @@ FoaEncoderMatrix : FoaMatrix {
 			}
 		);
 
-	    // set input channel directions for instance
+		// set input channel directions for instance
 		dirChannels = upDirs ++ downDirs;
 
 		this.init3D
@@ -1132,8 +1132,8 @@ FoaEncoderMatrix : FoaMatrix {
 
 	initZoomH2 { arg angles, pattern, k;
 
-	    // set input channel directions for instance
-	    dirChannels = [ angles.at(0), angles.at(0).neg, angles.at(1), angles.at(1).neg ];
+		// set input channel directions for instance
+		dirChannels = [ angles.at(0), angles.at(0).neg, angles.at(1), angles.at(1).neg ];
 
 		this.initInv2D(pattern);
 
@@ -1162,8 +1162,8 @@ FoaEncoderMatrix : FoaMatrix {
 
 FoaXformerMatrix : FoaMatrix {
 
-    // ------------
-    // From matrix
+	// ------------
+	// From matrix
 
 	// overload FoaMatrix *newFromMatrix
 	*newFromMatrix { |matrix|

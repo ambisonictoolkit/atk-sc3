@@ -1,5 +1,5 @@
 AtkHoa {
-    classvar <speedOfSound, <refRadius;
+	classvar <speedOfSound, <refRadius;
 	classvar <nearZero;
 	classvar <defaultOrder;
 	classvar <formatDict;
@@ -67,19 +67,19 @@ AtkHoa {
 		^orderAsInteger
 	}
 
-    // testing / confirmation
+	// testing / confirmation
 
-    // full 3D only
-    *detectOrder { |size|
-        var squareOf = size.squareOf;
-        (squareOf == nil).if({
-            "Could not detect order from % coefficients".format(size).throw
-        }, {
-            ^(squareOf - 1)
-        });
-    }
+	// full 3D only
+	*detectOrder { |size|
+		var squareOf = size.squareOf;
+		(squareOf == nil).if({
+			"Could not detect order from % coefficients".format(size).throw
+		}, {
+			^(squareOf - 1)
+		});
+	}
 
-    *confirmOrder { |size, order = (AtkHoa.defaultOrder)|
-        ^(this.detectOrder(size) == order)
-    }
+	*confirmOrder { |size, order = (AtkHoa.defaultOrder)|
+		^(this.detectOrder(size) == order)
+	}
 }

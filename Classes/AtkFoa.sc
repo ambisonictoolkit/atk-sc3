@@ -1,5 +1,5 @@
 AtkFoa {
-    classvar <refRadius;
+	classvar <refRadius;
 	classvar <defaultOrder;
 	classvar format;
 

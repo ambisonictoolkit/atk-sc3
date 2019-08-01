@@ -1,7 +1,7 @@
 /*
 	Copyright the ATK Community and Joseph Anderson, 2011-2017
 		J Anderson	j.anderson[at]ambisonictoolkit.net
-        M McCrea    mtm5[at]uw.edu
+		M McCrea    mtm5[at]uw.edu
 
 	This file is part of SuperCollider3 version of the Ambisonic Toolkit (ATK).
 
@@ -48,16 +48,16 @@
 
 + Polynomial {
 
-    // Reverse Bessel polynomial - consider adding to Polynomial Quark Extension
-    *newReverseBessel { |degree|
-        var n = degree;
-        var coeffs;
+	// Reverse Bessel polynomial - consider adding to Polynomial Quark Extension
+	*newReverseBessel { |degree|
+		var n = degree;
+		var coeffs;
 
-        coeffs = (n+1).collect({ arg k;
-            ((2*n) - k).asFloat.factorial / (pow(2, n-k)*k.asFloat.factorial*(n-k).asFloat.factorial)
-        });
+		coeffs = (n+1).collect({ arg k;
+			((2*n) - k).asFloat.factorial / (pow(2, n-k)*k.asFloat.factorial*(n-k).asFloat.factorial)
+		});
 
-        ^this.newFrom(coeffs)
-    }
+		^this.newFrom(coeffs)
+	}
 
 }

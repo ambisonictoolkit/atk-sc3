@@ -279,69 +279,69 @@ HoaRotationMatrix {
 
 	/* Functions to compute terms U, V, W of Eq.8.1 (Table II) in Ivanic, J., Ruedenberg, K. (1998) */
 
-    //  Function U
-    prU { |l, m, n, r_1, r_lm1|
-        ^this.prP(0, l, m, n, r_1, r_lm1);
-    }
+	//  Function U
+	prU { |l, m, n, r_1, r_lm1|
+		^this.prP(0, l, m, n, r_1, r_lm1);
+	}
 
-    //  Function V
-    prV { |l, m, n, r_1, r_lm1|
-        var p0, p1, d;
+	//  Function V
+	prV { |l, m, n, r_1, r_lm1|
+		var p0, p1, d;
 
-        ^if (m == 0) {
-            p0 = this.prP(1, l, 1, n, r_1, r_lm1);
-            p1 = this.prP(-1, l, -1, n, r_1, r_lm1);
-            p0+p1; // return
-        } {
-            if (m > 0) {
-                d = (m == 1).asInt;
-                p0 = this.prP(1, l, m-1, n, r_1, r_lm1);
-                p1 = this.prP(-1, l, m.neg+1, n, r_1, r_lm1);
-                (p0*sqrt(1+d)) - (p1*(1-d)); // return
-            } {
-                d = (m == -1).asInt;
-                p0 = this.prP(1, l, m+1, n, r_1, r_lm1);
-                p1 = this.prP(-1, l, m.neg-1, n, r_1, r_lm1);
-                (p0*(1-d)) + (p1*sqrt(1+d)); // return
-            }
-        }
-    }
+		^if (m == 0) {
+			p0 = this.prP(1, l, 1, n, r_1, r_lm1);
+			p1 = this.prP(-1, l, -1, n, r_1, r_lm1);
+			p0+p1; // return
+		} {
+			if (m > 0) {
+				d = (m == 1).asInt;
+				p0 = this.prP(1, l, m-1, n, r_1, r_lm1);
+				p1 = this.prP(-1, l, m.neg+1, n, r_1, r_lm1);
+				(p0*sqrt(1+d)) - (p1*(1-d)); // return
+			} {
+				d = (m == -1).asInt;
+				p0 = this.prP(1, l, m+1, n, r_1, r_lm1);
+				p1 = this.prP(-1, l, m.neg-1, n, r_1, r_lm1);
+				(p0*(1-d)) + (p1*sqrt(1+d)); // return
+			}
+		}
+	}
 
-    //  Function W
-    prW { |l, m, n, r_1, r_lm1|
-        var p0, p1;
+	//  Function W
+	prW { |l, m, n, r_1, r_lm1|
+		var p0, p1;
 
-        if (m == 0) {"HoaRotationMatrix:prW should not be called with m = 0".throw};
+		if (m == 0) {"HoaRotationMatrix:prW should not be called with m = 0".throw};
 
-        ^if (m > 0) {
-            p0 = this.prP(1, l, m+1, n, r_1, r_lm1);
-            p1 = this.prP(-1, l, m.neg-1, n, r_1, r_lm1);
-            p0 + p1; // return
-        } {
-            p0 = this.prP( 1, l, m-1, n, r_1, r_lm1);
-            p1 = this.prP(-1, l, m.neg+1,n, r_1, r_lm1);
-            p0 - p1; // return
-        }
-    }
+		^if (m > 0) {
+			p0 = this.prP(1, l, m+1, n, r_1, r_lm1);
+			p1 = this.prP(-1, l, m.neg-1, n, r_1, r_lm1);
+			p0 + p1; // return
+		} {
+			p0 = this.prP( 1, l, m-1, n, r_1, r_lm1);
+			p1 = this.prP(-1, l, m.neg+1,n, r_1, r_lm1);
+			p0 - p1; // return
+		}
+	}
 
-    //  Function P
-    prP { |i, l, a, b, r_1, r_lm1|
-        var ri1, rim1, ri0;
+	//  Function P
+	prP { |i, l, a, b, r_1, r_lm1|
+		var ri1, rim1, ri0;
 
-        ri1 = r_1.at(i+1, 2);
-        rim1 = r_1.at(i+1, 0);
-        ri0 = r_1.at(i+1, 1);
+		ri1 = r_1.at(i+1, 2);
+		rim1 = r_1.at(i+1, 0);
+		ri0 = r_1.at(i+1, 1);
 
-        ^if (b == l.neg) {
-            (ri1 * r_lm1.at(a+l-1, 0)) + (rim1 * r_lm1.at(a+l-1, 2*l-2));
-        } {
-            if (b == l) {
-                (ri1 * r_lm1.at(a+l-1, 2*l-2)) - (rim1 * r_lm1.at(a+l-1, 0));
-            } {
-                ri0 * r_lm1.at(a+l-1, b+l-1);
-            }
-        }
-    }
+		^if (b == l.neg) {
+			(ri1 * r_lm1.at(a+l-1, 0)) + (rim1 * r_lm1.at(a+l-1, 2*l-2));
+		} {
+			if (b == l) {
+				(ri1 * r_lm1.at(a+l-1, 2*l-2)) - (rim1 * r_lm1.at(a+l-1, 0));
+			} {
+				ri0 * r_lm1.at(a+l-1, b+l-1);
+			}
+		}
+	}
 
 
 	// Build a rotation matrix of complex SH from that of the real SH

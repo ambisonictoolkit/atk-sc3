@@ -222,8 +222,8 @@ AtkMatrix {
 	numOutputs { ^matrix.rows }
 
 	printOn { |stream|
-        stream << this.class.name << "(" <<* [kind, this.dim, this.numChannels] <<")";
-    }
+		stream << this.class.name << "(" <<* [kind, this.dim, this.numChannels] <<")";
+	}
 
 	// post readable matrix information
 	info {

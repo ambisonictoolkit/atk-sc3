@@ -51,279 +51,279 @@
 // NFE - Near-field Effect, coefficients
 
 NFECoeffs {
-    var <degree, <reX, <absX, <numSOS, <numFOS;
+	var <degree, <reX, <absX, <numSOS, <numFOS;
 
-    *new { |degree|
-        ^super.newCopyArgs(degree).init
-    }
+	*new { |degree|
+		^super.newCopyArgs(degree).init
+	}
 
-    init {
-        var m = this.degree;
-        var method = \eigenvalue;
-        var bpr;
+	init {
+		var m = this.degree;
+		var method = \eigenvalue;
+		var bpr;
 
-        // Bessel Polynomial Zeros
-        bpr = Polynomial.newReverseBessel(m).findRoots(method);
-        bpr = bpr.sort.reverse;  // sorted so real is at end
+		// Bessel Polynomial Zeros
+		bpr = Polynomial.newReverseBessel(m).findRoots(method);
+		bpr = bpr.sort.reverse;  // sorted so real is at end
 
-        // extract Re(X) & |X|, e.g., Bessel Polynomial Factors
+		// extract Re(X) & |X|, e.g., Bessel Polynomial Factors
 
-        // average of real
-        reX = ((m/2).asInteger).collect({ |q|
-            (bpr.at(2*q).real + bpr.at(2*q+1).real) / 2
-        });
+		// average of real
+		reX = ((m/2).asInteger).collect({ |q|
+			(bpr.at(2*q).real + bpr.at(2*q+1).real) / 2
+		});
 
-        // average of magnitude
-        absX = ((m/2).asInteger).collect({ |q|
-            (bpr.at(2*q).abs + bpr.at(2*q+1).abs) / 2
-        });
+		// average of magnitude
+		absX = ((m/2).asInteger).collect({ |q|
+			(bpr.at(2*q).abs + bpr.at(2*q+1).abs) / 2
+		});
 
-        // odd degree?
-        m.odd.if({
-            reX = reX ++ Array.with(bpr.last.real);
-        });
+		// odd degree?
+		m.odd.if({
+			reX = reX ++ Array.with(bpr.last.real);
+		});
 
-        // set number of SOS & FOS
-        numSOS = absX.size;
-        numFOS = reX.size - numSOS;
-    }
+		// set number of SOS & FOS
+		numSOS = absX.size;
+		numFOS = reX.size - numSOS;
+	}
 
-    prox { |radius, sampleRate, speedOfSound = (AtkHoa.speedOfSound)|
+	prox { |radius, sampleRate, speedOfSound = (AtkHoa.speedOfSound)|
 		var r0 = radius;
-        var mOdd;
-        var alpha;
-        var coeffs, g;
-        var coeffsSOS, coeffsFOS;
+		var mOdd;
+		var alpha;
+		var coeffs, g;
+		var coeffsSOS, coeffsFOS;
 
-        mOdd = this.degree.odd;
+		mOdd = this.degree.odd;
 
-        alpha = 2*sampleRate*r0/speedOfSound;
+		alpha = 2*sampleRate*r0/speedOfSound;
 
-        coeffs = numSOS.collect({ |q|
-            var c1, c2;
+		coeffs = numSOS.collect({ |q|
+			var c1, c2;
 
-            c1 = this.reX.at(q)/alpha;
-            c2 = (this.absX.at(q)/alpha).squared;
+			c1 = this.reX.at(q)/alpha;
+			c2 = (this.absX.at(q)/alpha).squared;
 
-            [
-                // numerator
-                1 - (2*c1) + c2,
-                -2*(1 - c2),
-                1 + (2*c1) + c2,
-                // denominator
-                1, -2, 1
-            ]
-        });
+			[
+				// numerator
+				1 - (2*c1) + c2,
+				-2*(1 - c2),
+				1 + (2*c1) + c2,
+				// denominator
+				1, -2, 1
+			]
+		});
 
-        // odd degree? - add coeffs for FOS
-        mOdd.if({
-            var c1;
-            c1 = this.reX.last/alpha;
+		// odd degree? - add coeffs for FOS
+		mOdd.if({
+			var c1;
+			c1 = this.reX.last/alpha;
 
-            coeffs = coeffs ++ [
-                [
-                    // numerator
-                    1 - c1,
-                    -1*(1 + c1),
-                    0,
-                    // denominator
-                    1, -1, 0
-                ]
-            ]
-        });
+			coeffs = coeffs ++ [
+				[
+					// numerator
+					1 - c1,
+					-1*(1 + c1),
+					0,
+					// denominator
+					1, -1, 0
+				]
+			]
+		});
 
-        // factor down to simple SOS & FOS coeffs + gain
-        g = 1.0;
+		// factor down to simple SOS & FOS coeffs + gain
+		g = 1.0;
 
-        (this.numSOS + this.numFOS).do({ |q|
-            var g0;
+		(this.numSOS + this.numFOS).do({ |q|
+			var g0;
 
-            g0 = coeffs.at(q).at(0);
-            coeffs.put(q,
-                (coeffs.at(q).copyRange(0, 2) / g0) ++ coeffs.at(q).copyRange(3, 5)
-            );
-            g = g0 * g
-        });
+			g0 = coeffs.at(q).at(0);
+			coeffs.put(q,
+				(coeffs.at(q).copyRange(0, 2) / g0) ++ coeffs.at(q).copyRange(3, 5)
+			);
+			g = g0 * g
+		});
 
-        // parse coeffs into form usable by SOS & FOS UGens
-        // NOTE: this could happen in the coefficient generation, above
-        coeffsSOS = this.numSOS.collect({ |q|
-            coeffs.at(q).copyRange(0, 2) ++ (-1 * coeffs.at(q).copyRange(4, 5))
-        });
+		// parse coeffs into form usable by SOS & FOS UGens
+		// NOTE: this could happen in the coefficient generation, above
+		coeffsSOS = this.numSOS.collect({ |q|
+			coeffs.at(q).copyRange(0, 2) ++ (-1 * coeffs.at(q).copyRange(4, 5))
+		});
 
-        // odd degree? - add coeffs for FOS
-        mOdd.if({
-            coeffsFOS = [
-                coeffs.last.copyRange(0, 1) ++ (-1 * [coeffs.last.at(4)])
-            ]
-        });
+		// odd degree? - add coeffs for FOS
+		mOdd.if({
+			coeffsFOS = [
+				coeffs.last.copyRange(0, 1) ++ (-1 * [coeffs.last.at(4)])
+			]
+		});
 
-        ^Dictionary.with(*[\sos->coeffsSOS, \fos->coeffsFOS, \g->g])
-    }
+		^Dictionary.with(*[\sos->coeffsSOS, \fos->coeffsFOS, \g->g])
+	}
 
-    dist { |radius, sampleRate, speedOfSound = (AtkHoa.speedOfSound)|
+	dist { |radius, sampleRate, speedOfSound = (AtkHoa.speedOfSound)|
 		var r1 = radius;
-        var mOdd;
-        var alpha;
-        var coeffs, g;
-        var coeffsSOS, coeffsFOS;
+		var mOdd;
+		var alpha;
+		var coeffs, g;
+		var coeffsSOS, coeffsFOS;
 
-        mOdd = this.degree.odd;
+		mOdd = this.degree.odd;
 
-        alpha = 2*sampleRate*r1/speedOfSound;
+		alpha = 2*sampleRate*r1/speedOfSound;
 
-        coeffs = numSOS.collect({ |q|
-            var c1, c2;
+		coeffs = numSOS.collect({ |q|
+			var c1, c2;
 
-            c1 = this.reX.at(q)/alpha;
-            c2 = (this.absX.at(q)/alpha).squared;
+			c1 = this.reX.at(q)/alpha;
+			c2 = (this.absX.at(q)/alpha).squared;
 
-            [
-                // numerator
-                1, -2, 1,
-                // denominator
-                1 - (2*c1) + c2,
-                -2*(1 - c2),
-                1 + (2*c1) + c2
-            ]
-        });
+			[
+				// numerator
+				1, -2, 1,
+				// denominator
+				1 - (2*c1) + c2,
+				-2*(1 - c2),
+				1 + (2*c1) + c2
+			]
+		});
 
-        // odd degree? - add coeffs for FOS
-        mOdd.if({
-            var c1;
-            c1 = this.reX.last/alpha;
+		// odd degree? - add coeffs for FOS
+		mOdd.if({
+			var c1;
+			c1 = this.reX.last/alpha;
 
-            coeffs = coeffs ++ [
-                [
-                    // numerator
-                    1, -1, 0,
-                    // denominator
-                    1 - c1,
-                    -1*(1 + c1),
-                    0
-                ]
-            ]
-        });
+			coeffs = coeffs ++ [
+				[
+					// numerator
+					1, -1, 0,
+					// denominator
+					1 - c1,
+					-1*(1 + c1),
+					0
+				]
+			]
+		});
 
-        // factor down to simple SOS & FOS coeffs + gain
-        g = 1.0;
+		// factor down to simple SOS & FOS coeffs + gain
+		g = 1.0;
 
-        (this.numSOS + this.numFOS).do({ |q|
-            var g0;
+		(this.numSOS + this.numFOS).do({ |q|
+			var g0;
 
-            g0 = coeffs.at(q).at(3).reciprocal;
-            coeffs.put(q,
-                coeffs.at(q).copyRange(0, 2) ++ (coeffs.at(q).copyRange(3, 5) * g0)
-            );
-            g = g0 * g
-        });
+			g0 = coeffs.at(q).at(3).reciprocal;
+			coeffs.put(q,
+				coeffs.at(q).copyRange(0, 2) ++ (coeffs.at(q).copyRange(3, 5) * g0)
+			);
+			g = g0 * g
+		});
 
-        // parse coeffs into form usable by SOS & FOS UGens
-        // NOTE: this could happen in the coefficient generation, above
-        coeffsSOS = this.numSOS.collect({ |q|
-            coeffs.at(q).copyRange(0, 2) ++ (-1 * coeffs.at(q).copyRange(4, 5))
-        });
+		// parse coeffs into form usable by SOS & FOS UGens
+		// NOTE: this could happen in the coefficient generation, above
+		coeffsSOS = this.numSOS.collect({ |q|
+			coeffs.at(q).copyRange(0, 2) ++ (-1 * coeffs.at(q).copyRange(4, 5))
+		});
 
-        // odd degree? - add coeffs for FOS
-        mOdd.if({
-            coeffsFOS = [
-                coeffs.last.copyRange(0, 1) ++ (-1 * [coeffs.last.at(4)])
-            ]
-        });
+		// odd degree? - add coeffs for FOS
+		mOdd.if({
+			coeffsFOS = [
+				coeffs.last.copyRange(0, 1) ++ (-1 * [coeffs.last.at(4)])
+			]
+		});
 
-        ^Dictionary.with(*[\sos->coeffsSOS, \fos->coeffsFOS, \g->g])
-    }
+		^Dictionary.with(*[\sos->coeffsSOS, \fos->coeffsFOS, \g->g])
+	}
 
-    ctrl { |encRadius, decRadius, sampleRate, speedOfSound = (AtkHoa.speedOfSound)|
+	ctrl { |encRadius, decRadius, sampleRate, speedOfSound = (AtkHoa.speedOfSound)|
 		var r0 = encRadius;
 		var r1 = decRadius;
-        var mOdd;
-        var alpha0, alpha1;
-        var coeffs, g;
-        var coeffsSOS, coeffsFOS;
+		var mOdd;
+		var alpha0, alpha1;
+		var coeffs, g;
+		var coeffsSOS, coeffsFOS;
 
-        mOdd = this.degree.odd;
+		mOdd = this.degree.odd;
 
-        alpha0 = 2*sampleRate*r0/speedOfSound;  // proximity
-        alpha1 = 2*sampleRate*r1/speedOfSound;  // distance
+		alpha0 = 2*sampleRate*r0/speedOfSound;  // proximity
+		alpha1 = 2*sampleRate*r1/speedOfSound;  // distance
 
-        coeffs = numSOS.collect({ |q|
-            var c10, c20, c11, c21;
+		coeffs = numSOS.collect({ |q|
+			var c10, c20, c11, c21;
 
-            // proximity
-            c10 = this.reX.at(q)/alpha0;
-            c20 = (this.absX.at(q)/alpha0).squared;
+			// proximity
+			c10 = this.reX.at(q)/alpha0;
+			c20 = (this.absX.at(q)/alpha0).squared;
 
-            // distance
-            c11 = this.reX.at(q)/alpha1;
-            c21 = (this.absX.at(q)/alpha1).squared;
+			// distance
+			c11 = this.reX.at(q)/alpha1;
+			c21 = (this.absX.at(q)/alpha1).squared;
 
-            [
-                // numerator
-                1 - (2*c10) + c20,
-                -2*(1 - c20),
-                1 + (2*c10) + c20,
-                // denominator
-                1 - (2*c11) + c21,
-                -2*(1 - c21),
-                1 + (2*c11) + c21
-            ]
-        });
+			[
+				// numerator
+				1 - (2*c10) + c20,
+				-2*(1 - c20),
+				1 + (2*c10) + c20,
+				// denominator
+				1 - (2*c11) + c21,
+				-2*(1 - c21),
+				1 + (2*c11) + c21
+			]
+		});
 
-        // odd degree? - add coeffs for FOS
-        mOdd.if({
-            var c10, c11;
-            c10 = this.reX.last/alpha0;  // proximity
-            c11 = this.reX.last/alpha1;  // distance
+		// odd degree? - add coeffs for FOS
+		mOdd.if({
+			var c10, c11;
+			c10 = this.reX.last/alpha0;  // proximity
+			c11 = this.reX.last/alpha1;  // distance
 
-            coeffs = coeffs ++ [
-                [
-                    // numerator
-                    1 - c10,
-                    -1*(1 + c10),
-                    0,
-                    // denominator
-                    1 - c11,
-                    -1*(1 + c11),
-                    0
-                ]
-            ]
-        });
+			coeffs = coeffs ++ [
+				[
+					// numerator
+					1 - c10,
+					-1*(1 + c10),
+					0,
+					// denominator
+					1 - c11,
+					-1*(1 + c11),
+					0
+				]
+			]
+		});
 
-        // factor down to simple SOS & FOS coeffs + gain
-        g = 1.0;
+		// factor down to simple SOS & FOS coeffs + gain
+		g = 1.0;
 
-        (this.numSOS + this.numFOS).do({ |q|
-            var g0;
+		(this.numSOS + this.numFOS).do({ |q|
+			var g0;
 
-            // distance
-            g0 = coeffs.at(q).at(3).reciprocal;
-            coeffs.put(q,
-                coeffs.at(q).copyRange(0, 2) ++ (coeffs.at(q).copyRange(3, 5) * g0)
-            );
-            g = g0 * g;
+			// distance
+			g0 = coeffs.at(q).at(3).reciprocal;
+			coeffs.put(q,
+				coeffs.at(q).copyRange(0, 2) ++ (coeffs.at(q).copyRange(3, 5) * g0)
+			);
+			g = g0 * g;
 
-            // proximity
-            g0 = coeffs.at(q).at(0);
-            coeffs.put(q,
-                (coeffs.at(q).copyRange(0, 2) / g0) ++ coeffs.at(q).copyRange(3, 5)
-            );
-            g = g0 * g
-        });
+			// proximity
+			g0 = coeffs.at(q).at(0);
+			coeffs.put(q,
+				(coeffs.at(q).copyRange(0, 2) / g0) ++ coeffs.at(q).copyRange(3, 5)
+			);
+			g = g0 * g
+		});
 
-        // parse coeffs into form usable by SOS & FOS UGens
-        // NOTE: this could happen in the coefficient generation, above
-        coeffsSOS = this.numSOS.collect({ |q|
-            coeffs.at(q).copyRange(0, 2) ++ (-1 * coeffs.at(q).copyRange(4, 5))
-        });
+		// parse coeffs into form usable by SOS & FOS UGens
+		// NOTE: this could happen in the coefficient generation, above
+		coeffsSOS = this.numSOS.collect({ |q|
+			coeffs.at(q).copyRange(0, 2) ++ (-1 * coeffs.at(q).copyRange(4, 5))
+		});
 
-        // odd degree? - add coeffs for FOS
-        mOdd.if({
-            coeffsFOS = [
-                coeffs.last.copyRange(0, 1) ++ (-1 * [coeffs.last.at(4)])
-            ]
-        });
+		// odd degree? - add coeffs for FOS
+		mOdd.if({
+			coeffsFOS = [
+				coeffs.last.copyRange(0, 1) ++ (-1 * [coeffs.last.at(4)])
+			]
+		});
 
-        ^Dictionary.with(*[\sos->coeffsSOS, \fos->coeffsFOS, \g->g])
-    }
+		^Dictionary.with(*[\sos->coeffsSOS, \fos->coeffsFOS, \g->g])
+	}
 }

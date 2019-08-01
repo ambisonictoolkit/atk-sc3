@@ -578,7 +578,7 @@ Foa : MultiOutUGen {
 		^channels
 	}
 
- 	checkInputs { ^this.checkNInputs(4) }
+	 checkInputs { ^this.checkNInputs(4) }
 
 	*checkChans {arg in;
 		(in.size < 4).if({

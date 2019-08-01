@@ -1,7 +1,7 @@
 /*
 	Copyright the ATK Community and Joseph Anderson, 2011-2017
 		J Anderson	j.anderson[at]ambisonictoolkit.net
-        M McCrea    mtm5[at]uw.edu
+		M McCrea    mtm5[at]uw.edu
 
 	This file is part of SuperCollider3 version of the Ambisonic Toolkit (ATK).
 

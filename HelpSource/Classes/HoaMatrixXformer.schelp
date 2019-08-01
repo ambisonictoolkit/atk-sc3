@@ -123,7 +123,7 @@ METHOD:: newYPR
 Compound rotation around the z, y' and x" axes: yaw, pitch, roll.
 
 note::
-Mixed emphasis::intrinsic:: (z-axis), emphasis::extrinsic:: (y' & x"-axes) rotations. This rotation differs from link::#*newRTT::, which is emphasis::extrinsic::.
+Mixed emphasis::extrinsic:: (z-axis), emphasis::intrinsic:: (y' & x"-axes) rotations. This rotation differs from link::#*newRTT::, which is emphasis::extrinsic::.
 ::
 
 ARGUMENT:: yaw

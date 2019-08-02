@@ -122,7 +122,7 @@ Atk {
 		];
 	}
 
-	*userSupportDir_ { arg userSupportDirIn;
+	*userSupportDir_ { |userSupportDirIn|
 		userSupportDir = userSupportDirIn;
 		userSoundsDir = userSupportDir ++ "/sounds";
 		userKernelDir = userSupportDir ++ "/kernels";
@@ -130,7 +130,7 @@ Atk {
 		userExtensionsDir = userSupportDir ++ "/extensions";
 	}
 
-	*systemSupportDir_ { arg systemSupportDurIn;
+	*systemSupportDir_ { |systemSupportDurIn|
 		systemSupportDir = systemSupportDurIn;
 		systemSoundsDir = systemSupportDir ++ "/sounds";
 		systemKernelDir = systemSupportDir ++ "/kernels";
@@ -207,7 +207,7 @@ Atk {
 	}
 
 	// op: 'matrices', 'kernels'
-	*getAtkOpPath { arg op, isExtension=false;
+	*getAtkOpPath { |op, isExtension=false|
 		var str, subPath, kindPath, fullPath, tested;
 
 		tested = List();
@@ -254,7 +254,7 @@ Atk {
 	//  set: 'FOA', 'HOA1', 'HOA2', etc
 	//  type: 'decoder(s)', 'encoder(s)', 'xformer(s)'
 	//  op: 'matrices', 'kernels'
-	*getExtensionSubPath { arg set, type, op;
+	*getExtensionSubPath { |set, type, op|
 		var subPath, typePath, fullPath;
 
 		Atk.checkSet(set);
@@ -282,7 +282,7 @@ Atk {
 	//  set: 'FOA', 'HOA1', 'HOA2', etc
 	//  type: 'decoder(s)', 'encoder(s)', 'xformer(s)'
 	//  op: 'matrices', 'kernels'
-	*getAtkOpSubPath { arg set, type, op;
+	*getAtkOpSubPath { |set, type, op|
 		var subPath, typePath, fullPath;
 
 		Atk.checkSet(set);
@@ -308,22 +308,22 @@ Atk {
 	}
 
 	// shortcuts for matrices and kernels, aka 'ops'
-	*getMatrixExtensionSubPath { arg set, type;
+	*getMatrixExtensionSubPath { |set, type|
 		type ?? { Error("Unspecified matrix type. Please specify 'encoder', 'decoder', or 'xformer'.").errorString.postln; ^nil };
 		^Atk.getExtensionSubPath(set, type, 'matrices');
 	}
 
-	*getKernelExtensionSubPath { arg set, type;
+	*getKernelExtensionSubPath { |set, type|
 		type ?? { Error("Unspecified kernel type. Please specify 'encoder', 'decoder', or 'xformer'.").errorString.postln; ^nil };
 		^Atk.getExtensionSubPath(set, type, 'kernels');
 	}
 
-	*getAtkMatrixSubPath { arg set, type;
+	*getAtkMatrixSubPath { |set, type|
 		type ?? { Error("Unspecified matrix type. Please specify 'encoder', 'decoder', or 'xformer'.").errorString.postln; ^nil };
 		^Atk.getAtkOpSubPath(set, type, 'matrices');
 	}
 
-	*getAtkKernelSubPath { arg set, type;
+	*getAtkKernelSubPath { |set, type|
 		type ?? { Error("Unspecified matrix type. Please specify 'encoder', 'decoder', or 'xformer'.").errorString.postln; ^nil };
 		^Atk.getAtkOpSubPath(set, type, 'kernels');
 	}
@@ -533,11 +533,11 @@ Atk {
 
 FoaPanB : MultiOutUGen {
 
-	*ar { arg in, azimuth=0, elevation=0, mul = 1, add = 0;
+	*ar { |in, azimuth=0, elevation=0, mul = 1, add = 0|
 		^this.multiNew('audio', in, azimuth, elevation).madd(mul, add);
 	}
 
-	init { arg ... theInputs;
+	init { |... theInputs|
 		inputs = theInputs;
 		channels = [OutputProxy(\audio,this,0), OutputProxy(\audio,this,1),
 					OutputProxy(\audio,this,2), OutputProxy(\audio,this,3)];
@@ -550,7 +550,7 @@ FoaPanB : MultiOutUGen {
 
 FoaMFreqOsc : FoaUGen  {
 
-	*ar { arg freq = 440, phase = 0, azimuthA = 0, elevationA = 0, azimuthR = 0, elevationR = 0, alpha = 0, beta = 0, mul = 1, add = 0;
+	*ar { |freq = 440, phase = 0, azimuthA = 0, elevationA = 0, azimuthR = 0, elevationR = 0, alpha = 0, beta = 0, mul = 1, add = 0|
 		var dc, dcl0a, dcl0r, aA, aR, out;
 
 		dc = DC.ar(1);
@@ -571,7 +571,7 @@ FoaMFreqOsc : FoaUGen  {
 
 Foa : MultiOutUGen {
 
-	init { arg ... theInputs;
+	init { |... theInputs|
 		inputs = theInputs;
 		channels = [OutputProxy(\audio,this,0), OutputProxy(\audio,this,1),
 					OutputProxy(\audio,this,2), OutputProxy(\audio,this,3)];
@@ -580,7 +580,7 @@ Foa : MultiOutUGen {
 
 	 checkInputs { ^this.checkNInputs(4) }
 
-	*checkChans { arg in;
+	*checkChans { |in|
 		(in.size < 4).if({
 			^([in] ++ (4 - in.size).collect({ Silent.ar })).flat;
 		}, {
@@ -591,7 +591,7 @@ Foa : MultiOutUGen {
 }
 
 FoaDirectO : Foa {
-	*ar { arg in, angle = pi/2, mul = 1, add = 0;
+	*ar { |in, angle = (pi/2), mul = 1, add = 0|
 		var w, x, y, z;
 		in = this.checkChans(in);
 		#w, x, y, z = in;
@@ -601,7 +601,7 @@ FoaDirectO : Foa {
 
 
 FoaDirectX : Foa {
-	*ar { arg in, angle = pi/2, mul = 1, add = 0;
+	*ar { |in, angle = (pi/2), mul = 1, add = 0|
 		var w, x, y, z;
 		in = this.checkChans(in);
 		#w, x, y, z = in;
@@ -613,7 +613,7 @@ FoaDirectY : FoaDirectX { }
 FoaDirectZ : FoaDirectX { }
 
 FoaRotate : Foa {
-	*ar { arg in, angle = 0, mul = 1, add = 0;
+	*ar { |in, angle = 0, mul = 1, add = 0|
 		var w, x, y, z;
 		in = this.checkChans(in);
 		#w, x, y, z = in;
@@ -640,7 +640,7 @@ FoaZoomY : FoaRotate { }
 FoaZoomZ : FoaRotate { }
 
 FoaBalance {
-	*ar { arg in, angle = 0, mul = 1, add = 0;
+	*ar { |in, angle = 0, mul = 1, add = 0|
 		var w, x, y, z;
 		in = this.checkChans(in);
 		#w, x, y, z = in;
@@ -650,7 +650,7 @@ FoaBalance {
 
 
 FoaDominateX : Foa {
-	*ar { arg in, gain = 0, mul = 1, add = 0;
+	*ar { |in, gain = 0, mul = 1, add = 0|
 		var w, x, y, z;
 		in = this.checkChans(in);
 		#w, x, y, z = in;
@@ -665,7 +665,7 @@ FoaAsymmetry : FoaRotate { }
 
 
 FoaRTT {
-	*ar { arg in, rotAngle = 0, tilAngle = 0, tumAngle = 0, mul = 1, add = 0;
+	*ar { |in, rotAngle = 0, tilAngle = 0, tumAngle = 0, mul = 1, add = 0|
 		in = FoaRotate.ar(in, rotAngle);
 		in = FoaTilt.ar(in, tilAngle);
 		^FoaTumble.ar(in, tumAngle, mul, add);
@@ -673,7 +673,7 @@ FoaRTT {
 }
 
 FoaMirror {
-	*ar { arg in, theta = 0, phi = 0, mul = 1, add = 0;
+	*ar { |in, theta = 0, phi = 0, mul = 1, add = 0|
 		in = FoaRotate.ar(in, theta.neg);
 		in = FoaTumble.ar(in, phi.neg);
 		in = FoaXform.ar(in, FoaXformerMatrix.newMirrorX);
@@ -683,7 +683,7 @@ FoaMirror {
 }
 
 FoaDirect {
-	*ar { arg in, angle = 0, theta = 0, phi = 0, mul = 1, add = 0;
+	*ar { |in, angle = 0, theta = 0, phi = 0, mul = 1, add = 0|
 
 		in = FoaRotate.ar(in, theta.neg);
 		in = FoaTumble.ar(in, phi.neg);
@@ -694,7 +694,7 @@ FoaDirect {
 }
 
 FoaDominate {
-	*ar { arg in, gain = 0, theta = 0, phi = 0, mul = 1, add = 0;
+	*ar { |in, gain = 0, theta = 0, phi = 0, mul = 1, add = 0|
 
 		in = FoaRotate.ar(in, theta.neg);
 		in = FoaTumble.ar(in, phi.neg);
@@ -705,7 +705,7 @@ FoaDominate {
 }
 
 FoaZoom {
-	*ar { arg in, angle = 0, theta = 0, phi = 0, mul = 1, add = 0;
+	*ar { |in, angle = 0, theta = 0, phi = 0, mul = 1, add = 0|
 
 		in = FoaRotate.ar(in, theta.neg);
 		in = FoaTumble.ar(in, phi.neg);
@@ -716,7 +716,7 @@ FoaZoom {
 }
 
 FoaFocus {
-	*ar { arg in, angle = 0, theta = 0, phi = 0, mul = 1, add = 0;
+	*ar { |in, angle = 0, theta = 0, phi = 0, mul = 1, add = 0|
 
 		in = FoaRotate.ar(in, theta.neg);
 		in = FoaTumble.ar(in, phi.neg);
@@ -727,7 +727,7 @@ FoaFocus {
 }
 
 FoaPush {
-	*ar { arg in, angle = 0, theta = 0, phi = 0, mul = 1, add = 0;
+	*ar { |in, angle = 0, theta = 0, phi = 0, mul = 1, add = 0|
 
 		in = FoaRotate.ar(in, theta.neg);
 		in = FoaTumble.ar(in, phi.neg);
@@ -738,7 +738,7 @@ FoaPush {
 }
 
 FoaPress {
-	*ar { arg in, angle = 0, theta = 0, phi = 0, mul = 1, add = 0;
+	*ar { |in, angle = 0, theta = 0, phi = 0, mul = 1, add = 0|
 
 		in = FoaRotate.ar(in, theta.neg);
 		in = FoaTumble.ar(in, phi.neg);
@@ -753,7 +753,7 @@ FoaPress {
 // Filters
 
 FoaProximity : Foa {
-	*ar { arg in, distance = 1, mul = 1, add = 0;
+	*ar { |in, distance = 1, mul = 1, add = 0|
 		var w, x, y, z;
 		in = this.checkChans(in);
 		#w, x, y, z = in;
@@ -763,7 +763,7 @@ FoaProximity : Foa {
 }
 
 FoaNFC : Foa {
-	*ar { arg in, distance = 1, mul = 1, add = 0;
+	*ar { |in, distance = 1, mul = 1, add = 0|
 		var w, x, y, z;
 		in = this.checkChans(in);
 		#w, x, y, z = in;
@@ -773,7 +773,7 @@ FoaNFC : Foa {
 }
 
 FoaPsychoShelf : Foa {
-	*ar { arg in, freq = 400, k0 = (3/2).sqrt, k1 = 3.sqrt/2, mul = 1, add = 0;
+	*ar { |in, freq = 400, k0 = ((3/2).sqrt), k1 = (3.sqrt/2), mul = 1, add = 0|
 		var w, x, y, z;
 		in = this.checkChans(in);
 		#w, x, y, z = in;
@@ -787,14 +787,14 @@ FoaPsychoShelf : Foa {
 // AtkMatrixMix & AtkKernelConv
 
 AtkMatrixMix {
-	*ar { arg in, matrix, mul = 1, add = 0;
+	*ar { |in, matrix, mul = 1, add = 0|
 
 		var out;
 
 		// wrap input as array if needed, for mono inputs
 		in.isArray.not.if({ in = [in] });
 
-		out = Mix.fill(matrix.cols, { arg i; // fill input
+		out = Mix.fill(matrix.cols, { |i| // fill input
 			UGen.replaceZeroesWithSilence(
 				matrix.flop.asArray.at(i) * in.at(i)
 			)
@@ -805,7 +805,7 @@ AtkMatrixMix {
 }
 
 AtkKernelConv {
-	*ar { arg in, kernel, mul = 1, add = 0;
+	*ar { |in, kernel, mul = 1, add = 0|
 
 		var out;
 
@@ -813,8 +813,8 @@ AtkKernelConv {
 		in.isArray.not.if({ in = [in] });
 
 		out = Mix.new(
-			kernel.shape.at(0).collect({ arg i;
-				kernel.shape.at(1).collect({ arg j;
+			kernel.shape.at(0).collect({ |i|
+				kernel.shape.at(1).collect({ |j|
 					Convolution2.ar(
 						in.at(i),
 						kernel.at(i).at(j),
@@ -833,7 +833,7 @@ AtkKernelConv {
 // Decoder built using AtkMatrixMix & AtkKernelConv
 
 FoaUGen {
-	*checkChans { arg in;
+	*checkChans { |in|
 		(in.size < 4).if({
 			^([in] ++ (4 - in.size).collect({ Silent.ar })).flat;
 		}, {
@@ -841,7 +841,7 @@ FoaUGen {
 		});
 	}
 
-	*argDict { arg ugen, args, argDefaults;
+	*argDict { |ugen, args, argDefaults|
 		var index, userDict;
 		var ugenKeys;
 		var ugenDict;
@@ -849,10 +849,10 @@ FoaUGen {
 		// find ugen args, drop ['this', sig]
 		ugenKeys = ugen.class.findRespondingMethodFor(\ar).argNames.drop(2);
 		ugenDict = Dictionary.new;
-		ugenKeys.do({ arg key, i; ugenDict.put(key, argDefaults.at(i)) });
+		ugenKeys.do({ |key, i| ugenDict.put(key, argDefaults.at(i)) });
 
 		// find index dividing ordered and named args
-		index = args.detectIndex({ arg item; ugenKeys.matchItem(item) });
+		index = args.detectIndex({ |item| ugenKeys.matchItem(item) });
 
 		// build user dictionary
 		userDict = Dictionary.new(ugenKeys.size);
@@ -861,18 +861,18 @@ FoaUGen {
 		}, {
 			index = args.size;
 		});
-		userDict = userDict.putAll(Dictionary.newFrom((index).collect({ arg i;
+		userDict = userDict.putAll(Dictionary.newFrom((index).collect({ |i|
 			[ugenKeys.at(i), args.at(i)] }).flat));
 
 		// merge
-		^ugenDict.merge(userDict, {
-			arg ugenArg, userArg; (userArg != nil).if({ userArg })
+		^ugenDict.merge(userDict, { |ugenArg, userArg|
+			userArg.notNil.if{ userArg }
 		})
 	}
 }
 
 FoaDecode : FoaUGen {
-	*ar { arg in, decoder, mul = 1, add = 0;
+	*ar { |in, decoder, mul = 1, add = 0|
 		in = this.checkChans(in);
 
 		case
@@ -896,7 +896,7 @@ FoaDecode : FoaUGen {
 // Encoder built using AtkMatrixMix & AtkKernelConv
 
 FoaEncode : FoaUGen {
-	*ar { arg in, encoder, mul = 1, add = 0;
+	*ar { |in, encoder, mul = 1, add = 0|
 		var out;
 
 		case
@@ -920,7 +920,7 @@ FoaEncode : FoaUGen {
 // Transformer built using AtkMatrixMix & AtkKernelConv
 
 FoaXform : FoaUGen {
-	*ar { arg in, xformer, mul = 1, add = 0;
+	*ar { |in, xformer, mul = 1, add = 0|
 
 		var out;
 		in = this.checkChans(in);
@@ -953,24 +953,24 @@ argument key - see helpfile for reasonable values
 */
 
 FoaTransform : FoaUGen {
-	*ar { arg in, kind ... args;
+	*ar { |in, kind ... args|
 
 		var argDict, argDefaults;
 		var ugen;
 		in = this.checkChans(in);
 
-//		argDict = { arg ugen, args, argDefaults;
+//		argDict = { |ugen, args, argDefaults|
 //			var index, userDict;
 //			var ugenKeys;
 //			var ugenDict;
 //			[ugen, args, argDefaults].postln;
 //			// find index dividing ordered and named args
-//			index = args.detectIndex({ arg item; item.isKindOf(Symbol) });
+//			index = args.detectIndex({ |item| item.isKindOf(Symbol) });
 //
 //			// find ugen args, drop ['this', w, x, y, z]
 //			ugenKeys = ugen.class.findRespondingMethodFor(\ar).argNames.drop(2);
 //			ugenDict = Dictionary.new;
-//			ugenKeys.do({ arg key, i; ugenDict.put(key, argDefaults.at(i)) });
+//			ugenKeys.do({ |key, i| ugenDict.put(key, argDefaults.at(i)) });
 //
 //			// build user dictionary
 //			userDict = Dictionary.new(ugenKeys.size);
@@ -979,12 +979,12 @@ FoaTransform : FoaUGen {
 //			}, {
 //				index = args.size;
 //			});
-//			userDict = userDict.putAll(Dictionary.newFrom((index).collect({ arg i;
+//			userDict = userDict.putAll(Dictionary.newFrom((index).collect({ |i|
 //				[ugenKeys.at(i), args.at(i)] }).flat));
 //
 //			// merge
 //			ugenDict.merge(userDict, {
-//				arg ugenArg, userArg; (userArg != nil).if({ userArg })
+//				|ugenArg, userArg| (userArg != nil).if({ userArg })
 //			})
 //		};
 //

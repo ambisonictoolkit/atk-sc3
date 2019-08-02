@@ -82,11 +82,11 @@ AtkMatrix {
 	}
 
 	// For subclasses of AtkMatrix
-	writeToFile { arg fileNameOrPath, note, attributeDictionary, overwrite=false;
+	writeToFile { |fileNameOrPath, note, attributeDictionary, overwrite=false|
 		this.prWriteToFile(fileNameOrPath, note, attributeDictionary, overwrite);
 	}
 
-	prWriteToFile { arg fileNameOrPath, note, attributeDictionary, overwrite=false;
+	prWriteToFile { |fileNameOrPath, note, attributeDictionary, overwrite=false|
 		var pn, ext;
 		var mtxPath, relPath;
 
@@ -164,7 +164,7 @@ AtkMatrix {
 	}
 
 
-	prWriteMatrixToTXT { arg pn; // a PathName
+	prWriteMatrixToTXT { |pn| // a PathName
 		var wr;
 		wr = FileWriter(pn.fullPath);
 		// write the matrix into it by row, and close
@@ -172,7 +172,7 @@ AtkMatrix {
 		wr.close;
 	}
 
-	prWriteMatrixToMOSL { arg pn; // a PathName
+	prWriteMatrixToMOSL { |pn| // a PathName
 		var wr;
 		wr = FileWriter(pn.fullPath);
 

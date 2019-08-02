@@ -401,7 +401,7 @@ FoaAudition {
 
 			\FoaAudition_foaDiffuseNoise,
 			SynthDef(\FoaAudition_foaDiffuseNoise, {
-				arg outbus, gate = 1, mul = 1, releaseTime = 0.5, rttFreq=0.333, rtt=0;
+				|outbus, gate = 1, mul = 1, releaseTime = 0.5, rttFreq=0.333, rtt=0|
 				var env, mtx, foa, rttfrq;
 
 				env = EnvGen.kr(Env([0,1,0],[0.1,releaseTime], \sin, 1), gate);
@@ -417,7 +417,7 @@ FoaAudition {
 
 			\FoaAudition_foaSoundfile_3ch,
 			SynthDef(\FoaAudition_foaSoundfile_3ch, {
-				arg outbus, buffer, mul = 1, gate = 1, releaseTime = 0.5;
+				|outbus, buffer, mul = 1, gate = 1, releaseTime = 0.5|
 				var env, foa;
 
 				env = EnvGen.kr(Env([0,1,0],[0.1,releaseTime], \sin, 1), gate);
@@ -427,7 +427,7 @@ FoaAudition {
 
 			\FoaAudition_foaSoundfile_4ch,
 			SynthDef(\FoaAudition_foaSoundfile_4ch, {
-				arg outbus, buffer, mul = 1, gate = 1, releaseTime = 0.5;
+				|outbus, buffer, mul = 1, gate = 1, releaseTime = 0.5|
 				var env, foa;
 
 				env = EnvGen.kr(Env([0,1,0],[0.1,releaseTime], \sin, 1), gate);
@@ -437,7 +437,7 @@ FoaAudition {
 
 			\FoaAudition_foaInbus,
 			SynthDef(\FoaAudition_foaInbus, {
-				arg outbus, inbus, mul = 1, gate = 1, releaseTime = 0.5;
+				|outbus, inbus, mul = 1, gate = 1, releaseTime = 0.5|
 				var env, foa;
 
 				env = EnvGen.kr(Env([0,1,0],[0.1,releaseTime], \sin, 1), gate);

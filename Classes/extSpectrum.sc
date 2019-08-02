@@ -76,10 +76,10 @@
 				})
 			});
 
-			magnitudes = magnitudes.collect({ arg item;  // mirror +/-frequencies
+			magnitudes = magnitudes.collect({ |item|  // mirror +/-frequencies
 				item.mirror1
 			});
-			phases = phases.collect({ arg item;  // mirror +/-frequencies
+			phases = phases.collect({ |item|  // mirror +/-frequencies
 				item ++ (item.deepCopy.reverse.drop(1).drop(-1).neg)
 			})
 		}, {  // dft
@@ -138,10 +138,10 @@
 				})
 			});
 
-			magnitudes = magnitudes.collect({ arg item;  // mirror +/-frequencies
+			magnitudes = magnitudes.collect({ |item|  // mirror +/-frequencies
 				item.mirror1
 			});
-			phases = phases.collect({ arg item;  // mirror +/-frequencies
+			phases = phases.collect({ |item|  // mirror +/-frequencies
 				item ++ (item.deepCopy.reverse.drop(1).drop(-1).neg)
 			})
 		}, {  // dft
@@ -200,10 +200,10 @@
 				})
 			});
 
-			magnitudes = magnitudes.collect({ arg item;  // mirror +/-frequencies
+			magnitudes = magnitudes.collect({ |item|  // mirror +/-frequencies
 				item.mirror1
 			});
-			phases = phases.collect({ arg item;  // mirror +/-frequencies
+			phases = phases.collect({ |item|  // mirror +/-frequencies
 				item ++ (item.deepCopy.reverse.drop(1).drop(-1).neg)
 			})
 		}, {  // dft
@@ -243,19 +243,19 @@
 			freqs = rfftsize.rfftFreqs(sampleRate);
 
 			// magnitude - collected by degree
-			magnitudes = freqs.collectAs({ arg freq;  // +frequencies
+			magnitudes = freqs.collectAs({ |freq|  // +frequencies
 				hoaOrder.foclWeights(freq, radius, window, speedOfSound)
 			},
 				List
 			).flop.asArray;  // collect as List, due to Array -flop bug
-			magnitudes = magnitudes.collect({ arg item;  // mirror +/-frequencies
+			magnitudes = magnitudes.collect({ |item|  // mirror +/-frequencies
 				item.mirror1
 			})
 		}, {  // dft
 			freqs = size.dftFreqs(sampleRate);
 
 			// magnitude - collected by degree
-			magnitudes = freqs.collectAs({ arg freq;  // real coefficients (magnitudes)
+			magnitudes = freqs.collectAs({ |freq|  // real coefficients (magnitudes)
 				hoaOrder.foclWeights(freq, radius, window, speedOfSound);
 			},
 				List
@@ -300,7 +300,7 @@
 			).asFloat
 		};
 		var matchWeights = { |magnitudes, dim, match, numChans|
-			magnitudes.flop.collect({ arg beamWeights;
+			magnitudes.flop.collect({ |beamWeights|
 				matchWeight.value(beamWeights, dim, match, numChans)
 			}).flop
 		};
@@ -328,10 +328,10 @@
 					Error("Must supply two edge frequencies for a two band shelf. Supplied: % ".format(beamDict.at(\edgeFreqs).size)).throw
 				}, {
 					var freqs = beamDict.at(\edgeFreqs).sort;
-					var beamWeights = beamDict.at(\beamShapes).collect({ arg beamShape;
+					var beamWeights = beamDict.at(\beamShapes).collect({ |beamShape|
 						hoaOrder.beamWeights(beamShape, dim)
 					});
-					beamMags = (order + 1).collect({ arg degree;
+					beamMags = (order + 1).collect({ |degree|
 						Spectrum.logShelf(size, freqs.at(0), freqs.at(1), beamWeights.at(0).at(degree).ampdb, beamWeights.at(1).at(degree).ampdb, sampleRate).magnitude
 					})
 				})
@@ -341,10 +341,10 @@
 					Error("Must supply four edge frequencies for a two band shelf. Supplied: % ".format(beamDict.at(\edgeFreqs).size)).throw
 				}, {
 					var freqs = beamDict.at(\edgeFreqs).sort;
-					var beamWeights = beamDict.at(\beamShapes).collect({ arg beamShape;
+					var beamWeights = beamDict.at(\beamShapes).collect({ |beamShape|
 						hoaOrder.beamWeights(beamShape, dim)
 					});
-					beamMags = (order + 1).collect({ arg degree;
+					beamMags = (order + 1).collect({ |degree|
 						Spectrum.logShelf(size, freqs.at(0), freqs.at(1), beamWeights.at(0).at(degree).ampdb, beamWeights.at(1).at(degree).ampdb, sampleRate).magnitude *
 						Spectrum.logShelf(size, freqs.at(2), freqs.at(3), 0.0, (beamWeights.at(2).at(degree) / beamWeights.at(1).at(degree)).ampdb, sampleRate).magnitude
 					})

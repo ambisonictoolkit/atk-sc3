@@ -130,22 +130,22 @@ HoaOrder {
 	// Return NFE coefficients
 
 	// Proximity complex degree weights
-	proxWeights { arg freq, radius, speedOfSound = (AtkHoa.speedOfSound);
+	proxWeights { |freq, radius, speedOfSound = (AtkHoa.speedOfSound)|
 		^WaveNumber.newFreq(freq, speedOfSound).proxWeights(radius, this.order)
 	}
 
 	// Distance complex degree weights
-	distWeights { arg freq, radius, speedOfSound = (AtkHoa.speedOfSound);
+	distWeights { |freq, radius, speedOfSound = (AtkHoa.speedOfSound)|
 		^WaveNumber.newFreq(freq, speedOfSound).distWeights(radius, this.order)
 	}
 
 	// Control complex degree weights
-	ctrlWeights { arg freq, encRadius, decRadius, speedOfSound = (AtkHoa.speedOfSound);
+	ctrlWeights { |freq, encRadius, decRadius, speedOfSound = (AtkHoa.speedOfSound)|
 		^WaveNumber.newFreq(freq, speedOfSound).ctrlWeights(encRadius, decRadius, this.order)
 	}
 
 	// Focalisation (real) degree weights
-	foclWeights { arg freq, radius, window = \reg, speedOfSound = (AtkHoa.speedOfSound);
+	foclWeights { |freq, radius, window = \reg, speedOfSound = (AtkHoa.speedOfSound)|
 		var wavNum = WaveNumber.newFreq(freq, speedOfSound);
 
 		^window.switch(
@@ -153,7 +153,7 @@ HoaOrder {
 				var effOrder = wavNum.orderAtRadius(radius);
 				var beta;
 
-				(this.order + 1).collect({ arg degree;
+				(this.order + 1).collect({ |degree|
 					(degree == 0).if({
 						1.0
 					}, {
@@ -165,7 +165,7 @@ HoaOrder {
 			\cos, {
 				var effOrder = wavNum.orderAtRadius(radius).abs;
 
-				(this.order + 1).collect({ arg degree;
+				(this.order + 1).collect({ |degree|
 					(degree == 0).if({
 						1.0
 					}, {

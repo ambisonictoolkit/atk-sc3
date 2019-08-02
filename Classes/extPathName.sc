@@ -47,7 +47,7 @@
 
 + PathName {
 
-	parentLevelPath { arg index;
+	parentLevelPath { |index|
 
 		var ci = this.colonIndices;
 

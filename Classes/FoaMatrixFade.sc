@@ -133,7 +133,7 @@ FoaMatrixFade {
 	*loadSynthDefs { |server, cond|
 
 		server.waitForBoot({
-			mtxFadeDef = SynthDef(\foaMatrixFade, { arg outbus, inbus, fade = 1.5, mul = 1;
+			mtxFadeDef = SynthDef(\foaMatrixFade, { |outbus, inbus, fade = 1.5, mul = 1|
 				var foaSrc, array, out;
 
 				foaSrc = In.ar(inbus, 4) * Lag.kr(mul);
@@ -145,7 +145,7 @@ FoaMatrixFade {
 
 				array = array.clump(4).flop;
 
-				out = Mix.fill(4, { arg i; // fill input
+				out = Mix.fill(4, { |i| // fill input
 					array.at(i) * foaSrc.at(i)
 				});
 

@@ -105,7 +105,7 @@ FoaEval : FoaUGen {
 
 // FOA potential energy
 FoaWp : FoaEval {
-	*ar { arg in, size = 2048, method = 'instant';
+	*ar { |in, size = 2048, method = 'instant'|
 		var p;
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
@@ -126,7 +126,7 @@ FoaWp : FoaEval {
 
 // FOA kinetic energy
 FoaWu : FoaEval {
-	*ar { arg in, size = 2048, method = 'instant';
+	*ar { |in, size = 2048, method = 'instant'|
 		var u;
 		in = this.checkChans(in);
 		u = in[1..3];  // [x, y, z] = velocity (vector)
@@ -134,7 +134,7 @@ FoaWu : FoaEval {
 		case
 		{ method == 'instant' } {
 
-			^HilbertW.ar(u, size).sum({ arg item;
+			^HilbertW.ar(u, size).sum({ |item|
 				item.squared.sum
 			})
 		}
@@ -150,7 +150,7 @@ FoaWu : FoaEval {
 
 // FOA potential & kinetic energy mean
 FoaWs : FoaEval {
-	*ar { arg in, size = 2048, method = 'instant';
+	*ar { |in, size = 2048, method = 'instant'|
 		var p, u;
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
@@ -160,7 +160,7 @@ FoaWs : FoaEval {
 		{ method == 'instant' } {
 			var wp, wu;
 			wp = HilbertW.ar(p, size).squared.sum;
-			wu = HilbertW.ar(u, size).sum({ arg item;
+			wu = HilbertW.ar(u, size).sum({ |item|
 				item.squared.sum
 			});
 
@@ -182,7 +182,7 @@ FoaWs : FoaEval {
 
 // FOA potential & kinetic energy difference
 FoaWd : FoaEval {
-	*ar { arg in, size = 2048, method = 'instant';
+	*ar { |in, size = 2048, method = 'instant'|
 		var p, u;
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
@@ -192,7 +192,7 @@ FoaWd : FoaEval {
 		{ method == 'instant' } {
 			var wp, wu;
 			wp = HilbertW.ar(p, size).squared.sum;
-			wu = HilbertW.ar(u, size).sum({ arg item;
+			wu = HilbertW.ar(u, size).sum({ |item|
 				item.squared.sum
 			});
 
@@ -214,7 +214,7 @@ FoaWd : FoaEval {
 
 // FOA Heyser energy density
 FoaWh : FoaEval {
-	*ar { arg in, size = 2048, method = 'instant';
+	*ar { |in, size = 2048, method = 'instant'|
 		var p, u;
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
@@ -229,12 +229,12 @@ FoaWh : FoaEval {
 			uReIm = HilbertW.ar(u, size);
 
 			wp = pReIm.squared.sum;
-			wu = uReIm.sum({ arg item;
+			wu = uReIm.sum({ |item|
 				item.squared.sum
 			});
 			ws = (0.5 * (wp + wu));
 
-			ir = uReIm.collect({ arg item;
+			ir = uReIm.collect({ |item|
 				(pImRe * item).sum
 			});
 			magIr = ir.squared.sum.sqrt
@@ -267,7 +267,7 @@ FoaWh : FoaEval {
 
 // FOA Magnitude Intensity
 FoaMagI : FoaEval {
-	*ar { arg in, size = 2048, method = 'instant';
+	*ar { |in, size = 2048, method = 'instant'|
 		var p, u;
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
@@ -277,7 +277,7 @@ FoaMagI : FoaEval {
 		{ method == 'instant' } {
 			var wp, wu;
 			wp = HilbertW.ar(p, size).squared.sum;
-			wu = HilbertW.ar(u, size).sum({ arg item;
+			wu = HilbertW.ar(u, size).sum({ |item|
 				item.squared.sum
 			});
 
@@ -299,7 +299,7 @@ FoaMagI : FoaEval {
 
 // FOA Magnitude Active Intensity
 FoaMagIa : FoaEval {
-	*ar { arg in, size = 2048, method = 'instant';
+	*ar { |in, size = 2048, method = 'instant'|
 		var p, u;
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
@@ -311,7 +311,7 @@ FoaMagIa : FoaEval {
 
 			pReIm = HilbertW.ar(p, size);
 
-			ia = HilbertW.ar(u, size).collect({ arg item;
+			ia = HilbertW.ar(u, size).collect({ |item|
 				(pReIm * item).sum
 			});
 
@@ -332,7 +332,7 @@ FoaMagIa : FoaEval {
 
 // FOA Magnitude Reactive Intensity
 FoaMagIr : FoaEval {
-	*ar { arg in, size = 2048, method = 'instant';
+	*ar { |in, size = 2048, method = 'instant'|
 		var p, u;
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
@@ -344,7 +344,7 @@ FoaMagIr : FoaEval {
 
 			pImRe = [1, -1] * HilbertW.ar(p, size).reverse;
 
-			ir = HilbertW.ar(u, size).collect({ arg item;
+			ir = HilbertW.ar(u, size).collect({ |item|
 				(pImRe * item).sum
 			});
 
@@ -371,7 +371,7 @@ FoaMagIr : FoaEval {
 
 // FOA Magnitude Admittance
 FoaMagA : FoaEval {
-	*ar { arg in, size = 2048, method = 'instant';
+	*ar { |in, size = 2048, method = 'instant'|
 		var p, u;
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
@@ -381,7 +381,7 @@ FoaMagA : FoaEval {
 		{ method == 'instant' } {
 			var wp, wu, magI;
 			wp = HilbertW.ar(p, size).squared.sum;
-			wu = HilbertW.ar(u, size).sum({ arg item;
+			wu = HilbertW.ar(u, size).sum({ |item|
 				item.squared.sum
 			});
 
@@ -407,7 +407,7 @@ FoaMagA : FoaEval {
 
 // FOA Magnitude Active Admittance
 FoaMagAa : FoaEval {
-	*ar { arg in, size = 2048, method = 'instant';
+	*ar { |in, size = 2048, method = 'instant'|
 		var p, u;
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
@@ -420,7 +420,7 @@ FoaMagAa : FoaEval {
 			pReIm = HilbertW.ar(p, size);
 			wp = pReIm.squared.sum;
 
-			ia = HilbertW.ar(u, size).collect({ arg item;
+			ia = HilbertW.ar(u, size).collect({ |item|
 				(pReIm * item).sum
 			});
 			magIa = ia.squared.sum.sqrt;
@@ -444,7 +444,7 @@ FoaMagAa : FoaEval {
 
 // FOA Magnitude Reactive Admittance
 FoaMagAr : FoaEval {
-	*ar { arg in, size = 2048, method = 'instant';
+	*ar { |in, size = 2048, method = 'instant'|
 		var p, u;
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
@@ -459,7 +459,7 @@ FoaMagAr : FoaEval {
 
 			wp = pReIm.squared.sum;
 
-			ir = HilbertW.ar(u, size).collect({ arg item;
+			ir = HilbertW.ar(u, size).collect({ |item|
 				(pImRe * item).sum
 			});
 
@@ -488,7 +488,7 @@ FoaMagAr : FoaEval {
 
 // FOA Magnitude Energy
 FoaMagW : FoaEval {
-	*ar { arg in, size = 2048, method = 'instant';
+	*ar { |in, size = 2048, method = 'instant'|
 		var p, u;
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
@@ -499,7 +499,7 @@ FoaMagW : FoaEval {
 			var wp, wu, ws, magI;
 
 			wp = HilbertW.ar(p, size).squared.sum;
-			wu = HilbertW.ar(u, size).sum({ arg item;
+			wu = HilbertW.ar(u, size).sum({ |item|
 				item.squared.sum
 			});
 			ws = (0.5 * (wp + wu));
@@ -527,7 +527,7 @@ FoaMagW : FoaEval {
 
 // FOA Magnitude Active Energy
 FoaMagWa : FoaEval {
-	*ar { arg in, size = 2048, method = 'instant';
+	*ar { |in, size = 2048, method = 'instant'|
 		var p, u;
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
@@ -541,12 +541,12 @@ FoaMagWa : FoaEval {
 			uReIm = HilbertW.ar(u, size);
 
 			wp = pReIm.squared.sum;
-			wu = uReIm.sum({ arg item;
+			wu = uReIm.sum({ |item|
 				item.squared.sum
 			});
 			ws = (0.5 * (wp + wu));
 
-			ia = uReIm.collect({ arg item;
+			ia = uReIm.collect({ |item|
 				(pReIm * item).sum
 			});
 			magIa = ia.squared.sum.sqrt;
@@ -573,7 +573,7 @@ FoaMagWa : FoaEval {
 
 // FOA Magnitude Reactive Energy
 FoaMagWr : FoaEval {
-	*ar { arg in, size = 2048, method = 'instant';
+	*ar { |in, size = 2048, method = 'instant'|
 		var p, u;
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
@@ -588,12 +588,12 @@ FoaMagWr : FoaEval {
 			uReIm = HilbertW.ar(u, size);
 
 			wp = pReIm.squared.sum;
-			wu = uReIm.sum({ arg item;
+			wu = uReIm.sum({ |item|
 				item.squared.sum
 			});
 			ws = (0.5 * (wp + wu));
 
-			ir = uReIm.collect({ arg item;
+			ir = uReIm.collect({ |item|
 				(pImRe * item).sum
 			});
 			magIr = ir.squared.sum.sqrt;
@@ -622,7 +622,7 @@ FoaMagWr : FoaEval {
 
 // FOA Magnitude Unit Normalized Active Intensity
 FoaMagNa : FoaEval {
-	*ar { arg in, size = 2048, method = 'instant';
+	*ar { |in, size = 2048, method = 'instant'|
 		var p, u;
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
@@ -636,12 +636,12 @@ FoaMagNa : FoaEval {
 			uReIm = HilbertW.ar(u, size);
 
 			wp = pReIm.squared.sum;
-			wu = uReIm.sum({ arg item;
+			wu = uReIm.sum({ |item|
 				item.squared.sum
 			});
 			magI = (wp * wu).sqrt;
 
-			ia = uReIm.collect({ arg item;
+			ia = uReIm.collect({ |item|
 				(pReIm * item).sum
 			});
 			magIa = ia.squared.sum.sqrt;
@@ -668,7 +668,7 @@ FoaMagNa : FoaEval {
 
 // FOA Magnitude Unit Normalized Reactive Intensity
 FoaMagNr : FoaEval {
-	*ar { arg in, size = 2048, method = 'instant';
+	*ar { |in, size = 2048, method = 'instant'|
 		var p, u;
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
@@ -683,12 +683,12 @@ FoaMagNr : FoaEval {
 			uReIm = HilbertW.ar(u, size);
 
 			wp = pReIm.squared.sum;
-			wu = uReIm.sum({ arg item;
+			wu = uReIm.sum({ |item|
 				item.squared.sum
 			});
 			magI = (wp * wu).sqrt;
 
-			ir = uReIm.collect({ arg item;
+			ir = uReIm.collect({ |item|
 				(pImRe * item).sum
 			});
 			magIr = ir.squared.sum.sqrt;
@@ -720,7 +720,7 @@ FoaMagNr : FoaEval {
 
 // FOA SFPL
 FoaSFPL : FoaEval {
-	*ar { arg in, size = 2048, method = 'instant';
+	*ar { |in, size = 2048, method = 'instant'|
 		var wp;
 
 		wp = FoaWp.ar(in, size = 2048, method);
@@ -732,7 +732,7 @@ FoaSFPL : FoaEval {
 
 // FOA SFVL
 FoaSFVL : FoaEval {
-	*ar { arg in, size = 2048, method = 'instant';
+	*ar { |in, size = 2048, method = 'instant'|
 		var wu;
 
 		wu = FoaWu.ar(in, size = 2048, method);
@@ -744,7 +744,7 @@ FoaSFVL : FoaEval {
 
 // FOA SFWL
 FoaSFWL : FoaEval {
-	*ar { arg in, size = 2048, method = 'instant';
+	*ar { |in, size = 2048, method = 'instant'|
 		var ws;
 
 		ws = FoaWs.ar(in, size = 2048, method);
@@ -756,7 +756,7 @@ FoaSFWL : FoaEval {
 
 // FOA SFWhL
 FoaSFWhL : FoaEval {
-	*ar { arg in, size = 2048, method = 'instant';
+	*ar { |in, size = 2048, method = 'instant'|
 		var wh;
 
 		wh = FoaWh.ar(in, size = 2048, method);
@@ -768,7 +768,7 @@ FoaSFWhL : FoaEval {
 
 // FOA SFIL
 FoaSFIL : FoaEval {
-	*ar { arg in, size = 2048, method = 'instant';
+	*ar { |in, size = 2048, method = 'instant'|
 		var i;
 
 		i = FoaMagI.ar(in, size = 2048, method);
@@ -785,7 +785,7 @@ FoaSFIL : FoaEval {
 
 // FOA Active-Reactive Soundfield Balance Angle: Alpha
 FoaAlpha : FoaEval {
-	*ar { arg in, size = 2048, method = 'instant';
+	*ar { |in, size = 2048, method = 'instant'|
 		var p, u;
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
@@ -799,12 +799,12 @@ FoaAlpha : FoaEval {
 			pImRe = [1, -1] * pReIm.reverse;
 			uReIm = HilbertW.ar(u, size);
 
-			ia = uReIm.collect({ arg item;
+			ia = uReIm.collect({ |item|
 				(pReIm * item).sum
 			});
 			magIa = ia.squared.sum.sqrt;
 
-			ir = uReIm.collect({ arg item;
+			ir = uReIm.collect({ |item|
 				(pImRe * item).sum
 			});
 			magIr = ir.squared.sum.sqrt
@@ -834,7 +834,7 @@ FoaAlpha : FoaEval {
 
 // FOA Potential-Kinetic Soundfield Balance Angle: Beta
 FoaBeta : FoaEval {
-	*ar { arg in, size = 2048, method = 'instant';
+	*ar { |in, size = 2048, method = 'instant'|
 		var p, u;
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
@@ -845,7 +845,7 @@ FoaBeta : FoaEval {
 			var wp, wu, wd, magI;
 
 			wp = HilbertW.ar(p, size).squared.sum;
-			wu = HilbertW.ar(u, size).sum({ arg item;
+			wu = HilbertW.ar(u, size).sum({ |item|
 				item.squared.sum
 			});
 			wd = (0.5 * (wp - wu));
@@ -872,7 +872,7 @@ FoaBeta : FoaEval {
 
 // FOA Active-Reactive Vector Alignment Angle: Gamma
 FoaGamma : FoaEval {
-	*ar { arg in, size = 2048, method = 'instant';
+	*ar { |in, size = 2048, method = 'instant'|
 		var p, u;
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
@@ -887,12 +887,12 @@ FoaGamma : FoaEval {
 			pImRe = [1, -1] * pReIm.reverse;
 			uReIm = HilbertW.ar(u, size);
 
-			ia = uReIm.collect({ arg item;
+			ia = uReIm.collect({ |item|
 				(pReIm * item).sum
 			});
 			magIa = ia.squared.sum.sqrt;
 
-			ir = uReIm.collect({ arg item;
+			ir = uReIm.collect({ |item|
 				(pImRe * item).sum
 			});
 			magIr = ir.squared.sum.sqrt;
@@ -932,7 +932,7 @@ FoaGamma : FoaEval {
 
 // FOA Active Intensity Azimuth, Elevation
 FoaThetaPhiA : FoaEval {
-	*ar { arg in, size = 2048, method = 'instant';
+	*ar { |in, size = 2048, method = 'instant'|
 		var p, u;
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
@@ -947,12 +947,12 @@ FoaThetaPhiA : FoaEval {
 			pImRe = [1, -1] * pReIm.reverse;
 			uReIm = HilbertW.ar(u, size);
 
-			ia = uReIm.collect({ arg item;
+			ia = uReIm.collect({ |item|
 				(pReIm * item).sum
 			});
 			magIa = ia.squared.sum.sqrt;
 
-			ir = uReIm.collect({ arg item;
+			ir = uReIm.collect({ |item|
 				(pImRe * item).sum
 			});
 			magIr = ir.squared.sum.sqrt;
@@ -1005,7 +1005,7 @@ FoaThetaPhiA : FoaEval {
 
 // FOA Reactive Intensity Azimuth, Elevation
 FoaThetaPhiR : FoaEval {
-	*ar { arg in, size = 2048, method = 'instant';
+	*ar { |in, size = 2048, method = 'instant'|
 		var p, u;
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
@@ -1020,12 +1020,12 @@ FoaThetaPhiR : FoaEval {
 			pImRe = [1, -1] * pReIm.reverse;
 			uReIm = HilbertW.ar(u, size);
 
-			ia = uReIm.collect({ arg item;
+			ia = uReIm.collect({ |item|
 				(pReIm * item).sum
 			});
 			magIa = ia.squared.sum.sqrt;
 
-			ir = uReIm.collect({ arg item;
+			ir = uReIm.collect({ |item|
 				(pImRe * item).sum
 			});
 			magIr = ir.squared.sum.sqrt;
@@ -1056,7 +1056,7 @@ FoaThetaPhiR : FoaEval {
 
 // FOA Active Intensity
 FoaIa : FoaEval {
-	*ar { arg in, size = 2048, method = 'instant';
+	*ar { |in, size = 2048, method = 'instant'|
 		var p, u;
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
@@ -1068,7 +1068,7 @@ FoaIa : FoaEval {
 
 			pReIm = HilbertW.ar(p, size);
 
-			ia = HilbertW.ar(u, size).collect({ arg item;
+			ia = HilbertW.ar(u, size).collect({ |item|
 				(pReIm * item).sum
 			});
 
@@ -1089,7 +1089,7 @@ FoaIa : FoaEval {
 
 // FOA Reactive Intensity
 FoaIr : FoaEval {
-	*ar { arg in, size = 2048, method = 'instant';
+	*ar { |in, size = 2048, method = 'instant'|
 		var p, u;
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
@@ -1101,7 +1101,7 @@ FoaIr : FoaEval {
 
 			pImRe = [1, -1] * HilbertW.ar(p, size).reverse;
 
-			ir = HilbertW.ar(u, size).collect({ arg item;
+			ir = HilbertW.ar(u, size).collect({ |item|
 				(pImRe * item).sum
 			});
 
@@ -1117,7 +1117,7 @@ FoaIr : FoaEval {
 
 // FOA Active Admittance
 FoaAa : FoaEval {
-	*ar { arg in, size = 2048, method = 'instant';
+	*ar { |in, size = 2048, method = 'instant'|
 		var p, u;
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
@@ -1130,7 +1130,7 @@ FoaAa : FoaEval {
 			pReIm = HilbertW.ar(p, size);
 			wp = pReIm.squared.sum;
 
-			ia = HilbertW.ar(u, size).collect({ arg item;
+			ia = HilbertW.ar(u, size).collect({ |item|
 				(pReIm * item).sum
 			});
 			aa = ia / (wp + DC.ar(FoaEval.reg));
@@ -1154,7 +1154,7 @@ FoaAa : FoaEval {
 
 // FOA Reactive Admittance
 FoaAr : FoaEval {
-	*ar { arg in, size = 2048, method = 'instant';
+	*ar { |in, size = 2048, method = 'instant'|
 		var p, u;
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
@@ -1169,7 +1169,7 @@ FoaAr : FoaEval {
 
 			wp = pReIm.squared.sum;
 
-			ir = HilbertW.ar(u, size).collect({ arg item;
+			ir = HilbertW.ar(u, size).collect({ |item|
 				(pImRe * item).sum
 			});
 
@@ -1187,7 +1187,7 @@ FoaAr : FoaEval {
 
 // FOA Active Energy
 FoaWa : FoaEval {
-	*ar { arg in, size = 2048, method = 'instant';
+	*ar { |in, size = 2048, method = 'instant'|
 		var p, u;
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
@@ -1201,12 +1201,12 @@ FoaWa : FoaEval {
 			uReIm = HilbertW.ar(u, size);
 
 			wp = pReIm.squared.sum;
-			wu = uReIm.sum({ arg item;
+			wu = uReIm.sum({ |item|
 				item.squared.sum
 			});
 			ws = (0.5 * (wp + wu));
 
-			ia = uReIm.collect({ arg item;
+			ia = uReIm.collect({ |item|
 				(pReIm * item).sum
 			});
 			wa = ia / (ws + DC.ar(FoaEval.reg));
@@ -1233,7 +1233,7 @@ FoaWa : FoaEval {
 
 // FOA Reactive Energy
 FoaWr : FoaEval {
-	*ar { arg in, size = 2048, method = 'instant';
+	*ar { |in, size = 2048, method = 'instant'|
 		var p, u;
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
@@ -1248,12 +1248,12 @@ FoaWr : FoaEval {
 			uReIm = HilbertW.ar(u, size);
 
 			wp = pReIm.squared.sum;
-			wu = uReIm.sum({ arg item;
+			wu = uReIm.sum({ |item|
 				item.squared.sum
 			});
 			ws = (0.5 * (wp + wu));
 
-			ir = uReIm.collect({ arg item;
+			ir = uReIm.collect({ |item|
 				(pImRe * item).sum
 			});
 			wr = ir / (ws + DC.ar(FoaEval.reg));
@@ -1270,7 +1270,7 @@ FoaWr : FoaEval {
 
 // FOA Unit Normalized Active Intensity
 FoaNa : FoaEval {
-	*ar { arg in, size = 2048, method = 'instant';
+	*ar { |in, size = 2048, method = 'instant'|
 		var p, u;
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
@@ -1284,12 +1284,12 @@ FoaNa : FoaEval {
 			uReIm = HilbertW.ar(u, size);
 
 			wp = pReIm.squared.sum;
-			wu = uReIm.sum({ arg item;
+			wu = uReIm.sum({ |item|
 				item.squared.sum
 			});
 			magI = (wp * wu).sqrt;
 
-			ia = uReIm.collect({ arg item;
+			ia = uReIm.collect({ |item|
 				(pReIm * item).sum
 			});
 			na = ia / (magI + DC.ar(FoaEval.reg));
@@ -1316,7 +1316,7 @@ FoaNa : FoaEval {
 
 // FOA Unit Normalized Reactive Intensity
 FoaNr : FoaEval {
-	*ar { arg in, size = 2048, method = 'instant';
+	*ar { |in, size = 2048, method = 'instant'|
 		var p, u;
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
@@ -1331,12 +1331,12 @@ FoaNr : FoaEval {
 			uReIm = HilbertW.ar(u, size);
 
 			wp = pReIm.squared.sum;
-			wu = uReIm.sum({ arg item;
+			wu = uReIm.sum({ |item|
 				item.squared.sum
 			});
 			magI = (wp * wu).sqrt;
 
-			ir = uReIm.collect({ arg item;
+			ir = uReIm.collect({ |item|
 				(pImRe * item).sum
 			});
 			nr = ir / (magI + DC.ar(FoaEval.reg));
@@ -1365,7 +1365,7 @@ argument key - see helpfile for reasonable values
 */
 
 FoaAnalyze : FoaEval {
-	*ar { arg in, kind ... args;
+	*ar { |in, kind ... args|
 
 		var argDict, argDefaults;
 		var ugen;

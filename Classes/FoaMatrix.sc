@@ -93,18 +93,18 @@ TODO: Replace with updated HOA implementation.
 FoaSpeakerMatrix {
 	var <positions, <k, m, n;
 
-	*new { arg directions, k;
+	*new { |directions, k|
 		var positions;
 
 		switch(directions.rank,					// 2D or 3D?
 			1, { positions = Matrix.with(			// 2D
-					directions.collect({ arg item;
+					directions.collect({ |item|
 						Polar.new(1, item).asPoint.asArray
 					})
 				)
 			},
 			2, { positions = Matrix.with(			// 3D
-					directions.collect({ arg item;
+					directions.collect({ |item|
 						Spherical.new(1, item.at(0), item.at(1)).asCartesian.asArray
 					})
 				)
@@ -114,7 +114,7 @@ FoaSpeakerMatrix {
 		^super.newCopyArgs(positions, k).initDiametric;
 	}
 
-	*newPositions { arg positions, k;
+	*newPositions { |positions, k|
 		^super.newCopyArgs(positions, k).initDiametric;
 	}
 
@@ -141,7 +141,7 @@ FoaSpeakerMatrix {
 		// NOTE: this isn't the user supplied directions arg
 		directions = Matrix.newClear(m, n);
 
-		n.do({ arg i;
+		n.do({ |i|
 
 			// allow entry of positions as
 			// transpose for convenience
@@ -166,7 +166,7 @@ FoaSpeakerMatrix {
 		^sqrt(1/2) * n * k * (s.inverse * directions);
 	}
 
-	printOn { arg stream;
+	printOn { |stream|
 		stream << this.class.name << "(" <<* [this.dim, this.numChannels] <<")";
 	}
 }
@@ -255,7 +255,7 @@ FoaMatrix : AtkMatrix {
 		}
 	}
 
-	initFromFile { arg filePathOrName, mtxType, searchExtensions = false;
+	initFromFile { |filePathOrName, mtxType, searchExtensions = false|
 		var pn, dict;
 
 		// first try with path name only
@@ -327,7 +327,7 @@ FoaMatrix : AtkMatrix {
 	}
 
 	// separate YML writer for FOA
-	prWriteMatrixToYML { arg pn, note, attributeDictionary;
+	prWriteMatrixToYML { |pn, note, attributeDictionary|
 		var wr, wrAtt, wrAttArr, defaults;
 		var dirIns, dirOuts;
 
@@ -528,39 +528,39 @@ FoaMatrix : AtkMatrix {
 FoaDecoderMatrix : FoaMatrix {
 	var <>shelfFreq, <shelfK;
 
-	*newDiametric { arg directions = [pi/4, 3*pi/4], k = 'single';
+		*newDiametric { |directions = ([pi/4, 3*pi/4]), k = 'single'|
 		^super.new('diametric').initDiametric(directions, k);
 	}
 
-	*newPanto { arg numChans = 4, orientation = 'flat', k = 'single';
+	*newPanto { |numChans = 4, orientation = 'flat', k = 'single'|
 		^super.new('panto').initPanto(numChans, orientation, k);
 	}
 
-	*newPeri { arg numChanPairs = 4, elevation = 0.61547970867039, orientation = 'flat', k = 'single';
+	*newPeri { |numChanPairs = 4, elevation = 0.61547970867039, orientation = 'flat', k = 'single'|
 		^super.new('peri').initPeri(numChanPairs, elevation, orientation, k);
 	}
 
-	*newQuad { arg angle = pi/4, k = 'single';
+	*newQuad { |angle = (pi/4), k = 'single'|
 		^super.new('quad').initQuad(angle, k);
 	}
 
-	*newStereo { arg angle = pi/2, pattern = 0.5;
+	*newStereo { |angle = (pi/2), pattern = 0.5|
 		^super.new('stereo').initStereo(angle, pattern);
 	}
 
-	*newMono { arg theta = 0, phi = 0, pattern = 0;
+	*newMono { |theta = 0, phi = 0, pattern = 0|
 		^super.new('mono').initMono(theta, phi, pattern);
 	}
 
-	*new5_0 { arg irregKind = 'focused';
+	*new5_0 { |irregKind = 'focused'|
 		^super.new('5_0').loadFromLib(irregKind);
 	}
 
-	*newBtoA { arg orientation = 'flu', weight = 'dec';
+	*newBtoA { |orientation = 'flu', weight = 'dec'|
 		^super.new('BtoA').loadFromLib(orientation, weight);
 	}
 
-	*newHoa1 { arg ordering = 'acn', normalisation = 'n3d';
+	*newHoa1 { |ordering = 'acn', normalisation = 'n3d'|
 		^super.new('hoa1').loadFromLib(ordering, normalisation);
 	}
 
@@ -569,11 +569,11 @@ FoaDecoderMatrix : FoaMatrix {
 		^super.new('hoa1').loadFromLib(ordering, normalisation);
 	}
 
-	*newFromFile { arg filePathOrName;
+	*newFromFile { |filePathOrName|
 		^super.new.initFromFile(filePathOrName, 'decoder', true).initDecoderVarsForFiles;
 	}
 
-	initK2D { arg k;
+	initK2D { |k|
 
 		k.isNumber.if({
 			^k
@@ -592,7 +592,7 @@ FoaDecoderMatrix : FoaMatrix {
 		})
 	}
 
-	initK3D { arg k;
+	initK3D { |k|
 
 		k.isNumber.if({
 			^k
@@ -611,7 +611,7 @@ FoaDecoderMatrix : FoaMatrix {
 		})
 	}
 
-	initDiametric { arg directions, k;
+	initDiametric { |directions, k|
 
 		var positions, positions2;
 		var speakerMatrix, n;
@@ -621,7 +621,7 @@ FoaDecoderMatrix : FoaMatrix {
 
 				// find positions
 				positions = Matrix.with(
-					directions.collect({ arg item;
+					directions.collect({ |item|
 						Polar.new(1, item).asPoint.asArray
 					})
 				);
@@ -631,7 +631,7 @@ FoaDecoderMatrix : FoaMatrix {
 				positions2 = positions ++ (positions.neg);
 
 				// set output channel (speaker) directions for instance
-				dirChannels = positions2.asArray.collect({ arg item;
+				dirChannels = positions2.asArray.collect({ |item|
 					item.asPoint.asPolar.angle
 				});
 
@@ -642,7 +642,7 @@ FoaDecoderMatrix : FoaMatrix {
 
 				// find positions
 				positions = Matrix.with(
-					directions.collect({ arg item;
+					directions.collect({ |item|
 						Spherical.new(1, item.at(0), item.at(1)).asCartesian.asArray
 					})
 				);
@@ -652,7 +652,7 @@ FoaDecoderMatrix : FoaMatrix {
 				positions2 = positions ++ (positions.neg);
 
 				// set output channel (speaker) directions for instance
-				dirChannels = positions2.asArray.collect({ arg item;
+				dirChannels = positions2.asArray.collect({ |item|
 					item.asCartesian.asSpherical.angles
 				});
 
@@ -685,7 +685,7 @@ FoaDecoderMatrix : FoaMatrix {
 		matrix = 2.sqrt/n * matrix.flop;
 	}
 
-	initPanto { arg numChans, orientation, k;
+	initPanto { |numChans, orientation, k|
 
 		var g0, g1, theta;
 
@@ -694,7 +694,7 @@ FoaDecoderMatrix : FoaMatrix {
 
 
 		// return theta from output channel (speaker) number
-		theta = numChans.collect({ arg channel;
+		theta = numChans.collect({ |channel|
 			switch(orientation,
 				'flat',	{ ((1.0 + (2.0 * channel))/numChans) * pi },
 				'point',	{ ((2.0 * channel)/numChans) * pi }
@@ -712,7 +712,7 @@ FoaDecoderMatrix : FoaMatrix {
 		// build decoder matrix
 		matrix = Matrix.newClear(numChans, 3); // start w/ empty matrix
 
-		numChans.do({ arg i;
+		numChans.do({ |i|
 			matrix.putRow(i, [
 				g0,
 				k * g1 * theta.at(i).cos,
@@ -722,14 +722,14 @@ FoaDecoderMatrix : FoaMatrix {
 		matrix = 2.sqrt/numChans * matrix
 	}
 
-	initPeri { arg numChanPairs, elevation, orientation, k;
+	initPeri { |numChanPairs, elevation, orientation, k|
 
 		var theta, directions, upDirs, downDirs, upMatrix, downMatrix;
 
 		// generate output channel (speaker) pair positions
 		// start with polar positions. . .
 		theta = [];
-		numChanPairs.do({ arg i;
+		numChanPairs.do({ |i|
 			theta = theta ++ [2 * pi * i / numChanPairs]
 		});
 
@@ -748,7 +748,7 @@ FoaDecoderMatrix : FoaMatrix {
 		// prepare output channel (speaker) directions for instance
 		upDirs = (directions + pi).mod(2pi) - pi;
 
-		downDirs = upDirs.collect({ arg angles;
+		downDirs = upDirs.collect({ |angles|
 			Spherical.new(1, angles.at(0), angles.at(1)).neg.angles
 		});
 
@@ -778,7 +778,7 @@ FoaDecoderMatrix : FoaMatrix {
 
 	}
 
-	initQuad { arg angle, k;
+	initQuad { |angle, k|
 
 		var g0, g1, g2;
 
@@ -803,7 +803,7 @@ FoaDecoderMatrix : FoaMatrix {
 		])
 	}
 
-	initStereo { arg angle, pattern;
+	initStereo { |angle, pattern|
 
 		var g0, g1, g2;
 
@@ -822,7 +822,7 @@ FoaDecoderMatrix : FoaMatrix {
 		])
 	}
 
-	initMono { arg theta, phi, pattern;
+	initMono { |theta, phi, pattern|
 
 		// set output channel (speaker) directions for instance
 		dirChannels = [0];
@@ -861,11 +861,11 @@ FoaDecoderMatrix : FoaMatrix {
 
 FoaEncoderMatrix : FoaMatrix {
 
-	*newAtoB { arg orientation = 'flu', weight = 'dec';
+	*newAtoB { |orientation = 'flu', weight = 'dec'|
 		^super.new('AtoB').loadFromLib(orientation, weight)
 	}
 
-	*newHoa1 { arg ordering = 'acn', normalisation = 'n3d';
+	*newHoa1 { |ordering = 'acn', normalisation = 'n3d'|
 		^super.new('hoa1').loadFromLib(ordering, normalisation);
 	}
 
@@ -883,11 +883,11 @@ FoaEncoderMatrix : FoaMatrix {
 		^super.new('omni').loadFromLib;
 	}
 
-	*newDirection { arg theta = 0, phi = 0;
+	*newDirection { |theta = 0, phi = 0|
 		^super.new('dir').initDirection(theta, phi);
 	}
 
-	*newStereo { arg angle = 0;
+	*newStereo { |angle = 0|
 		^super.new('stereo').initStereo(angle);
 	}
 
@@ -903,23 +903,23 @@ FoaEncoderMatrix : FoaMatrix {
 		^super.new('7_0').loadFromLib;
 	}
 
-	*newDirections { arg directions, pattern = nil;
+	*newDirections { |directions, pattern = nil|
 		^super.new('dirs').initDirections(directions, pattern);
 	}
 
-	*newPanto { arg numChans = 4, orientation = 'flat';
+	*newPanto { |numChans = 4, orientation = 'flat'|
 		^super.new('panto').initPanto(numChans, orientation);
 	}
 
-	*newPeri { arg numChanPairs = 4, elevation = 0.61547970867039, orientation = 'flat';
+	*newPeri { |numChanPairs = 4, elevation = 0.61547970867039, orientation = 'flat'|
 		^super.new('peri').initPeri(numChanPairs, elevation, orientation);
 	}
 
-	*newZoomH2 { arg angles = [pi/3, 3/4*pi], pattern = 0.5857, k = 1;
+	*newZoomH2 { |angles = ([pi/3, 3/4*pi]), pattern = 0.5857, k = 1|
 		^super.new('zoomH2').initZoomH2(angles, pattern, k);
 	}
 
-	*newFromFile { arg filePathOrName;
+	*newFromFile { |filePathOrName|
 		^super.new.initFromFile(filePathOrName, 'encoder', true).initEncoderVarsForFiles
 	}
 
@@ -930,7 +930,7 @@ FoaEncoderMatrix : FoaMatrix {
 		// build encoder matrix, and set for instance
 		matrix = Matrix.newClear(3, dirChannels.size); // start w/ empty matrix
 
-		dirChannels.do({ arg theta, i;
+		dirChannels.do({ |theta, i|
 			matrix.putCol(i, [
 				g0,
 				theta.cos,
@@ -946,7 +946,7 @@ FoaEncoderMatrix : FoaMatrix {
 		// build encoder matrix, and set for instance
 		matrix = Matrix.newClear(4, dirChannels.size); // start w/ empty matrix
 
-		dirChannels.do({ arg thetaPhi, i;
+		dirChannels.do({ |thetaPhi, i|
 			matrix.putCol(i, [
 				g0,
 				thetaPhi.at(1).cos * thetaPhi.at(0).cos,
@@ -956,7 +956,7 @@ FoaEncoderMatrix : FoaMatrix {
 		})
 	}
 
-	initInv2D { arg pattern;
+	initInv2D { |pattern|
 
 		var g0 = 2.sqrt.reciprocal;
 
@@ -964,7 +964,7 @@ FoaEncoderMatrix : FoaMatrix {
 		matrix = Matrix.newClear(dirChannels.size, 3); // start w/ empty matrix
 
 		pattern.isArray.if({
-			dirChannels.do({ arg theta, i;  // mic positions, indivd patterns
+			dirChannels.do({ |theta, i|  // mic positions, indivd patterns
 				matrix.putRow(i, [
 					(1.0 - pattern.at(i)),
 					pattern.at(i) * theta.cos,
@@ -972,7 +972,7 @@ FoaEncoderMatrix : FoaMatrix {
 				])
 			})
 		}, {
-			dirChannels.do({ arg theta, i;  // mic positions
+			dirChannels.do({ |theta, i|  // mic positions
 				matrix.putRow(i, [
 					(1.0 - pattern),
 					pattern * theta.cos,
@@ -991,7 +991,7 @@ FoaEncoderMatrix : FoaMatrix {
 		matrix = matrix.putRow(0, matrix.getRow(0) * g0);
 	}
 
-	initInv3D { arg pattern;
+	initInv3D { |pattern|
 
 		var g0 = 2.sqrt.reciprocal;
 
@@ -999,7 +999,7 @@ FoaEncoderMatrix : FoaMatrix {
 		matrix = Matrix.newClear(dirChannels.size, 4);  // start w/ empty matrix
 
 		pattern.isArray.if({
-			dirChannels.do({ arg thetaPhi, i;  // mic positions, indivd patterns
+			dirChannels.do({ |thetaPhi, i|  // mic positions, indivd patterns
 				matrix.putRow(i, [
 					(1.0 - pattern.at(i)),
 					pattern.at(i) * thetaPhi.at(1).cos * thetaPhi.at(0).cos,
@@ -1008,7 +1008,7 @@ FoaEncoderMatrix : FoaMatrix {
 				])
 			})
 		}, {
-			dirChannels.do({ arg thetaPhi, i;  // mic positions
+			dirChannels.do({ |thetaPhi, i|  // mic positions
 				matrix.putRow(i, [
 					(1.0 - pattern),
 					pattern * thetaPhi.at(1).cos * thetaPhi.at(0).cos,
@@ -1028,7 +1028,7 @@ FoaEncoderMatrix : FoaMatrix {
 		matrix = matrix.putRow(0, matrix.getRow(0) * g0);
 	}
 
-	initDirection { arg theta, phi;
+	initDirection { |theta, phi|
 
 		// set input channel directions for instance
 		(phi == 0).if({
@@ -1040,7 +1040,7 @@ FoaEncoderMatrix : FoaMatrix {
 		})
 	}
 
-	initStereo { arg angle;
+	initStereo { |angle|
 
 		// set input channel directions for instance
 		dirChannels = [pi/2 - angle, (pi/2 - angle).neg];
@@ -1048,7 +1048,7 @@ FoaEncoderMatrix : FoaMatrix {
 		this.init2D
 	}
 
-	initDirections { arg directions, pattern;
+	initDirections { |directions, pattern|
 
 		// set input channel directions for instance
 		dirChannels = directions;
@@ -1071,12 +1071,12 @@ FoaEncoderMatrix : FoaMatrix {
 		)
 	}
 
-	initPanto { arg numChans, orientation;
+	initPanto { |numChans, orientation|
 
 		var theta;
 
 		// return theta from output channel (speaker) number
-		theta = numChans.collect({ arg channel;
+		theta = numChans.collect({ |channel|
 			switch(orientation,
 				'flat', { ((1.0 + (2.0 * channel))/numChans) * pi },
 				'point', { ((2.0 * channel)/numChans) * pi }
@@ -1090,14 +1090,14 @@ FoaEncoderMatrix : FoaMatrix {
 		this.init2D
 	}
 
-	initPeri { arg numChanPairs, elevation, orientation;
+	initPeri { |numChanPairs, elevation, orientation|
 
 		var theta, directions, upDirs, downDirs, upMatrix, downMatrix;
 
 		// generate input channel pair positions
 		// start with polar positions. . .
 		theta = [];
-		numChanPairs.do({ arg i;
+		numChanPairs.do({ |i|
 			theta = theta ++ [2 * pi * i / numChanPairs] }
 		);
 		if (orientation == 'flat',
@@ -1114,7 +1114,7 @@ FoaEncoderMatrix : FoaMatrix {
 		// prepare output channel (speaker) directions for instance
 		upDirs = (directions + pi).mod(2pi) - pi;
 
-		downDirs = upDirs.collect({ arg angles;
+		downDirs = upDirs.collect({ |angles|
 			Spherical.new(1, angles.at(0), angles.at(1)).neg.angles
 		});
 
@@ -1133,7 +1133,7 @@ FoaEncoderMatrix : FoaMatrix {
 		this.init3D
 	}
 
-	initZoomH2 { arg angles, pattern, k;
+	initZoomH2 { |angles, pattern, k|
 
 		// set input channel directions for instance
 		dirChannels = [angles.at(0), angles.at(0).neg, angles.at(1), angles.at(1).neg];
@@ -1194,139 +1194,139 @@ FoaXformerMatrix : FoaMatrix {
 	}
 	//~~~
 
-	*newRotate { arg angle = 0;
+	*newRotate { |angle = 0|
 		^super.new('rotate').initRotate(angle);
 	}
 
-	*newTilt { arg angle = 0;
+	*newTilt { |angle = 0|
 		^super.new('tilt').initTilt(angle);
 	}
 
-	*newTumble { arg angle = 0;
+	*newTumble { |angle = 0|
 		^super.new('tumble').initTumble(angle);
 	}
 
-	*newDirectO { arg angle = 0;
+	*newDirectO { |angle = 0|
 		^super.new('directO').initDirectO(angle);
 	}
 
-	*newDirectX { arg angle = 0;
+	*newDirectX { |angle = 0|
 		^super.new('directX').initDirectX(angle);
 	}
 
-	*newDirectY { arg angle = 0;
+	*newDirectY { |angle = 0|
 		^super.new('directY').initDirectY(angle);
 	}
 
-	*newDirectZ { arg angle = 0;
+	*newDirectZ { |angle = 0|
 		^super.new('directZ').initDirectZ(angle);
 	}
 
-	*newDominateX { arg gain = 0;
+	*newDominateX { |gain = 0|
 		^super.new('dominateX').initDominateX(gain);
 	}
 
-	*newDominateY { arg gain = 0;
+	*newDominateY { |gain = 0|
 		^super.new('dominateY').initDominateY(gain);
 	}
 
-	*newDominateZ { arg gain = 0;
+	*newDominateZ { |gain = 0|
 		^super.new('dominateZ').initDominateZ(gain);
 	}
 
-	*newZoomX { arg angle = 0;
+	*newZoomX { |angle = 0|
 		^super.new('zoomX').initZoomX(angle);
 	}
 
-	*newZoomY { arg angle = 0;
+	*newZoomY { |angle = 0|
 		^super.new('zoomY').initZoomY(angle);
 	}
 
-	*newZoomZ { arg angle = 0;
+	*newZoomZ { |angle = 0|
 		^super.new('zoomZ').initZoomZ(angle);
 	}
 
-	*newFocusX { arg angle = 0;
+	*newFocusX { |angle = 0|
 		^super.new('focusX').initFocusX(angle);
 	}
 
-	*newFocusY { arg angle = 0;
+	*newFocusY { |angle = 0|
 		^super.new('focusY').initFocusY(angle);
 	}
 
-	*newFocusZ { arg angle = 0;
+	*newFocusZ { |angle = 0|
 		^super.new('focusZ').initFocusZ(angle);
 	}
 
-	*newPushX { arg angle = 0;
+	*newPushX { |angle = 0|
 		^super.new('pushX').initPushX(angle);
 	}
 
-	*newPushY { arg angle = 0;
+	*newPushY { |angle = 0|
 		^super.new('pushY').initPushY(angle);
 	}
 
-	*newPushZ { arg angle = 0;
+	*newPushZ { |angle = 0|
 		^super.new('pushZ').initPushZ(angle);
 	}
 
-	*newPressX { arg angle = 0;
+	*newPressX { |angle = 0|
 		^super.new('pressX').initPressX(angle);
 	}
 
-	*newPressY { arg angle = 0;
+	*newPressY { |angle = 0|
 		^super.new('pressY').initPressY(angle);
 	}
 
-	*newPressZ { arg angle = 0;
+	*newPressZ { |angle = 0|
 		^super.new('pressZ').initPressZ(angle);
 	}
 
-	*newAsymmetry { arg angle = 0;
+	*newAsymmetry { |angle = 0|
 		^super.new('asymmetry').initAsymmetry(angle);
 	}
 
-	*newBalance { arg angle = 0;
+	*newBalance { |angle = 0|
 		^super.new('zoomY').initZoomY(angle);
 	}
 
-	*newRTT { arg rotAngle = 0, tilAngle = 0, tumAngle = 0;
+	*newRTT { |rotAngle = 0, tilAngle = 0, tumAngle = 0|
 		^super.new('rtt').initRTT(rotAngle, tilAngle, tumAngle);
 	}
 
-	*newMirror { arg theta = 0, phi = 0;
+	*newMirror { |theta = 0, phi = 0|
 		^super.new('mirror').initMirror(theta, phi);
 	}
 
-	*newDirect { arg angle = 0, theta = 0, phi = 0;
+	*newDirect { |angle = 0, theta = 0, phi = 0|
 		^super.new('direct').initDirect(angle, theta, phi);
 	}
 
-	*newDominate { arg gain = 0, theta = 0, phi = 0;
+	*newDominate { |gain = 0, theta = 0, phi = 0|
 		^super.new('dominate').initDominate(gain, theta, phi);
 	}
 
-	*newZoom { arg angle = 0, theta = 0, phi = 0;
+	*newZoom { |angle = 0, theta = 0, phi = 0|
 		^super.new('zoom').initZoom(angle, theta, phi);
 	}
 
-	*newFocus { arg angle = 0, theta = 0, phi = 0;
+	*newFocus { |angle = 0, theta = 0, phi = 0|
 		^super.new('focus').initFocus(angle, theta, phi);
 	}
 
-	*newPush { arg angle = 0, theta = 0, phi = 0;
+	*newPush { |angle = 0, theta = 0, phi = 0|
 		^super.new('push').initPush(angle, theta, phi);
 	}
 
-	*newPress { arg angle = 0, theta = 0, phi = 0;
+	*newPress { |angle = 0, theta = 0, phi = 0|
 		^super.new('press').initPress(angle, theta, phi);
 	}
 
-	*newFromFile { arg filePathOrName;
+	*newFromFile { |filePathOrName|
 		^super.new.initFromFile(filePathOrName, 'xformer', true);
 	}
 
-	initRotate { arg angle;
+	initRotate { |angle|
 		var cosAngle, sinAngle;
 
 		// build transform matrix, and set for instance
@@ -1342,7 +1342,7 @@ FoaXformerMatrix : FoaMatrix {
 		])
 	}
 
-	initTilt { arg angle;
+	initTilt { |angle|
 		var cosAngle, sinAngle;
 
 		// build transform matrix, and set for instance
@@ -1358,7 +1358,7 @@ FoaXformerMatrix : FoaMatrix {
 		])
 	}
 
-	initTumble { arg angle;
+	initTumble { |angle|
 		var cosAngle, sinAngle;
 
 		// build transform matrix, and set for instance
@@ -1374,7 +1374,7 @@ FoaXformerMatrix : FoaMatrix {
 		])
 	}
 
-	initDirectO { arg angle;
+	initDirectO { |angle|
 		var g0, g1;
 
 		// build transform matrix, and set for instance
@@ -1389,7 +1389,7 @@ FoaXformerMatrix : FoaMatrix {
 		])
 	}
 
-	initDirectX { arg angle;
+	initDirectX { |angle|
 		var g0, g1;
 
 		// build transform matrix, and set for instance
@@ -1404,7 +1404,7 @@ FoaXformerMatrix : FoaMatrix {
 		])
 	}
 
-	initDirectY { arg angle;
+	initDirectY { |angle|
 		var g0, g1;
 
 		// build transform matrix, and set for instance
@@ -1419,7 +1419,7 @@ FoaXformerMatrix : FoaMatrix {
 		])
 	}
 
-	initDirectZ { arg angle;
+	initDirectZ { |angle|
 		var g0, g1;
 
 		// build transform matrix, and set for instance
@@ -1434,7 +1434,7 @@ FoaXformerMatrix : FoaMatrix {
 		])
 	}
 
-	initDominateX { arg gain;
+	initDominateX { |gain|
 		var g0, g1, k;
 
 		// build transform matrix, and set for instance
@@ -1451,7 +1451,7 @@ FoaXformerMatrix : FoaMatrix {
 		])
 	}
 
-	initDominateY { arg gain;
+	initDominateY { |gain|
 		var g0, g1, k;
 
 		// build transform matrix, and set for instance
@@ -1468,7 +1468,7 @@ FoaXformerMatrix : FoaMatrix {
 		])
 	}
 
-	initDominateZ { arg gain;
+	initDominateZ { |gain|
 		var g0, g1, k;
 
 		// build transform matrix, and set for instance
@@ -1485,7 +1485,7 @@ FoaXformerMatrix : FoaMatrix {
 		])
 	}
 
-	initZoomX { arg angle;
+	initZoomX { |angle|
 		var g0, g1;
 
 		// build transform matrix, and set for instance
@@ -1500,7 +1500,7 @@ FoaXformerMatrix : FoaMatrix {
 		])
 	}
 
-	initZoomY { arg angle;
+	initZoomY { |angle|
 		var g0, g1;
 
 		// build transform matrix, and set for instance
@@ -1515,7 +1515,7 @@ FoaXformerMatrix : FoaMatrix {
 		])
 	}
 
-	initZoomZ { arg angle;
+	initZoomZ { |angle|
 		var g0, g1;
 
 		// build transform matrix, and set for instance
@@ -1530,7 +1530,7 @@ FoaXformerMatrix : FoaMatrix {
 		])
 	}
 
-	initFocusX { arg angle;
+	initFocusX { |angle|
 		var g0, g1, g2;
 
 		// build transform matrix, and set for instance
@@ -1546,7 +1546,7 @@ FoaXformerMatrix : FoaMatrix {
 		])
 	}
 
-	initFocusY { arg angle;
+	initFocusY { |angle|
 		var g0, g1, g2;
 
 		// build transform matrix, and set for instance
@@ -1562,7 +1562,7 @@ FoaXformerMatrix : FoaMatrix {
 		])
 	}
 
-	initFocusZ { arg angle;
+	initFocusZ { |angle|
 		var g0, g1, g2;
 
 		// build transform matrix, and set for instance
@@ -1578,7 +1578,7 @@ FoaXformerMatrix : FoaMatrix {
 		])
 	}
 
-	initPushX { arg angle;
+	initPushX { |angle|
 		var g0, g1;
 
 		// build transform matrix, and set for instance
@@ -1593,7 +1593,7 @@ FoaXformerMatrix : FoaMatrix {
 		])
 	}
 
-	initPushY { arg angle;
+	initPushY { |angle|
 		var g0, g1;
 
 		// build transform matrix, and set for instance
@@ -1608,7 +1608,7 @@ FoaXformerMatrix : FoaMatrix {
 		])
 	}
 
-	initPushZ { arg angle;
+	initPushZ { |angle|
 		var g0, g1;
 
 		// build transform matrix, and set for instance
@@ -1623,7 +1623,7 @@ FoaXformerMatrix : FoaMatrix {
 		])
 	}
 
-	initPressX { arg angle;
+	initPressX { |angle|
 		var g0, g1, g2;
 
 		// build transform matrix, and set for instance
@@ -1639,7 +1639,7 @@ FoaXformerMatrix : FoaMatrix {
 		])
 	}
 
-	initPressY { arg angle;
+	initPressY { |angle|
 		var g0, g1, g2;
 
 		// build transform matrix, and set for instance
@@ -1655,7 +1655,7 @@ FoaXformerMatrix : FoaMatrix {
 		])
 	}
 
-	initPressZ { arg angle;
+	initPressZ { |angle|
 		var g0, g1, g2;
 
 		// build transform matrix, and set for instance
@@ -1671,7 +1671,7 @@ FoaXformerMatrix : FoaMatrix {
 		])
 	}
 
-	initAsymmetry { arg angle;
+	initAsymmetry { |angle|
 		var g0, g1, g2, g3, g4;
 
 		// build transform matrix, and set for instance
@@ -1689,7 +1689,7 @@ FoaXformerMatrix : FoaMatrix {
 		])
 	}
 
-	initRTT { arg rotAngle, tilAngle, tumAngle;
+	initRTT { |rotAngle, tilAngle, tumAngle|
 
 		matrix = (
 			FoaXformerMatrix.newTumble(tumAngle).matrix *
@@ -1698,7 +1698,7 @@ FoaXformerMatrix : FoaMatrix {
 		)
 	}
 
-	initMirror { arg theta, phi;
+	initMirror { |theta, phi|
 
 		matrix = (
 			FoaXformerMatrix.newRotate(theta).matrix *
@@ -1709,7 +1709,7 @@ FoaXformerMatrix : FoaMatrix {
 		)
 	}
 
-	initDirect { arg angle, theta, phi;
+	initDirect { |angle, theta, phi|
 
 		matrix = (
 			FoaXformerMatrix.newRotate(theta).matrix *
@@ -1720,7 +1720,7 @@ FoaXformerMatrix : FoaMatrix {
 		)
 	}
 
-	initDominate { arg gain, theta, phi;
+	initDominate { |gain, theta, phi|
 
 		matrix = (
 			FoaXformerMatrix.newRotate(theta).matrix *
@@ -1731,7 +1731,7 @@ FoaXformerMatrix : FoaMatrix {
 		)
 	}
 
-	initZoom { arg angle, theta, phi;
+	initZoom { |angle, theta, phi|
 
 		matrix = (
 			FoaXformerMatrix.newRotate(theta).matrix *
@@ -1742,7 +1742,7 @@ FoaXformerMatrix : FoaMatrix {
 		)
 	}
 
-	initFocus { arg angle, theta, phi;
+	initFocus { |angle, theta, phi|
 
 		matrix = (
 			FoaXformerMatrix.newRotate(theta).matrix *
@@ -1753,7 +1753,7 @@ FoaXformerMatrix : FoaMatrix {
 		)
 	}
 
-	initPush { arg angle, theta, phi;
+	initPush { |angle, theta, phi|
 
 		matrix = (
 			FoaXformerMatrix.newRotate(theta).matrix *
@@ -1764,7 +1764,7 @@ FoaXformerMatrix : FoaMatrix {
 		)
 	}
 
-	initPress { arg angle, theta, phi;
+	initPress { |angle, theta, phi|
 
 		matrix = (
 			FoaXformerMatrix.newRotate(theta).matrix *
@@ -1793,31 +1793,31 @@ FoaDecoderKernel {
 	var <set = 'FOA';
 
 
-	// *newSpherical { arg subjectID = 0004, kernelSize = 512, server = Server.default;
+	// *newSpherical { |subjectID = 0004, kernelSize = 512, server = Server.default|
 	// 	^super.newCopyArgs('spherical', subjectID).initKernel(kernelSize, server);
 	// }
 	//
-	// *newListen { arg subjectID = 1002, server = Server.default;
+	// *newListen { |subjectID = 1002, server = Server.default|
 	// 	^super.newCopyArgs('listen', subjectID).initKernel(512, server);
 	// }
 	//
-	// *newCIPIC { arg subjectID = 0021, server = Server.default;
+	// *newCIPIC { |subjectID = 0021, server = Server.default|
 	// 	^super.newCopyArgs('cipic', subjectID).initKernel(256, server);
 	// }
 
-	*newSpherical { arg subjectID = 0004, server = Server.default, sampleRate, score;
+	*newSpherical { |subjectID = 0004, server = (Server.default), sampleRate, score|
 		^super.newCopyArgs('spherical', subjectID).initKernel(nil, server, sampleRate, score);
 	}
 
-	*newListen { arg subjectID = 1002, server = Server.default, sampleRate, score;
+	*newListen { |subjectID = 1002, server = (Server.default), sampleRate, score|
 		^super.newCopyArgs('listen', subjectID).initKernel(nil, server, sampleRate, score);
 	}
 
-	*newCIPIC { arg subjectID = 0021, server = Server.default, sampleRate, score;
+	*newCIPIC { |subjectID = 0021, server = (Server.default), sampleRate, score|
 		^super.newCopyArgs('cipic', subjectID).initKernel(nil, server, sampleRate, score);
 	}
 
-	*newUHJ { arg kernelSize = 512, server = Server.default, sampleRate, score;
+	*newUHJ { |kernelSize = 512, server = (Server.default), sampleRate, score|
 		^super.newCopyArgs('uhj', 0).initKernel(kernelSize, server, sampleRate, score);
 	}
 
@@ -1840,7 +1840,7 @@ FoaDecoderKernel {
 		^kernelLibPath +/+ decodersPath +/+ PathName.new(kind.asString)
 	}
 
-	initKernel { arg kernelSize, server, sampleRate, score;
+	initKernel { |kernelSize, server, sampleRate, score|
 
 		var databasePath, subjectPath;
 		var chans;
@@ -1918,7 +1918,7 @@ FoaDecoderKernel {
 			{
 				"Supported samplerates:".warn;
 				PathName.new(subjectPath.parentLevelPath(3)).folders.do({
-					arg folder;
+					|folder|
 					("\t" + folder.folderName).postln;
 				});
 
@@ -1932,7 +1932,7 @@ FoaDecoderKernel {
 			{
 				"Supported kernel sizes:".warn;
 				PathName.new(subjectPath.parentLevelPath(2)).folders.do({
-					arg folder;
+					|folder|
 					("\t" + folder.folderName).postln;
 				});
 
@@ -1946,7 +1946,7 @@ FoaDecoderKernel {
 			{
 				"Supported subjects:".warn;
 				PathName.new(subjectPath.parentLevelPath(1)).folders.do({
-					arg folder;
+					|folder|
 					("\t" + folder.folderName).postln;
 				});
 
@@ -1969,10 +1969,10 @@ FoaDecoderKernel {
 					).throw
 				}, {
 					// Else... everything is fine! Load kernel.
-					kernel = subjectPath.files.collect({ arg kernelPath;
-						chans.collect({ arg chan;
+					kernel = subjectPath.files.collect({ |kernelPath|
+						chans.collect({ |chan|
 							Buffer.readChannel(server, kernelPath.fullPath, channels: [chan],
-								action: { arg buf;
+								action: { |buf|
 									(
 										kernelBundle = kernelBundle.add(
 							["/b_allocReadChannel", buf.bufnum, kernelPath.fullPath, 0, kernelSize, chan]
@@ -1990,8 +1990,8 @@ FoaDecoderKernel {
 			});
 
 			(\CtkScore.asClass.notNil and: { score.isKindOf(\CtkScore.asClass) }).if{
-				kernel = subjectPath.files.collect({ arg kernelPath;
-					chans.collect({ arg chan;
+				kernel = subjectPath.files.collect({ |kernelPath|
+					chans.collect({ |chan|
 						var buf = CtkBuffer(kernelPath.fullPath, channels: [chan]);
 						kernelInfo = kernelInfo.add([kernelPath.fullPath, buf.bufnum, [chan]]);
 						score.add(buf);
@@ -2001,8 +2001,8 @@ FoaDecoderKernel {
 			};
 
 			score.isKindOf(Score).if{
-				kernel = subjectPath.files.collect({ arg kernelPath;
-					chans.collect({ arg chan;
+				kernel = subjectPath.files.collect({ |kernelPath|
+					chans.collect({ |chan|
 						var buf;
 						buf = Buffer(server, kernelSize);
 						kernelBundle = kernelBundle.add(
@@ -2028,8 +2028,8 @@ FoaDecoderKernel {
 
 	free {
 		var path;
-		kernel.shape.at(0).do({ arg i;
-			kernel.shape.at(1).do({ arg j;
+		kernel.shape.at(0).do({ |i|
+			kernel.shape.at(1).do({ |j|
 				path = kernel.at(i).at(j).path;
 				kernel.at(i).at(j).free;
 				(
@@ -2065,7 +2065,7 @@ FoaDecoderKernel {
 
 	type { ^'decoder' }
 
-	printOn { arg stream;
+	printOn { |stream|
 		stream << this.class.name << "(" <<*
 			[kind, this.dim, this.numChannels, subjectID, this.kernelSize] <<")";
 	}
@@ -2082,19 +2082,19 @@ FoaEncoderKernel {
 	var <op = 'kernel';
 	var <set = 'FOA';
 
-	*newUHJ { arg kernelSize = nil, server = Server.default, sampleRate, score;
+	*newUHJ { |kernelSize = nil, server = (Server.default), sampleRate, score|
 		^super.newCopyArgs('uhj', 0).initKernel(kernelSize, server, sampleRate, score);
 	}
 
-	*newSuper { arg kernelSize = nil, server = Server.default, sampleRate, score;
+	*newSuper { |kernelSize = nil, server = (Server.default), sampleRate, score|
 		^super.newCopyArgs('super', 0).initKernel(kernelSize, server, sampleRate, score);
 	}
 
-	*newSpread { arg subjectID = 0006, kernelSize = 2048, server = Server.default, sampleRate, score;
+	*newSpread { |subjectID = 0006, kernelSize = 2048, server = (Server.default), sampleRate, score|
 		^super.newCopyArgs('spread', subjectID).initKernel(kernelSize, server, sampleRate, score);
 	}
 
-	*newDiffuse { arg subjectID = 0003, kernelSize = 2048, server = Server.default, sampleRate, score;
+	*newDiffuse { |subjectID = 0003, kernelSize = 2048, server = (Server.default), sampleRate, score|
 		^super.newCopyArgs('diffuse', subjectID).initKernel(kernelSize, server, sampleRate, score);
 	}
 
@@ -2103,15 +2103,15 @@ FoaEncoderKernel {
 	//
 	// NOTE: Convolution2 doesn't support large, arbitrary sized kernels.
 
-//	*newGreatHall { arg subjectID = "x06y02", server = Server.default;
+//	*newGreatHall { |subjectID = "x06y02", server = Server.default|
 //		^super.newCopyArgs('greathall', subjectID).initKernel("None", server);
 //	}
 //
-//	*newOctagon { arg subjectID = "x06y02", server = Server.default;
+//	*newOctagon { |subjectID = "x06y02", server = Server.default|
 //		^super.newCopyArgs('octagon', subjectID).initKernel("None", server);
 //	}
 //
-//	*newClassroom { arg subjectID = "x30y10", server = Server.default;
+//	*newClassroom { |subjectID = "x30y10", server = Server.default|
 //		^super.newCopyArgs('classroom', subjectID).initKernel("None", server);
 //	}
 
@@ -2131,7 +2131,7 @@ FoaEncoderKernel {
 		^kernelLibPath +/+ encodersPath +/+ PathName.new(kind.asString)
 	}
 
-	initKernel { arg kernelSize, server, sampleRate, score;
+	initKernel { |kernelSize, server, sampleRate, score|
 
 		var databasePath, subjectPath;
 		var chans;
@@ -2245,7 +2245,7 @@ FoaEncoderKernel {
 			{
 				"Supported samplerates:".warn;
 				PathName.new(subjectPath.parentLevelPath(3)).folders.do({
-					arg folder;
+					|folder|
 					("\t" + folder.folderName).postln;
 				});
 
@@ -2259,7 +2259,7 @@ FoaEncoderKernel {
 			{
 				"Supported kernel sizes:".warn;
 				PathName.new(subjectPath.parentLevelPath(2)).folders.do({
-					arg folder;
+					|folder|
 					("\t" + folder.folderName).postln;
 				});
 
@@ -2273,7 +2273,7 @@ FoaEncoderKernel {
 			{
 				"Supported subjects:".warn;
 				PathName.new(subjectPath.parentLevelPath(1)).folders.do({
-					arg folder;
+					|folder|
 					("\t" + folder.folderName).postln;
 				});
 
@@ -2296,10 +2296,10 @@ FoaEncoderKernel {
 					).throw
 				}, {
 					// Else... everything is fine! Load kernel.
-					kernel = subjectPath.files.collect({ arg kernelPath;
-						chans.collect({ arg chan;
+					kernel = subjectPath.files.collect({ |kernelPath|
+						chans.collect({ |chan|
 							Buffer.readChannel(server, kernelPath.fullPath, channels: [chan],
-								action: { arg buf;
+								action: { |buf|
 									(
 										kernelBundle = kernelBundle.add(
 							["/b_allocReadChannel", buf.bufnum, kernelPath.fullPath, 0, kernelSize, chan]
@@ -2317,8 +2317,8 @@ FoaEncoderKernel {
 			});
 
 			(\CtkScore.asClass.notNil and: { score.isKindOf(\CtkScore.asClass) }).if({
-				kernel = subjectPath.files.collect({ arg kernelPath;
-					chans.collect({ arg chan;
+				kernel = subjectPath.files.collect({ |kernelPath|
+					chans.collect({ |chan|
 						var buf = CtkBuffer(kernelPath.fullPath, channels: [chan]);
 						kernelInfo = kernelInfo.add([kernelPath.fullPath, buf.bufnum, [chan]]);
 						score.add(buf);
@@ -2328,8 +2328,8 @@ FoaEncoderKernel {
 			});
 
 			score.isKindOf(Score).if{
-				kernel = subjectPath.files.collect({ arg kernelPath;
-					chans.collect({ arg chan;
+				kernel = subjectPath.files.collect({ |kernelPath|
+					chans.collect({ |chan|
 						var buf;
 						buf = Buffer(server, kernelSize);
 						kernelBundle = kernelBundle.add(
@@ -2355,8 +2355,8 @@ FoaEncoderKernel {
 
 	free {
 		var path;
-		kernel.shape.at(0).do({ arg i;
-			kernel.shape.at(1).do({ arg j;
+		kernel.shape.at(0).do({ |i|
+			kernel.shape.at(1).do({ |j|
 				path = kernel.at(i).at(j).path;
 				kernel.at(i).at(j).free;
 				(
@@ -2392,7 +2392,7 @@ FoaEncoderKernel {
 
 	type { ^'encoder' }
 
-	printOn { arg stream;
+	printOn { |stream|
 		stream << this.class.name << "(" <<*
 			[kind, this.dim, this.numChannels, subjectID, this.kernelSize] <<")";
 	}

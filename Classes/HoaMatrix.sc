@@ -288,7 +288,7 @@ HoaMatrix : AtkMatrix {
 	}
 
 	// separate YML writer for HOA
-	prWriteMatrixToYML { arg pn, note, attributeDictionary;
+	prWriteMatrixToYML { |pn, note, attributeDictionary|
 		var wr, wrAtt, wrAttArr, defaults;
 
 		wr = FileWriter(pn.fullPath);
@@ -488,7 +488,7 @@ HoaMatrixEncoder : HoaMatrix {
 		)
 	}
 
-	// *newFromFile { arg filePathOrName, order = (AtkHoa.defaultOrder);
+	// *newFromFile { |filePathOrName, order = (AtkHoa.defaultOrder)|
 	// 	^super.new.initFromFile(filePathOrName, 'encoder', order, true).initEncoderVarsForFiles
 	// }
 
@@ -751,7 +751,7 @@ HoaMatrixXformer : HoaMatrix {
 		matrix = Matrix.newIdentity((this.order+1).squared) - xformingMatrix
 	}
 
-	// *newFromFile { arg filePathOrName;
+	// *newFromFile { |filePathOrName|
 	// 	^super.new.initFromFile(filePathOrName, 'xformer', true);
 	// }
 
@@ -1037,7 +1037,7 @@ HoaMatrixDecoder : HoaMatrix {
 		)
 	}
 
-	// *newFromFile { arg filePathOrName;
+	// *newFromFile { |filePathOrName|
 	//     ^super.new.initFromFile(filePathOrName, 'decoder', true).initDecoderVarsForFiles;
 	// }
 

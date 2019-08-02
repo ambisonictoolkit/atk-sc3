@@ -49,12 +49,12 @@
 + Matrix {
 
 	// diagonal matrix - consider adding to Matrix Quark Extension
-	*newDiagonal { arg diagonal;
+	*newDiagonal { |diagonal|
 		var matrix;
 
 		matrix = Matrix.newClear(diagonal.size, diagonal.size);  // empty
-		diagonal.do({ arg item, i; matrix.put(i, i, item) });  // fill
-		diagonal.any({ arg item; item.isFloat }).if({  // test and recast to float
+		diagonal.do({ |item, i| matrix.put(i, i, item) });  // fill
+		diagonal.any({ |item| item.isFloat }).if({  // test and recast to float
 			matrix = matrix.asFloat
 		});
 
@@ -65,7 +65,7 @@
 	// work around to avoid .flop.flop, which if called on Array, will expose
 	// it to a bug that could fail on large arrays.
 	// also, this is more efficient
-	*with { arg array; // return matrix from 2D array (array of rows)
+	*with { |array| // return matrix from 2D array (array of rows)
 		var shapes, shapeTest, numTest, rows;
 
 		shapes = array.asArray.collect(_.shape).flatten;
@@ -75,7 +75,7 @@
 
 		(shapeTest and: numTest).if({
 			rows = array.size;
-			^super.fill(rows, { arg col; array.at(col) });
+			^super.fill(rows, { |col| array.at(col) });
 			}, {
 				error("wrong type of argument in Meta_Matrix-with");this.halt
 		});

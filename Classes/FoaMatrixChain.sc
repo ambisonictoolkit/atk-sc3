@@ -54,7 +54,7 @@ FoaMatrixChain {
 	var <chains, <curXformMatrix;
 
 
-	*new { arg verbose = false; ^super.newCopyArgs(verbose).init }
+	*new { |verbose = false| ^super.newCopyArgs(verbose).init }
 
 
 	// abcs used for transform id keys in the chain(s)

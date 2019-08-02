@@ -60,7 +60,7 @@
 			)
 		};
 
-		theta = size.collect({ arg i;
+		theta = size.collect({ |i|
 			(2pi * i)/size + orientation
 		});
 

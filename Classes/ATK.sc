@@ -231,7 +231,7 @@ Atk {
 
 		tested.add(subPath);
 
-		if ( subPath.isFolder.not, { // is  lib installed for user?
+		subPath.isFolder.not.if{ // is  lib installed for user?
 			subPath = PathName.new(  // no? check for system wide install
 				if (isExtension) {
 					Atk.systemExtensionsDir ++ str
@@ -240,7 +240,7 @@ Atk {
 				}
 			);
 			tested.add(subPath);
-		});
+		};
 
 		if (subPath.isFolder.not) {
 			Error(
@@ -878,10 +878,10 @@ FoaDecode : FoaUGen {
 		case
 			{ decoder.isKindOf(FoaDecoderMatrix) } {
 
-				if ( decoder.shelfFreq.isNumber, { // shelf filter?
+				(decoder.shelfFreq.isNumber).if{ // shelf filter?
 					in = FoaPsychoShelf.ar(in,
 						decoder.shelfFreq, decoder.shelfK.at(0), decoder.shelfK.at(1))
-				});
+				};
 
 				^AtkMatrixMix.ar(in, decoder.matrix, mul, add)
 			}

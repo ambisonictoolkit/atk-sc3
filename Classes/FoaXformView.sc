@@ -57,13 +57,13 @@ FoaXformView {
 
 	*new { |sfView, target = 'chain', chainDex, index|
 
-		sfView.debug.if{"creating new XForm".postln;};
+		sfView.debug.if{ "creating new XForm".postln };
 		^super.newCopyArgs(sfView, target, chainDex, index).init;
 	}
 
 
 	init {
-		sfView.debug.if{"initializing new XForm".postln;};
+		sfView.debug.if{ "initializing new XForm".postln };
 
 		chain = switch(target,
 			'chain',    {sfView.chain},         // xform in chain view UI
@@ -127,13 +127,14 @@ FoaXformView {
 	addTransformMenu { |selectedName|
 		var items;
 
-		sfView.debug.if{"adding a menu".postln;};
+		sfView.debug.if{ "adding a menu".postln };
 
 		items = [];
 		chain.xFormDict_sorted.do{ |me|
 			// exclude 'a/input soundfield', which is only used by first chain transform
-			if((me[0] != 'input soundfield') and: (me[0] != 'a soundfield'))
-			{items = items.add(me[0])};
+			(me[0] != 'input soundfield' and: { me[0] != 'a soundfield' }).if{
+				items = items.add(me[0])
+			};
 		};
 		items = ['-'] ++ items;
 
@@ -151,7 +152,7 @@ FoaXformView {
 			);
 
 			// '-' mutes the transform
-			name = if(mn.item == '-') {'mute'} {mn.item};
+			name = (mn.item == '-').if({ 'mute' }, { mn.item });
 
 			#chDex, dex = this.getViewIndex;
 			chain.replaceTransform(name, chDex, dex);
@@ -162,7 +163,7 @@ FoaXformView {
 			HLayout([xFormMenu, a: \topLeft], nil).margins_(0);
 		);
 
-		if(selectedName != 'mute') {
+		(selectedName != 'mute').if{
 			// update with the current transform selection
 			xFormMenu.value_(xFormMenu.items.indexOf(selectedName))
 		};
@@ -175,19 +176,19 @@ FoaXformView {
 		// nil this var, it's reset as needed when rebuilt
 		inputMenu = nil;
 
-		sfView.debug.if{postf("rebuilding controls: %\n", name)};
+		sfView.debug.if{ "rebuilding controls: %\n".postf(name) };
 
 		// clear the view's elements
 		view.removeAll;
 		ctlLayout.children.do(_.destroy);
 
-		if(target == 'chain', {this.addAddRmvButs});
+		(target == 'chain').if{ this.addAddRmvButs };
 
 		// add menu back, with new xform selected
 		this.addTransformMenu(name);
 
 		// don't rebuild controls if muted
-		if(name != 'mute') {
+		(name != 'mute').if{
 			var controls;
 			controls = chain.xFormDict[ name ].controls.clump(2);
 
@@ -195,12 +196,12 @@ FoaXformView {
 				var ctlName, ctl;
 				#ctlName, ctl = pair;
 				case
-				{ctl.isKindOf(ControlSpec)} {
+				{ ctl.isKindOf(ControlSpec) } {
 					this.addSliderCtl(ctlName, ctl, i);
 				}
 				// a ctl of a Symbol, e.g. 'A0' yields a
 				// dropdown menu for an input soundfield
-				{ctl.isKindOf(Symbol)} {
+				{ ctl.isKindOf(Symbol) } {
 					this.addInputMenuCtl(ctlName, i);
 				}
 			};
@@ -212,10 +213,11 @@ FoaXformView {
 		var menu, items, dropLayout;
 		var chDex, dex;
 
-		#chDex, dex = if(initDex == 0,
-			{[ initChainDex, initDex ]},
-			{this.getViewIndex}
-		);
+		#chDex, dex = (initDex == 0).if({
+			[ initChainDex, initDex ]
+		}, {
+			this.getViewIndex
+		});
 
 		items = sfView.prGetInputList(chDex, dex);
 
@@ -251,34 +253,36 @@ FoaXformView {
 			#chDex, dex = this.getViewIndex;
 
 			val = spec.map(sldr.value);
-			if(spec.units == "π",
-				{nb.value_(val.round(0.001) / pi)},
-				{nb.value_(val.round(0.001))}
-			);
+			(spec.units == "π").if({
+				nb.value_(val.round(0.001) / pi)
+			}, {
+				nb.value_(val.round(0.001))
+			});
 			chain.setParam(chDex, dex, ctlOrder, val);
 			}
-		).orientation_('horizontal')
-		.value_(spec.unmap(spec.default));
+		)
+		.orientation_('horizontal')
+		.value_(spec.unmap(spec.default))
+		;
 
 		nb = NumberBox()
 		.action_({ |nb|
 			var val, chDex, dex;
 			#chDex, dex = this.getViewIndex;
 
-			if(spec.units == "π",
-				{val = nb.value * pi;},
-				{val = nb.value;}
-			);
+			val = (spec.units == "π").if({ nb.value * pi }, { nb.value });
 			sl.value_(spec.unmap(val));
 			chain.setParam(chDex, dex, ctlOrder, val);
-			}
-		)
+		})
 		.clipHi_(
-			if(spec.units == "π"){max / pi;}{max})
+			(spec.units == "π").if({ max / pi }, { max })
+		)
 		.clipLo_(
-			if(spec.units == "π"){min / pi;}{min})
+			(spec.units == "π").if({ min / pi }, { min })
+		)
 		.fixedWidth_(45)
-		.step_(0.01).minDecimals_(3);
+		.step_(0.01).minDecimals_(3)
+		;
 
 		unitTxt = StaticText().string_(spec.units)
 		.align_('left')
@@ -352,7 +356,7 @@ FoaXformView {
 			chain.soloXform(soloState.not, myChain, myID);
 		});
 
-		lay = if(includeRmv){
+		lay = (includeRmv).if({
 			VLayout(
 				[labelTxt,	a: 'top'],
 				HLayout(
@@ -365,13 +369,13 @@ FoaXformView {
 					[addBut,	a: 'right'],
 				)
 			)
-		}{
+		}, {
 			VLayout(
 				[labelTxt,	a: 'top'],
 				15, // force it to grow the height of the view
 				[addBut,	a: 'bottom']
 			)
-		};
+		});
 
 		addRmvLayout.add(lay);
 	}
@@ -398,13 +402,13 @@ FoaXformView {
 
 	soloState { |bool|
 		/*this.updateStateColors(bool);*/
-		if (bool) {
+		bool.if({
 			soloBut.stringColor_(Color.white);
 			soloBut.background_(Color.yellow);
-		} {
+		}, {
 			soloBut.stringColor_(Color.gray);
 			soloBut.background_(Color.clear);
-		}
+		})
 	}
 
 	// set the nested views to "muted" colors
@@ -413,18 +417,18 @@ FoaXformView {
 		var satFac, valFac, colFunc;
 		var chDex, dex;
 
-		if (colorsMuted == darken) {^this}; // state matches, return
-		if (darken) {
+		(colorsMuted == darken).if{ ^this }; // state matches, return
+		darken.if({
 			satFac = 0.7;
 			valFac = 0.7;
-		} {
+		}, {
 			satFac = 0.7.reciprocal;
 			valFac = 0.7.reciprocal;
-		};
+		});
 
 		colFunc = { |v|
 			var col, newCol;
-			col = try {v.background}{^this}; // return if view doesn't respond to .background
+			col = try { v.background } { ^this }; // return if view doesn't respond to .background
 			col.notNil.if{
 				(col.alpha != 0).if{
 					newCol = Color.hsv(
@@ -444,7 +448,7 @@ FoaXformView {
 			child.isKindOf(View).if{
 				this.prFindKindDo(child, kind, performFunc)   // call self
 			};
-			child.isKindOf(kind).if{performFunc.(child)};
+			child.isKindOf(kind).if{ performFunc.(child) };
 		};
 	}
 }

@@ -364,11 +364,11 @@ Atk {
 			hasExtension = usrPN.extension.size > 0;
 			hasRelPath = usrPN.colonIndices.size > 0;
 
-			mtxDirPath = if (searchExtensions) {
+			mtxDirPath = searchExtensions.if({
 				Atk.getMatrixExtensionSubPath(set, mtxType);
-			} {
+			}, {
 				Atk.getAtkMatrixSubPath(set, mtxType);
-			};
+			});
 
 			relPath = mtxDirPath +/+ usrPN;
 
@@ -427,12 +427,12 @@ Atk {
 				// recursively search whole directory
 				mtxDirPath.filesDo { |file|
 					var test;
-					test = if (hasExtension) {
+					test = hasExtension.if({
 						file.fileName
-					} {
+					}, {
 						file.fileNameWithoutExtension
-					};
-					if (test == name) { matches = matches.add(file) };
+					});
+					(test == name).if{ matches = matches.add(file) };
 				};
 
 				case
@@ -479,13 +479,13 @@ Atk {
 		var postContents;
 
 		block { |break|
-			if (set.isNil) {
+			set.isNil.if({
 				// no set provided, show all sets
 				Atk.sets.do(Atk.postMyMatrices(_, type));
 				break.()
-			} {
+			}, {
 				Atk.checkSet(set);
-			};
+			});
 
 			postf("~ %%% ~\n", set.asString.toUpper, type.notNil.if({" "},{""}), type ?? "");
 

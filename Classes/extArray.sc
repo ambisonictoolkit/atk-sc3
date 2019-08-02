@@ -51,14 +51,14 @@
 	*regularPolygon { |size = 3, orientation = 0.0, wrap = 2pi|
 		var theta;
 
-		orientation.isNumber.not.if({
+		orientation.isNumber.not.if{
 			orientation = orientation.switch(
 				\vertex, { 0.0 },
 				\side, { pi / size },
 				\point, { 0.0 },
 				\flat, { pi / size },
 			)
-		});
+		};
 
 		theta = size.collect({ arg i;
 			(2pi * i)/size + orientation

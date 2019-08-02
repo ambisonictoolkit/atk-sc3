@@ -196,7 +196,7 @@ FoaMatrix : AtkMatrix {
 		dirChannels = argDirections;
 
 		// 1) Check: matrix numChannels == directions.size
-		(this.numChannels != this.dirChannels.size).if({
+		(this.numChannels != this.dirChannels.size).if{
 			Error(
 				format(
 					"[%:-initFromMatrix] Matrix number of channels "
@@ -205,7 +205,7 @@ FoaMatrix : AtkMatrix {
 				)
 			).errorString.postln;
 			this.halt;
-		});
+		};
 
 		// 2) Check: matrix numCoeffs == 3 || 4, is it a valid 2D or 3D FOA matrix?
 		numCoeffs = switch (this.type,
@@ -213,7 +213,7 @@ FoaMatrix : AtkMatrix {
 			'decoder', {matrix.cols},
 			'xformer', {matrix.rows},
 		);
-		((numCoeffs == 3) || (numCoeffs == 4)).not.if({
+		(numCoeffs == 3 or: { numCoeffs == 4 }).not.if{
 			Error(
 				format(
 					"[%:-initFromMatrix] Matrix coefficient size invalid for FOA."
@@ -222,7 +222,7 @@ FoaMatrix : AtkMatrix {
 				)
 			).errorString.postln;
 			this.halt;
-		});
+		};
 
 		// 3) Check: matrix dim against dirChannels dim
 		numCoeffsDim = numCoeffs - 1;
@@ -231,7 +231,7 @@ FoaMatrix : AtkMatrix {
 		}, {
 			this.dirChannels.rank + 1;
 		});
-		(numCoeffsDim != dirChannelsDim).if({
+		(numCoeffsDim != dirChannelsDim).if{
 			Error(
 				format(
 					"[%:-initFromMatrix] Detected matrix and specified directions "
@@ -240,10 +240,10 @@ FoaMatrix : AtkMatrix {
 				)
 			).errorString.postln;
 			this.halt;
-		});
+		};
 
 		// 4) Check: xformer is square matrix
-		((this.type == 'xformer') && (matrix.isSquare.not)).if({
+		(this.type == 'xformer' and: { matrix.isSquare.not }).if{
 			Error(
 				format(
 					"[%:-initFromMatrix] An 'xformer' matrix "
@@ -252,7 +252,7 @@ FoaMatrix : AtkMatrix {
 				)
 			).errorString.postln;
 			this.halt;
-		})
+		}
 	}
 
 	initFromFile { arg filePathOrName, mtxType, searchExtensions = false;
@@ -270,35 +270,35 @@ FoaMatrix : AtkMatrix {
 		filePath = pn.fullPath;
 
 		case
-		{ pn.extension == "txt"} {
-			matrix = if (pn.fileName.contains(".mosl")) {
+		{ pn.extension == "txt" } {
+			matrix = pn.fileName.contains(".mosl").if({
 				// .mosl.txt file: expected to be matrix only,
 				// single values on each line, by rows
 				Matrix.with( this.prParseMOSL(pn) );
-			} {
+			}, {
 				// .txt file: expected to be matrix only, cols
 				// separated by spaces, rows by newlines
 				Matrix.with( FileReader.read(filePath).asFloat );
-			};
+			});
 
 			kind = pn.fileName.asSymbol; // kind defaults to filename
 		}
-		{ pn.extension == "yml"} {
+		{ pn.extension == "yml" } {
 			dict = filePath.parseYAMLFile;
 			fileParse = IdentityDictionary(know: true);
 
 			// replace String keys with Symbol keys, make "knowable"
 			dict.keysValuesDo{ |k,v|
-				fileParse.put( k.asSymbol,
-					if (v == "nil") { nil } { v } // so .info parsing doesn't see nil as array
+				fileParse.put(k.asSymbol,
+					(v == "nil").if({ nil }, { v }) // so .info parsing doesn't see nil as array
 				)
 			};
 
-			if (fileParse[\type].isNil) {
+			fileParse[\type].isNil.if({
 				"Matrix 'type' is undefined in the .yml file: cannot confirm the "
 				"type matches the loaded object (encoder/decoder/xformer)".warn
-			} {
-				if (fileParse[\type].asSymbol != mtxType.asSymbol) {
+			}, {
+				(fileParse[\type].asSymbol != mtxType.asSymbol).if{
 					Error(
 						format(
 							"[%:-initFromFile] Matrix 'type' defined in the .yml file (%) doesn't match "
@@ -308,15 +308,15 @@ FoaMatrix : AtkMatrix {
 						this.halt
 					)
 				}
-			};
+			});
 
 			matrix = Matrix.with(fileParse.matrix.asFloat);
 
-			kind = if (fileParse.kind.notNil) {
+			kind = fileParse.kind.notNil.if({
 				fileParse.kind.asSymbol
-			} {
+			}, {
 				pn.fileNameWithoutExtension.asSymbol
-			};
+			});
 		}
 		{ // catch all
 			Error(
@@ -347,15 +347,17 @@ FoaMatrix : AtkMatrix {
 		// write a multi-line attribute (2D array)
 		wrAttArr = { |att, arr|
 			var vals = arr ?? {this.tryPerform(att)};
-			if (vals.isNil) {
+			vals.isNil.if({
 				wr.writeLine(["% : nil".format(att)]);
-			} {
+			}, {
 				wr.writeLine(["% : [".format(att)]);
 				vals.asArray.do{ |elem, i|
 					wr.write(elem.asCompileString); // allow for large row strings
-					if (i == (vals.size-1)) { wr.write("\n]\n") } { wr.write(",\n") };
+					wr.write(
+						(i == (vals.size-1)).if({ "\n]\n" }, { ",\n" })
+					);
 				};
-			};
+			});
 			wr.write("\n");
 		};
 
@@ -364,16 +366,20 @@ FoaMatrix : AtkMatrix {
 		wrAtt.(\type);
 
 		// write default attributes
-		defaults = if (this.type == 'decoder') { [\kind, \shelfK, \shelfFreq] } { [\kind] };
+		defaults = (this.type == 'decoder').if({
+			[\kind, \shelfK, \shelfFreq]
+		}, {
+			[\kind]
+		});
 
-		if (attributeDictionary.notNil) {
+		attributeDictionary.notNil.if({
 			// make sure attribute dict doesn't explicitly set the attribute first
 			defaults.do{ |att|
 				attributeDictionary[att] ?? { wrAtt.(att) }
 			};
-		} {
+		}, {
 			defaults.do{ |att| wrAtt.(att) };
-		};
+		});
 
 		attributeDictionary !? {
 			attributeDictionary.keysValuesDo{ |k,v|
@@ -382,7 +388,11 @@ FoaMatrix : AtkMatrix {
 					'dirInputs', { dirIns = v },
 					'dirOutputs', { dirOuts = v },
 					{
-						if (v.isKindOf(Array)) { wrAttArr.(k, v) } { wrAtt.(k, v) }
+						v.isKindOf(Array).if({
+							wrAttArr.(k, v)
+						}, {
+							wrAtt.(k, v)
+						})
 					}
 				);
 			}
@@ -413,7 +423,7 @@ FoaMatrix : AtkMatrix {
 					{numCols.isNil} { numCols = val.asInt }
 					{
 						row = row.add(val.asFloat);
-						if (row.size==numCols) {
+						(row.size == numCols).f{
 							mtx = mtx.add(row);
 							row = [];
 						}
@@ -431,7 +441,7 @@ FoaMatrix : AtkMatrix {
 			).throw
 		};
 		mtx.do{ |row, i|
-			if (row.size!=numCols) {
+			(row.size != numCols).if{
 				Error(
 					format(
 						"Mismatch in matrix dimensions: rows % has % columns, but file species %",
@@ -449,20 +459,20 @@ FoaMatrix : AtkMatrix {
 		var pathStr;
 		pathStr = this.kind.asString ++ "/";
 
-		if (args.size==0) {
+		(args.size == 0).if({
 			// no args... filename is assumed to be this.kind
 			pathStr = this.kind.asString;
-		} {
+		}, {
 			args.do{ |argParam, i|
-				pathStr = if (i > 0) {
+				pathStr = (i > 0).if({
 					format("%-%", pathStr, argParam.asString)
-				} {
+				}, {
 					format("%%", pathStr, argParam.asString)
-				};
+				});
 			};
-		};
+		});
 
-		this.initFromFile(pathStr++".yml", this.type, false);
+		this.initFromFile(pathStr ++ ".yml", this.type, false);
 
 		switch( this.type,
 			'\encoder', {this.initEncoderVarsForFiles}, // properly set dirInputs
@@ -565,7 +575,7 @@ FoaDecoderMatrix : FoaMatrix {
 
 	initK2D { arg k;
 
-		if ( k.isNumber, {
+		k.isNumber.if({
 			^k
 		}, {
 			^switch ( k,
@@ -584,7 +594,7 @@ FoaDecoderMatrix : FoaMatrix {
 
 	initK3D { arg k;
 
-		if ( k.isNumber, {
+		k.isNumber.if({
 			^k
 		}, {
 			^switch ( k,
@@ -723,9 +733,9 @@ FoaDecoderMatrix : FoaMatrix {
 			theta = theta ++ [2 * pi * i / numChanPairs]
 		});
 
-		if ( orientation == 'flat', {
+		(orientation == 'flat').if{
 			theta = theta + (pi / numChanPairs)  // 'flat' case
-		});
+		};
 
 		// collect directions [ [theta, phi], ... ]
 		// upper ring only
@@ -753,16 +763,15 @@ FoaDecoderMatrix : FoaMatrix {
 		upMatrix = matrix[..(numChanPairs-1)];
 		downMatrix = matrix[(numChanPairs)..];
 
-		if ( (orientation == 'flat') && (numChanPairs.mod(2) == 1),
-			{    // odd, 'flat'
-				downDirs = downDirs.rotate((numChanPairs/2 + 1).asInteger);
-				downMatrix = downMatrix.rotate((numChanPairs/2 + 1).asInteger)
-
-			}, { // 'flat' case, default
-				downDirs = downDirs.rotate((numChanPairs/2).asInteger);
-				downMatrix = downMatrix.rotate((numChanPairs/2).asInteger)
-			}
-		);
+		((orientation == 'flat') and: { numChanPairs.mod(2) == 1 }).if({
+			// odd, 'flat'
+			downDirs = downDirs.rotate((numChanPairs/2 + 1).asInteger);
+			downMatrix = downMatrix.rotate((numChanPairs/2 + 1).asInteger)
+		}, {
+			// 'flat' case, default
+			downDirs = downDirs.rotate((numChanPairs/2).asInteger);
+			downMatrix = downMatrix.rotate((numChanPairs/2).asInteger)
+		});
 
 		dirChannels = upDirs ++ downDirs;  // set output channel (speaker) directions
 		matrix = upMatrix ++ downMatrix;  // set matrix
@@ -830,18 +839,18 @@ FoaDecoderMatrix : FoaMatrix {
 	}
 
 	initDecoderVarsForFiles {
-		if (fileParse.notNil) {
+		fileParse.notNil.if({
 			// TODO: check use of dirOutputs vs. dirChannels here
-			dirChannels = if (fileParse.dirOutputs.notNil) {
+			dirChannels = fileParse.dirOutputs.notNil.if({
 				fileParse.dirOutputs.asFloat
-			} { // output directions are unspecified in the provided matrix
+			}, { // output directions are unspecified in the provided matrix
 				matrix.rows.collect({ 'unspecified' })
-			};
+			});
 			shelfK = fileParse.shelfK !? {fileParse.shelfK.asFloat};
 			shelfFreq = fileParse.shelfFreq !? {fileParse.shelfFreq.asFloat};
-		} { // txt file provided, no fileParse
+		}, { // txt file provided, no fileParse
 			dirChannels = matrix.rows.collect({ 'unspecified' });
-		};
+		});
 	}
 
 }
@@ -954,25 +963,23 @@ FoaEncoderMatrix : FoaMatrix {
 		// build 'decoder' matrix, and set for instance
 		matrix = Matrix.newClear(dirChannels.size, 3); // start w/ empty matrix
 
-		if ( pattern.isArray,
-			{
-				dirChannels.do({ arg theta, i;  // mic positions, indivd patterns
-					matrix.putRow(i, [
-						(1.0 - pattern.at(i)),
-						pattern.at(i) * theta.cos,
-						pattern.at(i) * theta.sin
-					])
-				})
-			}, {
-				dirChannels.do({ arg theta, i;  // mic positions
-					matrix.putRow(i, [
-						(1.0 - pattern),
-						pattern * theta.cos,
-						pattern * theta.sin
-					])
-				})
-			}
-		);
+		pattern.isArray.if({
+			dirChannels.do({ arg theta, i;  // mic positions, indivd patterns
+				matrix.putRow(i, [
+					(1.0 - pattern.at(i)),
+					pattern.at(i) * theta.cos,
+					pattern.at(i) * theta.sin
+				])
+			})
+		}, {
+			dirChannels.do({ arg theta, i;  // mic positions
+				matrix.putRow(i, [
+					(1.0 - pattern),
+					pattern * theta.cos,
+					pattern * theta.sin
+				])
+			})
+		});
 
 		// invert to encoder matrix
 		matrix = matrix.pseudoInverse;
@@ -991,27 +998,25 @@ FoaEncoderMatrix : FoaMatrix {
 		// build 'decoder' matrix, and set for instance
 		matrix = Matrix.newClear(dirChannels.size, 4);  // start w/ empty matrix
 
-		if ( pattern.isArray,
-			{
-				dirChannels.do({ arg thetaPhi, i;  // mic positions, indivd patterns
-					matrix.putRow(i, [
-						(1.0 - pattern.at(i)),
-						pattern.at(i) * thetaPhi.at(1).cos * thetaPhi.at(0).cos,
-						pattern.at(i) * thetaPhi.at(1).cos * thetaPhi.at(0).sin,
-						pattern.at(i) * thetaPhi.at(1).sin
-					])
-				})
-			}, {
-				dirChannels.do({ arg thetaPhi, i;  // mic positions
-					matrix.putRow(i, [
-						(1.0 - pattern),
-						pattern * thetaPhi.at(1).cos * thetaPhi.at(0).cos,
-						pattern * thetaPhi.at(1).cos * thetaPhi.at(0).sin,
-						pattern * thetaPhi.at(1).sin
-					])
-				})
-			}
-		);
+		pattern.isArray.if({
+			dirChannels.do({ arg thetaPhi, i;  // mic positions, indivd patterns
+				matrix.putRow(i, [
+					(1.0 - pattern.at(i)),
+					pattern.at(i) * thetaPhi.at(1).cos * thetaPhi.at(0).cos,
+					pattern.at(i) * thetaPhi.at(1).cos * thetaPhi.at(0).sin,
+					pattern.at(i) * thetaPhi.at(1).sin
+				])
+			})
+		}, {
+			dirChannels.do({ arg thetaPhi, i;  // mic positions
+				matrix.putRow(i, [
+					(1.0 - pattern),
+					pattern * thetaPhi.at(1).cos * thetaPhi.at(0).cos,
+					pattern * thetaPhi.at(1).cos * thetaPhi.at(0).sin,
+					pattern * thetaPhi.at(1).sin
+				])
+			})
+		});
 
 		// invert to encoder matrix
 		matrix = matrix.pseudoInverse;
@@ -1026,15 +1031,13 @@ FoaEncoderMatrix : FoaMatrix {
 	initDirection { arg theta, phi;
 
 		// set input channel directions for instance
-		(phi == 0).if (
-			{
-				dirChannels = [ theta ];
-					this.init2D
-			}, {
-					dirChannels = [ [theta, phi] ];
-					this.init3D
-			}
-		)
+		(phi == 0).if({
+			dirChannels = [ theta ];
+				this.init2D
+		}, {
+				dirChannels = [ [theta, phi] ];
+				this.init3D
+		})
 	}
 
 	initStereo { arg angle;
@@ -1052,14 +1055,14 @@ FoaEncoderMatrix : FoaMatrix {
 
 		switch (directions.rank,					// 2D or 3D?
 			1, {									// 2D
-				if ( pattern == nil, {
+				pattern.isNil.if({
 					this.init2D					// plane wave
 				}, {
 					this.initInv2D(pattern)			// mic inversion
 				})
 			},
 			2, {									// 3D
-				if ( pattern == nil, {
+				pattern.isNil.if({
 					this.init3D					// plane wave
 				}, {
 					this.initInv3D(pattern)			// mic inversion
@@ -1116,13 +1119,13 @@ FoaEncoderMatrix : FoaMatrix {
 		});
 
 		// reorder the lower polygon
-		if ( (orientation == 'flat') && (numChanPairs.mod(2) == 1),
-			{									 // odd, 'flat'
-				downDirs = downDirs.rotate((numChanPairs/2 + 1).asInteger);
-			}, {     								// 'flat' case, default
-				downDirs = downDirs.rotate((numChanPairs/2).asInteger);
-			}
-		);
+		(orientation == 'flat' and: { numChanPairs.mod(2) == 1 }).if({
+			// odd, 'flat'
+			downDirs = downDirs.rotate((numChanPairs/2 + 1).asInteger);
+		}, {
+			// 'flat' case, default
+			downDirs = downDirs.rotate((numChanPairs/2).asInteger);
+		});
 
 		// set input channel directions for instance
 		dirChannels = upDirs ++ downDirs;
@@ -1141,16 +1144,16 @@ FoaEncoderMatrix : FoaMatrix {
 	}
 
 	initEncoderVarsForFiles {
-		dirChannels = if (fileParse.notNil) {
+		dirChannels = fileParse.notNil.if({
 			// TODO: check use of dirInputs vs. dirChannels here
-			if (fileParse.dirInputs.notNil) {
+			fileParse.dirInputs.notNil.if({
 				fileParse.dirInputs.asFloat
-			} { // so input directions are unspecified in the provided matrix
-				matrix.cols.collect({'unspecified'})
-			};
-		} { // txt file provided, no fileParse
-			matrix.cols.collect({'unspecified'});
-		};
+			}, { // so input directions are unspecified in the provided matrix
+				matrix.cols.collect({ 'unspecified' })
+			});
+		}, { // txt file provided, no fileParse
+			matrix.cols.collect({ 'unspecified' });
+		});
 	}
 
 }
@@ -1826,11 +1829,11 @@ FoaDecoderKernel {
 			Atk.userKernelDir
 		);
 
-		if ( kernelLibPath.isFolder.not, {	// is kernel lib installed for all users?
-			PathName.new(					// no? set for single user
+		kernelLibPath.isFolder.not.if{	// is kernel lib installed for all users?
+			PathName.new(				// no? set for single user
 				Atk.systemKernelDir
 			)
-		});
+		};
 
 		decodersPath	= PathName.new("/FOA/decoders");
 
@@ -1843,17 +1846,20 @@ FoaDecoderKernel {
 		var chans;
 		var errorMsg;
 		var sampleRateStr;
-		if(sampleRate.notNil, {
-			sampleRateStr = sampleRate.asInteger.asString;
-		});
 
-		if((server.serverRunning.not) && (sampleRateStr.isNil) && (score.isNil), {
+		sampleRate.notNil.if{
+			sampleRateStr = sampleRate.asInteger.asString;
+		};
+
+		(
+			server.serverRunning.not and: { sampleRateStr.isNil and: { score.isNil } }
+		).if{
 			Error(
 				"Please boot server: %, or provide a CtkScore or Score.".format(
 					server.name.asString
 				)
 			).throw
-		});
+		};
 
 		kernelBundle = [0.0];
 		kernelInfo = [];
@@ -1862,18 +1868,18 @@ FoaDecoderKernel {
 		chans = 2;			// stereo kernel
 
 		// init dirChannels (output channel (speaker) directions) and kernel sr
-		if ( kind == 'uhj', {
+		(kind == 'uhj').if({
 			dirChannels = [ pi/6, pi.neg/6 ];
 			sampleRateStr = "None";
 		}, {
 			dirChannels = [ 5/9 * pi, 5/9 * pi.neg ];
-			if(sampleRateStr.isNil, {
+			sampleRateStr.isNil.if{
 				sampleRateStr = server.sampleRate.asInteger.asString;
-			});
+			};
 		});
 
 		// init kernelSize if need be (usually for HRIRs)
-		if ( kernelSize == nil, {
+		(kernelSize == nil).if{
 			kernelSize = switch(sampleRateStr.asSymbol,
 				'None', 512,
 				'44100', 512,
@@ -1883,7 +1889,7 @@ FoaDecoderKernel {
 				'176400', 2048,
 				'192000', 2048
 			);
-		});
+		};
 
 
 		// init kernel root, generate subjectPath and kernelFiles
@@ -1897,7 +1903,7 @@ FoaDecoderKernel {
 
 
 		// attempt to load kernel
-		if ( subjectPath.isFolder.not, {	// does kernel path exist?
+		subjectPath.isFolder.not.if({	// does kernel path exist?
 
 			case
 			// --> missing kernel database
@@ -1954,8 +1960,7 @@ FoaDecoderKernel {
 			Error(errorMsg).throw
 		}, {
 			score.isNil.if({
-				if ( server.serverRunning.not, {		// is server running?
-
+				server.serverRunning.not.if({		// is server running?
 					// throw server error!
 					Error(
 						"Please boot server: %. Encoder kernel failed to load.".format(
@@ -1984,7 +1989,7 @@ FoaDecoderKernel {
 				})
 			});
 
-			(\CtkScore.asClass.notNil and: { score.isKindOf(\CtkScore.asClass) }).if({
+			(\CtkScore.asClass.notNil and: { score.isKindOf(\CtkScore.asClass) }).if{
 				kernel = subjectPath.files.collect({ arg kernelPath;
 					chans.collect({ arg chan;
 						var buf = CtkBuffer(kernelPath.fullPath, channels: [chan]);
@@ -1993,9 +1998,9 @@ FoaDecoderKernel {
 						buf;
 					})
 				})
-			});
+			};
 
-			score.isKindOf(Score).if({
+			score.isKindOf(Score).if{
 				kernel = subjectPath.files.collect({ arg kernelPath;
 					chans.collect({ arg chan;
 						var buf;
@@ -2008,17 +2013,15 @@ FoaDecoderKernel {
 					})
 				});
 				score.add(kernelBundle)
-			});
+			};
 
-			(kernel.isNil && score.notNil).if( {
+			(kernel.isNil && score.notNil).if{
 				Error(
 					"Score is not a Score or a CtkScore. Score is a %.".format(
 						score.class.asString
 					)
 				).throw
-
-			})
-
+			}
 
 		})
 	}
@@ -2119,12 +2122,11 @@ FoaEncoderKernel {
 
 		kernelLibPath = PathName.new(Atk.userKernelDir);
 
-		if ( kernelLibPath.isFolder.not, {	// is kernel lib installed for all users?
-			PathName.new(					// no? set for single user
-				Atk.systemKernelDir)
-		});
+		kernelLibPath.isFolder.not.if{			// is kernel lib installed for all users?
+			PathName.new(Atk.systemKernelDir)	// no? set for single user
+		};
 
-		encodersPath	= PathName.new("/FOA/encoders");
+		encodersPath = PathName.new("/FOA/encoders");
 
 		^kernelLibPath +/+ encodersPath +/+ PathName.new(kind.asString)
 	}
@@ -2135,18 +2137,20 @@ FoaEncoderKernel {
 		var chans;
 		var errorMsg;
 		var sampleRateStr;
-		if(sampleRate.notNil, {
-			sampleRateStr = sampleRate.asInteger.asString;
-		});
 
-		if((server.serverRunning.not) && (sampleRateStr.isNil) && (score.isNil), {
+		sampleRate.notNil.if{
+			sampleRateStr = sampleRate.asInteger.asString;
+		};
+
+		(
+			server.serverRunning.not and: { sampleRateStr.isNil and: { score.isNil } }
+		).if{
 			Error(
 				"Please boot server: %, or provide a CtkScore or Score.".format(
 					server.name.asString
 				)
 			).throw
-		});
-
+		};
 
 		kernelBundle = [0.0];
 		kernelInfo = [];
@@ -2160,16 +2164,16 @@ FoaEncoderKernel {
 			},
 			'uhj', {
 				dirChannels = [ inf, inf ];
-				if(sampleRateStr.isNil, {
+				sampleRateStr.isNil.if{
 					sampleRateStr = server.sampleRate.asInteger.asString;
-				});
+				};
 				chans = 3;					// [w, x, y]
 			},
 			'spread', {
 				dirChannels = [ inf ];
-				if(sampleRateStr.isNil, {
+				sampleRateStr.isNil.if{
 					sampleRateStr = server.sampleRate.asInteger.asString;
-				});
+				};
 				chans = 4;					// [w, x, y, z]
 			},
 			'diffuse', {
@@ -2202,7 +2206,7 @@ FoaEncoderKernel {
 		);
 
 		// init kernelSize if need be
-		if ( kernelSize == nil, {
+		kernelSize.isNil.if{
 			kernelSize = switch(sampleRateStr.asSymbol,
 				'None', 512,
 				'44100', 512,
@@ -2212,7 +2216,7 @@ FoaEncoderKernel {
 				'176400', 2048,
 				'192000', 2048
 			);
-		});
+		};
 
 
 		// init kernel root, generate subjectPath and kernelFiles
@@ -2226,7 +2230,7 @@ FoaEncoderKernel {
 
 		// attempt to load kernel
 
-		if ( subjectPath.isFolder.not, {	// does kernel path exist?
+		subjectPath.isFolder.not.if({	// does kernel path exist?
 
 			case
 			// --> missing kernel database
@@ -2282,9 +2286,8 @@ FoaEncoderKernel {
 			"\n".post;
 			Error(errorMsg).throw
 		}, {
-			score.isNil.if( {
+			score.isNil.if({
 				if ( server.serverRunning.not, {		// is server running?
-
 					// throw server error!
 					Error(
 						"Please boot server: %. Encoder kernel failed to load.".format(
@@ -2324,7 +2327,7 @@ FoaEncoderKernel {
 				})
 			});
 
-			score.isKindOf(Score).if({
+			score.isKindOf(Score).if{
 				kernel = subjectPath.files.collect({ arg kernelPath;
 					chans.collect({ arg chan;
 						var buf;
@@ -2337,17 +2340,15 @@ FoaEncoderKernel {
 					})
 				});
 				score.add(kernelBundle)
-			});
+			};
 
-			(kernel.isNil && score.notNil).if( {
+			(kernel.isNil and: { score.notNil }).if{
 				Error(
 					"Score is not a Score or a CtkScore. Score is a %.".format(
 						score.class.asString
 					)
 				).throw
-
-			});
-
+			};
 
 		})
 	}

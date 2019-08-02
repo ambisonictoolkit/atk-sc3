@@ -69,10 +69,10 @@ FoaMatrixFade {
 
 			server = server ?? Server.default;
 
-			if ( FoaMatrixFade.mtxFadeDef.isNil, {
+			FoaMatrixFade.mtxFadeDef.isNil.if{
 				FoaMatrixFade.loadSynthDefs(server, cond);
 				cond.wait;
-			});
+			};
 
 			inbus ?? {
 				internalInbus = true;

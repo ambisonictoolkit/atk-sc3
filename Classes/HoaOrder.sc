@@ -229,7 +229,7 @@ HoaOrder {
 		var m = this.order;
 
 		^(beamShape == 'energy').if({
-			(dim == 2).if ({
+			(dim == 2).if({
 				chebyshevTZeros(m+1).maxItem  // 2D
 			}, {
 				legendrePZeros(m+1).maxItem  // 3D
@@ -307,7 +307,7 @@ HoaOrder {
 				})
 			},
 			'controlled', {
-				(dim == 2).if ({ // 2D
+				(dim == 2).if({ // 2D
 					(m+1).collect({ |degree|
 						1 / ((m + degree).asFloat.factorial * (m - degree).asFloat.factorial)
 					}) * m.asFloat.factorial.squared;

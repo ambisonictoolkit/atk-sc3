@@ -148,23 +148,23 @@ FoaXformDisplay {
 		chain.removeDependant( this );
 
 		audition !? {
-			if( iOpenedAudition ){
-				if( audition.ui.notNil ) {
+			iOpenedAudition.if({
+				audition.ui.notNil.if({
 					audition.ui.win.isClosed.not.if{
 						// this frees audition
 						audition.ui.win.close
 					}
-				}{
+				}, {
 					audition.removeDependant( this );
 					audition.free;
-				}
-			}{
+				})
+			}, {
 				audition.removeDependant( this );
-			};
+			});
 		};
 
 		[sfWin, xfWin, codeWin].do{ |win|
-			win !? {win.isClosed.not.if{ win.close } }
+			win !? { win.isClosed.not.if{ win.close } }
 		};
 	}
 
@@ -249,21 +249,25 @@ FoaXformDisplay {
 					VLayout(
 						Button().states_([["Chain >>"]]).action_({
 
-							if( xfWin.isNil )
-							{ this.initChainGui }
-							{ if( xfWin.isClosed ) { this.initChainGui } };
-
+							xfWin.isNil.if({
+								this.initChainGui
+							}, {
+								xfWin.isClosed.if{
+									this.initChainGui
+								}
+							});
 						}),
 						Button().states_([["Audition >>"]]).action_({
 							var test = false;
 
-							test = if( audition.isNil )
-							{ true }
-							{ if( audition.ui.win.isClosed )
-								{true}{false} };
+							test = audition.isNil.if({
+								true
+							}, {
+								audition.ui.win.isClosed
+							});
 
-							if( test ) {
-								fork({
+							test.if({
+								fork ({
 									var auditionCond = Condition(false);
 									audition = FoaAudition(
 										0, 0.1, this.curXformMatrix,
@@ -271,7 +275,9 @@ FoaXformDisplay {
 									auditionCond.wait;
 									audition.addDependant( this );
 								}, AppClock )
-							}{ audition.ui.win.front };
+							}, {
+								audition.ui.win.front
+							});
 
 						}),
 					)
@@ -443,14 +449,14 @@ FoaXformDisplay {
 
 							// center point for mouse click guidance to cue stats
 							Pen.fillColor_(
-								if( sortDex == selectedDex ) {Color.yellow} { azLineClr }
+								(sortDex == selectedDex).if({ Color.yellow }, { azLineClr })
 							);
 							Pen.fillOval( Rect(
 								drawPnt.x-(pointRad*0.5), drawPnt.y-(pointRad*0.5),
 								pointRad, pointRad) );
 
 							// outline the selected directivity circle
-							if( sortDex == selectedDex ) {
+							(sortDex == selectedDex).if{
 								Pen.strokeColor_(Color.yellow);
 								Pen.strokeOval( Rect(
 									drawPnt.x-omniRad, drawPnt.y-omniRad,
@@ -465,7 +471,7 @@ FoaXformDisplay {
 							Pen.fillOval( Rect(drawPnt.x-pointRad, drawPnt.y-pointRad, d, d) );
 
 							// outline the selected directivity circle
-							if( sortDex == selectedDex ) {
+							(sortDex == selectedDex).if{
 								Pen.strokeColor_(Color.yellow);
 								Pen.strokeOval( Rect(drawPnt.x-pointRad, drawPnt.y-pointRad, d, d) );
 							};
@@ -613,7 +619,7 @@ FoaXformDisplay {
 		.resize_(5)
 		.drawFunc_({ |view|
 			// draw test signal planewave
-			if( pwPlaying, {
+			pwPlaying.if{
 				rH = arcH * 0.2; // rect height as a ratio of arcH
 				rW = rH * whRatio;
 				w_2 = rW * 0.5;
@@ -644,7 +650,7 @@ FoaXformDisplay {
 
 				Pen.strokeColor_(Color(*(0.8!3)));
 				Pen.stroke;
-			});
+			};
 		});
 
 		// Transform View - overlays the User View
@@ -695,7 +701,7 @@ FoaXformDisplay {
 			var xf;
 
 			xf = xfViewChains[whichChain][rmvDex];
-			xf.isNil.if{"view not found!".error};
+			xf.isNil.if{ "view not found!".error };
 
 			xf.view.layout.destroy;
 			xf.view.remove;
@@ -733,10 +739,12 @@ FoaXformDisplay {
 		).align_( \center );
 
 		// chain title layout
-		titleLayout = if( chainIndex == 0 )
-		// no remove button on first chain
-		{ HLayout( 25, nil, [chLabel, a: \center], nil, [abut, a: \right] ) }
-		{ HLayout( [ rbut, a: \left], [chLabel, a: \center], [abut, a: \right] ) };
+		titleLayout = (chainIndex == 0).if({
+			// no remove button on first chain
+			HLayout( 25, nil, [chLabel, a: \center], nil, [abut, a: \right] )
+		}, {
+			HLayout( [ rbut, a: \left], [chLabel, a: \center], [abut, a: \right] )
+		});
 
 		// chain title view
 		titleView = View()
@@ -837,7 +845,7 @@ FoaXformDisplay {
 
 		// send the new matrix to the audition matrix fading synth
 		audition !? {
-			if( audition.auditionEnabled ) {
+			audition.auditionEnabled.if{
 				audition.matrixFader.matrix_( xfMatrix );
 			}
 		};
@@ -884,10 +892,12 @@ FoaXformDisplay {
 		block { |break|
 			chain.chains.do({ |ch, i|
 				ch.size.do{ |j|
-					if( ( i == stopChainDex ) and: ( j == stopLinkDex ) )
-					{ break.() }
-					{ items = items.add( (FoaMatrixChain.abcs[i]++j).asSymbol ) };
-				};
+					(i == stopChainDex and: { j == stopLinkDex }).if({
+						break.()
+					}, {
+						items = items.add( (FoaMatrixChain.abcs[i]++j).asSymbol )
+					})
+				}
 			})
 		};
 
@@ -906,7 +916,7 @@ FoaXformDisplay {
 				inMenu = xf.inputMenu;
 
 				// check if the xform has an input parameter
-				if( inMenu.notNil ) {
+				inMenu.notNil.if{
 					var items, thisLink, inputLink;
 
 					// regenerate possible menu items based on new chain
@@ -926,7 +936,7 @@ FoaXformDisplay {
 					// and get the key label for that index
 					chain.chains.do{ |xfchain, i|
 						xfchain.do{ |link, j|
-							if( inputLink === link ) {
+							(inputLink === link).if{
 								newSelection = (FoaMatrixChain.abcs[i] ++ j).asSymbol;
 							};
 						}
@@ -999,7 +1009,7 @@ FoaXformDisplay {
 		evalMtxString =
 		"/* Enter valid SC code here that returns a Matrix or FoaXformerMatrix to display */\n";
 
-		codeWin.isNil.if( {
+		codeWin.isNil.if({
 			codeWin = Window("Evaluate Matrix",
 				Rect(sfWin.bounds.left,
 					scrnB.height - sfWin.bounds.height - mwinH
@@ -1012,38 +1022,42 @@ FoaXformDisplay {
 			.layout_(
 				VLayout(
 					evalTxtView = TextView().enterInterpretsSelection_(true)
-					.string_(postCurrentMatrix.if({postMtxString},{evalMtxString})),
+					.string_(
+						postCurrentMatrix.if({ postMtxString }, { evalMtxString })
+					),
 
 					HLayout(
 						Button().states_([["Evaluate"]])
 						.action_({
 							var mtx;
 							mtx = evalTxtView.string.interpret;
-							if( (   mtx.isKindOf(Matrix) or:
-									mtx.isKindOf(FoaXformerMatrix) ) )
-							{ this.prUpdateMatrix( mtx ) }
-							{ warn( "code did not return a Matrix or FoaXformerMatrix" ) };
+							(
+								mtx.isKindOf(Matrix) or: { mtx.isKindOf(FoaXformerMatrix) }
+							).if({
+								this.prUpdateMatrix( mtx )
+							}, {
+								warn( "code did not return a Matrix or FoaXformerMatrix" )
+							});
 						}),
 						Button().states_([["Reset"]])
 						.action_({ evalTxtView.string = evalMtxString }),
-					),
+					)
 				)
-			);
-			},{
-				postCurrentMatrix.if({
-					evalTxtView.string = postMtxString;
-					},{
-						evalTxtView.string = evalMtxString;
-				});
-			}
-		);
+			)
+		}, {
+			evalTxtView.string = postCurrentMatrix.if({
+				postMtxString
+			}, {
+				evalMtxString
+			});
+		});
 	}
 
 
 	update {
 		| who, what ... args |
 
-		if( who == chain, {
+		(who == chain).if{
 			switch ( what,
 				\chainAdded, {
 					var index;
@@ -1092,23 +1106,24 @@ FoaXformDisplay {
 					// downstream from a soloed xf
 					block {|break|
 						xfViewChains[..whichChain].do{|vchain,i|
-							if (i<whichChain) {  // check all xf's in the chain
+							(i < whichChain).if({					// check all xf's in the chain
 								vchain.do{|xfv,j|
 									chain.chains[i][j].soloed.if{
 										xfViewChains[whichChain][index].updateStateColors(true);
 										break.();
 									}
 								}
-							} {  // same chain as the un-muted xf, check only the xf's up to this index
+							}, {
+								// same chain as the un-muted xf, check only the xf's up to this index
 								vchain[..index].do{|xfv,j|
 									chain.chains[i][j].soloed.if{
-										if (j!=index) { // only re-"mute" color if this isn't the soloed xf
+										(j != index).if{			// only re-"mute" color if this isn't the soloed xf
 											xfViewChains[whichChain][index].updateStateColors(true);
 										};
 										break.();
 									}
 								}
-							}
+							})
 						}
 					}
 				},
@@ -1123,22 +1138,27 @@ FoaXformDisplay {
 					xfViewChains[whichChain..].do{ |vchain,i|
 						chainDex = whichChain + i;
 						vchain.do{ |xfv, j|
-							if (i==0) {
-								if (
-									(j>index) and:
-										(bool or:
-											(unmuting and:
-												chain.chains[chainDex][j].muted.not // don't unmute colors if xform state is .muted
-											)
-										)
-								) {
+							(i == 0).if({
+								(j > index and: {
+									bool or: {
+										unmuting and: {
+											// don't unmute colors if xform state is .muted
+											chain.chains[chainDex][j].muted.not
+										}
+									}
+								}).if{
 									xfv.updateStateColors(bool)
 								}
-							} {
-								if (bool or: (unmuting and: chain.chains[chainDex][j].muted.not)) { // don't unmute colors if xform state is .muted
+							}, {
+								(bool or: {
+									unmuting and: {
+										// don't unmute colors if xform state is .muted
+										chain.chains[chainDex][j].muted.not
+									}
+								}).if{
 									xfv.updateStateColors(bool)
 								}
-							}
+							})
 						}
 					};
 				},
@@ -1146,10 +1166,9 @@ FoaXformDisplay {
 					this.prUpdateMatrix( 'chain' );
 				}
 			);
-			}
-		);
+		};
 
-		if( who == displayChain, {
+		(who == displayChain).if{
 			switch ( what,
 				\transformReplaced, {
 					var whichChain, index, newXformName;
@@ -1161,29 +1180,29 @@ FoaXformDisplay {
 					this.prUpdateMatrix( 'display' );
 				}
 			);
-			}
-		);
+		};
 
-		if( who == audition, {
+		(who == audition).if{
 			switch ( what,
 				\pwAzim, {
-					var state = args[0];
-					if( state == false )
-					{ pwPlaying = false }
-					{ pwAzim = state };
-					defer{ pv.refresh };
+					var state = args[0]; // can be a number of bool
+					(state == false).if({
+						pwPlaying = false
+					}, {
+						pwAzim = state
+					});
+					defer { pv.refresh };
 				},
 				\pwSynthRunning, {
 					pwPlaying = args[0];
-					defer{ uv.refresh };
+					defer { uv.refresh };
 				},
 				\closed, {
 					pwPlaying = false;
 					audition.removeDependant( this );
-					defer{ uv.refresh };
+					defer { uv.refresh };
 				}
 			);
-			}
-		);
+		};
 	}
 }

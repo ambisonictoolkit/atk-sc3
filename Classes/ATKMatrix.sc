@@ -92,7 +92,7 @@ AtkMatrix {
 
 		pn = PathName(fileNameOrPath);
 
-		if (PathName(pn.parentPath).isFolder.not) { // check for an enclosing folder
+		PathName(pn.parentPath).isFolder.not.if{ // check for an enclosing folder
 			// ... no enclosing folder found so assumed
 			// to be relative to extensions/matrices/'type' directory
 
@@ -107,18 +107,18 @@ AtkMatrix {
 			};
 
 			case
-			{ pn.colonIndices.size == 0} {
+			{ pn.colonIndices.size == 0 } {
 				// only filename provided, write to dir matching 'type'
 				pn = Atk.getMatrixExtensionSubPath(this.set, this.type) +/+ pn;
-
-			} { pn.colonIndices.size > 0} {
+			}
+			{ pn.colonIndices.size > 0 } {
 				// relative path given, look for it
 				mtxPath = Atk.getMatrixExtensionSubPath(this.set, this.type);
 				relPath = (mtxPath +/+ PathName(pn.parentPath));
-				if (relPath.isFolder) {
+				relPath.isFolder.if({
 					// valid relative path confirmed
 					pn = mtxPath +/+ pn;
-				} {
+				}, {
 					Error(
 						format(
 							"Specified relative folder path was not found in %\n",
@@ -126,12 +126,12 @@ AtkMatrix {
 						)
 					).errorString.postln;
 					this.halt;
-				}
+				})
 			};
 		}; // otherwise, provided path is absolute
 
 		ext = pn.extension;
-		if (ext == "") {pn = pn +/+ PathName(".yml")};
+		(ext == "").if{ pn = pn +/+ PathName(".yml") };
 
 		overwrite.not.if{
 			pn.isFile.if{
@@ -147,11 +147,11 @@ AtkMatrix {
 
 		case
 		{ext == "txt"} {
-			if (pn.fileName.contains(".mosl")) {
+			pn.fileName.contains(".mosl").if({
 				this.prWriteMatrixToMOSL(pn)
-			} {
+			}, {
 				this.prWriteMatrixToTXT(pn)
-			}
+			})
 		}
 		{ext == "yml"} {this.prWriteMatrixToYML(pn, note, attributeDictionary)}
 		{	// catch all
@@ -231,7 +231,9 @@ AtkMatrix {
 
 		// gather attributes in order of posting
 		attributes = List.with( \set, \kind, \dim );
-		if (this.isKindOf(FoaDecoderMatrix)) { attributes.add(\shelfK).add(\shelfFreq) };
+		this.isKindOf(FoaDecoderMatrix).if{
+			attributes.add(\shelfK).add(\shelfFreq)
+		};
 
 		// other non-standard metadata provided in yml file
 		fileParse !? {
@@ -243,16 +245,16 @@ AtkMatrix {
 		};
 
 		// bump 'type' to the top of the post...
-		if (attributes.includes(\type)) { attributes.remove(\type) };
+		attributes.includes(\type).if{ attributes.remove(\type) };
 		attributes.addFirst(\type);
 
 		// ... then bump 'set' to the top of the post
-		if (attributes.includes(\set)) { attributes.remove(\set) };
+		attributes.includes(\set).if{ attributes.remove(\set) };
 		attributes.addFirst(\set);
 
 		// bump to the bottom of the post
 		[\dirInputs, \dirOutputs, \matrix].do{|att|
-			if (attributes.includes(att)) { attributes.remove(att) };
+			attributes.includes(att).if{ attributes.remove(att) };
 			attributes.add(att);
 		};
 
@@ -268,20 +270,20 @@ AtkMatrix {
 
 			value = this.tryPerform(attribute);
 
-			if (value.isNil and: fileParse.notNil) {
+			(value.isNil and: fileParse.notNil).if{
 				value = fileParse[attribute] // this can still return nil
 			};
 
-			if (value.isKindOf(Array)) {
+			value.isKindOf(Array).if({
 				value = value.asArray; // cast the Matrix to array for posting
-				if (value.rank > 1) {
+				(value.rank > 1).if({
 					postf("-> %\n  [\n", attribute);
 					value.do{ |elem|
 						postf("\t%\n",
 							try {
 								elem.round(0.0001).collect({ |num|
 									str = num.asString.padRight(
-										if (num.isPositive) { 6 } { 7 },
+										num.isPositive.if({ 6 }, { 7 }),
 										"0"
 									);
 									str.padLeft(7, " ")
@@ -290,12 +292,12 @@ AtkMatrix {
 						)
 					};
 					"  ]".postln;
-				} {
+				}, {
 					postf("-> %\n\t%\n", attribute, value);
-				}
-			} {
+				})
+			}, {
 				postf("-> %\n\t%\n", attribute, value);
-			};
+			});
 		};
 	}
 

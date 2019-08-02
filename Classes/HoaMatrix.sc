@@ -83,7 +83,7 @@ HoaMatrix : AtkMatrix {
 		matrix = aMatrix;
 
 		// 1) Check: matrix numChannels == directions.size
-		(this.numChannels != this.directions.size).if({
+		(this.numChannels != this.directions.size).if{
 			Error(
 				format(
 					"[%:-initFromMatrix] Matrix number of channels "
@@ -92,7 +92,7 @@ HoaMatrix : AtkMatrix {
 				)
 			).errorString.postln;
 			this.halt;
-		});
+		};
 
 		// 2) Check: matrix size (numCoeffs) == declared order
 		size = switch (this.type,
@@ -102,7 +102,7 @@ HoaMatrix : AtkMatrix {
 		);
 		matrixOrder = AtkHoa.detectOrder(size);
 
-		(this.order != matrixOrder).if({
+		(this.order != matrixOrder).if{
 			Error(
 				format(
 					"[%:-initFromMatrix] Order specified doesn't match order "
@@ -111,19 +111,20 @@ HoaMatrix : AtkMatrix {
 				)
 			).errorString.postln;
 			this.halt;
-		});
+		};
 
 		// 3) Check: xformer is square matrix
-		((this.type == 'xformer') && (matrix.isSquare.not)).if({
+		(this.type == 'xformer' and: { matrix.isSquare.not }).if{
 			Error(
-				format(
+				(
 					"[%:-initFromMatrix] An 'xformer' matrix "
-					"should be square. rows = %, cols = %",
+					"should be square. rows = %, cols = %"
+				).format(
 					this.class.asString, matrix.rows, matrix.cols
 				)
 			).errorString.postln;
 			this.halt;
-		})
+		}
 	}
 
 	initFromFile { |filePathOrName, searchExtensions|
@@ -154,33 +155,34 @@ HoaMatrix : AtkMatrix {
 			// replace String keys with Symbol keys, make "knowable"
 			dict.keysValuesDo{ |k,v|
 				fileParse.put( k.asSymbol,
-					if (v == "nil") { nil } { v } // so .info parsing doesn't see nil as array
+					(v == "nil").if({ nil }, { v }) // so .info parsing doesn't see nil as array
 				)
 			};
 
 			// check against \set
-			if (fileParse[\set].isNil) {
+			fileParse[\set].isNil.if({
 				"Matrix 'set' is undefined in the .yml file: cannot confirm the "
 				"set matches the loaded object".warn
-			} {
-				if (fileParse[\set].asSymbol != this.set.asSymbol) {
+			}, {
+				(fileParse[\set].asSymbol != this.set.asSymbol).if{
 					Error(
-						format(
+						(
 							"[%:-initFromFile] Matrix 'set' defined in the .yml file (%) doesn't match "
-							"the object set trying to load (%)",
+							"the object set trying to load (%)"
+						).format(
 							this.class.asString, fileParse[\set], this.set
 						).errorString.postln;
 						this.halt
 					)
 				}
-			};
+			});
 
 			// check against \type
-			if (fileParse[\type].isNil) {
+			(fileParse[\type].isNil).if({
 				"Matrix 'type' is undefined in the .yml file: cannot confirm the "
 				"type matches the loaded object (encoder/decoder/xformer)".warn
-			} {
-				if (fileParse[\type].asSymbol != this.type.asSymbol) {
+			}, {
+				(fileParse[\type].asSymbol != this.type.asSymbol).if{
 					Error(
 						format(
 							"[%:-initFromFile] Matrix 'type' defined in the .yml file (%) doesn't match "
@@ -190,14 +192,14 @@ HoaMatrix : AtkMatrix {
 						this.halt
 					)
 				}
-			};
+			});
 
 			// set unset instance vars
-			kind = if (fileParse.kind.notNil) {  // reset kind
+			kind = (fileParse.kind.notNil).if({  // reset kind
 				fileParse.kind.asSymbol
-			} {
+			}, {
 				pn.fileNameWithoutExtension.asSymbol
-			};
+			});
 			matrix = Matrix.with(fileParse.matrix.asFloat);
 			directions = fileParse.directions.asFloat;
 
@@ -206,18 +208,17 @@ HoaMatrix : AtkMatrix {
 			//
 			// May wish to revisit.
 			instVars.do({ |att|
-				fileParse.includesKey(att).if({
+				fileParse.includesKey(att).if{
 					fileParse.removeAt(att)
-				});
+				}
 			});
 			instMeths.do({ |att|
-				fileParse.includesKey(att).if({
+				fileParse.includesKey(att).if{
 					fileParse.removeAt(att)
-				});
+				}
 			});
-
 		}
-		{ // catch all, including .txt
+		{	// catch all, including .txt
 			Error(
 				"[%:-initFromFile] Unsupported file extension.".format(this.class.asString)
 			).errorString.postln;
@@ -306,15 +307,17 @@ HoaMatrix : AtkMatrix {
 		// function to write a multi-line attribute (2D array)
 		wrAttArr = { |att, arr|
 			var vals = arr ?? {this.tryPerform(att)};
-			if (vals.isNil) {
+			vals.isNil.if({
 				wr.writeLine(["% : nil".format(att)]);
-			} {
+			}, {
 				wr.writeLine(["% : [".format(att)]);
 				vals.asArray.do{ |elem, i|
 					wr.write(elem.asCompileString); // allow for large row strings
-					if (i == (vals.size-1)) { wr.write("\n]\n") } { wr.write(",\n") };
+					wr.write(
+						(i == (vals.size-1)).if({ "\n]\n" }, { ",\n" })
+					);
 				};
-			};
+			});
 			wr.write("\n");
 		};
 
@@ -401,11 +404,11 @@ HoaMatrix : AtkMatrix {
 	dim {
 		var is2D;
 
-		^if (this.kind == \format, {
+		^(this.kind == \format).if({
 			3
 		}, {
 			is2D = this.directions.collect(_.last).every(_ == 0.0);
-			if (is2D, { 2 }, { 3 });
+			(is2D).if({ 2 }, { 3 });
 		})
 	}
 
@@ -413,7 +416,6 @@ HoaMatrix : AtkMatrix {
 		^switch( this.type,
 			'\encoder', { this.directions },
 			'\decoder', { this.numInputs.collect({ inf }) },
-			// '\xformer', { this.numInputs.collect({ inf }) },
 			'\xformer', { this.directions }  // requires set to inf
 		)
 	}
@@ -422,7 +424,6 @@ HoaMatrix : AtkMatrix {
 		^switch( this.type,
 			'\encoder', { this.numOutputs.collect({ inf }) },
 			'\decoder', { this.directions },
-			// '\xformer', { this.numInputs.collect({ inf }) },
 			'\xformer', { this.directions }  // requires set to inf
 		)
 	}
@@ -556,15 +557,15 @@ HoaMatrixEncoder : HoaMatrix {
 	}
 
 	initEncoderVarsForFiles {
-		directions = if (fileParse.notNil) {
-			if (fileParse.dirInputs.notNil) {
+		directions = fileParse.notNil.if({
+			fileParse.dirInputs.notNil.if({
 				fileParse.dirInputs.asFloat
-			} {
+			}, {
 				matrix.cols.collect({'unspecified'})
-			};
-		} { // txt file provided, no fileParse
+			});
+		}, { // txt file provided, no fileParse
 			matrix.cols.collect({'unspecified'});
-		};
+		});
 	}
 }
 
@@ -1216,11 +1217,11 @@ HoaMatrixDecoder : HoaMatrix {
 		);
 
 		// 3a) if 2D, discard non-sectoral (3D) harmonics
-		(dim == 2).if({
+		(dim == 2).if{
 			encodingMatrix = Matrix.with(
 				encodingMatrix.asArray[hoaOrder.indices(subset: \sectoral)]
 			)
-		});
+		};
 
 		// 4) pseudo inverse
 		// decodingMatrix = encodingMatrix.pseudoInverse;
@@ -1230,7 +1231,7 @@ HoaMatrixDecoder : HoaMatrix {
 
 
 		// 4a) if 2D (re-)insert non-sectoral (3D) harmonics
-		(dim == 2).if({
+		(dim == 2).if{
 			zerosMatrix = Matrix.newClear(numOutputs, (outputOrder + 1).squared);
 			hoaOrder.indices(subset: \sectoral).do({ |index, i|
 				zerosMatrix.putCol(
@@ -1239,17 +1240,17 @@ HoaMatrixDecoder : HoaMatrix {
 				)
 			});
 			decodingMatrix = zerosMatrix;  // now filled
-		});
+		};
 
 		// 5) apply weights: matching weight, beam weights
 		decodingMatrix = decodingMatrix.mulMatrix(weights);
 
 		// 6) expand to match input order (if necessary)
-		(inputOrder > outputOrder).if({
+		(inputOrder > outputOrder).if{
 			decodingMatrix = (decodingMatrix.flop ++ Matrix.newClear(
 				(inputOrder + 1).squared - (outputOrder + 1).squared, numOutputs)
 			).flop
-		});
+		};
 
 		// assign
 		matrix = decodingMatrix.zeroWithin(AtkHoa.nearZero)

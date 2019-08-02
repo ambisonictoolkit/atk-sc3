@@ -197,7 +197,7 @@ HoaRotationMatrix {
 		// zeroth-band (l=0) is invariant to rotation
 		r.put(0,0,1);
 
-		if (maxDegree == 0) {^r};
+		(maxDegree == 0).if{ ^r };
 
 		r_1 = Matrix.newClear(3, 3); // l = 1 rotation matrix
 
@@ -222,7 +222,7 @@ HoaRotationMatrix {
 			}
 		};
 
-		if (maxDegree == 1) {^r};
+		(maxDegree == 1).if{ ^r };
 
 		r_lm1 = r_1;    // 1st band becomes "previous"
 		band_idx = 4;   // index into output matrix for placing each new band sub-matrix
@@ -240,20 +240,20 @@ HoaRotationMatrix {
 
 					// compute u,v,w terms of Eq.8.1 (Table I)
 					d = (m==0).asInt; // the delta function d_m0
-					denom = if (n.abs==l) {
+					denom = (n.abs == l).if({
 						(2*l) * (2*l-1)
-					}{
+					}, {
 						l.squared - n.squared
-					};
+					});
 
 					u = sqrt((l.squared-m.squared) / denom);
 					v = sqrt((1+d) * (l+abs(m)-1) * (l+abs(m)) / denom) * (1-(2*d)) * 0.5;
 					w = sqrt((l-abs(m)-1) * (l-abs(m)) / denom) * (1-d) * -0.5;
 
 					//  computes Eq.8.1
-					if (u != 0) {u = u * this.prU(l,m,n,r_1,r_lm1)};
-					if (v != 0) {v = v * this.prV(l,m,n,r_1,r_lm1)};
-					if (w != 0) {w = w * this.prW(l,m,n,r_1,r_lm1)};
+					(u != 0).if{ u = u * this.prU(l,m,n,r_1,r_lm1) };
+					(v != 0).if{ v = v * this.prV(l,m,n,r_1,r_lm1) };
+					(w != 0).if{ w = w * this.prW(l,m,n,r_1,r_lm1) };
 
 					r_l.put(m+l,n+l, u + v + w);
 				}
@@ -288,40 +288,40 @@ HoaRotationMatrix {
 	prV { |l, m, n, r_1, r_lm1|
 		var p0, p1, d;
 
-		^if (m == 0) {
+		^(m == 0).if({
 			p0 = this.prP(1, l, 1, n, r_1, r_lm1);
 			p1 = this.prP(-1, l, -1, n, r_1, r_lm1);
 			p0+p1; // return
-		} {
-			if (m > 0) {
+		}, {
+			(m > 0).if({
 				d = (m == 1).asInt;
 				p0 = this.prP(1, l, m-1, n, r_1, r_lm1);
 				p1 = this.prP(-1, l, m.neg+1, n, r_1, r_lm1);
 				(p0*sqrt(1+d)) - (p1*(1-d)); // return
-			} {
+			}, {
 				d = (m == -1).asInt;
 				p0 = this.prP(1, l, m+1, n, r_1, r_lm1);
 				p1 = this.prP(-1, l, m.neg-1, n, r_1, r_lm1);
 				(p0*(1-d)) + (p1*sqrt(1+d)); // return
-			}
-		}
+			})
+		})
 	}
 
 	//  Function W
 	prW { |l, m, n, r_1, r_lm1|
 		var p0, p1;
 
-		if (m == 0) {"HoaRotationMatrix:prW should not be called with m = 0".throw};
+		(m == 0).if{ "HoaRotationMatrix:prW should not be called with m = 0".throw };
 
-		^if (m > 0) {
+		^(m > 0).if({
 			p0 = this.prP(1, l, m+1, n, r_1, r_lm1);
 			p1 = this.prP(-1, l, m.neg-1, n, r_1, r_lm1);
 			p0 + p1; // return
-		} {
+		}, {
 			p0 = this.prP( 1, l, m-1, n, r_1, r_lm1);
 			p1 = this.prP(-1, l, m.neg+1,n, r_1, r_lm1);
 			p0 - p1; // return
-		}
+		})
 	}
 
 	//  Function P
@@ -332,15 +332,15 @@ HoaRotationMatrix {
 		rim1 = r_1.at(i+1, 0);
 		ri0 = r_1.at(i+1, 1);
 
-		^if (b == l.neg) {
+		^(b == l.neg).if({
 			(ri1 * r_lm1.at(a+l-1, 0)) + (rim1 * r_lm1.at(a+l-1, 2*l-2));
-		} {
-			if (b == l) {
+		}, {
+			(b == l).if({
 				(ri1 * r_lm1.at(a+l-1, 2*l-2)) - (rim1 * r_lm1.at(a+l-1, 0));
-			} {
+			}, {
 				ri0 * r_lm1.at(a+l-1, b+l-1);
-			}
-		}
+			})
+		})
 	}
 
 
@@ -364,7 +364,7 @@ HoaRotationMatrix {
 
 		wMtx.put(0,0, Complex(1,0)); // l = 0
 
-		if (order > 0) {
+		(order > 0).if{
 			idx = 1;
 			(1..order).do{ |l|
 				degreeSize = 2*l+1;

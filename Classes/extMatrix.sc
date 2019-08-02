@@ -73,10 +73,10 @@
 		shapeTest = shapes.every(_ == shapes[0]);
 		numTest = array.flatten.every(_.isNumber);
 
-		if (shapeTest and: numTest, {
+		(shapeTest and: numTest).if({
 			rows = array.size;
 			^super.fill(rows, {arg col; array.at(col) });
-			},{
+			}, {
 				error("wrong type of argument in Meta_Matrix-with");this.halt
 		});
 	}
@@ -99,7 +99,7 @@
 		width = rowLength ?? {maxw};
 		height = colHeight ?? {maxh};
 
-		if ((width > maxw) or: (height > maxh)) {
+		((width > maxw) or: (height > maxh)).if{
 			format("dimensions of requested sub-matrix exceed bounds: "
 				"you asked for %x%, remaining space after starting index is %x%",
 				rowLength, colHeight, maxw, maxh

@@ -283,7 +283,7 @@
 			var m = order;  // order
 			var n;
 
-			switch( match,
+			switch(match,
 				'amp', { 1.0 },
 				'rms', {
 					(dim == 2).if({
@@ -319,7 +319,7 @@
 		});
 
 		// beam magnitudes
-		switch( beamDict.at(\beamShapes).size,
+		switch(beamDict.at(\beamShapes).size,
 			1, {
 				beamMags = hoaOrder.beamWeights(beamDict.at(\beamShapes).first, dim)
 			},

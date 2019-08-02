@@ -12,9 +12,9 @@ AtkHoa {
 		defaultOrder = 3;
 
 		formatDict =  Dictionary.with(*[
-			\atk->[ \acn, \n3d ],          // atk, mpegH
-			\ambix->[ \acn, \sn3d ],   // ambix
-			\fuma->[ \fuma, \fuma ]  // fuma
+			\atk->[\acn, \n3d],          // atk, mpegH
+			\ambix->[\acn, \sn3d],   // ambix
+			\fuma->[\fuma, \fuma]  // fuma
 		]);
 	}
 

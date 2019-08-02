@@ -53,7 +53,7 @@ HoaMatrix : AtkMatrix {
 	var <directions;
 
 	// call by subclass, only
-	*newFromMatrix { |matrix, directions = ([[ 0, 0 ]]), order = (AtkHoa.defaultOrder)|
+	*newFromMatrix { |matrix, directions = ([[0, 0]]), order = (AtkHoa.defaultOrder)|
 		^super.new('fromMatrix', order).initDirections(directions).initFromMatrix(matrix)
 	}
 
@@ -68,9 +68,9 @@ HoaMatrix : AtkMatrix {
 		}, {
 			argDirections.rank.switch(
 				0, { Array.with(argDirections, 0.0).reshape(1, 2) },
-				1, { argDirections.collect({ |dir| Array.with(dir, 0.0)}) },
+				1, { argDirections.collect({ |dir| Array.with(dir, 0.0) }) },
 				2, { argDirections },
-			).collect({ |thetaPhi|  // wrap to [ +/-pi, +/-pi/2 ]
+			).collect({ |thetaPhi|  // wrap to [+/-pi, +/-pi/2]
 				Spherical.new(1, thetaPhi.at(0), thetaPhi.at(1)).asCartesian.asSpherical.angles
 			})
 		})
@@ -95,10 +95,10 @@ HoaMatrix : AtkMatrix {
 		};
 
 		// 2) Check: matrix size (numCoeffs) == declared order
-		size = switch (this.type,
-			'encoder', {matrix.rows},
-			'decoder', {matrix.cols},
-			'xformer', {matrix.rows},
+		size = switch(this.type,
+			'encoder', { matrix.rows },
+			'decoder', { matrix.cols },
+			'xformer', { matrix.rows },
 		);
 		matrixOrder = AtkHoa.detectOrder(size);
 
@@ -132,9 +132,9 @@ HoaMatrix : AtkMatrix {
 		var instVars, instMeths;
 
 		// (redundant) instance variables & methods to remove from fileParse
-		instVars = List.with( \kind, \matrix, \order, \filePath, \directions );
-		instMeths = List.with( \op, \set, \type, \dim, \fileName,
-			\numChannels, \numInputs, \numOutputs, \dirInputs, \dirOutputs );
+		instVars = List.with(\kind, \matrix, \order, \filePath, \directions);
+		instMeths = List.with(\op, \set, \type, \dim, \fileName,
+			\numChannels, \numInputs, \numOutputs, \dirInputs, \dirOutputs);
 
 		// first try with path name only
 		pn = Atk.resolveMtxPath(filePathOrName);
@@ -148,13 +148,13 @@ HoaMatrix : AtkMatrix {
 		filePath = pn.fullPath;
 
 		case
-		{ pn.extension == "yml"} {
+		{ pn.extension == "yml" } {
 			dict = filePath.parseYAMLFile;
 			fileParse = IdentityDictionary(know: true);
 
 			// replace String keys with Symbol keys, make "knowable"
 			dict.keysValuesDo{ |k,v|
-				fileParse.put( k.asSymbol,
+				fileParse.put(k.asSymbol,
 					(v == "nil").if({ nil }, { v }) // so .info parsing doesn't see nil as array
 				)
 			};
@@ -291,14 +291,14 @@ HoaMatrix : AtkMatrix {
 	prWriteMatrixToYML { arg pn, note, attributeDictionary;
 		var wr, wrAtt, wrAttArr, defaults;
 
-		wr = FileWriter( pn.fullPath );
+		wr = FileWriter(pn.fullPath);
 
 		// function to write a one-line attribute
 		wrAtt = { |att, val|
 			wr.write("% : ".format(att));
 			wr.write(
 				(
-					val ?? {this.tryPerform(att)}
+					val ?? { this.tryPerform(att) }
 				).asCompileString; // allow for large strings
 			);
 			wr.write("\n\n");
@@ -306,7 +306,7 @@ HoaMatrix : AtkMatrix {
 
 		// function to write a multi-line attribute (2D array)
 		wrAttArr = { |att, arr|
-			var vals = arr ?? {this.tryPerform(att)};
+			var vals = arr ?? { this.tryPerform(att) };
 			vals.isNil.if({
 				wr.writeLine(["% : nil".format(att)]);
 			}, {
@@ -323,7 +323,7 @@ HoaMatrix : AtkMatrix {
 
 		// specify default attributes to write - use to catch
 		// conflicting values if found in user supplied attributeDictionary
-		defaults = [ \set, \type, \kind, \dim, \directions ];
+		defaults = [\set, \type, \kind, \dim, \directions];
 
 		// write attributes
 		wrAtt.(\fileName, pn.fileName);
@@ -394,7 +394,7 @@ HoaMatrix : AtkMatrix {
 	type { ^this.class.asString.keep(-7).toLower.asSymbol }
 
 	numChannels {
-		^switch( this.type,
+		^switch(this.type,
 			'\encoder', { this.numInputs },
 			'\decoder', { this.numOutputs },
 			'\xformer', { this.order.asHoaOrder.size }
@@ -413,7 +413,7 @@ HoaMatrix : AtkMatrix {
 	}
 
 	dirInputs {
-		^switch( this.type,
+		^switch(this.type,
 			'\encoder', { this.directions },
 			'\decoder', { this.numInputs.collect({ inf }) },
 			'\xformer', { this.directions }  // requires set to inf
@@ -421,7 +421,7 @@ HoaMatrix : AtkMatrix {
 	}
 
 	dirOutputs {
-		^switch( this.type,
+		^switch(this.type,
 			'\encoder', { this.numOutputs.collect({ inf }) },
 			'\decoder', { this.directions },
 			'\xformer', { this.directions }  // requires set to inf
@@ -442,7 +442,7 @@ HoaMatrixEncoder : HoaMatrix {
 
 	// Projection Encoding beam - 'basic' & multi pattern
 	*newDirection { |theta = 0, phi = 0, beamShape = nil, order = (AtkHoa.defaultOrder)|
-		var directions = [[ theta, phi ]];
+		var directions = [[theta, phi]];
 		var instance = super.new('dir', order).initDirections(directions);
 
 		^(beamShape == nil).if({
@@ -453,7 +453,7 @@ HoaMatrixEncoder : HoaMatrix {
 	}
 
 	// Projection Encoding beams - 'basic' & multi pattern
-	*newDirections { |directions = ([[ 0, 0 ]]), beamShape = nil, match = nil, order = (AtkHoa.defaultOrder)|
+	*newDirections { |directions = ([[0, 0]]), beamShape = nil, match = nil, order = (AtkHoa.defaultOrder)|
 		var instance = super.new('dirs', order).initDirections(directions);
 		^case
 		{ (beamShape == nil) && (match == nil) } { instance.initBasic }  // (\basic, \amp)
@@ -469,7 +469,7 @@ HoaMatrixEncoder : HoaMatrix {
 	}
 
 	// Modal Encoding beams - multi pattern
-	*newModeMatch { |directions = ([[ 0, 0 ]]), beamShape = \basic, match = \beam, order = (AtkHoa.defaultOrder)|
+	*newModeMatch { |directions = ([[0, 0]]), beamShape = \basic, match = \beam, order = (AtkHoa.defaultOrder)|
 		^super.new('modeMatch', order).initDirections(directions).initMode(beamShape, match);
 	}
 
@@ -478,7 +478,7 @@ HoaMatrixEncoder : HoaMatrix {
 		var instance = super.new('spherical', order);
 
 		^switch
-		( design.class,
+		(design.class,
 			TDesign, { instance.initDirTDesign(design, order).initBeam(beamShape, \beam) },  // TDesign only, for now
 			{ format(  // ... or, catch un-supported
 				"[HoaMatrixEncoder *newSphericalDesign] Design % is not supported!",
@@ -502,7 +502,7 @@ HoaMatrixEncoder : HoaMatrix {
 		hoaOrder = this.order.asHoaOrder;  // instance order
 
 		// build encoder matrix, and set for instance
-		// norm = 1.0, beamWeights = [ 1, 1, ..., 1 ]
+		// norm = 1.0, beamWeights = [1, 1, ..., 1]
 		matrix = Matrix.with(
 			this.directions.collect({ |thetaPhi|
 				hoaOrder.sph(thetaPhi.at(0), thetaPhi.at(1))
@@ -561,10 +561,10 @@ HoaMatrixEncoder : HoaMatrix {
 			fileParse.dirInputs.notNil.if({
 				fileParse.dirInputs.asFloat
 			}, {
-				matrix.cols.collect({'unspecified'})
+				matrix.cols.collect({ 'unspecified' })
 			});
 		}, { // txt file provided, no fileParse
-			matrix.cols.collect({'unspecified'});
+			matrix.cols.collect({ 'unspecified' });
 		});
 	}
 }
@@ -593,16 +593,16 @@ HoaMatrixXformer : HoaMatrix {
 
 	*newRotateAxis { |axis = \z, angle = 0, order = (AtkHoa.defaultOrder)|
 		var r1=0,r2=0,r3=0;
-		switch( axis,
-			\x, {r1=angle},
-			\y, {r2=angle},
-			\z, {r3=angle},
-			\rotate, {r3=angle},
-			\tilt, {r1=angle},
-			\tumble, {r2=angle},
-			\yaw, {r3=angle},
-			\pitch, {r2=angle},
-			\roll, {r1=angle},
+		switch(axis,
+			\x, { r1=angle },
+			\y, { r2=angle },
+			\z, { r3=angle },
+			\rotate, { r3=angle },
+			\tilt, { r1=angle },
+			\tumble, { r2=angle },
+			\yaw, { r3=angle },
+			\pitch, { r2=angle },
+			\roll, { r1=angle },
 		);
 		^super.new('rotateAxis', order).initDirections.initRotation(r1, r2, r3, \xyz)
 	}
@@ -634,7 +634,7 @@ HoaMatrixXformer : HoaMatrix {
 	// Beaming & nulling
 
 	*newBeam { |theta = 0, phi = 0, beamShape = \basic, order = (AtkHoa.defaultOrder)|
-		var directions = [[ theta, phi ]];
+		var directions = [[theta, phi]];
 		^super.new('beam', order).initDirections(directions).initBeam(beamShape);
 	}
 
@@ -773,14 +773,14 @@ HoaMatrixXformer : HoaMatrix {
 		// ... then find test unit vectors
 		xyzEncDirs = directions.rank.switch(
 			0, { Array.with(directions, 0.0).reshape(1, 2) },
-			1, { directions.collect({ |dir| Array.with(dir, 0.0)}) },
+			1, { directions.collect({ |dir| Array.with(dir, 0.0) }) },
 			2, { directions },
 		).collect({ |thetaPhi|
 			Spherical.new(1, thetaPhi.at(0), thetaPhi.at(1)).asCartesian.asArray
 		});
-		// ... and back to [ theta, phi ]...
-		encDirs = xyzEncDirs.collect({ |xyz|  // wrap to [ +/-pi, +/-pi/2 ]
-			Cartesian.new(xyz.at(0), xyz.at(1), xyz.at(2), ).asSpherical.angles
+		// ... and back to [theta, phi]...
+		encDirs = xyzEncDirs.collect({ |xyz|  // wrap to [+/-pi, +/-pi/2]
+			Cartesian.new(xyz.at(0), xyz.at(1), xyz.at(2)).asSpherical.angles
 		});
 
 		// encode test directions (basic), return encoding matrix
@@ -968,7 +968,7 @@ HoaMatrixDecoder : HoaMatrix {
 
 	// Projection Decoding beam - 'basic' & multi pattern
 	*newDirection { |theta = 0, phi = 0, beamShape, order = (AtkHoa.defaultOrder)|
-		var directions = [[ theta, phi ]];
+		var directions = [[theta, phi]];
 		var instance = super.new('dir', order).initDirections(directions);
 
 		^(beamShape == nil).if({
@@ -979,7 +979,7 @@ HoaMatrixDecoder : HoaMatrix {
 	}
 
 	// Projection Decoding beams - 'basic' & multi pattern
-	*newDirections { |directions = ([[ 0, 0 ]]), beamShape = nil, match = nil, order = (AtkHoa.defaultOrder)|
+	*newDirections { |directions = ([[0, 0]]), beamShape = nil, match = nil, order = (AtkHoa.defaultOrder)|
 		var instance = super.new('dirs', order).initDirections(directions);
 		^case
 		{ (beamShape == nil) && (match == nil) } { instance.initBeam(\basic, \amp) }
@@ -1027,7 +1027,7 @@ HoaMatrixDecoder : HoaMatrix {
 		var instance = super.new('spherical', order);
 
 		^switch
-		( design.class,
+		(design.class,
 			TDesign, { instance.initDirTDesign(design, order).initBeam(beamShape, \beam) },  // TDesign only, for now
 			{ format(  // ... or, catch un-supported
 				"[HoaMatrixEncoder *newSphericalDesign] Design % is not supported!",
@@ -1054,7 +1054,7 @@ HoaMatrixDecoder : HoaMatrix {
 		norm = 1 / degreeSeries.sum;
 
 		// build decoder matrix, and set for instance
-		// beamWeights = [ 1, 1, ..., 1 ]
+		// beamWeights = [1, 1, ..., 1]
 		matrix =  norm * Matrix.with(
 			this.directions.collect({ |thetaPhi|
 			   hoaOrder.sph(thetaPhi.at(0), thetaPhi.at(1))
@@ -1263,8 +1263,8 @@ HoaMatrixDecoder : HoaMatrix {
 	//         } { // output directions are unspecified in the provided matrix
 	//             matrix.rows.collect({ 'unspecified' })
 	//         };
-	//         shelfK = fileParse.shelfK !? {fileParse.shelfK.asFloat};
-	//         shelfFreq = fileParse.shelfFreq !? {fileParse.shelfFreq.asFloat};
+	//         shelfK = fileParse.shelfK !? { fileParse.shelfK.asFloat };
+	//         shelfFreq = fileParse.shelfFreq !? { fileParse.shelfFreq.asFloat };
 	//     } { // txt file provided, no fileParse
 	//         dirOutputs = matrix.rows.collect({ 'unspecified' });
 	//     };
@@ -1287,14 +1287,14 @@ HoaMatrixDecoder : HoaMatrix {
 		// ... then find test unit vectors
 		xyzEncDirs = directions.rank.switch(
 			0, { Array.with(directions, 0.0).reshape(1, 2) },
-			1, { directions.collect({ |dir| Array.with(dir, 0.0)}) },
+			1, { directions.collect({ |dir| Array.with(dir, 0.0) }) },
 			2, { directions },
 		).collect({ |thetaPhi|
 			Spherical.new(1, thetaPhi.at(0), thetaPhi.at(1)).asCartesian.asArray
 		});
-		// ... and back to [ theta, phi ]...
-		encDirs = xyzEncDirs.collect({ |xyz|  // wrap to [ +/-pi, +/-pi/2 ]
-			Cartesian.new(xyz.at(0), xyz.at(1), xyz.at(2), ).asSpherical.angles
+		// ... and back to [theta, phi]...
+		encDirs = xyzEncDirs.collect({ |xyz|  // wrap to [+/-pi, +/-pi/2]
+			Cartesian.new(xyz.at(0), xyz.at(1), xyz.at(2)).asSpherical.angles
 		});
 
 		// find decoding unit vectors
@@ -1324,7 +1324,7 @@ HoaMatrixDecoder : HoaMatrix {
 
 		// rms for each (test) encoding direction
 		numDecHarms = this.dim.switch(
-			2, { (2 * this.order) + 1},  // 2D -- sectoral
+			2, { (2 * this.order) + 1 },  // 2D -- sectoral
 			3, { (this.order + 1).squared }   // 3D -- all
 		);
 		rms = (this.numChannels/numDecHarms) * energy;

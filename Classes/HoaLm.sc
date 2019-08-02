@@ -60,7 +60,7 @@ HoaLm {
 	*newIndex { |index, ordering = \acn|
 		var l, m;
 
-		switch (ordering,
+		switch(ordering,
 			\acn, {
 				l = (floor(sqrt(index))).asInt;
 				m = index - l.squared - l
@@ -114,7 +114,7 @@ HoaLm {
 		var l, m;
 		#l, m = this.lm;
 
-		switch (ordering,
+		switch(ordering,
 			\acn, {
 				^l.squared + l + m
 			},
@@ -138,7 +138,7 @@ HoaLm {
 		var l, m;
 		#l, m = this.lm;
 
-		switch (subset,
+		switch(subset,
 			\zonal, {
 				^(m == 0)
 			},
@@ -161,21 +161,21 @@ HoaLm {
 		var l, m;
 		#l, m = this.lm;
 
-		switch (mirror,
+		switch(mirror,
 			\reflect, {  // reflect - mirror across origin - flip * flop * flap
-				^l.odd.if({-1.0}, {1.0});
+				^l.odd.if({ -1.0 }, { 1.0 });
 			},
 			\flip, {  // flip - mirror across y-axis
-				^(m < 0).if({-1.0}, {1.0})
+				^(m < 0).if({ -1.0 }, { 1.0 })
 			},
 			\flop, {  // flop - mirror across x-axis
-				^((m < 0 && m.even) || (m > 0 && m.odd)).if({-1.0}, {1.0})
+				^((m < 0 && m.even) || (m > 0 && m.odd)).if({ -1.0 }, { 1.0 })
 			},
 			\flap, {  // flap - mirror across z-axis
-				^(m + l).odd.if({-1.0}, {1.0})
+				^(m + l).odd.if({ -1.0 }, { 1.0 })
 			},
 			\CondonShortleyPhase, {  // Condon-Shortley Phase - flip * flop
-				^m.odd.if({-1.0}, {1.0});
+				^m.odd.if({ -1.0 }, { 1.0 });
 			},
 			\origin, {
 				^this.reflection(\reflect)
@@ -199,7 +199,7 @@ HoaLm {
 		var l, m;
 		#l, m = this.lm;
 
-		switch (scheme,
+		switch(scheme,
 			\n3d, {
 				^sqrt((2*l) + 1) * this.normalisation(\sn3d)
 			},

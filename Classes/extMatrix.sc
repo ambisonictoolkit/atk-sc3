@@ -53,7 +53,7 @@
 		var matrix;
 
 		matrix = Matrix.newClear(diagonal.size, diagonal.size);  // empty
-		diagonal.do({ arg item, i; matrix.put(i, i, item)});  // fill
+		diagonal.do({ arg item, i; matrix.put(i, i, item) });  // fill
 		diagonal.any({ arg item; item.isFloat }).if({  // test and recast to float
 			matrix = matrix.asFloat
 		});
@@ -75,18 +75,18 @@
 
 		(shapeTest and: numTest).if({
 			rows = array.size;
-			^super.fill(rows, {arg col; array.at(col) });
+			^super.fill(rows, { arg col; array.at(col) });
 			}, {
 				error("wrong type of argument in Meta_Matrix-with");this.halt
 		});
 	}
 
 	rowsDo { |func|
-		this.rows.do{|row, ri| func.(this.getRow(row), ri)}
+		this.rows.do{ |row, ri| func.(this.getRow(row), ri) }
 	}
 
 	colsDo { |func|
-		this.cols.do{|col, ci| func.(this.getCol(col), ci)}
+		this.cols.do{ |col, ci| func.(this.getCol(col), ci) }
 	}
 
 	// return a sub matrix
@@ -96,8 +96,8 @@
 		maxw = this.cols - rowStart;
 		maxh = this.rows - colStart;
 
-		width = rowLength ?? {maxw};
-		height = colHeight ?? {maxh};
+		width = rowLength ?? { maxw };
+		height = colHeight ?? { maxh };
 
 		((width > maxw) or: (height > maxh)).if{
 			format("dimensions of requested sub-matrix exceed bounds: "
@@ -122,7 +122,7 @@
 		var pmtx, maxstrlen=0, temp;
 
 		pmtx = this.getSub(rowStart, colStart, rowLength, colHeight).round(round);
-		pmtx.doMatrix({|item| maxstrlen = max(maxstrlen, item.asString.size)});
+		pmtx.doMatrix({ |item| maxstrlen = max(maxstrlen, item.asString.size) });
 
 		pmtx.rowsDo({ |rowArray, i|
 			rowArray.collect({ |item| item.asString.padLeft(maxstrlen) }).postln;

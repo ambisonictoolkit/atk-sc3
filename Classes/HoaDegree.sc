@@ -61,7 +61,7 @@ HoaDegree {
 	// Return l, m
 
 	l {
-		^Array.fill(2*(this.degree+1)-1, {this.degree})
+		^Array.fill(2*(this.degree+1)-1, { this.degree })
 	}
 
 	m {

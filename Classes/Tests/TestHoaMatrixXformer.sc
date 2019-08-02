@@ -60,7 +60,7 @@ TestHoaMatrixXformer : UnitTest {
 		var initialDirs, rotatedDirs;
 
 		// Use Spherical class to initialize the directions.
-		initialDirs = dirsArray.collect{ |azel| Spherical(1, *azel)};
+		initialDirs = dirsArray.collect{ |azel| Spherical(1, *azel) };
 
 		// Use Spherical class to rotate the directions.
 		// The following rotations are extrinsic, so Y-P-R (which is an intrinsic convention of Tait-Bryan rotations)
@@ -69,13 +69,13 @@ TestHoaMatrixXformer : UnitTest {
 			sph.tilt(roll).tumble(pitch).rotate(yaw)
 		};
 
-		initializedPlanewaves = initialDirs.collect{|sph|
+		initializedPlanewaves = initialDirs.collect{ |sph|
 			HoaMatrixEncoder.newDirection(sph.theta, sph.phi, nil, order).matrix.flop.getRow(0);
 		};
 
 		// Encode the resulting rotated directions as planewaves.
 		// These are the targets for comparison
-		targetPlanewaves = rotatedDirs.collect{|sph|
+		targetPlanewaves = rotatedDirs.collect{ |sph|
 			HoaMatrixEncoder.newDirection(sph.theta, sph.phi, nil, order).matrix.flop.getRow(0);
 		};
 	}
@@ -127,7 +127,7 @@ TestHoaMatrixXformer : UnitTest {
 	test_axisRotationOrder {
 		var angles, axes, r123, r1, r2, r3, compoundRot;
 		5.do{
-			angles = 3.collect{rrand(0,2pi)}; // choose random rotation amounts
+			angles = 3.collect{ rrand(0,2pi) }; // choose random rotation amounts
 			axes = "xyz".scramble;      // randomize the axis convention
 			// *newRotateAxis
 			#r1, r2, r3 = 3.collect{ |i|

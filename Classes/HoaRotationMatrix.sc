@@ -159,22 +159,22 @@ HoaRotationMatrix {
 		// convention which differs from ported reference (Politis):
 		// commented rows to the right show source's values,
 		^Matrix.with(
-			switch( axis,
-				'x', {[
+			switch(axis,
+				'x', { [
 					[1, 0, 0],
 					[0, cost, sint_neg], // [0, cost, sint],
 					[0, sint, cost]      // [0, sint_neg, cost]
-				]},
-				'y', {[
+				] },
+				'y', { [
 					[cost, 0, sint_neg],
 					[0, 1, 0],
 					[sint, 0, cost]
-				]},
-				'z', {[
+				] },
+				'z', { [
 					[cost, sint_neg, 0], // [cost, sint, 0],
 					[sint, cost, 0],     // [sint_neg, cost, 0],
 					[0, 0, 1]
-				]},
+				] },
 			)
 		);
 	}
@@ -216,8 +216,8 @@ HoaRotationMatrix {
 		r_1.put(2,2, r3x3.at(0,0));
 
 		// insert this matrix into the output matrix in 1st band
-		r_1.rows.do{|rowi|
-			r_1.cols.do{|coli|
+		r_1.rows.do{ |rowi|
+			r_1.cols.do{ |coli|
 				r.put(rowi+1, coli+1, r_1.at(rowi, coli))
 			}
 		};
@@ -235,8 +235,8 @@ HoaRotationMatrix {
 
 			r_l = Matrix.newClear(setSize, setSize);
 
-			(l.neg..l).do{|m|
-				(l.neg..l).do{|n|
+			(l.neg..l).do{ |m|
+				(l.neg..l).do{ |n|
 
 					// compute u,v,w terms of Eq.8.1 (Table I)
 					d = (m==0).asInt; // the delta function d_m0
@@ -318,7 +318,7 @@ HoaRotationMatrix {
 			p1 = this.prP(-1, l, m.neg-1, n, r_1, r_lm1);
 			p0 + p1; // return
 		}, {
-			p0 = this.prP( 1, l, m-1, n, r_1, r_lm1);
+			p0 = this.prP(1, l, m-1, n, r_1, r_lm1);
 			p1 = this.prP(-1, l, m.neg+1,n, r_1, r_lm1);
 			p0 - p1; // return
 		})
@@ -373,7 +373,7 @@ HoaRotationMatrix {
 
 				// form the diagonal
 				diagT = (
-					l.collect({Complex(0,1)}) ++
+					l.collect({ Complex(0,1) }) ++
 					[Complex(2.sqrt/2, 0)] ++
 					-1.pow(m).collect(Complex(_, 0))
 				) / 2.sqrt;
@@ -385,7 +385,7 @@ HoaRotationMatrix {
 						}
 					}
 				);
-				diagT.do{|me, i| diagTMtx.put(i, i, me)};
+				diagT.do{ |me, i| diagTMtx.put(i, i, me) };
 
 				// form the antidiagonal
 				adiagT = (
@@ -397,7 +397,7 @@ HoaRotationMatrix {
 				adiagTMtx = Matrix.newClear(degreeSize, degreeSize);
 
 				// place into diagnal, flipped L<>R
-				adiagT.do{|me, i|
+				adiagT.do{ |me, i|
 					var dex = degreeSize-i-1;
 					adiagTMtx.put(i, dex, me)
 				};
@@ -405,8 +405,8 @@ HoaRotationMatrix {
 				// form the transformation matrix for the specific band n
 				tempT = diagTMtx + adiagTMtx;
 
-				tempT.rows.do{|rowi|
-					tempT.cols.do{|coli|
+				tempT.rows.do{ |rowi|
+					tempT.cols.do{ |coli|
 						wMtx.put(rowi+idx, coli+idx, tempT.at(rowi, coli))
 					}
 				};

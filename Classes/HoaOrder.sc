@@ -211,7 +211,7 @@ HoaOrder {
 	rV { |beamShape = 'basic', dim = 3|
 		var m = this.order;
 
-		^switch( beamShape,
+		^switch(beamShape,
 			'basic', { 1 },
 			'energy', { this.rE(beamShape, dim) },
 			'controlled', {
@@ -270,7 +270,7 @@ HoaOrder {
 		var m = this.order;
 		var n;
 
-		^switch( match,
+		^switch(match,
 			'amp', { 1.0 },
 			'rms', {
 				(dim == 2).if({
@@ -292,7 +292,7 @@ HoaOrder {
 		var m = this.order;
 		var max_rE;
 
-		^switch( beamShape,
+		^switch(beamShape,
 			'basic', { 1.dup(m + 1) },
 			'energy', {
 				max_rE = this.rE(beamShape, dim);

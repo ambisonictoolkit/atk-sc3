@@ -119,10 +119,10 @@ HoaUGen {
 			HoaUGen.prCalcJKMatrices(order)
 		};
 
-		mtx = switch (which,
+		mtx = switch(which,
 			'k',  { kMatrix }, // swap Z<>X axes
 			'j',  { jMatrix }, // swap Z<>Y axes
-			'jk', { jkMatrix}, // J * K
+			'jk', { jkMatrix }, // J * K
 			'kj', { kjMatrix } // K * J
 		);
 
@@ -197,9 +197,9 @@ HoaRenderMatrix : HoaUGen {
 }
 
 // Synonyms.
-HoaEncodeMatrix : HoaRenderMatrix {}
-HoaDecodeMatrix : HoaRenderMatrix {}
-HoaXformMatrix : HoaRenderMatrix {}
+HoaEncodeMatrix : HoaRenderMatrix { }
+HoaDecodeMatrix : HoaRenderMatrix { }
+HoaXformMatrix : HoaRenderMatrix { }
 
 /*
 NOTE: we could do more complex error checking, confirming
@@ -312,7 +312,7 @@ HoaRotate : HoaUGen {
 			// with addition, and 2 multiplications
 			if (n > 2) {
 				c2 = 2 * c[0];
-				(1..n-2).do{|idx|
+				(1..n-2).do{ |idx|
 					s[idx+1] = (c2 * s[idx]) - s[idx-1];
 					c[idx+1] = (c2 * c[idx]) - c[idx-1];
 				};
@@ -381,9 +381,9 @@ HoaTumble : HoaUGen {
 
 
 // Synonyms.
-HoaYaw : HoaRotate {}
-HoaPitch : HoaTumble {}
-HoaRoll : HoaTilt {}
+HoaYaw : HoaRotate { }
+HoaPitch : HoaTumble { }
+HoaRoll : HoaTilt { }
 
 
 // Compound rotations applied in sequential order:

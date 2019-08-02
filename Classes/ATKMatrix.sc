@@ -146,14 +146,14 @@ AtkMatrix {
 		};
 
 		case
-		{ext == "txt"} {
+		{ ext == "txt" } {
 			pn.fileName.contains(".mosl").if({
 				this.prWriteMatrixToMOSL(pn)
 			}, {
 				this.prWriteMatrixToTXT(pn)
 			})
 		}
-		{ext == "yml"} {this.prWriteMatrixToYML(pn, note, attributeDictionary)}
+		{ ext == "yml" } { this.prWriteMatrixToYML(pn, note, attributeDictionary) }
 		{	// catch all
 			Error(
 				"Invalid file extension: provide '.txt' for writing matrix only, "
@@ -166,15 +166,15 @@ AtkMatrix {
 
 	prWriteMatrixToTXT { arg pn; // a PathName
 		var wr;
-		wr = FileWriter( pn.fullPath );
+		wr = FileWriter(pn.fullPath);
 		// write the matrix into it by row, and close
-		matrix.rows.do{ |i| wr.writeLine( matrix.getRow(i) ) };
+		matrix.rows.do{ |i| wr.writeLine(matrix.getRow(i)) };
 		wr.close;
 	}
 
 	prWriteMatrixToMOSL { arg pn; // a PathName
 		var wr;
-		wr = FileWriter( pn.fullPath );
+		wr = FileWriter(pn.fullPath);
 
 		// write num rows and cols to first 2 lines
 		wr.writeLine(["// Dimensions: rows, columns"]);
@@ -187,7 +187,7 @@ AtkMatrix {
 			wr.writeLine([format("// Row %", i)]);
 
 			row = matrix.getRow(i);
-			row.do{ |j| wr.writeLine( j.asArray ) };
+			row.do{ |j| wr.writeLine(j.asArray) };
 		};
 		wr.close;
 	}
@@ -195,7 +195,7 @@ AtkMatrix {
 	// separate YML writer for FOA & HOA
 	// prWriteMatrixToYML
 
-	fileName { ^try {PathName(filePath).fileName} }
+	fileName { ^try { PathName(filePath).fileName } }
 
 	asArray { ^matrix.asArray }
 
@@ -230,14 +230,14 @@ AtkMatrix {
 		var attributes;
 
 		// gather attributes in order of posting
-		attributes = List.with( \set, \kind, \dim );
+		attributes = List.with(\set, \kind, \dim);
 		this.isKindOf(FoaDecoderMatrix).if{
 			attributes.add(\shelfK).add(\shelfFreq)
 		};
 
 		// other non-standard metadata provided in yml file
 		fileParse !? {
-			fileParse.keys.do{|key|
+			fileParse.keys.do{ |key|
 				attributes.includes(key.asSymbol).not.if{
 					attributes.add(key.asSymbol);
 				}
@@ -253,7 +253,7 @@ AtkMatrix {
 		attributes.addFirst(\set);
 
 		// bump to the bottom of the post
-		[\dirInputs, \dirOutputs, \matrix].do{|att|
+		[\dirInputs, \dirOutputs, \matrix].do{ |att|
 			attributes.includes(att).if{ attributes.remove(att) };
 			attributes.add(att);
 		};

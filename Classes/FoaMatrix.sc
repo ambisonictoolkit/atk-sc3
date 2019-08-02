@@ -96,7 +96,7 @@ FoaSpeakerMatrix {
 	*new { arg directions, k;
 		var positions;
 
-		switch (directions.rank,					// 2D or 3D?
+		switch(directions.rank,					// 2D or 3D?
 			1, { positions = Matrix.with(			// 2D
 					directions.collect({ arg item;
 						Polar.new(1, item).asPoint.asArray
@@ -163,7 +163,7 @@ FoaSpeakerMatrix {
 		});
 
 		// return resulting matrix
-		^sqrt(1/2) * n * k * ( s.inverse * directions);
+		^sqrt(1/2) * n * k * (s.inverse * directions);
 	}
 
 	printOn { arg stream;
@@ -208,10 +208,10 @@ FoaMatrix : AtkMatrix {
 		};
 
 		// 2) Check: matrix numCoeffs == 3 || 4, is it a valid 2D or 3D FOA matrix?
-		numCoeffs = switch (this.type,
-			'encoder', {matrix.rows},
-			'decoder', {matrix.cols},
-			'xformer', {matrix.rows},
+		numCoeffs = switch(this.type,
+			'encoder', { matrix.rows },
+			'decoder', { matrix.cols },
+			'xformer', { matrix.rows },
 		);
 		(numCoeffs == 3 or: { numCoeffs == 4 }).not.if{
 			Error(
@@ -274,11 +274,11 @@ FoaMatrix : AtkMatrix {
 			matrix = pn.fileName.contains(".mosl").if({
 				// .mosl.txt file: expected to be matrix only,
 				// single values on each line, by rows
-				Matrix.with( this.prParseMOSL(pn) );
+				Matrix.with(this.prParseMOSL(pn));
 			}, {
 				// .txt file: expected to be matrix only, cols
 				// separated by spaces, rows by newlines
-				Matrix.with( FileReader.read(filePath).asFloat );
+				Matrix.with(FileReader.read(filePath).asFloat);
 			});
 
 			kind = pn.fileName.asSymbol; // kind defaults to filename
@@ -331,14 +331,14 @@ FoaMatrix : AtkMatrix {
 		var wr, wrAtt, wrAttArr, defaults;
 		var dirIns, dirOuts;
 
-		wr = FileWriter( pn.fullPath );
+		wr = FileWriter(pn.fullPath);
 
 		// write a one-line attribute
 		wrAtt = { |att, val|
 			wr.write("% : ".format(att));
 			wr.write(
 				(
-					val ?? {this.tryPerform(att)}
+					val ?? { this.tryPerform(att) }
 				).asCompileString; // allow for large strings
 			);
 			wr.write("\n\n");
@@ -346,7 +346,7 @@ FoaMatrix : AtkMatrix {
 
 		// write a multi-line attribute (2D array)
 		wrAttArr = { |att, arr|
-			var vals = arr ?? {this.tryPerform(att)};
+			var vals = arr ?? { this.tryPerform(att) };
 			vals.isNil.if({
 				wr.writeLine(["% : nil".format(att)]);
 			}, {
@@ -384,7 +384,7 @@ FoaMatrix : AtkMatrix {
 		attributeDictionary !? {
 			attributeDictionary.keysValuesDo{ |k,v|
 				// catch overridden dirIn/Outputs
-				switch( k,
+				switch(k,
 					'dirInputs', { dirIns = v },
 					'dirOutputs', { dirOuts = v },
 					{
@@ -414,13 +414,13 @@ FoaMatrix : AtkMatrix {
 		row = [];
 		file.do{ |line|
 			var val = line[0];
-			switch( val,
-				"//",	{}, // ignore comments
-				"",		{},	// ignore blank line
+			switch(val,
+				"//",	{ }, // ignore comments
+				"",		{ },	// ignore blank line
 				{	// found valid line
 					case
-					{numRows.isNil} { numRows = val.asInt }
-					{numCols.isNil} { numCols = val.asInt }
+					{ numRows.isNil } { numRows = val.asInt }
+					{ numCols.isNil } { numCols = val.asInt }
 					{
 						row = row.add(val.asFloat);
 						(row.size == numCols).f{
@@ -474,10 +474,10 @@ FoaMatrix : AtkMatrix {
 
 		this.initFromFile(pathStr ++ ".yml", this.type, false);
 
-		switch( this.type,
-			'\encoder', {this.initEncoderVarsForFiles}, // properly set dirInputs
-			'\decoder', {this.initDecoderVarsForFiles}, // properly set dirOutputs
-			'\xformer', {}
+		switch(this.type,
+			'\encoder', { this.initEncoderVarsForFiles }, // properly set dirInputs
+			'\decoder', { this.initDecoderVarsForFiles }, // properly set dirOutputs
+			'\xformer', { }
 		)
 	}
 
@@ -487,7 +487,7 @@ FoaMatrix : AtkMatrix {
 	type { ^this.class.asString.drop(3).drop(-6).toLower.asSymbol }
 
 	numChannels {
-		^switch( this.type,
+		^switch(this.type,
 			'\encoder', { this.numInputs },
 			'\decoder', { this.numOutputs },
 			'\xformer', { 4 }
@@ -495,7 +495,7 @@ FoaMatrix : AtkMatrix {
 	}
 
 	dim {
-		^switch( this.type,
+		^switch(this.type,
 			'\encoder', { this.numOutputs - 1 },
 			'\decoder', { this.numInputs - 1 },
 			'\xformer', { 3 }  // all transforms are 3D
@@ -503,7 +503,7 @@ FoaMatrix : AtkMatrix {
 	}
 
 	dirInputs {
-		^switch( this.type,
+		^switch(this.type,
 			'\encoder', { this.dirChannels },
 			'\decoder', { this.numInputs.collect({ inf }) },
 			// '\xformer', { this.numInputs.collect({ inf }) },
@@ -512,7 +512,7 @@ FoaMatrix : AtkMatrix {
 	}
 
 	dirOutputs {
-		^switch( this.type,
+		^switch(this.type,
 			'\encoder', { this.numOutputs.collect({ inf }) },
 			'\decoder', { this.dirChannels },
 			// '\xformer', { this.numInputs.collect({ inf }) },
@@ -528,7 +528,7 @@ FoaMatrix : AtkMatrix {
 FoaDecoderMatrix : FoaMatrix {
 	var <>shelfFreq, <shelfK;
 
-	*newDiametric { arg directions = [ pi/4, 3*pi/4 ], k = 'single';
+	*newDiametric { arg directions = [pi/4, 3*pi/4], k = 'single';
 		^super.new('diametric').initDiametric(directions, k);
 	}
 
@@ -578,7 +578,7 @@ FoaDecoderMatrix : FoaMatrix {
 		k.isNumber.if({
 			^k
 		}, {
-			^switch ( k,
+			^switch(k,
 				'velocity', { 1 },
 				'energy', { 2.reciprocal.sqrt },
 				'controlled', { 2.reciprocal },
@@ -597,7 +597,7 @@ FoaDecoderMatrix : FoaMatrix {
 		k.isNumber.if({
 			^k
 		}, {
-			^switch ( k,
+			^switch(k,
 				'velocity', { 1 },
 				'energy', { 3.reciprocal.sqrt },
 				'controlled', { 3.reciprocal },
@@ -616,7 +616,7 @@ FoaDecoderMatrix : FoaMatrix {
 		var positions, positions2;
 		var speakerMatrix, n;
 
-		switch (directions.rank,  // 2D or 3D?
+		switch(directions.rank,  // 2D or 3D?
 			1, {  // 2D
 
 				// find positions
@@ -675,7 +675,7 @@ FoaDecoderMatrix : FoaMatrix {
 
 		// build decoder matrix
 		// resulting rows (after flop) are W, X, Y, Z gains
-		matrix = speakerMatrix.insertRow(0, Array.fill(n, {1}));
+		matrix = speakerMatrix.insertRow(0, Array.fill(n, { 1 }));
 
 		// return resulting matrix
 		// ALSO: the below code calls for the complex conjugate
@@ -695,7 +695,7 @@ FoaDecoderMatrix : FoaMatrix {
 
 		// return theta from output channel (speaker) number
 		theta = numChans.collect({ arg channel;
-			switch (orientation,
+			switch(orientation,
 				'flat',	{ ((1.0 + (2.0 * channel))/numChans) * pi },
 				'point',	{ ((2.0 * channel)/numChans) * pi }
 			)
@@ -737,7 +737,7 @@ FoaDecoderMatrix : FoaMatrix {
 			theta = theta + (pi / numChanPairs)  // 'flat' case
 		};
 
-		// collect directions [ [theta, phi], ... ]
+		// collect directions [[theta, phi], ...]
 		// upper ring only
 		directions = [
 			theta,
@@ -783,7 +783,7 @@ FoaDecoderMatrix : FoaMatrix {
 		var g0, g1, g2;
 
 		// set output channel (speaker) directions for instance
-		dirChannels = [ angle, pi - angle, (pi - angle).neg, angle.neg ];
+		dirChannels = [angle, pi - angle, (pi - angle).neg, angle.neg];
 
 
 		// initialise k
@@ -796,10 +796,10 @@ FoaDecoderMatrix : FoaMatrix {
 
 		// build decoder matrix
 		matrix = 2.sqrt/4 * Matrix.with([
-				[ g0, g1, 	g2 		],
-				[ g0, g1.neg, g2 		],
-				[ g0, g1.neg, g2.neg	],
-				[ g0, g1, 	g2.neg	]
+				[g0, g1, 	g2 		],
+				[g0, g1.neg, g2 		],
+				[g0, g1.neg, g2.neg	],
+				[g0, g1, 	g2.neg	]
 		])
 	}
 
@@ -808,7 +808,7 @@ FoaDecoderMatrix : FoaMatrix {
 		var g0, g1, g2;
 
 		// set output channel (speaker) directions for instance
-		dirChannels = [ pi/6, pi.neg/6 ];
+		dirChannels = [pi/6, pi.neg/6];
 
 		// calculate g0, g1, g2 (scaled by pattern)
 		g0	= (1.0 - pattern) * 2.sqrt;
@@ -817,15 +817,15 @@ FoaDecoderMatrix : FoaMatrix {
 
 		// build decoder matrix, and set for instance
 		matrix = Matrix.with([
-				[ g0, g1, g2		],
-				[ g0, g1, g2.neg	]
+				[g0, g1, g2		],
+				[g0, g1, g2.neg	]
 		])
 	}
 
 	initMono { arg theta, phi, pattern;
 
 		// set output channel (speaker) directions for instance
-		dirChannels = [ 0 ];
+		dirChannels = [0];
 
 		// build decoder matrix, and set for instance
 		matrix = Matrix.with([
@@ -846,8 +846,8 @@ FoaDecoderMatrix : FoaMatrix {
 			}, { // output directions are unspecified in the provided matrix
 				matrix.rows.collect({ 'unspecified' })
 			});
-			shelfK = fileParse.shelfK !? {fileParse.shelfK.asFloat};
-			shelfFreq = fileParse.shelfFreq !? {fileParse.shelfFreq.asFloat};
+			shelfK = fileParse.shelfK !? { fileParse.shelfK.asFloat };
+			shelfFreq = fileParse.shelfFreq !? { fileParse.shelfFreq.asFloat };
 		}, { // txt file provided, no fileParse
 			dirChannels = matrix.rows.collect({ 'unspecified' });
 		});
@@ -1032,10 +1032,10 @@ FoaEncoderMatrix : FoaMatrix {
 
 		// set input channel directions for instance
 		(phi == 0).if({
-			dirChannels = [ theta ];
+			dirChannels = [theta];
 				this.init2D
 		}, {
-				dirChannels = [ [theta, phi] ];
+				dirChannels = [[theta, phi]];
 				this.init3D
 		})
 	}
@@ -1043,7 +1043,7 @@ FoaEncoderMatrix : FoaMatrix {
 	initStereo { arg angle;
 
 		// set input channel directions for instance
-		dirChannels = [ pi/2 - angle, (pi/2 - angle).neg ];
+		dirChannels = [pi/2 - angle, (pi/2 - angle).neg];
 
 		this.init2D
 	}
@@ -1053,7 +1053,7 @@ FoaEncoderMatrix : FoaMatrix {
 		// set input channel directions for instance
 		dirChannels = directions;
 
-		switch (directions.rank,					// 2D or 3D?
+		switch(directions.rank,					// 2D or 3D?
 			1, {									// 2D
 				pattern.isNil.if({
 					this.init2D					// plane wave
@@ -1077,7 +1077,7 @@ FoaEncoderMatrix : FoaMatrix {
 
 		// return theta from output channel (speaker) number
 		theta = numChans.collect({ arg channel;
-			switch (orientation,
+			switch(orientation,
 				'flat', { ((1.0 + (2.0 * channel))/numChans) * pi },
 				'point', { ((2.0 * channel)/numChans) * pi }
 			)
@@ -1097,13 +1097,13 @@ FoaEncoderMatrix : FoaMatrix {
 		// generate input channel pair positions
 		// start with polar positions. . .
 		theta = [];
-		numChanPairs.do({arg i;
-			theta = theta ++ [2 * pi * i / numChanPairs]}
+		numChanPairs.do({ arg i;
+			theta = theta ++ [2 * pi * i / numChanPairs] }
 		);
-		if ( orientation == 'flat',
+		if (orientation == 'flat',
 			{ theta = theta + (pi / numChanPairs) });       // 'flat' case
 
-		// collect directions [ [theta, phi], ... ]
+		// collect directions [[theta, phi], ...]
 		// upper ring only
 		directions = [
 			theta,
@@ -1136,7 +1136,7 @@ FoaEncoderMatrix : FoaMatrix {
 	initZoomH2 { arg angles, pattern, k;
 
 		// set input channel directions for instance
-		dirChannels = [ angles.at(0), angles.at(0).neg, angles.at(1), angles.at(1).neg ];
+		dirChannels = [angles.at(0), angles.at(0).neg, angles.at(1), angles.at(1).neg];
 
 		this.initInv2D(pattern);
 
@@ -1869,10 +1869,10 @@ FoaDecoderKernel {
 
 		// init dirChannels (output channel (speaker) directions) and kernel sr
 		(kind == 'uhj').if({
-			dirChannels = [ pi/6, pi.neg/6 ];
+			dirChannels = [pi/6, pi.neg/6];
 			sampleRateStr = "None";
 		}, {
-			dirChannels = [ 5/9 * pi, 5/9 * pi.neg ];
+			dirChannels = [5/9 * pi, 5/9 * pi.neg];
 			sampleRateStr.isNil.if{
 				sampleRateStr = server.sampleRate.asInteger.asString;
 			};
@@ -2047,7 +2047,7 @@ FoaDecoderKernel {
 
 	kernelBundle { ^kernelBundle }
 
-	dim { ^kernel.shape.at(0) - 1}
+	dim { ^kernel.shape.at(0) - 1 }
 
 	numChannels { ^kernel.shape.at(1) }
 
@@ -2156,28 +2156,28 @@ FoaEncoderKernel {
 		kernelInfo = [];
 
 		// init dirChannels (output channel (speaker) directions) and kernel sr
-		switch ( kind,
+		switch(kind,
 			'super', {
-				dirChannels = [ pi/4, pi.neg/4 ];	 // approx, doesn't include phasiness
+				dirChannels = [pi/4, pi.neg/4];	 // approx, doesn't include phasiness
 				sampleRateStr = "None";
 				chans = 3;					// [w, x, y]
 			},
 			'uhj', {
-				dirChannels = [ inf, inf ];
+				dirChannels = [inf, inf];
 				sampleRateStr.isNil.if{
 					sampleRateStr = server.sampleRate.asInteger.asString;
 				};
 				chans = 3;					// [w, x, y]
 			},
 			'spread', {
-				dirChannels = [ inf ];
+				dirChannels = [inf];
 				sampleRateStr.isNil.if{
 					sampleRateStr = server.sampleRate.asInteger.asString;
 				};
 				chans = 4;					// [w, x, y, z]
 			},
 			'diffuse', {
-				dirChannels = [ inf ];
+				dirChannels = [inf];
 				sampleRateStr = "None";
 				chans = 4;					// [w, x, y, z]
 			}
@@ -2189,17 +2189,17 @@ FoaEncoderKernel {
 
 			//			},
 			//			'greathall', {
-			//				dirChannels = [ inf ];
+			//				dirChannels = [inf];
 			//				sampleRateStr = server.sampleRate.asInteger.asString;
 			//				chans = 4;					// [w, x, y, z]
 			//			},
 			//			'octagon', {
-			//				dirChannels = [ inf ];
+			//				dirChannels = [inf];
 			//				sampleRateStr = server.sampleRate.asInteger.asString;
 			//				chans = 4;					// [w, x, y, z]
 			//			},
 			//			'classroom', {
-			//				dirChannels = [ inf ];
+			//				dirChannels = [inf];
 			//				sampleRateStr = server.sampleRate.asInteger.asString;
 			//				chans = 4;					// [w, x, y, z]
 			//			}
@@ -2287,7 +2287,7 @@ FoaEncoderKernel {
 			Error(errorMsg).throw
 		}, {
 			score.isNil.if({
-				if ( server.serverRunning.not, {		// is server running?
+				if (server.serverRunning.not, {		// is server running?
 					// throw server error!
 					Error(
 						"Please boot server: %. Encoder kernel failed to load.".format(
@@ -2374,7 +2374,7 @@ FoaEncoderKernel {
 
 	kernelBundle { ^kernelBundle }
 
-	dim { ^kernel.shape.at(1) - 1}
+	dim { ^kernel.shape.at(1) - 1 }
 
 	numChannels { ^kernel.shape.at(0) }
 

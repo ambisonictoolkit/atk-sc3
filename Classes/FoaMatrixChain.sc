@@ -65,35 +65,35 @@ FoaMatrixChain {
 		this.loadXForms;
 		// list containing each branch in the chain
 		chains = List();
-		this.addChain( 0 );
+		this.addChain(0);
 	}
 
 
 	addChain { |index|
 		// create a chain
-		chains.insert( index, List() );
+		chains.insert(index, List());
 		this.changed(\chainAdded, index);
 
 		(index == 0).if({
-			this.addTransform( 'a soundfield', index, 0 )	// first "transform" in first chain
+			this.addTransform('a soundfield', index, 0)	// first "transform" in first chain
 		}, {
 			this.addTransform(								// head of a new chain
 				'input soundfield', index, 0,
 				// pass the last transform in previous chain
-				chains[ index-1 ][ chains[index-1].size - 1 ]
+				chains[index-1][chains[index-1].size - 1]
 			)
 		});
 
 		// followed by a 'thru' transform that user will change to desired transform
-		this.addTransform( 'soundfield thru', index, 1 );
+		this.addTransform('soundfield thru', index, 1);
 	}
 
 
 	removeChain { |index|
 		var removedLinks;
 		removedLinks = chains[index].collect{ |lnk| lnk };
-		chains.removeAt( index );
-		removedLinks.do{ |rmvdLink| this.checkIfInputRemoved( rmvdLink ) };
+		chains.removeAt(index);
+		removedLinks.do{ |rmvdLink| this.checkIfInputRemoved(rmvdLink) };
 		this.chainXForms;
 		this.changed(\chainRemoved, index);
 	}
@@ -102,7 +102,7 @@ FoaMatrixChain {
 	// clear the chain
 	reset {
 		chains.clear;
-		this.addChain( 0 );
+		this.addChain(0);
 	}
 
 
@@ -116,15 +116,15 @@ FoaMatrixChain {
 
 		// let 'mute' by, check that xformName is in the xFormDict
 		(xformName != 'mute').if({
-			xFormDict[xformName] ?? { error( "transform name not found!" ) };
+			xFormDict[xformName] ?? { error("transform name not found!") };
 
 			// initialize the transform
-			link = FoaMatrixChainLink( xformName );
+			link = FoaMatrixChainLink(xformName);
 
 			// initialize controls
 			controls = xFormDict[xformName].controls.clump(2);
 
-			controls.do{|pair, i|
+			controls.do{ |pair, i|
 				var paramName, ctl;
 				#paramName, ctl = pair;
 
@@ -145,7 +145,7 @@ FoaMatrixChain {
 			};
 		}, {
 			// mute
-			link = FoaMatrixChainLink( xformName );
+			link = FoaMatrixChainLink(xformName);
 		});
 
 		^link
@@ -156,20 +156,20 @@ FoaMatrixChain {
 		this.checkLinkExists(whichChain, index) ?? { ^this };
 
 		chains[whichChain][index].controlStates[ctlDex] = value.isKindOf(Symbol).if({
-			this.getLinkByKey( value )		// for controls with input index parameter
+			this.getLinkByKey(value)		// for controls with input index parameter
 		}, {
 			value
 		});
 
 		this.chainXForms;
-		this.changed( \paramUpdated );
+		this.changed(\paramUpdated);
 	}
 
 
 	addTransform { | xformName, whichChain, index ... params |
-		var link = this.createXformLink( xformName, *params );
+		var link = this.createXformLink(xformName, *params);
 
-		chains[whichChain].insert( index, link );
+		chains[whichChain].insert(index, link);
 		this.chainXForms;
 		this.changed(\transformAdded, xformName, whichChain, index);
 	}
@@ -178,10 +178,10 @@ FoaMatrixChain {
 	// for changing the transform at a point in the chain
 	replaceTransform { | newXformName, whichChain, index ... params |
 		var newLink, formerLink;
-		this.checkLinkExists(whichChain, index) ?? {^this};
+		this.checkLinkExists(whichChain, index) ?? { ^this };
 		newLink = this.createXformLink(newXformName, *params);
 		formerLink = chains[whichChain][index];
-		chains[whichChain].put( index, newLink );
+		chains[whichChain].put(index, newLink);
 
 		this.checkIfInputRemoved(formerLink, newLink);
 		this.chainXForms;
@@ -191,27 +191,27 @@ FoaMatrixChain {
 
 	removeTransform { | whichChain, index |
 		var rmvdLink;
-		this.checkLinkExists(whichChain, index) ?? {^this};
+		this.checkLinkExists(whichChain, index) ?? { ^this };
 		rmvdLink = chains[whichChain][index];
 		chains[whichChain].removeAt(index);
 		// update any xform inputs that were removed before .chainXForms
-		this.checkIfInputRemoved( rmvdLink );
+		this.checkIfInputRemoved(rmvdLink);
 		this.chainXForms;
-		this.changed( \transformRemoved, whichChain, index );
+		this.changed(\transformRemoved, whichChain, index);
 	}
 
 
 	muteXform { | bool, whichChain, index |
-		this.checkLinkExists(whichChain, index) ?? {^this};
+		this.checkLinkExists(whichChain, index) ?? { ^this };
 		chains[whichChain][index].muted = bool;
 		this.chainXForms;
-		this.changed( \transformMuted, whichChain, index, bool );
+		this.changed(\transformMuted, whichChain, index, bool);
 	}
 
 
 	soloXform { | bool, whichChain, index |
 		var changed = List();
-		this.checkLinkExists(whichChain, index) ?? {^this};
+		this.checkLinkExists(whichChain, index) ?? { ^this };
 		// keep a list of the solo states that are changing
 
 		bool.if{ // if activating solo
@@ -229,8 +229,8 @@ FoaMatrixChain {
 		changed.add([whichChain, index, bool]);		// add this solo to changed list last
 
 		this.chainXForms;
-		changed.do{|whichDxBool|
-			this.changed( \transformSoloed, *whichDxBool );
+		changed.do{ |whichDxBool|
+			this.changed(\transformSoloed, *whichDxBool);
 		}
 	}
 
@@ -238,11 +238,11 @@ FoaMatrixChain {
 	checkLinkExists { |whichChain, index|
 		var warning;
 		warning = format("No transform found at chain % index %", whichChain, index);
-		try {chains[whichChain][index]} {warning.warn; ^nil};
+		try { chains[whichChain][index] } { warning.warn; ^nil };
 		// return the link. this can be nil if
 		// only the index is out of range but whichChain isn't
 		// so it should still get caught by the receiver
-		^chains[whichChain][index] ?? {warning.warn; nil};
+		^chains[whichChain][index] ?? { warning.warn; nil };
 	}
 
 
@@ -250,10 +250,10 @@ FoaMatrixChain {
 		chains.do{ |chain, i|
 			chain.do{ |lnk, j|
 				var cStates = lnk.controlStates;
-				cStates.indices.do{|dex|
+				cStates.indices.do{ |dex|
 					(cStates[dex] === rmvdLink).if{
 						// replace input with new link or A0 if none
-						cStates.put(dex, replacementLink ?? chains[0][0] );
+						cStates.put(dex, replacementLink ?? chains[0][0]);
 					};
 				}
 			}
@@ -265,14 +265,14 @@ FoaMatrixChain {
 	// last transform in the last transform chain
 	chainXForms {
 		var mtx;
-		block {|break|
+		block { |break|
 			chains.do{ |chain, i|
 				chain.do{ |xf, j|
 
 					(i == 0 and: { j == 0 }).if({
 						// init input soundfield for first chain
 						mtx = Matrix.newIdentity(4);
-						xf.mtx_( mtx );
+						xf.mtx_(mtx);
 						curXformMatrix = mtx; // init var
 					}, {
 						// Note: names set to 'mute' ('-') or .muted are skipped
@@ -294,10 +294,10 @@ FoaMatrixChain {
 
 							// pass in preceding soundfield followed by the control
 							// values for the transform operation, in order
-							mtx = xFormDict[xf.name]['getMatrix'].( mtx, *ctlVals );
-							xf.mtx_( mtx );     // store resulting matrix
+							mtx = xFormDict[xf.name]['getMatrix'].(mtx, *ctlVals);
+							xf.mtx_(mtx);     // store resulting matrix
 						}, {
-							xf.mtx_( mtx );     // xf is muted or "thru", forward the preceding the matrix
+							xf.mtx_(mtx);     // xf is muted or "thru", forward the preceding the matrix
 						});
 
 						xf.soloed.if{ break.() }  // stop chaining here if solo'd
@@ -316,7 +316,7 @@ FoaMatrixChain {
 		chains.do{ |chain, i|
 			("\nCHAIN " ++ i).postln;
 			chain.do{ |xf, j|
-				postf( "\t%, % %\n", xf.name, xf.controlStates,
+				postf("\t%, % %\n", xf.name, xf.controlStates,
 					xf.muted.if({ "[MUTED]" }, { "" })
 					++ xf.soloed.if({ "[SOLOED]" }, { "" })
 				)
@@ -330,7 +330,7 @@ FoaMatrixChain {
 		var str, index, xfDex;
 
 		str = key.asString;
-		index = this.class.abcs.indexOf( str.keep(1).asSymbol );
+		index = this.class.abcs.indexOf(str.keep(1).asSymbol);
 		xfDex = str.drop(1).asInt;
 
 		^chains[index][xfDex];
@@ -546,7 +546,7 @@ FoaMatrixChain {
 			'soundfield thru', [], { |mtx| mtx },
 
 			// the first transform in the chain - returns an identity matrix
-			'a soundfield', [], { |mtx| Matrix.newIdentity( 4 ) },
+			'a soundfield', [], { |mtx| Matrix.newIdentity(4) },
 
 		];
 
@@ -559,7 +559,7 @@ FoaMatrixChain {
 		xformSpecs.do{ |clump|
 			var name, ctls, func;
 			#name, ctls, func = clump; // unpack the clump
-			xFormDict.put( name,
+			xFormDict.put(name,
 				 IdentityDictionary(know: true)
 				.put('controls', ctls)
 				.put('getMatrix', func)

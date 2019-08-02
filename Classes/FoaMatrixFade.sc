@@ -77,28 +77,28 @@ FoaMatrixFade {
 			inbus ?? {
 				internalInbus = true;
 				// "No input bus specified for FoaMatrixFade, so creating an input bus for you. Get it with .inbus".postln;
-				inbus = server.audioBusAllocator.alloc( 4 );
+				inbus = server.audioBusAllocator.alloc(4);
 			};
 			outbus ?? {
 				internalOutbus = true;
 				"Creating an output bus. Get it with .outbus".postln;
-				outbus = server.audioBusAllocator.alloc( 4 );
+				outbus = server.audioBusAllocator.alloc(4);
 			};
-			addAct = addAction ?? {\addToTail};
-			targ = target ?? {1};
+			addAct = addAction ?? { \addToTail };
+			targ = target ?? { 1 };
 
-			synth = Synth.new( mtxFadeDef.name, [
+			synth = Synth.new(mtxFadeDef.name, [
 				\outbus, outbus,
 				\inbus, inbus,
 				\fade, xFade,
 				\mul, mul
-			], targ, addAct );
+			], targ, addAct);
 
 			server.sync;
 
-			initMatrix !? {this.matrix_(initMatrix)};
+			initMatrix !? { this.matrix_(initMatrix) };
 
-			completeCond !? {completeCond.test_(true).signal;};
+			completeCond !? { completeCond.test_(true).signal; };
 		}
 	}
 
@@ -107,8 +107,8 @@ FoaMatrixFade {
 		var flatMatrix;
 
 		flatMatrix = case
-		{ newMatrix.isKindOf( Matrix ) } { newMatrix.asArray.flat }
-		{ newMatrix.isKindOf( FoaXformerMatrix ) } { newMatrix.matrix.asArray.flat };
+		{ newMatrix.isKindOf(Matrix) } { newMatrix.asArray.flat }
+		{ newMatrix.isKindOf(FoaXformerMatrix) } { newMatrix.matrix.asArray.flat };
 
 		synth.set(\fade, xFade, \matrixArray, flatMatrix);
 
@@ -125,8 +125,8 @@ FoaMatrixFade {
 
 	free {
 		synth.free;
-		internalInbus.if{ server.audioBusAllocator.free( inbus ) };
-		internalOutbus.if{ server.audioBusAllocator.free( outbus ) };
+		internalInbus.if{ server.audioBusAllocator.free(inbus) };
+		internalOutbus.if{ server.audioBusAllocator.free(outbus) };
 	}
 
 
@@ -145,7 +145,7 @@ FoaMatrixFade {
 
 				array = array.clump(4).flop;
 
-				out = Mix.fill( 4, { arg i; // fill input
+				out = Mix.fill(4, { arg i; // fill input
 					array.at(i) * foaSrc.at(i)
 				});
 

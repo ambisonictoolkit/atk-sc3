@@ -66,8 +66,8 @@ FoaXformView {
 		sfView.debug.if{ "initializing new XForm".postln };
 
 		chain = switch(target,
-			'chain',    {sfView.chain},         // xform in chain view UI
-			'display',  {sfView.displayChain}   // or xform view in the xformDisplay UI
+			'chain',    { sfView.chain },         // xform in chain view UI
+			'display',  { sfView.displayChain }   // or xform view in the xformDisplay UI
 		);
 
 		// if this xform takes a chain index for an input,
@@ -101,7 +101,7 @@ FoaXformView {
 		ctlLayout = VLayout();
 		layout.add(ctlLayout);
 		// this allows the ctlLayout to move all the way left
-		if (target == 'chain') {layout.add(1)};
+		if (target == 'chain') { layout.add(1) };
 
 		name = chain.chains[initChainDex][initDex].name;
 
@@ -116,7 +116,7 @@ FoaXformView {
 				this.addInputMenuCtl('this index', 0);
 			};
 		} {
-			if (target == 'chain') {this.addAddRmvButs(true)};
+			if (target == 'chain') { this.addAddRmvButs(true) };
 			// add the first dropdown, no controls until a menu item selected
 			// this assumes a 'soundfield thru' transform right when created
 			this.addTransformMenu();
@@ -190,7 +190,7 @@ FoaXformView {
 		// don't rebuild controls if muted
 		(name != 'mute').if{
 			var controls;
-			controls = chain.xFormDict[ name ].controls.clump(2);
+			controls = chain.xFormDict[name].controls.clump(2);
 
 			controls.do{ |pair, i|
 				var ctlName, ctl;
@@ -214,7 +214,7 @@ FoaXformView {
 		var chDex, dex;
 
 		#chDex, dex = (initDex == 0).if({
-			[ initChainDex, initDex ]
+			[initChainDex, initDex]
 		}, {
 			this.getViewIndex
 		});
@@ -296,7 +296,7 @@ FoaXformView {
 
 		slLayout =  HLayout();
 
-		[nameTxt, sl, nb, unitTxt].do{ |me| slLayout.add(me)};
+		[nameTxt, sl, nb, unitTxt].do{ |me| slLayout.add(me) };
 
 		ctlLayout.add(slLayout);
 	}
@@ -319,7 +319,7 @@ FoaXformView {
 		view.layout.insert(addRmvView, align: \topLeft);
 
 		rmvBut = Button()
-		.states_([[ "X" ]]).maxHeight_(ht).maxWidth_(wth)
+		.states_([["X"]]).maxHeight_(ht).maxWidth_(wth)
 		.action_({ |but|
 			var myChain, myID;
 			#myChain, myID = sfView.prGetXfViewID(this);
@@ -382,8 +382,8 @@ FoaXformView {
 
 	getViewIndex {
 		^switch(target,
-			'chain', 	{sfView.prGetXfViewID(this)},
-			'display',	{[ 0, 1 ]}
+			'chain', 	{ sfView.prGetXfViewID(this) },
+			'display',	{ [0, 1] }
 		);
 	}
 

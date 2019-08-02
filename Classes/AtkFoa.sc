@@ -8,7 +8,7 @@ AtkFoa {
 
 		defaultOrder = 1;
 
-		format = [ \fuma, \fuma ];  // fuma, Gerzon / Furse-Malham (MaxN)
+		format = [\fuma, \fuma];  // fuma, Gerzon / Furse-Malham (MaxN)
 	}
 
 	*format {

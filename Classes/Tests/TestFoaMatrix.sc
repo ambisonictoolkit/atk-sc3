@@ -177,7 +177,7 @@ TestFoaMatrix : UnitTest {
 		this.assertArrayFloatEquals(
 			m.shelfK,
 			[1.2247448713916, 0.86602540378444],
-			"FoaDecoderMatrix:-shelfK should should be [ 1.2247448713916, 0.86602540378444 ] (default )",
+			"FoaDecoderMatrix:-shelfK should should be [1.2247448713916, 0.86602540378444] (default )",
 			floatWithin, report
 		);
 

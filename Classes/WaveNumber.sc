@@ -141,7 +141,7 @@ WaveNumber {
 		var nearZero = 1e-08;
 
 		(this.waveNumber.abs <= nearZero).if({
-			^Array.with(Complex.new(1, 0)) ++ m.collect({Complex.new(0, 0)})
+			^Array.with(Complex.new(1, 0)) ++ m.collect({ Complex.new(0, 0) })
 		}, {
 			^(m+1).collect({ |j|
 				(j+1).collect({ |k|

@@ -122,7 +122,7 @@ Atk {
 		];
 	}
 
-	*userSupportDir_ {arg userSupportDirIn;
+	*userSupportDir_ { arg userSupportDirIn;
 		userSupportDir = userSupportDirIn;
 		userSoundsDir = userSupportDir ++ "/sounds";
 		userKernelDir = userSupportDir ++ "/kernels";
@@ -130,7 +130,7 @@ Atk {
 		userExtensionsDir = userSupportDir ++ "/extensions";
 	}
 
-	*systemSupportDir_ {arg systemSupportDurIn;
+	*systemSupportDir_ { arg systemSupportDurIn;
 		systemSupportDir = systemSupportDurIn;
 		systemSoundsDir = systemSupportDir ++ "/sounds";
 		systemKernelDir = systemSupportDir ++ "/kernels";
@@ -174,7 +174,7 @@ Atk {
 				ops.do{ |op|
 					mtxTypes.do{ |mtxType|
 						path = baseDir +/+ op +/+ set.asString +/+ mtxType;
-						File.mkdir( path );
+						File.mkdir(path);
 					}
 				}
 			}
@@ -212,7 +212,7 @@ Atk {
 
 		tested = List();
 
-		str = switch (op.asSymbol,
+		str = switch(op.asSymbol,
 			'matrices', { "/matrices" },
 			'kernels',  { "/kernels" },
 			// include singular
@@ -263,7 +263,7 @@ Atk {
 
 		typePath = PathName.new(
 			set.asString.toUpper ++ "/" ++ // folder structure is uppercase
-			switch( type.asSymbol,
+			switch(type.asSymbol,
 				'decoders', { "decoders" },
 				'encoders', { "encoders" },
 				'xformers', { "xformers" },
@@ -291,7 +291,7 @@ Atk {
 
 		typePath = PathName.new(
 			set.asString.toUpper ++ "/" ++ // folder structure is uppercase
-			switch( type.asSymbol,
+			switch(type.asSymbol,
 				'decoders', { "decoders" },
 				'encoders', { "encoders" },
 				'xformers', { "xformers" },
@@ -309,22 +309,22 @@ Atk {
 
 	// shortcuts for matrices and kernels, aka 'ops'
 	*getMatrixExtensionSubPath { arg set, type;
-		type ?? {Error("Unspecified matrix type. Please specify 'encoder', 'decoder', or 'xformer'.").errorString.postln; ^nil};
+		type ?? { Error("Unspecified matrix type. Please specify 'encoder', 'decoder', or 'xformer'.").errorString.postln; ^nil };
 		^Atk.getExtensionSubPath(set, type, 'matrices');
 	}
 
 	*getKernelExtensionSubPath { arg set, type;
-		type ?? {Error("Unspecified kernel type. Please specify 'encoder', 'decoder', or 'xformer'.").errorString.postln; ^nil};
+		type ?? { Error("Unspecified kernel type. Please specify 'encoder', 'decoder', or 'xformer'.").errorString.postln; ^nil };
 		^Atk.getExtensionSubPath(set, type, 'kernels');
 	}
 
 	*getAtkMatrixSubPath { arg set, type;
-		type ?? {Error("Unspecified matrix type. Please specify 'encoder', 'decoder', or 'xformer'.").errorString.postln; ^nil};
+		type ?? { Error("Unspecified matrix type. Please specify 'encoder', 'decoder', or 'xformer'.").errorString.postln; ^nil };
 		^Atk.getAtkOpSubPath(set, type, 'matrices');
 	}
 
 	*getAtkKernelSubPath { arg set, type;
-		type ?? {Error("Unspecified matrix type. Please specify 'encoder', 'decoder', or 'xformer'.").errorString.postln; ^nil};
+		type ?? { Error("Unspecified matrix type. Please specify 'encoder', 'decoder', or 'xformer'.").errorString.postln; ^nil };
 		^Atk.getAtkOpSubPath(set, type, 'kernels');
 	}
 
@@ -351,7 +351,7 @@ Atk {
 		var foundCnt;
 		var str;
 
-		usrPN = PathName( filePathOrName ); // as PathName
+		usrPN = PathName(filePathOrName); // as PathName
 
 		if (usrPN.isFile) {
 			srcPath = usrPN; // valid absolute path, easy!
@@ -446,7 +446,7 @@ Atk {
 				{ matches.size > 1 } {
 					str = "Multiple matches found for filename:\t%\n".format(usrPN.fileName);
 					matches.do{ |file|
-						str = str ++ "\t" ++ file.asRelativePath( mtxDirPath ) ++ "\n"
+						str = str ++ "\t" ++ file.asRelativePath(mtxDirPath) ++ "\n"
 					};
 					str = str ++ format(
 						"Provide either an absolute path to the matrix, or one relative to\n\t%\n",
@@ -487,7 +487,7 @@ Atk {
 				Atk.checkSet(set);
 			});
 
-			postf("~ %%% ~\n", set.asString.toUpper, type.notNil.if({" "},{""}), type ?? "");
+			postf("~ %%% ~\n", set.asString.toUpper, type.notNil.if({ " " },{ "" }), type ?? "");
 
 			postContents = { |folderPN, depth=1|
 				var offset, f_offset;
@@ -534,13 +534,13 @@ Atk {
 FoaPanB : MultiOutUGen {
 
 	*ar { arg in, azimuth=0, elevation=0, mul = 1, add = 0;
-		^this.multiNew('audio', in, azimuth, elevation ).madd(mul, add);
+		^this.multiNew('audio', in, azimuth, elevation).madd(mul, add);
 	}
 
 	init { arg ... theInputs;
 		inputs = theInputs;
-		channels = [ OutputProxy(\audio,this,0), OutputProxy(\audio,this,1),
-					OutputProxy(\audio,this,2), OutputProxy(\audio,this,3) ];
+		channels = [OutputProxy(\audio,this,0), OutputProxy(\audio,this,1),
+					OutputProxy(\audio,this,2), OutputProxy(\audio,this,3)];
 		^channels
 	}
 
@@ -557,8 +557,8 @@ FoaMFreqOsc : FoaUGen  {
 		dcl0a = 2.sqrt.reciprocal * dc;
 		dcl0r = 0 * dc;
 
-		aA = FoaPanB.ar(dc, azimuthA, elevationA, alpha.cos).put(0, dcl0a) * FoaDirectO.ar(Array.fill(4, {dc}), beta);
-		aR = FoaPanB.ar(dc, azimuthR, elevationR, alpha.sin).put(0, dcl0r) * FoaDirectO.ar(Array.fill(4, {dc}), beta);
+		aA = FoaPanB.ar(dc, azimuthA, elevationA, alpha.cos).put(0, dcl0a) * FoaDirectO.ar(Array.fill(4, { dc }), beta);
+		aR = FoaPanB.ar(dc, azimuthR, elevationR, alpha.sin).put(0, dcl0r) * FoaDirectO.ar(Array.fill(4, { dc }), beta);
 
 		out = SinOsc.ar(freq, phase + pi/2, aA) + SinOsc.ar(freq, phase, aR);
 		out = out.madd(mul, add);
@@ -573,22 +573,22 @@ Foa : MultiOutUGen {
 
 	init { arg ... theInputs;
 		inputs = theInputs;
-		channels = [ OutputProxy(\audio,this,0), OutputProxy(\audio,this,1),
-					OutputProxy(\audio,this,2), OutputProxy(\audio,this,3) ];
+		channels = [OutputProxy(\audio,this,0), OutputProxy(\audio,this,1),
+					OutputProxy(\audio,this,2), OutputProxy(\audio,this,3)];
 		^channels
 	}
 
 	 checkInputs { ^this.checkNInputs(4) }
 
-	*checkChans {arg in;
+	*checkChans { arg in;
 		(in.size < 4).if({
-			^([in] ++ (4 - in.size).collect({Silent.ar})).flat;
+			^([in] ++ (4 - in.size).collect({ Silent.ar })).flat;
 		}, {
 			^in
 		});
 	}
 
- }
+}
 
 FoaDirectO : Foa {
 	*ar { arg in, angle = pi/2, mul = 1, add = 0;
@@ -794,7 +794,7 @@ AtkMatrixMix {
 		// wrap input as array if needed, for mono inputs
 		in.isArray.not.if({ in = [in] });
 
-		out = Mix.fill( matrix.cols, { arg i; // fill input
+		out = Mix.fill(matrix.cols, { arg i; // fill input
 			UGen.replaceZeroesWithSilence(
 				matrix.flop.asArray.at(i) * in.at(i)
 			)
@@ -833,9 +833,9 @@ AtkKernelConv {
 // Decoder built using AtkMatrixMix & AtkKernelConv
 
 FoaUGen {
-	*checkChans {arg in;
+	*checkChans { arg in;
 		(in.size < 4).if({
-			^([in] ++ (4 - in.size).collect({Silent.ar})).flat;
+			^([in] ++ (4 - in.size).collect({ Silent.ar })).flat;
 		}, {
 			^in
 		});
@@ -846,13 +846,13 @@ FoaUGen {
 		var ugenKeys;
 		var ugenDict;
 
-		// find ugen args, drop [ 'this', sig]
+		// find ugen args, drop ['this', sig]
 		ugenKeys = ugen.class.findRespondingMethodFor(\ar).argNames.drop(2);
 		ugenDict = Dictionary.new;
-		ugenKeys.do({arg key, i; ugenDict.put(key, argDefaults.at(i))});
+		ugenKeys.do({ arg key, i; ugenDict.put(key, argDefaults.at(i)) });
 
 		// find index dividing ordered and named args
-		index = args.detectIndex({arg item; ugenKeys.matchItem(item)});
+		index = args.detectIndex({ arg item; ugenKeys.matchItem(item) });
 
 		// build user dictionary
 		userDict = Dictionary.new(ugenKeys.size);
@@ -861,12 +861,12 @@ FoaUGen {
 		}, {
 			index = args.size;
 		});
-		userDict = userDict.putAll(Dictionary.newFrom((index).collect({arg i;
-			[ugenKeys.at(i), args.at(i)]}).flat));
+		userDict = userDict.putAll(Dictionary.newFrom((index).collect({ arg i;
+			[ugenKeys.at(i), args.at(i)] }).flat));
 
 		// merge
 		^ugenDict.merge(userDict, {
-			arg ugenArg, userArg; (userArg != nil).if({userArg})
+			arg ugenArg, userArg; (userArg != nil).if({ userArg })
 		})
 	}
 }
@@ -907,7 +907,7 @@ FoaEncode : FoaUGen {
 				out = AtkKernelConv.ar(in, encoder.kernel, mul, add)
 			};
 
-//		if ( out.size < 4, {			// 1st order, fill missing harms with zeros
+//		if (out.size < 4, {			// 1st order, fill missing harms with zeros
 //			out = out ++ Silent.ar(4 - out.size)
 //		});
 		out = this.checkChans(out);
@@ -925,7 +925,7 @@ FoaXform : FoaUGen {
 		var out;
 		in = this.checkChans(in);
 
-//		switch ( xformer.class,
+//		switch(xformer.class,
 //
 //			FoaXformerMatrix, {
 //				out = AtkMatrixMix.ar(in, xformer.matrix, mul, add)
@@ -965,12 +965,12 @@ FoaTransform : FoaUGen {
 //			var ugenDict;
 //			[ugen, args, argDefaults].postln;
 //			// find index dividing ordered and named args
-//			index = args.detectIndex({arg item; item.isKindOf(Symbol)});
+//			index = args.detectIndex({ arg item; item.isKindOf(Symbol) });
 //
-//			// find ugen args, drop [ 'this', w, x, y, z ]
+//			// find ugen args, drop ['this', w, x, y, z]
 //			ugenKeys = ugen.class.findRespondingMethodFor(\ar).argNames.drop(2);
 //			ugenDict = Dictionary.new;
-//			ugenKeys.do({arg key, i; ugenDict.put(key, argDefaults.at(i))});
+//			ugenKeys.do({ arg key, i; ugenDict.put(key, argDefaults.at(i)) });
 //
 //			// build user dictionary
 //			userDict = Dictionary.new(ugenKeys.size);
@@ -979,17 +979,17 @@ FoaTransform : FoaUGen {
 //			}, {
 //				index = args.size;
 //			});
-//			userDict = userDict.putAll(Dictionary.newFrom((index).collect({arg i;
-//				[ugenKeys.at(i), args.at(i)]}).flat));
+//			userDict = userDict.putAll(Dictionary.newFrom((index).collect({ arg i;
+//				[ugenKeys.at(i), args.at(i)] }).flat));
 //
 //			// merge
 //			ugenDict.merge(userDict, {
-//				arg ugenArg, userArg; (userArg != nil).if({userArg})
+//				arg ugenArg, userArg; (userArg != nil).if({ userArg })
 //			})
 //		};
 //
 
-		switch ( kind,
+		switch(kind,
 
 			'rotate', {
 

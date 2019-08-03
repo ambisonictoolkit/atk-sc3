@@ -239,7 +239,7 @@ HoaRotationMatrix {
 				(l.neg..l).do{ |n|
 
 					// compute u,v,w terms of Eq.8.1 (Table I)
-					d = (m==0).asInteger; // the delta function d_m0
+					d = (m == 0).asInteger; // the delta function d_m0
 					denom = (n.abs == l).if({
 						(2 * l) * (2 * l - 1)
 					}, {

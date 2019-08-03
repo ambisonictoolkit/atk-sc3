@@ -432,7 +432,7 @@ FoaMatrix : AtkMatrix {
 			)
 		};
 		// test matrix dimensions
-		(mtx.size==numRows).not.if{
+		(mtx.size == numRows).not.if{
 			Error(
 				format(
 					"Mismatch in matrix dimensions: rows specified [%], rows parsed from file [%]",

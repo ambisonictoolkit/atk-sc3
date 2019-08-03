@@ -78,7 +78,7 @@ HoaLm {
 			\fuma, {
 				l = index.sqrt.floor.asInteger;
 
-				^(l<=1).if({
+				^(l <= 1).if({
 					this.newIndex(index, \sid)
 				}, {
 					var m, m0, m1, bool;
@@ -205,7 +205,7 @@ HoaLm {
 			},
 			\sn3d, {
 				var dm, mabs;
-				dm = (m==0).asInteger;
+				dm = (m == 0).asInteger;
 				mabs = m.abs;
 				^sqrt(
 					(2 - dm) * (

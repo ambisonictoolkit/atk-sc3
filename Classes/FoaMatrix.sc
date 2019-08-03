@@ -423,7 +423,7 @@ FoaMatrix : AtkMatrix {
 					{ numCols.isNil } { numCols = val.asInteger }
 					{
 						row = row.add(val.asFloat);
-						(row.size == numCols).f{
+						(row.size == numCols).if{
 							mtx = mtx.add(row);
 							row = [];
 						}

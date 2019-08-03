@@ -58,7 +58,7 @@ FoaMatrixChain {
 
 
 	// abcs used for transform id keys in the chain(s)
-	*abcs { ^['A','B','C','D','E','F','G','H','I','J'] }
+	*abcs { ^['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'] }
 
 
 	init {
@@ -219,7 +219,7 @@ FoaMatrixChain {
 				chain.do{ |lnk, j|
 					lnk.soloed.if {
 						lnk.soloed = false;			// ... un-solo anything else that's soloed
-						changed.add([i,j,false]);	// keep track of the changes
+						changed.add([i, j, false]);	// keep track of the changes
 					}
 				}
 			}
@@ -591,18 +591,18 @@ FoaMatrixChain {
 		b[0] = b[0] * sqrt(2);            // scale W
 		b_sqrd_mean = b**2;
 		p_sqrd = b_sqrd_mean[0];        // W component, pressure
-		v_sqrd = b_sqrd_mean[1..].sum;    // summed X^2,Y^2,Z^2; velocity
+		v_sqrd = b_sqrd_mean[1..].sum;    // summed X^2, Y^2, Z^2; velocity
 
 		// directivity measure (planewave = 1)
 		// calculated measure : 1 - beta.abs / 0.5pi
 		d = (pi/2) - (2 * atan2(sqrt(v_sqrd), sqrt(p_sqrd)));
 		d_norm = 1 - (d.abs / 0.5pi);
 
-		// W * sqrt(2) * [w,x,y,z]
+		// W * sqrt(2) * [w, x, y, z]
 		pv_mean = b[0] * b;
-		// atan2(y,x)
+		// atan2(y, x)
 		a = atan2(pv_mean[2], pv_mean[1]);
-		// atan2(z,sqrt(x^2 + y^2))
+		// atan2(z, sqrt(x^2 + y^2))
 		e = atan2(pv_mean[3], sqrt((pv_mean[1]**2) + (pv_mean[2]**2)));
 
 		amp = sqrt((b**2).sum / 2);
@@ -621,7 +621,7 @@ FoaMatrixChain {
 
 		b = matrix.getCol(0);       // b-format "signal"
 		pressure = b[0] * sqrt(2);  // w * 2.sqrt
-		velocity = b[1..3];         // [x,y,z]
+		velocity = b[1..3];         // [x, y, z]
 
 		activeIntensityVec = pressure * velocity;
 		potentialEnergy = pressure.squared;

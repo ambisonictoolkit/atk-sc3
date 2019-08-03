@@ -487,7 +487,7 @@ Atk {
 				Atk.checkSet(set);
 			});
 
-			postf("~ %%% ~\n", set.asString.toUpper, type.notNil.if({ " " },{ "" }), type ?? "");
+			postf("~ %%% ~\n", set.asString.toUpper, type.notNil.if({ " " }, { "" }), type ?? "");
 
 			postContents = { |folderPN, depth=1|
 				var offset, f_offset;
@@ -539,8 +539,8 @@ FoaPanB : MultiOutUGen {
 
 	init { |... theInputs|
 		inputs = theInputs;
-		channels = [OutputProxy(\audio,this,0), OutputProxy(\audio,this,1),
-					OutputProxy(\audio,this,2), OutputProxy(\audio,this,3)];
+		channels = [OutputProxy(\audio, this, 0), OutputProxy(\audio, this, 1),
+					OutputProxy(\audio, this, 2), OutputProxy(\audio, this, 3)];
 		^channels
 	}
 
@@ -573,8 +573,8 @@ Foa : MultiOutUGen {
 
 	init { |... theInputs|
 		inputs = theInputs;
-		channels = [OutputProxy(\audio,this,0), OutputProxy(\audio,this,1),
-					OutputProxy(\audio,this,2), OutputProxy(\audio,this,3)];
+		channels = [OutputProxy(\audio, this, 0), OutputProxy(\audio, this, 1),
+					OutputProxy(\audio, this, 2), OutputProxy(\audio, this, 3)];
 		^channels
 	}
 

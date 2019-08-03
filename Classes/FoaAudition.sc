@@ -172,7 +172,7 @@ FoaAudition {
 
 
 	loadSoundfile { |soundfilePath, loadCondition|
-		var sf,test, numChans, newBuf, bufLoadCond = Condition();
+		var sf, test, numChans, newBuf, bufLoadCond = Condition();
 
 		// for some reason for the buffer to load correctly, it needs to be in
 		// a separate routine from the routine below it, so sync'd with bufLoadCond
@@ -404,7 +404,7 @@ FoaAudition {
 				|outbus, gate = 1, mul = 1, releaseTime = 0.5, rttFreq=0.333, rtt=0|
 				var env, mtx, foa, rttfrq;
 
-				env = EnvGen.kr(Env([0,1,0],[0.1,releaseTime], \sin, 1), gate);
+				env = EnvGen.kr(Env([0, 1, 0], [0.1, releaseTime], \sin, 1), gate);
 				mtx = FoaEncoderMatrix.newAtoB;
 				foa = FoaEncode.ar(PinkNoise.ar(-3.dbamp.dup(4)), mtx, mul) * env;
 				rttfrq = rttFreq * rtt;
@@ -420,7 +420,7 @@ FoaAudition {
 				|outbus, buffer, mul = 1, gate = 1, releaseTime = 0.5|
 				var env, foa;
 
-				env = EnvGen.kr(Env([0,1,0],[0.1,releaseTime], \sin, 1), gate);
+				env = EnvGen.kr(Env([0, 1, 0], [0.1, releaseTime], \sin, 1), gate);
 				foa = VDiskIn.ar(3, buffer, BufRateScale.kr(buffer), 1);
 				Out.ar(outbus, foa * mul * env);
 			}).load(server),
@@ -430,7 +430,7 @@ FoaAudition {
 				|outbus, buffer, mul = 1, gate = 1, releaseTime = 0.5|
 				var env, foa;
 
-				env = EnvGen.kr(Env([0,1,0],[0.1,releaseTime], \sin, 1), gate);
+				env = EnvGen.kr(Env([0, 1, 0], [0.1, releaseTime], \sin, 1), gate);
 				foa = VDiskIn.ar(4, buffer, BufRateScale.kr(buffer), 1);
 				Out.ar(outbus, foa * mul * env);
 			}).load(server),
@@ -440,7 +440,7 @@ FoaAudition {
 				|outbus, inbus, mul = 1, gate = 1, releaseTime = 0.5|
 				var env, foa;
 
-				env = EnvGen.kr(Env([0,1,0],[0.1,releaseTime], \sin, 1), gate);
+				env = EnvGen.kr(Env([0, 1, 0], [0.1, releaseTime], \sin, 1), gate);
 				foa = In.ar(inbus, 4) * mul * env;
 				Out.ar(outbus, foa);
 			}).load(server),
@@ -452,7 +452,7 @@ FoaAudition {
 				t_azim=0, t_elev=0, azimReset=0, elReset;
 				var env, lagTimeU, lagTimeD, src, foa, azim, elev, normRate;
 
-				env = EnvGen.kr(Env([0,1,0],[0.1,releaseTime], \sin, 1), gate);
+				env = EnvGen.kr(Env([0, 1, 0], [0.1, releaseTime], \sin, 1), gate);
 
 				lagTimeU = 0.001;
 				lagTimeD = pulsefreq.reciprocal * 0.6;
@@ -473,7 +473,7 @@ FoaAudition {
 				normRate = 2pi * ControlRate.ir.reciprocal;
 				azim = Phasor.kr(t_azim, rotfreq * rotating * normRate, -pi, pi, azimReset);
 				elev = Phasor.kr(t_elev, tumfreq * tumbling * normRate, -pi, pi, elReset);
-				elev = elev.fold(-pi/2,pi/2);
+				elev = elev.fold(-pi/2, pi/2);
 
 				SendReply.kr(Impulse.kr(24) * rotating, '/audition_az', azim); // for XformDisplay
 				SendReply.kr(Impulse.kr(24) * tumbling, '/audition_el', elev);
@@ -561,19 +561,19 @@ FoaAuditionView {
 	// scheme copied from FoaXformDisplay
 	defineColors {
 		palette = QPalette.new
-		.window_(Color.hsv(*[242,63,25] / [360,100,100]))
-		.windowText_(Color.hsv(*[162,15,62] / [360,100,100]))
-		.button_(Color.hsv(*[124,17,76] / [360,100,100]))     // button color
-		.buttonText_(Color.hsv(*[242,63,31] / [360,100,100])) // button / dropdown text color
-		.base_(Color.hsv(*[225,31,46] / [360,100,100]))       // num / check box background color
-		.baseText_(Color.hsv(*[113,21,95] / [360,100,100]))   // check mark color
-		.highlight_(Color.hsv(*[124,17,76] / [360,100,100]))  // numbox select outline
-		.highlightText_(Color.hsv(*[124,17,76] / [360,100,100]));
+		.window_(Color.hsv(*[242, 63, 25] / [360, 100, 100]))
+		.windowText_(Color.hsv(*[162, 15, 62] / [360, 100, 100]))
+		.button_(Color.hsv(*[124, 17, 76] / [360, 100, 100]))     // button color
+		.buttonText_(Color.hsv(*[242, 63, 31] / [360, 100, 100])) // button / dropdown text color
+		.base_(Color.hsv(*[225, 31, 46] / [360, 100, 100]))       // num / check box background color
+		.baseText_(Color.hsv(*[113, 21, 95] / [360, 100, 100]))   // check mark color
+		.highlight_(Color.hsv(*[124, 17, 76] / [360, 100, 100]))  // numbox select outline
+		.highlightText_(Color.hsv(*[124, 17, 76] / [360, 100, 100]));
 
 		paramBkgColor = Color.hsv(*palette.base.asHSV.put(2,
-			(palette.base.asHSV[2] - 0.12).wrap(0,1)));
+			(palette.base.asHSV[2] - 0.12).wrap(0, 1)));
 		paramHeaderTxtColor = palette.baseText;
-		focusBkgColor = Color.hsv(*palette.base.asHSV.put(2, (palette.base.asHSV[2] - 0.05).wrap(0,1)));
+		focusBkgColor = Color.hsv(*palette.base.asHSV.put(2, (palette.base.asHSV[2] - 0.05).wrap(0, 1)));
 		playColor = palette.baseText;
 		stopColor = paramBkgColor;
 	}
@@ -725,7 +725,7 @@ FoaAuditionView {
 			defer {
 				var deg = val.raddeg;
 				azimBx.value_(deg.round(0.1));
-				azimSl.value_(azimSpec.unmap(deg.wrap(-180,180)));
+				azimSl.value_(azimSpec.unmap(deg.wrap(-180, 180)));
 			};
 		});
 
@@ -848,7 +848,7 @@ FoaAuditionView {
 			HLayout(
 				// background that matches the tab
 				View().layout_(layout.margins_(4).spacing_(3))
-			).margins_([2,0,2,0])
+			).margins_([2, 0, 2, 0])
 		)
 	}
 
@@ -868,7 +868,7 @@ FoaAuditionView {
 					(v != thisTabView).if{
 						v.background_(
 							Color.hsv(
-								*palette.window.asHSV.put(1, (palette.window.asHSV[1] - 0.2).wrap(0,1))
+								*palette.window.asHSV.put(1, (palette.window.asHSV[1] - 0.2).wrap(0, 1))
 							)
 						);
 						this.findKindDo(v, StaticText, { |txt|
@@ -1051,7 +1051,7 @@ FoaAuditionView {
 			inTabView = this.makeTabView("Inbus", inView, inPlayBut),
 			nil,
 			addXformBut
-		).spacing_(8).margins_([0,4,2,0])
+		).spacing_(8).margins_([0, 4, 2, 0])
 		);
 
 		// global controls view
@@ -1085,7 +1085,7 @@ FoaAuditionView {
 							).spacing_(2).margins_(2)
 						).maxWidth_(50),
 						nil,
-					).spacing_(2).margins_([6,4,6,4])
+					).spacing_(2).margins_([6, 4, 6, 4])
 				)
 			).margins_(0)
 		);

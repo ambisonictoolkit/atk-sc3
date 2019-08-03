@@ -71,12 +71,12 @@ FoaXformDisplay {
 	prInit {
 		var directions;
 
-		xfMargins =         [5,3,5,3];
+		xfMargins =         [5, 3, 5, 3];
 		xfHeight =          80;
 		chainViewWidth =    500;
 		chainViewHeight =   200;
 		chTitleHeight =     40;
-		addRmvMargins =     [4,2,4,2];
+		addRmvMargins =     [4, 2, 4, 2];
 		xfIDwidth =         20;
 
 		this.prDefineColors;
@@ -123,20 +123,20 @@ FoaXformDisplay {
 
 		idTxtColor = Color.hsv(
 			*baseColor.asHSV
-			.put(2, (baseColor.asHSV[2] * 1.8).clip(0,1))
+			.put(2, (baseColor.asHSV[2] * 1.8).clip(0, 1))
 			.put(1, baseColor.asHSV[1] * 0.2));
 
 		idTabColor = Color.hsv(
 			*baseColor.asHSV
-			.put(2, (baseColor.asHSV[2] * 1.2).clip(0,1))
+			.put(2, (baseColor.asHSV[2] * 1.2).clip(0, 1))
 			.put(1, baseColor.asHSV[1] * 0.85));
 
 		chainColor = Color.hsv(
 			*baseColor.asHSV
-			.put(2, (baseColor.asHSV[2] * 0.7).clip(0,1)));
+			.put(2, (baseColor.asHSV[2] * 0.7).clip(0, 1)));
 
 		xfColor = Color.hsv(
-			*baseColor.asHSV.put(2,baseColor.asHSV[2] * 0.3));
+			*baseColor.asHSV.put(2, baseColor.asHSV[2] * 0.3));
 
 		ctlColor = baseColor;
 		colorStep = 0.03;
@@ -224,7 +224,7 @@ FoaXformDisplay {
 				View()
 				.maxWidth_(125).maxHeight_(80)
 				.background_(
-					Color.hsv(*baseColor.asHSV.put(0, (baseColor.asHSV[0] + 0.045).wrap(0,1)));
+					Color.hsv(*baseColor.asHSV.put(0, (baseColor.asHSV[0] + 0.045).wrap(0, 1)));
 				)
 				.layout_(
 					VLayout(
@@ -243,7 +243,7 @@ FoaXformDisplay {
 				.maxWidth_(125).maxHeight_(80)
 				.background_(
 					Color.hsv(*baseColor.asHSV.put(0,
-						(baseColor.asHSV[0] + 0.045).wrap(0,1)));
+						(baseColor.asHSV[0] + 0.045).wrap(0, 1)));
 				)
 				.layout_(
 					VLayout(
@@ -348,11 +348,11 @@ FoaXformDisplay {
 
 		alphaSpec = ControlSpec(0.1, 1, warp:5);
 		gainSpec = ControlSpec(-90, 6, -2);
-		colorSpec = ControlSpec(768,0);
+		colorSpec = ControlSpec(768, 0);
 
 		// warp lower hemisphere toward the origin as points move "down"
-		// elWarp = Env([-pi/2,0,pi/2],[pi/2,pi/2], [-3,0]);
-		elWarp = Env([0.25,1, 4],[pi/2, pi/2], 2); // 0>1 scalar
+		// elWarp = Env([-pi/2, 0, pi/2], [pi/2, pi/2], [-3, 0]);
+		elWarp = Env([0.25, 1, 4], [pi/2, pi/2], 2); // 0>1 scalar
 
 		// algorithmic rainbow color scheme
 		getColor = { |gain|
@@ -427,7 +427,7 @@ FoaXformDisplay {
 					// cartesian point in view coordinates
 					azPnt = Point(cos(az), sin(az)) // = Polar(dir, az).asPoint
 					.rotate(pi/2)   // convert ambi to screen coords
-					* Point(1,-1)   // flip Y for drawing
+					* Point(1, -1)   // flip Y for drawing
 					* arcH;         // scale normalized points to arcH
 
 					drawPnt = azPnt * cos(el) * thisElWarp;
@@ -442,7 +442,7 @@ FoaXformDisplay {
 
 					// directivity circle
 					switch(dirDisplay,
-						'size',{
+						'size', {
 							Pen.fillColor_(gainColor.alpha_(alphaSpec.map(dir)));
 							Pen.fillOval(Rect(
 								drawPnt.x - omniRad, drawPnt.y - omniRad, omniDiam, omniDiam));
@@ -477,7 +477,7 @@ FoaXformDisplay {
 							};
 
 							// scale in/out toward/away from origin
-							gainPnt = drawPnt * dir.linlin(0,1,1.75,1.15);
+							gainPnt = drawPnt * dir.linlin(0, 1, 1.75, 1.15);
 						}
 					);
 
@@ -500,13 +500,13 @@ FoaXformDisplay {
 
 			azPnt = Point(cos(az), sin(az)) // = Polar(dir, az).asPoint
 			.rotate(pi/2)    // convert ambi to screen coords
-			* Point(1,-1)    // flip Y for drawing
+			* Point(1, -1)    // flip Y for drawing
 			* arcH;          // scale normalized points to arcH
 			drawPnt = azPnt * cos(el) * thisElWarp;
 			drawPnt = drawPnt * dir;
 
 			col = Color.fromHexString("#CC0000");
-			rect = Rect(0,0,d * 2,d * 2).center_(drawPnt);
+			rect = Rect(0, 0, d * 2, d * 2).center_(drawPnt);
 			Pen.strokeColor = col;
 			Pen.width = 1;
 			Pen.strokeOval(rect);
@@ -578,9 +578,9 @@ FoaXformDisplay {
 				Pen.stringCenteredIn(
 					format(
 						"\n\n%˚ / %˚\n\n%˚ / %˚\n\n%\n\n% dB\n",
-						selStats.inAz.raddeg.wrap(0,360).round(0.1),    // input azimuth degree
-						selStats.az.raddeg.wrap(0,360.0).round(0.1),    // output azimuth degree
-						selStats.inEl.raddeg.fold(-90, 90.0).round(0.1),// input elevation degree
+						selStats.inAz.raddeg.wrap(0, 360).round(0.1),    // input azimuth degree
+						selStats.az.raddeg.wrap(0, 360.0).round(0.1),    // output azimuth degree
+						selStats.inEl.raddeg.fold(-90, 90.0).round(0.1), // input elevation degree
 						selStats.el.raddeg.fold(-90, 90.0).round(0.1),  // output elevation degree
 						selStats.dir.round(0.01),                       // directivity
 						selStats.ampdb.round(0.1),                      // gain
@@ -661,7 +661,7 @@ FoaXformDisplay {
 						StaticText().string_("Directivity Display"),
 						PopUpMenu().items_(['Size + Radius', 'Radius Only'])
 						.action_({ |mn|
-							dirDisplay = switch(mn.value, 0,{ 'size' },1,{ 'radius' });
+							dirDisplay = switch(mn.value, 0, { 'size' }, 1, { 'radius' });
 							this.prUpdateMatrix(lastUpdatedMatrix); // which matrix?
 						}).maxWidth_(130),
 						nil
@@ -752,7 +752,7 @@ FoaXformDisplay {
 		.minWidth_(chainViewWidth).maxHeight_(chTitleHeight)
 		.background_(Color.hsv(
 			*ctlColor.asHSV.put(0,
-				(ctlColor.asHSV[0] + (chainIndex * colorStep)).wrap(0,1)))
+				(ctlColor.asHSV[0] + (chainIndex * colorStep)).wrap(0, 1)))
 		);
 
 		chLayout = VLayout([titleView, a: \top]).margins_(4);
@@ -763,7 +763,7 @@ FoaXformDisplay {
 		.minWidth_(chainViewWidth + 8)
 		.background_(Color.hsv(
 			*chainColor.asHSV.put(0,
-				(chainColor.asHSV[0] + (chainIndex * colorStep)).wrap(0,1)))
+				(chainColor.asHSV[0] + (chainIndex * colorStep)).wrap(0, 1)))
 		);
 
 		// add this chain view column to the window
@@ -1018,7 +1018,7 @@ FoaXformDisplay {
 			.onClose_({ codeWin = nil })
 			.front;
 
-			View(codeWin, Rect(0,0, codeWin.bounds.width, codeWin.bounds.height))
+			View(codeWin, Rect(0, 0, codeWin.bounds.width, codeWin.bounds.height))
 			.layout_(
 				VLayout(
 					evalTxtView = TextView().enterInterpretsSelection_(true)
@@ -1105,9 +1105,9 @@ FoaXformDisplay {
 					// in case this un-mute changes its color
 					// downstream from a soloed xf
 					block { |break|
-						xfViewChains[..whichChain].do{ |vchain,i|
+						xfViewChains[..whichChain].do{ |vchain, i|
 							(i < whichChain).if({					// check all xf's in the chain
-								vchain.do{ |xfv,j|
+								vchain.do{ |xfv, j|
 									chain.chains[i][j].soloed.if{
 										xfViewChains[whichChain][index].updateStateColors(true);
 										break.();
@@ -1115,7 +1115,7 @@ FoaXformDisplay {
 								}
 							}, {
 								// same chain as the un-muted xf, check only the xf's up to this index
-								vchain[..index].do{ |xfv,j|
+								vchain[..index].do{ |xfv, j|
 									chain.chains[i][j].soloed.if{
 										(j != index).if{			// only re-"mute" color if this isn't the soloed xf
 											xfViewChains[whichChain][index].updateStateColors(true);
@@ -1135,7 +1135,7 @@ FoaXformDisplay {
 					xfViewChains[whichChain][index].soloState(bool); // update UI with soloed state
 
 					// mute the colors of the UI for every link after this one
-					xfViewChains[whichChain..].do{ |vchain,i|
+					xfViewChains[whichChain..].do{ |vchain, i|
 						chainDex = whichChain + i;
 						vchain.do{ |xfv, j|
 							(i == 0).if({

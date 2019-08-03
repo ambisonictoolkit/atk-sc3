@@ -153,7 +153,7 @@ HoaMatrix : AtkMatrix {
 			fileParse = IdentityDictionary(know: true);
 
 			// replace String keys with Symbol keys, make "knowable"
-			dict.keysValuesDo{ |k,v|
+			dict.keysValuesDo{ |k, v|
 				fileParse.put(k.asSymbol,
 					(v == "nil").if({ nil }, { v }) // so .info parsing doesn't see nil as array
 				)
@@ -314,7 +314,7 @@ HoaMatrix : AtkMatrix {
 				vals.asArray.do{ |elem, i|
 					wr.write(elem.asCompileString); // allow for large row strings
 					wr.write(
-						(i == (vals.size - 1)).if({ "\n]\n" }, { ",\n" })
+						(i == (vals.size - 1)).if({ "\n]\n" }, { ", \n" })
 					);
 				};
 			});
@@ -592,7 +592,7 @@ HoaMatrixXformer : HoaMatrix {
 	}
 
 	*newRotateAxis { |axis = \z, angle = 0, order = (AtkHoa.defaultOrder)|
-		var r1=0,r2=0,r3=0;
+		var r1=0, r2=0, r3=0;
 		switch(axis,
 			\x, { r1=angle },
 			\y, { r2=angle },

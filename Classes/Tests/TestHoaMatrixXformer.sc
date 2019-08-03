@@ -104,9 +104,9 @@ TestHoaMatrixXformer : UnitTest {
 				floatWithin, report);
 		};
 
-		// planewave coefficients, encoded at [0,0]
+		// planewave coefficients, encoded at [0, 0]
 		pw00 = HoaMatrixEncoder.newDirection(0, 0, nil, order);
-		// planewave coefficients, encoded at [pi/2,0] (+Y)
+		// planewave coefficients, encoded at [pi/2, 0] (+Y)
 		pw90 = HoaMatrixEncoder.newDirection(pi/2, 0, nil, order);
 
 		numTests.do{
@@ -127,7 +127,7 @@ TestHoaMatrixXformer : UnitTest {
 	test_axisRotationOrder {
 		var angles, axes, r123, r1, r2, r3, compoundRot;
 		5.do{
-			angles = 3.collect{ rrand(0,2pi) }; // choose random rotation amounts
+			angles = 3.collect{ rrand(0, 2pi) }; // choose random rotation amounts
 			axes = "xyz".scramble;      // randomize the axis convention
 			// *newRotateAxis
 			#r1, r2, r3 = 3.collect{ |i|

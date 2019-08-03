@@ -79,8 +79,8 @@ AtkTests {
 
 		^switch(group,
 			\axis, { [ // axis directions
-				[0,0], [pi/2,0], [0,pi/2],      // +X, +Y, +Z
-				[pi/2,0], [-pi/2,0], [0,-pi/2]  // -X, -Y, -Z
+				[0, 0], [pi/2, 0], [0, pi/2],      // +X, +Y, +Z
+				[pi/2, 0], [-pi/2, 0], [0, -pi/2]  // -X, -Y, -Z
 			] },
 			\tetra, { // tetrahedral directions
 				FoaDecoderMatrix.newBtoA(orientation).dirOutputs

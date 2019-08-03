@@ -113,7 +113,7 @@ HoaUGen {
 		var nCoeffs, mtx;
 
 		if (jkOrder.isNil or: { order > jkOrder }) {
-			// j,k matrices haven't been calculated
+			// j, k matrices haven't been calculated
 			// or requesting higher order than has been
 			// calculated... (re)calculate
 			HoaUGen.prCalcJKMatrices(order)

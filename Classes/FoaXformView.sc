@@ -82,7 +82,7 @@ FoaXformView {
 		view = View()
 		.background_(Color.hsv(
 			*sfView.ctlColor.asHSV.put(0,
-				(sfView.ctlColor.asHSV[0] + (initChainDex * sfView.colorStep)).fold(0,1)))
+				(sfView.ctlColor.asHSV[0] + (initChainDex * sfView.colorStep)).fold(0, 1)))
 		)
 		// .fixedHeight_(80)
 		.maxHeight_(110)
@@ -94,7 +94,7 @@ FoaXformView {
 		labelTxt = StaticText().string_("id")
 		.stringColor_(Color.hsv(
 			*sfView.idTxtColor.asHSV.put(0,
-				(sfView.idTxtColor.asHSV[0] + (initChainDex * sfView.colorStep)).fold(0,1))))
+				(sfView.idTxtColor.asHSV[0] + (initChainDex * sfView.colorStep)).fold(0, 1))))
 		.align_(\center);
 
 		// transform controls layout
@@ -148,7 +148,7 @@ FoaXformView {
 				Color.hsv(
 					*sfView.idTxtColor.asHSV.put(0,
 						(sfView.idTxtColor.asHSV[0]
-							+ (initChainDex * sfView.colorStep)).fold(0,1)))
+							+ (initChainDex * sfView.colorStep)).fold(0, 1)))
 			);
 
 			// '-' mutes the transform
@@ -312,7 +312,7 @@ FoaXformView {
 		.fixedWidth_(50)
 		.background_(Color.hsv(
 			*sfView.idTabColor.asHSV.put(0,
-				(sfView.idTabColor.asHSV[0] + (initChainDex * sfView.colorStep)).fold(0,1)))
+				(sfView.idTabColor.asHSV[0] + (initChainDex * sfView.colorStep)).fold(0, 1)))
 		)
 		;
 
@@ -432,7 +432,7 @@ FoaXformView {
 			col.notNil.if{
 				(col.alpha != 0).if{
 					newCol = Color.hsv(
-						*col.asHSV.round(0.01) * [1,satFac,valFac,1] // round to avoid accumulating error over many un/mutes
+						*col.asHSV.round(0.01) * [1, satFac, valFac, 1] // round to avoid accumulating error over many un/mutes
 					);
 					v.background = newCol;
 				}

@@ -288,7 +288,7 @@ FoaMatrix : AtkMatrix {
 			fileParse = IdentityDictionary(know: true);
 
 			// replace String keys with Symbol keys, make "knowable"
-			dict.keysValuesDo{ |k,v|
+			dict.keysValuesDo{ |k, v|
 				fileParse.put(k.asSymbol,
 					(v == "nil").if({ nil }, { v }) // so .info parsing doesn't see nil as array
 				)
@@ -382,7 +382,7 @@ FoaMatrix : AtkMatrix {
 		});
 
 		attributeDictionary !? {
-			attributeDictionary.keysValuesDo{ |k,v|
+			attributeDictionary.keysValuesDo{ |k, v|
 				// catch overridden dirIn / Outputs
 				switch(k,
 					'dirInputs', { dirIns = v },

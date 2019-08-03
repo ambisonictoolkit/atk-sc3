@@ -119,7 +119,7 @@ HoaRotationMatrix {
 	var <matrix, <r3x3, <order;
 
 	*new { |r1 = 0, r2 = 0, r3 = 0, axes = \xyz, order = (AtkHoa.defaultOrder)|
-		^super.newCopyArgs(r1,r2,r3,axes).init(order)
+		^super.newCopyArgs(r1, r2, r3, axes).init(order)
 	}
 
 	init { |order|
@@ -195,7 +195,7 @@ HoaRotationMatrix {
 		// intialize total rotation matrix of size ((L + 1)^2) x ((L + 1)^2)
 		r = Matrix.newClear(setSize, setSize);
 		// zeroth-band (l=0) is invariant to rotation
-		r.put(0,0,1);
+		r.put(0, 0, 1);
 
 		(maxDegree == 0).if{ ^r };
 
@@ -205,15 +205,15 @@ HoaRotationMatrix {
 		// 			 Ryx Ryy Ryz
 		// 			 Rzx Rzy Rzz  ]
 		// the first band (l=1) is directly related to the rotation matrix
-		r_1.put(0,0, r3x3.at(1,1));
-		r_1.put(0,1, r3x3.at(1,2));
-		r_1.put(0,2, r3x3.at(1,0));
-		r_1.put(1,0, r3x3.at(2,1));
-		r_1.put(1,1, r3x3.at(2,2));
-		r_1.put(1,2, r3x3.at(2,0));
-		r_1.put(2,0, r3x3.at(0,1));
-		r_1.put(2,1, r3x3.at(0,2));
-		r_1.put(2,2, r3x3.at(0,0));
+		r_1.put(0, 0, r3x3.at(1, 1));
+		r_1.put(0, 1, r3x3.at(1, 2));
+		r_1.put(0, 2, r3x3.at(1, 0));
+		r_1.put(1, 0, r3x3.at(2, 1));
+		r_1.put(1, 1, r3x3.at(2, 2));
+		r_1.put(1, 2, r3x3.at(2, 0));
+		r_1.put(2, 0, r3x3.at(0, 1));
+		r_1.put(2, 1, r3x3.at(0, 2));
+		r_1.put(2, 2, r3x3.at(0, 0));
 
 		// insert this matrix into the output matrix in 1st band
 		r_1.rows.do{ |rowi|
@@ -238,7 +238,7 @@ HoaRotationMatrix {
 			(l.neg..l).do{ |m|
 				(l.neg..l).do{ |n|
 
-					// compute u,v,w terms of Eq.8.1 (Table I)
+					// compute u, v, w terms of Eq.8.1 (Table I)
 					d = (m == 0).asInteger; // the delta function d_m0
 					denom = (n.abs == l).if({
 						(2 * l) * (2 * l - 1)
@@ -251,11 +251,11 @@ HoaRotationMatrix {
 					w = sqrt((l - abs(m) - 1) * (l - abs(m)) / denom) * (1 - d) * -0.5;
 
 					//  computes Eq.8.1
-					(u != 0).if{ u = u * this.prU(l,m,n,r_1,r_lm1) };
-					(v != 0).if{ v = v * this.prV(l,m,n,r_1,r_lm1) };
-					(w != 0).if{ w = w * this.prW(l,m,n,r_1,r_lm1) };
+					(u != 0).if{ u = u * this.prU(l, m, n, r_1, r_lm1) };
+					(v != 0).if{ v = v * this.prV(l, m, n, r_1, r_lm1) };
+					(w != 0).if{ w = w * this.prW(l, m, n, r_1, r_lm1) };
 
-					r_l.put(m + l,n + l, u + v + w);
+					r_l.put(m + l, n + l, u + v + w);
 				}
 			};
 
@@ -319,7 +319,7 @@ HoaRotationMatrix {
 			p0 + p1; // return
 		}, {
 			p0 = this.prP(1, l, m - 1, n, r_1, r_lm1);
-			p1 = this.prP(-1, l, m.neg + 1,n, r_1, r_lm1);
+			p1 = this.prP(-1, l, m.neg + 1, n, r_1, r_lm1);
 			p0 - p1; // return
 		})
 	}
@@ -357,12 +357,12 @@ HoaRotationMatrix {
 		wMtx = Matrix.with(
 			setSize.collect{
 				setSize.collect{
-					Complex(0,0)
+					Complex(0, 0)
 				}
 			}
 		);
 
-		wMtx.put(0,0, Complex(1,0)); // l = 0
+		wMtx.put(0, 0, Complex(1, 0)); // l = 0
 
 		(order > 0).if{
 			idx = 1;
@@ -373,7 +373,7 @@ HoaRotationMatrix {
 
 				// form the diagonal
 				diagT = (
-					l.collect({ Complex(0,1) }) ++
+					l.collect({ Complex(0, 1) }) ++
 					[Complex(2.sqrt/2, 0)] ++
 					-1.pow(m).collect(Complex(_, 0))
 				) / 2.sqrt;
@@ -381,7 +381,7 @@ HoaRotationMatrix {
 				diagTMtx = Matrix.with(
 					degreeSize.collect{
 						degreeSize.collect{
-							Complex(0,0)
+							Complex(0, 0)
 						}
 					}
 				);
@@ -389,7 +389,7 @@ HoaRotationMatrix {
 
 				// form the antidiagonal
 				adiagT = (
-					Complex(0,-1) * (-1).pow(m.reverse) ++
+					Complex(0, -1) * (-1).pow(m.reverse) ++
 					[Complex(2.sqrt/2, 0)] ++
 					1.dup(l).collect(Complex(_, 0))
 				) / 2.sqrt;

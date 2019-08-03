@@ -331,7 +331,7 @@ FoaMatrixChain {
 
 		str = key.asString;
 		index = this.class.abcs.indexOf(str.keep(1).asSymbol);
-		xfDex = str.drop(1).asInt;
+		xfDex = str.drop(1).asInteger;
 
 		^chains[index][xfDex];
 	}

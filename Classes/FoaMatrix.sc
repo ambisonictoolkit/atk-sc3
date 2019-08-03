@@ -60,10 +60,10 @@
 //-----------------------------------------------------------------------
 // Support for Gerzon's Diametric Decoder Theorem (DDT) decoding
 // algorithm is derived from Aaron Heller's Octave code available at:
-// http://www.ai.sri.com/ajh/ambisonics/
+// http://www.ai.sri.com / ajh / ambisonics /
 //
 // Benjamin, et al., "Localization in Horizontal-Only Ambisonic Systems"
-// Preprint from AES-121, 10/2006, San Francisco
+// Preprint from AES-121, 10 / 2006, San Francisco
 //
 // Implementation in the SuperCollider3 version of the ATK is by
 // Joseph Anderson <j.anderson[at]ambisonictoolkit.net>
@@ -72,7 +72,7 @@
 //
 //-----------------------------------------------------------------------
 // Irregular array decoding coefficients (5.0) are kindly provided
-// by Bruce Wiggins: http://www.brucewiggins.co.uk/
+// by Bruce Wiggins: http://www.brucewiggins.co.uk /
 //
 // B. Wiggins, "An Investigation into the Real-time Manipulation and
 // Control of Three-dimensional Sound Fields," PhD Thesis, University of
@@ -163,7 +163,7 @@ FoaSpeakerMatrix {
 		});
 
 		// return resulting matrix
-		^sqrt(1/2) * n * k * (s.inverse * directions);
+		^sqrt(1 / 2) * n * k * (s.inverse * directions);
 	}
 
 	printOn { |stream|
@@ -296,7 +296,7 @@ FoaMatrix : AtkMatrix {
 
 			fileParse[\type].isNil.if({
 				"Matrix 'type' is undefined in the .yml file: cannot confirm the "
-				"type matches the loaded object (encoder/decoder/xformer)".warn
+				"type matches the loaded object (encoder / decoder / xformer)".warn
 			}, {
 				(fileParse[\type].asSymbol != mtxType.asSymbol).if{
 					Error(
@@ -354,7 +354,7 @@ FoaMatrix : AtkMatrix {
 				vals.asArray.do{ |elem, i|
 					wr.write(elem.asCompileString); // allow for large row strings
 					wr.write(
-						(i == (vals.size-1)).if({ "\n]\n" }, { ",\n" })
+						(i == (vals.size - 1)).if({ "\n]\n" }, { ",\n" })
 					);
 				};
 			});
@@ -383,7 +383,7 @@ FoaMatrix : AtkMatrix {
 
 		attributeDictionary !? {
 			attributeDictionary.keysValuesDo{ |k,v|
-				// catch overridden dirIn/Outputs
+				// catch overridden dirIn / Outputs
 				switch(k,
 					'dirInputs', { dirIns = v },
 					'dirOutputs', { dirOuts = v },
@@ -419,8 +419,8 @@ FoaMatrix : AtkMatrix {
 				"",		{ },	// ignore blank line
 				{	// found valid line
 					case
-					{ numRows.isNil } { numRows = val.asInt }
-					{ numCols.isNil } { numCols = val.asInt }
+					{ numRows.isNil } { numRows = val.asInteger }
+					{ numCols.isNil } { numCols = val.asInteger }
 					{
 						row = row.add(val.asFloat);
 						(row.size == numCols).f{
@@ -528,7 +528,7 @@ FoaMatrix : AtkMatrix {
 FoaDecoderMatrix : FoaMatrix {
 	var <>shelfFreq, <shelfK;
 
-		*newDiametric { |directions = ([pi/4, 3 * pi/4]), k = 'single'|
+		*newDiametric { |directions = ([pi / 4, 3 * pi / 4]), k = 'single'|
 		^super.new('diametric').initDiametric(directions, k);
 	}
 
@@ -540,7 +540,7 @@ FoaDecoderMatrix : FoaMatrix {
 		^super.new('peri').initPeri(numChanPairs, elevation, orientation, k);
 	}
 
-	*newQuad { |angle = (pi/4), k = 'single'|
+	*newQuad { |angle = (pi / 4), k = 'single'|
 		^super.new('quad').initQuad(angle, k);
 	}
 
@@ -585,7 +585,7 @@ FoaDecoderMatrix : FoaMatrix {
 				'single', { 2.reciprocal.sqrt },
 				'dual', {
 					shelfFreq = 400.0;
-					shelfK = [(3/2).sqrt, 3.sqrt / 2];
+					shelfK = [(3/2).sqrt, 3.sqrt/2];
 					1; // return
 				}
 			)
@@ -604,7 +604,7 @@ FoaDecoderMatrix : FoaMatrix {
 				'single', { 3.reciprocal.sqrt },
 				'dual', {
 					shelfFreq = 400.0;
-					shelfK = [2.sqrt, (2/3).sqrt];
+					shelfK = [2.sqrt, (2 / 3).sqrt];
 					1; // return
 				}
 			)
@@ -760,7 +760,7 @@ FoaDecoderMatrix : FoaMatrix {
 		matrix = FoaDecoderMatrix.newDiametric(directions, k).matrix;
 
 		// reorder the lower polygon
-		upMatrix = matrix[..(numChanPairs-1)];
+		upMatrix = matrix[..(numChanPairs - 1)];
 		downMatrix = matrix[(numChanPairs)..];
 
 		((orientation == 'flat') and: { numChanPairs.mod(2) == 1 }).if({
@@ -915,7 +915,7 @@ FoaEncoderMatrix : FoaMatrix {
 		^super.new('peri').initPeri(numChanPairs, elevation, orientation);
 	}
 
-	*newZoomH2 { |angles = ([pi/3, 3/4 * pi]), pattern = 0.5857, k = 1|
+	*newZoomH2 { |angles = ([pi / 3, 3 / 4 * pi]), pattern = 0.5857, k = 1|
 		^super.new('zoomH2').initZoomH2(angles, pattern, k);
 	}
 
@@ -1444,7 +1444,7 @@ FoaXformerMatrix : FoaMatrix {
 		g1 = (k - k.reciprocal) / 2.sqrt;
 
 		matrix = Matrix.with([
-			[ g0,	g1/2,	0,	0 	],
+			[ g0,	g1 / 2,	0,	0 	],
 			[ g1, 	g0,		0,	0	],
 			[ 0, 	0,		1, 	0 	],
 			[ 0, 	0,		0, 	1 	]
@@ -1461,7 +1461,7 @@ FoaXformerMatrix : FoaMatrix {
 		g1 = (k - k.reciprocal) / 2.sqrt;
 
 		matrix = Matrix.with([
-			[ g0,	0,	g1/2,	0 	],
+			[ g0,	0,	g1 / 2,	0 	],
 			[ 0, 	1,	0, 		0 	],
 			[ g1, 	0,	g0,		0	],
 			[ 0, 	0,	0, 		1 	]
@@ -1478,7 +1478,7 @@ FoaXformerMatrix : FoaMatrix {
 		g1 = (k - k.reciprocal) / 2.sqrt;
 
 		matrix = Matrix.with([
-			[ g0,	0,	0,	g1/2	],
+			[ g0,	0,	0,	g1 / 2	],
 			[ 0, 	1,	0, 	0 	],
 			[ 0, 	0,	1, 	0 	],
 			[ g1, 	0,	0,	g0	]
@@ -1493,7 +1493,7 @@ FoaXformerMatrix : FoaMatrix {
 		g1 = angle.cos;
 
 		matrix = Matrix.with([
-			[ 1,			g0/2.sqrt,	0,	0 	],
+			[ 1,			g0 / 2.sqrt,	0,	0 	],
 			[ 2.sqrt * g0, 	1,			0,	0	],
 			[ 0, 		0,			g1, 	0 	],
 			[ 0, 		0,			0, 	g1 	]
@@ -1508,7 +1508,7 @@ FoaXformerMatrix : FoaMatrix {
 		g1 = angle.cos;
 
 		matrix = Matrix.with([
-			[ 1,			0,	g0/2.sqrt,	0 	],
+			[ 1,			0,	g0 / 2.sqrt,	0 	],
 			[ 0, 		g1,	0, 			0 	],
 			[ 2.sqrt * g0, 	0,	1,			0	],
 			[ 0, 		0,	0, 			g1 	]
@@ -1523,7 +1523,7 @@ FoaXformerMatrix : FoaMatrix {
 		g1 = angle.cos;
 
 		matrix = Matrix.with([
-			[ 1,			0,	0,	g0/2.sqrt	],
+			[ 1,			0,	0,	g0 / 2.sqrt	],
 			[ 0, 		g1,	0, 	0 		],
 			[ 0, 		0, 	g1,	0 		],
 			[ 2.sqrt * g0, 	0,	0,	1		]
@@ -1539,7 +1539,7 @@ FoaXformerMatrix : FoaMatrix {
 		g2 = angle.cos * g0;
 
 		matrix = Matrix.with([
-			[ g0,	g1/2,	0,	0	],
+			[ g0,	g1 / 2,	0,	0	],
 			[ g1,	g0,		0,	0	],
 			[ 0,		0,		g2, 	0 	],
 			[ 0,		0,		0, 	g2	]
@@ -1555,7 +1555,7 @@ FoaXformerMatrix : FoaMatrix {
 		g2 = angle.cos * g0;
 
 		matrix = Matrix.with([
-			[ g0,	0,	g1/2,	0	],
+			[ g0,	0,	g1 / 2,	0	],
 			[ 0,		g2,	0, 		0 	],
 			[ g1,	0,	g0,		0	],
 			[ 0,		0,	0, 		g2	]
@@ -1571,7 +1571,7 @@ FoaXformerMatrix : FoaMatrix {
 		g2 = angle.cos * g0;
 
 		matrix = Matrix.with([
-			[ g0,	0,	0,	g1/2	],
+			[ g0,	0,	0,	g1 / 2	],
 			[ 0,		g2,	0, 	0 	],
 			[ 0,		0, 	g2,	0	],
 			[ g1,	0,	0,	g0	]
@@ -1835,7 +1835,7 @@ FoaDecoderKernel {
 			)
 		};
 
-		decodersPath	= PathName.new("/FOA/decoders");
+		decodersPath	= PathName.new("/FOA / decoders");
 
 		^kernelLibPath +/+ decodersPath +/+ PathName.new(kind.asString)
 	}
@@ -2015,7 +2015,7 @@ FoaDecoderKernel {
 				score.add(kernelBundle)
 			};
 
-			(kernel.isNil && score.notNil).if{
+			(kernel.isNil and: { score.notNil }).if{
 				Error(
 					"Score is not a Score or a CtkScore. Score is a %.".format(
 						score.class.asString
@@ -2099,7 +2099,7 @@ FoaEncoderKernel {
 	}
 
 	// Encoding via Isophonics Room Impulse Response Data Set, not yet implemented.
-	// (http://isophonics.net/content/room-impulse-response-data-set)
+	// (http://isophonics.net / content / room-impulse-response-data-set)
 	//
 	// NOTE: Convolution2 doesn't support large, arbitrary sized kernels.
 
@@ -2126,7 +2126,7 @@ FoaEncoderKernel {
 			PathName.new(Atk.systemKernelDir)	// no? set for single user
 		};
 
-		encodersPath = PathName.new("/FOA/encoders");
+		encodersPath = PathName.new("/FOA / encoders");
 
 		^kernelLibPath +/+ encodersPath +/+ PathName.new(kind.asString)
 	}
@@ -2183,7 +2183,7 @@ FoaEncoderKernel {
 			}
 
 			// Encoding via Isophonics Room Impulse Response Data Set, not yet implemented.
-			// (http://isophonics.net/content/room-impulse-response-data-set)
+			// (http://isophonics.net / content / room-impulse-response-data-set)
 			//
 			// NOTE: Convolution2 doesn't support large, arbitrary sized kernels.
 

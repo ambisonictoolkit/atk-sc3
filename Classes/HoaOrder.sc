@@ -278,11 +278,11 @@ HoaOrder {
 				}, {
 					n = (m + 1).squared  // 3D
 				});
-				(n/this.meanE(beamShape, dim)).sqrt
+				(n / this.meanE(beamShape, dim)).sqrt
 			},
 			'energy', {
 				n = numChans;
-				(n/this.meanE(beamShape, dim)).sqrt
+				(n / this.meanE(beamShape, dim)).sqrt
 			}
 		).asFloat
 	}

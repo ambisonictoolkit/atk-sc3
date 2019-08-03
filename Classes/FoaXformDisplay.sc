@@ -81,7 +81,7 @@ FoaXformDisplay {
 
 		this.prDefineColors;
 
-		directions = numPoints.collect{ |i| (2pi/numPoints) * i };
+		directions = numPoints.collect{ |i| (2pi / numPoints) * i };
 
 		// planewave "point" matrices collected
 		planewaveMatrices = numPoints.collect{ |i|
@@ -184,7 +184,7 @@ FoaXformDisplay {
 		lastUpdatedMatrix = 'display';
 
 		sfWin = Window("Soundfield Transform",
-			Rect(scrnB.center.x - (winW/2), scrnB.height-winH-45, winW, winH),
+			Rect(scrnB.center.x - (winW / 2), scrnB.height-winH-45, winW, winH),
 			resizable: true
 		).onClose_(
 			{ this.free; }
@@ -219,7 +219,7 @@ FoaXformDisplay {
 
 		// init the first xform
 		ctlv.layout.add(
-			// post/enter matrix buttons on left
+			// post / enter matrix buttons on left
 			HLayout(
 				View()
 				.maxWidth_(125).maxHeight_(80)
@@ -379,7 +379,7 @@ FoaXformDisplay {
 
 			minDim = min(uv.bounds.width, uv.bounds.height);
 
-			pointRad = minDim/2 * 0.02;
+			pointRad = minDim / 2 * 0.02;
 			d = pointRad * 2;
 			circleViewRatio = 0.8;
 			arcH = minDim * circleViewRatio / 2;
@@ -420,7 +420,7 @@ FoaXformDisplay {
 					omniDiam = 1 - dir * fullOmni;
 					omniDiam = omniDiam.clip(d, fullOmni);
 					omniDiam = omniDiam * thisElWarp; // warp for elevation perspective
-					omniRad =  omniDiam/2;
+					omniRad =  omniDiam / 2;
 
 					gainColor = getColor.(gain);
 
@@ -496,7 +496,7 @@ FoaXformDisplay {
 			thisElWarp = elWarp.at(el + pi/2);
 			omniDiam = 1 - dir * fullOmni;
 			omniDiam = omniDiam.clip(d, fullOmni);
-			omniRad= omniDiam/2;
+			omniRad= omniDiam / 2;
 
 			azPnt = Point(cos(az), sin(az)) // = Polar(dir, az).asPoint
 			.rotate(pi/2)    // convert ambi to screen coords

@@ -387,7 +387,7 @@ FoaAudition {
 			);
 
 			server.sync;
-			// register to respond to isRunning/isPlaying
+			// register to respond to isRunning / isPlaying
 			[pwSynth, sfSynth_3ch, sfSynth_4ch, inbusSynth, diffSynth].do(_.register);
 			soundfileSynth = sfSynth_4ch; // initialize
 			auditionEnabled = true;
@@ -561,14 +561,14 @@ FoaAuditionView {
 	// scheme copied from FoaXformDisplay
 	defineColors {
 		palette = QPalette.new
-		.window_(Color.hsv(*[242,63,25]/[360,100,100]))
-		.windowText_(Color.hsv(*[162,15,62]/[360,100,100]))
-		.button_(Color.hsv(*[124,17,76]/[360,100,100]))     // button color
-		.buttonText_(Color.hsv(*[242,63,31]/[360,100,100])) // button/dropdown text color
-		.base_(Color.hsv(*[225,31,46]/[360,100,100]))       // num/check box background color
-		.baseText_(Color.hsv(*[113,21,95]/[360,100,100]))   // check mark color
-		.highlight_(Color.hsv(*[124,17,76]/[360,100,100]))  // numbox select outline
-		.highlightText_(Color.hsv(*[124,17,76]/[360,100,100]));
+		.window_(Color.hsv(*[242,63,25] / [360,100,100]))
+		.windowText_(Color.hsv(*[162,15,62] / [360,100,100]))
+		.button_(Color.hsv(*[124,17,76] / [360,100,100]))     // button color
+		.buttonText_(Color.hsv(*[242,63,31] / [360,100,100])) // button / dropdown text color
+		.base_(Color.hsv(*[225,31,46] / [360,100,100]))       // num / check box background color
+		.baseText_(Color.hsv(*[113,21,95] / [360,100,100]))   // check mark color
+		.highlight_(Color.hsv(*[124,17,76] / [360,100,100]))  // numbox select outline
+		.highlightText_(Color.hsv(*[124,17,76] / [360,100,100]));
 
 		paramBkgColor = Color.hsv(*palette.base.asHSV.put(2,
 			(palette.base.asHSV[2] - 0.12).wrap(0,1)));
@@ -897,7 +897,7 @@ FoaAuditionView {
 		.background_(paramBkgColor)
 		.layout_(
 			VLayout(
-				StaticText().string_(name) // parameter name/title
+				StaticText().string_(name) // parameter name / title
 				.stringColor_(paramHeaderTxtColor)
 				.align_(\center),
 				layout,

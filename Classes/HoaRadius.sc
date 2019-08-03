@@ -64,7 +64,7 @@ HoaRadius {
 
 	// Set radius from wavenumber and order
 	*newWaveNumber { |waveNumber, order|
-		^this.new(order/waveNumber)
+		^this.new(order / waveNumber)
 	}
 
 	// Set radius from frequency and order
@@ -106,7 +106,7 @@ HoaRadius {
 
 	// Return effective wavenumber.
 	waveNumber { |order|
-		^(order/this.radius)
+		^(order / this.radius)
 	}
 
 	// Return effective frequency.

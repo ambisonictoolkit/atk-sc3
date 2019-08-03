@@ -53,7 +53,7 @@
 		var freqs, complexCoeffs, magnitudes, phases;
 
 		(size.isPowerOfTwo).if({  // rfft
-			var rfftsize = (size/2 + 1).asInteger;
+			var rfftsize = (size / 2 + 1).asInteger;
 			freqs = rfftsize.rfftFreqs(sampleRate);
 			freqs = freqs.collect({ |freq|  // blt frequency warp
 				sampleRate / pi * tan(pi * freq / sampleRate)
@@ -115,7 +115,7 @@
 		var freqs, complexCoeffs, magnitudes, phases;
 
 		(size.isPowerOfTwo).if({  // rfft
-			var rfftsize = (size/2 + 1).asInteger;
+			var rfftsize = (size / 2 + 1).asInteger;
 			freqs = rfftsize.rfftFreqs(sampleRate);
 			freqs = freqs.collect({ |freq|  // blt frequency warp
 				sampleRate / pi * tan(pi * freq / sampleRate)
@@ -177,7 +177,7 @@
 		var freqs, complexCoeffs, magnitudes, phases;
 
 		(size.isPowerOfTwo).if({  // rfft
-			var rfftsize = (size/2 + 1).asInteger;
+			var rfftsize = (size / 2 + 1).asInteger;
 			freqs = rfftsize.rfftFreqs(sampleRate);
 			freqs = freqs.collect({ |freq|  // blt frequency warp
 				sampleRate / pi * tan(pi * freq / sampleRate)
@@ -239,7 +239,7 @@
 		var freqs, magnitudes;
 
 		(size.isPowerOfTwo).if({  // rfft
-			var rfftsize = (size/2 + 1).asInteger;
+			var rfftsize = (size / 2 + 1).asInteger;
 			freqs = rfftsize.rfftFreqs(sampleRate);
 
 			// magnitude - collected by degree
@@ -291,11 +291,11 @@
 					}, {
 						n = (m + 1).squared  // 3D
 					});
-					(n/meanE.value(beamWeights, dim)).sqrt
+					(n / meanE.value(beamWeights, dim)).sqrt
 					},
 				'energy', {
 					n = numChans;
-					(n/meanE.value(beamWeights, dim)).sqrt
+					(n / meanE.value(beamWeights, dim)).sqrt
 				}
 			).asFloat
 		};

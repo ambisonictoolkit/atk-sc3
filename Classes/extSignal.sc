@@ -54,7 +54,7 @@
 		});
 
 		^(size.isPowerOfTwo).if({  // rfft
-			var rfftsize = (size/2 + 1).asInteger;
+			var rfftsize = (size / 2 + 1).asInteger;
 			var cosTable = Signal.rfftCosTable(rfftsize);
 
 			// synthesize kernels
@@ -76,7 +76,7 @@
 		});
 
 		^(size.isPowerOfTwo).if({  // rfft
-			var rfftsize = (size/2 + 1).asInteger;
+			var rfftsize = (size / 2 + 1).asInteger;
 			var cosTable = Signal.rfftCosTable(rfftsize);
 
 			// synthesize kernels
@@ -98,7 +98,7 @@
 		});
 
 		^(size.isPowerOfTwo).if({  // rfft
-			var rfftsize = (size/2 + 1).asInteger;
+			var rfftsize = (size / 2 + 1).asInteger;
 			var cosTable = Signal.rfftCosTable(rfftsize);
 
 			// synthesize kernels
@@ -120,7 +120,7 @@
 		});
 
 		^(size.isPowerOfTwo).if({  // rfft
-			var rfftsize = (size/2 + 1).asInteger;
+			var rfftsize = (size / 2 + 1).asInteger;
 			var cosTable = Signal.rfftCosTable(rfftsize);
 
 			// synthesize kernels

@@ -69,12 +69,12 @@ NFECoeffs {
 		// extract Re(X) & |X|, e.g., Bessel Polynomial Factors
 
 		// average of real
-		reX = ((m/2).asInteger).collect({ |q|
+		reX = ((m / 2).asInteger).collect({ |q|
 			(bpr.at(2 * q).real + bpr.at(2 * q + 1).real) / 2
 		});
 
 		// average of magnitude
-		absX = ((m/2).asInteger).collect({ |q|
+		absX = ((m / 2).asInteger).collect({ |q|
 			(bpr.at(2 * q).abs + bpr.at(2 * q + 1).abs) / 2
 		});
 
@@ -97,13 +97,13 @@ NFECoeffs {
 
 		mOdd = this.degree.odd;
 
-		alpha = 2 * sampleRate * r0/speedOfSound;
+		alpha = 2 * sampleRate * r0 / speedOfSound;
 
 		coeffs = numSOS.collect({ |q|
 			var c1, c2;
 
-			c1 = this.reX.at(q)/alpha;
-			c2 = (this.absX.at(q)/alpha).squared;
+			c1 = this.reX.at(q) / alpha;
+			c2 = (this.absX.at(q) / alpha).squared;
 
 			[
 				// numerator
@@ -118,7 +118,7 @@ NFECoeffs {
 		// odd degree? - add coeffs for FOS
 		mOdd.if{
 			var c1;
-			c1 = this.reX.last/alpha;
+			c1 = this.reX.last / alpha;
 
 			coeffs = coeffs ++ [
 				[
@@ -170,13 +170,13 @@ NFECoeffs {
 
 		mOdd = this.degree.odd;
 
-		alpha = 2 * sampleRate * r1/speedOfSound;
+		alpha = 2 * sampleRate * r1 / speedOfSound;
 
 		coeffs = numSOS.collect({ |q|
 			var c1, c2;
 
-			c1 = this.reX.at(q)/alpha;
-			c2 = (this.absX.at(q)/alpha).squared;
+			c1 = this.reX.at(q) / alpha;
+			c2 = (this.absX.at(q) / alpha).squared;
 
 			[
 				// numerator
@@ -191,7 +191,7 @@ NFECoeffs {
 		// odd degree? - add coeffs for FOS
 		mOdd.if{
 			var c1;
-			c1 = this.reX.last/alpha;
+			c1 = this.reX.last / alpha;
 
 			coeffs = coeffs ++ [
 				[
@@ -244,19 +244,19 @@ NFECoeffs {
 
 		mOdd = this.degree.odd;
 
-		alpha0 = 2 * sampleRate * r0/speedOfSound;  // proximity
-		alpha1 = 2 * sampleRate * r1/speedOfSound;  // distance
+		alpha0 = 2 * sampleRate * r0 / speedOfSound;  // proximity
+		alpha1 = 2 * sampleRate * r1 / speedOfSound;  // distance
 
 		coeffs = numSOS.collect({ |q|
 			var c10, c20, c11, c21;
 
 			// proximity
-			c10 = this.reX.at(q)/alpha0;
-			c20 = (this.absX.at(q)/alpha0).squared;
+			c10 = this.reX.at(q) / alpha0;
+			c20 = (this.absX.at(q) / alpha0).squared;
 
 			// distance
-			c11 = this.reX.at(q)/alpha1;
-			c21 = (this.absX.at(q)/alpha1).squared;
+			c11 = this.reX.at(q) / alpha1;
+			c21 = (this.absX.at(q) / alpha1).squared;
 
 			[
 				// numerator
@@ -273,8 +273,8 @@ NFECoeffs {
 		// odd degree? - add coeffs for FOS
 		mOdd.if{
 			var c10, c11;
-			c10 = this.reX.last/alpha0;  // proximity
-			c11 = this.reX.last/alpha1;  // distance
+			c10 = this.reX.last / alpha0;  // proximity
+			c11 = this.reX.last / alpha1;  // distance
 
 			coeffs = coeffs ++ [
 				[

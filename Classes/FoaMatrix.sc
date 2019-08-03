@@ -585,7 +585,7 @@ FoaDecoderMatrix : FoaMatrix {
 				'single', { 2.reciprocal.sqrt },
 				'dual', {
 					shelfFreq = 400.0;
-					shelfK = [(3/2).sqrt, 3.sqrt/2];
+					shelfK = [(3/2).sqrt, 3.sqrt / 2];
 					1; // return
 				}
 			)
@@ -681,8 +681,8 @@ FoaDecoderMatrix : FoaMatrix {
 		// ALSO: the below code calls for the complex conjugate
 		//       of decoder_matrix. As we are expecting real vaules,
 		//       we may regard this call as redundant.
-		// res = sqrt(2)/n * decoder_matrix.conj().transpose()
-		matrix = 2.sqrt/n * matrix.flop;
+		// res = sqrt(2) / n * decoder_matrix.conj().transpose()
+		matrix = 2.sqrt / n * matrix.flop;
 	}
 
 	initPanto { |numChans, orientation, k|
@@ -696,8 +696,8 @@ FoaDecoderMatrix : FoaMatrix {
 		// return theta from output channel (speaker) number
 		theta = numChans.collect({ |channel|
 			switch(orientation,
-				'flat',	{ ((1.0 + (2.0 * channel))/numChans) * pi },
-				'point',	{ ((2.0 * channel)/numChans) * pi }
+				'flat',	{ ((1.0 + (2.0 * channel)) / numChans) * pi },
+				'point',	{ ((2.0 * channel) / numChans) * pi }
 			)
 		});
 		theta = (theta + pi).mod(2pi) - pi;
@@ -719,7 +719,7 @@ FoaDecoderMatrix : FoaMatrix {
 				k * g1 * theta.at(i).sin
 			])
 		});
-		matrix = 2.sqrt/numChans * matrix
+		matrix = 2.sqrt / numChans * matrix
 	}
 
 	initPeri { |numChanPairs, elevation, orientation, k|
@@ -765,12 +765,12 @@ FoaDecoderMatrix : FoaMatrix {
 
 		((orientation == 'flat') and: { numChanPairs.mod(2) == 1 }).if({
 			// odd, 'flat'
-			downDirs = downDirs.rotate((numChanPairs/2 + 1).asInteger);
-			downMatrix = downMatrix.rotate((numChanPairs/2 + 1).asInteger)
+			downDirs = downDirs.rotate((numChanPairs / 2 + 1).asInteger);
+			downMatrix = downMatrix.rotate((numChanPairs / 2 + 1).asInteger)
 		}, {
 			// 'flat' case, default
-			downDirs = downDirs.rotate((numChanPairs/2).asInteger);
-			downMatrix = downMatrix.rotate((numChanPairs/2).asInteger)
+			downDirs = downDirs.rotate((numChanPairs / 2).asInteger);
+			downMatrix = downMatrix.rotate((numChanPairs / 2).asInteger)
 		});
 
 		dirChannels = upDirs ++ downDirs;  // set output channel (speaker) directions
@@ -795,7 +795,7 @@ FoaDecoderMatrix : FoaMatrix {
 		g2	= k / (2.sqrt * angle.sin);
 
 		// build decoder matrix
-		matrix = 2.sqrt/4 * Matrix.with([
+		matrix = 2.sqrt / 4 * Matrix.with([
 				[g0, g1, 	g2 		],
 				[g0, g1.neg, g2 		],
 				[g0, g1.neg, g2.neg	],
@@ -808,7 +808,7 @@ FoaDecoderMatrix : FoaMatrix {
 		var g0, g1, g2;
 
 		// set output channel (speaker) directions for instance
-		dirChannels = [pi/6, pi.neg/6];
+		dirChannels = [pi/6, (pi/6).neg];
 
 		// calculate g0, g1, g2 (scaled by pattern)
 		g0	= (1.0 - pattern) * 2.sqrt;
@@ -1078,8 +1078,8 @@ FoaEncoderMatrix : FoaMatrix {
 		// return theta from output channel (speaker) number
 		theta = numChans.collect({ |channel|
 			switch(orientation,
-				'flat', { ((1.0 + (2.0 * channel))/numChans) * pi },
-				'point', { ((2.0 * channel)/numChans) * pi }
+				'flat', { ((1.0 + (2.0 * channel)) / numChans) * pi },
+				'point', { ((2.0 * channel) / numChans) * pi }
 			)
 		});
 		theta = (theta + pi).mod(2pi) - pi;
@@ -1121,10 +1121,10 @@ FoaEncoderMatrix : FoaMatrix {
 		// reorder the lower polygon
 		(orientation == 'flat' and: { numChanPairs.mod(2) == 1 }).if({
 			// odd, 'flat'
-			downDirs = downDirs.rotate((numChanPairs/2 + 1).asInteger);
+			downDirs = downDirs.rotate((numChanPairs / 2 + 1).asInteger);
 		}, {
 			// 'flat' case, default
-			downDirs = downDirs.rotate((numChanPairs/2).asInteger);
+			downDirs = downDirs.rotate((numChanPairs / 2).asInteger);
 		});
 
 		// set input channel directions for instance
@@ -1869,7 +1869,7 @@ FoaDecoderKernel {
 
 		// init dirChannels (output channel (speaker) directions) and kernel sr
 		(kind == 'uhj').if({
-			dirChannels = [pi/6, pi.neg/6];
+			dirChannels = [pi/6, (pi/6).neg];
 			sampleRateStr = "None";
 		}, {
 			dirChannels = [5/9 * pi, 5/9 * pi.neg];
@@ -2158,7 +2158,7 @@ FoaEncoderKernel {
 		// init dirChannels (output channel (speaker) directions) and kernel sr
 		switch(kind,
 			'super', {
-				dirChannels = [pi/4, pi.neg/4];	 // approx, doesn't include phasiness
+				dirChannels = [pi/4, (pi/4).neg];	 // approx, doesn't include phasiness
 				sampleRateStr = "None";
 				chans = 3;					// [w, x, y]
 			},

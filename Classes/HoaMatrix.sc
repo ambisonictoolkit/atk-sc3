@@ -530,7 +530,7 @@ HoaMatrixEncoder : HoaMatrix {
 		// build encoder matrix, and set for instance
 		matrix = norm * Matrix.with(
 			this.directions.collect({ |thetaPhi|
-				(1/beamWeights)[hoaOrder.l] * hoaOrder.sph(thetaPhi.at(0), thetaPhi.at(1));
+				(1 / beamWeights)[hoaOrder.l] * hoaOrder.sph(thetaPhi.at(0), thetaPhi.at(1));
 			}).flop
 		).zeroWithin(AtkHoa.nearZero)
 	}
@@ -1327,7 +1327,7 @@ HoaMatrixDecoder : HoaMatrix {
 			2, { (2 * this.order) + 1 },  // 2D -- sectoral
 			3, { (this.order + 1).squared }   // 3D -- all
 		);
-		rms = (this.numChannels/numDecHarms) * energy;
+		rms = (this.numChannels / numDecHarms) * energy;
 
 		// ------------
 		// rV
@@ -1437,7 +1437,7 @@ HoaMatrixDecoder : HoaMatrix {
 		energy = testMatrix.squared.sum;
 
 		// average rms
-		rms = (this.numChannels/numCoeffs) * energy;
+		rms = (this.numChannels / numCoeffs) * energy;
 
 		// meanE
 		meanE = this.numChannels * energy / amp.squared;

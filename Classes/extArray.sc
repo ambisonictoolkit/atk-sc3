@@ -61,7 +61,7 @@
 		};
 
 		theta = size.collect({ |i|
-			(2pi * i)/size + orientation
+			(2pi * i) / size + orientation
 		});
 
 		theta = (theta + wrap.mod(2pi)).mod(2pi) - wrap.mod(2pi);

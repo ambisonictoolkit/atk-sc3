@@ -121,14 +121,14 @@ WaveNumber {
 
 		(this.waveNumber.abs <= nearZero).if({
 			^Array.with(Complex.new(1, 0)) ++ m.collect({ |k|
-				Complex.new(-inf.pow(((k + 1)/2).floor), -inf.pow(((k + 2)/2).floor))
+				Complex.new(-inf.pow(((k + 1) / 2).floor), -inf.pow(((k + 2) / 2).floor))
 			})
 		}, {
 			^(m + 1).collect({ |j|
 				(j + 1).collect({ |k|
 					var fact;
-					fact = (j + k).asFloat.factorial/((j-k).asFloat.factorial * k.asFloat.factorial);
-					fact * Complex.new(0, -1/(2 * this.waveNumber * r0)).pow(k)
+					fact = (j + k).asFloat.factorial / ((j-k).asFloat.factorial * k.asFloat.factorial);
+					fact * Complex.new(0, -1 / (2 * this.waveNumber * r0)).pow(k)
 				}).sum
 			})
 		})
@@ -146,8 +146,8 @@ WaveNumber {
 			^(m + 1).collect({ |j|
 				(j + 1).collect({ |k|
 					var fact;
-					fact = (j + k).asFloat.factorial/((j-k).asFloat.factorial * k.asFloat.factorial);
-					fact * Complex.new(0, -1/(2 * this.waveNumber * r1)).pow(k)
+					fact = (j + k).asFloat.factorial / ((j-k).asFloat.factorial * k.asFloat.factorial);
+					fact * Complex.new(0, -1 / (2 * this.waveNumber * r1)).pow(k)
 				}).sum.reciprocal
 			})
 		})
@@ -162,18 +162,18 @@ WaveNumber {
 
 		(this.waveNumber.abs <= nearZero).if({
 			^(m + 1).collect({ |k|
-				Complex.new((r1/r0).pow(k), 0)
+				Complex.new((r1 / r0).pow(k), 0)
 			})
 		}, {
 			^(m + 1).collect({ |j|
 				((j + 1).collect({ |k|
 					var fact;
-					fact = (j + k).asFloat.factorial/((j-k).asFloat.factorial * k.asFloat.factorial);
-					fact * Complex.new(0, -1/(2 * this.waveNumber * r0)).pow(k)
+					fact = (j + k).asFloat.factorial / ((j-k).asFloat.factorial * k.asFloat.factorial);
+					fact * Complex.new(0, -1 / (2 * this.waveNumber * r0)).pow(k)
 				}).sum) / ((j + 1).collect({ |k|
 					var fact;
-					fact = (j + k).asFloat.factorial/((j-k).asFloat.factorial * k.asFloat.factorial);
-					fact * Complex.new(0, -1/(2 * this.waveNumber * r1)).pow(k)
+					fact = (j + k).asFloat.factorial / ((j-k).asFloat.factorial * k.asFloat.factorial);
+					fact * Complex.new(0, -1 / (2 * this.waveNumber * r1)).pow(k)
 				}).sum)
 			})
 		})

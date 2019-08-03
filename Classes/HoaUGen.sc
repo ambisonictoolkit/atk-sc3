@@ -312,9 +312,9 @@ HoaRotate : HoaUGen {
 			// with addition, and 2 multiplications
 			if (n > 2) {
 				c2 = 2 * c[0];
-				(1..n-2).do{ |idx|
-					s[idx + 1] = (c2 * s[idx]) - s[idx-1];
-					c[idx + 1] = (c2 * c[idx]) - c[idx-1];
+				(1..(n - 2)).do{ |idx|
+					s[idx + 1] = (c2 * s[idx]) - s[idx - 1];
+					c[idx + 1] = (c2 * c[idx]) - c[idx - 1];
 				};
 			};
 
@@ -324,8 +324,8 @@ HoaRotate : HoaUGen {
 				out[i] = in[i];  // center coeff is 1, so pass val through
 
 				(1..l).do{ |m|
-					cos = c[m-1];
-					sin = s[m-1];
+					cos = c[m - 1];
+					sin = s[m - 1];
 
 					im = i + m;    // positive m index
 					imneg = i - m; // negative m index

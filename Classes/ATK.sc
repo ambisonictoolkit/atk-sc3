@@ -492,7 +492,7 @@ Atk {
 			postContents = { |folderPN, depth=1|
 				var offset, f_offset;
 				offset = ("\t"!depth).join;
-				f_offset = ("\t"!(depth-1)).join;
+				f_offset = ("\t"!(depth - 1)).join;
 				postf("%:: % ::\n", f_offset, folderPN.folderName);
 
 				folderPN.entries.do{ |entry|

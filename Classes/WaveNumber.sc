@@ -127,7 +127,7 @@ WaveNumber {
 			^(m + 1).collect({ |j|
 				(j + 1).collect({ |k|
 					var fact;
-					fact = (j + k).asFloat.factorial / ((j-k).asFloat.factorial * k.asFloat.factorial);
+					fact = (j + k).asFloat.factorial / ((j - k).asFloat.factorial * k.asFloat.factorial);
 					fact * Complex.new(0, -1 / (2 * this.waveNumber * r0)).pow(k)
 				}).sum
 			})
@@ -146,7 +146,7 @@ WaveNumber {
 			^(m + 1).collect({ |j|
 				(j + 1).collect({ |k|
 					var fact;
-					fact = (j + k).asFloat.factorial / ((j-k).asFloat.factorial * k.asFloat.factorial);
+					fact = (j + k).asFloat.factorial / ((j - k).asFloat.factorial * k.asFloat.factorial);
 					fact * Complex.new(0, -1 / (2 * this.waveNumber * r1)).pow(k)
 				}).sum.reciprocal
 			})
@@ -168,11 +168,11 @@ WaveNumber {
 			^(m + 1).collect({ |j|
 				((j + 1).collect({ |k|
 					var fact;
-					fact = (j + k).asFloat.factorial / ((j-k).asFloat.factorial * k.asFloat.factorial);
+					fact = (j + k).asFloat.factorial / ((j - k).asFloat.factorial * k.asFloat.factorial);
 					fact * Complex.new(0, -1 / (2 * this.waveNumber * r0)).pow(k)
 				}).sum) / ((j + 1).collect({ |k|
 					var fact;
-					fact = (j + k).asFloat.factorial / ((j-k).asFloat.factorial * k.asFloat.factorial);
+					fact = (j + k).asFloat.factorial / ((j - k).asFloat.factorial * k.asFloat.factorial);
 					fact * Complex.new(0, -1 / (2 * this.waveNumber * r1)).pow(k)
 				}).sum)
 			})

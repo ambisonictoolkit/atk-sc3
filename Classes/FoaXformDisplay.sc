@@ -184,7 +184,7 @@ FoaXformDisplay {
 		lastUpdatedMatrix = 'display';
 
 		sfWin = Window("Soundfield Transform",
-			Rect(scrnB.center.x - (winW / 2), scrnB.height-winH-45, winW, winH),
+			Rect(scrnB.center.x - (winW / 2), scrnB.height - winH - 45, winW, winH),
 			resizable: true
 		).onClose_(
 			{ this.free; }
@@ -360,9 +360,9 @@ FoaXformDisplay {
 			i = colorSpec.map(gainSpec.unmap(gain));
 			case
 			{ i < 256 } { Color.new255(255, i, 0) }
-			{ i < 384 } { Color.new255(255 - (i-256), 255, 0) }
-			{ i < 512 } { Color.new255(0, 255, (i-384) * 2) }
-			{ i < 768 } { Color.new255(0, 255 - (i-512), 255) }
+			{ i < 384 } { Color.new255(255 - (i - 256), 255, 0) }
+			{ i < 512 } { Color.new255(0, 255, (i - 384) * 2) }
+			{ i < 768 } { Color.new255(0, 255 - (i - 512), 255) }
 			{ i >= 768 } { Color.new255(0, 0, 255) }; // catch all
 		};
 
@@ -445,21 +445,21 @@ FoaXformDisplay {
 						'size',{
 							Pen.fillColor_(gainColor.alpha_(alphaSpec.map(dir)));
 							Pen.fillOval(Rect(
-								drawPnt.x-omniRad, drawPnt.y-omniRad, omniDiam, omniDiam));
+								drawPnt.x - omniRad, drawPnt.y - omniRad, omniDiam, omniDiam));
 
 							// center point for mouse click guidance to cue stats
 							Pen.fillColor_(
 								(sortDex == selectedDex).if({ Color.yellow }, { azLineClr })
 							);
 							Pen.fillOval(Rect(
-								drawPnt.x-(pointRad * 0.5), drawPnt.y-(pointRad * 0.5),
+								drawPnt.x - (pointRad * 0.5), drawPnt.y - (pointRad * 0.5),
 								pointRad, pointRad));
 
 							// outline the selected directivity circle
 							(sortDex == selectedDex).if{
 								Pen.strokeColor_(Color.yellow);
 								Pen.strokeOval(Rect(
-									drawPnt.x-omniRad, drawPnt.y-omniRad,
+									drawPnt.x - omniRad, drawPnt.y - omniRad,
 									omniDiam, omniDiam));
 							};
 
@@ -468,12 +468,12 @@ FoaXformDisplay {
 						},
 						'radius', {
 							Pen.fillColor_(gainColor);
-							Pen.fillOval(Rect(drawPnt.x-pointRad, drawPnt.y-pointRad, d, d));
+							Pen.fillOval(Rect(drawPnt.x - pointRad, drawPnt.y - pointRad, d, d));
 
 							// outline the selected directivity circle
 							(sortDex == selectedDex).if{
 								Pen.strokeColor_(Color.yellow);
-								Pen.strokeOval(Rect(drawPnt.x-pointRad, drawPnt.y-pointRad, d, d));
+								Pen.strokeOval(Rect(drawPnt.x - pointRad, drawPnt.y - pointRad, d, d));
 							};
 
 							// scale in/out toward/away from origin
@@ -485,7 +485,7 @@ FoaXformDisplay {
 					Pen.fillColor_(gainColor.alpha_(1));
 					QPen.stringCenteredIn(
 						gain.round(0.1).asString,
-						Rect(gainPnt.x-(pointRad * 10), gainPnt.y-(pointRad * 10), d * 10, d * 10)
+						Rect(gainPnt.x - (pointRad * 10), gainPnt.y - (pointRad * 10), d * 10, d * 10)
 					);
 				}
 			};
@@ -522,8 +522,8 @@ FoaXformDisplay {
 			gainHeight = 60;
 
 			gainRect = Rect(
-				view.bounds.width - gainWidth-inspInset,
-				view.bounds.height - gainHeight-inspInset,
+				view.bounds.width - gainWidth - inspInset,
+				view.bounds.height - gainHeight - inspInset,
 				gainWidth, gainHeight);
 			minRect = Rect(
 				gainRect.bounds.left, gainRect.bounds.top,
@@ -559,7 +559,7 @@ FoaXformDisplay {
 				inspWidth = 85;
 				inspHeight = 130;
 				inspRect = Rect(
-					inspInset, view.bounds.height-inspHeight-inspInset,
+					inspInset, view.bounds.height - inspHeight - inspInset,
 					inspWidth, inspHeight);
 
 				Pen.fillColor_(Color.gray.alpha_(0.4));

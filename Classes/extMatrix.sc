@@ -108,7 +108,7 @@
 
 		mtx = Matrix.newClear(height, width);
 
-		(colStart..colStart + height-1).do{ |row, i|
+		(colStart..colStart + height - 1).do{ |row, i|
 			mtx.putRow(i,
 				this.getRow(row).drop(rowStart).keep(width)
 			);

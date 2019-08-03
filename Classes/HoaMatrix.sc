@@ -314,7 +314,7 @@ HoaMatrix : AtkMatrix {
 				vals.asArray.do{ |elem, i|
 					wr.write(elem.asCompileString); // allow for large row strings
 					wr.write(
-						(i == (vals.size-1)).if({ "\n]\n" }, { ",\n" })
+						(i == (vals.size - 1)).if({ "\n]\n" }, { ",\n" })
 					);
 				};
 			});

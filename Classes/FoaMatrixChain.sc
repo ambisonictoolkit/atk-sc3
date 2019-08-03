@@ -80,7 +80,7 @@ FoaMatrixChain {
 			this.addTransform(								// head of a new chain
 				'input soundfield', index, 0,
 				// pass the last transform in previous chain
-				chains[index-1][chains[index-1].size - 1]
+				chains[index - 1][chains[index - 1].size - 1]
 			)
 		});
 
@@ -531,7 +531,7 @@ FoaMatrixChain {
 			],
 			{ |thisMtx, thatMtx, fade=0|
 				var thisAmp, thatAmp;
-				thisAmp = cos((1-fade) * 0.5pi);
+				thisAmp = cos((1 - fade) * 0.5pi);
 				thatAmp = cos(fade * 0.5pi);
 				(thisMtx * thisAmp) + (thatMtx * thatAmp);
 			},

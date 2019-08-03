@@ -528,7 +528,7 @@ FoaMatrix : AtkMatrix {
 FoaDecoderMatrix : FoaMatrix {
 	var <>shelfFreq, <shelfK;
 
-		*newDiametric { |directions = ([pi/4, 3*pi/4]), k = 'single'|
+		*newDiametric { |directions = ([pi/4, 3 * pi/4]), k = 'single'|
 		^super.new('diametric').initDiametric(directions, k);
 	}
 
@@ -915,7 +915,7 @@ FoaEncoderMatrix : FoaMatrix {
 		^super.new('peri').initPeri(numChanPairs, elevation, orientation);
 	}
 
-	*newZoomH2 { |angles = ([pi/3, 3/4*pi]), pattern = 0.5857, k = 1|
+	*newZoomH2 { |angles = ([pi/3, 3/4 * pi]), pattern = 0.5857, k = 1|
 		^super.new('zoomH2').initZoomH2(angles, pattern, k);
 	}
 
@@ -1494,7 +1494,7 @@ FoaXformerMatrix : FoaMatrix {
 
 		matrix = Matrix.with([
 			[ 1,			g0/2.sqrt,	0,	0 	],
-			[ 2.sqrt*g0, 	1,			0,	0	],
+			[ 2.sqrt * g0, 	1,			0,	0	],
 			[ 0, 		0,			g1, 	0 	],
 			[ 0, 		0,			0, 	g1 	]
 		])
@@ -1510,7 +1510,7 @@ FoaXformerMatrix : FoaMatrix {
 		matrix = Matrix.with([
 			[ 1,			0,	g0/2.sqrt,	0 	],
 			[ 0, 		g1,	0, 			0 	],
-			[ 2.sqrt*g0, 	0,	1,			0	],
+			[ 2.sqrt * g0, 	0,	1,			0	],
 			[ 0, 		0,	0, 			g1 	]
 		])
 	}
@@ -1526,7 +1526,7 @@ FoaXformerMatrix : FoaMatrix {
 			[ 1,			0,	0,	g0/2.sqrt	],
 			[ 0, 		g1,	0, 	0 		],
 			[ 0, 		0, 	g1,	0 		],
-			[ 2.sqrt*g0, 	0,	0,	1		]
+			[ 2.sqrt * g0, 	0,	0,	1		]
 		])
 	}
 
@@ -1682,9 +1682,9 @@ FoaXformerMatrix : FoaMatrix {
 		g4 = angle.cos;
 
 		matrix = Matrix.with([
-			[ 1,			    0, 2.sqrt.reciprocal*g0, 0 ],
-			[ 2.sqrt*g1,	   g2, g0,				 0 ],
-			[ 2.sqrt.neg*g3, g3, g4, 				 0 ],
+			[ 1,			    0, 2.sqrt.reciprocal * g0, 0 ],
+			[ 2.sqrt * g1,	   g2, g0,				 0 ],
+			[ 2.sqrt.neg * g3, g3, g4, 				 0 ],
 			[ 0,			   0,  0, 				g4 ]
 		])
 	}

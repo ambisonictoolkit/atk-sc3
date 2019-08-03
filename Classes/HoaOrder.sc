@@ -191,12 +191,12 @@ HoaOrder {
 
 	// effective decoding radius
 	radiusAtFreq { |freq, speedOfSound = (AtkHoa.speedOfSound)|
-		^(this.order*speedOfSound) / (2*pi*freq)
+		^(this.order * speedOfSound) / (2 * pi * freq)
 	}
 
 	// effective decoding frequency
 	freqAtRadius { |radius, speedOfSound = (AtkHoa.speedOfSound)|
-		^(this.order*speedOfSound) / (2*pi*radius)
+		^(this.order * speedOfSound) / (2 * pi * radius)
 	}
 
 	/*
@@ -230,13 +230,13 @@ HoaOrder {
 
 		^(beamShape == 'energy').if({
 			(dim == 2).if({
-				chebyshevTZeros(m+1).maxItem  // 2D
+				chebyshevTZeros(m + 1).maxItem  // 2D
 			}, {
-				legendrePZeros(m+1).maxItem  // 3D
+				legendrePZeros(m + 1).maxItem  // 3D
 			})
 		}, {  // 'basic' & 'controlled'
 			(dim == 2).if({
-				(2*m) / (2*m + 1)  // 2D
+				(2 * m) / (2 * m + 1)  // 2D
 			}, {
 				m / (m + 1)  // 3D
 			})
@@ -259,7 +259,7 @@ HoaOrder {
 		beamWeights = this.beamWeights(beamShape, dim);
 
 		^(dim == 2).if({
-			beamWeights.removeAt(0).squared + (2*beamWeights.squared.sum) // 2D
+			beamWeights.removeAt(0).squared + (2 * beamWeights.squared.sum) // 2D
 		}, {
 			(Array.series(m + 1, 1, 2) * beamWeights.squared).sum // 3D
 		}).asFloat
@@ -274,7 +274,7 @@ HoaOrder {
 			'amp', { 1.0 },
 			'rms', {
 				(dim == 2).if({
-					n = 2*m + 1  // 2D
+					n = 2 * m + 1  // 2D
 				}, {
 					n = (m + 1).squared  // 3D
 				});
@@ -297,22 +297,22 @@ HoaOrder {
 			'energy', {
 				max_rE = this.rE(beamShape, dim);
 				(dim == 2).if({ // 2D
-					(m+1).collect({ |degree|
+					(m + 1).collect({ |degree|
 						chebyshevT(degree, max_rE)
 					})
 				}, { // 3D
-					(m+1).collect({ |degree|
+					(m + 1).collect({ |degree|
 						legendreP(degree, max_rE)
 					})
 				})
 			},
 			'controlled', {
 				(dim == 2).if({ // 2D
-					(m+1).collect({ |degree|
+					(m + 1).collect({ |degree|
 						1 / ((m + degree).asFloat.factorial * (m - degree).asFloat.factorial)
 					}) * m.asFloat.factorial.squared;
 				}, { // 3D
-					(m+1).collect({ |degree|
+					(m + 1).collect({ |degree|
 						1 / ((m + degree + 1).asFloat.factorial * (m - degree).asFloat.factorial)
 					}) * m.asFloat.factorial * (m + 1).asFloat.factorial;
 				})

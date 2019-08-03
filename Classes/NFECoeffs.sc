@@ -70,12 +70,12 @@ NFECoeffs {
 
 		// average of real
 		reX = ((m/2).asInteger).collect({ |q|
-			(bpr.at(2*q).real + bpr.at(2*q+1).real) / 2
+			(bpr.at(2 * q).real + bpr.at(2 * q + 1).real) / 2
 		});
 
 		// average of magnitude
 		absX = ((m/2).asInteger).collect({ |q|
-			(bpr.at(2*q).abs + bpr.at(2*q+1).abs) / 2
+			(bpr.at(2 * q).abs + bpr.at(2 * q + 1).abs) / 2
 		});
 
 		// odd degree?
@@ -97,7 +97,7 @@ NFECoeffs {
 
 		mOdd = this.degree.odd;
 
-		alpha = 2*sampleRate*r0/speedOfSound;
+		alpha = 2 * sampleRate * r0/speedOfSound;
 
 		coeffs = numSOS.collect({ |q|
 			var c1, c2;
@@ -107,9 +107,9 @@ NFECoeffs {
 
 			[
 				// numerator
-				1 - (2*c1) + c2,
-				-2*(1 - c2),
-				1 + (2*c1) + c2,
+				1 - (2 * c1) + c2,
+				-2 * (1 - c2),
+				1 + (2 * c1) + c2,
 				// denominator
 				1, -2, 1
 			]
@@ -124,7 +124,7 @@ NFECoeffs {
 				[
 					// numerator
 					1 - c1,
-					-1*(1 + c1),
+					-1 * (1 + c1),
 					0,
 					// denominator
 					1, -1, 0
@@ -170,7 +170,7 @@ NFECoeffs {
 
 		mOdd = this.degree.odd;
 
-		alpha = 2*sampleRate*r1/speedOfSound;
+		alpha = 2 * sampleRate * r1/speedOfSound;
 
 		coeffs = numSOS.collect({ |q|
 			var c1, c2;
@@ -182,9 +182,9 @@ NFECoeffs {
 				// numerator
 				1, -2, 1,
 				// denominator
-				1 - (2*c1) + c2,
-				-2*(1 - c2),
-				1 + (2*c1) + c2
+				1 - (2 * c1) + c2,
+				-2 * (1 - c2),
+				1 + (2 * c1) + c2
 			]
 		});
 
@@ -199,7 +199,7 @@ NFECoeffs {
 					1, -1, 0,
 					// denominator
 					1 - c1,
-					-1*(1 + c1),
+					-1 * (1 + c1),
 					0
 				]
 			]
@@ -244,8 +244,8 @@ NFECoeffs {
 
 		mOdd = this.degree.odd;
 
-		alpha0 = 2*sampleRate*r0/speedOfSound;  // proximity
-		alpha1 = 2*sampleRate*r1/speedOfSound;  // distance
+		alpha0 = 2 * sampleRate * r0/speedOfSound;  // proximity
+		alpha1 = 2 * sampleRate * r1/speedOfSound;  // distance
 
 		coeffs = numSOS.collect({ |q|
 			var c10, c20, c11, c21;
@@ -260,13 +260,13 @@ NFECoeffs {
 
 			[
 				// numerator
-				1 - (2*c10) + c20,
-				-2*(1 - c20),
-				1 + (2*c10) + c20,
+				1 - (2 * c10) + c20,
+				-2 * (1 - c20),
+				1 + (2 * c10) + c20,
 				// denominator
-				1 - (2*c11) + c21,
-				-2*(1 - c21),
-				1 + (2*c11) + c21
+				1 - (2 * c11) + c21,
+				-2 * (1 - c21),
+				1 + (2 * c11) + c21
 			]
 		});
 
@@ -280,11 +280,11 @@ NFECoeffs {
 				[
 					// numerator
 					1 - c10,
-					-1*(1 + c10),
+					-1 * (1 + c10),
 					0,
 					// denominator
 					1 - c11,
-					-1*(1 + c11),
+					-1 * (1 + c11),
 					0
 				]
 			]

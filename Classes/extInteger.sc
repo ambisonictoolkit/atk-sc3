@@ -59,8 +59,8 @@
 		}, {
 			res = 0;
 			{ sum < this }.while({
-				sum = Array.series(res+1, 1, 2).sum;
-				res = res+1;
+				sum = Array.series(res + 1, 1, 2).sum;
+				res = res + 1;
 			});
 			(sum == this).if({
 				res

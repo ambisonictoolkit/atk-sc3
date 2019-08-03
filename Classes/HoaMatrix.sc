@@ -70,7 +70,7 @@ HoaMatrix : AtkMatrix {
 				0, { Array.with(argDirections, 0.0).reshape(1, 2) },
 				1, { argDirections.collect({ |dir| Array.with(dir, 0.0) }) },
 				2, { argDirections },
-			).collect({ |thetaPhi|  // wrap to [+/-pi, +/-pi/2]
+			).collect({ |thetaPhi|  // wrap to [ + /-pi, +/-pi/2]
 				Spherical.new(1, thetaPhi.at(0), thetaPhi.at(1)).asCartesian.asSpherical.angles
 			})
 		})
@@ -520,7 +520,7 @@ HoaMatrixEncoder : HoaMatrix {
 		hoaOrder = this.order.asHoaOrder;  // instance order
 		beamWeights = hoaOrder.beamWeights(beamShape);
 
-		degreeSeries = Array.series(this.order+1, 1, 2);
+		degreeSeries = Array.series(this.order + 1, 1, 2);
 		norm = (degreeSeries * beamWeights).sum / degreeSeries.sum;
 		// rescale for matching a/b normalization?
 		(match == \beam).if({
@@ -748,7 +748,7 @@ HoaMatrixXformer : HoaMatrix {
 		).matrix;
 
 		// null
-		matrix = Matrix.newIdentity((this.order+1).squared) - xformingMatrix
+		matrix = Matrix.newIdentity((this.order + 1).squared) - xformingMatrix
 	}
 
 	// *newFromFile { |filePathOrName|
@@ -779,7 +779,7 @@ HoaMatrixXformer : HoaMatrix {
 			Spherical.new(1, thetaPhi.at(0), thetaPhi.at(1)).asCartesian.asArray
 		});
 		// ... and back to [theta, phi]...
-		encDirs = xyzEncDirs.collect({ |xyz|  // wrap to [+/-pi, +/-pi/2]
+		encDirs = xyzEncDirs.collect({ |xyz|  // wrap to [ + /-pi, +/-pi/2]
 			Cartesian.new(xyz.at(0), xyz.at(1), xyz.at(2)).asSpherical.angles
 		});
 
@@ -1050,7 +1050,7 @@ HoaMatrixDecoder : HoaMatrix {
 
 		hoaOrder = this.order.asHoaOrder;  // instance order
 
-		degreeSeries = Array.series(this.order+1, 1, 2);
+		degreeSeries = Array.series(this.order + 1, 1, 2);
 		norm = 1 / degreeSeries.sum;
 
 		// build decoder matrix, and set for instance
@@ -1072,7 +1072,7 @@ HoaMatrixDecoder : HoaMatrix {
 		hoaOrder = this.order.asHoaOrder;  // instance order
 		beamWeights = hoaOrder.beamWeights(beamShape);
 
-		degreeSeries = Array.series(this.order+1, 1, 2);
+		degreeSeries = Array.series(this.order + 1, 1, 2);
 		norm = 1 / (degreeSeries * beamWeights).sum;
 		// rescale for matching a/b normalization?
 		(match == \amp).if({

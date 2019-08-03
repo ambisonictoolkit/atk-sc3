@@ -246,12 +246,12 @@ HoaEncodeDirection : HoaUGen {
 			// NFE
 			(radius == inf).if({
 				// planewave
-				(n+1).collect({ |l|
+				(n + 1).collect({ |l|
 					DegreeDist.ar(in, AtkHoa.refRadius, l)
 				})[hoaOrder.l]
 			}, {
 				// spherical wave
-				(n+1).collect({ |l|
+				(n + 1).collect({ |l|
 					DegreeCtrl.ar(in, radius, AtkHoa.refRadius, l)
 				})[hoaOrder.l]
 			})
@@ -295,8 +295,8 @@ HoaRotate : HoaUGen {
 		out[0] = in[0]; // l == 0
 
 		if (n > 0) {
-			s = Array.newClear(n);  // [sin(1*ang), sin(2*ang), ... sin(n*ang)]
-			c = Array.newClear(n);  // [cos(1*ang), cos(2*ang), ... cos(n*ang)]
+			s = Array.newClear(n);  // [sin(1 * ang), sin(2 * ang), ... sin(n * ang)]
+			c = Array.newClear(n);  // [cos(1 * ang), cos(2 * ang), ... cos(n * ang)]
 
 			// precompute first 2 sin/cos for recurrence
 			ang = radians;
@@ -313,8 +313,8 @@ HoaRotate : HoaUGen {
 			if (n > 2) {
 				c2 = 2 * c[0];
 				(1..n-2).do{ |idx|
-					s[idx+1] = (c2 * s[idx]) - s[idx-1];
-					c[idx+1] = (c2 * c[idx]) - c[idx-1];
+					s[idx + 1] = (c2 * s[idx]) - s[idx-1];
+					c[idx + 1] = (c2 * c[idx]) - c[idx-1];
 				};
 			};
 
@@ -470,7 +470,7 @@ HoaNFProx : HoaUGen {
 		var n = HoaUGen.confirmOrder(in, order);
 
 		// NFE: collect filtered harmonics, clumped by degree
-		^(n+1).collect({ |l|
+		^(n + 1).collect({ |l|
 			DegreeProx.ar(
 				in[l.asHoaDegree.indices],
 				AtkHoa.refRadius,
@@ -487,7 +487,7 @@ HoaNFDist : HoaUGen {
 		var n = HoaUGen.confirmOrder(in, order);
 
 		// NFE: collect filtered harmonics, clumped by degree
-		^(n+1).collect({ |l|
+		^(n + 1).collect({ |l|
 			DegreeDist.ar(
 				in[l.asHoaDegree.indices],
 				AtkHoa.refRadius,
@@ -516,7 +516,7 @@ HoaNFCtrl : HoaUGen {
 		n = HoaUGen.confirmOrder(in, order);
 
 		// NFE: collect filtered harmonics, clumped by degree
-		^(n+1).collect({ |l|
+		^(n + 1).collect({ |l|
 			DegreeCtrl.ar(
 				in[l.asHoaDegree.indices],
 				encRadius,
@@ -542,7 +542,7 @@ HoaBeam : HoaUGen {
 		n = HoaUGen.confirmOrder(in, order);
 
 		hoaOrder = n.asHoaOrder;  // instance order
-		degreeSeries = Array.series(n+1, 1, 2);
+		degreeSeries = Array.series(n + 1, 1, 2);
 
 		// 1) generate and normalize beam weights
 		beamWeights = hoaOrder.beamWeights(beamShape);
@@ -583,7 +583,7 @@ HoaBeam : HoaUGen {
 			// NFE
 			(radius == inf).if({
 				// planewave - unstable!
-				(n+1).collect({ |l|
+				(n + 1).collect({ |l|
 					DegreeProx.ar(
 						weighted[l.asHoaDegree.indices].sum,
 						AtkHoa.refRadius,
@@ -592,7 +592,7 @@ HoaBeam : HoaUGen {
 				}).sum
 			}, {
 				// spherical wave
-				(n+1).collect({ |l|
+				(n + 1).collect({ |l|
 					DegreeCtrl.ar(
 						weighted[l.asHoaDegree.indices].sum,
 						AtkHoa.refRadius,
@@ -611,12 +611,12 @@ HoaBeam : HoaUGen {
 			// NFE
 			(radius == inf).if({
 				// planewave
-				(n+1).collect({ |l|
+				(n + 1).collect({ |l|
 					DegreeDist.ar(mono, AtkHoa.refRadius, l)
 				})[hoaOrder.l]
 			}, {
 				// spherical wave
-				(n+1).collect({ |l|
+				(n + 1).collect({ |l|
 					DegreeCtrl.ar(mono, radius, AtkHoa.refRadius, l)
 				})[hoaOrder.l]
 			})
@@ -672,7 +672,7 @@ HoaDecodeDirection : HoaUGen {
 		n = HoaUGen.confirmOrder(in, order);
 
 		hoaOrder = n.asHoaOrder;  // instance order
-		degreeSeries = Array.series(n+1, 1, 2);
+		degreeSeries = Array.series(n + 1, 1, 2);
 
 		// 1) generate and normalize beam weights
 		beamWeights = hoaOrder.beamWeights(beamShape);
@@ -713,7 +713,7 @@ HoaDecodeDirection : HoaUGen {
 			// NFE
 			(radius == inf).if({
 				// planewave - unstable!
-				(n+1).collect({ |l|
+				(n + 1).collect({ |l|
 					DegreeProx.ar(
 						weighted[l.asHoaDegree.indices].sum,
 						AtkHoa.refRadius,
@@ -722,7 +722,7 @@ HoaDecodeDirection : HoaUGen {
 				}).sum
 			}, {
 				// spherical wave
-				(n+1).collect({ |l|
+				(n + 1).collect({ |l|
 					DegreeCtrl.ar(
 						weighted[l.asHoaDegree.indices].sum,
 						AtkHoa.refRadius,

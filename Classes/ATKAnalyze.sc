@@ -116,7 +116,7 @@ FoaWp : FoaEval {
 		}
 		{ method == 'average' } {
 			var normFac;
-			normFac = 2*size.reciprocal;
+			normFac = 2 * size.reciprocal;
 
 			^(normFac * RunningSum.ar(p.squared, size))
 		}
@@ -140,7 +140,7 @@ FoaWu : FoaEval {
 		}
 		{ method == 'average' } {
 			var normFac;
-			normFac = 2*size.reciprocal;
+			normFac = 2 * size.reciprocal;
 
 			^(normFac * RunningSum.ar(u.squared, size).sum)
 		}
@@ -169,7 +169,7 @@ FoaWs : FoaEval {
 		{ method == 'average' } {
 			var wp, wu;
 			var normFac;
-			normFac = 2*size.reciprocal;
+			normFac = 2 * size.reciprocal;
 
 			wp = normFac * RunningSum.ar(p.squared, size);
 			wu = normFac * RunningSum.ar(u.squared, size).sum;
@@ -201,7 +201,7 @@ FoaWd : FoaEval {
 		{ method == 'average' } {
 			var wp, wu;
 			var normFac;
-			normFac = 2*size.reciprocal;
+			normFac = 2 * size.reciprocal;
 
 			wp = normFac * RunningSum.ar(p.squared, size);
 			wu = normFac * RunningSum.ar(u.squared, size).sum;
@@ -244,7 +244,7 @@ FoaWh : FoaEval {
 		{ method == 'average' } {
 			var wp, wu, ws, ia, magI_squared, magIa_squared, magIr;
 			var normFac;
-			normFac = 2*size.reciprocal;
+			normFac = 2 * size.reciprocal;
 
 			wp = normFac * RunningSum.ar(p.squared, size);
 			wu = normFac * RunningSum.ar(u.squared, size).sum;
@@ -286,7 +286,7 @@ FoaMagI : FoaEval {
 		{ method == 'average' } {
 			var wp, wu;
 			var normFac;
-			normFac = 2*size.reciprocal;
+			normFac = 2 * size.reciprocal;
 
 			wp = normFac * RunningSum.ar(p.squared, size);
 			wu = normFac * RunningSum.ar(u.squared, size).sum;
@@ -320,7 +320,7 @@ FoaMagIa : FoaEval {
 		{ method == 'average' } {
 			var ia;
 			var normFac;
-			normFac = 2*size.reciprocal;
+			normFac = 2 * size.reciprocal;
 
 			ia = normFac * RunningSum.ar(p * u, size);
 
@@ -353,7 +353,7 @@ FoaMagIr : FoaEval {
 		{ method == 'average' } {
 			var wp, wu, ia, magI_squared, magIa_squared;
 			var normFac;
-			normFac = 2*size.reciprocal;
+			normFac = 2 * size.reciprocal;
 
 			wp = normFac * RunningSum.ar(p.squared, size);
 			wu = normFac * RunningSum.ar(u.squared, size).sum;
@@ -392,7 +392,7 @@ FoaMagA : FoaEval {
 		{ method == 'average' } {
 			var wp, wu, magI;
 			var normFac;
-			normFac = 2*size.reciprocal;
+			normFac = 2 * size.reciprocal;
 
 			wp = normFac * RunningSum.ar(p.squared, size);
 			wu = normFac * RunningSum.ar(u.squared, size).sum;
@@ -430,7 +430,7 @@ FoaMagAa : FoaEval {
 		{ method == 'average' } {
 			var wp, ia, magIa;
 			var normFac;
-			normFac = 2*size.reciprocal;
+			normFac = 2 * size.reciprocal;
 
 			wp = normFac * RunningSum.ar(p.squared, size);
 			ia = normFac * RunningSum.ar(p * u, size);
@@ -470,7 +470,7 @@ FoaMagAr : FoaEval {
 		{ method == 'average' } {
 			var wp, wu, ia, magI_squared, magIa_squared, magIr;
 			var normFac;
-			normFac = 2*size.reciprocal;
+			normFac = 2 * size.reciprocal;
 
 			wp = normFac * RunningSum.ar(p.squared, size);
 			wu = normFac * RunningSum.ar(u.squared, size).sum;
@@ -511,7 +511,7 @@ FoaMagW : FoaEval {
 		{ method == 'average' } {
 			var wp, wu, ws, magI;
 			var normFac;
-			normFac = 2*size.reciprocal;
+			normFac = 2 * size.reciprocal;
 
 			wp = normFac * RunningSum.ar(p.squared, size);
 			wu = normFac * RunningSum.ar(u.squared, size).sum;
@@ -556,7 +556,7 @@ FoaMagWa : FoaEval {
 		{ method == 'average' } {
 			var wp, wu, ws, ia, magIa;
 			var normFac;
-			normFac = 2*size.reciprocal;
+			normFac = 2 * size.reciprocal;
 
 			wp = normFac * RunningSum.ar(p.squared, size);
 			wu = normFac * RunningSum.ar(u.squared, size).sum;
@@ -603,7 +603,7 @@ FoaMagWr : FoaEval {
 		{ method == 'average' } {
 			var wp, wu, ws, ia, magI_squared, magIa_squared, magIr;
 			var normFac;
-			normFac = 2*size.reciprocal;
+			normFac = 2 * size.reciprocal;
 
 			wp = normFac * RunningSum.ar(p.squared, size);
 			wu = normFac * RunningSum.ar(u.squared, size).sum;
@@ -651,7 +651,7 @@ FoaMagNa : FoaEval {
 		{ method == 'average' } {
 			var wp, wu, magI, ia, magIa;
 			var normFac;
-			normFac = 2*size.reciprocal;
+			normFac = 2 * size.reciprocal;
 
 			wp = normFac * RunningSum.ar(p.squared, size);
 			wu = normFac * RunningSum.ar(u.squared, size).sum;
@@ -698,7 +698,7 @@ FoaMagNr : FoaEval {
 		{ method == 'average' } {
 			var wp, wu, magI, ia, magI_squared, magIa_squared, magIr;
 			var normFac;
-			normFac = 2*size.reciprocal;
+			normFac = 2 * size.reciprocal;
 
 			wp = normFac * RunningSum.ar(p.squared, size);
 			wu = normFac * RunningSum.ar(u.squared, size).sum;
@@ -814,7 +814,7 @@ FoaAlpha : FoaEval {
 		{ method == 'average' } {
 			var wp, wu, ia, magI_squared, magIa_squared, magIa, magIr;
 			var normFac;
-			normFac = 2*size.reciprocal;
+			normFac = 2 * size.reciprocal;
 
 			wp = normFac * RunningSum.ar(p.squared, size);
 			wu = normFac * RunningSum.ar(u.squared, size).sum;
@@ -856,7 +856,7 @@ FoaBeta : FoaEval {
 		{ method == 'average' } {
 			var wp, wu, wd, magI;
 			var normFac;
-			normFac = 2*size.reciprocal;
+			normFac = 2 * size.reciprocal;
 
 			wp = normFac * RunningSum.ar(p.squared, size);
 			wu = normFac * RunningSum.ar(u.squared, size).sum;
@@ -974,7 +974,7 @@ FoaThetaPhiA : FoaEval {
 			var wp, wu, ia, magI_squared, magIa_squared, magIa, magIr, theta, phi;
 			var reg, alpha, gateA;  // gate using -thresh
 			var normFac;
-			normFac = 2*size.reciprocal;
+			normFac = 2 * size.reciprocal;
 
 			wp = normFac * RunningSum.ar(p.squared, size);
 			wu = normFac * RunningSum.ar(u.squared, size).sum;
@@ -1077,7 +1077,7 @@ FoaIa : FoaEval {
 		{ method == 'average' } {
 			var ia;
 			var normFac;
-			normFac = 2*size.reciprocal;
+			normFac = 2 * size.reciprocal;
 
 			ia = normFac * RunningSum.ar(p * u, size);
 
@@ -1140,7 +1140,7 @@ FoaAa : FoaEval {
 		{ method == 'average' } {
 			var wp, ia, aa;
 			var normFac;
-			normFac = 2*size.reciprocal;
+			normFac = 2 * size.reciprocal;
 
 			wp = normFac * RunningSum.ar(p.squared, size);
 			ia = normFac * RunningSum.ar(p * u, size);
@@ -1216,7 +1216,7 @@ FoaWa : FoaEval {
 		{ method == 'average' } {
 			var wp, wu, ws, ia, wa;
 			var normFac;
-			normFac = 2*size.reciprocal;
+			normFac = 2 * size.reciprocal;
 
 			wp = normFac * RunningSum.ar(p.squared, size);
 			wu = normFac * RunningSum.ar(u.squared, size).sum;
@@ -1299,7 +1299,7 @@ FoaNa : FoaEval {
 		{ method == 'average' } {
 			var wp, wu, magI, ia, na;
 			var normFac;
-			normFac = 2*size.reciprocal;
+			normFac = 2 * size.reciprocal;
 
 			wp = normFac * RunningSum.ar(p.squared, size);
 			wu = normFac * RunningSum.ar(u.squared, size).sum;

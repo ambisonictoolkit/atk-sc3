@@ -48,7 +48,7 @@
 
 + TDesign {
 
-	*newHoa { |numChans = (2*AtkHoa.defaultOrder.asHoaOrder.size), optimize = \energy, order = (AtkHoa.defaultOrder)|
+	*newHoa { |numChans = (2 * AtkHoa.defaultOrder.asHoaOrder.size), optimize = \energy, order = (AtkHoa.defaultOrder)|
 		var hoaDesign;
 
 		// matched design
@@ -59,7 +59,7 @@
 		// catch no designs
 		hoaDesign ?? {
 			"[TDesign:-init] No t-designs found in TDesignLib.lib matching "
-			"nPnts %, t >= %, dim %".format(numChans, 2*order, 3).throw
+			"nPnts %, t >= %, dim %".format(numChans, 2 * order, 3).throw
 		};
 
 		^super.new.init(hoaDesign[\numPoints], hoaDesign[\t], 3);

@@ -144,7 +144,7 @@ HoaRotationMatrix {
 		r2 = this.buildR1(cstr[1].asSymbol, beta);
 		r3 = this.buildR1(cstr[2].asSymbol, gamma);
 
-		^r3*(r2*r1); // return matrix multiply
+		^r3 * (r2 * r1); // return matrix multiply
 	}
 
 
@@ -191,8 +191,8 @@ HoaRotationMatrix {
 		var band_idx;  // offset of sub matrix into the full rotation matrix
 		var setSize, denom, u, v, w, d;
 
-		setSize = (maxDegree+1).squared;
-		// intialize total rotation matrix of size ((L+1)^2) x ((L+1)^2)
+		setSize = (maxDegree + 1).squared;
+		// intialize total rotation matrix of size ((L + 1)^2) x ((L + 1)^2)
 		r = Matrix.newClear(setSize, setSize);
 		// zeroth-band (l=0) is invariant to rotation
 		r.put(0,0,1);
@@ -218,7 +218,7 @@ HoaRotationMatrix {
 		// insert this matrix into the output matrix in 1st band
 		r_1.rows.do{ |rowi|
 			r_1.cols.do{ |coli|
-				r.put(rowi+1, coli+1, r_1.at(rowi, coli))
+				r.put(rowi + 1, coli + 1, r_1.at(rowi, coli))
 			}
 		};
 
@@ -231,7 +231,7 @@ HoaRotationMatrix {
 		// for band 2 to "l"
 		(2..maxDegree).do{ |l|
 
-			setSize = 2*l+1;
+			setSize = 2 * l + 1;
 
 			r_l = Matrix.newClear(setSize, setSize);
 
@@ -241,13 +241,13 @@ HoaRotationMatrix {
 					// compute u,v,w terms of Eq.8.1 (Table I)
 					d = (m==0).asInt; // the delta function d_m0
 					denom = (n.abs == l).if({
-						(2*l) * (2*l-1)
+						(2 * l) * (2 * l-1)
 					}, {
 						l.squared - n.squared
 					});
 
 					u = sqrt((l.squared-m.squared) / denom);
-					v = sqrt((1+d) * (l+abs(m)-1) * (l+abs(m)) / denom) * (1-(2*d)) * 0.5;
+					v = sqrt((1 + d) * (l + abs(m)-1) * (l + abs(m)) / denom) * (1-(2 * d)) * 0.5;
 					w = sqrt((l-abs(m)-1) * (l-abs(m)) / denom) * (1-d) * -0.5;
 
 					//  computes Eq.8.1
@@ -255,7 +255,7 @@ HoaRotationMatrix {
 					(v != 0).if{ v = v * this.prV(l,m,n,r_1,r_lm1) };
 					(w != 0).if{ w = w * this.prW(l,m,n,r_1,r_lm1) };
 
-					r_l.put(m+l,n+l, u + v + w);
+					r_l.put(m + l,n + l, u + v + w);
 				}
 			};
 
@@ -263,7 +263,7 @@ HoaRotationMatrix {
 			// place in the output rotation matrix
 			r_l.rows.do{ |rowi|
 				r_l.cols.do{ |coli|
-					r.put(rowi+band_idx, coli+band_idx, r_l.at(rowi, coli))
+					r.put(rowi + band_idx, coli + band_idx, r_l.at(rowi, coli))
 				}
 			};
 
@@ -291,18 +291,18 @@ HoaRotationMatrix {
 		^(m == 0).if({
 			p0 = this.prP(1, l, 1, n, r_1, r_lm1);
 			p1 = this.prP(-1, l, -1, n, r_1, r_lm1);
-			p0+p1; // return
+			p0 + p1; // return
 		}, {
 			(m > 0).if({
 				d = (m == 1).asInt;
 				p0 = this.prP(1, l, m-1, n, r_1, r_lm1);
-				p1 = this.prP(-1, l, m.neg+1, n, r_1, r_lm1);
-				(p0*sqrt(1+d)) - (p1*(1-d)); // return
+				p1 = this.prP(-1, l, m.neg + 1, n, r_1, r_lm1);
+				(p0 * sqrt(1 + d)) - (p1 * (1-d)); // return
 			}, {
 				d = (m == -1).asInt;
-				p0 = this.prP(1, l, m+1, n, r_1, r_lm1);
+				p0 = this.prP(1, l, m + 1, n, r_1, r_lm1);
 				p1 = this.prP(-1, l, m.neg-1, n, r_1, r_lm1);
-				(p0*(1-d)) + (p1*sqrt(1+d)); // return
+				(p0 * (1-d)) + (p1 * sqrt(1 + d)); // return
 			})
 		})
 	}
@@ -314,12 +314,12 @@ HoaRotationMatrix {
 		(m == 0).if{ "HoaRotationMatrix:prW should not be called with m = 0".throw };
 
 		^(m > 0).if({
-			p0 = this.prP(1, l, m+1, n, r_1, r_lm1);
+			p0 = this.prP(1, l, m + 1, n, r_1, r_lm1);
 			p1 = this.prP(-1, l, m.neg-1, n, r_1, r_lm1);
 			p0 + p1; // return
 		}, {
 			p0 = this.prP(1, l, m-1, n, r_1, r_lm1);
-			p1 = this.prP(-1, l, m.neg+1,n, r_1, r_lm1);
+			p1 = this.prP(-1, l, m.neg + 1,n, r_1, r_lm1);
 			p0 - p1; // return
 		})
 	}
@@ -328,17 +328,17 @@ HoaRotationMatrix {
 	prP { |i, l, a, b, r_1, r_lm1|
 		var ri1, rim1, ri0;
 
-		ri1 = r_1.at(i+1, 2);
-		rim1 = r_1.at(i+1, 0);
-		ri0 = r_1.at(i+1, 1);
+		ri1 = r_1.at(i + 1, 2);
+		rim1 = r_1.at(i + 1, 0);
+		ri0 = r_1.at(i + 1, 1);
 
 		^(b == l.neg).if({
-			(ri1 * r_lm1.at(a+l-1, 0)) + (rim1 * r_lm1.at(a+l-1, 2*l-2));
+			(ri1 * r_lm1.at(a + l-1, 0)) + (rim1 * r_lm1.at(a + l-1, 2 * l-2));
 		}, {
 			(b == l).if({
-				(ri1 * r_lm1.at(a+l-1, 2*l-2)) - (rim1 * r_lm1.at(a+l-1, 0));
+				(ri1 * r_lm1.at(a + l-1, 2 * l-2)) - (rim1 * r_lm1.at(a + l-1, 0));
 			}, {
-				ri0 * r_lm1.at(a+l-1, b+l-1);
+				ri0 * r_lm1.at(a + l-1, b + l-1);
 			})
 		})
 	}
@@ -351,7 +351,7 @@ HoaRotationMatrix {
 		var diagT, adiagT;
 		var diagTMtx, adiagTMtx, tempT, wMtx, conjW;
 
-		setSize = (order+1).squared;
+		setSize = (order + 1).squared;
 
 		// complex -> real SH matrix
 		wMtx = Matrix.with(
@@ -367,7 +367,7 @@ HoaRotationMatrix {
 		(order > 0).if{
 			idx = 1;
 			(1..order).do{ |l|
-				degreeSize = 2*l+1;
+				degreeSize = 2 * l + 1;
 
 				m = (1..l);
 
@@ -389,7 +389,7 @@ HoaRotationMatrix {
 
 				// form the antidiagonal
 				adiagT = (
-					Complex(0,-1)*(-1).pow(m.reverse) ++
+					Complex(0,-1) * (-1).pow(m.reverse) ++
 					[Complex(2.sqrt/2, 0)] ++
 					1.dup(l).collect(Complex(_, 0))
 				) / 2.sqrt;
@@ -407,11 +407,11 @@ HoaRotationMatrix {
 
 				tempT.rows.do{ |rowi|
 					tempT.cols.do{ |coli|
-						wMtx.put(rowi+idx, coli+idx, tempT.at(rowi, coli))
+						wMtx.put(rowi + idx, coli + idx, tempT.at(rowi, coli))
 					}
 				};
 
-				idx = idx + (2*l+1);
+				idx = idx + (2 * l + 1);
 			}
 		};
 

@@ -87,9 +87,9 @@ AtkTests {
 			},
 			\cube, { // directions of cube corners
 				4.collect({ |i|
-					[45.degrad + (i*90.degrad), atan(2.sqrt.reciprocal)]
+					[45.degrad + (i * 90.degrad), atan(2.sqrt.reciprocal)]
 				}) ++ 4.collect({ |i|
-					[45.degrad + (i*90.degrad), atan(2.sqrt.reciprocal).neg]
+					[45.degrad + (i * 90.degrad), atan(2.sqrt.reciprocal).neg]
 				})
 			},
 			\random, { // random directions

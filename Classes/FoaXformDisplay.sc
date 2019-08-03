@@ -306,7 +306,7 @@ FoaXformDisplay {
 		xfWin = Window("Transform Chain",
 			Rect(
 				sfWin.bounds.left,
-				scrnB.height - sfWin.bounds.height - chainViewHeight - (2*20) - 25, // (title bar: 20, OS menu bar: 25)
+				scrnB.height - sfWin.bounds.height - chainViewHeight - (2 * 20) - 25, // (title bar: 20, OS menu bar: 25)
 				chainViewWidth, chainViewHeight),
 			resizable: true
 		).front;
@@ -361,7 +361,7 @@ FoaXformDisplay {
 			case
 			{ i < 256 } { Color.new255(255, i, 0) }
 			{ i < 384 } { Color.new255(255 - (i-256), 255, 0) }
-			{ i < 512 } { Color.new255(0, 255, (i-384)*2) }
+			{ i < 512 } { Color.new255(0, 255, (i-384) * 2) }
 			{ i < 768 } { Color.new255(0, 255 - (i-512), 255) }
 			{ i >= 768 } { Color.new255(0, 0, 255) }; // catch all
 		};
@@ -380,7 +380,7 @@ FoaXformDisplay {
 			minDim = min(uv.bounds.width, uv.bounds.height);
 
 			pointRad = minDim/2 * 0.02;
-			d = pointRad*2;
+			d = pointRad * 2;
 			circleViewRatio = 0.8;
 			arcH = minDim * circleViewRatio / 2;
 			fullOmni = 2 * arcH;
@@ -395,11 +395,11 @@ FoaXformDisplay {
 			Pen.strokeColor_(Color.gray.alpha_(0.2));
 			[0.0, 0.5236, 1.0472].do{ |el|
 				var val;
-				// val = cos(i+1 / 3);
+				// val = cos(i + 1 / 3);
 				val = cos(el);
 				Pen.strokeOval(Rect(
 					(arcH * val).neg, (arcH * val).neg,
-					arcH*2*val, arcH*2*val
+					arcH * 2 * val, arcH * 2 * val
 				));
 			};
 
@@ -452,7 +452,7 @@ FoaXformDisplay {
 								(sortDex == selectedDex).if({ Color.yellow }, { azLineClr })
 							);
 							Pen.fillOval(Rect(
-								drawPnt.x-(pointRad*0.5), drawPnt.y-(pointRad*0.5),
+								drawPnt.x-(pointRad * 0.5), drawPnt.y-(pointRad * 0.5),
 								pointRad, pointRad));
 
 							// outline the selected directivity circle
@@ -485,7 +485,7 @@ FoaXformDisplay {
 					Pen.fillColor_(gainColor.alpha_(1));
 					QPen.stringCenteredIn(
 						gain.round(0.1).asString,
-						Rect(gainPnt.x-(pointRad*10), gainPnt.y-(pointRad*10), d*10, d*10)
+						Rect(gainPnt.x-(pointRad * 10), gainPnt.y-(pointRad * 10), d * 10, d * 10)
 					);
 				}
 			};
@@ -506,7 +506,7 @@ FoaXformDisplay {
 			drawPnt = drawPnt * dir;
 
 			col = Color.fromHexString("#CC0000");
-			rect = Rect(0,0,d*2,d*2).center_(drawPnt);
+			rect = Rect(0,0,d * 2,d * 2).center_(drawPnt);
 			Pen.strokeColor = col;
 			Pen.width = 1;
 			Pen.strokeOval(rect);
@@ -685,7 +685,7 @@ FoaXformDisplay {
 
 		// place xformView's view in the window
 		chainViews[whichChain].layout.insert(
-			xForm.view, index+1, // +1 to account for chain label row at index [0]
+			xForm.view, index + 1, // +1 to account for chain label row at index [0]
 			align: \top);
 
 		// add the chain ID to the label
@@ -1013,7 +1013,7 @@ FoaXformDisplay {
 			codeWin = Window("Evaluate Matrix",
 				Rect(sfWin.bounds.left,
 					scrnB.height - sfWin.bounds.height - mwinH
-					- (2*20) - 25, // (title bar: 20, OS menu bar: 25)
+					- (2 * 20) - 25, // (title bar: 20, OS menu bar: 25)
 					sfWin.bounds.width, mwinH))
 			.onClose_({ codeWin = nil })
 			.front;

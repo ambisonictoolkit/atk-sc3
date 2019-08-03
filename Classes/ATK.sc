@@ -499,7 +499,7 @@ Atk {
 					offset = ("\t"!depth).join;
 					offset.post;
 					entry.isFolder.if(
-						{ postContents.(entry, depth+1) },
+						{ postContents.(entry, depth + 1) },
 						{ postf("%%\n", offset, entry.fileName) }
 					)
 				};

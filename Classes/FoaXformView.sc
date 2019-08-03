@@ -432,7 +432,7 @@ FoaXformView {
 			col.notNil.if{
 				(col.alpha != 0).if{
 					newCol = Color.hsv(
-						*col.asHSV.round(0.01)*[1,satFac,valFac,1] // round to avoid accumulating error over many un/mutes
+						*col.asHSV.round(0.01) * [1,satFac,valFac,1] // round to avoid accumulating error over many un/mutes
 					);
 					v.background = newCol;
 				}

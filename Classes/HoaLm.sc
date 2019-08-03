@@ -201,7 +201,7 @@ HoaLm {
 
 		switch(scheme,
 			\n3d, {
-				^sqrt((2*l) + 1) * this.normalisation(\sn3d)
+				^sqrt((2 * l) + 1) * this.normalisation(\sn3d)
 			},
 			\sn3d, {
 				var dm, mabs;
@@ -215,7 +215,7 @@ HoaLm {
 			},
 			\n2d, {
 				^sqrt(
-					2.pow(2*l) * l.asFloat.factorial.pow(2) / ((2*l) + 1).asFloat.factorial
+					2.pow(2 * l) * l.asFloat.factorial.pow(2) / ((2 * l) + 1).asFloat.factorial
 				) * this.normalisation(\n3d)
 			},
 			\sn2d, {

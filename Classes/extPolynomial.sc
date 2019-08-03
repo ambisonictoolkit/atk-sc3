@@ -53,8 +53,8 @@
 		var n = degree;
 		var coeffs;
 
-		coeffs = (n+1).collect({ |k|
-			((2*n) - k).asFloat.factorial / (pow(2, n-k)*k.asFloat.factorial*(n-k).asFloat.factorial)
+		coeffs = (n + 1).collect({ |k|
+			((2 * n) - k).asFloat.factorial / (pow(2, n-k) * k.asFloat.factorial * (n-k).asFloat.factorial)
 		});
 
 		^this.newFrom(coeffs)

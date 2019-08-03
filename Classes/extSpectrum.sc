@@ -273,7 +273,7 @@
 			var m = order;  // order
 
 			(dim == 2).if({
-				beamWeights.removeAt(0).squared + (2*beamWeights.squared.sum) // 2D
+				beamWeights.removeAt(0).squared + (2 * beamWeights.squared.sum) // 2D
 			}, {
 				(Array.series(m + 1, 1, 2) * beamWeights.squared).sum // 3D
 			}).asFloat
@@ -287,7 +287,7 @@
 				'amp', { 1.0 },
 				'rms', {
 					(dim == 2).if({
-						n = 2*m + 1  // 2D
+						n = 2 * m + 1  // 2D
 					}, {
 						n = (m + 1).squared  // 3D
 					});

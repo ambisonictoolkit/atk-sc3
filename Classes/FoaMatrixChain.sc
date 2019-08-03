@@ -531,8 +531,8 @@ FoaMatrixChain {
 			],
 			{ |thisMtx, thatMtx, fade=0|
 				var thisAmp, thatAmp;
-				thisAmp = cos((1-fade)*0.5pi);
-				thatAmp = cos(fade*0.5pi);
+				thisAmp = cos((1-fade) * 0.5pi);
+				thatAmp = cos(fade * 0.5pi);
 				(thisMtx * thisAmp) + (thatMtx * thatAmp);
 			},
 
@@ -598,7 +598,7 @@ FoaMatrixChain {
 		d = (pi/2) - (2 * atan2(sqrt(v_sqrd), sqrt(p_sqrd)));
 		d_norm = 1 - (d.abs / 0.5pi);
 
-		// W*sqrt(2) * [w,x,y,z]
+		// W * sqrt(2) * [w,x,y,z]
 		pv_mean = b[0] * b;
 		// atan2(y,x)
 		a = atan2(pv_mean[2], pv_mean[1]);

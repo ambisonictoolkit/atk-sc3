@@ -60,7 +60,7 @@ FoaXformDisplay {
 	var pointRad, selectedDex;
 
 	// soundfield player - for auditioning the soundfield transforms
-	var <audition, >iOpenedAudition=true, <pwPlaying=false, <pwAzim=0;
+	var <audition, >iOpenedAudition = true, <pwPlaying = false, <pwAzim = 0;
 
 
 	*new { | numDisplayPoints = 12 |
@@ -341,7 +341,7 @@ FoaXformDisplay {
 		var getColor, elWarp;
 		var arcH; // shared by uv and pv
 		// for planewave arrow
-		var rH, rW, w_2, w_2neg, w_4, h_2, h_4, h_34, whRatio=0.75;
+		var rH, rW, w_2, w_2neg, w_4, h_2, h_4, h_34, whRatio = 0.75;
 
 		// below this thresh, the point isn't displayed
 		gainThresh = -90;
@@ -676,7 +676,7 @@ FoaXformDisplay {
 
 
 	createNewXForm { |whichChain, index|
-		var xForm, maxChainSize=0;
+		var xForm, maxChainSize = 0;
 
 		xForm = FoaXformView(this, 'chain', whichChain, index);
 

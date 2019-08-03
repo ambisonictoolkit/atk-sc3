@@ -51,7 +51,7 @@ FoaXformView {
 	var sfView, target, <initChainDex, <initDex;
 	var <>view, <>layout, <>labelTxt, <>name, <>mtx;
 	var <ctlLayout, <addRmvLayout, <xFormMenu;
-	var <inputMenu, <chain, colorsMuted=false;
+	var <inputMenu, <chain, colorsMuted = false;
 	var muteBut, soloBut;
 
 
@@ -413,7 +413,7 @@ FoaXformView {
 
 	// set the nested views to "muted" colors
 	// used by both mute and solo functions
-	updateStateColors { |darken=true|
+	updateStateColors { |darken = true|
 		var satFac, valFac, colFunc;
 		var chDex, dex;
 

@@ -50,7 +50,7 @@ FoaMatrixFade {
 	classvar <mtxFadeDef;
 	// copyArgs
 	var <outbus, <inbus, initMatrix, <>xFade, <mul, addAction, target, <server, completeCond;
-	var <synth, <matrix, server, internalInbus=false, internalOutbus=false;
+	var <synth, <matrix, server, internalInbus = false, internalOutbus = false;
 
 
 	*new { |outbus, inbus, initMatrix, xFade = 0.5, mul = 1,

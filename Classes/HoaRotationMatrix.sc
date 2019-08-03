@@ -194,7 +194,7 @@ HoaRotationMatrix {
 		setSize = (maxDegree + 1).squared;
 		// intialize total rotation matrix of size ((L + 1)^2) x ((L + 1)^2)
 		r = Matrix.newClear(setSize, setSize);
-		// zeroth-band (l=0) is invariant to rotation
+		// zeroth-band (l = 0) is invariant to rotation
 		r.put(0, 0, 1);
 
 		(maxDegree == 0).if{ ^r };
@@ -204,7 +204,7 @@ HoaRotationMatrix {
 		// r3x3 = [  Rxx Rxy Rxz
 		// 			 Ryx Ryy Ryz
 		// 			 Rzx Rzy Rzz  ]
-		// the first band (l=1) is directly related to the rotation matrix
+		// the first band (l = 1) is directly related to the rotation matrix
 		r_1.put(0, 0, r3x3.at(1, 1));
 		r_1.put(0, 1, r3x3.at(1, 2));
 		r_1.put(0, 2, r3x3.at(1, 0));

@@ -353,11 +353,11 @@ HoaMatrix : AtkMatrix {
 
 	// TODO: these utilities could move to AtkMatrix, or elsewhere?
 
-	getSub { |rowStart=0, colStart=0, rowLength, colLength|
+	getSub { |rowStart = 0, colStart = 0, rowLength, colLength|
 		^this.matrix.getSub(rowStart, colStart, rowLength, colLength)
 	}
 
-	postSub { |rowStart=0, colStart=0, rowLength, colLength, round=0.001|
+	postSub { |rowStart = 0, colStart = 0, rowLength, colLength, round = 0.001|
 		this.matrix.postSub(rowStart, colStart, rowLength, colLength, round)
 	}
 
@@ -592,17 +592,17 @@ HoaMatrixXformer : HoaMatrix {
 	}
 
 	*newRotateAxis { |axis = \z, angle = 0, order = (AtkHoa.defaultOrder)|
-		var r1=0, r2=0, r3=0;
+		var r1 = 0, r2 = 0, r3 = 0;
 		switch(axis,
-			\x, { r1=angle },
-			\y, { r2=angle },
-			\z, { r3=angle },
-			\rotate, { r3=angle },
-			\tilt, { r1=angle },
-			\tumble, { r2=angle },
-			\yaw, { r3=angle },
-			\pitch, { r2=angle },
-			\roll, { r1=angle },
+			\x, { r1 = angle },
+			\y, { r2 = angle },
+			\z, { r3 = angle },
+			\rotate, { r3 = angle },
+			\tilt, { r1 = angle },
+			\tumble, { r2 = angle },
+			\yaw, { r3 = angle },
+			\pitch, { r2 = angle },
+			\roll, { r1 = angle },
 		);
 		^super.new('rotateAxis', order).initDirections.initRotation(r1, r2, r3, \xyz)
 	}

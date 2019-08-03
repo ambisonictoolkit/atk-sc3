@@ -82,11 +82,11 @@ AtkMatrix {
 	}
 
 	// For subclasses of AtkMatrix
-	writeToFile { |fileNameOrPath, note, attributeDictionary, overwrite=false|
+	writeToFile { |fileNameOrPath, note, attributeDictionary, overwrite = false|
 		this.prWriteToFile(fileNameOrPath, note, attributeDictionary, overwrite);
 	}
 
-	prWriteToFile { |fileNameOrPath, note, attributeDictionary, overwrite=false|
+	prWriteToFile { |fileNameOrPath, note, attributeDictionary, overwrite = false|
 		var pn, ext;
 		var mtxPath, relPath;
 

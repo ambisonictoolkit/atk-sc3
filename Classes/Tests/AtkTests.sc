@@ -58,7 +58,7 @@ AtkTests {
 	<>floatWithin = 1e-8; // float error tolerance
 
 	// Run all HOA tests
-	*run { |verbose=false, hoaOrder|
+	*run { |verbose = false, hoaOrder|
 		report = verbose;
 		hoaOrder !? { order = hoaOrder };
 		[

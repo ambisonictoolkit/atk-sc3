@@ -355,7 +355,7 @@ FoaMatrixChain {
 				'Azimuth',    ControlSpec(pi, -pi, default: 0, units: "π"),
 				'Elevation',  ControlSpec(-pi/2, pi/2, default: 0, units: "π"),
 			],
-			{ |mtx, deg=0, az=0, el=0|
+			{ |mtx, deg = 0, az = 0, el = 0|
 				FoaXformerMatrix.newPush(deg, az, el).matrix * mtx },
 
 			'press', [
@@ -363,7 +363,7 @@ FoaMatrixChain {
 				'Azimuth',    ControlSpec(pi, -pi, default: 0, units: "π"),
 				'Elevation',  ControlSpec(-pi/2, pi/2, default: 0, units: "π"),
 			],
-			{ |mtx, deg=0, az=0, el=0|
+			{ |mtx, deg = 0, az = 0, el = 0|
 				FoaXformerMatrix.newPress(deg, az, el).matrix * mtx },
 
 			'focus', [
@@ -371,7 +371,7 @@ FoaMatrixChain {
 				'Azimuth',    ControlSpec(pi, -pi, default: 0, units: "π"),
 				'Elevation',  ControlSpec(-pi/2, pi/2, default: 0, units: "π"),
 			],
-			{ |mtx, deg=0, az=0, el=0|
+			{ |mtx, deg = 0, az = 0, el = 0|
 				FoaXformerMatrix.newFocus(deg, az, el).matrix * mtx },
 
 			'zoom',    [
@@ -379,7 +379,7 @@ FoaMatrixChain {
 				'Azimuth',    ControlSpec(pi, -pi, default: 0, units: "π"),
 				'Elevation',  ControlSpec(-pi/2, pi/2, default: 0, units: "π"),
 			],
-			{ |mtx, deg=0, az=0, el=0|
+			{ |mtx, deg = 0, az = 0, el = 0|
 				FoaXformerMatrix.newZoom(deg, az, el).matrix * mtx },
 
 			'direct', [
@@ -387,49 +387,49 @@ FoaMatrixChain {
 				'Azimuth',    ControlSpec(pi, -pi, default: 0, units: "π"),
 				'Elevation',  ControlSpec(-pi/2, pi/2, default: 0, units: "π"),
 			],
-			{ |mtx, deg=0, az=0, el=0|
+			{ |mtx, deg = 0, az = 0, el = 0|
 				FoaXformerMatrix.newDirect(deg, az, el).matrix * mtx },
 
 			'directO', [
 				'Degree',     ControlSpec(-pi/2, pi/2, default: 0, units: "π"),
 			],
-			{ |mtx, deg=0, az=0, el=0|
+			{ |mtx, deg = 0, az = 0, el = 0|
 				FoaXformerMatrix.newDirectO(deg).matrix * mtx },
 
 			'directX', [
 				'Degree',     ControlSpec(-pi/2, pi/2, default: 0, units: "π"),
 			],
-			{ |mtx, deg=0|
+			{ |mtx, deg = 0|
 				FoaXformerMatrix.newDirectX(deg).matrix * mtx },
 
 			'directY', [
 				'Degree',     ControlSpec(-pi/2, pi/2, default: 0, units: "π"),
 			],
-			{ |mtx, deg=0|
+			{ |mtx, deg = 0|
 				FoaXformerMatrix.newDirectY(deg).matrix * mtx },
 
 			'directZ', [
 				'Degree',     ControlSpec(-pi/2, pi/2, default: 0, units: "π"),
 			],
-			{ |mtx, deg=0|
+			{ |mtx, deg = 0|
 				FoaXformerMatrix.newDirectZ(deg).matrix * mtx },
 
 			'rotate', [
 				'Azimuth',    ControlSpec(2pi, -2pi, default: 0, units: "π")
 			],
-			{ |mtx, az=0|
+			{ |mtx, az = 0|
 				FoaXformerMatrix.newRotate(az).matrix * mtx },
 
 			'tilt',    [
 				'Angle',      ControlSpec(2pi, -2pi, default: 0, units: "π")
 			],
-			{ |mtx, ang=0|
+			{ |mtx, ang = 0|
 				FoaXformerMatrix.newTilt(ang).matrix * mtx },
 
 			'tumble', [
 				'Angle',      ControlSpec(2pi, -2pi, default: 0, units: "π")
 			],
-			{ |mtx, ang=0|
+			{ |mtx, ang = 0|
 				FoaXformerMatrix.newTumble(ang).matrix * mtx },
 
 			'rtt',    [
@@ -437,26 +437,26 @@ FoaMatrixChain {
 				'tilt',       ControlSpec(2pi, -2pi, default: 0, units: "π"),
 				'tumble',     ControlSpec(2pi, -2pi, default: 0, units: "π"),
 			],
-			{ |mtx, rotate=0, tilt=0, tumble=0|
+			{ |mtx, rotate = 0, tilt = 0, tumble = 0|
 				FoaXformerMatrix.newRTT(rotate, tilt, tumble).matrix * mtx },
 
 			'asymmetry', [
 				'Degree',     ControlSpec(-pi/2, pi/2, default: 0, units: "π")
 			],
-			{ |mtx, deg=0|
+			{ |mtx, deg = 0|
 				FoaXformerMatrix.newAsymmetry(deg).matrix * mtx },
 
 			'balance', [
 				'Degree',     ControlSpec(pi/2, -pi/2, default: 0, units: "π")
 			],
-			{ |mtx, deg=0|
+			{ |mtx, deg = 0|
 				FoaXformerMatrix.newBalance(deg).matrix * mtx },
 
 			'mirror', [
 				'Azimuth',    ControlSpec(pi, -pi, default: 0, units: "π"),
 				'Elevation',  ControlSpec(-pi/2, pi/2, default: 0, units: "π"),
 			],
-			{ |mtx, theta=0, phi=0|
+			{ |mtx, theta = 0, phi = 0|
 				FoaXformerMatrix.newMirror(theta, phi).matrix * mtx },
 
 			'mirrorO', [],
@@ -476,13 +476,13 @@ FoaMatrixChain {
 				'Azimuth',    ControlSpec(pi, -pi, default: 0, units: "π"),
 				'Elevation',  ControlSpec(-pi/2, pi/2, default: 0, units: "π"),
 			],
-			{ |mtx, gain=0, az=0, el=0|
+			{ |mtx, gain = 0, az = 0, el = 0|
 				FoaXformerMatrix.newDominate(gain, az, el).matrix * mtx },
 
 			'gain', [
 				'Gain',       ControlSpec(-48, 24, warp: \db, default: 0, units: "dB")
 			],
-			{ |mtx, gainDB=0| gainDB.dbamp * mtx },
+			{ |mtx, gainDB = 0| gainDB.dbamp * mtx },
 
 			//  ----------------------------------------------------------
 			/* ADDITION AND SUBTRACTION TRANSFORMS  */
@@ -521,7 +521,7 @@ FoaMatrixChain {
 				'fade with', 'A0',
 				'xfade',    ControlSpec(0, 1, default: 0.5, units: "")
 			],
-			{ |thisMtx, thatMtx, fade=0|
+			{ |thisMtx, thatMtx, fade = 0|
 				(thisMtx * (1-fade)) + (thatMtx * fade);
 			},
 
@@ -529,7 +529,7 @@ FoaMatrixChain {
 				'fade with', 'A0',
 				'xfade',    ControlSpec(0, 1, default: 0.5, units: "")
 			],
-			{ |thisMtx, thatMtx, fade=0|
+			{ |thisMtx, thatMtx, fade = 0|
 				var thisAmp, thatAmp;
 				thisAmp = cos((1 - fade) * 0.5pi);
 				thatAmp = cos(fade * 0.5pi);

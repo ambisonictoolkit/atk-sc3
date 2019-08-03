@@ -163,7 +163,7 @@ Atk {
 	}
 
 	*createExtensionsDir {
-		var exists=false, dir, ops, mtxTypes, makeDirs;
+		var exists = false, dir, ops, mtxTypes, makeDirs;
 
 		ops =	["kernels", "matrices"];
 		mtxTypes =	["encoders", "decoders", "xformers"];
@@ -207,7 +207,7 @@ Atk {
 	}
 
 	// op: 'matrices', 'kernels'
-	*getAtkOpPath { |op, isExtension=false|
+	*getAtkOpPath { |op, isExtension = false|
 		var str, subPath, kindPath, fullPath, tested;
 
 		tested = List();
@@ -328,7 +328,7 @@ Atk {
 		^Atk.getAtkOpSubPath(set, type, 'kernels');
 	}
 
-	*folderExists { |folderPathName, throwOnFail=true|
+	*folderExists { |folderPathName, throwOnFail = true|
 		if (folderPathName.isFolder) {
 			^true
 		} {
@@ -489,7 +489,7 @@ Atk {
 
 			postf("~ %%% ~\n", set.asString.toUpper, type.notNil.if({ " " }, { "" }), type ?? "");
 
-			postContents = { |folderPN, depth=1|
+			postContents = { |folderPN, depth = 1|
 				var offset, f_offset;
 				offset = ("\t"!depth).join;
 				f_offset = ("\t"!(depth - 1)).join;
@@ -533,7 +533,7 @@ Atk {
 
 FoaPanB : MultiOutUGen {
 
-	*ar { |in, azimuth=0, elevation=0, mul = 1, add = 0|
+	*ar { |in, azimuth = 0, elevation = 0, mul = 1, add = 0|
 		^this.multiNew('audio', in, azimuth, elevation).madd(mul, add);
 	}
 

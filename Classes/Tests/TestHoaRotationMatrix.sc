@@ -118,7 +118,7 @@ TestHoaRotationMatrix : UnitTest {
 		var testDirs;
 
 		// a function to perform rotation tests on groups of directions
-		testDirs = { |dirs, groupName="a tetrahedron", numRotTests = 5|
+		testDirs = { |dirs, groupName = "a tetrahedron", numRotTests = 5|
 			numRotTests.do{
 				var r1, r2, r3, axes, rMtx, rotatedPws, groupTests;
 

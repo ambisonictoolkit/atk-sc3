@@ -90,7 +90,7 @@
 	}
 
 	// return a sub matrix
-	getSub { |rowStart=0, colStart=0, rowLength, colHeight|
+	getSub { |rowStart = 0, colStart = 0, rowLength, colHeight|
 		var width, height, mtx, maxw, maxh;
 
 		maxw = this.cols - rowStart;
@@ -118,8 +118,8 @@
 	}
 
 	// post a sub matrix, formatted for viewing
-	postSub { |rowStart=0, colStart=0, rowLength, colHeight, round=0.001|
-		var pmtx, maxstrlen=0, temp;
+	postSub { |rowStart = 0, colStart = 0, rowLength, colHeight, round = 0.001|
+		var pmtx, maxstrlen = 0, temp;
 
 		pmtx = this.getSub(rowStart, colStart, rowLength, colHeight).round(round);
 		pmtx.doMatrix({ |item| maxstrlen = max(maxstrlen, item.asString.size) });

@@ -75,7 +75,7 @@
 // by Bruce Wiggins: http://www.brucewiggins.co.uk /
 //
 // B. Wiggins, "An Investigation into the Real-time Manipulation and
-// Control of Three-dimensional Sound Fields," PhD Thesis, University of
+// Control of Three-dimensional Sound Fields, " PhD Thesis, University of
 // Derby, Derby, 2004.
 //-----------------------------------------------------------------------
 
@@ -122,7 +122,7 @@ FoaSpeakerMatrix {
 
 		// n = number of output channel (speaker) pairs
 		// m = number of dimensions,
-		//        2=horizontal, 3=periphonic
+		//        2 = horizontal, 3 = periphonic
 		m = this.positions.cols;
 		n = this.positions.rows;
 	}

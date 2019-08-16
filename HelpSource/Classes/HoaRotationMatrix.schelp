@@ -1,15 +1,15 @@
 TITLE:: HoaRotationMatrix
 summary:: Matrix transformer from the Ambisonic Toolkit (ATK)
-categories:: Libraries>Ambisonic Toolkit>HOA>Transforming
+categories:: Libraries>Ambisonic Toolkit>Internals
 related:: Classes/HoaMatrixXformer
 
 DESCRIPTION::
 A class to generate a matrix representing a rotation of real or complex
 spherical harmonics, around three axes, in a specified order of rotations.
 
-You may find the use of link::Classes/HoaMatrixXformer::'s various
-rotation methods, which use this class internally, more convenient for most
-rotation operations. See
+Use of link::Classes/HoaMatrixXformer::'s various
+rotation methods, which use this class internally, is more convenient for most
+rotation operations and is advised. See
 link::Classes/HoaMatrixXformer#*newRotate::,
 link::Classes/HoaMatrixXformer#*newRTT#*newRTT::,
 link::Classes/HoaMatrixXformer#*newYPR#*newYPR::,

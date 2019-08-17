@@ -1,4 +1,4 @@
-TITLE:: HoaRotationMatrix
+TITLE:: HoaMatrixRotation
 summary:: Matrix transformer from the Ambisonic Toolkit (ATK)
 categories:: Libraries>Ambisonic Toolkit>Internals
 related:: Classes/HoaMatrixXformer
@@ -19,7 +19,7 @@ link::Classes/HoaMatrixXformer#*newRotateAxis#*newRotateAxis::.
 CLASSMETHODS::
 
 METHOD:: new
-Generate an link::Classes/HoaRotationMatrix::
+Generate an link::Classes/HoaMatrixRotation::
 
 ARGUMENT:: r1
 The first rotation angle, in radians.
@@ -61,7 +61,7 @@ PRIVATE:: prU, prV, prW, prP, eulerToR3, buildR1, buildSHRotMtx
 EXAMPLES::
 
 Test axial rotations via link::Classes/HoaMatrixXformer#-newRotateAxis::
-(which uses link::Classes/HoaRotationMatrix:: internally).
+(which uses link::Classes/HoaMatrixRotation:: internally).
 
 code::
 /* Generate planewave encoding coefficients for directions */

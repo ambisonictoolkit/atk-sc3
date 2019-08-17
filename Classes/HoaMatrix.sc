@@ -644,7 +644,7 @@ HoaMatrixXformer : HoaMatrix {
 	}
 
 	initRotation { |r1, r2, r3, convention|
-		matrix = HoaRotationMatrix(r1, r2, r3, convention, this.order).matrix.zeroWithin(AtkHoa.nearZero);
+		matrix = HoaMatrixRotation(r1, r2, r3, convention, this.order).matrix.zeroWithin(AtkHoa.nearZero);
 	}
 
 	initReflect { |mirror|

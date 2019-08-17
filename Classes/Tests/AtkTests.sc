@@ -63,7 +63,7 @@ AtkTests {
 		hoaOrder !? {order = hoaOrder};
 		[
 			// list of Test classes
-			TestHoaRotationMatrix,
+			TestHoaMatrixRotation,
 			TestHoaMatrixXformer,
 			TestNumberForHoa,      // tests sphericalHarmonic method
 			TestFoaMatrix,         // includes matrix encoders, decoders, xformers

@@ -85,7 +85,7 @@ and Corrections. Journal of Physical Chemistry A, 102(45), 9099-9100.
 //---------------------------------------------------------------------
 //	The Ambisonic Toolkit (ATK) is a soundfield kernel support library.
 //
-// 	Class: HoaRotationMatrix
+// 	Class: HoaMatrixRotation
 //
 //  Note: this implementation is used for complete static matrices,
 //  while a more efficient method is used for time-varying rotations which operates
@@ -113,7 +113,7 @@ and Corrections. Journal of Physical Chemistry A, 102(45), 9099-9100.
 //---------------------------------------------------------------------
 
 
-HoaRotationMatrix {
+HoaMatrixRotation {
 
 	var r1, r2, r3, axes; // copyArgs
 	var <matrix, <r3x3, <order;
@@ -311,7 +311,7 @@ HoaRotationMatrix {
     prW { |l, m, n, r_1, r_lm1|
         var p0, p1;
 
-        if (m == 0) {"HoaRotationMatrix:prW should not be called with m = 0".throw};
+        if (m == 0) {"HoaMatrixRotation:prW should not be called with m = 0".throw};
 
         ^if (m > 0) {
             p0 = this.prP(1, l, m+1, n, r_1, r_lm1);

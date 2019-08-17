@@ -24,7 +24,7 @@ SuperCollider3 version of the Ambisonic Toolkit (ATK). If not, see
 //---------------------------------------------------------------------
 //	The Ambisonic Toolkit (ATK) is a soundfield kernel support library.
 //
-// 	Class: TestHoaRotationMatrix
+// 	Class: TestHoaMatrixRotation
 //
 //	The Ambisonic Toolkit (ATK) is intended to bring together a number of tools and
 //	methods for working with Ambisonic surround sound. The intention is for the toolset
@@ -45,7 +45,7 @@ SuperCollider3 version of the Ambisonic Toolkit (ATK). If not, see
 //
 //---------------------------------------------------------------------
 
-TestHoaRotationMatrix : UnitTest {
+TestHoaMatrixRotation : UnitTest {
 	var order, report, floatWithin;
 	var initializedPws, targetPws;
 
@@ -97,17 +97,17 @@ TestHoaRotationMatrix : UnitTest {
 
 		// TODO: check the following 2 tests to make sure it's a valid comparison
 		t1 = HoaMatrixXformer.newRTT(r1, r2, r3, order);
-		t2 = HoaRotationMatrix(r1, r2, r3, \zxy, order);
+		t2 = HoaMatrixRotation(r1, r2, r3, \zxy, order);
 		this.assertArrayFloatEquals(
 			t1.matrix.asArray.flat, t2.matrix.asArray.flat,
-			"HoaMatrixXformer.newRTT should be equivalent to HoaRotationMatrix with axes: 'zxy'", floatWithin, report
+			"HoaMatrixXformer.newRTT should be equivalent to HoaMatrixRotation with axes: 'zxy'", floatWithin, report
 		);
 
 		t1 = HoaMatrixXformer.newYPR(r1, r2, r3, order);
-		t2 = HoaRotationMatrix(r3, r2, r1, \xyz, order);
+		t2 = HoaMatrixRotation(r3, r2, r1, \xyz, order);
 		this.assertArrayFloatEquals(
 			t1.matrix.asArray.flat, t2.matrix.asArray.flat,
-			"HoaMatrixXformer.newYPR should be equivalent to HoaRotationMatrix with axes: 'xyz', with rotations applied in reverse order to make the rotation conform to intrinsic convention.", floatWithin, report
+			"HoaMatrixXformer.newYPR should be equivalent to HoaMatrixRotation with axes: 'xyz', with rotations applied in reverse order to make the rotation conform to intrinsic convention.", floatWithin, report
 		);
 
 	}
@@ -128,7 +128,7 @@ TestHoaRotationMatrix : UnitTest {
 				// initialize the initializedPws an targetPws vars
 				this.initPlanewaves(dirs, axes, r1, r2, r3, order);
 
-				rMtx = HoaRotationMatrix(r1, r2, r3, axes.asSymbol, order);
+				rMtx = HoaMatrixRotation(r1, r2, r3, axes.asSymbol, order);
 
 				// "encode" the planewave coeffs via matrix multiply
 				rotatedPws = initializedPws.collect{ |pw|
@@ -169,7 +169,7 @@ TestHoaRotationMatrix : UnitTest {
 			ref = FoaXformerMatrix.newRTT(*rtt).matrix * FoaEncoderMatrix.newDirection(0,0).matrix.addRow([0]);
 			// A first order planewave, encoded with HOA rotation matrix
 			test = (
-				HoaRotationMatrix(rtt.at(0), rtt.at(1), rtt.at(2), 'zxy', 1).matrix *
+				HoaMatrixRotation(rtt.at(0), rtt.at(1), rtt.at(2), 'zxy', 1).matrix *
 				HoaMatrixEncoder.newDirection(0, 0, order: 1).matrix;
 			);
 			// "decode" the HOA (acn-n3d) to FOA (fuma-maxN), for test comparison
@@ -194,9 +194,9 @@ TestHoaRotationMatrix : UnitTest {
 var r1, r2, r3, axes = 'xyz';
 10.do{
 #r1,r2,r3 = 3.collect{rrand(-2pi,2pi)};
-x = HoaRotationMatrix(r1, r2, r3, axes, 3);
+x = HoaMatrixRotation(r1, r2, r3, axes, 3);
 postf("#r1,r2,r3 = %;\n", [r1,r2,r3]);
-	"x = HoaRotationMatrix(r1, r2, r3, axes, order);".postln;
+	"x = HoaMatrixRotation(r1, r2, r3, axes, order);".postln;
 	"test = x.matrix.asArray.flat;".postln;
 	"res = [".postln;
 	x.matrix.asArray.do{|me| me.post; ",".postln};
@@ -211,10 +211,10 @@ nil
 var r1, r2, r3, axes = 'xyz';
 10.do{
 #r1,r2,r3 = 3.collect{rrand(-2pi,2pi)};
-x = HoaRotationMatrix(r1, r2, r3, axes);
+x = HoaMatrixRotation(r1, r2, r3, axes);
 x.eulerToR3(r1, r2, r3, axes);
 postf("#r1,r2,r3 = %;\n", [r1,r2,r3]);
-	"x = HoaRotationMatrix(r1, r2, r3, axes);".postln;
+	"x = HoaMatrixRotation(r1, r2, r3, axes);".postln;
 	"test = x.eulerToR3(r1, r2, r3, axes).asArray.flat;".postln;
 	postf("res = %;\n", x.eulerToR3(r1, r2, r3, axes).asArray.flat);
 
@@ -228,11 +228,11 @@ nil
 var r123, x,res, axes = 'xyz';
 10.do{
 	r123 = 3.collect{rrand(-2pi,2pi)};
-	x = HoaRotationMatrix(r1, r2, r3, axes);
+	x = HoaMatrixRotation(r1, r2, r3, axes);
 	res = [\x,\y, \z].collect({|axis, i| x.buildR1(axis, r123[i])}).asArray.flat;
 
 	postf("r123 = %;\n", r123);
-	"x = HoaRotationMatrix(r1, r2, r3, axes);".postln;
+	"x = HoaMatrixRotation(r1, r2, r3, axes);".postln;
 	"test = [\\x,\\y, \\z].collect({|axis, i| x.buildR1(axis, r123[i])}).asArray.flat;".postln;
 	postf("res = %;\n", res);
 

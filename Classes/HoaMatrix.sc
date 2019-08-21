@@ -711,6 +711,7 @@ HoaMatrixXformer : HoaMatrix {
 		var decodingMatrix, encodingMatrix;
 
 		#theta, phi = this.directions.at(0);
+		this.initDirections;  // reset directions to infs
 
 		// build decoder matrix
 		decodingMatrix = HoaMatrixDecoder.newDirection(
@@ -738,6 +739,7 @@ HoaMatrixXformer : HoaMatrix {
 		var xformingMatrix;
 
 		#theta, phi = this.directions.at(0);
+		this.initDirections;  // reset directions to infs
 
 		// build xforming matrix
 		xformingMatrix = HoaMatrixXformer.newBeam(

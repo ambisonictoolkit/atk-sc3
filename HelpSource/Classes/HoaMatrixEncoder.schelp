@@ -137,10 +137,10 @@ code::
 
 // design spherical design & encoder
 ~design = TDesign.newHoa(~numChans, order: ~order)
-~decoder = HoaMatrixEncoder.newSphericalDesign(~design, order: ~order)
+~encoder = HoaMatrixEncoder.newSphericalDesign(~design, order: ~order)
 
 // inspect
-~decoder.directions.raddeg
+~encoder.directions.raddeg
 ::
 
 note::

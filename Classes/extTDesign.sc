@@ -49,17 +49,24 @@
 + TDesign {
 
 	*newHoa { |numChans = (2*AtkHoa.defaultOrder.asHoaOrder.size), optimize = \energy, order = (AtkHoa.defaultOrder)|
-		var hoaDesign;
+		var designs, hoaDesign;
 
 		// matched design
-		hoaDesign = TDesignLib.getHoaDesigns(optimize, order).select({ |item|
+		designs = TDesignLib.getHoaDesigns(optimize, order);
+		hoaDesign = designs.select({ |item|
 			item[\numPoints] == numChans
 		}).last;
 
 		// catch no designs
 		hoaDesign ?? {
+			var minT = switch
+			( optimize,
+				\energy, { 2 * order },  // energy
+				\spreadE, { 2 * order + 1 },  // energy spread
+			);
+
 			"[TDesign:-init] No t-designs found in TDesignLib.lib matching "
-			"nPnts %, t >= %, dim %".format(numChans, 2*order, 3).throw
+			"nPnts %, t >= %, dim %. For optimize %, minimum numChans is %.".format(numChans, minT, 3, optimize, designs.first[\numPoints]).throw
 		};
 
 		^super.new.init(hoaDesign[\numPoints], hoaDesign[\t], 3);

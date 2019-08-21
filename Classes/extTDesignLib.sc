@@ -50,7 +50,7 @@
 
 	// return an array of all designs, optimized for order
 	*getHoaDesigns{ |optimize = \energy, order = (AtkHoa.defaultOrder)|
-		var minT = 2 * order;
+		var minT;
 		var designList;
 
 		minT = switch(optimize,

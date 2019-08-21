@@ -581,7 +581,7 @@ HoaMatrixXformer : HoaMatrix {
 
 	// overload HoaMatrix *newFromMatrix
 	*newFromMatrix { |matrix, order = (AtkHoa.defaultOrder)|
-		^super.new('fromMatrix', order).initDirections(nil).initFromMatrix(matrix)
+		^super.new('fromMatrix', order).initDirections.initFromMatrix(matrix)
 	}
 
 	// ------------

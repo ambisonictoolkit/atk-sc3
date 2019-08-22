@@ -393,12 +393,12 @@ COPYMETHOD:: FoaMatrix, *newFromMatrix
 
 
 METHOD:: newFromFile
-Create an FoaEncoderMatrix by loading a matrix from a file.
+Create an FoaDecoderMatrix by loading a matrix from a file.
 
 argument:: filePathOrName
-Can be a path relative to your code::/extensions/matrices/decoders:: folder:
+Can be a path relative to your code::/extensions/matrices/FOA/decoders:: folder:
 code::
-Atk.getMatrixExtensionPath('decoders').fullPath
+Atk.getMatrixExtensionSubPath(\FOA, \decoders).fullPath
 ::
 Otherwise a full path to your matrix file.
 

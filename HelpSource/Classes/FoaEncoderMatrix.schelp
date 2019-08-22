@@ -322,9 +322,9 @@ METHOD:: newFromFile
 Create an FoaEncoderMatrix by loading a matrix from a file.
 
 argument:: filePathOrName
-Can be a path relative to your code::/extensions/matrices/encoders:: folder:
+Can be a path relative to your code::/extensions/matrices/FOA/encoders:: folder:
 code::
-Atk.getMatrixExtensionPath('encoders').fullPath
+Atk.getMatrixExtensionSubPath(\FOA, \encoders).fullPath
 ::
 Otherwise a full path to your matrix file.
 

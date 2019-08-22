@@ -16,24 +16,24 @@ list::
 ##strong::matrices:: (for encoding, decoding, xforming).
 ::
 These folders store the files shipped with the ATK.
-You can also optionally add your own code::extensions:: folder,
-in which you can store kernels and matrices of your own design.
+We can also optionally add our own code::extensions:: folder,
+in which we can store kernels and matrices of our own design.
 Note this is different from SuperCollider's code::Extensions:: folder.
-If you haven't yet added an code::extensions:: directory, you can see where
+If we haven't yet added an code::extensions:: directory, we can see where
 to put it by executing the following method:
 code::
 Atk.userExtensionsDir         // view it
 Atk.userExtensionsDir.openOS  // open it... if it exists!
 ::
 
-There's a handy method that will build it for you in the expected structure:
+There's a handy method that will build it for we in the expected structure:
 code::
 Atk.createExtensionsDir
 ::
 
-This will create a directory structure that lives in your next to your default
+This will create a directory structure that lives in our next to our default
 ATK assets. Note this creates both a strong::matrices:: folder structure,
-and an identical strong::kernels:: folder structure for storing your custom kernels.
+and an identical strong::kernels:: folder structure for storing our custom kernels.
 The full structure will look like this:
 tree::
   ## teletype::Application Support::
@@ -43,7 +43,7 @@ tree::
       ## teletype::kernels::  (ATK default)
       ## teletype::matrices::  (ATK default)
       ## teletype::sounds::  (ATK default)
-      ## teletype::extensions::  (your custom additions)
+      ## teletype::extensions::  (our custom additions)
       tree::
         ## teletype::kernels::
         ## teletype::matrices::
@@ -71,11 +71,11 @@ tree::
 Each of the folders (code::FOA>encoders::, code::HOA5>decoders::, etc.) are
 empty and ready to store matrices (and kernels) for use with the ATK-SC3 (this package)
 and link::http://www.ambisonictoolkit.net/download/reaper/##ATK-Reaper:: (more
-on that later). When you write a matrix using the ATK, it
+on that later). When we write a matrix using the ATK, it
 will store it in this directory structure by default, and will look here by
 default when asked to read in a matrix from file.
 
-You can view this structure and any files you've stored there using the following method:
+We can view this structure and any files you've stored there using the following method:
 code::
 Atk.postMyMatrices();                    // All sets, all matrices types
 Atk.postMyMatrices('FOA');               // FOA matrices hierarchy
@@ -182,7 +182,7 @@ about it for future reference. This is where the code::.yml:: file format comes 
 Note that the link::Classes/AtkMatrix#-writeToFile:: method has some optional
 arguments: code::note:: and code::attributeDictionary::. A code::note:: can be a
 brief description, while an code::attributeDictionary:: is a Dictionary for storing any
-info you'd like in the form of key:value pairs.
+info you'd like in the form of key:value pairs. Information found in the strong::attributeDictionary:: can be retrieved via link::Classes/AtkMatrix#-fileParse::. An example of this is illustrated below.
 
 code::
 (
@@ -191,20 +191,17 @@ code::
 
 // A Dictionary of more metadata to add.
 ~properties =  (
-	author: "Me, the Reader",
+    author: "Me, the Reader",
 	dateCreated: Date.getDate.stamp,
-	ordering: 'FuMa',
-	normalisation: 'MaxN',
-	dirInputs: ~directions
+    ordering: AtkFoa.ordering,  // Furse-Malham (FuMa)
+    normalisation: AtkFoa.normalisation,  // Gerzon / Furse-Malham (MaxN)
 );
 )
 ::
 
 NOTE::
 If keys in the strong::attributeDictionary:: match instance variables of FoaEncoderMatrix,
-they can be retrieved with getters once loaded from the file. This is the case for
-strong::dirInputs:: specified in the code::~properties:: dictionary above.
-We'll see the effect this has below.
+they can be retrieved with getters once loaded from the file.
 ::
 
 Now write this matrix and metadata to file...
@@ -215,12 +212,13 @@ the same name and extension.
 code::
 (
 ~encoder.writeToFile( "my9PointEncoder.yml",
-  note: ~note,
-  attributeDictionary: ~properties,
-  overwrite: true
+    note: ~note,
+    attributeDictionary: ~properties,
+    overwrite: true
 )
 )
 ::
+
 
 SUBSECTION:: Writing Raw Matrices
 In the above examples, we've been reading/writing matrices encapsulated in
@@ -228,18 +226,22 @@ the link::Classes/AtkMatrix:: subclasses. When writing from these objects, some 
 can be inferred from them, such as the strong::set:: (Ambisonic order,
 channel ordering, channel normalisation, e.g. code::'FOA'::, code::'HOA3'::,
 etc.) and strong::type:: of matrix (e.g. code::'encoder', 'decoder', 'xformer'::).
-In the case of a raw matrix, you must cast it to an code::AtkMatrix::, specifying the
-strong::set:: and strong::type:: explicitly, before writing it to a file.
+In the case of a raw matrix, the appropriate subclass must be called explicitly.
 
 code::
-( // Here's a raw A-to-B encoder matrix:
+(
+// Here's a raw (FOA) A-to-B encoder matrix:
 ~matrix = Matrix.with([
-	[ 0.61237243569579, 0.61237243569579, 0.61237243569579, 0.61237243569579 ],
-	[ 0.5, 0.5, -0.5, -0.5 ],
-	[ 0.5, -0.5, 0.5, -0.5 ],
-	[ 0.5, -0.5, -0.5, 0.5 ]
-])
+    [ 0.61237243569579, 0.61237243569579, 0.61237243569579, 0.61237243569579 ],
+    [ 0.5, 0.5, -0.5, -0.5 ],
+    [ 0.5, -0.5, 0.5, -0.5 ],
+    [ 0.5, -0.5, -0.5, 0.5 ]
+]);
+
+// along with associated encoding directions
+~aToBdirections = [ [ 0.78539816339745, 0.61547970867039 ], [ -0.78539816339745, -0.61547970867039 ], [ 2.3561944901923, -0.61547970867039 ], [ -2.3561944901923, 0.61547970867039 ] ];
 )
+
 ::
 
 Metadata is useful to record more information about the matrix:
@@ -250,32 +252,30 @@ code::
 
 // A Dictionary of more metadata to add.
 ~properties =  (
-	author: "Me, the Reader",
-	dateCreated: Date.getDate.stamp,
-	ordering: 'FuMa',
-	normalisation: 'MaxN',
-	dirInputs: [ [ 0.78539816339745, 0.61547970867039 ], [ -0.78539816339745, -0.61547970867039 ], [ 2.3561944901923, -0.61547970867039 ], [ -2.3561944901923, 0.61547970867039 ] ]
+    author: "Me, the Reader",
+    dateCreated: Date.getDate.stamp,
+    ordering: AtkFoa.ordering,  // Furse-Malham (FuMa)
+    normalisation: AtkFoa.normalisation,  // Gerzon / Furse-Malham (MaxN)
 );
 )
 ::
 
-Be sure to specify the strong::set:: and strong::type:: when creating an
-code::AtkMatrix:: from your code::Matrix::. This is how the ATK will know where
-to store the file by default (unless a full path is provided to the file name
-argument).
+Now, given the matrix, a subclass instance can be created using the code::*newFromMatrix:: class method. In this case we'll be using link::Classes/FoaEncoderMatrix#*newFromMatrix::, as we're making an encoder.
 
 code::
 (
-~atkMatrix = ~matrix.asAtkMatrix('FOA', 'encoder'); // set, type
+~encoder = FoaEncoderMatrix.newFromMatrix(~matrix, ~aToBdirections);
+// let's see info!
+~encoder.info;
 // be sure to use .yml extension for metadata
-~atkMatrix.writeToFile("myA2B_flu_Matrix.yml", ~note, ~properties);
+~encoder.writeToFile("myA2B_flu_Matrix.yml", ~note, ~properties, overwrite: true);
 )
 ::
 
-NOTE:: If providing a file path relative to your code::/ATK/extension/matrices/...::
+NOTE:: If providing a file path relative to our code::/ATK/extension/matrices/...::
 directory, strong::set:: and strong::type:: arguments are necessary when creating the
-code::AtkMatrix:: from your code::Matrix:: in order to locate the
-proper directory to store your file. If providing an absolute file path,
+code::AtkMatrix:: from our code::Matrix:: in order to locate the
+proper directory to store our file. If providing an absolute file path,
 strong::set:: and strong::type:: are recommended but not strictly enforced. This
 allows storing matrices outside the ATK paradigm, e.g. VBAP matrices, etc.
 ::
@@ -285,20 +285,20 @@ code::
 Atk.postMyMatrices('FOA', 'encoders');
 ::
 
-SUBSECTION:: Subfolders: Organizing your matrices
+SUBSECTION:: Subfolders: Organizing our matrices
 
-If you'll be generating many matrices, it's advisable to organize your matrices into
+If you'll be generating many matrices, it's advisable to organize our matrices into
 subfolders. For example, if you're algorithmically generating hundreds of matrices
 for a particular project or process, it makes sense to store them in a subfolder.
 
-To do this, you can create subfolders inside your code::/encoders::, code::/decoders::,
+To do this, we can create subfolders inside our code::/encoders::, code::/decoders::,
 and code::/xformers:: folders.
 
 code::
-// Store your encoder matrix with the other encoders, which live here:
+// Store our encoder matrix with the other encoders, which live here:
 Atk.getMatrixExtensionSubPath('FOA', 'encoders');
 
-// You can make subfolder for a group of matrices, say, for a particular project:
+// We can make subfolder for a group of matrices, say, for a particular project:
 (
 ~projSubFolderName = "myProject";
 
@@ -306,7 +306,7 @@ File.mkdir( Atk.getMatrixExtensionSubPath('FOA', 'encoders').fullPath +/+ ~projS
 )
 
 // For convenience, we'll write the 9-point ~encoder matrix,
-// which we created above, to a new file in your new project folder.
+// which we created above, to a new file in our new project folder.
 // (We'll need to reset ~note and ~properties, as we clobbered them above!)
 (
 
@@ -323,8 +323,8 @@ File.mkdir( Atk.getMatrixExtensionSubPath('FOA', 'encoders').fullPath +/+ ~projS
 );
 
 ~encoder.writeToFile(~projSubFolderName +/+ "projectEncoder1.yml",
-  note: ~note,
-  attributeDictionary: ~properties
+    note: ~note,
+    attributeDictionary: ~properties
 )
 )
 ::
@@ -339,9 +339,9 @@ code::
 Atk.postMyMatrices('FOA', 'encoders')
 ::
 
-Later you'll use link::Classes/FoaEncoderMatrix:: to read the file back in.
-ATK will know where to look ( code::extensions/matrices/enocoders/FOA:: )
-so you can simply specify the emphasis::relative:: path of your code::subfolder/file.yml:::
+link::Classes/FoaEncoderMatrix#*newFromMatrix:: can be used to read the file back in.
+The ATK will know where to look (code::extensions/matrices/enocoders/FOA::)
+so we can simply specify the emphasis::relative:: path of our code::subfolder/file.yml:::
 
 code::
 ~projectEncoder1 = FoaEncoderMatrix.newFromFile(~projSubFolderName +/+ "projectEncoder1.yml");
@@ -408,8 +408,7 @@ code::
 ~encoder.dirOutputs;
 ~encoder.dim;
 
-// NOTE: because we provided the 'dirInputs' to the attributeDictionary
-// when we wrote it to file, we now have that info for reference. Useful!
+// NOTE: because .yml files are verbose, we now have that info for reference. Useful!
 ~encoder.dirInputs;
 
 
@@ -467,25 +466,26 @@ emphasis::encoder:: for its  code::-dirInputs::  to know where our output channe
 signals are expected to be sent (in space!).
 ::
 
-It's important to note here that the code::~decoderMatrix:: matrix is a link::Classes/Matrix:: object,
-not an link::Classes/FoaDecoderMatrix:: object.  As such, we'll need to use care when building
-the decoding SynthDef.  Instead of using the link::Classes/FoaDecode:: UGen
-(which expects an FoaDecoderMatrix or FoaDecoderKernel decoder),
-we'll use the link::Classes/AtkMatrixMix:: UGen, which will decode our B-format
-signal by using our newly authored decoding Matrix, code::~decoderMatrix::.
+Let's go ahead and finish off the job and use the resulting emphasis::raw:: matrix to create a decoder instance:
+
+code::
+~decoder = FoaDecoderMatrix.newFromMatrix(~decoderMatrix, ~encoder.dirInputs);
+~decoder.info;  // have a look!
+::
+
+And... have a go!
 
 code::
 (
-~decoderDef = SynthDef(\pinv_decoder, { arg outbus=0, amp=1;
+~decoderDef = SynthDef(\pinv_decoder, { arg outbus=0, amp=1
     var foa, out;
 
-    // Test signal: panning noise
-    foa = FoaPanB.ar( PinkNoise.ar, LFSaw.kr( 12.reciprocal, 1 ), 0 );
+	// Test signal: panning noise
+	foa = FoaPanB.ar( PinkNoise.ar, LFSaw.kr( 12.reciprocal, 1, pi/2 ), 0 );
 
-    // ~decoderMatrix is just a Matrix of decoding coefficients, so we use AtkMatrixMix
-    out = AtkMatrixMix.ar(foa, ~decoderMatrix, amp);
+	out = FoaDecode.ar(foa, ~decoder);
 
-    Out.ar(outbus, out);
+	Out.ar(outbus, out);
 
 }).load(Server.default);
 )

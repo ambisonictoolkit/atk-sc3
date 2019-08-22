@@ -488,10 +488,6 @@ HoaMatrixEncoder : HoaMatrix {
 		)
 	}
 
-	// *newFromFile { |filePathOrName, order = (AtkHoa.defaultOrder)|
-	// 	^super.new.initFromFile(filePathOrName, 'encoder', order, true).initEncoderVarsForFiles
-	// }
-
 
 	// ------------
 	// Basic
@@ -753,9 +749,6 @@ HoaMatrixXformer : HoaMatrix {
 		matrix = Matrix.newIdentity((this.order + 1).squared) - xformingMatrix
 	}
 
-	// *newFromFile { |filePathOrName|
-	// 	^super.new.initFromFile(filePathOrName, 'xformer', true);
-	// }
 
 	// ------------
 	// Analysis
@@ -1039,9 +1032,6 @@ HoaMatrixDecoder : HoaMatrix {
 		)
 	}
 
-	// *newFromFile { |filePathOrName|
-	//     ^super.new.initFromFile(filePathOrName, 'decoder', true).initDecoderVarsForFiles;
-	// }
 
 	// ------------
 	// Basic

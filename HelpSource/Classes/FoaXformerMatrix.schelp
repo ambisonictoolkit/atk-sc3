@@ -526,12 +526,12 @@ Matrix.with([[row1],[row2],...[rowN]])
 
 
 METHOD:: newFromFile
-Create an FoaEncoderMatrix by loading a matrix from a file.
+Create an FoaXformerMatrix by loading a matrix from a file.
 
 argument:: filePathOrName
-Can be a path relative to your code::/extensions/matrices/xformers:: folder:
+Can be a path relative to your code::/extensions/matrices/FOA/xformers:: folder:
 code::
-Atk.getMatrixExtensionPath('xformers').fullPath
+Atk.getMatrixExtensionSubPath(\FOA, \xformers).fullPath
 ::
 Otherwise a full path to your matrix file.
 

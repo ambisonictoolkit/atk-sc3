@@ -239,7 +239,7 @@ HoaMatrixRotation {
 				(l.neg..l).do{|n|
 
 					// compute u,v,w terms of Eq.8.1 (Table I)
-					d = (m==0).asInt; // the delta function d_m0
+					d = (m==0).asInteger; // the delta function d_m0
 					denom = if (n.abs==l) {
 						(2*l) * (2*l-1)
 					}{
@@ -294,12 +294,12 @@ HoaMatrixRotation {
             p0+p1; // return
         } {
             if (m > 0) {
-                d = (m == 1).asInt;
+                d = (m == 1).asInteger;
                 p0 = this.prP(1, l, m-1, n, r_1, r_lm1);
                 p1 = this.prP(-1, l, m.neg+1, n, r_1, r_lm1);
                 (p0*sqrt(1+d)) - (p1*(1-d)); // return
             } {
-                d = (m == -1).asInt;
+                d = (m == -1).asInteger;
                 p0 = this.prP(1, l, m+1, n, r_1, r_lm1);
                 p1 = this.prP(-1, l, m.neg-1, n, r_1, r_lm1);
                 (p0*(1-d)) + (p1*sqrt(1+d)); // return

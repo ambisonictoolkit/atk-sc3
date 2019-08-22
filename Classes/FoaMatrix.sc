@@ -409,8 +409,8 @@ FoaMatrix : AtkMatrix {
 				"",		{},	// ignore blank line
 				{	// found valid line
 					case
-					{numRows.isNil} { numRows = val.asInt }
-					{numCols.isNil} { numCols = val.asInt }
+					{numRows.isNil} { numRows = val.asInteger }
+					{numCols.isNil} { numCols = val.asInteger }
 					{
 						row = row.add(val.asFloat);
 						if (row.size==numCols) {

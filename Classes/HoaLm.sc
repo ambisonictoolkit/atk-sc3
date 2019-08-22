@@ -62,32 +62,32 @@ HoaLm {
 
         switch (ordering,
             \acn, {
-                l = (floor(sqrt(index))).asInt;
+                l = (floor(sqrt(index))).asInteger;
                 m = index - l.squared - l
                 ^this.new([l, m])
             },
             \sid, {
                 var m0, m1, bool;
-                l = index.sqrt.floor.asInt;
-                m0 = (((l + 1).squared - (index + 1)) / 2).floor.asInt;
-                m1 = -1 * (((l + 1).squared - index) / 2).floor.asInt;
+                l = index.sqrt.floor.asInteger;
+                m0 = (((l + 1).squared - (index + 1)) / 2).floor.asInteger;
+                m1 = -1 * (((l + 1).squared - index) / 2).floor.asInteger;
                 bool = (m0 == m1.abs);
-                m = (m0 * bool.asInt) + (m1 * bool.not.asInt);
+                m = (m0 * bool.asInteger) + (m1 * bool.not.asInteger);
                 ^this.new([l, m])
             },
             \fuma, {
-                l = index.sqrt.floor.asInt;
+                l = index.sqrt.floor.asInteger;
 
                 ^(l<=1).if({
                     this.newIndex(index, \sid)
                 }, {
                     var m, m0, m1, bool;
 
-                    m0 = -1 * ((index - l.squared) / 2).floor.asInt;
-                    m1 = ((index +1 - l.squared) / 2).floor.asInt;
+                    m0 = -1 * ((index - l.squared) / 2).floor.asInteger;
+                    m1 = ((index +1 - l.squared) / 2).floor.asInteger;
 
                     bool = (m1 == m0.abs);
-                    m = (m0 * bool.asInt) + (m1 * bool.not.asInt);
+                    m = (m0 * bool.asInteger) + (m1 * bool.not.asInteger);
 
                     this.new([l, m])
                 })
@@ -205,7 +205,7 @@ HoaLm {
             },
             \sn3d, {
                 var dm, mabs;
-                dm = (m==0).asInt;
+                dm = (m==0).asInteger;
                 mabs = m.abs;
                 ^sqrt(
                     (2 - dm) * (
@@ -220,7 +220,7 @@ HoaLm {
             },
             \sn2d, {
                 var lne0;
-                lne0 = (l>0).asInt;
+                lne0 = (l>0).asInteger;
                 ^2.pow(-0.5 * lne0) * this.normalisation(\n2d)
             },
             \maxN, {

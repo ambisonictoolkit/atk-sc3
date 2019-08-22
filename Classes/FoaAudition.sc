@@ -288,7 +288,7 @@ FoaAudition {
 
 
     diffRtt_ { |boolInt|
-        diffSynth.set(\rtt, boolInt.asInt);
+        diffSynth.set(\rtt, boolInt.asInteger);
         this.changed(\rtt, boolInt);
     }
 
@@ -620,7 +620,7 @@ FoaAuditionView {
 
         pulsedChk = CheckBox()
         .action_({ |me|
-            audition.pwSynth.set( \pulsed, me.value.asInt );
+            audition.pwSynth.set( \pulsed, me.value.asInteger );
         });
         audition.pwSynth.get(\pulsed, { |val|
             defer {pulsedChk.value_( val )};
@@ -639,22 +639,22 @@ FoaAuditionView {
 
         rotChk = CheckBox()
         .action_({ |me|
-            var val = me.value.asInt;
+            var val = me.value.asInteger;
             audition.pwSynth.set( \rotating, val );
         });
 
         audition.pwSynth.get( \rotating, { |val|
-            defer {rotChk.value_( val.asInt )};
+            defer {rotChk.value_( val.asInteger )};
         });
 
         tumChk = CheckBox()
         .action_({ |me|
-            var val = me.value.asInt;
+            var val = me.value.asInteger;
             audition.pwSynth.set( \tumbling, val );
         });
 
         audition.pwSynth.get( \tumbling, { |val|
-            defer {tumChk.value_( val.asInt )};
+            defer {tumChk.value_( val.asInteger )};
         });
 
         rotPerBx = NumberBox()
@@ -812,7 +812,7 @@ FoaAuditionView {
         fileTxt = StaticText();
 
         diffRttChk = CheckBox()
-        .action_({|bx| audition.diffRtt_(bx.value.asInt) });
+        .action_({|bx| audition.diffRtt_(bx.value.asInteger) });
 
         audition.diffSynth.get(\rtt, { |val|
             defer {diffRttChk.value_( val.asBoolean )};

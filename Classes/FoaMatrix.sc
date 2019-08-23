@@ -60,10 +60,10 @@
 //-----------------------------------------------------------------------
 // Support for Gerzon's Diametric Decoder Theorem (DDT) decoding
 // algorithm is derived from Aaron Heller's Octave code available at:
-// http://www.ai.sri.com / ajh / ambisonics /
+// http://www.ai.sri.com/ajh/ambisonics/
 //
 // Benjamin, et al., "Localization in Horizontal-Only Ambisonic Systems"
-// Preprint from AES-121, 10 / 2006, San Francisco
+// Preprint from AES-121, 10/2006, San Francisco
 //
 // Implementation in the SuperCollider3 version of the ATK is by
 // Joseph Anderson <j.anderson[at]ambisonictoolkit.net>
@@ -72,7 +72,7 @@
 //
 //-----------------------------------------------------------------------
 // Irregular array decoding coefficients (5.0) are kindly provided
-// by Bruce Wiggins: http://www.brucewiggins.co.uk /
+// by Bruce Wiggins: http://www.brucewiggins.co.uk/
 //
 // B. Wiggins, "An Investigation into the Real-time Manipulation and
 // Control of Three-dimensional Sound Fields, " PhD Thesis, University of
@@ -296,7 +296,7 @@ FoaMatrix : AtkMatrix {
 
 			fileParse[\type].isNil.if({
 				"Matrix 'type' is undefined in the .yml file: cannot confirm the "
-				"type matches the loaded object (encoder / decoder / xformer)".warn
+				"type matches the loaded object (encoder/decoder/xformer)".warn
 			}, {
 				(fileParse[\type].asSymbol != mtxType.asSymbol).if{
 					Error(
@@ -383,7 +383,7 @@ FoaMatrix : AtkMatrix {
 
 		attributeDictionary !? {
 			attributeDictionary.keysValuesDo{ |k, v|
-				// catch overridden dirIn / Outputs
+				// catch overridden dirIn/Outputs
 				switch(k,
 					'dirInputs', { dirIns = v },
 					'dirOutputs', { dirOuts = v },
@@ -1835,7 +1835,7 @@ FoaDecoderKernel {
 			)
 		};
 
-		decodersPath	= PathName.new("/FOA / decoders");
+		decodersPath	= PathName.new("/FOA/decoders");
 
 		^kernelLibPath +/+ decodersPath +/+ PathName.new(kind.asString)
 	}
@@ -2099,7 +2099,7 @@ FoaEncoderKernel {
 	}
 
 	// Encoding via Isophonics Room Impulse Response Data Set, not yet implemented.
-	// (http://isophonics.net / content / room-impulse-response-data-set)
+	// (http://isophonics.net/content/room-impulse-response-data-set)
 	//
 	// NOTE: Convolution2 doesn't support large, arbitrary sized kernels.
 
@@ -2126,7 +2126,7 @@ FoaEncoderKernel {
 			PathName.new(Atk.systemKernelDir)	// no? set for single user
 		};
 
-		encodersPath = PathName.new("/FOA / encoders");
+		encodersPath = PathName.new("/FOA/encoders");
 
 		^kernelLibPath +/+ encodersPath +/+ PathName.new(kind.asString)
 	}
@@ -2183,7 +2183,7 @@ FoaEncoderKernel {
 			}
 
 			// Encoding via Isophonics Room Impulse Response Data Set, not yet implemented.
-			// (http://isophonics.net / content / room-impulse-response-data-set)
+			// (http://isophonics.net/content/room-impulse-response-data-set)
 			//
 			// NOTE: Convolution2 doesn't support large, arbitrary sized kernels.
 

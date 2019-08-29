@@ -221,6 +221,9 @@ HoaEncodeDirection : HoaUGen {
 		var toPhi, n, hoaOrder, coeffs;
 		var zenith, tumbleRotate;
 
+		// check input is a single channel (mono)
+		HoaUGen.confirmNumInputs(in, 1);
+
 		// angle to bring the zenith to phi
 		toPhi = phi - 0.5pi;
 

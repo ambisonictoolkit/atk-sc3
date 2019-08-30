@@ -1,6 +1,6 @@
 CLASS:: Atk
 summary:: a class that stores some global variables for the Ambisonic Toolkit
-categories:: Libraries>Ambisonic Toolkit>Internals
+categories:: Libraries>Ambisonic Toolkit>Environment
 related:: Classes/AtkFoa, Classes/AtkHoa, Guides/Intro-to-the-ATK
 
 DESCRIPTION::

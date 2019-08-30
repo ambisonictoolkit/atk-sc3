@@ -1,6 +1,6 @@
 TITLE:: AtkMatrix
 summary:: A superclass to the Atk's various matrix classes.
-categories:: Libraries>Ambisonic Toolkit>Internals
+categories:: Libraries>Ambisonic Toolkit>Environment>Framework
 related:: Classes/FoaEncoderMatrix, Classes/FoaDecoderMatrix, Classes/FoaXformerMatrix, Classes/HoaMatrixEncoder, Classes/HoaMatrixDecoder, Classes/HoaMatrixXformer, Classes/Matrix, Guides/Guide-to-ATK-Matrix-Files
 
 DESCRIPTION::

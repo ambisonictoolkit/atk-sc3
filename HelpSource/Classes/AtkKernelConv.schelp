@@ -1,6 +1,6 @@
 CLASS:: AtkKernelConv
 summary:: Kernel convolution from the Ambisonic Toolkit (ATK)
-categories:: Libraries>Ambisonic Toolkit>Internals, UGens>Multichannel>Ambisonics
+categories:: Libraries>Ambisonic Toolkit>Environment>Framework>UGens, UGens>Multichannel>Ambisonics
 related:: Classes/Convolution2, Classes/AtkMatrixMix
 
 DESCRIPTION::

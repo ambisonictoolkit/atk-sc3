@@ -1,6 +1,6 @@
 CLASS:: Foa
 summary:: First Order Ambisonic (FOA) UGen superclass
-categories:: Libraries>Ambisonic Toolkit>Internals
+categories:: Libraries>Ambisonic Toolkit>FOA>Framework>UGens
 
 
 DESCRIPTION::
@@ -9,4 +9,3 @@ UGen superclass from the Ambisonic Toolkit (ATK)
 note::
 In normal circumstances, the user will not call link::Classes/Foa:: directly.
 ::
-

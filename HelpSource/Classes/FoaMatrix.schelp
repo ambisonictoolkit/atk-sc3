@@ -1,6 +1,6 @@
 TITLE:: FoaMatrix
 summary:: A superclass to the Atk's various First Order Ambisonic (FOA) matrix classes.
-categories:: Libraries>Ambisonic Toolkit>Internals
+categories:: Libraries>Ambisonic Toolkit>FOA>Framework
 related:: Classes/AtkMatrix, Classes/FoaEncoderMatrix, Classes/FoaDecoderMatrix, Classes/FoaXformerMatrix, Classes/Matrix, Guides/Guide-to-ATK-Matrix-Files
 
 DESCRIPTION::

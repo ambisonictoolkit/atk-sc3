@@ -1,6 +1,6 @@
 TITLE:: HoaOrder
 summary:: Higher order ambisonic (HOA) indexing & coefficients
-categories:: Libraries>Ambisonic Toolkit>HOA>Utilities, Libraries>Ambisonic Toolkit>Internals
+categories:: Libraries>Ambisonic Toolkit>HOA>Framework>Coefficient
 related:: Classes/HoaLm, Classes/HoaDegree
 
 DESCRIPTION::

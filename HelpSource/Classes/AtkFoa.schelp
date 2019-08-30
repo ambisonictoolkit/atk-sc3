@@ -1,6 +1,6 @@
 TITLE:: AtkFoa
 summary:: A class that stores some global FOA variables for the Ambisonic Toolkit
-categories:: Libraries>Ambisonic Toolkit>Internals
+categories:: Libraries>Ambisonic Toolkit>Environment
 related:: Classes/Atk, Classes/AtkHoa, Guides/ATK-Glossary
 
 DESCRIPTION::

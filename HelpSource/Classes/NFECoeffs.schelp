@@ -1,6 +1,6 @@
 TITLE:: NFECoeffs
 summary:: Higher Order Ambisonic (HOA) "by degree" radial filtering coefficients
-categories:: Libraries>Ambisonic Toolkit>Internals
+categories:: Libraries>Ambisonic Toolkit>HOA>Framework>Coefficient
 related:: Classes/DegreeProx, Classes/DegreeDist, Classes/DegreeCtrl
 
 DESCRIPTION::

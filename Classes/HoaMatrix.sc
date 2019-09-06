@@ -51,6 +51,12 @@
 HoaMatrix : AtkMatrix {
 
 	var <directions;
+	classvar <>pathtoADT, <>pathtoOctave;
+
+	*initClass{
+		pathtoADT = "/Users/dan/Projects/Forks/adt/";
+		pathtoOctave = "octave";
+	}
 
 	// call by subclass, only
 	*newFromMatrix { |matrix, directions = ([[ 0, 0 ]]), order = (AtkHoa.defaultOrder)|
@@ -60,6 +66,12 @@ HoaMatrix : AtkMatrix {
 	// call by subclass, only
 	*newFromFile { |filePathOrName, searchExtensions = true, order = (AtkHoa.defaultOrder)|
 		^super.new('fromFile', order).initFromFile(filePathOrName, searchExtensions)
+	}
+
+	*newADT { |directions = ([[ 0, 0 ]]), decoder_type = 'allrad', h_order = (AtkHoa.defaultOrder), v_order = (AtkHoa.defaultOrder), mixed_order_scheme = 'HV', ordering_rule = 'ACN', encoding_convention = 'N3D', filename = 'Atk'|
+		^super.new('fromADT', h_order)
+		.initDirections(directions)
+		.initADT(decoder_type, h_order, v_order, mixed_order_scheme, ordering_rule, encoding_convention, filename)
 	}
 
 	initDirections { |argDirections|
@@ -223,6 +235,10 @@ HoaMatrix : AtkMatrix {
 			).errorString.postln;
 			this.halt;
 		};
+	}
+
+	initADT { |decoder_type, h_order, v_order, mixed_order_scheme, ordering_rule, encoding_convention, filename|
+		this.prADT(decoder_type, h_order, v_order, mixed_order_scheme, ordering_rule, encoding_convention, filename);
 	}
 
 	initDirTDesign { |design, order|
@@ -425,6 +441,40 @@ HoaMatrix : AtkMatrix {
 			// '\xformer', { this.numInputs.collect({ inf }) },
 			'\xformer', { this.directions }  // requires set to inf
 		)
+	}
+
+	// save directions to text file for use with Matlab - ADT
+	prSaveDirs { |tmpPath|
+		var file;
+		file = File.new(tmpPath, "w");
+		this.directions.do{ |dirs|
+			// write directions with trailing space
+			dirs.do{ |dir|
+				file.write(dir.asString ++ " ");
+			};
+			// write "dummy" radius
+			file.write("1.0\n");
+		};
+		file.close;
+	}
+
+	prADT { |decoder_type = 'allrad', h_order = (AtkHoa.defaultOrder), v_order = (AtkHoa.defaultOrder), mixed_order_scheme = 'HV', ordering_rule = 'ACN', encoding_convention = 'N3D', filename = 'Atk'|
+		var directions_path, command, paramArr;
+		// collect dirs into txt file to load into ADT
+		directions_path = Platform.defaultTempDir ++ "directions.txt";
+		this.prSaveDirs(directions_path);
+		// init command to octave plus matlab (octave) script
+		command = pathtoOctave + pathtoADT ++ "matlab/run_adt_from_atk.m";
+		// collect params
+		paramArr = [h_order, v_order, mixed_order_scheme, ordering_rule, encoding_convention, directions_path, decoder_type];
+		// append params to command
+		paramArr.do{ |param|
+			command = command + param;
+		};
+		// append decoder write path
+		command = command + (Atk.userMatrixDir ++ "/HOA/decoders/" ++ filename).escapeChar($ );
+		command.postln;
+		command.runInTerminal
 	}
 
 }

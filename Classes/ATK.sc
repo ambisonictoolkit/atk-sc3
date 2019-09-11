@@ -99,8 +99,10 @@ Atk {
 	classvar <userSupportDir, <userSoundsDir, <userKernelDir, <userMatrixDir, <userExtensionsDir;
 	classvar <systemSupportDir, <systemSoundsDir, <systemKernelDir, <systemMatrixDir, <systemExtensionsDir;
 	classvar <sets;
+	classvar <>userADTDir, <>userOctaveCmd;
 
 	*initClass {
+
 		userSupportDir = Platform.userAppSupportDir.dirname ++ "/ATK";
 		userSoundsDir = userSupportDir ++ "/sounds";
 		userKernelDir = userSupportDir ++ "/kernels";
@@ -112,6 +114,9 @@ Atk {
 		systemKernelDir = systemSupportDir ++ "/kernels";
 		systemMatrixDir = systemSupportDir ++ "/matrices";
 		systemExtensionsDir = systemSupportDir ++ "/extensions";
+
+		userADTDir = Platform.userHomeDir ++ "/Projects/Forks/adt/";
+		userOctaveCmd = "which octave".unixCmdGetStdOut.replace($\n);
 
 		// Supported sets—this is only for directory management and
 		// should be revisited. No need for arbitrary set limit.

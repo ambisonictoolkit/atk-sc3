@@ -107,7 +107,7 @@ code::
 // design spectra
 ~hoaOrder = ~order.asHoaOrder;
 ~angularCoeffs = ~hoaOrder.sph(~theta, ~phi);
-~radialSpectra = Spectrum.hoaCtrl(~size, ~radius, ~refRadius, ~order, ~sampleRate, ~speedOfSound);
+~radialSpectra = FreqSpectrum.hoaCtrl(~size, ~radius, ~refRadius, ~order, ~sampleRate, ~speedOfSound);
 
 // design encoding spectra @ [ ~theta, ~phi, ~radius ]
 ~encodingSpectra = ~radialSpectra[~hoaOrder.l].collect({ arg spectrum, index;
@@ -231,7 +231,7 @@ code::
 
 ~match = \frms;
 
-~spectra = Spectrum.hoaMultiBandFocl(~size, ~radius, beamDict: ~beamDict, match: ~match, order: ~order, sampleRate: ~sampleRate);
+~spectra = FreqSpectrum.hoaMultiBandFocl(~size, ~radius, beamDict: ~beamDict, match: ~match, order: ~order, sampleRate: ~sampleRate);
 
 ~spectra.do({ arg spectrum, i; (spectrum.magnitude + -120.0.dbamp).ampdb.plot("Deegree: % ".format(i), minval: -60.0, maxval: 10.0) });
 ::
@@ -258,7 +258,7 @@ code::
 
 ~match = \rms;
 
-~spectra = Spectrum.hoaMultiBandFocl(~size, ~radius, beamDict: ~beamDict, match: ~match, order: ~order, sampleRate: ~sampleRate);
+~spectra = FreqSpectrum.hoaMultiBandFocl(~size, ~radius, beamDict: ~beamDict, match: ~match, order: ~order, sampleRate: ~sampleRate);
 
 ~spectra.do({ arg spectrum, i; (spectrum.magnitude + -120.0.dbamp).ampdb.plot("Deegree: % ".format(i), minval: -60.0, maxval: 10.0) });
 ::
@@ -286,7 +286,7 @@ code::
 
 ~match = \amp;
 
-~spectra = Spectrum.hoaMultiBandFocl(~size, ~radius, beamDict: ~beamDict, match: ~match, order: ~order, sampleRate: ~sampleRate);
+~spectra = FreqSpectrum.hoaMultiBandFocl(~size, ~radius, beamDict: ~beamDict, match: ~match, order: ~order, sampleRate: ~sampleRate);
 
 ~spectra.do({ arg spectrum, i; (spectrum.magnitude + -120.0.dbamp).ampdb.plot("Deegree: % ".format(i), minval: -60.0, maxval: 10.0) });
 ::
@@ -312,7 +312,7 @@ code::
 
 ~match = \rms;
 
-~spectra = Spectrum.hoaMultiBandFocl(~size, beamDict: ~beamDict, match: ~match, order: ~order, sampleRate: ~sampleRate);
+~spectra = FreqSpectrum.hoaMultiBandFocl(~size, beamDict: ~beamDict, match: ~match, order: ~order, sampleRate: ~sampleRate);
 
 ~spectra.do({ arg spectrum, i; (spectrum.magnitude + -120.0.dbamp).ampdb.plot("Deegree: % ".format(i), minval: -60.0, maxval: 10.0) });
 ::

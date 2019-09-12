@@ -49,7 +49,7 @@
 + Signal {
 
 	*hoaDist { |size, radius = (AtkHoa.refRadius), order = (AtkHoa.defaultOrder), sampleRate = nil, speedOfSound = (AtkHoa.speedOfSound)|
-		var complexes = Spectrum.hoaDist(size, radius, order, sampleRate, speedOfSound).collect({ |spectrum|
+		var complexes = FreqSpectrum.hoaDist(size, radius, order, sampleRate, speedOfSound).collect({ |spectrum|
 			spectrum.asComplex
 		});
 
@@ -71,7 +71,7 @@
 	}
 
 	*hoaCtrl { |size, encRadius = (AtkHoa.refRadius), decRadius = (AtkHoa.refRadius), order = (AtkHoa.defaultOrder), sampleRate = nil, speedOfSound = (AtkHoa.speedOfSound)|
-		var complexes = Spectrum.hoaCtrl(size, encRadius, decRadius, order, sampleRate, speedOfSound).collect({ |spectrum|
+		var complexes = FreqSpectrum.hoaCtrl(size, encRadius, decRadius, order, sampleRate, speedOfSound).collect({ |spectrum|
 			spectrum.asComplex
 		});
 
@@ -93,7 +93,7 @@
 	}
 
 	*hoaFocl { |size, radius = (AtkHoa.refRadius), order = (AtkHoa.defaultOrder), window = \reg, sampleRate = nil, speedOfSound = (AtkHoa.speedOfSound)|
-		var complexes = Spectrum.hoaFocl(size, radius, order, window, sampleRate, speedOfSound).collect({ |spectrum|
+		var complexes = FreqSpectrum.hoaFocl(size, radius, order, window, sampleRate, speedOfSound).collect({ |spectrum|
 			spectrum.linearPhase.asComplex  // linear phase
 		});
 
@@ -115,7 +115,7 @@
 	}
 
 	*hoaMultiBandFocl { |size, radius = nil, beamDict = nil, dim = 3, match = \amp, numChans = nil, order = (AtkHoa.defaultOrder), window = \reg, sampleRate = nil, speedOfSound = (AtkHoa.speedOfSound)|
-		var complexes = Spectrum.hoaMultiBandFocl(size, radius, beamDict, dim, match, numChans, order, window, sampleRate, speedOfSound).collect({ |spectrum|
+		var complexes = FreqSpectrum.hoaMultiBandFocl(size, radius, beamDict, dim, match, numChans, order, window, sampleRate, speedOfSound).collect({ |spectrum|
 			spectrum.linearPhase.asComplex  // linear phase
 		});
 

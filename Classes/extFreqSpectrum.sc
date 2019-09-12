@@ -24,7 +24,7 @@
 //---------------------------------------------------------------------
 //	The Ambisonic Toolkit (ATK) is a soundfield kernel support library.
 //
-// 	Extension: Spectrum
+// 	Extension: FreqSpectrum
 //
 //	The Ambisonic Toolkit (ATK) is intended to bring together a number of tools and
 //	methods for working with Ambisonic surround sound. The intention is for the toolset
@@ -46,7 +46,7 @@
 //
 //---------------------------------------------------------------------
 
-+ Spectrum {
++ FreqSpectrum {
 
 	*hoaProx { |size, radius = (AtkHoa.refRadius), order = (AtkHoa.defaultOrder), sampleRate = nil, speedOfSound = (AtkHoa.speedOfSound)|
 		var hoaOrder = order.asHoaOrder;
@@ -106,7 +106,7 @@
 			});
 		});
 		^(order + 1).collect({ |degree|
-			Spectrum.new(magnitudes.at(degree), phases.at(degree))
+			FreqSpectrum.new(magnitudes.at(degree), phases.at(degree))
 		})
 	}
 
@@ -168,7 +168,7 @@
 			});
 		});
 		^(order + 1).collect({ |degree|
-			Spectrum.new(magnitudes.at(degree), phases.at(degree))
+			FreqSpectrum.new(magnitudes.at(degree), phases.at(degree))
 		})
 	}
 
@@ -230,7 +230,7 @@
 			});
 		});
 		^(order + 1).collect({ |degree|
-			Spectrum.new(magnitudes.at(degree), phases.at(degree))
+			FreqSpectrum.new(magnitudes.at(degree), phases.at(degree))
 		})
 	}
 
@@ -262,7 +262,7 @@
 			).flop.asArray;  // collect as List, due to Array -flop bug
 		});
 		^magnitudes.collect({ |magnitude|
-			Spectrum.new(magnitude)
+			FreqSpectrum.new(magnitude)
 		})
 	}
 
@@ -310,7 +310,7 @@
 		// focalisation magnitudes?
 		(radius != nil).if({
 			// focal magnitude
-			foclMags = Spectrum.hoaFocl(size, radius, order, window, sampleRate, speedOfSound).collect({ |spectrum|
+			foclMags = FreqSpectrum.hoaFocl(size, radius, order, window, sampleRate, speedOfSound).collect({ |spectrum|
 				spectrum.magnitude
 			})
 		}, {
@@ -331,8 +331,8 @@
 					var beamWeights = beamDict.at(\beamShapes).collect({ |beamShape|
 						hoaOrder.beamWeights(beamShape, dim)
 					});
-					beamMags = (order + 1).collect({ |degree|
-						Spectrum.logShelf(size, freqs.at(0), freqs.at(1), beamWeights.at(0).at(degree).ampdb, beamWeights.at(1).at(degree).ampdb, sampleRate).magnitude
+					beamMags = (order + 1).collect({ arg degree;
+						FreqSpectrum.logShelf(size, freqs.at(0), freqs.at(1), beamWeights.at(0).at(degree).ampdb, beamWeights.at(1).at(degree).ampdb, sampleRate).magnitude
 					})
 				})
 			},
@@ -344,9 +344,9 @@
 					var beamWeights = beamDict.at(\beamShapes).collect({ |beamShape|
 						hoaOrder.beamWeights(beamShape, dim)
 					});
-					beamMags = (order + 1).collect({ |degree|
-						Spectrum.logShelf(size, freqs.at(0), freqs.at(1), beamWeights.at(0).at(degree).ampdb, beamWeights.at(1).at(degree).ampdb, sampleRate).magnitude *
-						Spectrum.logShelf(size, freqs.at(2), freqs.at(3), 0.0, (beamWeights.at(2).at(degree) / beamWeights.at(1).at(degree)).ampdb, sampleRate).magnitude
+					beamMags = (order + 1).collect({ arg degree;
+						FreqSpectrum.logShelf(size, freqs.at(0), freqs.at(1), beamWeights.at(0).at(degree).ampdb, beamWeights.at(1).at(degree).ampdb, sampleRate).magnitude *
+						FreqSpectrum.logShelf(size, freqs.at(2), freqs.at(3), 0.0, (beamWeights.at(2).at(degree) / beamWeights.at(1).at(degree)).ampdb, sampleRate).magnitude
 					})
 				})
 			}
@@ -360,7 +360,7 @@
 			magnitudes = foclMags * beamMags * matchWeights.value(beamMags, dim, match, numChans)
 		});
 		^magnitudes.collect({ |magnitude|
-			Spectrum.new(magnitude)
+			FreqSpectrum.new(magnitude)
 		})
 	}
 

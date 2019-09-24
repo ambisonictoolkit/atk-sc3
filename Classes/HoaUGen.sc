@@ -284,7 +284,7 @@ HoaEncodeDirection : HoaUGen {
 // Rotation about Z axis.
 HoaRotate : HoaUGen {
 
-	*ar { |in, radians, order = (AtkHoa.defaultOrder)|
+	*ar { |in, angle, order = (AtkHoa.defaultOrder)|
 		var n;
 		var i = 0;
 		var out, cos, sin;
@@ -302,7 +302,7 @@ HoaRotate : HoaUGen {
 			c = Array.newClear(n);  // [cos(1 * ang), cos(2 * ang), ... cos(n * ang)]
 
 			// precompute first 2 sin/cos for recurrence
-			ang = radians;
+			ang = angle;
 			s[0] = sin(ang);
 			c[0] = cos(ang);
 			if (n > 1) {
@@ -345,7 +345,7 @@ HoaRotate : HoaUGen {
 
 // Rotation about X axis.
 HoaTilt : HoaUGen {
-	*ar { |in, radians, order = (AtkHoa.defaultOrder)|
+	*ar { |in, angle, order = (AtkHoa.defaultOrder)|
 		var n, mK, hoa;
 
 		n = HoaUGen.confirmOrder(in, order);
@@ -360,14 +360,14 @@ HoaTilt : HoaUGen {
 		// bringing +Y toward +Z requires a rotation in the clockwise
 		// (negative) direction.
 		hoa = HoaUGen.mixMatrix(in, mK);
-		hoa = HoaRotate.ar(hoa, radians.neg, n);
+		hoa = HoaRotate.ar(hoa, angle.neg, n);
 		^HoaUGen.mixMatrix(hoa, mK);
 	}
 }
 
 // Rotation about Y axis.
 HoaTumble : HoaUGen {
-	*ar { |in, radians, order = (AtkHoa.defaultOrder)|
+	*ar { |in, angle, order = (AtkHoa.defaultOrder)|
 		var n, mJ, hoa;
 
 		n = HoaUGen.confirmOrder(in, order);
@@ -377,7 +377,7 @@ HoaTumble : HoaUGen {
 
 		// tumple/pitch : J -> Z(tumble) -> J
 		hoa = HoaUGen.mixMatrix(in, mJ);
-		hoa = HoaRotate.ar(hoa, radians, n);
+		hoa = HoaRotate.ar(hoa, angle, n);
 		^HoaUGen.mixMatrix(hoa, mJ);
 	}
 }

@@ -965,8 +965,8 @@ FoaThetaPhiA : FoaEval {
 
 			ia = gateA * ia;
 
-			theta = atan2(ia.at(1), ia.at(0) + reg);
-			phi = atan2(ia.at(2), (ia.at(0).squared + ia.at(1).squared + reg).sqrt);
+			theta = atan2(ia[1], ia[0] + reg);
+			phi = atan2(ia[2], (ia[0].squared + ia[1].squared + reg).sqrt);
 
 			^Array.with(theta, phi)
 		}
@@ -994,8 +994,8 @@ FoaThetaPhiA : FoaEval {
 
 			ia = gateA * ia;
 
-			theta = atan2(ia.at(1), ia.at(0) + reg);
-			phi = atan2(ia.at(2), (ia.at(0).squared + ia.at(1).squared + reg).sqrt);
+			theta = atan2(ia[1], ia[0] + reg);
+			phi = atan2(ia[2], (ia[0].squared + ia[1].squared + reg).sqrt);
 
 			^Array.with(theta, phi)
 		}
@@ -1038,8 +1038,8 @@ FoaThetaPhiR : FoaEval {
 
 			ir = gateR * ir;
 
-			theta = atan2(ir.at(1), ir.at(0) + reg);
-			phi = atan2(ir.at(2), (ir.at(0).squared + ir.at(1).squared + reg).sqrt);
+			theta = atan2(ir[1], ir[0] + reg);
+			phi = atan2(ir[2], (ir[0].squared + ir[1].squared + reg).sqrt);
 
 			^Array.with(theta, phi)
 		}

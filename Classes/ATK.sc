@@ -796,7 +796,7 @@ AtkMatrixMix {
 
 		out = Mix.fill(matrix.cols, { |i| // fill input
 			UGen.replaceZeroesWithSilence(
-				matrix.flop.asArray.at(i) * in.at(i)
+				matrix.flop.asArray[i] * in[i]
 			)
 		});
 
@@ -813,12 +813,12 @@ AtkKernelConv {
 		in.isArray.not.if({ in = [in] });
 
 		out = Mix.new(
-			kernel.shape.at(0).collect({ |i|
-				kernel.shape.at(1).collect({ |j|
+			kernel.shape[0].collect({ |i|
+				kernel.shape[1].collect({ |j|
 					Convolution2.ar(
-						in.at(i),
-						kernel.at(i).at(j),
-						framesize: kernel.at(i).at(j).numFrames
+						in[i],
+						kernel[i][j],
+						framesize: kernel[i][j].numFrames
 					)
 				})
 			})
@@ -849,7 +849,7 @@ FoaUGen {
 		// find ugen args, drop ['this', sig]
 		ugenKeys = ugen.class.findRespondingMethodFor(\ar).argNames.drop(2);
 		ugenDict = Dictionary.new;
-		ugenKeys.do({ |key, i| ugenDict.put(key, argDefaults.at(i)) });
+		ugenKeys.do({ |key, i| ugenDict.put(key, argDefaults[i]) });
 
 		// find index dividing ordered and named args
 		index = args.detectIndex({ |item| ugenKeys.matchItem(item) });
@@ -862,7 +862,7 @@ FoaUGen {
 			index = args.size;
 		});
 		userDict = userDict.putAll(Dictionary.newFrom((index).collect({ |i|
-			[ugenKeys.at(i), args.at(i)] }).flat));
+			[ugenKeys[i], args[i]] }).flat));
 
 		// merge
 		^ugenDict.merge(userDict, { |ugenArg, userArg|
@@ -880,7 +880,7 @@ FoaDecode : FoaUGen {
 
 				(decoder.shelfFreq.isNumber).if{ // shelf filter?
 					in = FoaPsychoShelf.ar(in,
-						decoder.shelfFreq, decoder.shelfK.at(0), decoder.shelfK.at(1))
+						decoder.shelfFreq, decoder.shelfK[0], decoder.shelfK[1])
 				};
 
 				^AtkMatrixMix.ar(in, decoder.matrix, mul, add)
@@ -970,7 +970,7 @@ FoaTransform : FoaUGen {
 //			// find ugen args, drop ['this', w, x, y, z]
 //			ugenKeys = ugen.class.findRespondingMethodFor(\ar).argNames.drop(2);
 //			ugenDict = Dictionary.new;
-//			ugenKeys.do({ |key, i| ugenDict.put(key, argDefaults.at(i)) });
+//			ugenKeys.do({ |key, i| ugenDict.put(key, argDefaults[i]) });
 //
 //			// build user dictionary
 //			userDict = Dictionary.new(ugenKeys.size);
@@ -980,7 +980,7 @@ FoaTransform : FoaUGen {
 //				index = args.size;
 //			});
 //			userDict = userDict.putAll(Dictionary.newFrom((index).collect({ |i|
-//				[ugenKeys.at(i), args.at(i)] }).flat));
+//				[ugenKeys[i], args[i]] }).flat));
 //
 //			// merge
 //			ugenDict.merge(userDict, {

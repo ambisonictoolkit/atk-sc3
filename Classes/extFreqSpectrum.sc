@@ -106,7 +106,7 @@
 			});
 		});
 		^(order + 1).collect({ |degree|
-			FreqSpectrum.new(magnitudes.at(degree), phases.at(degree))
+			FreqSpectrum.new(magnitudes[degree], phases[degree])
 		})
 	}
 
@@ -168,7 +168,7 @@
 			});
 		});
 		^(order + 1).collect({ |degree|
-			FreqSpectrum.new(magnitudes.at(degree), phases.at(degree))
+			FreqSpectrum.new(magnitudes[degree], phases[degree])
 		})
 	}
 
@@ -230,7 +230,7 @@
 			});
 		});
 		^(order + 1).collect({ |degree|
-			FreqSpectrum.new(magnitudes.at(degree), phases.at(degree))
+			FreqSpectrum.new(magnitudes[degree], phases[degree])
 		})
 	}
 
@@ -332,7 +332,7 @@
 						hoaOrder.beamWeights(beamShape, dim)
 					});
 					beamMags = (order + 1).collect({ arg degree;
-						FreqSpectrum.logShelf(size, freqs.at(0), freqs.at(1), beamWeights.at(0).at(degree).ampdb, beamWeights.at(1).at(degree).ampdb, sampleRate).magnitude
+						FreqSpectrum.logShelf(size, freqs[0], freqs[1], beamWeights[0][degree].ampdb, beamWeights[1][degree].ampdb, sampleRate).magnitude
 					})
 				})
 			},
@@ -345,8 +345,8 @@
 						hoaOrder.beamWeights(beamShape, dim)
 					});
 					beamMags = (order + 1).collect({ arg degree;
-						FreqSpectrum.logShelf(size, freqs.at(0), freqs.at(1), beamWeights.at(0).at(degree).ampdb, beamWeights.at(1).at(degree).ampdb, sampleRate).magnitude *
-						FreqSpectrum.logShelf(size, freqs.at(2), freqs.at(3), 0.0, (beamWeights.at(2).at(degree) / beamWeights.at(1).at(degree)).ampdb, sampleRate).magnitude
+						FreqSpectrum.logShelf(size, freqs[0], freqs[1], beamWeights[0][degree].ampdb, beamWeights[1][degree].ampdb, sampleRate).magnitude *
+						FreqSpectrum.logShelf(size, freqs[2], freqs[3], 0.0, (beamWeights[2][degree] / beamWeights[1][degree]).ampdb, sampleRate).magnitude
 					})
 				})
 			}

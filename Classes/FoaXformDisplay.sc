@@ -930,7 +930,7 @@ FoaXformDisplay {
 					// find my control state param (the input link),
 					inputLink = thisLink.controlStates.select({ |cstate|
 						cstate.isKindOf(FoaMatrixChainLink)
-					}).at(0); // should only return 1 state param: an FoaMatrixChainLink
+					})[0]; // should only return 1 state param: an FoaMatrixChainLink
 
 					// find the index of that link in the chain
 					// and get the key label for that index

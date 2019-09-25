@@ -106,9 +106,9 @@ s.scope(~order.asHoaOrder.size, ~outbus);
     // rotate
     sigHoaRot = HoaYPR.ar(
         sigHoa,
-		ypr.at(0),
-		ypr.at(1),
-		ypr.at(2),
+		ypr[0],
+		ypr[1],
+		ypr[2],
         ~order
     );
 

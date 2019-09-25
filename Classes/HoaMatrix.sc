@@ -71,7 +71,7 @@ HoaMatrix : AtkMatrix {
 				1, { argDirections.collect({ |dir| Array.with(dir, 0.0) }) },
 				2, { argDirections },
 			).collect({ |thetaPhi|  // wrap to [ + /-pi, +/-pi/2]
-				Spherical.new(1, thetaPhi.at(0), thetaPhi.at(1)).asCartesian.asSpherical.angles
+				Spherical.new(1, thetaPhi[0], thetaPhi[1]).asCartesian.asSpherical.angles
 			})
 		})
 	}
@@ -267,21 +267,21 @@ HoaMatrix : AtkMatrix {
 		}, {  // unequal formats
 
 			// 1) normalization - returned coefficients are ordered \acn
-			coeffs = (inputFormat.at(1) == outputFormat.at(1)).if({
+			coeffs = (inputFormat[1] == outputFormat[1]).if({
 				Array.fill(size, { 1.0 })
 			}, {
-				hoaOrder.normalisation(outputFormat.at(1)) / hoaOrder.normalisation(inputFormat.at(1))
+				hoaOrder.normalisation(outputFormat[1]) / hoaOrder.normalisation(inputFormat[1])
 			});
 
 			// 2) generate matrix
-			colIndices = hoaOrder.indices(inputFormat.at(0));
-			rowIndices = hoaOrder.indices(outputFormat.at(0));
+			colIndices = hoaOrder.indices(inputFormat[0]);
+			rowIndices = hoaOrder.indices(outputFormat[0]);
 			matrix = Matrix.newClear(size, size).asFloat;
 			size.do({ |index|  // index increment ordered \acn
 				matrix.put(
-					rowIndices.at(index),
-					colIndices.at(index),
-					coeffs.at(index)
+					rowIndices[index],
+					colIndices[index],
+					coeffs[index]
 				)
 			})
 		})
@@ -501,7 +501,7 @@ HoaMatrixEncoder : HoaMatrix {
 		// norm = 1.0, beamWeights = [1, 1, ..., 1]
 		matrix = Matrix.with(
 			this.directions.collect({ |thetaPhi|
-				hoaOrder.sph(thetaPhi.at(0), thetaPhi.at(1))
+				hoaOrder.sph(thetaPhi[0], thetaPhi[1])
 			}).flop
 		).zeroWithin(AtkHoa.nearZero)
 	}
@@ -526,7 +526,7 @@ HoaMatrixEncoder : HoaMatrix {
 		// build encoder matrix, and set for instance
 		matrix = norm * Matrix.with(
 			this.directions.collect({ |thetaPhi|
-				(1 / beamWeights)[hoaOrder.l] * hoaOrder.sph(thetaPhi.at(0), thetaPhi.at(1));
+				(1 / beamWeights)[hoaOrder.l] * hoaOrder.sph(thetaPhi[0], thetaPhi[1]);
 			}).flop
 		).zeroWithin(AtkHoa.nearZero)
 	}
@@ -706,7 +706,7 @@ HoaMatrixXformer : HoaMatrix {
 		var theta, phi;
 		var decodingMatrix, encodingMatrix;
 
-		#theta, phi = this.directions.at(0);
+		#theta, phi = this.directions[0];
 		this.initDirections;  // reset directions to infs
 
 		// build decoder matrix
@@ -734,7 +734,7 @@ HoaMatrixXformer : HoaMatrix {
 		var decodingMatrix, encodingMatrix;
 		var xformingMatrix;
 
-		#theta, phi = this.directions.at(0);
+		#theta, phi = this.directions[0];
 		this.initDirections;  // reset directions to infs
 
 		// build xforming matrix
@@ -771,11 +771,11 @@ HoaMatrixXformer : HoaMatrix {
 			1, { directions.collect({ |dir| Array.with(dir, 0.0) }) },
 			2, { directions },
 		).collect({ |thetaPhi|
-			Spherical.new(1, thetaPhi.at(0), thetaPhi.at(1)).asCartesian.asArray
+			Spherical.new(1, thetaPhi[0], thetaPhi[1]).asCartesian.asArray
 		});
 		// ... and back to [theta, phi]...
 		encDirs = xyzEncDirs.collect({ |xyz|  // wrap to [ + /-pi, +/-pi/2]
-			Cartesian.new(xyz.at(0), xyz.at(1), xyz.at(2)).asSpherical.angles
+			Cartesian.new(xyz[0], xyz[1], xyz[2]).asSpherical.angles
 		});
 
 		// encode test directions (basic), return encoding matrix
@@ -1010,7 +1010,7 @@ HoaMatrixDecoder : HoaMatrix {
 			},
 			2, {  // 3D
 				directions.collect({ |item|
-					Spherical.new(1, item.at(0), item.at(1)).neg.angles
+					Spherical.new(1, item[0], item[1]).neg.angles
 				})
 			}
 		);
@@ -1049,7 +1049,7 @@ HoaMatrixDecoder : HoaMatrix {
 		// beamWeights = [1, 1, ..., 1]
 		matrix =  norm * Matrix.with(
 			this.directions.collect({ |thetaPhi|
-			   hoaOrder.sph(thetaPhi.at(0), thetaPhi.at(1))
+			   hoaOrder.sph(thetaPhi[0], thetaPhi[1])
 			})
 		).zeroWithin(AtkHoa.nearZero)
 	}
@@ -1074,7 +1074,7 @@ HoaMatrixDecoder : HoaMatrix {
 		// build decoder matrix, and set for instance
 		matrix = norm * Matrix.with(
 			this.directions.collect({ |thetaPhi|
-				beamWeights[hoaOrder.l] * hoaOrder.sph(thetaPhi.at(0), thetaPhi.at(1));
+				beamWeights[hoaOrder.l] * hoaOrder.sph(thetaPhi[0], thetaPhi[1]);
 			})
 		).zeroWithin(AtkHoa.nearZero)
 	}
@@ -1122,7 +1122,7 @@ HoaMatrixDecoder : HoaMatrix {
 		// 3) generate prototype planewave (basic) encoding matrix
 		encodingMatrix = Matrix.with(
 			this.directions.collect({ |item|
-				hoaOrder.sph(item.at(0), item.at(1));  // encoding coefficients
+				hoaOrder.sph(item[0], item[1]);  // encoding coefficients
 			}).flop
 		);
 
@@ -1204,7 +1204,7 @@ HoaMatrixDecoder : HoaMatrix {
 		// 3) generate prototype planewave (basic) encoding matrix
 		encodingMatrix = Matrix.with(
 			this.directions.collect({ |item|
-				hoaOrder.sph(item.at(0), item.at(1));  // encoding coefficients
+				hoaOrder.sph(item[0], item[1]);  // encoding coefficients
 			}).flop
 		);
 
@@ -1282,16 +1282,16 @@ HoaMatrixDecoder : HoaMatrix {
 			1, { directions.collect({ |dir| Array.with(dir, 0.0) }) },
 			2, { directions },
 		).collect({ |thetaPhi|
-			Spherical.new(1, thetaPhi.at(0), thetaPhi.at(1)).asCartesian.asArray
+			Spherical.new(1, thetaPhi[0], thetaPhi[1]).asCartesian.asArray
 		});
 		// ... and back to [theta, phi]...
 		encDirs = xyzEncDirs.collect({ |xyz|  // wrap to [+/-pi, +/-pi/2]
-			Cartesian.new(xyz.at(0), xyz.at(1), xyz.at(2)).asSpherical.angles
+			Cartesian.new(xyz[0], xyz[1], xyz[2]).asSpherical.angles
 		});
 
 		// find decoding unit vectors
 		xyzDecDirs = this.directions.collect({ |thetaPhi|
-			Spherical.new(1, thetaPhi.at(0), thetaPhi.at(1)).asCartesian.asArray
+			Spherical.new(1, thetaPhi[0], thetaPhi[1]).asCartesian.asArray
 		});
 
 		// encode test directions (basic), return encoding matrix

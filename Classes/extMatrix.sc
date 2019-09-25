@@ -75,7 +75,7 @@
 
 		(shapeTest and: numTest).if({
 			rows = array.size;
-			^super.fill(rows, { |col| array.at(col) });
+			^super.fill(rows, { |col| array[col] });
 			}, {
 				error("wrong type of argument in Meta_Matrix-with");this.halt
 		});

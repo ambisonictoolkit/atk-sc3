@@ -378,9 +378,9 @@ code::
 
 
     // calculate klank args
-    frequencies = Array.rand(numModes, freqs.at(0), freqs.at(1)).sort;
-    amplitudes = Array.rand(numModes, gains.at(0), gains.at(1)).sort.reverse.dbamp;
-    ringTimes = Array.rand(numModes, rtimes.at(0), rtimes.at(1)).sort.reverse;
+    frequencies = Array.rand(numModes, freqs[0], freqs[1]).sort;
+    amplitudes = Array.rand(numModes, gains[0], gains[1]).sort.reverse.dbamp;
+    ringTimes = Array.rand(numModes, rtimes[0], rtimes[1]).sort.reverse;
 
 
     // angle ---> top 		= push to plane wave
@@ -585,7 +585,7 @@ code::
 
 
     // display encoder and decoder
-    "Ambisonic encoding via % encoder".format(~encoder.at(0).kind).postln;
+    "Ambisonic encoding via % encoder".format(~encoder[0].kind).postln;
     "Ambisonic transforming via % transformer".format(~transformer).postln;
     "Ambisonic decoding via % decoder".format(~decoder.kind).postln;
 
@@ -610,7 +610,7 @@ code::
 
     // ------------------------------------------------------------
     // encode
-	sig = Mix.fill(sig.numChannels, { arg i;  FoaEncode.ar(sig.at(i), ~encoder.at(i)) });
+	sig = Mix.fill(sig.numChannels, { arg i;  FoaEncode.ar(sig[i], ~encoder[i]) });
 
 
     // ------------------------------------------------------------
@@ -671,7 +671,7 @@ code::
 
 
     // display encoder and decoder
-    "Ambisonic encoding via % encoder".format(~encoder.at(0).kind).postln;
+    "Ambisonic encoding via % encoder".format(~encoder[0].kind).postln;
     "Ambisonic transforming via % transformer".format(~transformer).postln;
     "Ambisonic decoding via % decoder".format(~decoder.kind).postln;
 
@@ -696,7 +696,7 @@ code::
 
     // ------------------------------------------------------------
     // encode
-	sig = Mix.fill(sig.numChannels, { arg i;  FoaEncode.ar(sig.at(i), ~encoder.at(i)) });
+	sig = Mix.fill(sig.numChannels, { arg i;  FoaEncode.ar(sig[i], ~encoder[i]) });
 
 
     // ------------------------------------------------------------
@@ -759,7 +759,7 @@ code::
 
 
     // display encoder and decoder
-    "Ambisonic encoding via % encoder".format(~encoder.at(0).kind).postln;
+    "Ambisonic encoding via % encoder".format(~encoder[0].kind).postln;
     "Ambisonic transforming via % transformer".format(~transformer).postln;
     "Ambisonic decoding via % decoder".format(~decoder.kind).postln;
 
@@ -784,7 +784,7 @@ code::
 
     // ------------------------------------------------------------
     // encode
-    sig = Mix.fill(sig.numChannels, { arg i;  FoaEncode.ar(sig.at(i), ~encoder.at(i)) });
+    sig = Mix.fill(sig.numChannels, { arg i;  FoaEncode.ar(sig[i], ~encoder[i]) });
 
 
     // ------------------------------------------------------------

@@ -106,9 +106,9 @@ s.scope(~order.asHoaOrder.size, ~outbus);
     // rotate
     sigHoaRot = HoaRTT.ar(
         sigHoa,
-		rtt.at(0),
-		rtt.at(1),
-		rtt.at(2),
+		rtt[0],
+		rtt[1],
+		rtt[2],
         ~order
     );
 

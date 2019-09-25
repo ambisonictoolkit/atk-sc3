@@ -105,7 +105,7 @@ FoaSpeakerMatrix {
 			},
 			2, { positions = Matrix.with(			// 3D
 					directions.collect({ |item|
-						Spherical.new(1, item.at(0), item.at(1)).asCartesian.asArray
+						Spherical.new(1, item[0], item[1]).asCartesian.asArray
 					})
 				)
 			}
@@ -643,7 +643,7 @@ FoaDecoderMatrix : FoaMatrix {
 				// find positions
 				positions = Matrix.with(
 					directions.collect({ |item|
-						Spherical.new(1, item.at(0), item.at(1)).asCartesian.asArray
+						Spherical.new(1, item[0], item[1]).asCartesian.asArray
 					})
 				);
 
@@ -715,8 +715,8 @@ FoaDecoderMatrix : FoaMatrix {
 		numChans.do({ |i|
 			matrix.putRow(i, [
 				g0,
-				k * g1 * theta.at(i).cos,
-				k * g1 * theta.at(i).sin
+				k * g1 * theta[i].cos,
+				k * g1 * theta[i].sin
 			])
 		});
 		matrix = 2.sqrt / numChans * matrix
@@ -749,7 +749,7 @@ FoaDecoderMatrix : FoaMatrix {
 		upDirs = (directions + pi).mod(2pi) - pi;
 
 		downDirs = upDirs.collect({ |angles|
-			Spherical.new(1, angles.at(0), angles.at(1)).neg.angles
+			Spherical.new(1, angles[0], angles[1]).neg.angles
 		});
 
 		// initialise k
@@ -949,9 +949,9 @@ FoaEncoderMatrix : FoaMatrix {
 		dirChannels.do({ |thetaPhi, i|
 			matrix.putCol(i, [
 				g0,
-				thetaPhi.at(1).cos * thetaPhi.at(0).cos,
-				thetaPhi.at(1).cos * thetaPhi.at(0).sin,
-				thetaPhi.at(1).sin
+				thetaPhi[1].cos * thetaPhi[0].cos,
+				thetaPhi[1].cos * thetaPhi[0].sin,
+				thetaPhi[1].sin
 			])
 		})
 	}
@@ -966,9 +966,9 @@ FoaEncoderMatrix : FoaMatrix {
 		pattern.isArray.if({
 			dirChannels.do({ |theta, i|  // mic positions, indivd patterns
 				matrix.putRow(i, [
-					(1.0 - pattern.at(i)),
-					pattern.at(i) * theta.cos,
-					pattern.at(i) * theta.sin
+					(1.0 - pattern[i]),
+					pattern[i] * theta.cos,
+					pattern[i] * theta.sin
 				])
 			})
 		}, {
@@ -1001,19 +1001,19 @@ FoaEncoderMatrix : FoaMatrix {
 		pattern.isArray.if({
 			dirChannels.do({ |thetaPhi, i|  // mic positions, indivd patterns
 				matrix.putRow(i, [
-					(1.0 - pattern.at(i)),
-					pattern.at(i) * thetaPhi.at(1).cos * thetaPhi.at(0).cos,
-					pattern.at(i) * thetaPhi.at(1).cos * thetaPhi.at(0).sin,
-					pattern.at(i) * thetaPhi.at(1).sin
+					(1.0 - pattern[i]),
+					pattern[i] * thetaPhi[1].cos * thetaPhi[0].cos,
+					pattern[i] * thetaPhi[1].cos * thetaPhi[0].sin,
+					pattern[i] * thetaPhi[1].sin
 				])
 			})
 		}, {
 			dirChannels.do({ |thetaPhi, i|  // mic positions
 				matrix.putRow(i, [
 					(1.0 - pattern),
-					pattern * thetaPhi.at(1).cos * thetaPhi.at(0).cos,
-					pattern * thetaPhi.at(1).cos * thetaPhi.at(0).sin,
-					pattern * thetaPhi.at(1).sin
+					pattern * thetaPhi[1].cos * thetaPhi[0].cos,
+					pattern * thetaPhi[1].cos * thetaPhi[0].sin,
+					pattern * thetaPhi[1].sin
 				])
 			})
 		});
@@ -1115,7 +1115,7 @@ FoaEncoderMatrix : FoaMatrix {
 		upDirs = (directions + pi).mod(2pi) - pi;
 
 		downDirs = upDirs.collect({ |angles|
-			Spherical.new(1, angles.at(0), angles.at(1)).neg.angles
+			Spherical.new(1, angles[0], angles[1]).neg.angles
 		});
 
 		// reorder the lower polygon
@@ -1136,7 +1136,7 @@ FoaEncoderMatrix : FoaMatrix {
 	initZoomH2 { |angles, pattern, k|
 
 		// set input channel directions for instance
-		dirChannels = [angles.at(0), angles.at(0).neg, angles.at(1), angles.at(1).neg];
+		dirChannels = [angles[0], angles[0].neg, angles[1], angles[1].neg];
 
 		this.initInv2D(pattern);
 
@@ -2028,10 +2028,10 @@ FoaDecoderKernel {
 
 	free {
 		var path;
-		kernel.shape.at(0).do({ |i|
-			kernel.shape.at(1).do({ |j|
-				path = kernel.at(i).at(j).path;
-				kernel.at(i).at(j).free;
+		kernel.shape[0].do({ |i|
+			kernel.shape[1].do({ |j|
+				path = kernel[i][j].path;
+				kernel[i][j].free;
 				(
 					"Kernel %, channel % freed.".format(
 						PathName.new(path).fileName, j
@@ -2047,17 +2047,17 @@ FoaDecoderKernel {
 
 	kernelBundle { ^kernelBundle }
 
-	dim { ^kernel.shape.at(0) - 1 }
+	dim { ^kernel.shape[0] - 1 }
 
-	numChannels { ^kernel.shape.at(1) }
+	numChannels { ^kernel.shape[1] }
 
-	kernelSize { ^kernel.at(0).at(0).numFrames }
+	kernelSize { ^kernel[0][0].numFrames }
 
-	numOutputs { ^kernel.shape.at(1) }
+	numOutputs { ^kernel.shape[1] }
 
 	dirOutputs { ^dirChannels }
 
-	numInputs { ^kernel.shape.at(0) }
+	numInputs { ^kernel.shape[0] }
 
 	dirInputs { ^this.numInputs.collect({ inf }) }
 
@@ -2355,10 +2355,10 @@ FoaEncoderKernel {
 
 	free {
 		var path;
-		kernel.shape.at(0).do({ |i|
-			kernel.shape.at(1).do({ |j|
-				path = kernel.at(i).at(j).path;
-				kernel.at(i).at(j).free;
+		kernel.shape[0].do({ |i|
+			kernel.shape[1].do({ |j|
+				path = kernel[i][j].path;
+				kernel[i][j].free;
 				(
 					"Kernel %, channel % freed.".format(
 						PathName.new(path).fileName, j
@@ -2374,17 +2374,17 @@ FoaEncoderKernel {
 
 	kernelBundle { ^kernelBundle }
 
-	dim { ^kernel.shape.at(1) - 1 }
+	dim { ^kernel.shape[1] - 1 }
 
-	numChannels { ^kernel.shape.at(0) }
+	numChannels { ^kernel.shape[0] }
 
-	kernelSize { ^kernel.at(0).at(0).numFrames }
+	kernelSize { ^kernel[0][0].numFrames }
 
-	numOutputs { ^kernel.shape.at(1) }
+	numOutputs { ^kernel.shape[1] }
 
 	dirInputs { ^dirChannels }
 
-	numInputs { ^kernel.shape.at(0) }
+	numInputs { ^kernel.shape[0] }
 
 	dirOutputs { ^this.numOutputs.collect({ inf }) }
 

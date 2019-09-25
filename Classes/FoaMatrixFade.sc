@@ -146,7 +146,7 @@ FoaMatrixFade {
 				array = array.clump(4).flop;
 
 				out = Mix.fill(4, { |i| // fill input
-					array.at(i) * foaSrc.at(i)
+					array[i] * foaSrc[i]
 				});
 
 				Out.ar(outbus, out);

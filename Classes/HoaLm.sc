@@ -100,11 +100,11 @@ HoaLm {
 	// Return l, m
 
 	l {
-		^this.lm.at(0);
+		^this.lm[0];
 	}
 
 	m {
-		^this.lm.at(1);
+		^this.lm[1];
 	}
 
 	// ------------

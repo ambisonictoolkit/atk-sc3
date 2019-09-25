@@ -102,8 +102,8 @@ NFECoeffs {
 		coeffs = numSOS.collect({ |q|
 			var c1, c2;
 
-			c1 = this.reX.at(q) / alpha;
-			c2 = (this.absX.at(q) / alpha).squared;
+			c1 = this.reX[q] / alpha;
+			c2 = (this.absX[q] / alpha).squared;
 
 			[
 				// numerator
@@ -138,9 +138,9 @@ NFECoeffs {
 		(this.numSOS + this.numFOS).do({ |q|
 			var g0;
 
-			g0 = coeffs.at(q).at(0);
+			g0 = coeffs[q][0];
 			coeffs.put(q,
-				(coeffs.at(q).copyRange(0, 2) / g0) ++ coeffs.at(q).copyRange(3, 5)
+				(coeffs[q].copyRange(0, 2) / g0) ++ coeffs[q].copyRange(3, 5)
 			);
 			g = g0 * g
 		});
@@ -148,13 +148,13 @@ NFECoeffs {
 		// parse coeffs into form usable by SOS & FOS UGens
 		// NOTE: this could happen in the coefficient generation, above
 		coeffsSOS = this.numSOS.collect({ |q|
-			coeffs.at(q).copyRange(0, 2) ++ (-1 * coeffs.at(q).copyRange(4, 5))
+			coeffs[q].copyRange(0, 2) ++ (-1 * coeffs[q].copyRange(4, 5))
 		});
 
 		// odd degree? - add coeffs for FOS
 		mOdd.if{
 			coeffsFOS = [
-				coeffs.last.copyRange(0, 1) ++ (-1 * [coeffs.last.at(4)])
+				coeffs.last.copyRange(0, 1) ++ (-1 * [coeffs.last[4]])
 			]
 		};
 
@@ -175,8 +175,8 @@ NFECoeffs {
 		coeffs = numSOS.collect({ |q|
 			var c1, c2;
 
-			c1 = this.reX.at(q) / alpha;
-			c2 = (this.absX.at(q) / alpha).squared;
+			c1 = this.reX[q] / alpha;
+			c2 = (this.absX[q] / alpha).squared;
 
 			[
 				// numerator
@@ -211,9 +211,9 @@ NFECoeffs {
 		(this.numSOS + this.numFOS).do({ |q|
 			var g0;
 
-			g0 = coeffs.at(q).at(3).reciprocal;
+			g0 = coeffs[q][3].reciprocal;
 			coeffs.put(q,
-				coeffs.at(q).copyRange(0, 2) ++ (coeffs.at(q).copyRange(3, 5) * g0)
+				coeffs[q].copyRange(0, 2) ++ (coeffs[q].copyRange(3, 5) * g0)
 			);
 			g = g0 * g
 		});
@@ -221,13 +221,13 @@ NFECoeffs {
 		// parse coeffs into form usable by SOS & FOS UGens
 		// NOTE: this could happen in the coefficient generation, above
 		coeffsSOS = this.numSOS.collect({ |q|
-			coeffs.at(q).copyRange(0, 2) ++ (-1 * coeffs.at(q).copyRange(4, 5))
+			coeffs[q].copyRange(0, 2) ++ (-1 * coeffs[q].copyRange(4, 5))
 		});
 
 		// odd degree? - add coeffs for FOS
 		mOdd.if{
 			coeffsFOS = [
-				coeffs.last.copyRange(0, 1) ++ (-1 * [coeffs.last.at(4)])
+				coeffs.last.copyRange(0, 1) ++ (-1 * [coeffs.last[4]])
 			]
 		};
 
@@ -251,12 +251,12 @@ NFECoeffs {
 			var c10, c20, c11, c21;
 
 			// proximity
-			c10 = this.reX.at(q) / alpha0;
-			c20 = (this.absX.at(q) / alpha0).squared;
+			c10 = this.reX[q] / alpha0;
+			c20 = (this.absX[q] / alpha0).squared;
 
 			// distance
-			c11 = this.reX.at(q) / alpha1;
-			c21 = (this.absX.at(q) / alpha1).squared;
+			c11 = this.reX[q] / alpha1;
+			c21 = (this.absX[q] / alpha1).squared;
 
 			[
 				// numerator
@@ -297,16 +297,16 @@ NFECoeffs {
 			var g0;
 
 			// distance
-			g0 = coeffs.at(q).at(3).reciprocal;
+			g0 = coeffs[q][3].reciprocal;
 			coeffs.put(q,
-				coeffs.at(q).copyRange(0, 2) ++ (coeffs.at(q).copyRange(3, 5) * g0)
+				coeffs[q].copyRange(0, 2) ++ (coeffs[q].copyRange(3, 5) * g0)
 			);
 			g = g0 * g;
 
 			// proximity
-			g0 = coeffs.at(q).at(0);
+			g0 = coeffs[q][0];
 			coeffs.put(q,
-				(coeffs.at(q).copyRange(0, 2) / g0) ++ coeffs.at(q).copyRange(3, 5)
+				(coeffs[q].copyRange(0, 2) / g0) ++ coeffs[q].copyRange(3, 5)
 			);
 			g = g0 * g
 		});
@@ -314,13 +314,13 @@ NFECoeffs {
 		// parse coeffs into form usable by SOS & FOS UGens
 		// NOTE: this could happen in the coefficient generation, above
 		coeffsSOS = this.numSOS.collect({ |q|
-			coeffs.at(q).copyRange(0, 2) ++ (-1 * coeffs.at(q).copyRange(4, 5))
+			coeffs[q].copyRange(0, 2) ++ (-1 * coeffs[q].copyRange(4, 5))
 		});
 
 		// odd degree? - add coeffs for FOS
 		mOdd.if{
 			coeffsFOS = [
-				coeffs.last.copyRange(0, 1) ++ (-1 * [coeffs.last.at(4)])
+				coeffs.last.copyRange(0, 1) ++ (-1 * [coeffs.last[4]])
 			]
 		};
 

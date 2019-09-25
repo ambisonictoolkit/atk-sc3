@@ -169,7 +169,7 @@ TestHoaMatrixRotation : UnitTest {
 			ref = FoaXformerMatrix.newRTT(*rtt).matrix * FoaEncoderMatrix.newDirection(0, 0).matrix.addRow([0]);
 			// A first order planewave, encoded with HOA rotation matrix
 			test = (
-				HoaMatrixRotation(rtt.at(0), rtt.at(1), rtt.at(2), 'zxy', 1).matrix *
+				HoaMatrixRotation(rtt[0], rtt[1], rtt[2], 'zxy', 1).matrix *
 				HoaMatrixEncoder.newDirection(0, 0, order: 1).matrix;
 			);
 			// "decode" the HOA (acn-n3d) to FOA (fuma-maxN), for test comparison

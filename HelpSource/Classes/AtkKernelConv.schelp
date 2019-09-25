@@ -62,7 +62,7 @@ scale = 24.neg.dbamp;
 
 // convolve
 (
-{ 
+{
     var sig;
 
     // pink noise
@@ -74,5 +74,5 @@ scale = 24.neg.dbamp;
 )
 
 // free kernel when finished
-~kernel.at(0).do({arg kern; kern.free})
+~kernel[0].do({arg kern; kern.free})
 ::

@@ -267,24 +267,24 @@ FoaXformDisplay {
 							});
 
 							test.if({
-								fork ({
+								fork({
 									var auditionCond = Condition(false);
 									audition = FoaAudition(
 										0, 0.1, this.curXformMatrix,
 										initCond: auditionCond, initGUI: true);
 									auditionCond.wait;
-									audition.addDependant(this);
-								}, AppClock)
+									audition.addDependant(this)
+								},
+								AppClock
+								)
 							}, {
 								audition.ui.win.front
-							});
-
+							})
 						}),
 					)
 				),
 			)
 		);
-
 		sfWin.refresh;
 	}
 
@@ -697,7 +697,7 @@ FoaXformDisplay {
 
 
 	prRemoveXForm { |whichChain, rmvDex|
-		{
+		fork({
 			var xf;
 
 			xf = xfViewChains[whichChain][rmvDex];
@@ -711,9 +711,10 @@ FoaXformDisplay {
 			0.01.wait;
 
 			this.alignRows;
-			this.prUpdateChainIdLabels();
-
-		}.fork(AppClock)
+			this.prUpdateChainIdLabels()
+		},
+		AppClock
+		)
 	}
 
 
@@ -797,7 +798,9 @@ FoaXformDisplay {
 			this.prUpdateChainTitles;
 			this.prUpdateChainIdLabels;
 			this.prUpdateInputMenus;
-		}, AppClock)
+		},
+		AppClock
+		)
 	}
 
 

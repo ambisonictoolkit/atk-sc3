@@ -63,7 +63,7 @@ FoaMatrixFade {
 
 
 	init {
-		fork {
+		fork({
 			var addAct, targ;
 			var cond = Condition(false);
 
@@ -99,7 +99,7 @@ FoaMatrixFade {
 			initMatrix !? { this.matrix_(initMatrix) };
 
 			completeCond !? { completeCond.test_(true).signal; };
-		}
+		})
 	}
 
 

@@ -71,7 +71,9 @@ FoaAudition {
 			initCond.wait;
 			initGUI.if{ this.gui };
 			loading = false;
-		}, AppClock);
+		},
+		AppClock
+		);
 
 		// notify dependants of change in planewave azimuth direction
 		// (e.g. FoaXformDisplay)
@@ -92,7 +94,7 @@ FoaAudition {
 	playSynth { |which|
 		var synth, tag, abort = false;
 
-		fork ({
+		fork({
 			(auditionEnabled.not and: { loading }).if{ "waiting for load".postln; initCond.wait };
 
 			['inbus', 'soundfile', 'pwNoise', 'diffuseNoise'].includes(which).not.if{
@@ -129,10 +131,11 @@ FoaAudition {
 				// stop the other synths - ony 1 plays at a time
 				['inbus', 'soundfile', 'pwNoise', 'diffuseNoise'].do({ |name|
 					(name != which).if{ this.stopSynth(name) }
-				});
-			};
-
-		}, AppClock);
+				})
+			}
+		},
+		AppClock
+		);
 	}
 
 
@@ -151,7 +154,7 @@ FoaAudition {
 
 		// if(synth.notNil and: synth.isRunning) {
 		synth.notNil.if{
-			fork ({
+			fork({
 				synth.release;
 				synthReleaseTime.wait;
 
@@ -162,11 +165,15 @@ FoaAudition {
 						fork({
 							synth.run(false);
 							server.sync;
-							this.changed(tag, false);
-						}, AppClock)
-					};
-				});
-			}, AppClock);
+							this.changed(tag, false)
+						},
+						AppClock
+						)
+					}
+				})
+			},
+			AppClock
+			)
 		}
 	}
 
@@ -177,7 +184,7 @@ FoaAudition {
 		// for some reason for the buffer to load correctly, it needs to be in
 		// a separate routine from the routine below it, so sync'd with bufLoadCond
 
-		fork {
+		fork({
 			var msg;
 			test = PathName(soundfilePath).isFile;
 			test.if{
@@ -203,10 +210,10 @@ FoaAudition {
 					bufLoadCond.test_(true).signal;
 					postf("soundfile loaded:\n\t%\n", buf.path.asString);
 				}
-			);
-		};
+			)
+		});
 
-		fork {
+		fork({
 			block { |break|
 				var currentlyPlaying;
 
@@ -247,7 +254,7 @@ FoaAudition {
 				defer { this.changed(\buffer, PathName(soundfilePath).fileName) };
 				loadCondition !? { loadCondition.test_(true).signal };
 			}
-		};
+		})
 	}
 
 
@@ -301,7 +308,7 @@ FoaAudition {
 
 
 	prepareAuditioning { | completeCond |
-		fork{
+		fork({
 			var addAct, targ, numchans, mtxFaderLoadCond = Condition(false), dummyLoad, dummyBuf;
 
 			server = server ?? Server.default;
@@ -392,7 +399,7 @@ FoaAudition {
 			soundfileSynth = sfSynth_4ch; // initialize
 			auditionEnabled = true;
 			completeCond !? { completeCond.test_(true).signal };
-		}
+		})
 	}
 
 
@@ -810,9 +817,10 @@ FoaAuditionView {
 					audition.loadSoundfile(path, loadCond);
 				});
 				loadCond.wait;
-			}, AppClock)
-		})
-		;
+			},
+			AppClock
+			)
+		});
 		fileTxt = StaticText();
 
 		diffRttChk = CheckBox()

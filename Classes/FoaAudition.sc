@@ -202,7 +202,7 @@ FoaAudition {
 			test.not.if{ loadCondition !? { loadCondition.test_(true).signal } };
 
 			msg = "loading file...".post;
-			defer { this.changed(\status, msg) };
+			defer({ this.changed(\status, msg) });
 
 			newBuf = Buffer.cueSoundFile(
 				server, soundfilePath, 0, numChans,  vdiskinBufSize, {
@@ -251,7 +251,7 @@ FoaAudition {
 				};
 
 				// "loadSoundfile complete".postln;
-				defer { this.changed(\buffer, PathName(soundfilePath).fileName) };
+				defer({ this.changed(\buffer, PathName(soundfilePath).fileName) });
 				loadCondition !? { loadCondition.test_(true).signal };
 			}
 		})
@@ -621,10 +621,10 @@ FoaAuditionView {
 			audition.pwSynth.get(\gate, { |gate|
 				gate.asBoolean.if({
 					audition.stopSynth('pwNoise');
-					defer { but.stringColor_(stopColor) };
+					defer({ but.stringColor_(stopColor) })
 				}, {
 					audition.playSynth('pwNoise');
-					defer { but.stringColor_(playColor) };
+					defer({ but.stringColor_(playColor) })
 				});
 			});
 		});
@@ -634,7 +634,7 @@ FoaAuditionView {
 			audition.pwSynth.set(\pulsed, me.value.asInteger);
 		});
 		audition.pwSynth.get(\pulsed, { |val|
-			defer { pulsedChk.value_(val) };
+			defer({ pulsedChk.value_(val) })
 		})
 		;
 		pulseBx = NumberBox()
@@ -645,7 +645,7 @@ FoaAuditionView {
 		.align_(\center)
 		;
 		audition.pwSynth.get(\pulsefreq, { |val|
-			defer { pulseBx.value_(val) };
+			defer({ pulseBx.value_(val) })
 		});
 
 		rotChk = CheckBox()
@@ -655,7 +655,7 @@ FoaAuditionView {
 		});
 
 		audition.pwSynth.get(\rotating, { |val|
-			defer { rotChk.value_(val.asInteger) };
+			defer({ rotChk.value_(val.asInteger) })
 		});
 
 		tumChk = CheckBox()
@@ -665,7 +665,7 @@ FoaAuditionView {
 		});
 
 		audition.pwSynth.get(\tumbling, { |val|
-			defer { tumChk.value_(val.asInteger) };
+			defer({ tumChk.value_(val.asInteger) })
 		});
 
 		rotPerBx = NumberBox()
@@ -680,7 +680,7 @@ FoaAuditionView {
 		.align_(\center);
 
 		audition.pwSynth.get(\rotfreq, { |val|
-			defer { rotPerBx.value_(val.reciprocal) };
+			defer({ rotPerBx.value_(val.reciprocal) })
 		});
 
 		tumPerBx = NumberBox()
@@ -695,7 +695,7 @@ FoaAuditionView {
 		.align_(\center);
 
 		audition.pwSynth.get(\tumfreq, { |val|
-			defer { tumPerBx.value_(val.reciprocal) };
+			defer({ tumPerBx.value_(val.reciprocal) })
 		});
 
 		azimBx = NumberBox()
@@ -729,11 +729,11 @@ FoaAuditionView {
 		;
 
 		audition.pwSynth.get(\az, { |val|
-			defer {
+			defer({
 				var deg = val.raddeg;
 				azimBx.value_(deg.round(0.1));
-				azimSl.value_(azimSpec.unmap(deg.wrap(-180, 180)));
-			};
+				azimSl.value_(azimSpec.unmap(deg.wrap(-180, 180)))
+			})
 		});
 
 		sfPlayBut = StaticText()
@@ -757,10 +757,10 @@ FoaAuditionView {
 				synth.get(\gate, { |gate|
 					gate.asBoolean.if({
 						audition.stopSynth('soundfile');
-						defer { but.stringColor_(stopColor) };
+						defer({ but.stringColor_(stopColor) })
 					}, {
 						audition.playSynth('soundfile');
-						defer { but.stringColor_(playColor) };
+						defer({ but.stringColor_(playColor) })
 					});
 				});
 			}, {
@@ -776,10 +776,10 @@ FoaAuditionView {
 			audition.diffSynth.get(\gate, { |gate|
 				gate.asBoolean.if({
 					audition.stopSynth('diffuseNoise');
-					defer { but.stringColor_(stopColor) };
+					defer({ but.stringColor_(stopColor) })
 				}, {
 					audition.playSynth('diffuseNoise');
-					defer { but.stringColor_(playColor) };
+					defer({ but.stringColor_(playColor) })
 				});
 			});
 		});
@@ -791,10 +791,10 @@ FoaAuditionView {
 			audition.inbusSynth.get(\gate, { |gate|
 				gate.asBoolean.if({
 					audition.stopSynth('inbus');
-					defer { but.stringColor_(stopColor) };
+					defer({ but.stringColor_(stopColor) })
 				}, {
 					audition.playSynth('inbus');
-					defer { but.stringColor_(playColor) };
+					defer({ but.stringColor_(playColor) })
 				});
 			});
 		});
@@ -827,7 +827,7 @@ FoaAuditionView {
 		.action_({ |bx| audition.diffRtt_(bx.value.asInteger) });
 
 		audition.diffSynth.get(\rtt, { |val|
-			defer { diffRttChk.value_(val.asBoolean) };
+			defer({ diffRttChk.value_(val.asBoolean) })
 		});
 
 		diffRttBx = NumberBox()
@@ -835,7 +835,7 @@ FoaAuditionView {
 		.step_(0.05).scroll_step_(0.05).decimals_(2);
 
 		audition.diffSynth.get(\rttFreq, { |val|
-			defer { diffRttBx.value_(val) };
+			defer({ diffRttBx.value_(val) })
 		});
 
 		addXformBut = Button().states_([["Add Transform"]])
@@ -1174,21 +1174,21 @@ FoaAuditionView {
 				},
 				\pwAzim, {
 					var deg = args[0].raddeg;
-					defer {
+					defer({
 						azimBx.hasFocus !? { // sometimes .hasFocus can return nil (race condition?)
 							azimBx.hasFocus.not.if{ azimBx.value_(deg) };
 						};
-						azimSl.value_(azimSpec.unmap(deg));
-					};
+						azimSl.value_(azimSpec.unmap(deg))
+					})
 				},
 				\pwElev, {
 					var deg = args[0].raddeg;
-					defer {
+					defer({
 						elBx.hasFocus !? { // sometimes .hasFocus can return nil (race condition?)
 							elBx.hasFocus.not.if{ elBx.value_(deg) };
 						};
-						elSl.value_(elSpec.unmap(deg));
-					};
+						elSl.value_(elSpec.unmap(deg))
+					})
 				},
 				\status, {
 					fileTxt.string_(args[0]);

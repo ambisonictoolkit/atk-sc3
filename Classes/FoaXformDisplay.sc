@@ -1194,16 +1194,16 @@ FoaXformDisplay {
 					}, {
 						pwAzim = state
 					});
-					defer { pv.refresh };
+					defer({ pv.refresh })
 				},
 				\pwSynthRunning, {
 					pwPlaying = args[0];
-					defer { uv.refresh };
+					defer({ uv.refresh })
 				},
 				\closed, {
 					pwPlaying = false;
 					audition.removeDependant(this);
-					defer { uv.refresh };
+					defer({ uv.refresh })
 				}
 			);
 		};

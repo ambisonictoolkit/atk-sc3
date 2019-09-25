@@ -110,16 +110,17 @@ FoaWp : FoaEval {
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
 
-		case
-		{ method == 'instant' } {
-			^HilbertW.ar(p, size).squared.sum
-		}
-		{ method == 'average' } {
-			var normFac;
-			normFac = 2 * size.reciprocal;
+		case(
+			{ method == 'instant' }, {
+				^HilbertW.ar(p, size).squared.sum
+			},
+			{ method == 'average' }, {
+				var normFac;
+				normFac = 2 * size.reciprocal;
 
-			^(normFac * RunningSum.ar(p.squared, size))
-		}
+				^(normFac * RunningSum.ar(p.squared, size))
+			}
+		)
 	}
 }
 
@@ -131,19 +132,20 @@ FoaWu : FoaEval {
 		in = this.checkChans(in);
 		u = in[1..3];  // [x, y, z] = velocity (vector)
 
-		case
-		{ method == 'instant' } {
+		case(
+			{ method == 'instant' }, {
 
-			^HilbertW.ar(u, size).sum({ |item|
-				item.squared.sum
-			})
-		}
-		{ method == 'average' } {
-			var normFac;
-			normFac = 2 * size.reciprocal;
+				^HilbertW.ar(u, size).sum({ |item|
+					item.squared.sum
+				})
+			},
+			{ method == 'average' }, {
+				var normFac;
+				normFac = 2 * size.reciprocal;
 
-			^(normFac * RunningSum.ar(u.squared, size).sum)
-		}
+				^(normFac * RunningSum.ar(u.squared, size).sum)
+			}
+		)
 	}
 }
 
@@ -156,26 +158,27 @@ FoaWs : FoaEval {
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
 		u = in[1..3];  // [x, y, z] = velocity (vector)
 
-		case
-		{ method == 'instant' } {
-			var wp, wu;
-			wp = HilbertW.ar(p, size).squared.sum;
-			wu = HilbertW.ar(u, size).sum({ |item|
-				item.squared.sum
-			});
+		case(
+			{ method == 'instant' }, {
+				var wp, wu;
+				wp = HilbertW.ar(p, size).squared.sum;
+				wu = HilbertW.ar(u, size).sum({ |item|
+					item.squared.sum
+				});
 
-			^(0.5 * (wp + wu))
-		}
-		{ method == 'average' } {
-			var wp, wu;
-			var normFac;
-			normFac = 2 * size.reciprocal;
+				^(0.5 * (wp + wu))
+			},
+			{ method == 'average' }, {
+				var wp, wu;
+				var normFac;
+				normFac = 2 * size.reciprocal;
 
-			wp = normFac * RunningSum.ar(p.squared, size);
-			wu = normFac * RunningSum.ar(u.squared, size).sum;
+				wp = normFac * RunningSum.ar(p.squared, size);
+				wu = normFac * RunningSum.ar(u.squared, size).sum;
 
-			^(0.5 * (wp + wu))
-		}
+				^(0.5 * (wp + wu))
+			}
+		)
 	}
 }
 
@@ -188,26 +191,27 @@ FoaWd : FoaEval {
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
 		u = in[1..3];  // [x, y, z] = velocity (vector)
 
-		case
-		{ method == 'instant' } {
-			var wp, wu;
-			wp = HilbertW.ar(p, size).squared.sum;
-			wu = HilbertW.ar(u, size).sum({ |item|
-				item.squared.sum
-			});
+		case(
+			{ method == 'instant' }, {
+				var wp, wu;
+				wp = HilbertW.ar(p, size).squared.sum;
+				wu = HilbertW.ar(u, size).sum({ |item|
+					item.squared.sum
+				});
 
-			^(0.5 * (wp - wu))
-		}
-		{ method == 'average' } {
-			var wp, wu;
-			var normFac;
-			normFac = 2 * size.reciprocal;
+				^(0.5 * (wp - wu))
+			},
+			{ method == 'average' }, {
+				var wp, wu;
+				var normFac;
+				normFac = 2 * size.reciprocal;
 
-			wp = normFac * RunningSum.ar(p.squared, size);
-			wu = normFac * RunningSum.ar(u.squared, size).sum;
+				wp = normFac * RunningSum.ar(p.squared, size);
+				wu = normFac * RunningSum.ar(u.squared, size).sum;
 
-			^(0.5 * (wp - wu))
-		}
+				^(0.5 * (wp - wu))
+			}
+		)
 	}
 }
 
@@ -220,44 +224,45 @@ FoaWh : FoaEval {
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
 		u = in[1..3];  // [x, y, z] = velocity (vector)
 
-		case
-		{ method == 'instant' } {
-			var pReIm, pImRe, uReIm, wp, wu, ws, ir, magIr;
+		case(
+			{ method == 'instant' }, {
+				var pReIm, pImRe, uReIm, wp, wu, ws, ir, magIr;
 
-			pReIm = HilbertW.ar(p, size);
-			pImRe = [1, -1] * pReIm.reverse;
-			uReIm = HilbertW.ar(u, size);
+				pReIm = HilbertW.ar(p, size);
+				pImRe = [1, -1] * pReIm.reverse;
+				uReIm = HilbertW.ar(u, size);
 
-			wp = pReIm.squared.sum;
-			wu = uReIm.sum({ |item|
-				item.squared.sum
-			});
-			ws = (0.5 * (wp + wu));
+				wp = pReIm.squared.sum;
+				wu = uReIm.sum({ |item|
+					item.squared.sum
+				});
+				ws = (0.5 * (wp + wu));
 
-			ir = uReIm.collect({ |item|
-				(pImRe * item).sum
-			});
-			magIr = ir.squared.sum.sqrt
+				ir = uReIm.collect({ |item|
+					(pImRe * item).sum
+				});
+				magIr = ir.squared.sum.sqrt;
 
-			^(ws - magIr)
-		}
-		{ method == 'average' } {
-			var wp, wu, ws, ia, magI_squared, magIa_squared, magIr;
-			var normFac;
-			normFac = 2 * size.reciprocal;
+				^(ws - magIr)
+			},
+			{ method == 'average' }, {
+				var wp, wu, ws, ia, magI_squared, magIa_squared, magIr;
+				var normFac;
+				normFac = 2 * size.reciprocal;
 
-			wp = normFac * RunningSum.ar(p.squared, size);
-			wu = normFac * RunningSum.ar(u.squared, size).sum;
-			ia = normFac * RunningSum.ar(p * u, size);
+				wp = normFac * RunningSum.ar(p.squared, size);
+				wu = normFac * RunningSum.ar(u.squared, size).sum;
+				ia = normFac * RunningSum.ar(p * u, size);
 
-			ws = (0.5 * (wp + wu));
+				ws = (0.5 * (wp + wu));
 
-			magI_squared = wp * wu;
-			magIa_squared = ia.squared.sum;
-			magIr = (magI_squared - magIa_squared).sqrt;
+				magI_squared = wp * wu;
+				magIa_squared = ia.squared.sum;
+				magIr = (magI_squared - magIa_squared).sqrt;
 
-			^(ws - magIr)
-		}
+				^(ws - magIr)
+			}
+		)
 	}
 }
 
@@ -273,26 +278,27 @@ FoaMagI : FoaEval {
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
 		u = in[1..3];  // [x, y, z] = velocity (vector)
 
-		case
-		{ method == 'instant' } {
-			var wp, wu;
-			wp = HilbertW.ar(p, size).squared.sum;
-			wu = HilbertW.ar(u, size).sum({ |item|
-				item.squared.sum
-			});
+		case(
+			{ method == 'instant' }, {
+				var wp, wu;
+				wp = HilbertW.ar(p, size).squared.sum;
+				wu = HilbertW.ar(u, size).sum({ |item|
+					item.squared.sum
+				});
 
-			^(wp * wu).sqrt
-		}
-		{ method == 'average' } {
-			var wp, wu;
-			var normFac;
-			normFac = 2 * size.reciprocal;
+				^(wp * wu).sqrt
+			},
+			{ method == 'average' }, {
+				var wp, wu;
+				var normFac;
+				normFac = 2 * size.reciprocal;
 
-			wp = normFac * RunningSum.ar(p.squared, size);
-			wu = normFac * RunningSum.ar(u.squared, size).sum;
+				wp = normFac * RunningSum.ar(p.squared, size);
+				wu = normFac * RunningSum.ar(u.squared, size).sum;
 
-			^(wp * wu).sqrt
-		}
+				^(wp * wu).sqrt
+			}
+		)
 	}
 }
 
@@ -305,27 +311,28 @@ FoaMagIa : FoaEval {
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
 		u = in[1..3];  // [x, y, z] = velocity (vector)
 
-		case
-		{ method == 'instant' } {
-			var pReIm, ia;
+		case(
+			{ method == 'instant' }, {
+				var pReIm, ia;
 
-			pReIm = HilbertW.ar(p, size);
+				pReIm = HilbertW.ar(p, size);
 
-			ia = HilbertW.ar(u, size).collect({ |item|
-				(pReIm * item).sum
-			});
+				ia = HilbertW.ar(u, size).collect({ |item|
+					(pReIm * item).sum
+				});
 
-			^ia.squared.sum.sqrt
-		}
-		{ method == 'average' } {
-			var ia;
-			var normFac;
-			normFac = 2 * size.reciprocal;
+				^ia.squared.sum.sqrt
+			},
+			{ method == 'average' }, {
+				var ia;
+				var normFac;
+				normFac = 2 * size.reciprocal;
 
-			ia = normFac * RunningSum.ar(p * u, size);
+				ia = normFac * RunningSum.ar(p * u, size);
 
-			^ia.squared.sum.sqrt
-		}
+				^ia.squared.sum.sqrt
+			}
+		)
 	}
 }
 
@@ -338,32 +345,33 @@ FoaMagIr : FoaEval {
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
 		u = in[1..3];  // [x, y, z] = velocity (vector)
 
-		case
-		{ method == 'instant' } {
-			var pImRe, ir;
+		case(
+			{ method == 'instant' }, {
+				var pImRe, ir;
 
-			pImRe = [1, -1] * HilbertW.ar(p, size).reverse;
+				pImRe = [1, -1] * HilbertW.ar(p, size).reverse;
 
-			ir = HilbertW.ar(u, size).collect({ |item|
-				(pImRe * item).sum
-			});
+				ir = HilbertW.ar(u, size).collect({ |item|
+					(pImRe * item).sum
+				});
 
-			^ir.squared.sum.sqrt
-		}
-		{ method == 'average' } {
-			var wp, wu, ia, magI_squared, magIa_squared;
-			var normFac;
-			normFac = 2 * size.reciprocal;
+				^ir.squared.sum.sqrt
+			},
+			{ method == 'average' }, {
+				var wp, wu, ia, magI_squared, magIa_squared;
+				var normFac;
+				normFac = 2 * size.reciprocal;
 
-			wp = normFac * RunningSum.ar(p.squared, size);
-			wu = normFac * RunningSum.ar(u.squared, size).sum;
-			ia = normFac * RunningSum.ar(p * u, size);
+				wp = normFac * RunningSum.ar(p.squared, size);
+				wu = normFac * RunningSum.ar(u.squared, size).sum;
+				ia = normFac * RunningSum.ar(p * u, size);
 
-			magI_squared = wp * wu;
-			magIa_squared = ia.squared.sum;
+				magI_squared = wp * wu;
+				magIa_squared = ia.squared.sum;
 
-			^(magI_squared - magIa_squared).sqrt
-		}
+				^(magI_squared - magIa_squared).sqrt
+			}
+		)
 	}
 }
 
@@ -377,30 +385,31 @@ FoaMagA : FoaEval {
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
 		u = in[1..3];  // [x, y, z] = velocity (vector)
 
-		case
-		{ method == 'instant' } {
-			var wp, wu, magI;
-			wp = HilbertW.ar(p, size).squared.sum;
-			wu = HilbertW.ar(u, size).sum({ |item|
-				item.squared.sum
-			});
+		case(
+			{ method == 'instant' }, {
+				var wp, wu, magI;
+				wp = HilbertW.ar(p, size).squared.sum;
+				wu = HilbertW.ar(u, size).sum({ |item|
+					item.squared.sum
+				});
 
-			magI = (wp * wu).sqrt;
+				magI = (wp * wu).sqrt;
 
-			^(magI / (wp + DC.ar(FoaEval.reg)))
-		}
-		{ method == 'average' } {
-			var wp, wu, magI;
-			var normFac;
-			normFac = 2 * size.reciprocal;
+				^(magI / (wp + DC.ar(FoaEval.reg)))
+			},
+			{ method == 'average' }, {
+				var wp, wu, magI;
+				var normFac;
+				normFac = 2 * size.reciprocal;
 
-			wp = normFac * RunningSum.ar(p.squared, size);
-			wu = normFac * RunningSum.ar(u.squared, size).sum;
+				wp = normFac * RunningSum.ar(p.squared, size);
+				wu = normFac * RunningSum.ar(u.squared, size).sum;
 
-			magI = (wp * wu).sqrt;
+				magI = (wp * wu).sqrt;
 
-			^(magI / (wp + DC.ar(FoaEval.reg)))
-		}
+				^(magI / (wp + DC.ar(FoaEval.reg)))
+			}
+		)
 	}
 }
 
@@ -413,31 +422,32 @@ FoaMagAa : FoaEval {
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
 		u = in[1..3];  // [x, y, z] = velocity (vector)
 
-		case
-		{ method == 'instant' } {
-			var pReIm, wp, ia, magIa;
+		case(
+			{ method == 'instant' }, {
+				var pReIm, wp, ia, magIa;
 
-			pReIm = HilbertW.ar(p, size);
-			wp = pReIm.squared.sum;
+				pReIm = HilbertW.ar(p, size);
+				wp = pReIm.squared.sum;
 
-			ia = HilbertW.ar(u, size).collect({ |item|
-				(pReIm * item).sum
-			});
-			magIa = ia.squared.sum.sqrt;
+				ia = HilbertW.ar(u, size).collect({ |item|
+					(pReIm * item).sum
+				});
+				magIa = ia.squared.sum.sqrt;
 
-			^(magIa / (wp + DC.ar(FoaEval.reg)))
-		}
-		{ method == 'average' } {
-			var wp, ia, magIa;
-			var normFac;
-			normFac = 2 * size.reciprocal;
+				^(magIa / (wp + DC.ar(FoaEval.reg)))
+			},
+			{ method == 'average' }, {
+				var wp, ia, magIa;
+				var normFac;
+				normFac = 2 * size.reciprocal;
 
-			wp = normFac * RunningSum.ar(p.squared, size);
-			ia = normFac * RunningSum.ar(p * u, size);
-			magIa = ia.squared.sum.sqrt;
+				wp = normFac * RunningSum.ar(p.squared, size);
+				ia = normFac * RunningSum.ar(p * u, size);
+				magIa = ia.squared.sum.sqrt;
 
-			^(magIa / (wp + DC.ar(FoaEval.reg)))
-		}
+				^(magIa / (wp + DC.ar(FoaEval.reg)))
+			}
+		)
 	}
 }
 
@@ -450,38 +460,39 @@ FoaMagAr : FoaEval {
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
 		u = in[1..3];  // [x, y, z] = velocity (vector)
 
-		case
-		{ method == 'instant' } {
-			var pReIm, pImRe, wp, ir, magIr;
+		case(
+			{ method == 'instant' }, {
+				var pReIm, pImRe, wp, ir, magIr;
 
-			pReIm = HilbertW.ar(p, size);
-			pImRe = [1, -1] * pReIm.reverse;
+				pReIm = HilbertW.ar(p, size);
+				pImRe = [1, -1] * pReIm.reverse;
 
-			wp = pReIm.squared.sum;
+				wp = pReIm.squared.sum;
 
-			ir = HilbertW.ar(u, size).collect({ |item|
-				(pImRe * item).sum
-			});
+				ir = HilbertW.ar(u, size).collect({ |item|
+					(pImRe * item).sum
+				});
 
-			magIr = ir.squared.sum.sqrt;
+				magIr = ir.squared.sum.sqrt;
 
-			^(magIr / (wp + DC.ar(FoaEval.reg)))
-		}
-		{ method == 'average' } {
-			var wp, wu, ia, magI_squared, magIa_squared, magIr;
-			var normFac;
-			normFac = 2 * size.reciprocal;
+				^(magIr / (wp + DC.ar(FoaEval.reg)))
+			},
+			{ method == 'average' }, {
+				var wp, wu, ia, magI_squared, magIa_squared, magIr;
+				var normFac;
+				normFac = 2 * size.reciprocal;
 
-			wp = normFac * RunningSum.ar(p.squared, size);
-			wu = normFac * RunningSum.ar(u.squared, size).sum;
-			ia = normFac * RunningSum.ar(p * u, size);
+				wp = normFac * RunningSum.ar(p.squared, size);
+				wu = normFac * RunningSum.ar(u.squared, size).sum;
+				ia = normFac * RunningSum.ar(p * u, size);
 
-			magI_squared = wp * wu;
-			magIa_squared = ia.squared.sum;
-			magIr = (magI_squared - magIa_squared).sqrt;
+				magI_squared = wp * wu;
+				magIa_squared = ia.squared.sum;
+				magIr = (magI_squared - magIa_squared).sqrt;
 
-			^(magIr / (wp + DC.ar(FoaEval.reg)))
-		}
+				^(magIr / (wp + DC.ar(FoaEval.reg)))
+			}
+		)
 	}
 }
 
@@ -494,33 +505,34 @@ FoaMagW : FoaEval {
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
 		u = in[1..3];  // [x, y, z] = velocity (vector)
 
-		case
-		{ method == 'instant' } {
-			var wp, wu, ws, magI;
+		case(
+			{ method == 'instant' }, {
+				var wp, wu, ws, magI;
 
-			wp = HilbertW.ar(p, size).squared.sum;
-			wu = HilbertW.ar(u, size).sum({ |item|
-				item.squared.sum
-			});
-			ws = (0.5 * (wp + wu));
+				wp = HilbertW.ar(p, size).squared.sum;
+				wu = HilbertW.ar(u, size).sum({ |item|
+					item.squared.sum
+				});
+				ws = (0.5 * (wp + wu));
 
-			magI = (wp * wu).sqrt;
+				magI = (wp * wu).sqrt;
 
-			^(magI / (ws + DC.ar(FoaEval.reg)))
-		}
-		{ method == 'average' } {
-			var wp, wu, ws, magI;
-			var normFac;
-			normFac = 2 * size.reciprocal;
+				^(magI / (ws + DC.ar(FoaEval.reg)))
+			},
+			{ method == 'average' }, {
+				var wp, wu, ws, magI;
+				var normFac;
+				normFac = 2 * size.reciprocal;
 
-			wp = normFac * RunningSum.ar(p.squared, size);
-			wu = normFac * RunningSum.ar(u.squared, size).sum;
-			ws = (0.5 * (wp + wu));
+				wp = normFac * RunningSum.ar(p.squared, size);
+				wu = normFac * RunningSum.ar(u.squared, size).sum;
+				ws = (0.5 * (wp + wu));
 
-			magI = (wp * wu).sqrt;
+				magI = (wp * wu).sqrt;
 
-			^(magI / (ws + DC.ar(FoaEval.reg)))
-		}
+				^(magI / (ws + DC.ar(FoaEval.reg)))
+			}
+		)
 	}
 }
 
@@ -533,40 +545,41 @@ FoaMagWa : FoaEval {
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
 		u = in[1..3];  // [x, y, z] = velocity (vector)
 
-		case
-		{ method == 'instant' } {
-			var pReIm, uReIm, wp, wu, ws, ia, magIa;
+		case(
+			{ method == 'instant' }, {
+				var pReIm, uReIm, wp, wu, ws, ia, magIa;
 
-			pReIm = HilbertW.ar(p, size);
-			uReIm = HilbertW.ar(u, size);
+				pReIm = HilbertW.ar(p, size);
+				uReIm = HilbertW.ar(u, size);
 
-			wp = pReIm.squared.sum;
-			wu = uReIm.sum({ |item|
-				item.squared.sum
-			});
-			ws = (0.5 * (wp + wu));
+				wp = pReIm.squared.sum;
+				wu = uReIm.sum({ |item|
+					item.squared.sum
+				});
+				ws = (0.5 * (wp + wu));
 
-			ia = uReIm.collect({ |item|
-				(pReIm * item).sum
-			});
-			magIa = ia.squared.sum.sqrt;
+				ia = uReIm.collect({ |item|
+					(pReIm * item).sum
+				});
+				magIa = ia.squared.sum.sqrt;
 
-			^(magIa / (ws + DC.ar(FoaEval.reg)))
-		}
-		{ method == 'average' } {
-			var wp, wu, ws, ia, magIa;
-			var normFac;
-			normFac = 2 * size.reciprocal;
+				^(magIa / (ws + DC.ar(FoaEval.reg)))
+			},
+			{ method == 'average' }, {
+				var wp, wu, ws, ia, magIa;
+				var normFac;
+				normFac = 2 * size.reciprocal;
 
-			wp = normFac * RunningSum.ar(p.squared, size);
-			wu = normFac * RunningSum.ar(u.squared, size).sum;
-			ws = (0.5 * (wp + wu));
+				wp = normFac * RunningSum.ar(p.squared, size);
+				wu = normFac * RunningSum.ar(u.squared, size).sum;
+				ws = (0.5 * (wp + wu));
 
-			ia = normFac * RunningSum.ar(p * u, size);
-			magIa = ia.squared.sum.sqrt;
+				ia = normFac * RunningSum.ar(p * u, size);
+				magIa = ia.squared.sum.sqrt;
 
-			^(magIa / (ws + DC.ar(FoaEval.reg)))
-		}
+				^(magIa / (ws + DC.ar(FoaEval.reg)))
+			}
+		)
 	}
 }
 
@@ -579,43 +592,44 @@ FoaMagWr : FoaEval {
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
 		u = in[1..3];  // [x, y, z] = velocity (vector)
 
-		case
-		{ method == 'instant' } {
-			var pReIm, pImRe, uReIm, wp, wu, ws, ir, magIr;
+		case(
+			{ method == 'instant' }, {
+				var pReIm, pImRe, uReIm, wp, wu, ws, ir, magIr;
 
-			pReIm = HilbertW.ar(p, size);
-			pImRe = [1, -1] * pReIm.reverse;
-			uReIm = HilbertW.ar(u, size);
+				pReIm = HilbertW.ar(p, size);
+				pImRe = [1, -1] * pReIm.reverse;
+				uReIm = HilbertW.ar(u, size);
 
-			wp = pReIm.squared.sum;
-			wu = uReIm.sum({ |item|
-				item.squared.sum
-			});
-			ws = (0.5 * (wp + wu));
+				wp = pReIm.squared.sum;
+				wu = uReIm.sum({ |item|
+					item.squared.sum
+				});
+				ws = (0.5 * (wp + wu));
 
-			ir = uReIm.collect({ |item|
-				(pImRe * item).sum
-			});
-			magIr = ir.squared.sum.sqrt;
+				ir = uReIm.collect({ |item|
+					(pImRe * item).sum
+				});
+				magIr = ir.squared.sum.sqrt;
 
-			^(magIr / (ws + DC.ar(FoaEval.reg)))
-		}
-		{ method == 'average' } {
-			var wp, wu, ws, ia, magI_squared, magIa_squared, magIr;
-			var normFac;
-			normFac = 2 * size.reciprocal;
+				^(magIr / (ws + DC.ar(FoaEval.reg)))
+			},
+			{ method == 'average' }, {
+				var wp, wu, ws, ia, magI_squared, magIa_squared, magIr;
+				var normFac;
+				normFac = 2 * size.reciprocal;
 
-			wp = normFac * RunningSum.ar(p.squared, size);
-			wu = normFac * RunningSum.ar(u.squared, size).sum;
-			ws = (0.5 * (wp + wu));
-			ia = normFac * RunningSum.ar(p * u, size);
+				wp = normFac * RunningSum.ar(p.squared, size);
+				wu = normFac * RunningSum.ar(u.squared, size).sum;
+				ws = (0.5 * (wp + wu));
+				ia = normFac * RunningSum.ar(p * u, size);
 
-			magI_squared = wp * wu;
-			magIa_squared = ia.squared.sum;
-			magIr = (magI_squared - magIa_squared).sqrt;
+				magI_squared = wp * wu;
+				magIa_squared = ia.squared.sum;
+				magIr = (magI_squared - magIa_squared).sqrt;
 
-			^(magIr / (ws + DC.ar(FoaEval.reg)))
-		}
+				^(magIr / (ws + DC.ar(FoaEval.reg)))
+			}
+		)
 	}
 }
 
@@ -628,40 +642,41 @@ FoaMagNa : FoaEval {
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
 		u = in[1..3];  // [x, y, z] = velocity (vector)
 
-		case
-		{ method == 'instant' } {
-			var pReIm, uReIm, wp, wu, magI, ia, magIa;
+		case(
+			{ method == 'instant' }, {
+				var pReIm, uReIm, wp, wu, magI, ia, magIa;
 
-			pReIm = HilbertW.ar(p, size);
-			uReIm = HilbertW.ar(u, size);
+				pReIm = HilbertW.ar(p, size);
+				uReIm = HilbertW.ar(u, size);
 
-			wp = pReIm.squared.sum;
-			wu = uReIm.sum({ |item|
-				item.squared.sum
-			});
-			magI = (wp * wu).sqrt;
+				wp = pReIm.squared.sum;
+				wu = uReIm.sum({ |item|
+					item.squared.sum
+				});
+				magI = (wp * wu).sqrt;
 
-			ia = uReIm.collect({ |item|
-				(pReIm * item).sum
-			});
-			magIa = ia.squared.sum.sqrt;
+				ia = uReIm.collect({ |item|
+					(pReIm * item).sum
+				});
+				magIa = ia.squared.sum.sqrt;
 
-			^(magIa / (magI + DC.ar(FoaEval.reg)))
-		}
-		{ method == 'average' } {
-			var wp, wu, magI, ia, magIa;
-			var normFac;
-			normFac = 2 * size.reciprocal;
+				^(magIa / (magI + DC.ar(FoaEval.reg)))
+			},
+			{ method == 'average' }, {
+				var wp, wu, magI, ia, magIa;
+				var normFac;
+				normFac = 2 * size.reciprocal;
 
-			wp = normFac * RunningSum.ar(p.squared, size);
-			wu = normFac * RunningSum.ar(u.squared, size).sum;
-			magI = (wp * wu).sqrt;
+				wp = normFac * RunningSum.ar(p.squared, size);
+				wu = normFac * RunningSum.ar(u.squared, size).sum;
+				magI = (wp * wu).sqrt;
 
-			ia = normFac * RunningSum.ar(p * u, size);
-			magIa = ia.squared.sum.sqrt;
+				ia = normFac * RunningSum.ar(p * u, size);
+				magIa = ia.squared.sum.sqrt;
 
-			^(magIa / (magI + DC.ar(FoaEval.reg)))
-		}
+				^(magIa / (magI + DC.ar(FoaEval.reg)))
+			}
+		)
 	}
 }
 
@@ -674,43 +689,44 @@ FoaMagNr : FoaEval {
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
 		u = in[1..3];  // [x, y, z] = velocity (vector)
 
-		case
-		{ method == 'instant' } {
-			var pReIm, pImRe, uReIm, wp, wu, magI, ir, magIr;
+		case(
+			{ method == 'instant' }, {
+				var pReIm, pImRe, uReIm, wp, wu, magI, ir, magIr;
 
-			pReIm = HilbertW.ar(p, size);
-			pImRe = [1, -1] * pReIm.reverse;
-			uReIm = HilbertW.ar(u, size);
+				pReIm = HilbertW.ar(p, size);
+				pImRe = [1, -1] * pReIm.reverse;
+				uReIm = HilbertW.ar(u, size);
 
-			wp = pReIm.squared.sum;
-			wu = uReIm.sum({ |item|
-				item.squared.sum
-			});
-			magI = (wp * wu).sqrt;
+				wp = pReIm.squared.sum;
+				wu = uReIm.sum({ |item|
+					item.squared.sum
+				});
+				magI = (wp * wu).sqrt;
 
-			ir = uReIm.collect({ |item|
-				(pImRe * item).sum
-			});
-			magIr = ir.squared.sum.sqrt;
+				ir = uReIm.collect({ |item|
+					(pImRe * item).sum
+				});
+				magIr = ir.squared.sum.sqrt;
 
-			^(magIr / (magI + DC.ar(FoaEval.reg)))
-		}
-		{ method == 'average' } {
-			var wp, wu, magI, ia, magI_squared, magIa_squared, magIr;
-			var normFac;
-			normFac = 2 * size.reciprocal;
+				^(magIr / (magI + DC.ar(FoaEval.reg)))
+			},
+			{ method == 'average' }, {
+				var wp, wu, magI, ia, magI_squared, magIa_squared, magIr;
+				var normFac;
+				normFac = 2 * size.reciprocal;
 
-			wp = normFac * RunningSum.ar(p.squared, size);
-			wu = normFac * RunningSum.ar(u.squared, size).sum;
-			magI = (wp * wu).sqrt;
-			ia = normFac * RunningSum.ar(p * u, size);
+				wp = normFac * RunningSum.ar(p.squared, size);
+				wu = normFac * RunningSum.ar(u.squared, size).sum;
+				magI = (wp * wu).sqrt;
+				ia = normFac * RunningSum.ar(p * u, size);
 
-			magI_squared = wp * wu;
-			magIa_squared = ia.squared.sum;
-			magIr = (magI_squared - magIa_squared).sqrt;
+				magI_squared = wp * wu;
+				magIa_squared = ia.squared.sum;
+				magIr = (magI_squared - magIa_squared).sqrt;
 
-			^(magIr / (magI + DC.ar(FoaEval.reg)))
-		}
+				^(magIr / (magI + DC.ar(FoaEval.reg)))
+			}
+		)
 	}
 }
 
@@ -791,43 +807,44 @@ FoaAlpha : FoaEval {
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
 		u = in[1..3];  // [x, y, z] = velocity (vector)
 
-		case
-		{ method == 'instant' } {
-			var pReIm, pImRe, uReIm, ia, magIa, ir, magIr;
+		case(
+			{ method == 'instant' }, {
+				var pReIm, pImRe, uReIm, ia, magIa, ir, magIr;
 
-			pReIm = HilbertW.ar(p, size);
-			pImRe = [1, -1] * pReIm.reverse;
-			uReIm = HilbertW.ar(u, size);
+				pReIm = HilbertW.ar(p, size);
+				pImRe = [1, -1] * pReIm.reverse;
+				uReIm = HilbertW.ar(u, size);
 
-			ia = uReIm.collect({ |item|
-				(pReIm * item).sum
-			});
-			magIa = ia.squared.sum.sqrt;
+				ia = uReIm.collect({ |item|
+					(pReIm * item).sum
+				});
+				magIa = ia.squared.sum.sqrt;
 
-			ir = uReIm.collect({ |item|
-				(pImRe * item).sum
-			});
-			magIr = ir.squared.sum.sqrt
+				ir = uReIm.collect({ |item|
+					(pImRe * item).sum
+				});
+				magIr = ir.squared.sum.sqrt
 
-			^atan2(magIr, magIa + DC.ar(FoaEval.reg))
-		}
-		{ method == 'average' } {
-			var wp, wu, ia, magI_squared, magIa_squared, magIa, magIr;
-			var normFac;
-			normFac = 2 * size.reciprocal;
+				^atan2(magIr, magIa + DC.ar(FoaEval.reg))
+			},
+			{ method == 'average' }, {
+				var wp, wu, ia, magI_squared, magIa_squared, magIa, magIr;
+				var normFac;
+				normFac = 2 * size.reciprocal;
 
-			wp = normFac * RunningSum.ar(p.squared, size);
-			wu = normFac * RunningSum.ar(u.squared, size).sum;
-			ia = normFac * RunningSum.ar(p * u, size);
+				wp = normFac * RunningSum.ar(p.squared, size);
+				wu = normFac * RunningSum.ar(u.squared, size).sum;
+				ia = normFac * RunningSum.ar(p * u, size);
 
-			magI_squared = wp * wu;
-			magIa_squared = ia.squared.sum;
-			magIa = magIa_squared.sqrt;
+				magI_squared = wp * wu;
+				magIa_squared = ia.squared.sum;
+				magIa = magIa_squared.sqrt;
 
-			magIr = (magI_squared - magIa_squared).sqrt;
+				magIr = (magI_squared - magIa_squared).sqrt;
 
-			^atan2(magIr, magIa + DC.ar(FoaEval.reg))
-		}
+				^atan2(magIr, magIa + DC.ar(FoaEval.reg))
+			}
+		)
 	}
 }
 
@@ -840,32 +857,33 @@ FoaBeta : FoaEval {
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
 		u = in[1..3];  // [x, y, z] = velocity (vector)
 
-		case
-		{ method == 'instant' } {
-			var wp, wu, wd, magI;
+		case(
+			{ method == 'instant' }, {
+				var wp, wu, wd, magI;
 
-			wp = HilbertW.ar(p, size).squared.sum;
-			wu = HilbertW.ar(u, size).sum({ |item|
-				item.squared.sum
-			});
-			wd = (0.5 * (wp - wu));
-			magI = (wp * wu).sqrt;
+				wp = HilbertW.ar(p, size).squared.sum;
+				wu = HilbertW.ar(u, size).sum({ |item|
+					item.squared.sum
+				});
+				wd = (0.5 * (wp - wu));
+				magI = (wp * wu).sqrt;
 
-			^atan2(wd, magI + DC.ar(FoaEval.reg))
-		}
-		{ method == 'average' } {
-			var wp, wu, wd, magI;
-			var normFac;
-			normFac = 2 * size.reciprocal;
+				^atan2(wd, magI + DC.ar(FoaEval.reg))
+			},
+			{ method == 'average' }, {
+				var wp, wu, wd, magI;
+				var normFac;
+				normFac = 2 * size.reciprocal;
 
-			wp = normFac * RunningSum.ar(p.squared, size);
-			wu = normFac * RunningSum.ar(u.squared, size).sum;
+				wp = normFac * RunningSum.ar(p.squared, size);
+				wu = normFac * RunningSum.ar(u.squared, size).sum;
 
-			wd = (0.5 * (wp - wu));
-			magI = (wp * wu).sqrt;
+				wd = (0.5 * (wp - wu));
+				magI = (wp * wu).sqrt;
 
-			^atan2(wd, magI + DC.ar(FoaEval.reg))
-		}
+				^atan2(wd, magI + DC.ar(FoaEval.reg))
+			}
+		)
 	}
 }
 
@@ -878,46 +896,47 @@ FoaGamma : FoaEval {
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
 		u = in[1..3];  // [x, y, z] = velocity (vector)
 
-		case
-		{ method == 'instant' } {
-			var pReIm, pImRe, uReIm, ia, magIa, ir, magIr, cosFac, sinFac;
-			var reg, alpha, gateA, gateR;  // gate using -thresh
+		case(
+			{ method == 'instant' }, {
+				var pReIm, pImRe, uReIm, ia, magIa, ir, magIr, cosFac, sinFac;
+				var reg, alpha, gateA, gateR;  // gate using -thresh
 
-			pReIm = HilbertW.ar(p, size);
-			pImRe = [1, -1] * pReIm.reverse;
-			uReIm = HilbertW.ar(u, size);
+				pReIm = HilbertW.ar(p, size);
+				pImRe = [1, -1] * pReIm.reverse;
+				uReIm = HilbertW.ar(u, size);
 
-			ia = uReIm.collect({ |item|
-				(pReIm * item).sum
-			});
-			magIa = ia.squared.sum.sqrt;
+				ia = uReIm.collect({ |item|
+					(pReIm * item).sum
+				});
+				magIa = ia.squared.sum.sqrt;
 
-			ir = uReIm.collect({ |item|
-				(pImRe * item).sum
-			});
-			magIr = ir.squared.sum.sqrt;
+				ir = uReIm.collect({ |item|
+					(pImRe * item).sum
+				});
+				magIr = ir.squared.sum.sqrt;
 
-			// GATE coefficients with respect to Alpha
-			reg = DC.ar(FoaEval.reg);
+				// GATE coefficients with respect to Alpha
+				reg = DC.ar(FoaEval.reg);
 
-			alpha = atan2(magIr, magIa + reg);  // active-reactive balance
-			gateA = 1 - (alpha.thresh(FoaEval.gamAlpR) / (alpha + reg));
-			gateR = alpha.thresh(FoaEval.gamAlpA) / (alpha + reg);
+				alpha = atan2(magIr, magIa + reg);  // active-reactive balance
+				gateA = 1 - (alpha.thresh(FoaEval.gamAlpR) / (alpha + reg));
+				gateR = alpha.thresh(FoaEval.gamAlpA) / (alpha + reg);
 
-			ia = gateA * ia;
-			magIa = gateA * magIa;
-			ir = gateR * ir;
-			magIr = gateR * magIr;
+				ia = gateA * ia;
+				magIa = gateA * magIa;
+				ir = gateR * ir;
+				magIr = gateR * magIr;
 
-			cosFac = (ia * ir).sum;
-			sinFac = ((magIa * magIr).squared - cosFac.squared).sqrt;
+				cosFac = (ia * ir).sum;
+				sinFac = ((magIa * magIr).squared - cosFac.squared).sqrt;
 
-			^atan2(sinFac, cosFac + reg)
-		}
-		{ method == 'average' } {
-			// Consider re-writing this!!
-			Error(format("FoaGamma.ar argument method = %, INVALID.", method)).throw;
-		}
+				^atan2(sinFac, cosFac + reg)
+			},
+			{ method == 'average' }, {
+				// Consider re-writing this!!
+				Error(format("FoaGamma.ar argument method = %, INVALID.", method)).throw;
+			}
+		)
 	}
 }
 
@@ -938,67 +957,68 @@ FoaThetaPhiA : FoaEval {
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
 		u = in[1..3];  // [x, y, z] = velocity (vector)
 
-		case
-		{ method == 'instant' } {
-			var pReIm, pImRe, uReIm, ia, magIa, ir, magIr, theta, phi;
-			var reg, alpha, gateA;  // gate using -thresh
+		case(
+			{ method == 'instant' }, {
+				var pReIm, pImRe, uReIm, ia, magIa, ir, magIr, theta, phi;
+				var reg, alpha, gateA;  // gate using -thresh
 
-			pReIm = HilbertW.ar(p, size);
-			pImRe = [1, -1] * pReIm.reverse;
-			uReIm = HilbertW.ar(u, size);
+				pReIm = HilbertW.ar(p, size);
+				pImRe = [1, -1] * pReIm.reverse;
+				uReIm = HilbertW.ar(u, size);
 
-			ia = uReIm.collect({ |item|
-				(pReIm * item).sum
-			});
-			magIa = ia.squared.sum.sqrt;
+				ia = uReIm.collect({ |item|
+					(pReIm * item).sum
+				});
+				magIa = ia.squared.sum.sqrt;
 
-			ir = uReIm.collect({ |item|
-				(pImRe * item).sum
-			});
-			magIr = ir.squared.sum.sqrt;
+				ir = uReIm.collect({ |item|
+					(pImRe * item).sum
+				});
+				magIr = ir.squared.sum.sqrt;
 
-			// GATE coefficients with respect to Alpha
-			reg = DC.ar(FoaEval.reg);
+				// GATE coefficients with respect to Alpha
+				reg = DC.ar(FoaEval.reg);
 
-			alpha = atan2(magIr, magIa + reg);  // active-reactive balance
-			gateA = 1 - (alpha.thresh(FoaEval.gamAlpR) / (alpha + reg));
+				alpha = atan2(magIr, magIa + reg);  // active-reactive balance
+				gateA = 1 - (alpha.thresh(FoaEval.gamAlpR) / (alpha + reg));
 
-			ia = gateA * ia;
+				ia = gateA * ia;
 
-			theta = atan2(ia[1], ia[0] + reg);
-			phi = atan2(ia[2], (ia[0].squared + ia[1].squared + reg).sqrt);
+				theta = atan2(ia[1], ia[0] + reg);
+				phi = atan2(ia[2], (ia[0].squared + ia[1].squared + reg).sqrt);
 
-			^Array.with(theta, phi)
-		}
-		{ method == 'average' } {
-			var wp, wu, ia, magI_squared, magIa_squared, magIa, magIr, theta, phi;
-			var reg, alpha, gateA;  // gate using -thresh
-			var normFac;
-			normFac = 2 * size.reciprocal;
+				^Array.with(theta, phi)
+			},
+			{ method == 'average' }, {
+				var wp, wu, ia, magI_squared, magIa_squared, magIa, magIr, theta, phi;
+				var reg, alpha, gateA;  // gate using -thresh
+				var normFac;
+				normFac = 2 * size.reciprocal;
 
-			wp = normFac * RunningSum.ar(p.squared, size);
-			wu = normFac * RunningSum.ar(u.squared, size).sum;
-			ia = normFac * RunningSum.ar(p * u, size);
+				wp = normFac * RunningSum.ar(p.squared, size);
+				wu = normFac * RunningSum.ar(u.squared, size).sum;
+				ia = normFac * RunningSum.ar(p * u, size);
 
-			magI_squared = wp * wu;
-			magIa_squared = ia.squared.sum;
-			magIa = magIa_squared.sqrt;
+				magI_squared = wp * wu;
+				magIa_squared = ia.squared.sum;
+				magIa = magIa_squared.sqrt;
 
-			magIr = (magI_squared - magIa_squared).sqrt;
+				magIr = (magI_squared - magIa_squared).sqrt;
 
-			// GATE coefficients with respect to Alpha
-			reg = DC.ar(FoaEval.reg);
+				// GATE coefficients with respect to Alpha
+				reg = DC.ar(FoaEval.reg);
 
-			alpha = atan2(magIr, magIa + reg);  // active-reactive balance
-			gateA = 1 - (alpha.thresh(FoaEval.gamAlpR) / (alpha + reg));
+				alpha = atan2(magIr, magIa + reg);  // active-reactive balance
+				gateA = 1 - (alpha.thresh(FoaEval.gamAlpR) / (alpha + reg));
 
-			ia = gateA * ia;
+				ia = gateA * ia;
 
-			theta = atan2(ia[1], ia[0] + reg);
-			phi = atan2(ia[2], (ia[0].squared + ia[1].squared + reg).sqrt);
+				theta = atan2(ia[1], ia[0] + reg);
+				phi = atan2(ia[2], (ia[0].squared + ia[1].squared + reg).sqrt);
 
-			^Array.with(theta, phi)
-		}
+				^Array.with(theta, phi)
+			}
+		)
 	}
 }
 
@@ -1011,42 +1031,43 @@ FoaThetaPhiR : FoaEval {
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
 		u = in[1..3];  // [x, y, z] = velocity (vector)
 
-		case
-		{ method == 'instant' } {
-			var pReIm, pImRe, uReIm, ia, magIa, ir, magIr, theta, phi;
-			var reg, alpha, gateR;  // gate using -thresh
+		case(
+			{ method == 'instant' }, {
+				var pReIm, pImRe, uReIm, ia, magIa, ir, magIr, theta, phi;
+				var reg, alpha, gateR;  // gate using -thresh
 
-			pReIm = HilbertW.ar(p, size);
-			pImRe = [1, -1] * pReIm.reverse;
-			uReIm = HilbertW.ar(u, size);
+				pReIm = HilbertW.ar(p, size);
+				pImRe = [1, -1] * pReIm.reverse;
+				uReIm = HilbertW.ar(u, size);
 
-			ia = uReIm.collect({ |item|
-				(pReIm * item).sum
-			});
-			magIa = ia.squared.sum.sqrt;
+				ia = uReIm.collect({ |item|
+					(pReIm * item).sum
+				});
+				magIa = ia.squared.sum.sqrt;
 
-			ir = uReIm.collect({ |item|
-				(pImRe * item).sum
-			});
-			magIr = ir.squared.sum.sqrt;
+				ir = uReIm.collect({ |item|
+					(pImRe * item).sum
+				});
+				magIr = ir.squared.sum.sqrt;
 
-			// GATE coefficients with respect to Alpha
-			reg = DC.ar(FoaEval.reg);
+				// GATE coefficients with respect to Alpha
+				reg = DC.ar(FoaEval.reg);
 
-			alpha = atan2(magIr, magIa + reg);  // active-reactive balance
-			gateR = alpha.thresh(FoaEval.gamAlpA) / (alpha + reg);
+				alpha = atan2(magIr, magIa + reg);  // active-reactive balance
+				gateR = alpha.thresh(FoaEval.gamAlpA) / (alpha + reg);
 
-			ir = gateR * ir;
+				ir = gateR * ir;
 
-			theta = atan2(ir[1], ir[0] + reg);
-			phi = atan2(ir[2], (ir[0].squared + ir[1].squared + reg).sqrt);
+				theta = atan2(ir[1], ir[0] + reg);
+				phi = atan2(ir[2], (ir[0].squared + ir[1].squared + reg).sqrt);
 
-			^Array.with(theta, phi)
-		}
-		{ method == 'average' } {
-			// Consider re-writing this!!
-			Error(format("FoaThetaPhiR.ar argument method = %, INVALID.", method)).throw;
-		}
+				^Array.with(theta, phi)
+			},
+			{ method == 'average' }, {
+				// Consider re-writing this!!
+				Error(format("FoaThetaPhiR.ar argument method = %, INVALID.", method)).throw;
+			}
+		)
 	}
 }
 
@@ -1062,27 +1083,28 @@ FoaIa : FoaEval {
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
 		u = in[1..3];  // [x, y, z] = velocity (vector)
 
-		case
-		{ method == 'instant' } {
-			var pReIm, ia;
+		case(
+			{ method == 'instant' }, {
+				var pReIm, ia;
 
-			pReIm = HilbertW.ar(p, size);
+				pReIm = HilbertW.ar(p, size);
 
-			ia = HilbertW.ar(u, size).collect({ |item|
-				(pReIm * item).sum
-			});
+				ia = HilbertW.ar(u, size).collect({ |item|
+					(pReIm * item).sum
+				});
 
-			^ia
-		}
-		{ method == 'average' } {
-			var ia;
-			var normFac;
-			normFac = 2 * size.reciprocal;
+				^ia
+			},
+			{ method == 'average' }, {
+				var ia;
+				var normFac;
+				normFac = 2 * size.reciprocal;
 
-			ia = normFac * RunningSum.ar(p * u, size);
+				ia = normFac * RunningSum.ar(p * u, size);
 
-			^ia
-		}
+				^ia
+			}
+		)
 	}
 }
 
@@ -1095,22 +1117,23 @@ FoaIr : FoaEval {
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
 		u = in[1..3];  // [x, y, z] = velocity (vector)
 
-		case
-		{ method == 'instant' } {
-			var pImRe, ir;
+		case(
+			{ method == 'instant' }, {
+				var pImRe, ir;
 
-			pImRe = [1, -1] * HilbertW.ar(p, size).reverse;
+				pImRe = [1, -1] * HilbertW.ar(p, size).reverse;
 
-			ir = HilbertW.ar(u, size).collect({ |item|
-				(pImRe * item).sum
-			});
+				ir = HilbertW.ar(u, size).collect({ |item|
+					(pImRe * item).sum
+				});
 
-			^ir
-		}
-		{ method == 'average' } {
-			// Consider re-writing this!!
-			Error(format("FoaIr.ar argument method = %, INVALID.", method)).throw;
-		}
+				^ir
+			},
+			{ method == 'average' }, {
+				// Consider re-writing this!!
+				Error(format("FoaIr.ar argument method = %, INVALID.", method)).throw;
+			}
+		)
 	}
 }
 
@@ -1123,31 +1146,32 @@ FoaAa : FoaEval {
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
 		u = in[1..3];  // [x, y, z] = velocity (vector)
 
-		case
-		{ method == 'instant' } {
-			var pReIm, wp, ia, aa;
+		case(
+			{ method == 'instant' }, {
+				var pReIm, wp, ia, aa;
 
-			pReIm = HilbertW.ar(p, size);
-			wp = pReIm.squared.sum;
+				pReIm = HilbertW.ar(p, size);
+				wp = pReIm.squared.sum;
 
-			ia = HilbertW.ar(u, size).collect({ |item|
-				(pReIm * item).sum
-			});
-			aa = ia / (wp + DC.ar(FoaEval.reg));
+				ia = HilbertW.ar(u, size).collect({ |item|
+					(pReIm * item).sum
+				});
+				aa = ia / (wp + DC.ar(FoaEval.reg));
 
-			^aa
-		}
-		{ method == 'average' } {
-			var wp, ia, aa;
-			var normFac;
-			normFac = 2 * size.reciprocal;
+				^aa
+			},
+			{ method == 'average' }, {
+				var wp, ia, aa;
+				var normFac;
+				normFac = 2 * size.reciprocal;
 
-			wp = normFac * RunningSum.ar(p.squared, size);
-			ia = normFac * RunningSum.ar(p * u, size);
-			aa = ia / (wp + DC.ar(FoaEval.reg));
+				wp = normFac * RunningSum.ar(p.squared, size);
+				ia = normFac * RunningSum.ar(p * u, size);
+				aa = ia / (wp + DC.ar(FoaEval.reg));
 
-			^aa
-		}
+				^aa
+			}
+		)
 	}
 }
 
@@ -1160,27 +1184,28 @@ FoaAr : FoaEval {
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
 		u = in[1..3];  // [x, y, z] = velocity (vector)
 
-		case
-		{ method == 'instant' } {
-			var pReIm, pImRe, wp, ir, ar;
+		case(
+			{ method == 'instant' }, {
+				var pReIm, pImRe, wp, ir, ar;
 
-			pReIm = HilbertW.ar(p, size);
-			pImRe = [1, -1] * pReIm.reverse;
+				pReIm = HilbertW.ar(p, size);
+				pImRe = [1, -1] * pReIm.reverse;
 
-			wp = pReIm.squared.sum;
+				wp = pReIm.squared.sum;
 
-			ir = HilbertW.ar(u, size).collect({ |item|
-				(pImRe * item).sum
-			});
+				ir = HilbertW.ar(u, size).collect({ |item|
+					(pImRe * item).sum
+				});
 
-			ar = ir / (wp + DC.ar(FoaEval.reg));
+				ar = ir / (wp + DC.ar(FoaEval.reg));
 
-			^ar
-		}
-		{ method == 'average' } {
-			// Consider re-writing this!!
-			Error(format("FoaAr.ar argument method = %, INVALID.", method)).throw;
-		}
+				^ar
+			},
+			{ method == 'average' }, {
+				// Consider re-writing this!!
+				Error(format("FoaAr.ar argument method = %, INVALID.", method)).throw;
+			}
+		)
 	}
 }
 
@@ -1193,40 +1218,41 @@ FoaWa : FoaEval {
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
 		u = in[1..3];  // [x, y, z] = velocity (vector)
 
-		case
-		{ method == 'instant' } {
-			var pReIm, uReIm, wp, wu, ws, ia, wa;
+		case(
+			{ method == 'instant' }, {
+				var pReIm, uReIm, wp, wu, ws, ia, wa;
 
-			pReIm = HilbertW.ar(p, size);
-			uReIm = HilbertW.ar(u, size);
+				pReIm = HilbertW.ar(p, size);
+				uReIm = HilbertW.ar(u, size);
 
-			wp = pReIm.squared.sum;
-			wu = uReIm.sum({ |item|
-				item.squared.sum
-			});
-			ws = (0.5 * (wp + wu));
+				wp = pReIm.squared.sum;
+				wu = uReIm.sum({ |item|
+					item.squared.sum
+				});
+				ws = (0.5 * (wp + wu));
 
-			ia = uReIm.collect({ |item|
-				(pReIm * item).sum
-			});
-			wa = ia / (ws + DC.ar(FoaEval.reg));
+				ia = uReIm.collect({ |item|
+					(pReIm * item).sum
+				});
+				wa = ia / (ws + DC.ar(FoaEval.reg));
 
-			^wa
-		}
-		{ method == 'average' } {
-			var wp, wu, ws, ia, wa;
-			var normFac;
-			normFac = 2 * size.reciprocal;
+				^wa
+			},
+			{ method == 'average' }, {
+				var wp, wu, ws, ia, wa;
+				var normFac;
+				normFac = 2 * size.reciprocal;
 
-			wp = normFac * RunningSum.ar(p.squared, size);
-			wu = normFac * RunningSum.ar(u.squared, size).sum;
-			ws = (0.5 * (wp + wu));
+				wp = normFac * RunningSum.ar(p.squared, size);
+				wu = normFac * RunningSum.ar(u.squared, size).sum;
+				ws = (0.5 * (wp + wu));
 
-			ia = normFac * RunningSum.ar(p * u, size);
-			wa = ia / (ws + DC.ar(FoaEval.reg));
+				ia = normFac * RunningSum.ar(p * u, size);
+				wa = ia / (ws + DC.ar(FoaEval.reg));
 
-			^wa
-		}
+				^wa
+			}
+		)
 	}
 }
 
@@ -1239,31 +1265,32 @@ FoaWr : FoaEval {
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
 		u = in[1..3];  // [x, y, z] = velocity (vector)
 
-		case
-		{ method == 'instant' } {
-			var pReIm, pImRe, uReIm, wp, wu, ws, ir, wr;
+		case(
+			{ method == 'instant' }, {
+				var pReIm, pImRe, uReIm, wp, wu, ws, ir, wr;
 
-			pReIm = HilbertW.ar(p, size);
-			pImRe = [1, -1] * pReIm.reverse;
-			uReIm = HilbertW.ar(u, size);
+				pReIm = HilbertW.ar(p, size);
+				pImRe = [1, -1] * pReIm.reverse;
+				uReIm = HilbertW.ar(u, size);
 
-			wp = pReIm.squared.sum;
-			wu = uReIm.sum({ |item|
-				item.squared.sum
-			});
-			ws = (0.5 * (wp + wu));
+				wp = pReIm.squared.sum;
+				wu = uReIm.sum({ |item|
+					item.squared.sum
+				});
+				ws = (0.5 * (wp + wu));
 
-			ir = uReIm.collect({ |item|
-				(pImRe * item).sum
-			});
-			wr = ir / (ws + DC.ar(FoaEval.reg));
+				ir = uReIm.collect({ |item|
+					(pImRe * item).sum
+				});
+				wr = ir / (ws + DC.ar(FoaEval.reg));
 
-			^wr
-		}
-		{ method == 'average' } {
-			// Consider re-writing this!!
-			Error(format("FoaWr.ar argument method = %, INVALID.", method)).throw;
-		}
+				^wr
+			},
+			{ method == 'average' }, {
+				// Consider re-writing this!!
+				Error(format("FoaWr.ar argument method = %, INVALID.", method)).throw;
+			}
+		)
 	}
 }
 
@@ -1276,40 +1303,41 @@ FoaNa : FoaEval {
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
 		u = in[1..3];  // [x, y, z] = velocity (vector)
 
-		case
-		{ method == 'instant' } {
-			var pReIm, uReIm, wp, wu, magI, ia, na;
+		case(
+			{ method == 'instant' }, {
+				var pReIm, uReIm, wp, wu, magI, ia, na;
 
-			pReIm = HilbertW.ar(p, size);
-			uReIm = HilbertW.ar(u, size);
+				pReIm = HilbertW.ar(p, size);
+				uReIm = HilbertW.ar(u, size);
 
-			wp = pReIm.squared.sum;
-			wu = uReIm.sum({ |item|
-				item.squared.sum
-			});
-			magI = (wp * wu).sqrt;
+				wp = pReIm.squared.sum;
+				wu = uReIm.sum({ |item|
+					item.squared.sum
+				});
+				magI = (wp * wu).sqrt;
 
-			ia = uReIm.collect({ |item|
-				(pReIm * item).sum
-			});
-			na = ia / (magI + DC.ar(FoaEval.reg));
+				ia = uReIm.collect({ |item|
+					(pReIm * item).sum
+				});
+				na = ia / (magI + DC.ar(FoaEval.reg));
 
-			^na
-		}
-		{ method == 'average' } {
-			var wp, wu, magI, ia, na;
-			var normFac;
-			normFac = 2 * size.reciprocal;
+				^na
+			},
+			{ method == 'average' }, {
+				var wp, wu, magI, ia, na;
+				var normFac;
+				normFac = 2 * size.reciprocal;
 
-			wp = normFac * RunningSum.ar(p.squared, size);
-			wu = normFac * RunningSum.ar(u.squared, size).sum;
-			magI = (wp * wu).sqrt;
+				wp = normFac * RunningSum.ar(p.squared, size);
+				wu = normFac * RunningSum.ar(u.squared, size).sum;
+				magI = (wp * wu).sqrt;
 
-			ia = normFac * RunningSum.ar(p * u, size);
-			na = ia / (magI + DC.ar(FoaEval.reg));
+				ia = normFac * RunningSum.ar(p * u, size);
+				na = ia / (magI + DC.ar(FoaEval.reg));
 
-			^na
-		}
+				^na
+			}
+		)
 	}
 }
 
@@ -1322,31 +1350,32 @@ FoaNr : FoaEval {
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
 		u = in[1..3];  // [x, y, z] = velocity (vector)
 
-		case
-		{ method == 'instant' } {
-			var pReIm, pImRe, uReIm, wp, wu, magI, ir, nr;
+		case(
+			{ method == 'instant' }, {
+				var pReIm, pImRe, uReIm, wp, wu, magI, ir, nr;
 
-			pReIm = HilbertW.ar(p, size);
-			pImRe = [1, -1] * pReIm.reverse;
-			uReIm = HilbertW.ar(u, size);
+				pReIm = HilbertW.ar(p, size);
+				pImRe = [1, -1] * pReIm.reverse;
+				uReIm = HilbertW.ar(u, size);
 
-			wp = pReIm.squared.sum;
-			wu = uReIm.sum({ |item|
-				item.squared.sum
-			});
-			magI = (wp * wu).sqrt;
+				wp = pReIm.squared.sum;
+				wu = uReIm.sum({ |item|
+					item.squared.sum
+				});
+				magI = (wp * wu).sqrt;
 
-			ir = uReIm.collect({ |item|
-				(pImRe * item).sum
-			});
-			nr = ir / (magI + DC.ar(FoaEval.reg));
+				ir = uReIm.collect({ |item|
+					(pImRe * item).sum
+				});
+				nr = ir / (magI + DC.ar(FoaEval.reg));
 
-			^nr
-		}
-		{ method == 'average' } {
-			// Consider re-writing this!!
-			Error(format("FoaNr.ar argument method = %, INVALID.", method)).throw;
-		}
+				^nr
+			},
+			{ method == 'average' }, {
+				// Consider re-writing this!!
+				Error(format("FoaNr.ar argument method = %, INVALID.", method)).throw;
+			}
+		)
 	}
 }
 

@@ -106,9 +106,10 @@ FoaMatrixFade {
 	matrix_ { |newMatrix|
 		var flatMatrix;
 
-		flatMatrix = case
-		{ newMatrix.isKindOf(Matrix) } { newMatrix.asArray.flat }
-		{ newMatrix.isKindOf(FoaXformerMatrix) } { newMatrix.matrix.asArray.flat };
+		flatMatrix = case(
+			{ newMatrix.isKindOf(Matrix) }, { newMatrix.asArray.flat },
+			{ newMatrix.isKindOf(FoaXformerMatrix) }, { newMatrix.matrix.asArray.flat }
+		);
 
 		synth.set(\fade, xFade, \matrixArray, flatMatrix);
 

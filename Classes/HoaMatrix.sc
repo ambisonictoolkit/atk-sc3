@@ -147,83 +147,84 @@ HoaMatrix : AtkMatrix {
 		// instance var
 		filePath = pn.fullPath;
 
-		case
-		{ pn.extension == "yml" } {
-			dict = filePath.parseYAMLFile;
-			fileParse = IdentityDictionary(know: true);
+		case(
+			{ pn.extension == "yml" }, {
+				dict = filePath.parseYAMLFile;
+				fileParse = IdentityDictionary(know: true);
 
-			// replace String keys with Symbol keys, make "knowable"
-			dict.keysValuesDo{ |k, v|
-				fileParse.put(k.asSymbol,
-					(v == "nil").if({ nil }, { v }) // so .info parsing doesn't see nil as array
-				)
-			};
-
-			// check against \set
-			fileParse[\set].isNil.if({
-				"Matrix 'set' is undefined in the .yml file: cannot confirm the "
-				"set matches the loaded object".warn
-			}, {
-				(fileParse[\set].asSymbol != this.set.asSymbol).if{
-					Error(
-						(
-							"[%:-initFromFile] Matrix 'set' defined in the .yml file (%) doesn't match "
-							"the object set trying to load (%)"
-						).format(
-							this.class.asString, fileParse[\set], this.set
-						).errorString.postln;
-						this.halt
+				// replace String keys with Symbol keys, make "knowable"
+				dict.keysValuesDo{ |k, v|
+					fileParse.put(k.asSymbol,
+						(v == "nil").if({ nil }, { v }) // so .info parsing doesn't see nil as array
 					)
-				}
-			});
+				};
 
-			// check against \type
-			(fileParse[\type].isNil).if({
-				"Matrix 'type' is undefined in the .yml file: cannot confirm the "
-				"type matches the loaded object (encoder/decoder/xformer)".warn
-			}, {
-				(fileParse[\type].asSymbol != this.type.asSymbol).if{
-					Error(
-						format(
-							"[%:-initFromFile] Matrix 'type' defined in the .yml file (%) doesn't match "
-							"the type of matrix you're trying to load (%)",
-							this.class.asString, fileParse[\type], this.type
-						).errorString.postln;
-						this.halt
-					)
-				}
-			});
+				// check against \set
+				fileParse[\set].isNil.if({
+					"Matrix 'set' is undefined in the .yml file: cannot confirm the "
+					"set matches the loaded object".warn
+				}, {
+					(fileParse[\set].asSymbol != this.set.asSymbol).if{
+						Error(
+							(
+								"[%:-initFromFile] Matrix 'set' defined in the .yml file (%) doesn't match "
+								"the object set trying to load (%)"
+							).format(
+								this.class.asString, fileParse[\set], this.set
+							).errorString.postln;
+							this.halt
+						)
+					}
+				});
 
-			// set unset instance vars
-			kind = (fileParse.kind.notNil).if({  // reset kind
-				fileParse.kind.asSymbol
-			}, {
-				pn.fileNameWithoutExtension.asSymbol
-			});
-			matrix = Matrix.with(fileParse.matrix.asFloat);
-			directions = fileParse.directions.asFloat;
+				// check against \type
+				(fileParse[\type].isNil).if({
+					"Matrix 'type' is undefined in the .yml file: cannot confirm the "
+					"type matches the loaded object (encoder/decoder/xformer)".warn
+				}, {
+					(fileParse[\type].asSymbol != this.type.asSymbol).if{
+						Error(
+							format(
+								"[%:-initFromFile] Matrix 'type' defined in the .yml file (%) doesn't match "
+								"the type of matrix you're trying to load (%)",
+								this.class.asString, fileParse[\type], this.type
+							).errorString.postln;
+							this.halt
+						)
+					}
+				});
 
-			// Remove parsed Instance variables & methods from fileParse.
-			// Keep just the user defined attributes and values.
-			//
-			// May wish to revisit.
-			instVars.do({ |att|
-				fileParse.includesKey(att).if{
-					fileParse.removeAt(att)
-				}
-			});
-			instMeths.do({ |att|
-				fileParse.includesKey(att).if{
-					fileParse.removeAt(att)
-				}
-			});
-		}
-		{	// catch all, including .txt
-			Error(
-				"[%:-initFromFile] Unsupported file extension.".format(this.class.asString)
-			).errorString.postln;
-			this.halt;
-		};
+				// set unset instance vars
+				kind = (fileParse.kind.notNil).if({  // reset kind
+					fileParse.kind.asSymbol
+				}, {
+					pn.fileNameWithoutExtension.asSymbol
+				});
+				matrix = Matrix.with(fileParse.matrix.asFloat);
+				directions = fileParse.directions.asFloat;
+
+				// Remove parsed Instance variables & methods from fileParse.
+				// Keep just the user defined attributes and values.
+				//
+				// May wish to revisit.
+				instVars.do({ |att|
+					fileParse.includesKey(att).if{
+						fileParse.removeAt(att)
+					}
+				});
+				instMeths.do({ |att|
+					fileParse.includesKey(att).if{
+						fileParse.removeAt(att)
+					}
+				})
+			},
+			{	// catch all, including .txt
+				Error(
+					"[%:-initFromFile] Unsupported file extension.".format(this.class.asString)
+				).errorString.postln;
+				this.halt
+			}
+		)
 	}
 
 	initDirTDesign { |design, order|
@@ -455,11 +456,12 @@ HoaMatrixEncoder : HoaMatrix {
 	// Projection Encoding beams - 'basic' & multi pattern
 	*newDirections { |directions = ([[0, 0]]), beamShape = nil, match = nil, order = (AtkHoa.defaultOrder)|
 		var instance = super.new('dirs', order).initDirections(directions);
-		^case
-		{ (beamShape == nil) && (match == nil) } { instance.initBasic }  // (\basic, \amp)
-		{ (beamShape != nil) && (match == nil) } { instance.initBeam(beamShape, \beam) }
-		{ (beamShape == nil) && (match != nil) } { instance.initBeam(\basic, match) }
-		{ (beamShape != nil) && (match != nil) } { instance.initBeam(beamShape, match) };
+		^case(
+			{ (beamShape == nil) && (match == nil) }, { instance.initBasic },  // (\basic, \amp)
+			{ (beamShape != nil) && (match == nil) }, { instance.initBeam(beamShape, \beam) },
+			{ (beamShape == nil) && (match != nil) }, { instance.initBeam(\basic, match) },
+			{ (beamShape != nil) && (match != nil) }, { instance.initBeam(beamShape, match) }
+		)
 	}
 
 	// Projection Encoding beams (convenience to match FOA: may wish to deprecate) - 'basic' pattern
@@ -659,47 +661,53 @@ HoaMatrixXformer : HoaMatrix {
 	// NOTE: this contains near-zero values.
 	// You can optimize these out by calling Matrix:-zeroWithin
 	initSwapAxes { |axes|
-		case
-		{ axes == \yz or: { axes == \zy } } // swap Z<>Y axes, "J-matrix"
-		{
-			var rx, my;
+		case(
 
-			rx = this.class.newRotateAxis(\x, 0.5pi, this.order).matrix;
-			my = this.class.newReflect(\y, this.order).matrix;
+			// swap Z<>Y axes, "J-matrix"
+			{ axes == \yz or: { axes == \zy } }, {
+				var rx, my;
 
-			// matrix = my * rx;
+				rx = this.class.newRotateAxis(\x, 0.5pi, this.order).matrix;
+				my = this.class.newReflect(\y, this.order).matrix;
 
-			// TODO: bake in this omptimization? larger question of migrating from Matrix to MatrixArray
-			rx = MatrixArray.with(rx.asArray);
-			my = MatrixArray.with(my.asArray);
-			matrix = Matrix.with(my * rx);
-		}
-		{ axes == \xz or: { axes == \zx } } // swap Z<>X axes, "K-matrix"
-		{
-			var ry, mx;
+				// matrix = my * rx;
 
-			ry = this.class.newRotateAxis(\y, 0.5pi, this.order).matrix;
-			mx = this.class.newReflect(\x, this.order).matrix;
+				// TODO: bake in this omptimization? larger question of migrating from Matrix to MatrixArray
+				rx = MatrixArray.with(rx.asArray);
+				my = MatrixArray.with(my.asArray);
+				matrix = Matrix.with(my * rx)
+			},
 
-			// matrix = mx * ry;
+			// swap Z<>X axes, "K-matrix"
+			{ axes == \xz or: { axes == \zx } }, {
+				var ry, mx;
 
-			// TODO: bake in this omptimization? larger question of migrating from Matrix to MatrixArray
-			mx = MatrixArray.with(mx.asArray);
-			ry = MatrixArray.with(ry.asArray);
-			matrix = Matrix.with(mx * ry);
-		}
-		{ axes == \xy or: { axes == \yx } } // swap X<>Y axes
-		{
-			var rz, mx;
+				ry = this.class.newRotateAxis(\y, 0.5pi, this.order).matrix;
+				mx = this.class.newReflect(\x, this.order).matrix;
 
-			rz = this.class.newRotateAxis(\z, 0.5pi, this.order).matrix;
-			mx = this.class.newReflect(\x, this.order).matrix;
+				// matrix = mx * ry;
 
-			matrix = mx * rz;
-		}
-		{
-			"Cannot swap axes '%'".format(axes).throw
-		};
+				// TODO: bake in this omptimization? larger question of migrating from Matrix to MatrixArray
+				mx = MatrixArray.with(mx.asArray);
+				ry = MatrixArray.with(ry.asArray);
+				matrix = Matrix.with(mx * ry);
+			},
+
+			// swap X<>Y axes
+			{ axes == \xy or: { axes == \yx } }, {
+				var rz, mx;
+
+				rz = this.class.newRotateAxis(\z, 0.5pi, this.order).matrix;
+				mx = this.class.newReflect(\x, this.order).matrix;
+
+				matrix = mx * rz;
+			},
+
+			// cannot do it!!
+			{
+				"Cannot swap axes '%'".format(axes).throw
+			}
+		)
 	}
 
 	initBeam { |beamShape|
@@ -976,12 +984,13 @@ HoaMatrixDecoder : HoaMatrix {
 	// Projection Decoding beams - 'basic' & multi pattern
 	*newDirections { |directions = ([[0, 0]]), beamShape = nil, match = nil, order = (AtkHoa.defaultOrder)|
 		var instance = super.new('dirs', order).initDirections(directions);
-		^case
-		{ (beamShape == nil) && (match == nil) } { instance.initBeam(\basic, \amp) }
-		{ (beamShape != nil) && (match == nil) } { instance.initBeam(beamShape, \beam) }
-		{ (beamShape == \basic) && (match == \beam) } { instance.initBasic }  // (\basic, \beam)
-		{ (beamShape == nil) && (match != nil) } { instance.initBeam(\basic, match) }
-		{ (beamShape != nil) && (match != nil) } { instance.initBeam(beamShape, match) };
+		^case(
+			{ (beamShape == nil) && (match == nil) }, { instance.initBeam(\basic, \amp) },
+			{ (beamShape != nil) && (match == nil) }, { instance.initBeam(beamShape, \beam) },
+			{ (beamShape == \basic) && (match == \beam) }, { instance.initBasic },  // (\basic, \beam)
+			{ (beamShape == nil) && (match != nil) }, { instance.initBeam(\basic, match) },
+			{ (beamShape != nil) && (match != nil) }, { instance.initBeam(beamShape, match) }
+		)
 	}
 
 	// Projection: Simple Ambisonic Decoding, aka SAD

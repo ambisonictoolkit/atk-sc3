@@ -358,12 +358,13 @@ FoaXformDisplay {
 		getColor = { |gain|
 			var i;
 			i = colorSpec.map(gainSpec.unmap(gain));
-			case
-			{ i < 256 } { Color.new255(255, i, 0) }
-			{ i < 384 } { Color.new255(255 - (i - 256), 255, 0) }
-			{ i < 512 } { Color.new255(0, 255, (i - 384) * 2) }
-			{ i < 768 } { Color.new255(0, 255 - (i - 512), 255) }
-			{ i >= 768 } { Color.new255(0, 0, 255) }; // catch all
+			case(
+				{ i < 256 }, { Color.new255(255, i, 0) },
+				{ i < 384 }, { Color.new255(255 - (i - 256), 255, 0) },
+				{ i < 512 }, { Color.new255(0, 255, (i - 384) * 2) },
+				{ i < 768 }, { Color.new255(0, 255 - (i - 512), 255) },
+				{ i >= 768 }, { Color.new255(0, 0, 255) } // catch all
+			);
 		};
 
 		/* Drawing the soundfield transform */
@@ -821,12 +822,13 @@ FoaXformDisplay {
 	// handles the switching between the matrix in the display,
 	// and the matrix in the transform chain, depending on the last touched
 	curXformMatrix {
-		^case
-		{ lastUpdatedMatrix === 'chain' } { chain.curXformMatrix }
-		{ lastUpdatedMatrix === 'display' } { displayChain.curXformMatrix }
-		{ (lastUpdatedMatrix.isKindOf(Matrix) or:
-			lastUpdatedMatrix.isKindOf(FoaXformerMatrix)) }
-		{ lastUpdatedMatrix };
+		^case(
+			{ lastUpdatedMatrix === 'chain' }, { chain.curXformMatrix },
+			{ lastUpdatedMatrix === 'display' }, { displayChain.curXformMatrix },
+			{ (lastUpdatedMatrix.isKindOf(Matrix) or: lastUpdatedMatrix.isKindOf(FoaXformerMatrix)) }, {
+				lastUpdatedMatrix
+			}
+		)
 	}
 
 
@@ -834,13 +836,13 @@ FoaXformDisplay {
 	prUpdateMatrix { |whichMatrix|
 		var xfMatrix;
 
-		xfMatrix = case
-		{ whichMatrix === 'chain' } { chain.curXformMatrix }
-		{ whichMatrix === 'display' } { displayChain.curXformMatrix }
-		{ (whichMatrix.isKindOf(Matrix) or:
-			whichMatrix.isKindOf(FoaXformerMatrix)) }
-		{ whichMatrix }
-		;
+		xfMatrix = case(
+			{ whichMatrix === 'chain' }, { chain.curXformMatrix },
+			{ whichMatrix === 'display' }, { displayChain.curXformMatrix },
+			{ (whichMatrix.isKindOf(Matrix) or: whichMatrix.isKindOf(FoaXformerMatrix)) }, {
+				whichMatrix
+			}
+		);
 
 		xfMatrix ?? { error("invalid updateMatrix selection") };
 

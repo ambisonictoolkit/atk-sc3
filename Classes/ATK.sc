@@ -435,25 +435,26 @@ Atk {
 					(test == name).if{ matches = matches.add(file) };
 				};
 
-				case
-				{ matches.size == 1 } {
-					srcPath = matches[0]
-				}
-				{ matches.size == 0 } {
-					Error("No file found for %".format(name)).errorString.postln;
-					this.halt
-				}
-				{ matches.size > 1 } {
-					str = "Multiple matches found for filename:\t%\n".format(usrPN.fileName);
-					matches.do{ |file|
-						str = str ++ "\t" ++ file.asRelativePath(mtxDirPath) ++ "\n"
-					};
-					str = str ++ format(
-						"Provide either an absolute path to the matrix, or one relative to\n\t%\n",
-						mtxDirPath
-					);
-					Error(str).errorString.postln; this.halt;
-				};
+				case(
+					{ matches.size == 1 }, {
+						srcPath = matches[0]
+					},
+					{ matches.size == 0 }, {
+						Error("No file found for %".format(name)).errorString.postln;
+						this.halt
+					},
+					{ matches.size > 1 }, {
+						str = "Multiple matches found for filename:\t%\n".format(usrPN.fileName);
+						matches.do{ |file|
+							str = str ++ "\t" ++ file.asRelativePath(mtxDirPath) ++ "\n"
+						};
+						str = str ++ format(
+							"Provide either an absolute path to the matrix, or one relative to\n\t%\n",
+							mtxDirPath
+						);
+						Error(str).errorString.postln; this.halt
+					}
+				)
 			};
 		};
 
@@ -875,8 +876,8 @@ FoaDecode : FoaUGen {
 	*ar { |in, decoder, mul = 1, add = 0|
 		in = this.checkChans(in);
 
-		case
-			{ decoder.isKindOf(FoaDecoderMatrix) } {
+		case(
+			{ decoder.isKindOf(FoaDecoderMatrix) }, {
 
 				(decoder.shelfFreq.isNumber).if{ // shelf filter?
 					in = FoaPsychoShelf.ar(in,
@@ -884,10 +885,11 @@ FoaDecode : FoaUGen {
 				};
 
 				^AtkMatrixMix.ar(in, decoder.matrix, mul, add)
-			}
-			{ decoder.isKindOf(FoaDecoderKernel) } {
+			},
+			{ decoder.isKindOf(FoaDecoderKernel) }, {
 				^AtkKernelConv.ar(in, decoder.kernel, mul, add)
-			};
+			}
+		)
 	}
 }
 
@@ -899,13 +901,14 @@ FoaEncode : FoaUGen {
 	*ar { |in, encoder, mul = 1, add = 0|
 		var out;
 
-		case
-			{ encoder.isKindOf(FoaEncoderMatrix) } {
+		case(
+			{ encoder.isKindOf(FoaEncoderMatrix) }, {
 				out = AtkMatrixMix.ar(in, encoder.matrix, mul, add)
-			}
-			{ encoder.isKindOf(FoaEncoderKernel) } {
+			},
+			{ encoder.isKindOf(FoaEncoderKernel) }, {
 				out = AtkKernelConv.ar(in, encoder.kernel, mul, add)
-			};
+			}
+		);
 
 //		if (out.size < 4, {			// 1st order, fill missing harms with zeros
 //			out = out ++ Silent.ar(4 - out.size)

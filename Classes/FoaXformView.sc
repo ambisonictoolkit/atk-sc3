@@ -195,15 +195,16 @@ FoaXformView {
 			controls.do{ |pair, i|
 				var ctlName, ctl;
 				#ctlName, ctl = pair;
-				case
-				{ ctl.isKindOf(ControlSpec) } {
-					this.addSliderCtl(ctlName, ctl, i);
-				}
-				// a ctl of a Symbol, e.g. 'A0' yields a
-				// dropdown menu for an input soundfield
-				{ ctl.isKindOf(Symbol) } {
-					this.addInputMenuCtl(ctlName, i);
-				}
+				case(
+					{ ctl.isKindOf(ControlSpec) }, {
+						this.addSliderCtl(ctlName, ctl, i)
+					},
+					// a ctl of a Symbol, e.g. 'A0' yields a
+					// dropdown menu for an input soundfield
+					{ ctl.isKindOf(Symbol) }, {
+						this.addInputMenuCtl(ctlName, i)
+					}
+				)
 			};
 		};
 	}

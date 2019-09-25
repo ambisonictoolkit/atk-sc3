@@ -269,61 +269,62 @@ FoaMatrix : AtkMatrix {
 		// instance var
 		filePath = pn.fullPath;
 
-		case
-		{ pn.extension == "txt" } {
-			matrix = pn.fileName.contains(".mosl").if({
-				// .mosl.txt file: expected to be matrix only,
-				// single values on each line, by rows
-				Matrix.with(this.prParseMOSL(pn));
-			}, {
-				// .txt file: expected to be matrix only, cols
-				// separated by spaces, rows by newlines
-				Matrix.with(FileReader.read(filePath).asFloat);
-			});
+		case(
+			{ pn.extension == "txt" }, {
+				matrix = pn.fileName.contains(".mosl").if({
+					// .mosl.txt file: expected to be matrix only,
+					// single values on each line, by rows
+					Matrix.with(this.prParseMOSL(pn));
+				}, {
+					// .txt file: expected to be matrix only, cols
+					// separated by spaces, rows by newlines
+					Matrix.with(FileReader.read(filePath).asFloat);
+				});
 
-			kind = pn.fileName.asSymbol; // kind defaults to filename
-		}
-		{ pn.extension == "yml" } {
-			dict = filePath.parseYAMLFile;
-			fileParse = IdentityDictionary(know: true);
+				kind = pn.fileName.asSymbol // kind defaults to filename
+			},
+			{ pn.extension == "yml" }, {
+				dict = filePath.parseYAMLFile;
+				fileParse = IdentityDictionary(know: true);
 
-			// replace String keys with Symbol keys, make "knowable"
-			dict.keysValuesDo{ |k, v|
-				fileParse.put(k.asSymbol,
-					(v == "nil").if({ nil }, { v }) // so .info parsing doesn't see nil as array
-				)
-			};
-
-			fileParse[\type].isNil.if({
-				"Matrix 'type' is undefined in the .yml file: cannot confirm the "
-				"type matches the loaded object (encoder/decoder/xformer)".warn
-			}, {
-				(fileParse[\type].asSymbol != mtxType.asSymbol).if{
-					Error(
-						format(
-							"[%:-initFromFile] Matrix 'type' defined in the .yml file (%) doesn't match "
-							"the type of matrix you're trying to load (%)",
-							this.class.asString, fileParse[\type], mtxType
-						).errorString.postln;
-						this.halt
+				// replace String keys with Symbol keys, make "knowable"
+				dict.keysValuesDo{ |k, v|
+					fileParse.put(k.asSymbol,
+						(v == "nil").if({ nil }, { v }) // so .info parsing doesn't see nil as array
 					)
-				}
-			});
+				};
 
-			matrix = Matrix.with(fileParse.matrix.asFloat);
+				fileParse[\type].isNil.if({
+					"Matrix 'type' is undefined in the .yml file: cannot confirm the "
+					"type matches the loaded object (encoder/decoder/xformer)".warn
+				}, {
+					(fileParse[\type].asSymbol != mtxType.asSymbol).if{
+						Error(
+							format(
+								"[%:-initFromFile] Matrix 'type' defined in the .yml file (%) doesn't match "
+								"the type of matrix you're trying to load (%)",
+								this.class.asString, fileParse[\type], mtxType
+							).errorString.postln;
+							this.halt
+						)
+					}
+				});
 
-			kind = fileParse.kind.notNil.if({
-				fileParse.kind.asSymbol
-			}, {
-				pn.fileNameWithoutExtension.asSymbol
-			});
-		}
-		{ // catch all
-			Error(
-				"[%:-initFromFile] Unsupported file extension.".format(this.class.asString)
-			).errorString.postln;
-			this.halt;
-		};
+				matrix = Matrix.with(fileParse.matrix.asFloat);
+
+				kind = fileParse.kind.notNil.if({
+					fileParse.kind.asSymbol
+				}, {
+					pn.fileNameWithoutExtension.asSymbol
+				})
+			},
+			{ // catch all
+				Error(
+					"[%:-initFromFile] Unsupported file extension.".format(this.class.asString)
+				).errorString.postln;
+				this.halt
+			}
+		)
 	}
 
 	// separate YML writer for FOA
@@ -418,16 +419,17 @@ FoaMatrix : AtkMatrix {
 				"//",	{ }, // ignore comments
 				"",		{ },	// ignore blank line
 				{	// found valid line
-					case
-					{ numRows.isNil } { numRows = val.asInteger }
-					{ numCols.isNil } { numCols = val.asInteger }
-					{
-						row = row.add(val.asFloat);
-						(row.size == numCols).if{
-							mtx = mtx.add(row);
-							row = [];
+					case(
+						{ numRows.isNil }, { numRows = val.asInteger },
+						{ numCols.isNil }, { numCols = val.asInteger },
+						{
+							row = row.add(val.asFloat);
+							(row.size == numCols).if{
+								mtx = mtx.add(row);
+								row = [];
+							}
 						}
-					}
+					)
 				}
 			)
 		};
@@ -1905,55 +1907,52 @@ FoaDecoderKernel {
 		// attempt to load kernel
 		subjectPath.isFolder.not.if({	// does kernel path exist?
 
-			case
-			// --> missing kernel database
-			{ databasePath.isFolder.not }
-			{
-				errorMsg = "ATK kernel database missing!" +
-				"Please install % database.".format(kind)
-			}
+			case(
+				// --> missing kernel database
+				{ databasePath.isFolder.not }, {
+					errorMsg = "ATK kernel database missing!" +
+					"Please install % database.".format(kind)
+				},
 
-			// --> unsupported SR
-			{ PathName.new(subjectPath.parentLevelPath(2)).isFolder.not }
-			{
-				"Supported samplerates:".warn;
-				PathName.new(subjectPath.parentLevelPath(3)).folders.do({
-					|folder|
-					("\t" + folder.folderName).postln;
-				});
+				// --> unsupported SR
+				{ PathName.new(subjectPath.parentLevelPath(2)).isFolder.not }, {
+					"Supported samplerates:".warn;
+					PathName.new(subjectPath.parentLevelPath(3)).folders.do({
+						|folder|
+						("\t" + folder.folderName).postln;
+					});
 
-				errorMsg = "Samplerate = % is not available for".format(sampleRateStr)
-				+
+					errorMsg = "Samplerate = % is not available for".format(sampleRateStr)
+					+
+								"% kernel decoder.".format(kind)
+				},
+
+				// --> unsupported kernelSize
+				{ PathName.new(subjectPath.parentLevelPath(1)).isFolder.not }, {
+					"Supported kernel sizes:".warn;
+					PathName.new(subjectPath.parentLevelPath(2)).folders.do({
+						|folder|
+						("\t" + folder.folderName).postln;
+					});
+
+					errorMsg = "Kernel size = % is not available for".format(kernelSize)
+					+
 							"% kernel decoder.".format(kind)
-			}
+				},
 
-			// --> unsupported kernelSize
-			{ PathName.new(subjectPath.parentLevelPath(1)).isFolder.not }
-			{
-				"Supported kernel sizes:".warn;
-				PathName.new(subjectPath.parentLevelPath(2)).folders.do({
-					|folder|
-					("\t" + folder.folderName).postln;
-				});
+				// --> unsupported subject
+				{ subjectPath.isFolder.not }, {
+					"Supported subjects:".warn;
+					PathName.new(subjectPath.parentLevelPath(1)).folders.do({
+						|folder|
+						("\t" + folder.folderName).postln;
+					});
 
-				errorMsg = "Kernel size = % is not available for".format(kernelSize)
-				+
-						"% kernel decoder.".format(kind)
-			}
-
-			// --> unsupported subject
-			{ subjectPath.isFolder.not }
-			{
-				"Supported subjects:".warn;
-				PathName.new(subjectPath.parentLevelPath(1)).folders.do({
-					|folder|
-					("\t" + folder.folderName).postln;
-				});
-
-				errorMsg = "Subject % is not available for".format(subjectID)
-				+
-						"% kernel decoder.".format(kind)
-			};
+					errorMsg = "Subject % is not available for".format(subjectID)
+					+
+							"% kernel decoder.".format(kind)
+				}
+			);
 
 			// throw error!
 			"\n".post;
@@ -2232,55 +2231,52 @@ FoaEncoderKernel {
 
 		subjectPath.isFolder.not.if({	// does kernel path exist?
 
-			case
-			// --> missing kernel database
-			{ databasePath.isFolder.not }
-			{
-				errorMsg = "ATK kernel database missing!" +
-				"Please install % database.".format(kind)
-			}
+			case(
+				// --> missing kernel database
+				{ databasePath.isFolder.not }, {
+					errorMsg = "ATK kernel database missing!" +
+					"Please install % database.".format(kind)
+				},
 
-			// --> unsupported SR
-			{ PathName.new(subjectPath.parentLevelPath(2)).isFolder.not }
-			{
-				"Supported samplerates:".warn;
-				PathName.new(subjectPath.parentLevelPath(3)).folders.do({
-					|folder|
-					("\t" + folder.folderName).postln;
-				});
+				// --> unsupported SR
+				{ PathName.new(subjectPath.parentLevelPath(2)).isFolder.not }, {
+					"Supported samplerates:".warn;
+					PathName.new(subjectPath.parentLevelPath(3)).folders.do({
+						|folder|
+						("\t" + folder.folderName).postln;
+					});
 
-				errorMsg = "Samplerate = % is not available for".format(sampleRateStr)
-				+
-				"% kernel encoder.".format(kind)
-			}
+					errorMsg = "Samplerate = % is not available for".format(sampleRateStr)
+					+
+					"% kernel encoder.".format(kind)
+				},
 
-			// --> unsupported kernelSize
-			{ PathName.new(subjectPath.parentLevelPath(1)).isFolder.not }
-			{
-				"Supported kernel sizes:".warn;
-				PathName.new(subjectPath.parentLevelPath(2)).folders.do({
-					|folder|
-					("\t" + folder.folderName).postln;
-				});
+				// --> unsupported kernelSize
+				{ PathName.new(subjectPath.parentLevelPath(1)).isFolder.not }, {
+					"Supported kernel sizes:".warn;
+					PathName.new(subjectPath.parentLevelPath(2)).folders.do({
+						|folder|
+						("\t" + folder.folderName).postln;
+					});
 
-				errorMsg = "Kernel size = % is not available for".format(kernelSize)
-				+
-				"% kernel encoder.".format(kind)
-			}
+					errorMsg = "Kernel size = % is not available for".format(kernelSize)
+					+
+					"% kernel encoder.".format(kind)
+				},
 
-			// --> unsupported subject
-			{ subjectPath.isFolder.not }
-			{
-				"Supported subjects:".warn;
-				PathName.new(subjectPath.parentLevelPath(1)).folders.do({
-					|folder|
-					("\t" + folder.folderName).postln;
-				});
+				// --> unsupported subject
+				{ subjectPath.isFolder.not }, {
+					"Supported subjects:".warn;
+					PathName.new(subjectPath.parentLevelPath(1)).folders.do({
+						|folder|
+						("\t" + folder.folderName).postln;
+					});
 
-				errorMsg = "Subject % is not available for".format(subjectID)
-				+
-				"% kernel encoder.".format(kind)
-			};
+					errorMsg = "Subject % is not available for".format(subjectID)
+					+
+					"% kernel encoder.".format(kind)
+				}
+			);
 
 			// throw error!
 			"\n".post;

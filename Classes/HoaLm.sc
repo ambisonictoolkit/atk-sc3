@@ -271,10 +271,11 @@ HoaLm {
 		phi = pi/2 - phi;
 
 		// evaluate spherical harmonic
-		case
-		{ m < 0 } { res = 2.sqrt * sphericalHarmonicI(l, mabs, phi, theta) }  // imag
-		{ m == 0 } { res = sphericalHarmonicR(l, mabs, phi, theta) }          // real
-		{ m > 0 } { res = 2.sqrt * sphericalHarmonicR(l, mabs, phi, theta) }; // real
+		case(
+			{ m < 0 }, { res = 2.sqrt * sphericalHarmonicI(l, mabs, phi, theta) },  // imag
+			{ m == 0 }, { res = sphericalHarmonicR(l, mabs, phi, theta) },          // real
+			{ m > 0 }, { res = 2.sqrt * sphericalHarmonicR(l, mabs, phi, theta) }   // real
+		);
 
 		// remove Condon-Shortley phase
 		res = this.reflection(\CondonShortleyPhase) * res;

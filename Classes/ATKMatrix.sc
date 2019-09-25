@@ -106,28 +106,29 @@ AtkMatrix {
 				this.halt;
 			};
 
-			case
-			{ pn.colonIndices.size == 0 } {
-				// only filename provided, write to dir matching 'type'
-				pn = Atk.getMatrixExtensionSubPath(this.set, this.type) +/+ pn;
-			}
-			{ pn.colonIndices.size > 0 } {
-				// relative path given, look for it
-				mtxPath = Atk.getMatrixExtensionSubPath(this.set, this.type);
-				relPath = (mtxPath +/+ PathName(pn.parentPath));
-				relPath.isFolder.if({
-					// valid relative path confirmed
-					pn = mtxPath +/+ pn;
-				}, {
-					Error(
-						format(
-							"Specified relative folder path was not found in %\n",
-							relPath.fullPath
-						)
-					).errorString.postln;
-					this.halt;
-				})
-			};
+			case(
+				{ pn.colonIndices.size == 0 }, {
+					// only filename provided, write to dir matching 'type'
+					pn = Atk.getMatrixExtensionSubPath(this.set, this.type) +/+ pn
+				},
+				{ pn.colonIndices.size > 0 }, {
+					// relative path given, look for it
+					mtxPath = Atk.getMatrixExtensionSubPath(this.set, this.type);
+					relPath = (mtxPath +/+ PathName(pn.parentPath));
+					relPath.isFolder.if({
+						// valid relative path confirmed
+						pn = mtxPath +/+ pn;
+					}, {
+						Error(
+							format(
+								"Specified relative folder path was not found in %\n",
+								relPath.fullPath
+							)
+						).errorString.postln;
+						this.halt;
+					})
+				}
+			)
 		}; // otherwise, provided path is absolute
 
 		ext = pn.extension;
@@ -145,22 +146,23 @@ AtkMatrix {
 			}
 		};
 
-		case
-		{ ext == "txt" } {
-			pn.fileName.contains(".mosl").if({
-				this.prWriteMatrixToMOSL(pn)
-			}, {
-				this.prWriteMatrixToTXT(pn)
-			})
-		}
-		{ ext == "yml" } { this.prWriteMatrixToYML(pn, note, attributeDictionary) }
-		{	// catch all
-			Error(
-				"Invalid file extension: provide '.txt' for writing matrix only, "
-				"or '.yml' or no extension to write matrix with metadata (as YAML)"
-			).errorString.postln;
-			this.halt;
-		};
+		case(
+			{ ext == "txt" }, {
+				pn.fileName.contains(".mosl").if({
+					this.prWriteMatrixToMOSL(pn)
+				}, {
+					this.prWriteMatrixToTXT(pn)
+				})
+			},
+			{ ext == "yml" }, { this.prWriteMatrixToYML(pn, note, attributeDictionary) },
+			{	// catch all
+				Error(
+					"Invalid file extension: provide '.txt' for writing matrix only, "
+					"or '.yml' or no extension to write matrix with metadata (as YAML)"
+				).errorString.postln;
+				this.halt
+			}
+		)
 	}
 
 

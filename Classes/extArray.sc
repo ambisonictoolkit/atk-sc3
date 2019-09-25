@@ -51,8 +51,9 @@
 	*regularPolygon { |size = 3, orientation = 0.0, wrap = 2pi|
 		var theta;
 
+		// orientation: keyword test
 		orientation.isNumber.not.if{
-			orientation = orientation.switch(
+			orientation = switch(orientation,
 				\vertex, { 0.0 },
 				\side, { pi / size },
 				\point, { 0.0 },

@@ -292,7 +292,7 @@
 						n = (m + 1).squared  // 3D
 					});
 					(n / meanE.value(beamWeights, dim)).sqrt
-					},
+				},
 				'energy', {
 					n = numChans;
 					(n / meanE.value(beamWeights, dim)).sqrt

@@ -1192,7 +1192,7 @@ FoaAuditionView {
 				},
 				\status, {
 					fileTxt.string_(args[0]);
-				},
+				}
 			)
 		}
 	}

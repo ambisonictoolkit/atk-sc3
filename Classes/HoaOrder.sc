@@ -148,7 +148,7 @@ HoaOrder {
 	foclWeights { |freq, radius, window = \reg, speedOfSound = (AtkHoa.speedOfSound)|
 		var wavNum = WaveNumber.newFreq(freq, speedOfSound);
 
-		^window.switch(
+		^switch(window,
 			\hp, {
 				var effOrder = wavNum.orderAtRadius(radius);
 				var beta;

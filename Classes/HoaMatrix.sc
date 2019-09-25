@@ -66,10 +66,10 @@ HoaMatrix : AtkMatrix {
 		directions = (argDirections == nil).if({
 			this.order.asHoaOrder.size.collect({ inf })
 		}, {
-			argDirections.rank.switch(
+			switch(argDirections.rank,
 				0, { Array.with(argDirections, 0.0).reshape(1, 2) },
 				1, { argDirections.collect({ |dir| Array.with(dir, 0.0) }) },
-				2, { argDirections },
+				2, { argDirections }
 			).collect({ |thetaPhi|  // wrap to [ + /-pi, +/-pi/2]
 				Spherical.new(1, thetaPhi[0], thetaPhi[1]).asCartesian.asSpherical.angles
 			})
@@ -98,7 +98,7 @@ HoaMatrix : AtkMatrix {
 		size = switch(this.type,
 			'encoder', { matrix.rows },
 			'decoder', { matrix.cols },
-			'xformer', { matrix.rows },
+			'xformer', { matrix.rows }
 		);
 		matrixOrder = AtkHoa.detectOrder(size);
 
@@ -479,13 +479,13 @@ HoaMatrixEncoder : HoaMatrix {
 	*newSphericalDesign { |design, beamShape = \basic, order = (AtkHoa.defaultOrder)|
 		var instance = super.new('spherical', order);
 
-		^switch
-		(design.class,
+		^switch(design.class,
 			TDesign, { instance.initDirTDesign(design, order).initBeam(beamShape, \beam) },  // TDesign only, for now
-			{ format(  // ... or, catch un-supported
-				"[HoaMatrixEncoder *newSphericalDesign] Design % is not supported!",
-				design.class
-			).throw
+			{                                                                                // ... or, catch un-supported
+				format(
+					"[HoaMatrixEncoder *newSphericalDesign] Design % is not supported!",
+					design.class
+				).throw
 			}
 		)
 	}
@@ -600,7 +600,7 @@ HoaMatrixXformer : HoaMatrix {
 			\tumble, { r2 = angle },
 			\yaw, { r3 = angle },
 			\pitch, { r2 = angle },
-			\roll, { r1 = angle },
+			\roll, { r1 = angle }
 		);
 		^super.new('rotateAxis', order).initDirections.initRotation(r1, r2, r3, \xyz)
 	}
@@ -774,10 +774,10 @@ HoaMatrixXformer : HoaMatrix {
 
 		// reshape (test) encoding directions, as need be...
 		// ... then find test unit vectors
-		xyzEncDirs = directions.rank.switch(
+		xyzEncDirs = switch(directions.rank,
 			0, { Array.with(directions, 0.0).reshape(1, 2) },
 			1, { directions.collect({ |dir| Array.with(dir, 0.0) }) },
-			2, { directions },
+			2, { directions }
 		).collect({ |thetaPhi|
 			Spherical.new(1, thetaPhi[0], thetaPhi[1]).asCartesian.asArray
 		});
@@ -1011,7 +1011,7 @@ HoaMatrixDecoder : HoaMatrix {
 
 	// Diametric: Mode Matched Decoding, aka Diametric Pseudoinverse
 	*newDiametric { |directions, beamShape = \basic, match = \amp, order = (AtkHoa.defaultOrder)|
-		var directionPairs = directions ++ directions.rank.switch(
+		var directionPairs = directions ++ switch(directions.rank,
 			1, {  // 2D
 				directions.collect({ |item|
 					Polar.new(1, item).neg.angle
@@ -1030,13 +1030,13 @@ HoaMatrixDecoder : HoaMatrix {
 	*newSphericalDesign { |design, beamShape = \basic, order = (AtkHoa.defaultOrder)|
 		var instance = super.new('spherical', order);
 
-		^switch
-		(design.class,
+		^switch(design.class,
 			TDesign, { instance.initDirTDesign(design, order).initBeam(beamShape, \beam) },  // TDesign only, for now
-			{ format(  // ... or, catch un-supported
-				"[HoaMatrixEncoder *newSphericalDesign] Design % is not supported!",
-				design.class
-			).throw
+			{                                                                                // ... or, catch un-supported
+				format(
+					"[HoaMatrixEncoder *newSphericalDesign] Design % is not supported!",
+					design.class
+				).throw
 			}
 		)
 	}
@@ -1104,7 +1104,7 @@ HoaMatrixDecoder : HoaMatrix {
 		dim = this.dim;
 
 		// 1) determine decoder output order - estimate
-		outputOrder = dim.switch(
+		outputOrder = switch(dim,
 			2, {  // 2D
 				(numOutputs >= (2 * inputOrder + 1)).if({
 					inputOrder
@@ -1186,7 +1186,7 @@ HoaMatrixDecoder : HoaMatrix {
 		dim = this.dim;
 
 		// 1) determine decoder output order - estimate
-		outputOrder = dim.switch(
+		outputOrder = switch(dim,
 			2, {  // 2D
 				(numOutputs >= (2 * inputOrder + 1)).if({
 					inputOrder
@@ -1286,10 +1286,10 @@ HoaMatrixDecoder : HoaMatrix {
 
 		// reshape (test) encoding directions, as need be...
 		// ... then find test unit vectors
-		xyzEncDirs = directions.rank.switch(
+		xyzEncDirs = switch(directions.rank,
 			0, { Array.with(directions, 0.0).reshape(1, 2) },
 			1, { directions.collect({ |dir| Array.with(dir, 0.0) }) },
-			2, { directions },
+			2, { directions }
 		).collect({ |thetaPhi|
 			Spherical.new(1, thetaPhi[0], thetaPhi[1]).asCartesian.asArray
 		});
@@ -1324,7 +1324,7 @@ HoaMatrixDecoder : HoaMatrix {
 		energy = g2.sumCols;
 
 		// rms for each (test) encoding direction
-		numDecHarms = this.dim.switch(
+		numDecHarms = switch(this.dim,
 			2, { (2 * this.order) + 1 },  // 2D -- sectoral
 			3, { (this.order + 1).squared }   // 3D -- all
 		);
@@ -1414,7 +1414,7 @@ HoaMatrixDecoder : HoaMatrix {
 		var numCoeffs;
 
 		// Resolve testing matrix: 2D or 3D
-		this.dim.switch(
+		switch(this.dim,
 			2, {  // 2D -- N2D
 				testMatrix = this.matrix.mulMatrix(
 					HoaMatrixEncoder.newFormat(

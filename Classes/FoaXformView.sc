@@ -66,8 +66,8 @@ FoaXformView {
 		sfView.debug.if{ "initializing new XForm".postln };
 
 		chain = switch(target,
-			'chain',    { sfView.chain },         // xform in chain view UI
-			'display',  { sfView.displayChain }   // or xform view in the xformDisplay UI
+			'chain', { sfView.chain },          // xform in chain view UI
+			'display', { sfView.displayChain }  // or xform view in the xformDisplay UI
 		);
 
 		// if this xform takes a chain index for an input,
@@ -383,9 +383,9 @@ FoaXformView {
 
 	getViewIndex {
 		^switch(target,
-			'chain', 	{ sfView.prGetXfViewID(this) },
-			'display',	{ [0, 1] }
-		);
+			'chain', { sfView.prGetXfViewID(this) },
+			'display', { [0, 1] }
+		)
 	}
 
 	// updates xf view colors according to mute/solo state

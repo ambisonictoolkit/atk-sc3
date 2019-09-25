@@ -211,7 +211,7 @@ FoaMatrix : AtkMatrix {
 		numCoeffs = switch(this.type,
 			'encoder', { matrix.rows },
 			'decoder', { matrix.cols },
-			'xformer', { matrix.rows },
+			'xformer', { matrix.rows }
 		);
 		(numCoeffs == 3 or: { numCoeffs == 4 }).not.if{
 			Error(
@@ -395,7 +395,7 @@ FoaMatrix : AtkMatrix {
 							wrAtt.(k, v)
 						})
 					}
-				);
+				)
 			}
 		};
 
@@ -588,7 +588,7 @@ FoaDecoderMatrix : FoaMatrix {
 				'dual', {
 					shelfFreq = 400.0;
 					shelfK = [(3/2).sqrt, 3.sqrt/2];
-					1; // return
+					1 // return
 				}
 			)
 		})
@@ -607,7 +607,7 @@ FoaDecoderMatrix : FoaMatrix {
 				'dual', {
 					shelfFreq = 400.0;
 					shelfK = [2.sqrt, (2 / 3).sqrt];
-					1; // return
+					1 // return
 				}
 			)
 		})
@@ -638,7 +638,7 @@ FoaDecoderMatrix : FoaMatrix {
 				});
 
 				// initialise k
-				k = this.initK2D(k);
+				k = this.initK2D(k)
 			},
 			2, {  // 3D
 
@@ -659,7 +659,7 @@ FoaDecoderMatrix : FoaMatrix {
 				});
 
 				// initialise k
-				k = this.initK3D(k);
+				k = this.initK3D(k)
 			}
 		);
 
@@ -698,8 +698,8 @@ FoaDecoderMatrix : FoaMatrix {
 		// return theta from output channel (speaker) number
 		theta = numChans.collect({ |channel|
 			switch(orientation,
-				'flat',	{ ((1.0 + (2.0 * channel)) / numChans) * pi },
-				'point',	{ ((2.0 * channel) / numChans) * pi }
+				'flat', { ((1.0 + (2.0 * channel)) / numChans) * pi },
+				'point', { ((2.0 * channel) / numChans) * pi }
 			)
 		});
 		theta = (theta + pi).mod(2pi) - pi;
@@ -1056,18 +1056,18 @@ FoaEncoderMatrix : FoaMatrix {
 		dirChannels = directions;
 
 		switch(directions.rank,					// 2D or 3D?
-			1, {									// 2D
+			1, {								// 2D
 				pattern.isNil.if({
 					this.init2D					// plane wave
 				}, {
-					this.initInv2D(pattern)			// mic inversion
+					this.initInv2D(pattern)		// mic inversion
 				})
 			},
-			2, {									// 3D
+			2, {								// 3D
 				pattern.isNil.if({
 					this.init3D					// plane wave
 				}, {
-					this.initInv3D(pattern)			// mic inversion
+					this.initInv3D(pattern)		// mic inversion
 				})
 			}
 		)
@@ -2159,26 +2159,26 @@ FoaEncoderKernel {
 			'super', {
 				dirChannels = [pi/4, (pi/4).neg];	 // approx, doesn't include phasiness
 				sampleRateStr = "None";
-				chans = 3;					// [w, x, y]
+				chans = 3					// [w, x, y]
 			},
 			'uhj', {
 				dirChannels = [inf, inf];
 				sampleRateStr.isNil.if{
 					sampleRateStr = server.sampleRate.asInteger.asString;
 				};
-				chans = 3;					// [w, x, y]
+				chans = 3					// [w, x, y]
 			},
 			'spread', {
 				dirChannels = [inf];
 				sampleRateStr.isNil.if{
 					sampleRateStr = server.sampleRate.asInteger.asString;
 				};
-				chans = 4;					// [w, x, y, z]
+				chans = 4					// [w, x, y, z]
 			},
 			'diffuse', {
 				dirChannels = [inf];
 				sampleRateStr = "None";
-				chans = 4;					// [w, x, y, z]
+				chans = 4					// [w, x, y, z]
 			}
 
 			// Encoding via Isophonics Room Impulse Response Data Set, not yet implemented.

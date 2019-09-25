@@ -271,7 +271,7 @@ Atk {
 				'decoder', { "decoders" },
 				'encoder', { "encoders" },
 				'xformer', { "xformers" }
-			);
+			)
 		);
 
 		fullPath = subPath +/+ typePath;
@@ -299,7 +299,7 @@ Atk {
 				'decoder', { "decoders" },
 				'encoder', { "encoders" },
 				'xformer', { "xformers" }
-			);
+			)
 		);
 
 		fullPath = subPath +/+ typePath;

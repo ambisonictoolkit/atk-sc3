@@ -465,7 +465,7 @@ FoaXformDisplay {
 							};
 
 							// scale in/out toward/away from origin
-							gainPnt = azPnt * 1.15;
+							gainPnt = azPnt * 1.15
 						},
 						'radius', {
 							Pen.fillColor_(gainColor);
@@ -478,7 +478,7 @@ FoaXformDisplay {
 							};
 
 							// scale in/out toward/away from origin
-							gainPnt = drawPnt * dir.linlin(0, 1, 1.75, 1.15);
+							gainPnt = drawPnt * dir.linlin(0, 1, 1.75, 1.15)
 						}
 					);
 
@@ -1054,8 +1054,8 @@ FoaXformDisplay {
 				postMtxString
 			}, {
 				evalMtxString
-			});
-		});
+			})
+		})
 	}
 
 
@@ -1068,21 +1068,21 @@ FoaXformDisplay {
 					var index;
 					index = args[0];
 					// postf("responding to \chainAdded: %\n", index);
-					this.addChainView(index);
+					this.addChainView(index)
 				},
 				\chainRemoved, {
 					var index;
 					index = args[0];
 					// postf("responding to \chainRemoved: %\n", index);
 					this.removeChainView(index);
-					this.prUpdateMatrix('chain');
+					this.prUpdateMatrix('chain')
 				},
 				\transformAdded, {
 					var xformName, whichChain, index;
 					#xformName, whichChain, index = args[0..2];
 					this.createNewXForm(whichChain, index);
 					this.prUpdateInputMenus;
-					this.prUpdateMatrix('chain');
+					this.prUpdateMatrix('chain')
 				},
 				\transformRemoved, {
 					{
@@ -1091,14 +1091,14 @@ FoaXformDisplay {
 						this.prRemoveXForm(whichChain, index);
 						0.02.wait; // for some reason needs time to remove
 						this.prUpdateInputMenus;
-						this.prUpdateMatrix('chain');
+						this.prUpdateMatrix('chain')
 					}.fork(clock: AppClock)
 				},
 				\transformReplaced, {
 					var whichChain, index, newXformName;
 					#newXformName, whichChain, index = args[0..2];
 					xfViewChains[whichChain][index].rebuildControls;
-					this.prUpdateMatrix('chain');
+					this.prUpdateMatrix('chain')
 				},
 				\transformMuted, {
 					var whichChain, index, bool;
@@ -1165,12 +1165,12 @@ FoaXformDisplay {
 								}
 							})
 						}
-					};
+					}
 				},
 				\paramUpdated, {
-					this.prUpdateMatrix('chain');
+					this.prUpdateMatrix('chain')
 				}
-			);
+			)
 		};
 
 		(who == displayChain).if{
@@ -1179,10 +1179,10 @@ FoaXformDisplay {
 					var whichChain, index, newXformName;
 					#newXformName, whichChain, index = args[0..2];
 					displayXFormView.rebuildControls;
-					this.prUpdateMatrix('display');
+					this.prUpdateMatrix('display')
 				},
 				\paramUpdated, {
-					this.prUpdateMatrix('display');
+					this.prUpdateMatrix('display')
 				}
 			);
 		};
@@ -1207,7 +1207,7 @@ FoaXformDisplay {
 					audition.removeDependant(this);
 					defer({ uv.refresh })
 				}
-			);
-		};
+			)
+		}
 	}
 }

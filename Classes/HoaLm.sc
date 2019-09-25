@@ -91,7 +91,7 @@ HoaLm {
 
 					this.new([l, m])
 				})
-			},
+			}
 		)
 	}
 
@@ -150,7 +150,7 @@ HoaLm {
 			},
 			\rotate, {  // rotate around z-axis, aka yaw
 				^(m != 0)
-			},
+			}
 		)
 	}
 
@@ -163,7 +163,7 @@ HoaLm {
 
 		switch(mirror,
 			\reflect, {  // reflect - mirror across origin - flip * flop * flap
-				^l.odd.if({ -1.0 }, { 1.0 });
+				^l.odd.if({ -1.0 }, { 1.0 })
 			},
 			\flip, {  // flip - mirror across y-axis
 				^(m < 0).if({ -1.0 }, { 1.0 })
@@ -175,7 +175,7 @@ HoaLm {
 				^(m + l).odd.if({ -1.0 }, { 1.0 })
 			},
 			\CondonShortleyPhase, {  // Condon-Shortley Phase - flip * flop
-				^m.odd.if({ -1.0 }, { 1.0 });
+				^m.odd.if({ -1.0 }, { 1.0 })
 			},
 			\origin, {
 				^this.reflection(\reflect)
@@ -188,7 +188,7 @@ HoaLm {
 			},
 			\z, {
 				^this.reflection(\flap)
-			},
+			}
 		)
 	}
 
@@ -251,7 +251,7 @@ HoaLm {
 			},
 			\fuma, {
 				^this.normalisation(\MaxN)
-			},
+			}
 		)
 	}
 

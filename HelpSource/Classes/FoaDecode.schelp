@@ -480,17 +480,17 @@ code::
 var funK;
 
 funK = { arg k;
-    if ( k.isNumber, {
-            k
-        }, {
-	    switch ( k,
-		'velocity', 	{ [1, 2, 2, 2] },
-		'energy', 	{ [1, 2.sqrt, 2.sqrt, 2.sqrt] },
-		'controlled',   { [1, 1, 1, 1] },
-		'single', 	{ [1, 2.sqrt, 2.sqrt, 2.sqrt] }
-	    )
+	if ( k.isNumber, {
+		k
+	}, {
+		switch(k,
+			'velocity', { [1, 2, 2, 2] },
+			'energy', { [1, 2.sqrt, 2.sqrt, 2.sqrt] },
+			'controlled', { [1, 1, 1, 1] },
+			'single', { [1, 2.sqrt, 2.sqrt, 2.sqrt] }
+		)
 	}
-    )
+	)
 };
 
 ~kScale = funK.value('single');         // specify ATK's default,

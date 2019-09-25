@@ -160,23 +160,29 @@ HoaMatrixRotation {
 		// commented rows to the right show source's values,
 		^Matrix.with(
 			switch(axis,
-				'x', { [
-					[1, 0, 0],
-					[0, cost, sint_neg], // [0, cost, sint],
-					[0, sint, cost]      // [0, sint_neg, cost]
-				] },
-				'y', { [
-					[cost, 0, sint_neg],
-					[0, 1, 0],
-					[sint, 0, cost]
-				] },
-				'z', { [
-					[cost, sint_neg, 0], // [cost, sint, 0],
-					[sint, cost, 0],     // [sint_neg, cost, 0],
-					[0, 0, 1]
-				] },
+				'x', {
+					[
+						[1, 0, 0],
+						[0, cost, sint_neg], // [0, cost, sint],
+						[0, sint, cost]      // [0, sint_neg, cost]
+					]
+				},
+				'y', {
+					[
+						[cost, 0, sint_neg],
+						[0, 1, 0],
+						[sint, 0, cost]
+					]
+				},
+				'z', {
+					[
+						[cost, sint_neg, 0], // [cost, sint, 0],
+						[sint, cost, 0],     // [sint_neg, cost, 0],
+						[0, 0, 1]
+					]
+				},
 			)
-		);
+		)
 	}
 
 	/*

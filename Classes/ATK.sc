@@ -481,7 +481,7 @@ Atk {
 	*postMyMatrices { |set, type|
 		var postContents;
 
-		block { |break|
+		block({ |break|
 			if(set.isNil, {
 				// no set provided, show all sets
 				(Atk.sets).do(Atk.postMyMatrices(_, type));
@@ -527,7 +527,7 @@ Atk {
 					})
 				})
 			)
-		}
+		})
 	}
 
 }

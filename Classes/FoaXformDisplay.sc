@@ -895,7 +895,7 @@ FoaXformDisplay {
 	prGetInputList { |stopChainDex, stopLinkDex|
 		var items = [];
 
-		block { |break|
+		block({ |break|
 			chain.chains.do({ |ch, i|
 				ch.size.do({ |j|
 					if((i == stopChainDex and: { j == stopLinkDex }), {
@@ -905,7 +905,7 @@ FoaXformDisplay {
 					})
 				})
 			})
-		};
+		});
 
 		^items
 	}
@@ -1108,7 +1108,7 @@ FoaXformDisplay {
 					// if another xf is soloed, re-perform the solo
 					// in case this un-mute changes its color
 					// downstream from a soloed xf
-					block { |break|
+					block({ |break|
 						xfViewChains[..whichChain].do({ |vchain, i|
 							if(i < whichChain, {					// check all xf's in the chain
 								vchain.do({ |xfv, j|
@@ -1129,7 +1129,7 @@ FoaXformDisplay {
 								})
 							})
 						})
-					}
+					})
 				},
 				\transformSoloed, {
 					var whichChain, index, bool, unmuting, chainDex;

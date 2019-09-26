@@ -265,7 +265,8 @@ FoaMatrixChain {
 	// last transform in the last transform chain
 	chainXForms {
 		var mtx;
-		block { |break|
+
+		block({ |break|
 			chains.do({ |chain, i|
 				chain.do({ |xf, j|
 
@@ -304,7 +305,7 @@ FoaMatrixChain {
 					})
 				})
 			})
-		};
+		});
 
 		if(verbose, { this.postChain });
 

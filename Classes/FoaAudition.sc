@@ -218,7 +218,7 @@ FoaAudition {
 		});
 
 		fork({
-			block { |break|
+			block({ |break|
 				var currentlyPlaying;
 
 				server.sync;
@@ -257,7 +257,7 @@ FoaAudition {
 				// "loadSoundfile complete".postln;
 				defer({ this.changed(\buffer, PathName(soundfilePath).fileName) });
 				loadCondition !? { loadCondition.test_(true).signal };
-			}
+			})
 		})
 	}
 

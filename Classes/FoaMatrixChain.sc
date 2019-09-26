@@ -238,7 +238,7 @@ FoaMatrixChain {
 	checkLinkExists { |whichChain, index|
 		var warning;
 		warning = format("No transform found at chain % index %", whichChain, index);
-		try { chains[whichChain][index] } { warning.warn; ^nil };
+		try({ chains[whichChain][index] }, { warning.warn; ^nil });
 		// return the link. this can be nil if
 		// only the index is out of range but whichChain isn't
 		// so it should still get caught by the receiver

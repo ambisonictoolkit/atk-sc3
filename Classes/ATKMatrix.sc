@@ -197,7 +197,7 @@ AtkMatrix {
 	// separate YML writer for FOA & HOA
 	// prWriteMatrixToYML
 
-	fileName { ^try { PathName(filePath).fileName } }
+	fileName { ^try({ PathName(filePath).fileName }) }
 
 	asArray { ^matrix.asArray }
 
@@ -283,7 +283,7 @@ AtkMatrix {
 					postf("-> %\n  [\n", attribute);
 					value.do({ |elem|
 						postf("\t%\n",
-							try {
+							try({
 								(elem.round(0.0001)).collect({ |num|
 									str = num.asString.padRight(
 										if(num.isPositive, { 6 }, { 7 }),
@@ -291,7 +291,9 @@ AtkMatrix {
 									);
 									str.padLeft(7, " ")
 								})
-							} { elem }
+							}, {
+								elem
+							})
 						)
 					});
 					"  ]".postln

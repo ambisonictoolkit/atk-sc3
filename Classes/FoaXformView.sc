@@ -427,7 +427,7 @@ FoaXformView {
 
 		colFunc = { |v|
 			var col, newCol;
-			col = try { v.background } { ^this }; // return if view doesn't respond to .background
+			col = try({ v.background }, { ^this }); // return if view doesn't respond to .background
 			if(col.notNil, {
 				if(col.alpha != 0, {
 					newCol = Color.hsv(

@@ -79,9 +79,9 @@ NFECoeffs {
 		});
 
 		// odd degree?
-		m.odd.if{
-			reX = reX ++ Array.with(bpr.last.real);
-		};
+		if(m.odd, {
+			reX = reX ++ Array.with(bpr.last.real)
+		});
 
 		// set number of SOS & FOS
 		numSOS = absX.size;
@@ -116,7 +116,7 @@ NFECoeffs {
 		});
 
 		// odd degree? - add coeffs for FOS
-		mOdd.if{
+		if(mOdd, {
 			var c1;
 			c1 = this.reX.last / alpha;
 
@@ -130,7 +130,7 @@ NFECoeffs {
 					1, -1, 0
 				]
 			]
-		};
+		});
 
 		// factor down to simple SOS & FOS coeffs + gain
 		g = 1.0;
@@ -152,11 +152,11 @@ NFECoeffs {
 		});
 
 		// odd degree? - add coeffs for FOS
-		mOdd.if{
+		if(mOdd, {
 			coeffsFOS = [
 				coeffs.last.copyRange(0, 1) ++ (-1 * [coeffs.last[4]])
 			]
-		};
+		});
 
 		^Dictionary.with(*[\sos->coeffsSOS, \fos->coeffsFOS, \g->g])
 	}
@@ -189,7 +189,7 @@ NFECoeffs {
 		});
 
 		// odd degree? - add coeffs for FOS
-		mOdd.if{
+		if(mOdd, {
 			var c1;
 			c1 = this.reX.last / alpha;
 
@@ -203,7 +203,7 @@ NFECoeffs {
 					0
 				]
 			]
-		};
+		});
 
 		// factor down to simple SOS & FOS coeffs + gain
 		g = 1.0;
@@ -225,11 +225,11 @@ NFECoeffs {
 		});
 
 		// odd degree? - add coeffs for FOS
-		mOdd.if{
+		if(mOdd, {
 			coeffsFOS = [
 				coeffs.last.copyRange(0, 1) ++ (-1 * [coeffs.last[4]])
 			]
-		};
+		});
 
 		^Dictionary.with(*[\sos->coeffsSOS, \fos->coeffsFOS, \g->g])
 	}
@@ -271,7 +271,7 @@ NFECoeffs {
 		});
 
 		// odd degree? - add coeffs for FOS
-		mOdd.if{
+		if(mOdd, {
 			var c10, c11;
 			c10 = this.reX.last / alpha0;  // proximity
 			c11 = this.reX.last / alpha1;  // distance
@@ -288,7 +288,7 @@ NFECoeffs {
 					0
 				]
 			]
-		};
+		});
 
 		// factor down to simple SOS & FOS coeffs + gain
 		g = 1.0;
@@ -318,11 +318,11 @@ NFECoeffs {
 		});
 
 		// odd degree? - add coeffs for FOS
-		mOdd.if{
+		if(mOdd, {
 			coeffsFOS = [
 				coeffs.last.copyRange(0, 1) ++ (-1 * [coeffs.last[4]])
 			]
-		};
+		});
 
 		^Dictionary.with(*[\sos->coeffsSOS, \fos->coeffsFOS, \g->g])
 	}

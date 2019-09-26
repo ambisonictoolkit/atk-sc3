@@ -53,7 +53,7 @@
 			spectrum.asComplex
 		});
 
-		^(size.isPowerOfTwo).if({  // rfft
+		^if(size.isPowerOfTwo, {  // rfft
 			var rfftsize = (size / 2 + 1).asInteger;
 			var cosTable = Signal.rfftCosTable(rfftsize);
 
@@ -75,7 +75,7 @@
 			spectrum.asComplex
 		});
 
-		^(size.isPowerOfTwo).if({  // rfft
+		^if(size.isPowerOfTwo, {  // rfft
 			var rfftsize = (size / 2 + 1).asInteger;
 			var cosTable = Signal.rfftCosTable(rfftsize);
 
@@ -97,7 +97,7 @@
 			spectrum.linearPhase.asComplex  // linear phase
 		});
 
-		^(size.isPowerOfTwo).if({  // rfft
+		^if(size.isPowerOfTwo, {  // rfft
 			var rfftsize = (size / 2 + 1).asInteger;
 			var cosTable = Signal.rfftCosTable(rfftsize);
 
@@ -119,7 +119,7 @@
 			spectrum.linearPhase.asComplex  // linear phase
 		});
 
-		^(size.isPowerOfTwo).if({  // rfft
+		^if(size.isPowerOfTwo, {  // rfft
 			var rfftsize = (size / 2 + 1).asInteger;
 			var cosTable = Signal.rfftCosTable(rfftsize);
 

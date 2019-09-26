@@ -80,14 +80,15 @@ HoaUGen {
 	//  Returns the order if signal size is valid.
 	*confirmOrder { |in, order = (AtkHoa.defaultOrder)|
 		var io, to;
+
 		to = order;
 		io = AtkHoa.detectOrder(in.size);
-		if (io != to) {
+		if(io != to, {
 			Error(
 				"[HoaUGen] In order (%) does not match target order (%).".format(io, to)
 			).errorString.postln;
-			this.halt;
-		};
+			this.halt
+		});
 
 		^to
 	}
@@ -99,12 +100,13 @@ HoaUGen {
 		var inNumChannels;
 
 		inNumChannels = in.numChannels;
-		if (inNumChannels != numInputs) {
+		if(inNumChannels != numInputs, {
 			Error(
 				"[HoaUGen] In number of channels (%) does not match expected numInputs (%).".format(inNumChannels, numInputs)
 			).errorString.postln;
-			this.halt;
-		};
+			this.halt
+		});
+
 		^inNumChannels
 	}
 
@@ -112,12 +114,12 @@ HoaUGen {
 	*getJKMatrix { |which, order|
 		var nCoeffs, mtx;
 
-		if (jkOrder.isNil or: { order > jkOrder }) {
+		if((jkOrder.isNil or: { order > jkOrder }), {
 			// j, k matrices haven't been calculated
 			// or requesting higher order than has been
 			// calculated... (re)calculate
 			HoaUGen.prCalcJKMatrices(order)
-		};
+		});
 
 		mtx = switch(which,
 			'k',  { kMatrix }, // swap Z<>X axes
@@ -126,14 +128,14 @@ HoaUGen {
 			'kj', { kjMatrix } // K * J
 		);
 
-		^if (jkOrder > order) {
+		^if(jkOrder > order, {
 			nCoeffs = order.asHoaOrder.size;
 			MatrixArray.with(
-				mtx.getSub(0, 0, nCoeffs, nCoeffs);
-			);
-		} {
+				mtx.getSub(0, 0, nCoeffs, nCoeffs)
+			)
+		}, {
 			mtx
-		}
+		})
 	}
 
 	*prCalcJKMatrices { |order|
@@ -177,15 +179,15 @@ HoaRenderMatrix : HoaUGen {
 	*ar { |in, hoaMatrix|
 
 		// catch
-		(hoaMatrix.class.superclass != HoaMatrix).if({
+		if(hoaMatrix.class.superclass != HoaMatrix, {
 			Error(
 				"[HoaUGen] hoaMatrix is not class HoaMatrix."
 			).errorString.postln;
-			this.halt;
+			this.halt
 		});
 
 		// wrap input as array if needed, for mono inputs
-		in.isArray.not.if({ in = [in] });
+		if(in.isArray.not, { in = [in] });
 
 		// check inputs
 		this.confirmNumInputs(in, hoaMatrix.numInputs);
@@ -234,7 +236,7 @@ HoaEncodeDirection : HoaUGen {
 		// 1) generate basic (real) coefficients at zenith and optimize near-zeros out
 		coeffs = hoaOrder.sph(0, 0.5pi);
 		coeffs = coeffs.collect({ |item|
-			(item.abs <= AtkHoa.nearZero).if({
+			if(item.abs <= AtkHoa.nearZero, {
 				0
 			}, {
 				item
@@ -242,12 +244,12 @@ HoaEncodeDirection : HoaUGen {
 		});
 
 		// 2) encode as basic (real) or NFE (complex) wave at zenith
-		zenith = ((radius == nil) || (radius == AtkHoa.refRadius)).if({
+		zenith = if(((radius == nil) || (radius == AtkHoa.refRadius)), {
 			// basic: spherical wave @ radius = AtkHoa.refRadius
 			in
 		}, {
 			// NFE
-			(radius == inf).if({
+			if(radius == inf, {
 				// planewave
 				(n + 1).collect({ |l|
 					DegreeDist.ar(in, AtkHoa.refRadius, l)
@@ -297,7 +299,7 @@ HoaRotate : HoaUGen {
 		out = Array.newClear(n.asHoaOrder.size);
 		out[0] = in[0]; // l == 0
 
-		if (n > 0) {
+		if(n > 0, {
 			s = Array.newClear(n);  // [sin(1 * ang), sin(2 * ang), ... sin(n * ang)]
 			c = Array.newClear(n);  // [cos(1 * ang), cos(2 * ang), ... cos(n * ang)]
 
@@ -305,21 +307,21 @@ HoaRotate : HoaUGen {
 			ang = angle;
 			s[0] = sin(ang);
 			c[0] = cos(ang);
-			if (n > 1) {
+			if(n > 1, {
 				ang2 = ang * 2;
 				s[1] = sin(ang2);
-				c[1] = cos(ang2);
-			};
+				c[1] = cos(ang2)
+			});
 
 			// Note: modified indexing from source to replace subtraction
 			// with addition, and 2 multiplications
-			if (n > 2) {
+			if(n > 2, {
 				c2 = 2 * c[0];
 				(1..(n - 2)).do({ |idx|
 					s[idx + 1] = (c2 * s[idx]) - s[idx - 1];
 					c[idx + 1] = (c2 * c[idx]) - c[idx - 1]
 				})
-			};
+			});
 
 			(1..n).do({ |l|
 
@@ -337,7 +339,7 @@ HoaRotate : HoaUGen {
 					out[im] = (cos * in[im]) - (sin * in[imneg])
 				})
 			})
-		};
+		});
 
 		^out
 	}
@@ -554,7 +556,7 @@ HoaBeam : HoaUGen {
 		// 2) generate basic (real) coefficients at zenith and optimize near-zeros out
 		basicCoeffs = hoaOrder.sph(0, 0.5pi);
 		basicCoeffs = basicCoeffs.collect({ |item|
-			(item.abs <= AtkHoa.nearZero).if({
+			if(item.abs <= AtkHoa.nearZero, {
 				0
 			}, {
 				item
@@ -579,12 +581,12 @@ HoaBeam : HoaUGen {
 		weighted = beamCoeffs * rotateTumble;
 
 		// 5) apply NFE (optimized by degree) and form beam
-		mono = ((radius == nil) || (radius == AtkHoa.refRadius)).if({
+		mono = if(((radius == nil) || (radius == AtkHoa.refRadius)), {
 			// basic: beamform @ radius = AtkHoa.refRadius
 			weighted.sum
 		}, {
 			// NFE
-			(radius == inf).if({
+			if(radius == inf, {
 				// planewave - unstable!
 				(n + 1).collect({ |l|
 					DegreeProx.ar(
@@ -607,12 +609,12 @@ HoaBeam : HoaUGen {
 		});
 
 		// 6) encode as basic (real) or NFE (complex) wave at zenith
-		zenith = ((radius == nil) || (radius == AtkHoa.refRadius)).if({
+		zenith = if(((radius == nil) || (radius == AtkHoa.refRadius)), {
 			// basic: spherical wave @ radius = AtkHoa.refRadius
 			mono
 		}, {
 			// NFE
-			(radius == inf).if({
+			if(radius == inf, {
 				// planewave
 				(n + 1).collect({ |l|
 					DegreeDist.ar(mono, AtkHoa.refRadius, l)
@@ -684,7 +686,7 @@ HoaDecodeDirection : HoaUGen {
 		// 2) generate basic (real) coefficients at zenith and optimize near-zeros out
 		coeffs = hoaOrder.sph(0, 0.5pi);
 		coeffs = coeffs.collect({ |item|
-			(item.abs <= AtkHoa.nearZero).if({
+			if(item.abs <= AtkHoa.nearZero, {
 				0
 			}, {
 				item
@@ -709,12 +711,12 @@ HoaDecodeDirection : HoaUGen {
 		weighted = coeffs * rotateTumble;
 
 		// 5) apply NFE (optimized by degree) and form beam
-		^((radius == nil) || (radius == AtkHoa.refRadius)).if({
+		^if(((radius == nil) || (radius == AtkHoa.refRadius)), {
 			// basic: beamform @ radius = AtkHoa.refRadius
 			weighted.sum
 		}, {
 			// NFE
-			(radius == inf).if({
+			if(radius == inf, {
 				// planewave - unstable!
 				(n + 1).collect({ |l|
 					DegreeProx.ar(
@@ -750,11 +752,11 @@ DegreeProx {
 		out = in;
 
 		// degree >= 1
-		(degree > 0).if({
+		if(degree > 0, {
 			var coeffDict = NFECoeffs.new(degree).prox(radius, SampleRate.ir);
 
 			// FOS
-			coeffDict.keys.includes(\fos).if({
+			if(coeffDict.keys.includes(\fos), {
 				coeffDict[\fos].do({ |coeffs|
 					out = FOS.ar(out, coeffs[0], coeffs[1], coeffs[2])
 				})
@@ -781,11 +783,11 @@ DegreeDist {
 		out = in;
 
 		// degree >= 1
-		(degree > 0).if({
+		if(degree > 0, {
 			var coeffDict = NFECoeffs.new(degree).dist(radius, SampleRate.ir);
 
 			// FOS
-			coeffDict.keys.includes(\fos).if({
+			if(coeffDict.keys.includes(\fos), {
 				coeffDict[\fos].do({ |coeffs|
 					out = FOS.ar(out, coeffs[0], coeffs[1], coeffs[2])
 				})
@@ -812,11 +814,11 @@ DegreeCtrl {
 		out = in;
 
 		// degree >= 1
-		(degree > 0).if({
+		if(degree > 0, {
 			var coeffDict = NFECoeffs.new(degree).ctrl(encRadius, decRadius, SampleRate.ir);
 
 			// FOS
-			coeffDict.keys.includes(\fos).if({
+			if(coeffDict.keys.includes(\fos), {
 				coeffDict[\fos].do({ |coeffs|
 					out = FOS.ar(out, coeffs[0], coeffs[1], coeffs[2])
 				})

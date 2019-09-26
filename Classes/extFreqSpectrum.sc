@@ -52,7 +52,7 @@
 		var hoaOrder = order.asHoaOrder;
 		var freqs, complexCoeffs, magnitudes, phases;
 
-		(size.isPowerOfTwo).if({  // rfft
+		if(size.isPowerOfTwo, {  // rfft
 			var rfftsize = (size / 2 + 1).asInteger;
 			freqs = rfftsize.rfftFreqs(sampleRate);
 			freqs = freqs.collect({ |freq|  // blt frequency warp
@@ -114,7 +114,7 @@
 		var hoaOrder = order.asHoaOrder;
 		var freqs, complexCoeffs, magnitudes, phases;
 
-		(size.isPowerOfTwo).if({  // rfft
+		if(size.isPowerOfTwo, {  // rfft
 			var rfftsize = (size / 2 + 1).asInteger;
 			freqs = rfftsize.rfftFreqs(sampleRate);
 			freqs = freqs.collect({ |freq|  // blt frequency warp
@@ -176,7 +176,7 @@
 		var hoaOrder = order.asHoaOrder;
 		var freqs, complexCoeffs, magnitudes, phases;
 
-		(size.isPowerOfTwo).if({  // rfft
+		if(size.isPowerOfTwo, {  // rfft
 			var rfftsize = (size / 2 + 1).asInteger;
 			freqs = rfftsize.rfftFreqs(sampleRate);
 			freqs = freqs.collect({ |freq|  // blt frequency warp
@@ -238,7 +238,7 @@
 		var hoaOrder = order.asHoaOrder;
 		var freqs, magnitudes;
 
-		(size.isPowerOfTwo).if({  // rfft
+		if(size.isPowerOfTwo, {  // rfft
 			var rfftsize = (size / 2 + 1).asInteger;
 			freqs = rfftsize.rfftFreqs(sampleRate);
 
@@ -272,7 +272,7 @@
 			// var m = beamWeights.size - 1;  // order
 			var m = order;  // order
 
-			(dim == 2).if({
+			if(dim == 2, {
 				beamWeights.removeAt(0).squared + (2 * beamWeights.squared.sum) // 2D
 			}, {
 				(Array.series(m + 1, 1, 2) * beamWeights.squared).sum // 3D
@@ -286,7 +286,7 @@
 			switch(match,
 				'amp', { 1.0 },
 				'rms', {
-					(dim == 2).if({
+					if(dim == 2, {
 						n = 2 * m + 1  // 2D
 					}, {
 						n = (m + 1).squared  // 3D
@@ -308,14 +308,14 @@
 		var foclMags, beamMags, magnitudes;
 
 		// focalisation magnitudes?
-		(radius != nil).if({
+		if(radius != nil, {
 			// focal magnitude
 			foclMags = FreqSpectrum.hoaFocl(size, radius, order, window, sampleRate, speedOfSound).collect({ |spectrum|
 				spectrum.magnitude
 			})
 		}, {
 			// or... just unity
-			foclMags = Array.fill((order + 1) * size, { 1.0 }).reshape((order + 1), size);
+			foclMags = Array.fill((order + 1) * size, { 1.0 }).reshape((order + 1), size)
 		});
 
 		// beam magnitudes
@@ -324,7 +324,7 @@
 				beamMags = hoaOrder.beamWeights(beamDict.at(\beamShapes).first, dim)
 			},
 			2, {
-				(beamDict.at(\edgeFreqs).size != 2).if({
+				if((beamDict.at(\edgeFreqs).size != 2), {
 					Error("Must supply two edge frequencies for a two band shelf. Supplied: % ".format(beamDict.at(\edgeFreqs).size)).throw
 				}, {
 					var freqs = beamDict.at(\edgeFreqs).sort;
@@ -337,7 +337,7 @@
 				})
 			},
 			3, {
-				(beamDict.at(\edgeFreqs).size != 4).if({
+				if((beamDict.at(\edgeFreqs).size != 4), {
 					Error("Must supply four edge frequencies for a two band shelf. Supplied: % ".format(beamDict.at(\edgeFreqs).size)).throw
 				}, {
 					var freqs = beamDict.at(\edgeFreqs).sort;
@@ -353,7 +353,7 @@
 		);
 
 		// normalization - two cases
-		match.asString.beginsWith("f").if({  // include focalisation
+		if(match.asString.beginsWith("f"), {  // include focalisation
 			magnitudes = foclMags * beamMags;
 			magnitudes = magnitudes * matchWeights.value(magnitudes, dim, match.asString.drop(1).asSymbol, numChans)
 		}, {  // exclude focalisation

@@ -83,7 +83,7 @@ HoaDegree {
 	// Return indices
 
 	indices { |ordering = \acn, subset = \all|
-		(subset == \all).if({
+		if(subset == \all, {
 			// all
 			^(this.lm).collect({ |lm|
 				HoaLm.new(lm).index(ordering)
@@ -93,7 +93,7 @@ HoaDegree {
 			^(this.lm).collect({ |lm|
 				var hoaLm = HoaLm.new(lm);
 
-				hoaLm.isInSubset(subset).if({
+				if(hoaLm.isInSubset(subset), {
 					hoaLm.index(ordering)
 				})
 			}).removeEvery([nil])

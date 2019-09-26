@@ -52,14 +52,14 @@
 		var theta;
 
 		// orientation: keyword test
-		orientation.isNumber.not.if{
+		if(orientation.isNumber.not, {
 			orientation = switch(orientation,
 				\vertex, { 0.0 },
 				\side, { pi / size },
 				\point, { 0.0 },
 				\flat, { pi / size },
 			)
-		};
+		});
 
 		theta = size.collect({ |i|
 			(2pi * i) / size + orientation

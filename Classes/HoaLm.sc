@@ -78,7 +78,7 @@ HoaLm {
 			\fuma, {
 				l = index.sqrt.floor.asInteger;
 
-				^(l <= 1).if({
+				^if(l <= 1, {
 					this.newIndex(index, \sid)
 				}, {
 					var m, m0, m1, bool;
@@ -122,10 +122,10 @@ HoaLm {
 				^((l**2 + (2 * (l - m.abs))) - m.sign.clip(-1, 0)).asInteger
 			},
 			\fuma, {
-				^(l <= 1).if ({
+				^if(l <= 1, {
 					this.index(\sid)
 				}, {
-					((l.squared + (2 * m.abs)) - m.sign.clip(0, 1)).asInteger;
+					((l.squared + (2 * m.abs)) - m.sign.clip(0, 1)).asInteger
 				})
 			}
 		)
@@ -163,19 +163,19 @@ HoaLm {
 
 		switch(mirror,
 			\reflect, {  // reflect - mirror across origin - flip * flop * flap
-				^l.odd.if({ -1.0 }, { 1.0 })
+				^if(l.odd, { -1.0 }, { 1.0 })
 			},
 			\flip, {  // flip - mirror across y-axis
-				^(m < 0).if({ -1.0 }, { 1.0 })
+				^if(m < 0, { -1.0 }, { 1.0 })
 			},
 			\flop, {  // flop - mirror across x-axis
-				^((m < 0 && m.even) || (m > 0 && m.odd)).if({ -1.0 }, { 1.0 })
+				^if(((m < 0 && m.even) || (m > 0 && m.odd)), { -1.0 }, { 1.0 })
 			},
 			\flap, {  // flap - mirror across z-axis
-				^(m + l).odd.if({ -1.0 }, { 1.0 })
+				^if((m + l).odd, { -1.0 }, { 1.0 })
 			},
 			\CondonShortleyPhase, {  // Condon-Shortley Phase - flip * flop
-				^m.odd.if({ -1.0 }, { 1.0 })
+				^if(m.odd, { -1.0 }, { 1.0 })
 			},
 			\origin, {
 				^this.reflection(\reflect)
@@ -243,7 +243,7 @@ HoaLm {
 				^norms[this.index(\acn)] * this.normalisation(\sn3d)
 			},
 			\MaxN, {
-				^(this.index(\acn) == 0).if({
+				^if((this.index(\acn) == 0), {
 					2.sqrt.reciprocal  // W
 				}, {
 					this.normalisation(\maxN)

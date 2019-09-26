@@ -69,10 +69,10 @@ FoaMatrixFade {
 
 			server = server ?? Server.default;
 
-			FoaMatrixFade.mtxFadeDef.isNil.if{
+			if(FoaMatrixFade.mtxFadeDef.isNil, {
 				FoaMatrixFade.loadSynthDefs(server, cond);
-				cond.wait;
-			};
+				cond.wait
+			});
 
 			inbus ?? {
 				internalInbus = true;
@@ -126,8 +126,8 @@ FoaMatrixFade {
 
 	free {
 		synth.free;
-		internalInbus.if{ server.audioBusAllocator.free(inbus) };
-		internalOutbus.if{ server.audioBusAllocator.free(outbus) };
+		if(internalInbus, { server.audioBusAllocator.free(inbus) });
+		if(internalOutbus, { server.audioBusAllocator.free(outbus) });
 	}
 
 

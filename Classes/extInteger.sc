@@ -55,7 +55,7 @@
 		var sum = 0;
 		var res;
 
-		^this.isNegative.if({
+		^if(this.isNegative, {
 			nil
 		}, {
 			res = 0;
@@ -65,7 +65,7 @@
 				res = res + 1;
 			});
 
-			(sum == this).if({
+			if(sum == this, {
 				res
 			}, {
 				nil

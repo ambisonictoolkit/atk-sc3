@@ -51,10 +51,10 @@
 
 		var ci = this.colonIndices;
 
-		^(index == 0).if({
+		^if(index == 0, {
 			fullPath
 		}, {
-			(fullPath.last.isPathSeparator and: { ci.size > 1 }).if({
+			if((fullPath.last.isPathSeparator and: { ci.size > 1 }), {
 				fullPath.copyRange(0, ci[ci.size - (1 + index)])
 			}, {
 				fullPath.copyRange(0, ci[ci.size - index])

@@ -69,7 +69,7 @@ FoaAudition {
 		fork({
 			this.prepareAuditioning(initCond);
 			initCond.wait;
-			initGUI.if{ this.gui };
+			initGUI.if({ this.gui });
 			loading = false;
 		},
 		AppClock
@@ -95,10 +95,11 @@ FoaAudition {
 		var synth, tag, abort = false;
 
 		fork({
-			(auditionEnabled.not and: { loading }).if{ "waiting for load".postln; initCond.wait };
+			(auditionEnabled.not and: { loading }).if({ "waiting for load".postln; initCond.wait });
 
-			['inbus', 'soundfile', 'pwNoise', 'diffuseNoise'].includes(which).not.if{
-				error("didn't find that synth tag.") };
+			if(['inbus', 'soundfile', 'pwNoise', 'diffuseNoise'].includes(which).not, {
+				error("didn't find that synth tag.")
+			});
 
 			#synth, tag = switch(which,
 				'inbus',        { [inbusSynth, \inbusSynthRunning] },
@@ -108,31 +109,31 @@ FoaAudition {
 			);
 
 			// for sf case, check that there's a buffer
-			(which == 'soundfile').if{
+			if(which == 'soundfile', {
 				soundfileBuf ?? {
 					abort = true;
 					this.changed(\status, warn("No Soundfile buffer loaded!"));
 					this.changed(\sfSynthRunning, false);
 					['inbus', 'soundfile', 'pwNoise', 'diffuseNoise'].do({ |name| this.stopSynth(name) })
-				};
-			};
+				}
+			});
 
-			abort.not.if{
+			if(abort.not, {
 				// must run synth before changing buffer for
 				// BufRateScale to work correctly
 				synth.run;
 				server.sync;
-				(which == 'soundfile').if{
+				if(which == 'soundfile', {
 					soundfileSynth.set(\buffer, soundfileBuf);
 					server.sync;
-				};
+				});
 				synth.set(\gate, 1);
 				this.changed(tag, true);
 				// stop the other synths - ony 1 plays at a time
 				['inbus', 'soundfile', 'pwNoise', 'diffuseNoise'].do({ |name|
-					(name != which).if{ this.stopSynth(name) }
+					(name != which).if({ this.stopSynth(name) })
 				})
-			}
+			})
 		},
 		AppClock
 		);
@@ -142,8 +143,9 @@ FoaAudition {
 	stopSynth { |which|
 		var synth, tag;
 
-		['inbus', 'soundfile', 'pwNoise', 'diffuseNoise'].includes(which).not.if{
-				error("stopSynth didn't find that synth tag") };
+		if(['inbus', 'soundfile', 'pwNoise', 'diffuseNoise'].includes(which).not, {
+				error("stopSynth didn't find that synth tag")
+		});
 
 		#synth, tag = switch(which,
 			'inbus',        { [inbusSynth, \inbusSynthRunning] },
@@ -153,7 +155,7 @@ FoaAudition {
 		);
 
 		// if(synth.notNil and: synth.isRunning) {
-		synth.notNil.if{
+		if(synth.notNil, {
 			fork({
 				synth.release;
 				synthReleaseTime.wait;
@@ -161,7 +163,7 @@ FoaAudition {
 				// in case play was pressed again before releaseTime,
 				// check that gate is still closed
 				synth.get(\gate, { |gate|
-					gate.asBoolean.not.if{
+					if(gate.asBoolean.not, {
 						fork({
 							synth.run(false);
 							server.sync;
@@ -169,12 +171,12 @@ FoaAudition {
 						},
 						AppClock
 						)
-					}
+					})
 				})
 			},
 			AppClock
 			)
-		}
+		})
 	}
 
 
@@ -187,19 +189,21 @@ FoaAudition {
 		fork({
 			var msg;
 			test = PathName(soundfilePath).isFile;
-			test.if{
+			if(test, {
 				sf = SoundFile.new;
-				sf.openRead(soundfilePath).if{
+				if(sf.openRead(soundfilePath), {
 					numChans = sf.numChannels;
 					sf.close;
-					(numChans != 3 and: { numChans != 4 }).if{
+					if((numChans != 3 and: { numChans != 4 }), {
 						test = false;
 						warn("Selected file must be 3 or 4 channels for first order playback. Yours is " ++ numChans);
-					};
-				} { test = false };
-			};
+					})
+				}, {
+					test = false
+				})
+			});
 
-			test.not.if{ loadCondition !? { loadCondition.test_(true).signal } };
+			test.not.if({ loadCondition !? { loadCondition.test_(true).signal } });
 
 			msg = "loading file...".post;
 			defer({ this.changed(\status, msg) });
@@ -219,11 +223,11 @@ FoaAudition {
 
 				server.sync;
 				currentlyPlaying = soundfileSynth.isRunning;
-				currentlyPlaying.if{
+				if(currentlyPlaying, {
 					soundfileSynth.release;
 					server.sync;
-					synthReleaseTime.wait;
-				};
+					synthReleaseTime.wait
+				});
 				// make sure the buffer is loaded
 				bufLoadCond.wait;
 
@@ -242,13 +246,13 @@ FoaAudition {
 				// otherwise you'll have to silence the beginning of the synth onset for about a
 				// VDiskIn buffer length every time it's run with a new buffer. boooooo
 				// Only play now if it was previously playing when new buffer was loaded
-				currentlyPlaying.if{
+				if(currentlyPlaying, {
 					soundfileSynth.run;
 					server.sync;
 					soundfileSynth.set(\buffer, soundfileBuf);
 					server.sync;
-					soundfileSynth.set(\gate, 1);
-				};
+					soundfileSynth.set(\gate, 1)
+				});
 
 				// "loadSoundfile complete".postln;
 				defer({ this.changed(\buffer, PathName(soundfilePath).fileName) });
@@ -330,9 +334,9 @@ FoaAudition {
 
 			mtxFaderLoadCond.wait;
 
-			FoaAudition.auditionSynthDefs.isNil.if{
-				FoaAudition.loadSynths(server);
-			};
+			if(FoaAudition.auditionSynthDefs.isNil, {
+				FoaAudition.loadSynths(server)
+			});
 			server.sync;
 
 			dummyLoad = Condition();
@@ -555,12 +559,12 @@ FoaAuditionView {
 	// find a widget within a view and change something about it
 	findKindDo { |view, kind, performFunc|
 		(view.children).do({ |child|
-			child.isKindOf(View).if{
+			if(child.isKindOf(View), {
 				this.findKindDo(child, kind, performFunc)   // call self
-			};
-			child.isKindOf(kind).if{
+			});
+			if(child.isKindOf(kind), {
 				performFunc.(child)
-			};
+			})
 		})
 	}
 
@@ -619,14 +623,14 @@ FoaAuditionView {
 		.stringColor_(stopColor)
 		.mouseDownAction_({ |but|
 			audition.pwSynth.get(\gate, { |gate|
-				gate.asBoolean.if({
+				if(gate.asBoolean, {
 					audition.stopSynth('pwNoise');
 					defer({ but.stringColor_(stopColor) })
 				}, {
 					audition.playSynth('pwNoise');
 					defer({ but.stringColor_(playColor) })
-				});
-			});
+				})
+			})
 		});
 
 		pulsedChk = CheckBox()
@@ -670,12 +674,12 @@ FoaAuditionView {
 
 		rotPerBx = NumberBox()
 		.action_({ |me|
-			(me.value == 0).if({
+			if(me.value == 0, {
 				error("Rotation period cannot be zero, that's infinite speed.")
 			}, {
 				audition.pwSynth.set(\rotfreq, me.value.reciprocal);
-				rotChk.valueAction_(1);
-			});
+				rotChk.valueAction_(1)
+			})
 		})
 		.align_(\center);
 
@@ -685,12 +689,12 @@ FoaAuditionView {
 
 		tumPerBx = NumberBox()
 		.action_({ |me|
-			(me.value == 0).if({
+			if(me.value == 0, {
 				error("Rotation period cannot be zero, that's infinite speed.")
 			}, {
 				audition.pwSynth.set(\tumfreq, me.value.reciprocal);
-				tumChk.valueAction_(1);
-			});
+				tumChk.valueAction_(1)
+			})
 		})
 		.align_(\center);
 
@@ -742,31 +746,31 @@ FoaAuditionView {
 		.mouseDownAction_({ |but|
 			var synth;
 
-			synth = audition.sfSynth_4ch.isRunning.if({
+			synth = if(audition.sfSynth_4ch.isRunning, {
 				audition.sfSynth_4ch
 			}, {
-				audition.sfSynth_3ch.isRunning.if({
+				if(audition.sfSynth_3ch.isRunning, {
 					audition.sfSynth_3ch
 				}, {
 					nil
 				})
 			});
 
-			synth.notNil.if({
+			if(synth.notNil, {
 				// found a running synth, switch it's state
 				synth.get(\gate, { |gate|
-					gate.asBoolean.if({
+					if(gate.asBoolean, {
 						audition.stopSynth('soundfile');
 						defer({ but.stringColor_(stopColor) })
 					}, {
 						audition.playSynth('soundfile');
 						defer({ but.stringColor_(playColor) })
-					});
-				});
+					})
+				})
 			}, {
 				// found a no running synth, start one
-				audition.playSynth('soundfile');
-			});
+				audition.playSynth('soundfile')
+			})
 		});
 
 		diffPlayBut = StaticText()
@@ -774,14 +778,14 @@ FoaAuditionView {
 		.stringColor_(stopColor)
 		.mouseDownAction_({ |but|
 			audition.diffSynth.get(\gate, { |gate|
-				gate.asBoolean.if({
+				if(gate.asBoolean, {
 					audition.stopSynth('diffuseNoise');
 					defer({ but.stringColor_(stopColor) })
 				}, {
 					audition.playSynth('diffuseNoise');
 					defer({ but.stringColor_(playColor) })
-				});
-			});
+				})
+			})
 		});
 
 		inPlayBut = StaticText()
@@ -789,14 +793,14 @@ FoaAuditionView {
 		.stringColor_(stopColor)
 		.mouseDownAction_({ |but|
 			audition.inbusSynth.get(\gate, { |gate|
-				gate.asBoolean.if({
+				if(gate.asBoolean, {
 					audition.stopSynth('inbus');
 					defer({ but.stringColor_(stopColor) })
 				}, {
 					audition.playSynth('inbus');
 					defer({ but.stringColor_(playColor) })
-				});
-			});
+				})
+			})
 		});
 
 		inbusBx = NumberBox()
@@ -841,10 +845,10 @@ FoaAuditionView {
 		addXformBut = Button().states_([["Add Transform"]])
 		.action_({
 			// check that the audition isn't already talking to an FoaXformDisplay
-			(audition.dependants).collect(_.class).includes(FoaXformDisplay).not.if{
+			if((audition.dependants).collect(_.class).includes(FoaXformDisplay).not, {
 				xformDisplay = FoaXformDisplay(16);
-				xformDisplay.setAudition(audition);
-			}
+				xformDisplay.setAudition(audition)
+			})
 		})
 	}
 
@@ -866,34 +870,34 @@ FoaAuditionView {
 		thisTabView = View().layout_(
 			HLayout(
 				labelTxt = StaticText().string_(name).align_(\left).fixedHeight_(30),
-				playBut.isKindOf(StaticText).if({ playBut }, { nil })
+				if(playBut.isKindOf(StaticText), { playBut }, { nil })
 			).margins_(3)
 		)
 		.mouseDownAction_({
-			ctlView.visible.not.if{
+			if(ctlView.visible.not, {
 				// "deselect" other views and show this one
 				tabViews.do({ |v|
-					(v != thisTabView).if{
+					if(v != thisTabView, {
 						v.background_(
 							Color.hsv(
 								*palette.window.asHSV.put(1, (palette.window.asHSV[1] - 0.2).wrap(0, 1))
 							)
 						);
 						this.findKindDo(v, StaticText, { |txt|
-							(txt.string != playSymbol).if{
+							if(txt.string != playSymbol, {
 								txt.stringColor_(palette.windowText)
-							}
-						});
-					}
+							})
+						})
+					})
 				});
 				// "select" this view
 				thisTabView.background_(focusBkgColor);
 				labelTxt.stringColor_(palette.baseText);
 				ctlViews.do({ |v|
-					(v != ctlView).if{ v.visible_(false) }
+					if(v != ctlView, { v.visible_(false) })
 				});
 				ctlView.visible_(true);
-			}
+			})
 		});
 
 		^thisTabView
@@ -927,7 +931,7 @@ FoaAuditionView {
 
 		// if show is false, a view is created that can be
 		// embedded in another window
-		show.if({
+		if(show, {
 			scrnB = Window.screenBounds;
 			winW= 410;
 			winH= 50;// make it small, let widgets grow it
@@ -938,9 +942,9 @@ FoaAuditionView {
 			// this will in turn free me
 			win.onClose_({ audition.free; xformDisplay !? { xformDisplay.free } });
 			win.view.layout_(playerLayout);
-			win.front;
+			win.front
 		}, {
-			view = View().layout_(playerLayout);
+			view = View().layout_(playerLayout)
 		});
 
 		// build planewave noise view
@@ -1138,46 +1142,46 @@ FoaAuditionView {
 
 	free {
 		audition.removeDependant(this);
-		win !? { win.isClosed.not.if{ win.close } };
+		win !? { if(win.isClosed.not, { win.close }) };
 	}
 
 
 	update {
 		| who, what ... args |
 
-		(who == audition).if{
+		if(who == audition, {
 			switch(what,
 				\buffer, {
-					fileTxt.string_(args[0]);
+					fileTxt.string_(args[0])
 				},
 				\pwSynthRunning, {
-					pwPlayBut.stringColor = args[0].if({ playColor }, { stopColor });
+					pwPlayBut.stringColor = args[0].if({ playColor }, { stopColor })
 				},
 				\sfSynthRunning, {
-					sfPlayBut.stringColor = args[0].if({ playColor }, { stopColor });
+					sfPlayBut.stringColor = args[0].if({ playColor }, { stopColor })
 				},
 				\inbusSynthRunning, {
-					inPlayBut.stringColor = args[0].if({ playColor }, { stopColor });
+					inPlayBut.stringColor = args[0].if({ playColor }, { stopColor })
 				},
 				\diffSynthRunning, {
-					diffPlayBut.stringColor = args[0].if({ playColor }, { stopColor });
+					diffPlayBut.stringColor = args[0].if({ playColor }, { stopColor })
 				},
 				\mul, {
 					var db = args[0].ampdb;
 					ampSl.value_(ampSpec.unmap(db));
-					ampBx.value_(db);
+					ampBx.value_(db)
 				},
 				\rttFreq, {
-					diffRttBx.value_(args[0]);
+					diffRttBx.value_(args[0])
 				},
 				\rtt, {
-					diffRttChk.value_(args[0].asBoolean);
+					diffRttChk.value_(args[0].asBoolean)
 				},
 				\pwAzim, {
 					var deg = args[0].raddeg;
 					defer({
 						azimBx.hasFocus !? { // sometimes .hasFocus can return nil (race condition?)
-							azimBx.hasFocus.not.if{ azimBx.value_(deg) };
+							if(azimBx.hasFocus.not, { azimBx.value_(deg) })
 						};
 						azimSl.value_(azimSpec.unmap(deg))
 					})
@@ -1186,15 +1190,15 @@ FoaAuditionView {
 					var deg = args[0].raddeg;
 					defer({
 						elBx.hasFocus !? { // sometimes .hasFocus can return nil (race condition?)
-							elBx.hasFocus.not.if{ elBx.value_(deg) };
+							if(elBx.hasFocus.not, { elBx.value_(deg) })
 						};
 						elSl.value_(elSpec.unmap(deg))
 					})
 				},
 				\status, {
-					fileTxt.string_(args[0]);
+					fileTxt.string_(args[0])
 				}
 			)
-		}
+		})
 	}
 }

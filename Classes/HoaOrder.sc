@@ -82,7 +82,7 @@ HoaOrder {
 	// Return indices
 
 	indices { |ordering = \acn, subset = \all|
-		(subset == \all).if({
+		if(subset == \all, {
 			// all
 			^(this.lm).collect({ |lm|
 				HoaLm.new(lm).index(ordering)
@@ -92,7 +92,7 @@ HoaOrder {
 			^(this.lm).collect({ |lm|
 				var hoaLm = HoaLm.new(lm);
 
-				hoaLm.isInSubset(subset).if({
+				if(hoaLm.isInSubset(subset), {
 					hoaLm.index(ordering)
 				})
 			}).removeEvery([nil])
@@ -155,7 +155,7 @@ HoaOrder {
 				var beta;
 
 				(this.order + 1).collect({ |degree|
-					(degree == 0).if({
+					if(degree == 0, {
 						1.0
 					}, {
 						beta = (effOrder / degree).pow(4 * degree);
@@ -167,10 +167,10 @@ HoaOrder {
 				var effOrder = wavNum.orderAtRadius(radius).abs;
 
 				(this.order + 1).collect({ |degree|
-					(degree == 0).if({
+					if(degree == 0, {
 						1.0
 					}, {
-						(degree > effOrder).if({
+						if(degree > effOrder, {
 							0.0
 						}, {
 							((pi * degree / effOrder).cos + 1.0) / 2.0
@@ -216,7 +216,7 @@ HoaOrder {
 			'basic', { 1 },
 			'energy', { this.rE(beamShape, dim) },
 			'controlled', {
-				(dim == 2).if({
+				if(dim == 2, {
 					m / (m + 1)  // 2D
 				}, {
 					m / (m + 2)  // 3D
@@ -229,14 +229,14 @@ HoaOrder {
 	rE { |beamShape = 'basic', dim = 3|
 		var m = this.order;
 
-		^(beamShape == 'energy').if({
-			(dim == 2).if({
+		^if(beamShape == 'energy', {
+			if(dim == 2, {
 				chebyshevTZeros(m + 1).maxItem  // 2D
 			}, {
 				legendrePZeros(m + 1).maxItem  // 3D
 			})
 		}, {  // 'basic' & 'controlled'
-			(dim == 2).if({
+			if(dim == 2, {
 				(2 * m) / (2 * m + 1)  // 2D
 			}, {
 				m / (m + 1)  // 3D
@@ -259,7 +259,7 @@ HoaOrder {
 
 		beamWeights = this.beamWeights(beamShape, dim);
 
-		^(dim == 2).if({
+		^if(dim == 2, {
 			beamWeights.removeAt(0).squared + (2 * beamWeights.squared.sum) // 2D
 		}, {
 			(Array.series(m + 1, 1, 2) * beamWeights.squared).sum // 3D
@@ -274,7 +274,7 @@ HoaOrder {
 		^switch(match,
 			'amp', { 1.0 },
 			'rms', {
-				(dim == 2).if({
+				if(dim == 2, {
 					n = 2 * m + 1  // 2D
 				}, {
 					n = (m + 1).squared  // 3D
@@ -297,7 +297,7 @@ HoaOrder {
 			'basic', { 1.dup(m + 1) },
 			'energy', {
 				max_rE = this.rE(beamShape, dim);
-				(dim == 2).if({ // 2D
+				if(dim == 2, { // 2D
 					(m + 1).collect({ |degree|
 						chebyshevT(degree, max_rE)
 					})
@@ -308,14 +308,14 @@ HoaOrder {
 				})
 			},
 			'controlled', {
-				(dim == 2).if({ // 2D
+				if(dim == 2, { // 2D
 					(m + 1).collect({ |degree|
 						1 / ((m + degree).asFloat.factorial * (m - degree).asFloat.factorial)
-					}) * m.asFloat.factorial.squared;
+					}) * m.asFloat.factorial.squared
 				}, { // 3D
 					(m + 1).collect({ |degree|
 						1 / ((m + degree + 1).asFloat.factorial * (m - degree).asFloat.factorial)
-					}) * m.asFloat.factorial * (m + 1).asFloat.factorial;
+					}) * m.asFloat.factorial * (m + 1).asFloat.factorial
 				})
 			}
 		)

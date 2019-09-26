@@ -73,12 +73,12 @@
 		shapeTest = shapes.every(_ == shapes[0]);
 		numTest = array.flatten.every(_.isNumber);
 
-		(shapeTest and: numTest).if({
+		if((shapeTest and: numTest), {
 			rows = array.size;
-			^super.fill(rows, { |col| array[col] });
+			^super.fill(rows, { |col| array[col] })
 			}, {
 				error("wrong type of argument in Meta_Matrix-with");this.halt
-		});
+		})
 	}
 
 	rowsDo { |func|
@@ -99,12 +99,12 @@
 		width = rowLength ?? { maxw };
 		height = colHeight ?? { maxh };
 
-		((width > maxw) or: (height > maxh)).if{
+		if(((width > maxw) or: (height > maxh)), {
 			format("dimensions of requested sub-matrix exceed bounds: "
 				"you asked for %x%, remaining space after starting index is %x%",
 				rowLength, colHeight, maxw, maxh
 			).throw
-		};
+		});
 
 		mtx = Matrix.newClear(height, width);
 
@@ -138,12 +138,12 @@
 				this.put(
 					ri,
 					ci,
-					(item.abs <= within).if({
-						item.isInteger.if({  // there could be more cases...
-								0
-							}, {
-								0.0
-							})
+					if(item.abs <= within, {
+						if(item.isInteger, {  // there could be more cases...
+							0
+						}, {
+							0.0
+						})
 					}, {
 						item
 					})

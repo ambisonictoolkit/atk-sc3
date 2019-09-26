@@ -256,10 +256,10 @@
 
 			// magnitude - collected by degree
 			magnitudes = freqs.collectAs({ |freq|  // real coefficients (magnitudes)
-				hoaOrder.foclWeights(freq, radius, window, speedOfSound);
+				hoaOrder.foclWeights(freq, radius, window, speedOfSound)
 			},
 				List
-			).flop.asArray;  // collect as List, due to Array -flop bug
+			).flop.asArray  // collect as List, due to Array -flop bug
 		});
 		^magnitudes.collect({ |magnitude|
 			FreqSpectrum.new(magnitude)

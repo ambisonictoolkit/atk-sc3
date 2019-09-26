@@ -583,7 +583,7 @@ Foa : MultiOutUGen {
 
 	*checkChans { |in|
 		(in.size < 4).if({
-			^([in] ++ (4 - in.size).collect({ Silent.ar })).flat;
+			^([in] ++ (4 - in.size).collect({ Silent.ar })).flat
 		}, {
 			^in
 		});
@@ -814,8 +814,8 @@ AtkKernelConv {
 		in.isArray.not.if({ in = [in] });
 
 		out = Mix.new(
-			kernel.shape[0].collect({ |i|
-				kernel.shape[1].collect({ |j|
+			(kernel.shape[0]).collect({ |i|
+				(kernel.shape[1]).collect({ |j|
 					Convolution2.ar(
 						in[i],
 						kernel[i][j],
@@ -836,7 +836,7 @@ AtkKernelConv {
 FoaUGen {
 	*checkChans { |in|
 		(in.size < 4).if({
-			^([in] ++ (4 - in.size).collect({ Silent.ar })).flat;
+			^([in] ++ (4 - in.size).collect({ Silent.ar })).flat
 		}, {
 			^in
 		});
@@ -862,8 +862,13 @@ FoaUGen {
 		}, {
 			index = args.size;
 		});
-		userDict = userDict.putAll(Dictionary.newFrom((index).collect({ |i|
-			[ugenKeys[i], args[i]] }).flat));
+		userDict = userDict.putAll(
+			Dictionary.newFrom(
+				index.collect({ |i|
+					[ugenKeys[i], args[i]]
+				}).flat
+			)
+		);
 
 		// merge
 		^ugenDict.merge(userDict, { |ugenArg, userArg|

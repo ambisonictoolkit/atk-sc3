@@ -283,7 +283,7 @@ AtkMatrix {
 					value.do({ |elem|
 						postf("\t%\n",
 							try {
-								elem.round(0.0001).collect({ |num|
+								(elem.round(0.0001)).collect({ |num|
 									str = num.asString.padRight(
 										num.isPositive.if({ 6 }, { 7 }),
 										"0"

@@ -81,25 +81,24 @@ FoaXformDisplay {
 
 		this.prDefineColors;
 
-		directions = numPoints.collect{ |i| (2pi / numPoints) * i };
+		directions = numPoints.collect({ |i| (2pi / numPoints) * i });
 
 		// planewave "point" matrices collected
-		planewaveMatrices = numPoints.collect{ |i|
+		planewaveMatrices = numPoints.collect({ |i|
 			FoaEncoderMatrix.newDirection(
 				directions[i]
-			).matrix.addRow([0]); // need to add z manually, for planewaves with no elev
-		};
+			).matrix.addRow([0]) // need to add z manually, for planewaves with no elev
+		});
 
 		// store tranform info for each "probe" point
-		prePostStats = numPoints.collect{ |i|
+		prePostStats = numPoints.collect({ |i|
 			IdentityDictionary(know: true).putPairs([
 				\inAz, directions[i],
 				\inEl, 0,
 				\az, nil, \el, nil, \dir, nil, \ampdb, nil,
 				\scrnPnt, nil // point in userview
-			]);
-
-		};
+			])
+		});
 
 		// a list containing a master view of each chain
 		chainViews = List();
@@ -605,7 +604,7 @@ FoaXformDisplay {
 			#x, y = [newCursorPnt.x, newCursorPnt.y];   // translate cursor coords to origin
 
 			distances = prePostStats.collect({ |statdict|
-				statdict.scrnPnt.dist(x@y);
+				statdict.scrnPnt.dist(x@y)
 			});
 
 			// select the closest point to mouse click
@@ -857,12 +856,12 @@ FoaXformDisplay {
 			}
 		};
 
-		transformedPlanewaves = planewaveMatrices.collect{ |pointMtx|
+		transformedPlanewaves = planewaveMatrices.collect({ |pointMtx|
 			xfMatrix * pointMtx
-		};
+		});
 
 		// calculate and set aeds var for gui update
-		aeds = transformedPlanewaves.collect{ |ptMtx, i|
+		aeds = transformedPlanewaves.collect({ |ptMtx, i|
 			var aeda, statDict, az, el, dir, ampdb;
 			var dir_orig, aeda2;
 
@@ -877,8 +876,8 @@ FoaXformDisplay {
 			statDict.dir = dir;
 			statDict.ampdb = ampdb;
 
-			aeda; // return
-		};
+			aeda // return
+		});
 
 		sfWin !? { sfWin.refresh };
 	}

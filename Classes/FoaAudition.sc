@@ -841,7 +841,7 @@ FoaAuditionView {
 		addXformBut = Button().states_([["Add Transform"]])
 		.action_({
 			// check that the audition isn't already talking to an FoaXformDisplay
-			audition.dependants.collect(_.class).includes(FoaXformDisplay).not.if{
+			(audition.dependants).collect(_.class).includes(FoaXformDisplay).not.if{
 				xformDisplay = FoaXformDisplay(16);
 				xformDisplay.setAudition(audition);
 			}

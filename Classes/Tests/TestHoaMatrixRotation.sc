@@ -68,32 +68,32 @@ TestHoaMatrixRotation : UnitTest {
 		r123 = [r1, r2, r3];
 
 		// Use Spherical class to initialize the directions.
-		initialDirs = dirsArray.collect{ |azel| Spherical(1, *azel) };
+		initialDirs = dirsArray.collect({ |azel| Spherical(1, *azel) });
 
-		rotatedDirs = initialDirs.collect{ |sph|
+		rotatedDirs = initialDirs.collect({ |sph|
 			// perform rotation on the sphere in the order specified
 			(axes.asString).do({ |axis, j|
 				sph = sph.perform(rotMethod[axis.asSymbol], r123[j])
 			});
 			sph
-		};
+		});
 
 		// generate the planewaves from the initial directions
-		initializedPws = initialDirs.collect{ |sph|
-			HoaMatrixEncoder.newDirection(sph.theta, sph.phi, order: argOrder ?? order).matrix.flop.getRow(0);
-		};
+		initializedPws = initialDirs.collect({ |sph|
+			HoaMatrixEncoder.newDirection(sph.theta, sph.phi, order: argOrder ?? order).matrix.flop.getRow(0)
+		});
 
 		// Encode the rotated directions as planewaves.
 		// These are the targets for comparison
-		targetPws = rotatedDirs.collect{ |sph|
-			HoaMatrixEncoder.newDirection(sph.theta, sph.phi, order: argOrder ?? order).matrix.flop.getRow(0);
-		};
+		targetPws = rotatedDirs.collect({ |sph|
+			HoaMatrixEncoder.newDirection(sph.theta, sph.phi, order: argOrder ?? order).matrix.flop.getRow(0)
+		});
 	}
 
 	test_newKeywords {
 		var r1, r2, r3, t1, t2;
 
-		#r1, r2, r3 = 3.collect{ rrand(-2pi, 2pi) };
+		#r1, r2, r3 = 3.collect({ rrand(-2pi, 2pi) });
 
 		// TODO: check the following 2 tests to make sure it's a valid comparison
 		t1 = HoaMatrixXformer.newRTT(r1, r2, r3, order);
@@ -122,7 +122,7 @@ TestHoaMatrixRotation : UnitTest {
 			numRotTests.do({
 				var r1, r2, r3, axes, rMtx, rotatedPws, groupTests;
 
-				#r1, r2, r3 = 3.collect{ rrand(-2pi, 2pi) };
+				#r1, r2, r3 = 3.collect({ rrand(-2pi, 2pi) });
 				axes = "xyz".scramble;      // randomize the convention
 
 				// initialize the initializedPws an targetPws vars
@@ -131,17 +131,17 @@ TestHoaMatrixRotation : UnitTest {
 				rMtx = HoaMatrixRotation(r1, r2, r3, axes.asSymbol, order);
 
 				// "encode" the planewave coeffs via matrix multiply
-				rotatedPws = initializedPws.collect{ |pw|
-					rMtx.matrix * Matrix.with([pw]).flop;
-				};
+				rotatedPws = initializedPws.collect({ |pw|
+					rMtx.matrix * Matrix.with([pw]).flop
+				});
 
 				// convert to an Array for the test
-				rotatedPws = rotatedPws.collect{ |mtx| mtx.asArray.flat };
+				rotatedPws = rotatedPws.collect({ |mtx| mtx.asArray.flat });
 
 				// compare to target planewaves, directly encoded in the pre-rotated directions
-				groupTests = rotatedPws.collect{ |rpw, i|
+				groupTests = rotatedPws.collect({ |rpw, i|
 					rpw.round(floatWithin) == targetPws[i].round(floatWithin)
-				};
+				});
 
 				this.assert(groupTests.every({ |item| item }),
 					format("Planewaves encoded in the directions of %, "
@@ -163,8 +163,8 @@ TestHoaMatrixRotation : UnitTest {
 
 	test_FoaRttVsHoaRtt {
 		var rtt, test, ref, res;
-		res = 50.collect{
-			rtt = 3.collect{ rrand(-2pi, 2pi) };
+		res = 50.collect({
+			rtt = 3.collect({ rrand(-2pi, 2pi) });
 			// A first order planewave, encoded with FOA rotation matrix
 			ref = FoaXformerMatrix.newRTT(*rtt).matrix * FoaEncoderMatrix.newDirection(0, 0).matrix.addRow([0]);
 			// A first order planewave, encoded with HOA rotation matrix
@@ -176,10 +176,10 @@ TestHoaMatrixRotation : UnitTest {
 			test = HoaMatrixDecoder.newFormat(\fuma, 1).matrix * test;
 			// test
 			ref.round(0.00001) == test.round(0.00001)
-		};
+		});
 
 		// did every test return true?
-		this.assert(res.every({ |item| item }), "Rotations using Atk-Foa should match those of Atk-Hoa", report);
+		this.assert(res.every({ |item| item }), "Rotations using Atk-Foa should match those of Atk-Hoa", report)
 	}
 
 }

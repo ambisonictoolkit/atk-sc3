@@ -507,7 +507,7 @@ FoaMatrix : AtkMatrix {
 	dirInputs {
 		^switch(this.type,
 			'\encoder', { this.dirChannels },
-			'\decoder', { this.numInputs.collect({ inf }) },
+			'\decoder', { (this.numInputs).collect({ inf }) },
 			// '\xformer', { this.numInputs.collect({ inf }) },
 			'\xformer', { this.dirChannels }  // requires set to inf
 		)
@@ -515,7 +515,7 @@ FoaMatrix : AtkMatrix {
 
 	dirOutputs {
 		^switch(this.type,
-			'\encoder', { this.numOutputs.collect({ inf }) },
+			'\encoder', { (this.numOutputs).collect({ inf }) },
 			'\decoder', { this.dirChannels },
 			// '\xformer', { this.numInputs.collect({ inf }) },
 			'\xformer', { this.dirChannels }  // requires set to inf
@@ -654,7 +654,7 @@ FoaDecoderMatrix : FoaMatrix {
 				positions2 = positions ++ (positions.neg);
 
 				// set output channel (speaker) directions for instance
-				dirChannels = positions2.asArray.collect({ |item|
+				dirChannels = (positions2.asArray).collect({ |item|
 					item.asCartesian.asSpherical.angles
 				});
 
@@ -846,12 +846,12 @@ FoaDecoderMatrix : FoaMatrix {
 			dirChannels = fileParse.dirOutputs.notNil.if({
 				fileParse.dirOutputs.asFloat
 			}, { // output directions are unspecified in the provided matrix
-				matrix.rows.collect({ 'unspecified' })
+				(matrix.rows).collect({ 'unspecified' })
 			});
 			shelfK = fileParse.shelfK !? { fileParse.shelfK.asFloat };
 			shelfFreq = fileParse.shelfFreq !? { fileParse.shelfFreq.asFloat };
 		}, { // txt file provided, no fileParse
-			dirChannels = matrix.rows.collect({ 'unspecified' });
+			dirChannels = (matrix.rows).collect({ 'unspecified' });
 		});
 	}
 
@@ -1151,10 +1151,10 @@ FoaEncoderMatrix : FoaMatrix {
 			fileParse.dirInputs.notNil.if({
 				fileParse.dirInputs.asFloat
 			}, { // so input directions are unspecified in the provided matrix
-				matrix.cols.collect({ 'unspecified' })
+				(matrix.cols).collect({ 'unspecified' })
 			});
 		}, { // txt file provided, no fileParse
-			matrix.cols.collect({ 'unspecified' });
+			(matrix.cols).collect({ 'unspecified' });
 		});
 	}
 
@@ -1778,7 +1778,7 @@ FoaXformerMatrix : FoaMatrix {
 	}
 
 	// overload instance var dirChannels
-	dirChannels { ^this.numOutputs.collect({ inf }) }
+	dirChannels { ^(this.numOutputs).collect({ inf }) }
 
 }
 
@@ -1968,7 +1968,7 @@ FoaDecoderKernel {
 					).throw
 				}, {
 					// Else... everything is fine! Load kernel.
-					kernel = subjectPath.files.collect({ |kernelPath|
+					kernel = (subjectPath.files).collect({ |kernelPath|
 						chans.collect({ |chan|
 							Buffer.readChannel(server, kernelPath.fullPath, channels: [chan],
 								action: { |buf|
@@ -1989,18 +1989,18 @@ FoaDecoderKernel {
 			});
 
 			(\CtkScore.asClass.notNil and: { score.isKindOf(\CtkScore.asClass) }).if{
-				kernel = subjectPath.files.collect({ |kernelPath|
+				kernel = (subjectPath.files).collect({ |kernelPath|
 					chans.collect({ |chan|
 						var buf = CtkBuffer(kernelPath.fullPath, channels: [chan]);
 						kernelInfo = kernelInfo.add([kernelPath.fullPath, buf.bufnum, [chan]]);
 						score.add(buf);
-						buf;
+						buf
 					})
 				})
 			};
 
 			score.isKindOf(Score).if{
-				kernel = subjectPath.files.collect({ |kernelPath|
+				kernel = (subjectPath.files).collect({ |kernelPath|
 					chans.collect({ |chan|
 						var buf;
 						buf = Buffer(server, kernelSize);
@@ -2008,7 +2008,7 @@ FoaDecoderKernel {
 							["/b_allocReadChannel", buf.bufnum, kernelPath.fullPath, 0, kernelSize, chan]
 						);
 						kernelInfo = kernelInfo.add([kernelPath.fullPath, buf.bufnum, [chan]]);
-						buf;
+						buf
 					})
 				});
 				score.add(kernelBundle)
@@ -2058,7 +2058,7 @@ FoaDecoderKernel {
 
 	numInputs { ^kernel.shape[0] }
 
-	dirInputs { ^this.numInputs.collect({ inf }) }
+	dirInputs { ^(this.numInputs).collect({ inf }) }
 
 	directions { ^dirChannels }
 
@@ -2270,7 +2270,7 @@ FoaEncoderKernel {
 					).throw
 				}, {
 					// Else... everything is fine! Load kernel.
-					kernel = subjectPath.files.collect({ |kernelPath|
+					kernel = (subjectPath.files).collect({ |kernelPath|
 						chans.collect({ |chan|
 							Buffer.readChannel(server, kernelPath.fullPath, channels: [chan],
 								action: { |buf|
@@ -2291,18 +2291,18 @@ FoaEncoderKernel {
 			});
 
 			(\CtkScore.asClass.notNil and: { score.isKindOf(\CtkScore.asClass) }).if({
-				kernel = subjectPath.files.collect({ |kernelPath|
+				kernel = (subjectPath.files).collect({ |kernelPath|
 					chans.collect({ |chan|
 						var buf = CtkBuffer(kernelPath.fullPath, channels: [chan]);
 						kernelInfo = kernelInfo.add([kernelPath.fullPath, buf.bufnum, [chan]]);
 						score.add(buf);
-						buf;
+						buf
 					})
 				})
 			});
 
 			score.isKindOf(Score).if{
-				kernel = subjectPath.files.collect({ |kernelPath|
+				kernel = (subjectPath.files).collect({ |kernelPath|
 					chans.collect({ |chan|
 						var buf;
 						buf = Buffer(server, kernelSize);
@@ -2310,7 +2310,7 @@ FoaEncoderKernel {
 							["/b_allocReadChannel", buf.bufnum, kernelPath.fullPath, 0, kernelSize, chan]
 						);
 						kernelInfo = kernelInfo.add([kernelPath.fullPath, buf.bufnum, [chan]]);
-						buf;
+						buf
 					})
 				});
 				score.add(kernelBundle)
@@ -2360,7 +2360,7 @@ FoaEncoderKernel {
 
 	numInputs { ^kernel.shape[0] }
 
-	dirOutputs { ^this.numOutputs.collect({ inf }) }
+	dirOutputs { ^(this.numOutputs).collect({ inf }) }
 
 	directions { ^dirChannels }
 

@@ -91,7 +91,7 @@ FoaMatrixChain {
 
 	removeChain { |index|
 		var removedLinks;
-		removedLinks = chains[index].collect{ |lnk| lnk };
+		removedLinks = chains[index].collect({ |lnk| lnk });
 		chains.removeAt(index);
 		removedLinks.do({ |rmvdLink| this.checkIfInputRemoved(rmvdLink) });
 		this.chainXForms;
@@ -283,7 +283,7 @@ FoaMatrixChain {
 
 							ctlStates = xf.controlStates;
 
-							ctlVals = ctlStates.indices.collect({ |dex|
+							ctlVals = (ctlStates.indices).collect({ |dex|
 								var val = ctlStates[dex];
 								val.isKindOf(FoaMatrixChainLink).if({
 									val.mtx

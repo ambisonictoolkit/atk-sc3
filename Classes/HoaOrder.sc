@@ -84,13 +84,14 @@ HoaOrder {
 	indices { |ordering = \acn, subset = \all|
 		(subset == \all).if({
 			// all
-			^this.lm.collect({ |lm|
+			^(this.lm).collect({ |lm|
 				HoaLm.new(lm).index(ordering)
 			})
 		}, {
 			// subset
-			^this.lm.collect({ |lm|
+			^(this.lm).collect({ |lm|
 				var hoaLm = HoaLm.new(lm);
+
 				hoaLm.isInSubset(subset).if({
 					hoaLm.index(ordering)
 				})
@@ -102,7 +103,7 @@ HoaOrder {
 	// Return reflection coefficients
 
 	reflection { |mirror = \reflect|
-		^this.lm.collect({ |lm|
+		^(this.lm).collect({ |lm|
 			HoaLm.new(lm).reflection(mirror)
 		})
 	}
@@ -111,7 +112,7 @@ HoaOrder {
 	// Return normalisation coefficients
 
 	normalisation { |scheme = \n3d|
-		^this.lm.collect({ |lm|
+		^(this.lm).collect({ |lm|
 			HoaLm.new(lm).normalisation(scheme)
 		})
 	}
@@ -121,7 +122,7 @@ HoaOrder {
 
 	// N3D normalized coefficients
 	sph { |theta = 0.0, phi = 0.0|
-		^this.lm.collect({ |lm|
+		^(this.lm).collect({ |lm|
 			HoaLm.new(lm).sph(theta, phi)
 		})
 	}

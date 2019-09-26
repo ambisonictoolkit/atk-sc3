@@ -361,11 +361,11 @@ HoaMatrixRotation {
 
 		// complex -> real SH matrix
 		wMtx = Matrix.with(
-			setSize.collect{
-				setSize.collect{
+			setSize.collect({
+				setSize.collect({
 					Complex(0, 0)
-				}
-			}
+				})
+			})
 		);
 
 		wMtx.put(0, 0, Complex(1, 0)); // l = 0
@@ -385,11 +385,11 @@ HoaMatrixRotation {
 				) / 2.sqrt;
 
 				diagTMtx = Matrix.with(
-					degreeSize.collect{
-						degreeSize.collect{
+					degreeSize.collect({
+						degreeSize.collect({
 							Complex(0, 0)
-						}
-					}
+						})
+					})
 				);
 				diagT.do({ |me, i| diagTMtx.put(i, i, me) });
 

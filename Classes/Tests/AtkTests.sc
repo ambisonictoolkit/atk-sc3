@@ -95,7 +95,7 @@ AtkTests {
 				})
 			},
 			\random, { // random directions
-				numDirs.collect{ [rrand(-2pi, 2pi), rrand(-2pi, 2pi)] }
+				numDirs.collect({ [rrand(-2pi, 2pi), rrand(-2pi, 2pi)] })
 			}
 		)
 	}

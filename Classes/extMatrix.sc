@@ -68,7 +68,7 @@
 	*with { |array| // return matrix from 2D array (array of rows)
 		var shapes, shapeTest, numTest, rows;
 
-		shapes = array.asArray.collect(_.shape).flatten;
+		shapes = (array.asArray).collect(_.shape).flatten;
 
 		shapeTest = shapes.every(_ == shapes[0]);
 		numTest = array.flatten.every(_.isNumber);

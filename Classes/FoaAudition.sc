@@ -459,9 +459,9 @@ FoaAudition {
 
 			\FoaAudition_foaPanNoise,
 			SynthDef(\FoaAudition_foaPanNoise, {
-				arg outbus, rotating = 1, rotfreq = 0.1, tumbling = 0, tumfreq = 0.1,
+				|outbus, rotating = 1, rotfreq = 0.1, tumbling = 0, tumfreq = 0.1,
 				pulsed = 1, pulsefreq = 3, mul = 0.5, gate = 1, releaseTime = 0.5,
-				t_azim = 0, t_elev = 0, azimReset = 0, elReset;
+				t_azim = 0, t_elev = 0, azimReset = 0, elReset|
 				var env, lagTimeU, lagTimeD, src, foa, azim, elev, normRate;
 
 				env = EnvGen.kr(Env([0, 1, 0], [0.1, releaseTime], \sin, 1), gate);

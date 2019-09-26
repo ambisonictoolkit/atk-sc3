@@ -336,7 +336,7 @@
 						hoaOrder.beamWeights(beamShape, dim)
 					});
 
-					beamMags = (order + 1).collect({ arg degree;
+					beamMags = (order + 1).collect({ |degree|
 						FreqSpectrum.logShelf(size, freqs[0], freqs[1], beamWeights[0][degree].ampdb, beamWeights[1][degree].ampdb, sampleRate).magnitude
 					})
 				})
@@ -350,7 +350,7 @@
 						hoaOrder.beamWeights(beamShape, dim)
 					});
 
-					beamMags = (order + 1).collect({ arg degree;
+					beamMags = (order + 1).collect({ |degree|
 						FreqSpectrum.logShelf(size, freqs[0], freqs[1], beamWeights[0][degree].ampdb, beamWeights[1][degree].ampdb, sampleRate).magnitude *
 						FreqSpectrum.logShelf(size, freqs[2], freqs[3], 0.0, (beamWeights[2][degree] / beamWeights[1][degree]).ampdb, sampleRate).magnitude
 					})

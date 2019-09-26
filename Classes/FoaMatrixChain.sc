@@ -91,6 +91,7 @@ FoaMatrixChain {
 
 	removeChain { |index|
 		var removedLinks;
+
 		removedLinks = chains[index].collect({ |lnk| lnk });
 		chains.removeAt(index);
 		removedLinks.do({ |rmvdLink| this.checkIfInputRemoved(rmvdLink) });
@@ -126,6 +127,7 @@ FoaMatrixChain {
 
 			controls.do({ |pair, i|
 				var paramName, ctl;
+
 				#paramName, ctl = pair;
 
 				if(params[i].notNil, {
@@ -178,6 +180,7 @@ FoaMatrixChain {
 	// for changing the transform at a point in the chain
 	replaceTransform { | newXformName, whichChain, index ... params |
 		var newLink, formerLink;
+
 		this.checkLinkExists(whichChain, index) ?? { ^this };
 		newLink = this.createXformLink(newXformName, *params);
 		formerLink = chains[whichChain][index];
@@ -191,6 +194,7 @@ FoaMatrixChain {
 
 	removeTransform { | whichChain, index |
 		var rmvdLink;
+
 		this.checkLinkExists(whichChain, index) ?? { ^this };
 		rmvdLink = chains[whichChain][index];
 		chains[whichChain].removeAt(index);
@@ -211,6 +215,7 @@ FoaMatrixChain {
 
 	soloXform { | bool, whichChain, index |
 		var changed = List();
+
 		this.checkLinkExists(whichChain, index) ?? { ^this };
 		// keep a list of the solo states that are changing
 
@@ -237,6 +242,7 @@ FoaMatrixChain {
 
 	checkLinkExists { |whichChain, index|
 		var warning;
+
 		warning = format("No transform found at chain % index %", whichChain, index);
 		try({ chains[whichChain][index] }, { warning.warn; ^nil });
 		// return the link. this can be nil if
@@ -250,6 +256,7 @@ FoaMatrixChain {
 		chains.do({ |chain, i|
 			chain.do({ |lnk, j|
 				var cStates = lnk.controlStates;
+
 				(cStates.indices).do({ |dex|
 					if(cStates[dex] === rmvdLink, {
 						// replace input with new link or A0 if none
@@ -286,6 +293,7 @@ FoaMatrixChain {
 
 							ctlVals = (ctlStates.indices).collect({ |dex|
 								var val = ctlStates[dex];
+
 								if(val.isKindOf(FoaMatrixChainLink), {
 									val.mtx
 								}, {
@@ -532,6 +540,7 @@ FoaMatrixChain {
 			],
 			{ |thisMtx, thatMtx, fade = 0|
 				var thisAmp, thatAmp;
+
 				thisAmp = cos((1 - fade) * 0.5pi);
 				thatAmp = cos(fade * 0.5pi);
 				(thisMtx * thisAmp) + (thatMtx * thatAmp);

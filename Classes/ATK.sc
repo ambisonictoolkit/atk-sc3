@@ -171,6 +171,7 @@ Atk {
 		makeDirs = { |baseDir|
 			(Atk.sets).do({ |set|
 				var path;
+
 				ops.do({ |op|
 					mtxTypes.do({ |mtxType|
 						path = baseDir +/+ op +/+ set.asString +/+ mtxType;
@@ -429,6 +430,7 @@ Atk {
 				// recursively search whole directory
 				mtxDirPath.filesDo { |file|
 					var test;
+
 					test = if(hasExtension, {
 						file.fileName
 					}, {
@@ -494,6 +496,7 @@ Atk {
 
 			postContents = { |folderPN, depth = 1|
 				var offset, f_offset;
+
 				offset = ("\t"!depth).join;
 				f_offset = ("\t"!(depth - 1)).join;
 				postf("%:: % ::\n", f_offset, folderPN.folderName);
@@ -595,6 +598,7 @@ Foa : MultiOutUGen {
 FoaDirectO : Foa {
 	*ar { |in, angle = (pi/2), mul = 1, add = 0|
 		var w, x, y, z;
+
 		in = this.checkChans(in);
 		#w, x, y, z = in;
 		^this.multiNew('audio', w, x, y, z, angle).madd(mul, add);
@@ -605,6 +609,7 @@ FoaDirectO : Foa {
 FoaDirectX : Foa {
 	*ar { |in, angle = (pi/2), mul = 1, add = 0|
 		var w, x, y, z;
+
 		in = this.checkChans(in);
 		#w, x, y, z = in;
 		^this.multiNew('audio', w, x, y, z, angle).madd(mul, add);
@@ -617,6 +622,7 @@ FoaDirectZ : FoaDirectX { }
 FoaRotate : Foa {
 	*ar { |in, angle = 0, mul = 1, add = 0|
 		var w, x, y, z;
+
 		in = this.checkChans(in);
 		#w, x, y, z = in;
 		^this.multiNew('audio', w, x, y, z, angle).madd(mul, add);
@@ -644,6 +650,7 @@ FoaZoomZ : FoaRotate { }
 FoaBalance {
 	*ar { |in, angle = 0, mul = 1, add = 0|
 		var w, x, y, z;
+
 		in = this.checkChans(in);
 		#w, x, y, z = in;
 		^FoaZoomY.ar(w, x, y, z, angle, mul, add);
@@ -654,6 +661,7 @@ FoaBalance {
 FoaDominateX : Foa {
 	*ar { |in, gain = 0, mul = 1, add = 0|
 		var w, x, y, z;
+
 		in = this.checkChans(in);
 		#w, x, y, z = in;
 		^this.multiNew('audio', w, x, y, z, gain).madd(mul, add);
@@ -757,6 +765,7 @@ FoaPress {
 FoaProximity : Foa {
 	*ar { |in, distance = 1, mul = 1, add = 0|
 		var w, x, y, z;
+
 		in = this.checkChans(in);
 		#w, x, y, z = in;
 		^this.multiNew('audio', w, x, y, z, distance).madd(mul, add);
@@ -767,6 +776,7 @@ FoaProximity : Foa {
 FoaNFC : Foa {
 	*ar { |in, distance = 1, mul = 1, add = 0|
 		var w, x, y, z;
+
 		in = this.checkChans(in);
 		#w, x, y, z = in;
 		^this.multiNew('audio', w, x, y, z, distance).madd(mul, add);
@@ -777,6 +787,7 @@ FoaNFC : Foa {
 FoaPsychoShelf : Foa {
 	*ar { |in, freq = 400, k0 = ((3/2).sqrt), k1 = (3.sqrt/2), mul = 1, add = 0|
 		var w, x, y, z;
+
 		in = this.checkChans(in);
 		#w, x, y, z = in;
 		^this.multiNew('audio', w, x, y, z, freq, k0, k1).madd(mul, add);
@@ -790,7 +801,6 @@ FoaPsychoShelf : Foa {
 
 AtkMatrixMix {
 	*ar { |in, matrix, mul = 1, add = 0|
-
 		var out;
 
 		// wrap input as array if needed, for mono inputs
@@ -808,7 +818,6 @@ AtkMatrixMix {
 
 AtkKernelConv {
 	*ar { |in, kernel, mul = 1, add = 0|
-
 		var out;
 
 		// wrap input as array if needed, for mono inputs
@@ -930,8 +939,8 @@ FoaEncode : FoaUGen {
 
 FoaXform : FoaUGen {
 	*ar { |in, xformer, mul = 1, add = 0|
-
 		var out;
+
 		in = this.checkChans(in);
 
 //		switch(xformer.class,
@@ -963,9 +972,9 @@ argument key - see helpfile for reasonable values
 
 FoaTransform : FoaUGen {
 	*ar { |in, kind ... args|
-
 		var argDict, argDefaults;
 		var ugen;
+
 		in = this.checkChans(in);
 
 //		argDict = { |ugen, args, argDefaults|

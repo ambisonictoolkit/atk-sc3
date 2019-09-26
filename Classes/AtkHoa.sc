@@ -32,6 +32,7 @@ AtkHoa {
 
 	*setSpeedOfSound { |mps|
 		var mpsAsFloat;
+
 		mpsAsFloat = mps.asFloat;
 		/*
 		TODO: run initializations necessary when changing speedOfSound
@@ -43,6 +44,7 @@ AtkHoa {
 
 	*setRefRadius { |radius|
 		var radiusAsFloat = radius.asFloat;
+
 		/*
 		TODO: run initializations necessary when changing refRadius
 		after resources have already been allocated at a different refRadius
@@ -53,12 +55,14 @@ AtkHoa {
 
 	*setNearZero { |zero|
 		var zeroAbs = zero.abs;
+
 		nearZero = zeroAbs;
 		^zeroAbs
 	}
 
 	*setDefaultOrder { |order|
 		var orderAsInteger = order.asInteger;
+
 		/*
 		TODO: run initializations necessary when changing order
 		after resources have already been allocated at a different order
@@ -72,6 +76,7 @@ AtkHoa {
 	// full 3D only
 	*detectOrder { |size|
 		var squareOf = size.squareOf;
+
 		(squareOf == nil).if({
 			"Could not detect order from % coefficients".format(size).throw
 		}, {

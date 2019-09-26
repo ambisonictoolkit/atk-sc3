@@ -112,6 +112,7 @@ TestHoaMatrixXformer : UnitTest {
 		numTests.do({
 			var angle = rrand(-2pi, 2pi);
 			var rMtx = HoaMatrixXformer.newRotateAxis(\z, angle, order);
+
 			comparePwFunc.(pw00, rMtx, angle, 0, \z);
 
 			rMtx = HoaMatrixXformer.newRotateAxis(\y, angle, order);
@@ -126,6 +127,7 @@ TestHoaMatrixXformer : UnitTest {
 	// via *newRotateAxis and they're *newRotate counterpart
 	test_axisRotationOrder {
 		var angles, axes, r123, r1, r2, r3, compoundRot;
+
 		5.do({
 			angles = 3.collect({ rrand(0, 2pi) }); // choose random rotation amounts
 			axes = "xyz".scramble;      // randomize the axis convention

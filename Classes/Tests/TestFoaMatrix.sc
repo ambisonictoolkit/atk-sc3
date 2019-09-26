@@ -117,6 +117,7 @@ TestFoaMatrix : UnitTest {
 			\dim,  3
 		].clump(2).do({ |mrPair|
 			var method, result;
+
 			#method, result = mrPair;
 			this.assertEquals(
 				m.perform(method),
@@ -190,6 +191,7 @@ TestFoaMatrix : UnitTest {
 			\shelfFreq, 400.0  // default shelfK
 		].clump(2).do({ |mrPair|
 			var method, result;
+
 			#method, result = mrPair;
 			this.assertEquals(
 				m.perform(method),
@@ -240,6 +242,7 @@ TestFoaMatrix : UnitTest {
 			\dim,  3
 		].clump(2).do({ |mrPair|
 			var method, result;
+
 			#method, result = mrPair;
 			this.assertEquals(
 				m.perform(method),
@@ -314,6 +317,7 @@ TestFoaMatrix : UnitTest {
 			\dim,  3
 		].clump(2).do({ |mrPair|
 			var method, result;
+
 			#method, result = mrPair;
 			this.assertEquals(
 				m.perform(method),

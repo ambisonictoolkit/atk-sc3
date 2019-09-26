@@ -48,7 +48,6 @@
 + PathName {
 
 	parentLevelPath { |index|
-
 		var ci = this.colonIndices;
 
 		^if(index == 0, {

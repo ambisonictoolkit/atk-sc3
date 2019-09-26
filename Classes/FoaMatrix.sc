@@ -173,7 +173,6 @@ FoaSpeakerMatrix {
 
 
 FoaMatrix : AtkMatrix {
-
 	var <>dirChannels;  // setter added for matrix-to-file & file-to-matrix support
 
 	// most typically called by subclass
@@ -348,6 +347,7 @@ FoaMatrix : AtkMatrix {
 		// write a multi-line attribute (2D array)
 		wrAttArr = { |att, arr|
 			var vals = arr ?? { this.tryPerform(att) };
+
 			if(vals.isNil, {
 				wr.writeLine(["% : nil".format(att)])
 			}, {
@@ -408,6 +408,7 @@ FoaMatrix : AtkMatrix {
 
 	prParseMOSL { |pn|
 		var file, numRows, numCols, mtx, row;
+
 		file = FileReader.read(pn.fullPath);
 		numRows = nil;
 		numCols = nil;
@@ -415,6 +416,7 @@ FoaMatrix : AtkMatrix {
 		row = [];
 		file.do({ |line|
 			var val = line[0];
+
 			switch(val,
 				"//",	{ }, // ignore comments
 				"",		{ },	// ignore blank line
@@ -459,6 +461,7 @@ FoaMatrix : AtkMatrix {
 	// FOA only
 	loadFromLib { |...args|
 		var pathStr;
+
 		pathStr = this.kind.asString ++ "/";
 
 		if(args.size == 0, {
@@ -568,6 +571,7 @@ FoaDecoderMatrix : FoaMatrix {
 
 	*newAmbix1 {
 		var ordering = 'acn', normalisation = 'sn3d';
+
 		^super.new('hoa1').loadFromLib(ordering, normalisation);
 	}
 
@@ -614,7 +618,6 @@ FoaDecoderMatrix : FoaMatrix {
 	}
 
 	initDiametric { |directions, k|
-
 		var positions, positions2;
 		var speakerMatrix, n;
 
@@ -688,7 +691,6 @@ FoaDecoderMatrix : FoaMatrix {
 	}
 
 	initPanto { |numChans, orientation, k|
-
 		var g0, g1, theta;
 
 		g0 = 1.0;     // decoder gains
@@ -725,7 +727,6 @@ FoaDecoderMatrix : FoaMatrix {
 	}
 
 	initPeri { |numChanPairs, elevation, orientation, k|
-
 		var theta, directions, upDirs, downDirs, upMatrix, downMatrix;
 
 		// generate output channel (speaker) pair positions
@@ -781,7 +782,6 @@ FoaDecoderMatrix : FoaMatrix {
 	}
 
 	initQuad { |angle, k|
-
 		var g0, g1, g2;
 
 		// set output channel (speaker) directions for instance
@@ -806,7 +806,6 @@ FoaDecoderMatrix : FoaMatrix {
 	}
 
 	initStereo { |angle, pattern|
-
 		var g0, g1, g2;
 
 		// set output channel (speaker) directions for instance
@@ -926,7 +925,6 @@ FoaEncoderMatrix : FoaMatrix {
 	}
 
 	init2D {
-
 		var g0 = 2.sqrt.reciprocal;
 
 		// build encoder matrix, and set for instance
@@ -942,7 +940,6 @@ FoaEncoderMatrix : FoaMatrix {
 	}
 
 	init3D {
-
 		var g0 = 2.sqrt.reciprocal;
 
 		// build encoder matrix, and set for instance
@@ -959,7 +956,6 @@ FoaEncoderMatrix : FoaMatrix {
 	}
 
 	initInv2D { |pattern|
-
 		var g0 = 2.sqrt.reciprocal;
 
 		// build 'decoder' matrix, and set for instance
@@ -994,7 +990,6 @@ FoaEncoderMatrix : FoaMatrix {
 	}
 
 	initInv3D { |pattern|
-
 		var g0 = 2.sqrt.reciprocal;
 
 		// build 'decoder' matrix, and set for instance
@@ -1074,7 +1069,6 @@ FoaEncoderMatrix : FoaMatrix {
 	}
 
 	initPanto { |numChans, orientation|
-
 		var theta;
 
 		// return theta from output channel (speaker) number
@@ -1093,7 +1087,6 @@ FoaEncoderMatrix : FoaMatrix {
 	}
 
 	initPeri { |numChanPairs, elevation, orientation|
-
 		var theta, directions, upDirs, downDirs, upMatrix, downMatrix;
 
 		// generate input channel pair positions
@@ -1825,9 +1818,9 @@ FoaDecoderKernel {
 	}
 
 	initPath {
-
 		var kernelLibPath;
 		var decodersPath;
+
 		kernelLibPath = PathName.new(
 			Atk.userKernelDir
 		);
@@ -1844,7 +1837,6 @@ FoaDecoderKernel {
 	}
 
 	initKernel { |kernelSize, server, sampleRate, score|
-
 		var databasePath, subjectPath;
 		var chans;
 		var errorMsg;
@@ -1991,6 +1983,7 @@ FoaDecoderKernel {
 				kernel = (subjectPath.files).collect({ |kernelPath|
 					chans.collect({ |chan|
 						var buf = CtkBuffer(kernelPath.fullPath, channels: [chan]);
+
 						kernelInfo = kernelInfo.add([kernelPath.fullPath, buf.bufnum, [chan]]);
 						score.add(buf);
 						buf
@@ -2002,6 +1995,7 @@ FoaDecoderKernel {
 				kernel = (subjectPath.files).collect({ |kernelPath|
 					chans.collect({ |chan|
 						var buf;
+
 						buf = Buffer(server, kernelSize);
 						kernelBundle = kernelBundle.add(
 							["/b_allocReadChannel", buf.bufnum, kernelPath.fullPath, 0, kernelSize, chan]
@@ -2025,6 +2019,7 @@ FoaDecoderKernel {
 
 	free {
 		var path;
+
 		(kernel.shape[0]).do({ |i|
 			(kernel.shape[1]).do({ |j|
 				path = kernel[i][j].path;
@@ -2113,7 +2108,6 @@ FoaEncoderKernel {
 //	}
 
 	initPath {
-
 		var kernelLibPath;
 		var encodersPath;
 
@@ -2129,7 +2123,6 @@ FoaEncoderKernel {
 	}
 
 	initKernel { |kernelSize, server, sampleRate, score|
-
 		var databasePath, subjectPath;
 		var chans;
 		var errorMsg;
@@ -2290,6 +2283,7 @@ FoaEncoderKernel {
 				kernel = (subjectPath.files).collect({ |kernelPath|
 					chans.collect({ |chan|
 						var buf = CtkBuffer(kernelPath.fullPath, channels: [chan]);
+
 						kernelInfo = kernelInfo.add([kernelPath.fullPath, buf.bufnum, [chan]]);
 						score.add(buf);
 						buf
@@ -2301,6 +2295,7 @@ FoaEncoderKernel {
 				kernel = (subjectPath.files).collect({ |kernelPath|
 					chans.collect({ |chan|
 						var buf;
+
 						buf = Buffer(server, kernelSize);
 						kernelBundle = kernelBundle.add(
 							["/b_allocReadChannel", buf.bufnum, kernelPath.fullPath, 0, kernelSize, chan]
@@ -2324,6 +2319,7 @@ FoaEncoderKernel {
 
 	free {
 		var path;
+
 		(kernel.shape[0]).do({ |i|
 			(kernel.shape[1]).do({ |j|
 				path = kernel[i][j].path;

@@ -268,6 +268,7 @@ FoaXformDisplay {
 							if(test, {
 								fork({
 									var auditionCond = Condition(false);
+
 									audition = FoaAudition(
 										0, 0.1, this.curXformMatrix,
 										initCond: auditionCond, initGUI: true);
@@ -356,6 +357,7 @@ FoaXformDisplay {
 		// algorithmic rainbow color scheme
 		getColor = { |gain|
 			var i;
+
 			i = colorSpec.map(gainSpec.unmap(gain));
 			case(
 				{ i < 256 }, { Color.new255(255, i, 0) },
@@ -395,6 +397,7 @@ FoaXformDisplay {
 			Pen.strokeColor_(Color.gray.alpha_(0.2));
 			[0.0, 0.5236, 1.0472].do({ |el|
 				var val;
+
 				// val = cos(i + 1 / 3);
 				val = cos(el);
 				Pen.strokeOval(
@@ -557,6 +560,7 @@ FoaXformDisplay {
 
 			selectedDex !? {
 				var selStats = prePostStats[selectedDex];
+
 				// proto point inspection text window;
 				inspWidth = 85;
 				inspHeight = 130;
@@ -809,6 +813,7 @@ FoaXformDisplay {
 	prUpdateChainTitles {
 		chainViews.do({ |chv, i|
 			var titleView;
+
 			titleView = chv.children[0];
 			// find the StaticText
 			titleView.children.do({ |child|
@@ -965,6 +970,7 @@ FoaXformDisplay {
 
 		xfViewChains.do({ |vchain, i|
 			var numxforms;
+
 			numxforms = vchain.size;
 			if(numxforms < maxChainSize, {
 				(maxChainSize - numxforms).do({
@@ -984,6 +990,7 @@ FoaXformDisplay {
 	// xfView is an instance of FoaXformView
 	prGetXfViewID { |xfView|
 		var whichChain, rmvDex;
+
 		xfViewChains.do({ |vchain, i|
 			vchain.do({ |view, j|
 				if(view === xfView, {
@@ -1036,6 +1043,7 @@ FoaXformDisplay {
 						Button().states_([["Evaluate"]])
 						.action_({
 							var mtx;
+
 							mtx = evalTxtView.string.interpret;
 							if((mtx.isKindOf(Matrix) or: { mtx.isKindOf(FoaXformerMatrix) }), {
 								this.prUpdateMatrix(mtx)
@@ -1065,12 +1073,14 @@ FoaXformDisplay {
 			switch(what,
 				\chainAdded, {
 					var index;
+
 					index = args[0];
 					// postf("responding to \chainAdded: %\n", index);
 					this.addChainView(index)
 				},
 				\chainRemoved, {
 					var index;
+
 					index = args[0];
 					// postf("responding to \chainRemoved: %\n", index);
 					this.removeChainView(index);
@@ -1078,6 +1088,7 @@ FoaXformDisplay {
 				},
 				\transformAdded, {
 					var xformName, whichChain, index;
+
 					#xformName, whichChain, index = args[0..2];
 					this.createNewXForm(whichChain, index);
 					this.prUpdateInputMenus;
@@ -1086,6 +1097,7 @@ FoaXformDisplay {
 				\transformRemoved, {
 					{
 						var whichChain, index;
+
 						#whichChain, index = args[0..1];
 						this.prRemoveXForm(whichChain, index);
 						0.02.wait; // for some reason needs time to remove
@@ -1095,12 +1107,14 @@ FoaXformDisplay {
 				},
 				\transformReplaced, {
 					var whichChain, index, newXformName;
+
 					#newXformName, whichChain, index = args[0..2];
 					xfViewChains[whichChain][index].rebuildControls;
 					this.prUpdateMatrix('chain')
 				},
 				\transformMuted, {
 					var whichChain, index, bool;
+
 					#whichChain, index, bool = args[0..2];
 					this.prUpdateMatrix('chain');
 					xfViewChains[whichChain][index].muteState(bool); // update UI with muted state
@@ -1133,6 +1147,7 @@ FoaXformDisplay {
 				},
 				\transformSoloed, {
 					var whichChain, index, bool, unmuting, chainDex;
+
 					#whichChain, index, bool = args[0..2];
 					this.prUpdateMatrix('chain');
 					unmuting = bool.not;
@@ -1176,6 +1191,7 @@ FoaXformDisplay {
 			switch(what,
 				\transformReplaced, {
 					var whichChain, index, newXformName;
+
 					#newXformName, whichChain, index = args[0..2];
 					displayXFormView.rebuildControls;
 					this.prUpdateMatrix('display')
@@ -1190,6 +1206,7 @@ FoaXformDisplay {
 			switch(what,
 				\pwAzim, {
 					var state = args[0]; // can be a number of bool
+
 					(state == false).if({
 						pwPlaying = false
 					}, {

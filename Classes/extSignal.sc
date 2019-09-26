@@ -60,6 +60,7 @@
 			// synthesize kernels
 			complexes.collect({ |complex|
 				var rcomplex = complex.real.fftToRfft(complex.imag);
+
 				rcomplex.real.irfft(rcomplex.imag, cosTable)
 			})
 		}, {  // dft
@@ -82,6 +83,7 @@
 			// synthesize kernels
 			complexes.collect({ |complex|
 				var rcomplex = complex.real.fftToRfft(complex.imag);
+
 				rcomplex.real.irfft(rcomplex.imag, cosTable)
 			})
 		}, {  // dft
@@ -104,6 +106,7 @@
 			// synthesize kernels
 			complexes.collect({ |complex|
 				var rcomplex = complex.real.fftToRfft(complex.imag);
+
 				rcomplex.real.irfft(rcomplex.imag, cosTable)
 			})
 		}, {  // dft
@@ -126,6 +129,7 @@
 			// synthesize kernels
 			complexes.collect({ |complex|
 				var rcomplex = complex.real.fftToRfft(complex.imag);
+
 				rcomplex.real.irfft(rcomplex.imag, cosTable)
 			})
 		}, {  // dft

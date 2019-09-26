@@ -405,6 +405,7 @@ HoaMatrixRotation {
 				// place into diagnal, flipped L<>R
 				adiagT.do({ |me, i|
 					var dex = degreeSize - i - 1;
+
 					adiagTMtx.put(i, dex, me)
 				});
 

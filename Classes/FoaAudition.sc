@@ -188,6 +188,7 @@ FoaAudition {
 
 		fork({
 			var msg;
+
 			test = PathName(soundfilePath).isFile;
 			if(test, {
 				sf = SoundFile.new;
@@ -545,6 +546,7 @@ FoaAuditionView {
 
 	setPalette {
 		var iter;
+
 		win.view.palette_(palette);
 		this.findKindDo(win.view, NumberBox,
 			{ |bx|
@@ -655,6 +657,7 @@ FoaAuditionView {
 		rotChk = CheckBox()
 		.action_({ |me|
 			var val = me.value.asInteger;
+
 			audition.pwSynth.set(\rotating, val);
 		});
 
@@ -665,6 +668,7 @@ FoaAuditionView {
 		tumChk = CheckBox()
 		.action_({ |me|
 			var val = me.value.asInteger;
+
 			audition.pwSynth.set(\tumbling, val);
 		});
 
@@ -712,6 +716,7 @@ FoaAuditionView {
 
 		azimSl = Slider().action_({ |me|
 			var val = azimSpec.map(me.value).degrad;
+
 			audition.pwAzim_(val);
 			rotChk.value_(0);
 		});
@@ -726,6 +731,7 @@ FoaAuditionView {
 		elSl = Slider()
 		.action_({ |me|
 			var val = elSpec.map(me.value).degrad;
+
 			audition.pwEl_(val);
 			tumChk.value_(0);
 		})
@@ -735,6 +741,7 @@ FoaAuditionView {
 		audition.pwSynth.get(\az, { |val|
 			defer({
 				var deg = val.raddeg;
+
 				azimBx.value_(deg.round(0.1));
 				azimSl.value_(azimSpec.unmap(deg.wrap(-180, 180)))
 			})
@@ -867,6 +874,7 @@ FoaAuditionView {
 
 	makeTabView { |name, ctlView, playBut|
 		var thisTabView, labelTxt;
+
 		thisTabView = View().layout_(
 			HLayout(
 				labelTxt = StaticText().string_(name).align_(\left).fixedHeight_(30),
@@ -921,6 +929,7 @@ FoaAuditionView {
 
 	layItOut {
 		var pwTabView, sfTabView, diffTabView, inTabView,
+
 		pwView, sfView, diffView, inView,
 		ctlContainerView, ctlContainerLayout;
 
@@ -1168,6 +1177,7 @@ FoaAuditionView {
 				},
 				\mul, {
 					var db = args[0].ampdb;
+
 					ampSl.value_(ampSpec.unmap(db));
 					ampBx.value_(db)
 				},
@@ -1179,6 +1189,7 @@ FoaAuditionView {
 				},
 				\pwAzim, {
 					var deg = args[0].raddeg;
+
 					defer({
 						azimBx.hasFocus !? { // sometimes .hasFocus can return nil (race condition?)
 							if(azimBx.hasFocus.not, { azimBx.value_(deg) })
@@ -1188,6 +1199,7 @@ FoaAuditionView {
 				},
 				\pwElev, {
 					var deg = args[0].raddeg;
+
 					defer({
 						elBx.hasFocus !? { // sometimes .hasFocus can return nil (race condition?)
 							if(elBx.hasFocus.not, { elBx.value_(deg) })

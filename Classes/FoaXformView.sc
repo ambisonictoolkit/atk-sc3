@@ -189,10 +189,12 @@ FoaXformView {
 		// don't rebuild controls if muted
 		if(name != 'mute', {
 			var controls;
+
 			controls = chain.xFormDict[name].controls.clump(2);
 
 			controls.do({ |pair, i|
 				var ctlName, ctl;
+
 				#ctlName, ctl = pair;
 				case(
 					{ ctl.isKindOf(ControlSpec) }, {
@@ -224,6 +226,7 @@ FoaXformView {
 		menu = PopUpMenu().items_(items).value_(0)
 		.action_({ |mn|
 			var chDex, dex;
+
 			#chDex, dex = this.getViewIndex;
 
 			chain.setParam(chDex, dex, ctlOrder, mn.item);
@@ -250,6 +253,7 @@ FoaXformView {
 		sl = Slider()
 		.action_({ |sldr|
 			var val, chDex, dex;
+
 			#chDex, dex = this.getViewIndex;
 
 			val = spec.map(sldr.value);
@@ -267,6 +271,7 @@ FoaXformView {
 		nb = NumberBox()
 		.action_({ |nb|
 			var val, chDex, dex;
+
 			#chDex, dex = this.getViewIndex;
 
 			val = if(spec.units == "π", { nb.value * pi }, { nb.value });
@@ -321,6 +326,7 @@ FoaXformView {
 		.states_([["X"]]).maxHeight_(ht).maxWidth_(wth)
 		.action_({ |but|
 			var myChain, myID;
+
 			#myChain, myID = sfView.prGetXfViewID(this);
 			// remove the transform from the matrix chain
 			chain.removeTransform(myChain, myID);
@@ -340,6 +346,7 @@ FoaXformView {
 		.minWidth_(20).align_(\center)
 		.mouseUpAction_({
 			var myChain, myID, muteState;
+
 			#myChain, myID = sfView.prGetXfViewID(this);
 			muteState = chain.chains[myChain][myID].muted;
 			chain.muteXform(muteState.not, myChain, myID);
@@ -350,6 +357,7 @@ FoaXformView {
 		.minWidth_(20).align_(\center)
 		.mouseUpAction_({
 			var myChain, myID, soloState;
+
 			#myChain, myID = sfView.prGetXfViewID(this);
 			soloState = chain.chains[myChain][myID].soloed;
 			chain.soloXform(soloState.not, myChain, myID);
@@ -427,6 +435,7 @@ FoaXformView {
 
 		colFunc = { |v|
 			var col, newCol;
+
 			col = try({ v.background }, { ^this }); // return if view doesn't respond to .background
 			if(col.notNil, {
 				if(col.alpha != 0, {

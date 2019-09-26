@@ -118,6 +118,7 @@ NFECoeffs {
 		// odd degree? - add coeffs for FOS
 		if(mOdd, {
 			var c1;
+
 			c1 = this.reX.last / alpha;
 
 			coeffs = coeffs ++ [
@@ -191,6 +192,7 @@ NFECoeffs {
 		// odd degree? - add coeffs for FOS
 		if(mOdd, {
 			var c1;
+
 			c1 = this.reX.last / alpha;
 
 			coeffs = coeffs ++ [
@@ -273,6 +275,7 @@ NFECoeffs {
 		// odd degree? - add coeffs for FOS
 		if(mOdd, {
 			var c10, c11;
+
 			c10 = this.reX.last / alpha0;  // proximity
 			c11 = this.reX.last / alpha1;  // distance
 

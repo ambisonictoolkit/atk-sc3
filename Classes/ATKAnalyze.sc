@@ -107,6 +107,7 @@ FoaEval : FoaUGen {
 FoaWp : FoaEval {
 	*ar { |in, size = 2048, method = 'instant'|
 		var p;
+
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
 
@@ -116,6 +117,7 @@ FoaWp : FoaEval {
 			},
 			{ method == 'average' }, {
 				var normFac;
+
 				normFac = 2 * size.reciprocal;
 
 				^(normFac * RunningSum.ar(p.squared, size))
@@ -129,6 +131,7 @@ FoaWp : FoaEval {
 FoaWu : FoaEval {
 	*ar { |in, size = 2048, method = 'instant'|
 		var u;
+
 		in = this.checkChans(in);
 		u = in[1..3];  // [x, y, z] = velocity (vector)
 
@@ -141,6 +144,7 @@ FoaWu : FoaEval {
 			},
 			{ method == 'average' }, {
 				var normFac;
+
 				normFac = 2 * size.reciprocal;
 
 				^(normFac * RunningSum.ar(u.squared, size).sum)
@@ -154,6 +158,7 @@ FoaWu : FoaEval {
 FoaWs : FoaEval {
 	*ar { |in, size = 2048, method = 'instant'|
 		var p, u;
+
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
 		u = in[1..3];  // [x, y, z] = velocity (vector)
@@ -161,6 +166,7 @@ FoaWs : FoaEval {
 		case(
 			{ method == 'instant' }, {
 				var wp, wu;
+
 				wp = HilbertW.ar(p, size).squared.sum;
 				wu = HilbertW.ar(u, size).sum({ |item|
 					item.squared.sum
@@ -171,6 +177,7 @@ FoaWs : FoaEval {
 			{ method == 'average' }, {
 				var wp, wu;
 				var normFac;
+
 				normFac = 2 * size.reciprocal;
 
 				wp = normFac * RunningSum.ar(p.squared, size);
@@ -187,6 +194,7 @@ FoaWs : FoaEval {
 FoaWd : FoaEval {
 	*ar { |in, size = 2048, method = 'instant'|
 		var p, u;
+
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
 		u = in[1..3];  // [x, y, z] = velocity (vector)
@@ -194,6 +202,7 @@ FoaWd : FoaEval {
 		case(
 			{ method == 'instant' }, {
 				var wp, wu;
+
 				wp = HilbertW.ar(p, size).squared.sum;
 				wu = HilbertW.ar(u, size).sum({ |item|
 					item.squared.sum
@@ -204,6 +213,7 @@ FoaWd : FoaEval {
 			{ method == 'average' }, {
 				var wp, wu;
 				var normFac;
+
 				normFac = 2 * size.reciprocal;
 
 				wp = normFac * RunningSum.ar(p.squared, size);
@@ -220,6 +230,7 @@ FoaWd : FoaEval {
 FoaWh : FoaEval {
 	*ar { |in, size = 2048, method = 'instant'|
 		var p, u;
+
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
 		u = in[1..3];  // [x, y, z] = velocity (vector)
@@ -248,6 +259,7 @@ FoaWh : FoaEval {
 			{ method == 'average' }, {
 				var wp, wu, ws, ia, magI_squared, magIa_squared, magIr;
 				var normFac;
+
 				normFac = 2 * size.reciprocal;
 
 				wp = normFac * RunningSum.ar(p.squared, size);
@@ -274,6 +286,7 @@ FoaWh : FoaEval {
 FoaMagI : FoaEval {
 	*ar { |in, size = 2048, method = 'instant'|
 		var p, u;
+
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
 		u = in[1..3];  // [x, y, z] = velocity (vector)
@@ -281,6 +294,7 @@ FoaMagI : FoaEval {
 		case(
 			{ method == 'instant' }, {
 				var wp, wu;
+
 				wp = HilbertW.ar(p, size).squared.sum;
 				wu = HilbertW.ar(u, size).sum({ |item|
 					item.squared.sum
@@ -291,6 +305,7 @@ FoaMagI : FoaEval {
 			{ method == 'average' }, {
 				var wp, wu;
 				var normFac;
+
 				normFac = 2 * size.reciprocal;
 
 				wp = normFac * RunningSum.ar(p.squared, size);
@@ -307,6 +322,7 @@ FoaMagI : FoaEval {
 FoaMagIa : FoaEval {
 	*ar { |in, size = 2048, method = 'instant'|
 		var p, u;
+
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
 		u = in[1..3];  // [x, y, z] = velocity (vector)
@@ -326,6 +342,7 @@ FoaMagIa : FoaEval {
 			{ method == 'average' }, {
 				var ia;
 				var normFac;
+
 				normFac = 2 * size.reciprocal;
 
 				ia = normFac * RunningSum.ar(p * u, size);
@@ -341,6 +358,7 @@ FoaMagIa : FoaEval {
 FoaMagIr : FoaEval {
 	*ar { |in, size = 2048, method = 'instant'|
 		var p, u;
+
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
 		u = in[1..3];  // [x, y, z] = velocity (vector)
@@ -360,6 +378,7 @@ FoaMagIr : FoaEval {
 			{ method == 'average' }, {
 				var wp, wu, ia, magI_squared, magIa_squared;
 				var normFac;
+
 				normFac = 2 * size.reciprocal;
 
 				wp = normFac * RunningSum.ar(p.squared, size);
@@ -381,6 +400,7 @@ FoaMagIr : FoaEval {
 FoaMagA : FoaEval {
 	*ar { |in, size = 2048, method = 'instant'|
 		var p, u;
+
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
 		u = in[1..3];  // [x, y, z] = velocity (vector)
@@ -388,6 +408,7 @@ FoaMagA : FoaEval {
 		case(
 			{ method == 'instant' }, {
 				var wp, wu, magI;
+
 				wp = HilbertW.ar(p, size).squared.sum;
 				wu = HilbertW.ar(u, size).sum({ |item|
 					item.squared.sum
@@ -400,6 +421,7 @@ FoaMagA : FoaEval {
 			{ method == 'average' }, {
 				var wp, wu, magI;
 				var normFac;
+
 				normFac = 2 * size.reciprocal;
 
 				wp = normFac * RunningSum.ar(p.squared, size);
@@ -418,6 +440,7 @@ FoaMagA : FoaEval {
 FoaMagAa : FoaEval {
 	*ar { |in, size = 2048, method = 'instant'|
 		var p, u;
+
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
 		u = in[1..3];  // [x, y, z] = velocity (vector)
@@ -439,6 +462,7 @@ FoaMagAa : FoaEval {
 			{ method == 'average' }, {
 				var wp, ia, magIa;
 				var normFac;
+
 				normFac = 2 * size.reciprocal;
 
 				wp = normFac * RunningSum.ar(p.squared, size);
@@ -456,6 +480,7 @@ FoaMagAa : FoaEval {
 FoaMagAr : FoaEval {
 	*ar { |in, size = 2048, method = 'instant'|
 		var p, u;
+
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
 		u = in[1..3];  // [x, y, z] = velocity (vector)
@@ -480,6 +505,7 @@ FoaMagAr : FoaEval {
 			{ method == 'average' }, {
 				var wp, wu, ia, magI_squared, magIa_squared, magIr;
 				var normFac;
+
 				normFac = 2 * size.reciprocal;
 
 				wp = normFac * RunningSum.ar(p.squared, size);
@@ -501,6 +527,7 @@ FoaMagAr : FoaEval {
 FoaMagW : FoaEval {
 	*ar { |in, size = 2048, method = 'instant'|
 		var p, u;
+
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
 		u = in[1..3];  // [x, y, z] = velocity (vector)
@@ -522,6 +549,7 @@ FoaMagW : FoaEval {
 			{ method == 'average' }, {
 				var wp, wu, ws, magI;
 				var normFac;
+
 				normFac = 2 * size.reciprocal;
 
 				wp = normFac * RunningSum.ar(p.squared, size);
@@ -541,6 +569,7 @@ FoaMagW : FoaEval {
 FoaMagWa : FoaEval {
 	*ar { |in, size = 2048, method = 'instant'|
 		var p, u;
+
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
 		u = in[1..3];  // [x, y, z] = velocity (vector)
@@ -568,6 +597,7 @@ FoaMagWa : FoaEval {
 			{ method == 'average' }, {
 				var wp, wu, ws, ia, magIa;
 				var normFac;
+
 				normFac = 2 * size.reciprocal;
 
 				wp = normFac * RunningSum.ar(p.squared, size);
@@ -588,6 +618,7 @@ FoaMagWa : FoaEval {
 FoaMagWr : FoaEval {
 	*ar { |in, size = 2048, method = 'instant'|
 		var p, u;
+
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
 		u = in[1..3];  // [x, y, z] = velocity (vector)
@@ -616,6 +647,7 @@ FoaMagWr : FoaEval {
 			{ method == 'average' }, {
 				var wp, wu, ws, ia, magI_squared, magIa_squared, magIr;
 				var normFac;
+
 				normFac = 2 * size.reciprocal;
 
 				wp = normFac * RunningSum.ar(p.squared, size);
@@ -638,6 +670,7 @@ FoaMagWr : FoaEval {
 FoaMagNa : FoaEval {
 	*ar { |in, size = 2048, method = 'instant'|
 		var p, u;
+
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
 		u = in[1..3];  // [x, y, z] = velocity (vector)
@@ -665,6 +698,7 @@ FoaMagNa : FoaEval {
 			{ method == 'average' }, {
 				var wp, wu, magI, ia, magIa;
 				var normFac;
+
 				normFac = 2 * size.reciprocal;
 
 				wp = normFac * RunningSum.ar(p.squared, size);
@@ -685,6 +719,7 @@ FoaMagNa : FoaEval {
 FoaMagNr : FoaEval {
 	*ar { |in, size = 2048, method = 'instant'|
 		var p, u;
+
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
 		u = in[1..3];  // [x, y, z] = velocity (vector)
@@ -713,6 +748,7 @@ FoaMagNr : FoaEval {
 			{ method == 'average' }, {
 				var wp, wu, magI, ia, magI_squared, magIa_squared, magIr;
 				var normFac;
+
 				normFac = 2 * size.reciprocal;
 
 				wp = normFac * RunningSum.ar(p.squared, size);
@@ -803,6 +839,7 @@ FoaSFIL : FoaEval {
 FoaAlpha : FoaEval {
 	*ar { |in, size = 2048, method = 'instant'|
 		var p, u;
+
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
 		u = in[1..3];  // [x, y, z] = velocity (vector)
@@ -830,6 +867,7 @@ FoaAlpha : FoaEval {
 			{ method == 'average' }, {
 				var wp, wu, ia, magI_squared, magIa_squared, magIa, magIr;
 				var normFac;
+
 				normFac = 2 * size.reciprocal;
 
 				wp = normFac * RunningSum.ar(p.squared, size);
@@ -853,6 +891,7 @@ FoaAlpha : FoaEval {
 FoaBeta : FoaEval {
 	*ar { |in, size = 2048, method = 'instant'|
 		var p, u;
+
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
 		u = in[1..3];  // [x, y, z] = velocity (vector)
@@ -873,6 +912,7 @@ FoaBeta : FoaEval {
 			{ method == 'average' }, {
 				var wp, wu, wd, magI;
 				var normFac;
+
 				normFac = 2 * size.reciprocal;
 
 				wp = normFac * RunningSum.ar(p.squared, size);
@@ -892,6 +932,7 @@ FoaBeta : FoaEval {
 FoaGamma : FoaEval {
 	*ar { |in, size = 2048, method = 'instant'|
 		var p, u;
+
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
 		u = in[1..3];  // [x, y, z] = velocity (vector)
@@ -953,6 +994,7 @@ FoaGamma : FoaEval {
 FoaThetaPhiA : FoaEval {
 	*ar { |in, size = 2048, method = 'instant'|
 		var p, u;
+
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
 		u = in[1..3];  // [x, y, z] = velocity (vector)
@@ -993,6 +1035,7 @@ FoaThetaPhiA : FoaEval {
 				var wp, wu, ia, magI_squared, magIa_squared, magIa, magIr, theta, phi;
 				var reg, alpha, gateA;  // gate using -thresh
 				var normFac;
+
 				normFac = 2 * size.reciprocal;
 
 				wp = normFac * RunningSum.ar(p.squared, size);
@@ -1027,6 +1070,7 @@ FoaThetaPhiA : FoaEval {
 FoaThetaPhiR : FoaEval {
 	*ar { |in, size = 2048, method = 'instant'|
 		var p, u;
+
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
 		u = in[1..3];  // [x, y, z] = velocity (vector)
@@ -1079,6 +1123,7 @@ FoaThetaPhiR : FoaEval {
 FoaIa : FoaEval {
 	*ar { |in, size = 2048, method = 'instant'|
 		var p, u;
+
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
 		u = in[1..3];  // [x, y, z] = velocity (vector)
@@ -1098,6 +1143,7 @@ FoaIa : FoaEval {
 			{ method == 'average' }, {
 				var ia;
 				var normFac;
+
 				normFac = 2 * size.reciprocal;
 
 				ia = normFac * RunningSum.ar(p * u, size);
@@ -1113,6 +1159,7 @@ FoaIa : FoaEval {
 FoaIr : FoaEval {
 	*ar { |in, size = 2048, method = 'instant'|
 		var p, u;
+
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
 		u = in[1..3];  // [x, y, z] = velocity (vector)
@@ -1142,6 +1189,7 @@ FoaIr : FoaEval {
 FoaAa : FoaEval {
 	*ar { |in, size = 2048, method = 'instant'|
 		var p, u;
+
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
 		u = in[1..3];  // [x, y, z] = velocity (vector)
@@ -1163,6 +1211,7 @@ FoaAa : FoaEval {
 			{ method == 'average' }, {
 				var wp, ia, aa;
 				var normFac;
+
 				normFac = 2 * size.reciprocal;
 
 				wp = normFac * RunningSum.ar(p.squared, size);
@@ -1180,6 +1229,7 @@ FoaAa : FoaEval {
 FoaAr : FoaEval {
 	*ar { |in, size = 2048, method = 'instant'|
 		var p, u;
+
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
 		u = in[1..3];  // [x, y, z] = velocity (vector)
@@ -1214,6 +1264,7 @@ FoaAr : FoaEval {
 FoaWa : FoaEval {
 	*ar { |in, size = 2048, method = 'instant'|
 		var p, u;
+
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
 		u = in[1..3];  // [x, y, z] = velocity (vector)
@@ -1241,6 +1292,7 @@ FoaWa : FoaEval {
 			{ method == 'average' }, {
 				var wp, wu, ws, ia, wa;
 				var normFac;
+
 				normFac = 2 * size.reciprocal;
 
 				wp = normFac * RunningSum.ar(p.squared, size);
@@ -1261,6 +1313,7 @@ FoaWa : FoaEval {
 FoaWr : FoaEval {
 	*ar { |in, size = 2048, method = 'instant'|
 		var p, u;
+
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
 		u = in[1..3];  // [x, y, z] = velocity (vector)
@@ -1299,6 +1352,7 @@ FoaWr : FoaEval {
 FoaNa : FoaEval {
 	*ar { |in, size = 2048, method = 'instant'|
 		var p, u;
+
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
 		u = in[1..3];  // [x, y, z] = velocity (vector)
@@ -1326,6 +1380,7 @@ FoaNa : FoaEval {
 			{ method == 'average' }, {
 				var wp, wu, magI, ia, na;
 				var normFac;
+
 				normFac = 2 * size.reciprocal;
 
 				wp = normFac * RunningSum.ar(p.squared, size);
@@ -1346,6 +1401,7 @@ FoaNa : FoaEval {
 FoaNr : FoaEval {
 	*ar { |in, size = 2048, method = 'instant'|
 		var p, u;
+
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
 		u = in[1..3];  // [x, y, z] = velocity (vector)
@@ -1395,9 +1451,9 @@ argument key - see helpfile for reasonable values
 
 FoaAnalyze : FoaEval {
 	*ar { |in, kind ... args|
-
 		var argDict, argDefaults;
 		var ugen;
+
 		in = this.checkChans(in);
 
 		switch(kind,

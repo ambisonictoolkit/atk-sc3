@@ -54,6 +54,7 @@
 
 		if(size.isPowerOfTwo, {  // rfft
 			var rfftsize = (size / 2 + 1).asInteger;
+
 			freqs = rfftsize.rfftFreqs(sampleRate);
 			freqs = freqs.collect({ |freq|  // blt frequency warp
 				sampleRate / pi * tan(pi * freq / sampleRate)
@@ -116,6 +117,7 @@
 
 		if(size.isPowerOfTwo, {  // rfft
 			var rfftsize = (size / 2 + 1).asInteger;
+
 			freqs = rfftsize.rfftFreqs(sampleRate);
 			freqs = freqs.collect({ |freq|  // blt frequency warp
 				sampleRate / pi * tan(pi * freq / sampleRate)
@@ -178,6 +180,7 @@
 
 		if(size.isPowerOfTwo, {  // rfft
 			var rfftsize = (size / 2 + 1).asInteger;
+
 			freqs = rfftsize.rfftFreqs(sampleRate);
 			freqs = freqs.collect({ |freq|  // blt frequency warp
 				sampleRate / pi * tan(pi * freq / sampleRate)
@@ -240,6 +243,7 @@
 
 		if(size.isPowerOfTwo, {  // rfft
 			var rfftsize = (size / 2 + 1).asInteger;
+
 			freqs = rfftsize.rfftFreqs(sampleRate);
 
 			// magnitude - collected by degree
@@ -331,6 +335,7 @@
 					var beamWeights = beamDict.at(\beamShapes).collect({ |beamShape|
 						hoaOrder.beamWeights(beamShape, dim)
 					});
+
 					beamMags = (order + 1).collect({ arg degree;
 						FreqSpectrum.logShelf(size, freqs[0], freqs[1], beamWeights[0][degree].ampdb, beamWeights[1][degree].ampdb, sampleRate).magnitude
 					})
@@ -344,6 +349,7 @@
 					var beamWeights = beamDict.at(\beamShapes).collect({ |beamShape|
 						hoaOrder.beamWeights(beamShape, dim)
 					});
+
 					beamMags = (order + 1).collect({ arg degree;
 						FreqSpectrum.logShelf(size, freqs[0], freqs[1], beamWeights[0][degree].ampdb, beamWeights[1][degree].ampdb, sampleRate).magnitude *
 						FreqSpectrum.logShelf(size, freqs[2], freqs[3], 0.0, (beamWeights[2][degree] / beamWeights[1][degree]).ampdb, sampleRate).magnitude

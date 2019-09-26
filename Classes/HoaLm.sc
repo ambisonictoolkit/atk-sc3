@@ -68,6 +68,7 @@ HoaLm {
 			},
 			\sid, {
 				var m0, m1, bool;
+
 				l = index.sqrt.floor.asInteger;
 				m0 = (((l + 1).squared - (index + 1)) / 2).floor.asInteger;
 				m1 = -1 * (((l + 1).squared - index) / 2).floor.asInteger;
@@ -112,6 +113,7 @@ HoaLm {
 
 	index { |ordering = \acn|
 		var l, m;
+
 		#l, m = this.lm;
 
 		switch(ordering,
@@ -136,6 +138,7 @@ HoaLm {
 
 	isInSubset { |subset = \zonal|
 		var l, m;
+
 		#l, m = this.lm;
 
 		switch(subset,
@@ -159,6 +162,7 @@ HoaLm {
 
 	reflection { |mirror = \reflect|
 		var l, m;
+
 		#l, m = this.lm;
 
 		switch(mirror,
@@ -197,6 +201,7 @@ HoaLm {
 
 	normalisation { |scheme = \n3d|
 		var l, m;
+
 		#l, m = this.lm;
 
 		switch(scheme,
@@ -205,6 +210,7 @@ HoaLm {
 			},
 			\sn3d, {
 				var dm, mabs;
+
 				dm = (m == 0).asInteger;
 				mabs = m.abs;
 				^sqrt(
@@ -220,12 +226,14 @@ HoaLm {
 			},
 			\sn2d, {
 				var lne0;
+
 				lne0 = (l>0).asInteger;
 				^2.pow(-0.5 * lne0) * this.normalisation(\n2d)
 			},
 			\maxN, {
 				var twoDivSqrt3, sqrt45_32, threeDivSqrt5, sqrt8_5;
 				var norms;
+
 				twoDivSqrt3 = 2/3.sqrt;
 				sqrt45_32 = (45/32).sqrt;
 				threeDivSqrt5 = 3/5.sqrt;

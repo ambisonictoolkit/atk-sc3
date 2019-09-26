@@ -168,6 +168,7 @@ AtkMatrix {
 
 	prWriteMatrixToTXT { |pn| // a PathName
 		var wr;
+
 		wr = FileWriter(pn.fullPath);
 		// write the matrix into it by row, and close
 		(matrix.rows).do({ |i| wr.writeLine(matrix.getRow(i)) });
@@ -176,6 +177,7 @@ AtkMatrix {
 
 	prWriteMatrixToMOSL { |pn| // a PathName
 		var wr;
+
 		wr = FileWriter(pn.fullPath);
 
 		// write num rows and cols to first 2 lines
@@ -185,6 +187,7 @@ AtkMatrix {
 		// write the matrix into it by row, and close
 		(matrix.rows).do({ |i|
 			var row;
+
 			wr.writeLine([""]); // blank line
 			wr.writeLine([format("// Row %", i)]);
 

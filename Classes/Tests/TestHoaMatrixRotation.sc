@@ -163,6 +163,7 @@ TestHoaMatrixRotation : UnitTest {
 
 	test_FoaRttVsHoaRtt {
 		var rtt, test, ref, res;
+
 		res = 50.collect({
 			rtt = 3.collect({ rrand(-2pi, 2pi) });
 			// A first order planewave, encoded with FOA rotation matrix

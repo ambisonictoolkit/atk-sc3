@@ -308,6 +308,7 @@ HoaMatrix : AtkMatrix {
 		// function to write a multi-line attribute (2D array)
 		wrAttArr = { |att, arr|
 			var vals = arr ?? { this.tryPerform(att) };
+
 			if(vals.isNil, {
 				wr.writeLine(["% : nil".format(att)]);
 			}, {
@@ -456,6 +457,7 @@ HoaMatrixEncoder : HoaMatrix {
 	// Projection Encoding beams - 'basic' & multi pattern
 	*newDirections { |directions = ([[0, 0]]), beamShape = nil, match = nil, order = (AtkHoa.defaultOrder)|
 		var instance = super.new('dirs', order).initDirections(directions);
+
 		^case(
 			{ (beamShape == nil) && (match == nil) }, { instance.initBasic },  // (\basic, \amp)
 			{ (beamShape != nil) && (match == nil) }, { instance.initBeam(beamShape, \beam) },
@@ -467,6 +469,7 @@ HoaMatrixEncoder : HoaMatrix {
 	// Projection Encoding beams (convenience to match FOA: may wish to deprecate) - 'basic' pattern
 	*newPanto { |numChans = 4, orientation = \flat, order = (AtkHoa.defaultOrder)|
 		var directions = Array.regularPolygon(numChans, orientation, pi);
+
 		^super.new('panto', order).initDirections(directions).initBasic;
 	}
 
@@ -591,6 +594,7 @@ HoaMatrixXformer : HoaMatrix {
 
 	*newRotateAxis { |axis = \z, angle = 0, order = (AtkHoa.defaultOrder)|
 		var r1 = 0, r2 = 0, r3 = 0;
+
 		switch(axis,
 			\x, { r1 = angle },
 			\y, { r2 = angle },
@@ -633,11 +637,13 @@ HoaMatrixXformer : HoaMatrix {
 
 	*newBeam { |theta = 0, phi = 0, beamShape = \basic, order = (AtkHoa.defaultOrder)|
 		var directions = [[theta, phi]];
+
 		^super.new('beam', order).initDirections(directions).initBeam(beamShape);
 	}
 
 	*newNull { |theta = 0, phi = 0, beamShape = \basic, order = (AtkHoa.defaultOrder)|
 		var directions = [[theta, phi]];
+
 		^super.new('null', order).initDirections(directions).initNull(beamShape);
 	}
 
@@ -986,6 +992,7 @@ HoaMatrixDecoder : HoaMatrix {
 	// Projection Decoding beams - 'basic' & multi pattern
 	*newDirections { |directions = ([[0, 0]]), beamShape = nil, match = nil, order = (AtkHoa.defaultOrder)|
 		var instance = super.new('dirs', order).initDirections(directions);
+
 		^case(
 			{ (beamShape == nil) && (match == nil) }, { instance.initBeam(\basic, \amp) },
 			{ (beamShape != nil) && (match == nil) }, { instance.initBeam(beamShape, \beam) },
@@ -1003,6 +1010,7 @@ HoaMatrixDecoder : HoaMatrix {
 	// Projection: Simple Ambisonic Decoding, aka SAD (convenience to match FOA: may wish to deprecate)
 	*newPanto { |numChans = 4, orientation = \flat, beamShape = \basic, match = \amp, order = (AtkHoa.defaultOrder)|
 		var directions = Array.regularPolygon(numChans, orientation, pi);
+
 		^super.new('panto', order).initDirections(directions).initSAD(beamShape, match);
 	}
 
@@ -1025,6 +1033,7 @@ HoaMatrixDecoder : HoaMatrix {
 				})
 			}
 		);
+
 		^super.new('diametric', order).initDirections(directionPairs).initMMD(beamShape, match)
 	}
 

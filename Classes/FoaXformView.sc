@@ -130,12 +130,12 @@ FoaXformView {
 		sfView.debug.if{ "adding a menu".postln };
 
 		items = [];
-		chain.xFormDict_sorted.do{ |me|
+		(chain.xFormDict_sorted).do({ |me|
 			// exclude 'a/input soundfield', which is only used by first chain transform
 			(me[0] != 'input soundfield' and: { me[0] != 'a soundfield' }).if{
 				items = items.add(me[0])
-			};
-		};
+			}
+		});
 		items = ['-'] ++ items;
 
 		xFormMenu = PopUpMenu().items_(items)
@@ -180,7 +180,7 @@ FoaXformView {
 
 		// clear the view's elements
 		view.removeAll;
-		ctlLayout.children.do(_.destroy);
+		(ctlLayout.children).do(_.destroy);
 
 		(target == 'chain').if{ this.addAddRmvButs };
 
@@ -192,7 +192,7 @@ FoaXformView {
 			var controls;
 			controls = chain.xFormDict[name].controls.clump(2);
 
-			controls.do{ |pair, i|
+			controls.do({ |pair, i|
 				var ctlName, ctl;
 				#ctlName, ctl = pair;
 				case(
@@ -205,8 +205,8 @@ FoaXformView {
 						this.addInputMenuCtl(ctlName, i)
 					}
 				)
-			};
-		};
+			})
+		}
 	}
 
 
@@ -297,7 +297,7 @@ FoaXformView {
 
 		slLayout =  HLayout();
 
-		[nameTxt, sl, nb, unitTxt].do{ |me| slLayout.add(me) };
+		[nameTxt, sl, nb, unitTxt].do({ |me| slLayout.add(me) });
 
 		ctlLayout.add(slLayout);
 	}
@@ -445,11 +445,11 @@ FoaXformView {
 	}
 
 	prFindKindDo { |view, kind, performFunc|
-		view.children.do{ |child|
+		(view.children).do({ |child|
 			child.isKindOf(View).if{
 				this.prFindKindDo(child, kind, performFunc)   // call self
 			};
-			child.isKindOf(kind).if{ performFunc.(child) };
-		};
+			child.isKindOf(kind).if{ performFunc.(child) }
+		})
 	}
 }

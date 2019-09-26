@@ -170,7 +170,7 @@ AtkMatrix {
 		var wr;
 		wr = FileWriter(pn.fullPath);
 		// write the matrix into it by row, and close
-		matrix.rows.do{ |i| wr.writeLine(matrix.getRow(i)) };
+		(matrix.rows).do({ |i| wr.writeLine(matrix.getRow(i)) });
 		wr.close;
 	}
 
@@ -183,14 +183,14 @@ AtkMatrix {
 		wr.writeLine(matrix.rows.asArray);
 		wr.writeLine(matrix.cols.asArray);
 		// write the matrix into it by row, and close
-		matrix.rows.do{ |i|
+		(matrix.rows).do({ |i|
 			var row;
 			wr.writeLine([""]); // blank line
 			wr.writeLine([format("// Row %", i)]);
 
 			row = matrix.getRow(i);
-			row.do{ |j| wr.writeLine(j.asArray) };
-		};
+			row.do({ |j| wr.writeLine(j.asArray) })
+		});
 		wr.close;
 	}
 
@@ -239,11 +239,11 @@ AtkMatrix {
 
 		// other non-standard metadata provided in yml file
 		fileParse !? {
-			fileParse.keys.do{ |key|
+			(fileParse.keys).do({ |key|
 				attributes.includes(key.asSymbol).not.if{
 					attributes.add(key.asSymbol);
 				}
-			}
+			})
 		};
 
 		// bump 'type' to the top of the post...
@@ -255,10 +255,10 @@ AtkMatrix {
 		attributes.addFirst(\set);
 
 		// bump to the bottom of the post
-		[\dirInputs, \dirOutputs, \matrix].do{ |att|
+		[\dirInputs, \dirOutputs, \matrix].do({ |att|
 			attributes.includes(att).if{ attributes.remove(att) };
-			attributes.add(att);
-		};
+			attributes.add(att)
+		});
 
 		filePath !? { attributes.add(\fileName).add(\filePath) };
 
@@ -267,7 +267,7 @@ AtkMatrix {
 
 		postf("\n*** % Info ***\n", this.class);
 
-		attributes.do{ |attribute|
+		attributes.do({ |attribute|
 			var value, str;
 
 			value = this.tryPerform(attribute);
@@ -280,7 +280,7 @@ AtkMatrix {
 				value = value.asArray; // cast the Matrix to array for posting
 				(value.rank > 1).if({
 					postf("-> %\n  [\n", attribute);
-					value.do{ |elem|
+					value.do({ |elem|
 						postf("\t%\n",
 							try {
 								elem.round(0.0001).collect({ |num|
@@ -292,15 +292,15 @@ AtkMatrix {
 								})
 							} { elem }
 						)
-					};
+					});
 					"  ]".postln;
 				}, {
 					postf("-> %\n\t%\n", attribute, value);
 				})
 			}, {
 				postf("-> %\n\t%\n", attribute, value);
-			});
-		};
+			})
+		})
 	}
 
 }

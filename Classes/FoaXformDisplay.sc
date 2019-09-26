@@ -163,9 +163,9 @@ FoaXformDisplay {
 			});
 		};
 
-		[sfWin, xfWin, codeWin].do{ |win|
+		[sfWin, xfWin, codeWin].do({ |win|
 			win !? { win.isClosed.not.if{ win.close } }
-		};
+		});
 	}
 
 
@@ -394,15 +394,17 @@ FoaXformDisplay {
 
 			// background circles
 			Pen.strokeColor_(Color.gray.alpha_(0.2));
-			[0.0, 0.5236, 1.0472].do{ |el|
+			[0.0, 0.5236, 1.0472].do({ |el|
 				var val;
 				// val = cos(i + 1 / 3);
 				val = cos(el);
-				Pen.strokeOval(Rect(
-					(arcH * val).neg, (arcH * val).neg,
-					arcH * 2 * val, arcH * 2 * val
-				));
-			};
+				Pen.strokeOval(
+					Rect(
+						(arcH * val).neg, (arcH * val).neg,
+						arcH * 2 * val, arcH * 2 * val
+					)
+				)
+			});
 
 			// line from center to point
 			azLineClr = Color.gray.alpha_(0.2);
@@ -410,7 +412,7 @@ FoaXformDisplay {
 			// get sort order by directivity (arr[2]) to draw most transparent first
 			aeds_sortOrder = aeds.collect({ |arr| arr[2] }).order;
 
-			aeds_sortOrder.do{ |sortDex, i|
+			aeds_sortOrder.do({ |sortDex, i|
 
 				#az, el, dir, gain = aeds[sortDex];
 
@@ -489,7 +491,7 @@ FoaXformDisplay {
 						Rect(gainPnt.x - (pointRad * 10), gainPnt.y - (pointRad * 10), d * 10, d * 10)
 					);
 				}
-			};
+			});
 
 			// input 0 deg azimuth point circle ---
 			#az, el, dir, gain = aeds[0];
@@ -806,16 +808,16 @@ FoaXformDisplay {
 
 
 	prUpdateChainTitles {
-		chainViews.do{ |chv, i|
+		chainViews.do({ |chv, i|
 			var titleView;
 			titleView = chv.children[0];
 			// find the StaticText
-			titleView.children.do{ |child|
+			titleView.children.do({ |child|
 				child.isKindOf(StaticText).if{
 					child.string_(format("Chain %", FoaMatrixChain.abcs[i]));
 				}
-			}
-		}
+			})
+		})
 	}
 
 
@@ -883,11 +885,11 @@ FoaXformDisplay {
 
 
 	prUpdateChainIdLabels {
-		xfViewChains.do{ |vchain, i|
-			vchain.do{ |xf, j|
+		xfViewChains.do({ |vchain, i|
+			vchain.do({ |xf, j|
 				xf.labelTxt.string_(FoaMatrixChain.abcs[i]++j)
-			}
-		}
+			})
+		})
 	}
 
 
@@ -896,13 +898,13 @@ FoaXformDisplay {
 
 		block { |break|
 			chain.chains.do({ |ch, i|
-				ch.size.do{ |j|
+				ch.size.do({ |j|
 					(i == stopChainDex and: { j == stopLinkDex }).if({
 						break.()
 					}, {
 						items = items.add((FoaMatrixChain.abcs[i]++j).asSymbol)
 					})
-				}
+				})
 			})
 		};
 
@@ -914,8 +916,8 @@ FoaXformDisplay {
 	// input index menus need to be updated
 	prUpdateInputMenus {
 
-		xfViewChains.do{ |vchain, i|
-			vchain.do{ |xf, j|
+		xfViewChains.do({ |vchain, i|
+			vchain.do({ |xf, j|
 				var items, inMenu, newSelection;
 
 				inMenu = xf.inputMenu;
@@ -939,20 +941,20 @@ FoaXformDisplay {
 
 					// find the index of that link in the chain
 					// and get the key label for that index
-					chain.chains.do{ |xfchain, i|
-						xfchain.do{ |link, j|
+					(chain.chains).do({ |xfchain, i|
+						xfchain.do({ |link, j|
 							(inputLink === link).if{
 								newSelection = (FoaMatrixChain.abcs[i] ++ j).asSymbol;
-							};
-						}
-					};
+							}
+						})
+					});
 
 					newSelection ?? { error("input link not found in the chain!") };
 
 					inMenu.value_(items.indexOf(newSelection));
-				};
-			}
-		}
+				}
+			})
+		})
 	}
 
 
@@ -962,15 +964,15 @@ FoaXformDisplay {
 		// pad other shorter chain columns with a nil layout so rows align
 		maxChainSize = xfViewChains.collect({ |chain| chain.size }).maxItem;
 
-		xfViewChains.do{ |vchain, i|
+		xfViewChains.do({ |vchain, i|
 			var numxforms;
 			numxforms = vchain.size;
 			(numxforms < maxChainSize).if{
-				(maxChainSize - numxforms).do{
+				(maxChainSize - numxforms).do({
 					chainViews[i].layout.add(nil)
-				}
-			};
-		};
+				})
+			}
+		});
 
 		maxChainHeight = (maxChainSize * xfHeight) + chTitleHeight;
 		xfWin.bounds_(
@@ -983,23 +985,23 @@ FoaXformDisplay {
 	// xfView is an instance of FoaXformView
 	prGetXfViewID { |xfView|
 		var whichChain, rmvDex;
-		xfViewChains.do{ |vchain, i|
-			vchain.do{ |view, j|
+		xfViewChains.do({ |vchain, i|
+			vchain.do({ |view, j|
 				(view === xfView).if{
 					rmvDex = j; whichChain = i;
 					^[whichChain, rmvDex]
-				};
-			}
-		};
+				}
+			})
+		});
 		^error("xfView not found!")
 	}
 
 
 	// xfView is an instance of FoaXformView
 	prGetChainViewID { |chainView|
-		chainViews.do{ |chv, i|
-			(chv === chainView).if{ ^i };
-		};
+		chainViews.do({ |chv, i|
+			(chv === chainView).if{ ^i }
+		});
 		^error("chainView not found!")
 	}
 
@@ -1110,26 +1112,26 @@ FoaXformDisplay {
 					// in case this un-mute changes its color
 					// downstream from a soloed xf
 					block { |break|
-						xfViewChains[..whichChain].do{ |vchain, i|
+						xfViewChains[..whichChain].do({ |vchain, i|
 							(i < whichChain).if({					// check all xf's in the chain
-								vchain.do{ |xfv, j|
+								vchain.do({ |xfv, j|
 									chain.chains[i][j].soloed.if{
 										xfViewChains[whichChain][index].updateStateColors(true);
 										break.();
 									}
-								}
+								})
 							}, {
 								// same chain as the un-muted xf, check only the xf's up to this index
-								vchain[..index].do{ |xfv, j|
+								vchain[..index].do({ |xfv, j|
 									chain.chains[i][j].soloed.if{
 										(j != index).if{			// only re-"mute" color if this isn't the soloed xf
 											xfViewChains[whichChain][index].updateStateColors(true);
 										};
 										break.();
 									}
-								}
+								})
 							})
-						}
+						})
 					}
 				},
 				\transformSoloed, {
@@ -1140,9 +1142,9 @@ FoaXformDisplay {
 					xfViewChains[whichChain][index].soloState(bool); // update UI with soloed state
 
 					// mute the colors of the UI for every link after this one
-					xfViewChains[whichChain..].do{ |vchain, i|
+					xfViewChains[whichChain..].do({ |vchain, i|
 						chainDex = whichChain + i;
-						vchain.do{ |xfv, j|
+						vchain.do({ |xfv, j|
 							(i == 0).if({
 								(j > index and: {
 									bool or: {
@@ -1164,8 +1166,8 @@ FoaXformDisplay {
 									xfv.updateStateColors(bool)
 								}
 							})
-						}
-					}
+						})
+					})
 				},
 				\paramUpdated, {
 					this.prUpdateMatrix('chain')

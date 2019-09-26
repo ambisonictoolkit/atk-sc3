@@ -169,15 +169,15 @@ Atk {
 		mtxTypes =	["encoders", "decoders", "xformers"];
 
 		makeDirs = { |baseDir|
-			Atk.sets.do{ |set|
+			(Atk.sets).do({ |set|
 				var path;
-				ops.do{ |op|
-					mtxTypes.do{ |mtxType|
+				ops.do({ |op|
+					mtxTypes.do({ |mtxType|
 						path = baseDir +/+ op +/+ set.asString +/+ mtxType;
 						File.mkdir(path);
-					}
-				}
-			}
+					})
+				})
+			})
 		};
 
 		if (File.exists(userExtensionsDir)) {
@@ -445,9 +445,9 @@ Atk {
 					},
 					{ matches.size > 1 }, {
 						str = "Multiple matches found for filename:\t%\n".format(usrPN.fileName);
-						matches.do{ |file|
+						matches.do({ |file|
 							str = str ++ "\t" ++ file.asRelativePath(mtxDirPath) ++ "\n"
-						};
+						});
 						str = str ++ format(
 							"Provide either an absolute path to the matrix, or one relative to\n\t%\n",
 							mtxDirPath
@@ -482,7 +482,7 @@ Atk {
 		block { |break|
 			set.isNil.if({
 				// no set provided, show all sets
-				Atk.sets.do(Atk.postMyMatrices(_, type));
+				(Atk.sets).do(Atk.postMyMatrices(_, type));
 				break.()
 			}, {
 				Atk.checkSet(set);
@@ -496,14 +496,14 @@ Atk {
 				f_offset = ("\t"!(depth - 1)).join;
 				postf("%:: % ::\n", f_offset, folderPN.folderName);
 
-				folderPN.entries.do{ |entry|
+				(folderPN.entries).do({ |entry|
 					offset = ("\t"!depth).join;
 					offset.post;
 					entry.isFolder.if(
 						{ postContents.(entry, depth + 1) },
 						{ postf("%%\n", offset, entry.fileName) }
 					)
-				};
+				})
 			};
 
 			postContents.(

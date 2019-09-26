@@ -222,11 +222,11 @@ HoaMatrixRotation {
 		r_1.put(2, 2, r3x3.at(0, 0));
 
 		// insert this matrix into the output matrix in 1st band
-		r_1.rows.do{ |rowi|
-			r_1.cols.do{ |coli|
+		(r_1.rows).do({ |rowi|
+			(r_1.cols).do({ |coli|
 				r.put(rowi + 1, coli + 1, r_1.at(rowi, coli))
-			}
-		};
+			})
+		});
 
 		(maxDegree == 1).if{ ^r };
 
@@ -235,14 +235,14 @@ HoaMatrixRotation {
 
 		// compute rotation matrix of each subsequent band recursively
 		// for band 2 to "l"
-		(2..maxDegree).do{ |l|
+		(2..maxDegree).do({ |l|
 
 			setSize = 2 * l + 1;
 
 			r_l = Matrix.newClear(setSize, setSize);
 
-			(l.neg..l).do{ |m|
-				(l.neg..l).do{ |n|
+			(l.neg..l).do({ |m|
+				(l.neg..l).do({ |n|
 
 					// compute u, v, w terms of Eq.8.1 (Table I)
 					d = (m == 0).asInteger; // the delta function d_m0
@@ -261,23 +261,23 @@ HoaMatrixRotation {
 					(v != 0).if{ v = v * this.prV(l, m, n, r_1, r_lm1) };
 					(w != 0).if{ w = w * this.prW(l, m, n, r_1, r_lm1) };
 
-					r_l.put(m + l, n + l, u + v + w);
-				}
-			};
+					r_l.put(m + l, n + l, u + v + w)
+				})
+			});
 
 			// insert roation matrix for this band into it's proper
 			// place in the output rotation matrix
-			r_l.rows.do{ |rowi|
-				r_l.cols.do{ |coli|
+			(r_l.rows).do({ |rowi|
+				(r_l.cols).do({ |coli|
 					r.put(rowi + band_idx, coli + band_idx, r_l.at(rowi, coli))
-				}
-			};
+				})
+			});
 
 			// assign current band matrix to previous
 			r_lm1 = r_l;
 
 			band_idx = band_idx + setSize;
-		};
+		});
 
 		^r // return rotation matrix
 	}
@@ -372,7 +372,7 @@ HoaMatrixRotation {
 
 		(order > 0).if{
 			idx = 1;
-			(1..order).do{ |l|
+			(1..order).do({ |l|
 				degreeSize = 2 * l + 1;
 
 				m = (1..l);
@@ -391,7 +391,7 @@ HoaMatrixRotation {
 						}
 					}
 				);
-				diagT.do{ |me, i| diagTMtx.put(i, i, me) };
+				diagT.do({ |me, i| diagTMtx.put(i, i, me) });
 
 				// form the antidiagonal
 				adiagT = (
@@ -403,22 +403,22 @@ HoaMatrixRotation {
 				adiagTMtx = Matrix.newClear(degreeSize, degreeSize);
 
 				// place into diagnal, flipped L<>R
-				adiagT.do{ |me, i|
+				adiagT.do({ |me, i|
 					var dex = degreeSize - i - 1;
 					adiagTMtx.put(i, dex, me)
-				};
+				});
 
 				// form the transformation matrix for the specific band n
 				tempT = diagTMtx + adiagTMtx;
 
-				tempT.rows.do{ |rowi|
-					tempT.cols.do{ |coli|
+				(tempT.rows).do({ |rowi|
+					(tempT.cols).do({ |coli|
 						wMtx.put(rowi + idx, coli + idx, tempT.at(rowi, coli))
-					}
-				};
+					})
+				});
 
-				idx = idx + (2 * l + 1);
-			}
+				idx = idx + (2 * l + 1)
+			})
 		};
 
 		conjW = Matrix.with(

@@ -352,12 +352,12 @@ FoaMatrix : AtkMatrix {
 				wr.writeLine(["% : nil".format(att)]);
 			}, {
 				wr.writeLine(["% : [".format(att)]);
-				vals.asArray.do{ |elem, i|
+				(vals.asArray).do({ |elem, i|
 					wr.write(elem.asCompileString); // allow for large row strings
 					wr.write(
 						(i == (vals.size - 1)).if({ "\n]\n" }, { ",\n" })
-					);
-				};
+					)
+				})
 			});
 			wr.write("\n");
 		};
@@ -375,11 +375,11 @@ FoaMatrix : AtkMatrix {
 
 		attributeDictionary.notNil.if({
 			// make sure attribute dict doesn't explicitly set the attribute first
-			defaults.do{ |att|
+			defaults.do({ |att|
 				attributeDictionary[att] ?? { wrAtt.(att) }
-			};
+			})
 		}, {
-			defaults.do{ |att| wrAtt.(att) };
+			defaults.do({ |att| wrAtt.(att) });
 		});
 
 		attributeDictionary !? {
@@ -413,7 +413,7 @@ FoaMatrix : AtkMatrix {
 		numCols = nil;
 		mtx = [];
 		row = [];
-		file.do{ |line|
+		file.do({ |line|
 			var val = line[0];
 			switch(val,
 				"//",	{ }, // ignore comments
@@ -432,7 +432,7 @@ FoaMatrix : AtkMatrix {
 					)
 				}
 			)
-		};
+		});
 		// test matrix dimensions
 		(mtx.size == numRows).not.if{
 			Error(
@@ -442,7 +442,7 @@ FoaMatrix : AtkMatrix {
 				)
 			).throw
 		};
-		mtx.do{ |row, i|
+		mtx.do({ |row, i|
 			(row.size != numCols).if{
 				Error(
 					format(
@@ -451,7 +451,7 @@ FoaMatrix : AtkMatrix {
 					)
 				).throw
 			}
-		};
+		});
 
 		^mtx
 	}
@@ -465,13 +465,13 @@ FoaMatrix : AtkMatrix {
 			// no args... filename is assumed to be this.kind
 			pathStr = this.kind.asString;
 		}, {
-			args.do{ |argParam, i|
+			args.do({ |argParam, i|
 				pathStr = (i > 0).if({
 					format("%-%", pathStr, argParam.asString)
 				}, {
 					format("%%", pathStr, argParam.asString)
-				});
-			};
+				})
+			})
 		});
 
 		this.initFromFile(pathStr ++ ".yml", this.type, false);
@@ -1100,8 +1100,8 @@ FoaEncoderMatrix : FoaMatrix {
 		// start with polar positions. . .
 		theta = [];
 		numChanPairs.do({ |i|
-			theta = theta ++ [2 * pi * i / numChanPairs] }
-		);
+			theta = theta ++ [2 * pi * i / numChanPairs]
+		});
 		if (orientation == 'flat',
 			{ theta = theta + (pi / numChanPairs) });       // 'flat' case
 
@@ -1917,9 +1917,9 @@ FoaDecoderKernel {
 				// --> unsupported SR
 				{ PathName.new(subjectPath.parentLevelPath(2)).isFolder.not }, {
 					"Supported samplerates:".warn;
-					PathName.new(subjectPath.parentLevelPath(3)).folders.do({
+					(PathName.new(subjectPath.parentLevelPath(3)).folders).do({
 						|folder|
-						("\t" + folder.folderName).postln;
+						("\t" + folder.folderName).postln
 					});
 
 					errorMsg = "Samplerate = % is not available for".format(sampleRateStr)
@@ -1930,9 +1930,9 @@ FoaDecoderKernel {
 				// --> unsupported kernelSize
 				{ PathName.new(subjectPath.parentLevelPath(1)).isFolder.not }, {
 					"Supported kernel sizes:".warn;
-					PathName.new(subjectPath.parentLevelPath(2)).folders.do({
+					(PathName.new(subjectPath.parentLevelPath(2)).folders).do({
 						|folder|
-						("\t" + folder.folderName).postln;
+						("\t" + folder.folderName).postln
 					});
 
 					errorMsg = "Kernel size = % is not available for".format(kernelSize)
@@ -1943,9 +1943,9 @@ FoaDecoderKernel {
 				// --> unsupported subject
 				{ subjectPath.isFolder.not }, {
 					"Supported subjects:".warn;
-					PathName.new(subjectPath.parentLevelPath(1)).folders.do({
+					(PathName.new(subjectPath.parentLevelPath(1)).folders).do({
 						|folder|
-						("\t" + folder.folderName).postln;
+						("\t" + folder.folderName).postln
 					});
 
 					errorMsg = "Subject % is not available for".format(subjectID)
@@ -2027,8 +2027,8 @@ FoaDecoderKernel {
 
 	free {
 		var path;
-		kernel.shape[0].do({ |i|
-			kernel.shape[1].do({ |j|
+		(kernel.shape[0]).do({ |i|
+			(kernel.shape[1]).do({ |j|
 				path = kernel[i][j].path;
 				kernel[i][j].free;
 				(
@@ -2180,28 +2180,6 @@ FoaEncoderKernel {
 				sampleRateStr = "None";
 				chans = 4					// [w, x, y, z]
 			}
-
-			// Encoding via Isophonics Room Impulse Response Data Set, not yet implemented.
-			// (http://isophonics.net/content/room-impulse-response-data-set)
-			//
-			// NOTE: Convolution2 doesn't support large, arbitrary sized kernels.
-
-			//			},
-			//			'greathall', {
-			//				dirChannels = [inf];
-			//				sampleRateStr = server.sampleRate.asInteger.asString;
-			//				chans = 4;					// [w, x, y, z]
-			//			},
-			//			'octagon', {
-			//				dirChannels = [inf];
-			//				sampleRateStr = server.sampleRate.asInteger.asString;
-			//				chans = 4;					// [w, x, y, z]
-			//			},
-			//			'classroom', {
-			//				dirChannels = [inf];
-			//				sampleRateStr = server.sampleRate.asInteger.asString;
-			//				chans = 4;					// [w, x, y, z]
-			//			}
 		);
 
 		// init kernelSize if need be
@@ -2241,9 +2219,9 @@ FoaEncoderKernel {
 				// --> unsupported SR
 				{ PathName.new(subjectPath.parentLevelPath(2)).isFolder.not }, {
 					"Supported samplerates:".warn;
-					PathName.new(subjectPath.parentLevelPath(3)).folders.do({
+					(PathName.new(subjectPath.parentLevelPath(3)).folders).do({
 						|folder|
-						("\t" + folder.folderName).postln;
+						("\t" + folder.folderName).postln
 					});
 
 					errorMsg = "Samplerate = % is not available for".format(sampleRateStr)
@@ -2254,9 +2232,9 @@ FoaEncoderKernel {
 				// --> unsupported kernelSize
 				{ PathName.new(subjectPath.parentLevelPath(1)).isFolder.not }, {
 					"Supported kernel sizes:".warn;
-					PathName.new(subjectPath.parentLevelPath(2)).folders.do({
+					(PathName.new(subjectPath.parentLevelPath(2)).folders).do({
 						|folder|
-						("\t" + folder.folderName).postln;
+						("\t" + folder.folderName).postln
 					});
 
 					errorMsg = "Kernel size = % is not available for".format(kernelSize)
@@ -2267,9 +2245,9 @@ FoaEncoderKernel {
 				// --> unsupported subject
 				{ subjectPath.isFolder.not }, {
 					"Supported subjects:".warn;
-					PathName.new(subjectPath.parentLevelPath(1)).folders.do({
+					(PathName.new(subjectPath.parentLevelPath(1)).folders).do({
 						|folder|
-						("\t" + folder.folderName).postln;
+						("\t" + folder.folderName).postln
 					});
 
 					errorMsg = "Subject % is not available for".format(subjectID)
@@ -2351,8 +2329,8 @@ FoaEncoderKernel {
 
 	free {
 		var path;
-		kernel.shape[0].do({ |i|
-			kernel.shape[1].do({ |j|
+		(kernel.shape[0]).do({ |i|
+			(kernel.shape[1]).do({ |j|
 				path = kernel[i][j].path;
 				kernel[i][j].free;
 				(

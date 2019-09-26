@@ -315,18 +315,18 @@ HoaRotate : HoaUGen {
 			// with addition, and 2 multiplications
 			if (n > 2) {
 				c2 = 2 * c[0];
-				(1..(n - 2)).do{ |idx|
+				(1..(n - 2)).do({ |idx|
 					s[idx + 1] = (c2 * s[idx]) - s[idx - 1];
-					c[idx + 1] = (c2 * c[idx]) - c[idx - 1];
-				};
+					c[idx + 1] = (c2 * c[idx]) - c[idx - 1]
+				})
 			};
 
-			(1..n).do{ |l|
+			(1..n).do({ |l|
 
 				i = 2 * l + i;   // output index of the middle of the band
 				out[i] = in[i];  // center coeff is 1, so pass val through
 
-				(1..l).do{ |m|
+				(1..l).do({ |m|
 					cos = c[m - 1];
 					sin = s[m - 1];
 
@@ -334,9 +334,9 @@ HoaRotate : HoaUGen {
 					imneg = i - m; // negative m index
 
 					out[imneg] = (cos * in[imneg]) + (sin * in[im]);
-					out[im] = (cos * in[im]) - (sin * in[imneg]);
-				};
-			};
+					out[im] = (cos * in[im]) - (sin * in[imneg])
+				})
+			})
 		};
 
 		^out

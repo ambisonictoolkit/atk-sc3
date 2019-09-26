@@ -72,9 +72,9 @@ TestHoaMatrixRotation : UnitTest {
 
 		rotatedDirs = initialDirs.collect{ |sph|
 			// perform rotation on the sphere in the order specified
-			axes.asString.do{ |axis, j|
-				sph = sph.perform(rotMethod[axis.asSymbol], r123[j]);
-			};
+			(axes.asString).do({ |axis, j|
+				sph = sph.perform(rotMethod[axis.asSymbol], r123[j])
+			});
 			sph
 		};
 
@@ -119,7 +119,7 @@ TestHoaMatrixRotation : UnitTest {
 
 		// a function to perform rotation tests on groups of directions
 		testDirs = { |dirs, groupName = "a tetrahedron", numRotTests = 5|
-			numRotTests.do{
+			numRotTests.do({
 				var r1, r2, r3, axes, rMtx, rotatedPws, groupTests;
 
 				#r1, r2, r3 = 3.collect{ rrand(-2pi, 2pi) };
@@ -151,7 +151,7 @@ TestHoaMatrixRotation : UnitTest {
 					), report
 				)
 
-			};
+			})
 		};
 
 		// run tests on each of the direction groups

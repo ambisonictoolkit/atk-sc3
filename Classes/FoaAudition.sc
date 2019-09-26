@@ -113,7 +113,7 @@ FoaAudition {
 					abort = true;
 					this.changed(\status, warn("No Soundfile buffer loaded!"));
 					this.changed(\sfSynthRunning, false);
-					['inbus', 'soundfile', 'pwNoise', 'diffuseNoise'].do{ |name| this.stopSynth(name) };
+					['inbus', 'soundfile', 'pwNoise', 'diffuseNoise'].do({ |name| this.stopSynth(name) })
 				};
 			};
 
@@ -504,7 +504,7 @@ FoaAudition {
 		[group, soundfileBuf,
 			OSCdef(\azResponder),
 			OSCdef(\azResponder_request)
-		].do{ |me| me !? { me.free } };
+		].do({ |me| me !? { me.free } });
 
 		internalInbus !? { server.audioBusAllocator.free(inbus) };
 		ui !? { ui.free };
@@ -554,14 +554,14 @@ FoaAuditionView {
 
 	// find a widget within a view and change something about it
 	findKindDo { |view, kind, performFunc|
-		view.children.do{ |child|
+		(view.children).do({ |child|
 			child.isKindOf(View).if{
 				this.findKindDo(child, kind, performFunc)   // call self
 			};
 			child.isKindOf(kind).if{
 				performFunc.(child)
 			};
-		}
+		})
 	}
 
 
@@ -872,7 +872,7 @@ FoaAuditionView {
 		.mouseDownAction_({
 			ctlView.visible.not.if{
 				// "deselect" other views and show this one
-				tabViews.do{ |v|
+				tabViews.do({ |v|
 					(v != thisTabView).if{
 						v.background_(
 							Color.hsv(
@@ -885,13 +885,13 @@ FoaAuditionView {
 							}
 						});
 					}
-				};
+				});
 				// "select" this view
 				thisTabView.background_(focusBkgColor);
 				labelTxt.stringColor_(palette.baseText);
-				ctlViews.do{ |v|
+				ctlViews.do({ |v|
 					(v != ctlView).if{ v.visible_(false) }
-				};
+				});
 				ctlView.visible_(true);
 			}
 		});
@@ -1114,17 +1114,18 @@ FoaAuditionView {
 		ctlContainerView = View();
 		ctlContainerLayout = VLayout().margins_(0).spacing_(0);
 		ctlContainerView.layout_(ctlContainerLayout);
-		[pwView, sfView, diffView, inView].do{ |v, i|
+		[pwView, sfView, diffView, inView].do({ |v, i|
 			v.visible = (i == 0); // first view visible
 			v.minWidth_(335);
 			ctlViews = ctlViews.add(v);    // for "muting" views on selecting tab
-			ctlContainerLayout.add(v);
-		};
+			ctlContainerLayout.add(v)
+		});
 		ctlContainerView.maxHeight_(85);
 		playerLayout.add(ctlContainerView);
 
-		[pwTabView, sfTabView, diffTabView, inTabView].do{ |v, i|
-		tabViews = tabViews.add(v) };
+		[pwTabView, sfTabView, diffTabView, inTabView].do({ |v, i|
+			tabViews = tabViews.add(v)
+		});
 
 		playerLayout.add(3);          // gap
 		playerLayout.add(globalCtlView);

@@ -93,7 +93,7 @@ FoaMatrixChain {
 		var removedLinks;
 		removedLinks = chains[index].collect{ |lnk| lnk };
 		chains.removeAt(index);
-		removedLinks.do{ |rmvdLink| this.checkIfInputRemoved(rmvdLink) };
+		removedLinks.do({ |rmvdLink| this.checkIfInputRemoved(rmvdLink) });
 		this.chainXForms;
 		this.changed(\chainRemoved, index);
 	}
@@ -124,7 +124,7 @@ FoaMatrixChain {
 			// initialize controls
 			controls = xFormDict[xformName].controls.clump(2);
 
-			controls.do{ |pair, i|
+			controls.do({ |pair, i|
 				var paramName, ctl;
 				#paramName, ctl = pair;
 
@@ -140,9 +140,9 @@ FoaMatrixChain {
 						}, {
 							link.controlStates.put(i, ctl)
 						})
-					});
-				});
-			};
+					})
+				})
+			})
 		}, {
 			// mute
 			link = FoaMatrixChainLink(xformName);
@@ -215,23 +215,23 @@ FoaMatrixChain {
 		// keep a list of the solo states that are changing
 
 		bool.if{ // if activating solo
-			chains.do{ |chain, i|
-				chain.do{ |lnk, j|
+			chains.do({ |chain, i|
+				chain.do({ |lnk, j|
 					lnk.soloed.if {
 						lnk.soloed = false;			// ... un-solo anything else that's soloed
 						changed.add([i, j, false]);	// keep track of the changes
 					}
-				}
-			}
+				})
+			})
 		};
 
 		chains[whichChain][index].soloed = bool;	// perform this solo
 		changed.add([whichChain, index, bool]);		// add this solo to changed list last
 
 		this.chainXForms;
-		changed.do{ |whichDxBool|
-			this.changed(\transformSoloed, *whichDxBool);
-		}
+		changed.do({ |whichDxBool|
+			this.changed(\transformSoloed, *whichDxBool)
+		})
 	}
 
 
@@ -247,17 +247,17 @@ FoaMatrixChain {
 
 
 	checkIfInputRemoved { | rmvdLink, replacementLink |
-		chains.do{ |chain, i|
-			chain.do{ |lnk, j|
+		chains.do({ |chain, i|
+			chain.do({ |lnk, j|
 				var cStates = lnk.controlStates;
-				cStates.indices.do{ |dex|
+				(cStates.indices).do({ |dex|
 					(cStates[dex] === rmvdLink).if{
 						// replace input with new link or A0 if none
-						cStates.put(dex, replacementLink ?? chains[0][0]);
+						cStates.put(dex, replacementLink ?? chains[0][0])
 					};
-				}
-			}
-		}
+				})
+			})
+		})
 	}
 
 
@@ -266,8 +266,8 @@ FoaMatrixChain {
 	chainXForms {
 		var mtx;
 		block { |break|
-			chains.do{ |chain, i|
-				chain.do{ |xf, j|
+			chains.do({ |chain, i|
+				chain.do({ |xf, j|
 
 					(i == 0 and: { j == 0 }).if({
 						// init input soundfield for first chain
@@ -301,9 +301,9 @@ FoaMatrixChain {
 						});
 
 						xf.soloed.if{ break.() }  // stop chaining here if solo'd
-					});
-				}
-			};
+					})
+				})
+			})
 		};
 
 		verbose.if{ this.postChain };
@@ -313,16 +313,16 @@ FoaMatrixChain {
 
 
 	postChain {
-		chains.do{ |chain, i|
+		chains.do({ |chain, i|
 			("\nCHAIN " ++ i).postln;
-			chain.do{ |xf, j|
+			chain.do({ |xf, j|
 				postf("\t%, % %\n", xf.name, xf.controlStates,
 					xf.muted.if({ "[MUTED]" }, { "" })
 					++ xf.soloed.if({ "[SOLOED]" }, { "" })
 				)
-			};
-			"".postln;
-		};
+			});
+			"".postln
+		})
 	}
 
 
@@ -556,15 +556,16 @@ FoaMatrixChain {
 		// pack the above transform specification triplets in to a dictionary
 		xFormDict = IdentityDictionary(know: true);
 
-		xformSpecs.do{ |clump|
+		xformSpecs.do({ |clump|
 			var name, ctls, func;
+
 			#name, ctls, func = clump; // unpack the clump
 			xFormDict.put(name,
 				 IdentityDictionary(know: true)
 				.put('controls', ctls)
 				.put('getMatrix', func)
-			);
-		};
+			)
+		});
 
 		// alphabetically sorted for menu displays
 		xFormDict_sorted = xFormDict.asSortedArray;

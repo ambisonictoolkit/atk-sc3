@@ -312,12 +312,12 @@ HoaMatrix : AtkMatrix {
 				wr.writeLine(["% : nil".format(att)]);
 			}, {
 				wr.writeLine(["% : [".format(att)]);
-				vals.asArray.do{ |elem, i|
+				(vals.asArray).do({ |elem, i|
 					wr.write(elem.asCompileString); // allow for large row strings
 					wr.write(
 						(i == (vals.size - 1)).if({ "\n]\n" }, { ", \n" })
-					);
-				};
+					)
+				})
 			});
 			wr.write("\n");
 		};
@@ -1140,7 +1140,7 @@ HoaMatrixDecoder : HoaMatrix {
 			encodingMatrix = this.class.newFormat([\acn, \n2d], outputOrder).matrix.mulMatrix(
 				encodingMatrix
 			);
-			hoaOrder.indices.difference(hoaOrder.indices(subset: \sectoral)).do({ |row|
+			(hoaOrder.indices.difference(hoaOrder.indices(subset: \sectoral))).do({ |row|
 				encodingMatrix.putRow(row, Array.fill(numOutputs, { 0.0 }))
 			})
 		});
@@ -1234,7 +1234,7 @@ HoaMatrixDecoder : HoaMatrix {
 		// 4a) if 2D (re-)insert non-sectoral (3D) harmonics
 		(dim == 2).if{
 			zerosMatrix = Matrix.newClear(numOutputs, (outputOrder + 1).squared);
-			hoaOrder.indices(subset: \sectoral).do({ |index, i|
+			(hoaOrder.indices(subset: \sectoral)).do({ |index, i|
 				zerosMatrix.putCol(
 					index,
 					decodingMatrix.getCol(i)

@@ -845,12 +845,12 @@ FoaDecoderMatrix : FoaMatrix {
 			dirChannels = if(fileParse.dirOutputs.notNil, {
 				fileParse.dirOutputs.asFloat
 			}, { // output directions are unspecified in the provided matrix
-				(matrix.rows).collect({ 'unspecified' })
+				(this.matrix.rows).collect({ 'unspecified' })
 			});
 			shelfK = fileParse.shelfK !? { fileParse.shelfK.asFloat };
 			shelfFreq = fileParse.shelfFreq !? { fileParse.shelfFreq.asFloat };
 		}, { // txt file provided, no fileParse
-			dirChannels = (matrix.rows).collect({ 'unspecified' });
+			dirChannels = (this.matrix.rows).collect({ 'unspecified' });
 		});
 	}
 
@@ -1145,10 +1145,10 @@ FoaEncoderMatrix : FoaMatrix {
 			if(fileParse.dirInputs.notNil, {
 				fileParse.dirInputs.asFloat
 			}, { // so input directions are unspecified in the provided matrix
-				(matrix.cols).collect({ 'unspecified' })
+				(this.matrix.cols).collect({ 'unspecified' })
 			})
 		}, { // txt file provided, no fileParse
-			(matrix.cols).collect({ 'unspecified' })
+			(this.matrix.cols).collect({ 'unspecified' })
 		})
 	}
 
@@ -1831,9 +1831,9 @@ FoaDecoderKernel {
 			)
 		});
 
-		decodersPath	= PathName.new("/FOA/decoders");
+		decodersPath = PathName.new("/FOA/decoders");
 
-		^kernelLibPath +/+ decodersPath +/+ PathName.new(kind.asString)
+		^kernelLibPath +/+ decodersPath +/+ PathName.new(this.kind.asString)
 	}
 
 	initKernel { |kernelSize, server, sampleRate, score|
@@ -1861,7 +1861,7 @@ FoaDecoderKernel {
 		chans = 2;			// stereo kernel
 
 		// init dirChannels (output channel (speaker) directions) and kernel sr
-		if(kind == 'uhj', {
+		if(this.kind == 'uhj', {
 			dirChannels = [pi/6, (pi/6).neg];
 			sampleRateStr = "None"
 		}, {
@@ -1902,7 +1902,7 @@ FoaDecoderKernel {
 				// --> missing kernel database
 				{ databasePath.isFolder.not }, {
 					errorMsg = "ATK kernel database missing!" +
-					"Please install % database.".format(kind)
+					"Please install % database.".format(this.kind)
 				},
 
 				// --> unsupported SR
@@ -1915,7 +1915,7 @@ FoaDecoderKernel {
 
 					errorMsg = "Samplerate = % is not available for".format(sampleRateStr)
 					+
-								"% kernel decoder.".format(kind)
+								"% kernel decoder.".format(this.kind)
 				},
 
 				// --> unsupported kernelSize
@@ -1928,7 +1928,7 @@ FoaDecoderKernel {
 
 					errorMsg = "Kernel size = % is not available for".format(kernelSize)
 					+
-							"% kernel decoder.".format(kind)
+							"% kernel decoder.".format(this.kind)
 				},
 
 				// --> unsupported subject
@@ -1941,7 +1941,7 @@ FoaDecoderKernel {
 
 					errorMsg = "Subject % is not available for".format(subjectID)
 					+
-							"% kernel decoder.".format(kind)
+							"% kernel decoder.".format(this.kind)
 				}
 			);
 
@@ -2059,7 +2059,7 @@ FoaDecoderKernel {
 
 	printOn { |stream|
 		stream << this.class.name << "(" <<*
-			[kind, this.dim, this.numChannels, subjectID, this.kernelSize] <<")";
+			[this.kind, this.dim, this.numChannels, subjectID, this.kernelSize] <<")";
 	}
 }
 
@@ -2119,7 +2119,7 @@ FoaEncoderKernel {
 
 		encodersPath = PathName.new("/FOA/encoders");
 
-		^kernelLibPath +/+ encodersPath +/+ PathName.new(kind.asString)
+		^kernelLibPath +/+ encodersPath +/+ PathName.new(this.kind.asString)
 	}
 
 	initKernel { |kernelSize, server, sampleRate, score|
@@ -2144,7 +2144,7 @@ FoaEncoderKernel {
 		kernelInfo = [];
 
 		// init dirChannels (output channel (speaker) directions) and kernel sr
-		switch(kind,
+		switch(this.kind,
 			'super', {
 				dirChannels = [pi/4, (pi/4).neg];	 // approx, doesn't include phasiness
 				sampleRateStr = "None";
@@ -2202,7 +2202,7 @@ FoaEncoderKernel {
 				// --> missing kernel database
 				{ databasePath.isFolder.not }, {
 					errorMsg = "ATK kernel database missing!" +
-					"Please install % database.".format(kind)
+					"Please install % database.".format(this.kind)
 				},
 
 				// --> unsupported SR
@@ -2215,7 +2215,7 @@ FoaEncoderKernel {
 
 					errorMsg = "Samplerate = % is not available for".format(sampleRateStr)
 					+
-					"% kernel encoder.".format(kind)
+					"% kernel encoder.".format(this.kind)
 				},
 
 				// --> unsupported kernelSize
@@ -2228,7 +2228,7 @@ FoaEncoderKernel {
 
 					errorMsg = "Kernel size = % is not available for".format(kernelSize)
 					+
-					"% kernel encoder.".format(kind)
+					"% kernel encoder.".format(this.kind)
 				},
 
 				// --> unsupported subject
@@ -2241,7 +2241,7 @@ FoaEncoderKernel {
 
 					errorMsg = "Subject % is not available for".format(subjectID)
 					+
-					"% kernel encoder.".format(kind)
+					"% kernel encoder.".format(this.kind)
 				}
 			);
 
@@ -2359,6 +2359,6 @@ FoaEncoderKernel {
 
 	printOn { |stream|
 		stream << this.class.name << "(" <<*
-			[kind, this.dim, this.numChannels, subjectID, this.kernelSize] <<")";
+			[this.kind, this.dim, this.numChannels, subjectID, this.kernelSize] <<")";
 	}
 }

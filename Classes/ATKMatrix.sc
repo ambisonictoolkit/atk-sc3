@@ -171,7 +171,7 @@ AtkMatrix {
 
 		wr = FileWriter(pn.fullPath);
 		// write the matrix into it by row, and close
-		(matrix.rows).do({ |i| wr.writeLine(matrix.getRow(i)) });
+		(this.matrix.rows).do({ |i| wr.writeLine(this.matrix.getRow(i)) });
 		wr.close;
 	}
 
@@ -182,16 +182,16 @@ AtkMatrix {
 
 		// write num rows and cols to first 2 lines
 		wr.writeLine(["// Dimensions: rows, columns"]);
-		wr.writeLine(matrix.rows.asArray);
-		wr.writeLine(matrix.cols.asArray);
+		wr.writeLine(this.matrix.rows.asArray);
+		wr.writeLine(this.matrix.cols.asArray);
 		// write the matrix into it by row, and close
-		(matrix.rows).do({ |i|
+		(this.matrix.rows).do({ |i|
 			var row;
 
 			wr.writeLine([""]); // blank line
 			wr.writeLine([format("// Row %", i)]);
 
-			row = matrix.getRow(i);
+			row = this.matrix.getRow(i);
 			row.do({ |j| wr.writeLine(j.asArray) })
 		});
 		wr.close;
@@ -200,9 +200,9 @@ AtkMatrix {
 	// separate YML writer for FOA & HOA
 	// prWriteMatrixToYML
 
-	fileName { ^try({ PathName(filePath).fileName }) }
+	fileName { ^try({ PathName(this.filePath).fileName }) }
 
-	asArray { ^matrix.asArray }
+	asArray { ^this.matrix.asArray }
 
 	// ---------
 	// return info
@@ -222,12 +222,12 @@ AtkMatrix {
 
 	op { ^\matrix }
 
-	numInputs { ^matrix.cols }
+	numInputs { ^this.matrix.cols }
 
-	numOutputs { ^matrix.rows }
+	numOutputs { ^this.matrix.rows }
 
 	printOn { |stream|
-		stream << this.class.name << "(" <<* [kind, this.dim, this.numChannels] <<")";
+		stream << this.class.name << "(" <<* [this.kind, this.dim, this.numChannels] <<")";
 	}
 
 	// post readable matrix information

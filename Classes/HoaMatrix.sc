@@ -562,10 +562,10 @@ HoaMatrixEncoder : HoaMatrix {
 			if(fileParse.dirInputs.notNil, {
 				fileParse.dirInputs.asFloat
 			}, {
-				(matrix.cols).collect({ 'unspecified' })
+				(this.matrix.cols).collect({ 'unspecified' })
 			})
 		}, { // txt file provided, no fileParse
-			(matrix.cols).collect({ 'unspecified' })
+			(this.matrix.cols).collect({ 'unspecified' })
 		})
 	}
 }

@@ -887,15 +887,15 @@ HoaMatrixXformer : HoaMatrix {
 
 		// (test) encoding directions vs rV
 		rVdist = (xyzEncDirs * rVu).collect({ |item|  	// arccos(dot product)
-			item.sum.acos
+			item.sum.clip(-1.0, 1.0).acos
 		});
 		// (test) encoding directions vs rE
 		rEdist = (xyzEncDirs * rEu).collect({ |item|  	// arccos(dot product)
-			item.sum.acos
+			item.sum.clip(-1.0, 1.0).acos
 		});
 		// rV vs rE
 		rVrEdist = (rVu * rEu).collect({ |item|  	// arccos(dot product)
-			item.sum.acos
+			item.sum.clip(-1.0, 1.0).acos
 		});
 
 		// return
@@ -1370,15 +1370,15 @@ HoaMatrixDecoder : HoaMatrix {
 
 		// (test) encoding directions vs rV
 		rVdist = (xyzEncDirs * rVu).collect({ |item|  	// arccos(dot product)
-			item.sum.acos
+			item.sum.clip(-1.0, 1.0).acos
 		});
 		// (test) encoding directions vs rE
 		rEdist = (xyzEncDirs * rEu).collect({ |item|  	// arccos(dot product)
-			item.sum.acos
+			item.sum.clip(-1.0, 1.0).acos
 		});
 		// rV vs rE
 		rVrEdist = (rVu * rEu).collect({ |item|  	// arccos(dot product)
-			item.sum.acos
+			item.sum.clip(-1.0, 1.0).acos
 		});
 
 		// return

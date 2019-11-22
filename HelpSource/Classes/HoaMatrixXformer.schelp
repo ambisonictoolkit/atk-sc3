@@ -394,7 +394,7 @@ code::
 ~analysis = ~xformer.analyzeDirections(~testDirections)
 
 
-~analysis[\amp].ampdb.round(0.01)
+~analysis[\amp].abs.ampdb.round(0.01)
 ~analysis[\rms].sqrt.ampdb.round(0.01)
 ~analysis[\energy].sqrt.ampdb.round(0.01)
 
@@ -432,7 +432,7 @@ code::
 ~analysis = ~xformer.analyzeDirections(~testDirections)
 
 
-~analysis[\amp].ampdb.round(0.01)
+~analysis[\amp].abs.ampdb.round(0.01)
 ~analysis[\rms].sqrt.ampdb.round(0.01)
 ~analysis[\energy].sqrt.ampdb.round(0.01)
 
@@ -470,7 +470,7 @@ code::
 ~analysis = ~xformer.analyzeDirections(~testDirections)
 
 
-~analysis[\amp].ampdb.round(0.01)
+~analysis[\amp].abs.ampdb.round(0.01)
 ~analysis[\rms].sqrt.ampdb.round(0.01)
 ~analysis[\energy].sqrt.ampdb.round(0.01)
 

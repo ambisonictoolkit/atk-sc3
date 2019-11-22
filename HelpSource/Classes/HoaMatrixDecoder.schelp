@@ -598,7 +598,7 @@ code::
 // analyze
 ~analysis = ~decoder.analyzeDirections(~testDirections)
 
-~analysis[\amp].ampdb.round(0.01)
+~analysis[\amp].abs.ampdb.round(0.01)
 ~analysis[\rms].sqrt.ampdb.round(0.01)
 ~analysis[\energy].sqrt.ampdb.round(0.01)
 
@@ -620,7 +620,7 @@ code::
 // Pantophonic (2D) decoder with seven channels arranged in a consumer orientation
 
 // specify parameters & design
-~directions = [ 0.0, 30.0, 110.0, 135.0, -135.0, -110.0, -30.0 ]  // 7.0 array
+~directions = [ 0.0, 30.0, 110.0, 135.0, -135.0, -110.0, -30.0 ].degrad  // 7.0 array
 ~beamShape = \basic
 ~beamShape = \energy
 ~beamShape = \controlled
@@ -641,7 +641,7 @@ code::
 // analyze
 ~analysis = ~decoder.analyzeDirections(~testDirections)
 
-~analysis[\amp].ampdb.round(0.01)
+~analysis[\amp].abs.ampdb.round(0.01)
 ~analysis[\rms].sqrt.ampdb.round(0.01)
 ~analysis[\energy].sqrt.ampdb.round(0.01)
 

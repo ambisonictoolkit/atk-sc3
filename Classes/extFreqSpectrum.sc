@@ -282,14 +282,14 @@
 				(Array.series(m + 1, 1, 2) * beamWeights.squared).sum // 3D
 			}).asFloat
 		};
-		var matchWeight = { |beamWeights, dim = 3, match = 'amp', numChans = nil|
+		var matchWeight = { |beamWeights, dim = 3, match = \amp, numChans = nil|
 			// var m = beamWeights.size - 1;  // order
 			var m = order;  // order
 			var n;
 
 			switch(match,
-				'amp', { 1.0 },
-				'rms', {
+				\amp, { 1.0 },
+				\rms, {
 					if(dim == 2, {
 						n = 2 * m + 1  // 2D
 					}, {
@@ -297,7 +297,7 @@
 					});
 					(n / meanE.value(beamWeights, dim)).sqrt
 				},
-				'energy', {
+				\energy, {
 					n = numChans;
 					(n / meanE.value(beamWeights, dim)).sqrt
 				}

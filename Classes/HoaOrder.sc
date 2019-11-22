@@ -209,13 +209,13 @@ HoaOrder {
 	*/
 
 	// maximum average rV for an Ambisonic decoder
-	rV { |beamShape = 'basic', dim = 3|
+	rV { |beamShape = \basic, dim = 3|
 		var m = this.order;
 
 		^switch(beamShape,
-			'basic', { 1 },
-			'energy', { this.rE(beamShape, dim) },
-			'controlled', {
+			\basic, { 1 },
+			\energy, { this.rE(beamShape, dim) },
+			\controlled, {
 				if(dim == 2, {
 					m / (m + 1)  // 2D
 				}, {
@@ -226,10 +226,10 @@ HoaOrder {
 	}
 
 	// maximum average rE for an Ambisonic decoder
-	rE { |beamShape = 'basic', dim = 3|
+	rE { |beamShape = \basic, dim = 3|
 		var m = this.order;
 
-		^if(beamShape == 'energy', {
+		^if(beamShape == \energy, {
 			if(dim == 2, {
 				chebyshevTZeros(m + 1).maxItem  // 2D
 			}, {
@@ -245,7 +245,7 @@ HoaOrder {
 	}
 
 	// 1/2 angle maximum average energy spread for an Ambisonic decoder
-	spreadE { |beamShape = 'basic', dim = 3|
+	spreadE { |beamShape = \basic, dim = 3|
 		^Dictionary.with(*[
 			\cos->this.rE(beamShape, dim).acos,  // Zotter & Frank: ~-3dB
 			\hvc->((2 * this.rE(beamShape, dim)) - 1).acos  // Carpentier, Politis: ~-6dB
@@ -253,7 +253,7 @@ HoaOrder {
 	}
 
 	// 'l’énergie réduite E' for an Ambisonic decoder
-	meanE { |beamShape = 'basic', dim = 3|
+	meanE { |beamShape = \basic, dim = 3|
 		var m = this.order;
 		var beamWeights;
 
@@ -267,13 +267,13 @@ HoaOrder {
 	}
 
 	// 'matching gain' (scale) for a given Ambisonic decoder
-	matchWeight { |beamShape = 'basic', dim = 3, match = 'amp', numChans = nil|
+	matchWeight { |beamShape = \basic, dim = 3, match = \amp, numChans = nil|
 		var m = this.order;
 		var n;
 
 		^switch(match,
-			'amp', { 1.0 },
-			'rms', {
+			\amp, { 1.0 },
+			\rms, {
 				if(dim == 2, {
 					n = 2 * m + 1  // 2D
 				}, {
@@ -281,7 +281,7 @@ HoaOrder {
 				});
 				(n / this.meanE(beamShape, dim)).sqrt
 			},
-			'energy', {
+			\energy, {
 				n = numChans;
 				(n / this.meanE(beamShape, dim)).sqrt
 			}
@@ -289,13 +289,13 @@ HoaOrder {
 	}
 
 	// beamWeights, aka, "decoder order gains" or Gamma vector of per-degree (beam forming) scalars
-	beamWeights { |beamShape = 'basic', dim = 3|
+	beamWeights { |beamShape = \basic, dim = 3|
 		var m = this.order;
 		var max_rE;
 
 		^switch(beamShape,
-			'basic', { 1.dup(m + 1) },
-			'energy', {
+			\basic, { 1.dup(m + 1) },
+			\energy, {
 				max_rE = this.rE(beamShape, dim);
 				if(dim == 2, { // 2D
 					(m + 1).collect({ |degree|
@@ -307,7 +307,7 @@ HoaOrder {
 					})
 				})
 			},
-			'controlled', {
+			\controlled, {
 				if(dim == 2, { // 2D
 					(m + 1).collect({ |degree|
 						1 / ((m + degree).asFloat.factorial * (m - degree).asFloat.factorial)

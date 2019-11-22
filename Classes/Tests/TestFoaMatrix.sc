@@ -56,7 +56,7 @@ TestFoaMatrix : UnitTest {
 	// basic check that matrix attributes are populated correctly
 	test_encoderMatrixAttributes {
 		var m;
-		var directions = AtkTests.getDirs('tetra');
+		var directions = AtkTests.getDirs(\tetra);
 
 		// encoder
 		m = FoaEncoderMatrix.newDirections(directions, 0.5);
@@ -132,7 +132,7 @@ TestFoaMatrix : UnitTest {
 		var m;
 
 		// decoder
-		m = FoaDecoderMatrix.newQuad(45.degrad, 'dual');
+		m = FoaDecoderMatrix.newQuad(45.degrad, \dual);
 
 		// matrix
 		this.assert(
@@ -256,7 +256,7 @@ TestFoaMatrix : UnitTest {
 	// create an FoaEncoderMatrix from a Matrix directly
 	test_fromMatrixMatrixAttributes {
 		var m;
-		var directions = AtkTests.getDirs('tetra');
+		var directions = AtkTests.getDirs(\tetra);
 
 		// encoder
 		m = FoaEncoderMatrix.newFromMatrix(
@@ -330,7 +330,7 @@ TestFoaMatrix : UnitTest {
 
 	test_matrixFileRdWr {
 		var not, properties, atkMatrix, enc, note, path;
-		var directions = AtkTests.getDirs('tetra');
+		var directions = AtkTests.getDirs(\tetra);
 		var att, orig, fromFile;
 
 		// start with "raw" A-to-B encoder matrix:

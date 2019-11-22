@@ -181,7 +181,7 @@ FoaMatrix : AtkMatrix {
 	}
 
 	*newFromMatrix { |matrix, directions|
-		^super.new('fromMatrix').initFromMatrix(matrix, directions)
+		^super.new(\fromMatrix).initFromMatrix(matrix, directions)
 	}
 
 	initFromMatrix { |aMatrix, argDirections|
@@ -208,9 +208,9 @@ FoaMatrix : AtkMatrix {
 
 		// 2) Check: matrix numCoeffs == 3 || 4, is it a valid 2D or 3D FOA matrix?
 		numCoeffs = switch(this.type,
-			'encoder', { matrix.rows },
-			'decoder', { matrix.cols },
-			'xformer', { matrix.rows }
+			\encoder, { matrix.rows },
+			\decoder, { matrix.cols },
+			\xformer, { matrix.rows }
 		);
 		if((numCoeffs == 3 or: { numCoeffs == 4 }).not, {
 			Error(
@@ -242,7 +242,7 @@ FoaMatrix : AtkMatrix {
 		});
 
 		// 4) Check: xformer is square matrix
-		if((this.type == 'xformer' and: { matrix.isSquare.not }), {
+		if((this.type == \xformer and: { matrix.isSquare.not }), {
 			Error(
 				format(
 					"[%:-initFromMatrix] An 'xformer' matrix "
@@ -367,7 +367,7 @@ FoaMatrix : AtkMatrix {
 		wrAtt.(\type);
 
 		// write default attributes
-		defaults = if(this.type == 'decoder', {
+		defaults = if(this.type == \decoder, {
 			[\kind, \shelfK, \shelfFreq]
 		}, {
 			[\kind]
@@ -386,8 +386,8 @@ FoaMatrix : AtkMatrix {
 			attributeDictionary.keysValuesDo{ |k, v|
 				// catch overridden dirIn/Outputs
 				switch(k,
-					'dirInputs', { dirIns = v },
-					'dirOutputs', { dirOuts = v },
+					\dirInputs, { dirIns = v },
+					\dirOutputs, { dirOuts = v },
 					{
 						if(v.isKindOf(Array), {
 							wrAttArr.(k, v)
@@ -480,9 +480,9 @@ FoaMatrix : AtkMatrix {
 		this.initFromFile(pathStr ++ ".yml", this.type, false);
 
 		switch(this.type,
-			'\encoder', { this.initEncoderVarsForFiles }, // properly set dirInputs
-			'\decoder', { this.initDecoderVarsForFiles }, // properly set dirOutputs
-			'\xformer', { }
+			\encoder, { this.initEncoderVarsForFiles }, // properly set dirInputs
+			\decoder, { this.initDecoderVarsForFiles }, // properly set dirOutputs
+			\xformer, { }
 		)
 	}
 
@@ -493,35 +493,35 @@ FoaMatrix : AtkMatrix {
 
 	numChannels {
 		^switch(this.type,
-			'\encoder', { this.numInputs },
-			'\decoder', { this.numOutputs },
-			'\xformer', { 4 }
+			\encoder, { this.numInputs },
+			\decoder, { this.numOutputs },
+			\xformer, { 4 }
 		)
 	}
 
 	dim {
 		^switch(this.type,
-			'\encoder', { this.numOutputs - 1 },
-			'\decoder', { this.numInputs - 1 },
-			'\xformer', { 3 }  // all transforms are 3D
+			\encoder, { this.numOutputs - 1 },
+			\decoder, { this.numInputs - 1 },
+			\xformer, { 3 }  // all transforms are 3D
 		)
 	}
 
 	dirInputs {
 		^switch(this.type,
-			'\encoder', { this.dirChannels },
-			'\decoder', { (this.numInputs).collect({ inf }) },
-			// '\xformer', { this.numInputs.collect({ inf }) },
-			'\xformer', { this.dirChannels }  // requires set to inf
+			\encoder, { this.dirChannels },
+			\decoder, { (this.numInputs).collect({ inf }) },
+			// \xformer, { this.numInputs.collect({ inf }) },
+			\xformer, { this.dirChannels }  // requires set to inf
 		)
 	}
 
 	dirOutputs {
 		^switch(this.type,
-			'\encoder', { (this.numOutputs).collect({ inf }) },
-			'\decoder', { this.dirChannels },
-			// '\xformer', { this.numInputs.collect({ inf }) },
-			'\xformer', { this.dirChannels }  // requires set to inf
+			\encoder, { (this.numOutputs).collect({ inf }) },
+			\decoder, { this.dirChannels },
+			// \xformer, { this.numInputs.collect({ inf }) },
+			\xformer, { this.dirChannels }  // requires set to inf
 		)
 	}
 
@@ -533,50 +533,50 @@ FoaMatrix : AtkMatrix {
 FoaDecoderMatrix : FoaMatrix {
 	var <>shelfFreq, <shelfK;
 
-		*newDiametric { |directions = ([pi / 4, 3 * pi / 4]), k = 'single'|
-		^super.new('diametric').initDiametric(directions, k);
+		*newDiametric { |directions = ([pi / 4, 3 * pi / 4]), k = \single|
+		^super.new(\diametric).initDiametric(directions, k);
 	}
 
-	*newPanto { |numChans = 4, orientation = 'flat', k = 'single'|
-		^super.new('panto').initPanto(numChans, orientation, k);
+	*newPanto { |numChans = 4, orientation = \flat, k = \single|
+		^super.new(\panto).initPanto(numChans, orientation, k);
 	}
 
-	*newPeri { |numChanPairs = 4, elevation = 0.61547970867039, orientation = 'flat', k = 'single'|
-		^super.new('peri').initPeri(numChanPairs, elevation, orientation, k);
+	*newPeri { |numChanPairs = 4, elevation = 0.61547970867039, orientation = \flat, k = \single|
+		^super.new(\peri).initPeri(numChanPairs, elevation, orientation, k);
 	}
 
-	*newQuad { |angle = (pi / 4), k = 'single'|
-		^super.new('quad').initQuad(angle, k);
+	*newQuad { |angle = (pi / 4), k = \single|
+		^super.new(\quad).initQuad(angle, k);
 	}
 
 	*newStereo { |angle = (pi/2), pattern = 0.5|
-		^super.new('stereo').initStereo(angle, pattern);
+		^super.new(\stereo).initStereo(angle, pattern);
 	}
 
 	*newMono { |theta = 0, phi = 0, pattern = 0|
-		^super.new('mono').initMono(theta, phi, pattern);
+		^super.new(\mono).initMono(theta, phi, pattern);
 	}
 
-	*new5_0 { |irregKind = 'focused'|
-		^super.new('5_0').loadFromLib(irregKind);
+	*new5_0 { |irregKind = \focused|
+		^super.new(\5_0).loadFromLib(irregKind);
 	}
 
-	*newBtoA { |orientation = 'flu', weight = 'dec'|
-		^super.new('BtoA').loadFromLib(orientation, weight);
+	*newBtoA { |orientation = \flu, weight = \dec|
+		^super.new(\BtoA).loadFromLib(orientation, weight);
 	}
 
-	*newHoa1 { |ordering = 'acn', normalisation = 'n3d'|
-		^super.new('hoa1').loadFromLib(ordering, normalisation);
+	*newHoa1 { |ordering = \acn, normalisation = \n3d|
+		^super.new(\hoa1).loadFromLib(ordering, normalisation);
 	}
 
 	*newAmbix1 {
-		var ordering = 'acn', normalisation = 'sn3d';
+		var ordering = \acn, normalisation = \sn3d;
 
-		^super.new('hoa1').loadFromLib(ordering, normalisation);
+		^super.new(\hoa1).loadFromLib(ordering, normalisation);
 	}
 
 	*newFromFile { |filePathOrName|
-		^super.new.initFromFile(filePathOrName, 'decoder', true).initDecoderVarsForFiles;
+		^super.new.initFromFile(filePathOrName, \decoder, true).initDecoderVarsForFiles;
 	}
 
 	initK2D { |k|
@@ -585,11 +585,11 @@ FoaDecoderMatrix : FoaMatrix {
 			^k
 		}, {
 			^switch(k,
-				'velocity', { 1 },
-				'energy', { 2.reciprocal.sqrt },
-				'controlled', { 2.reciprocal },
-				'single', { 2.reciprocal.sqrt },
-				'dual', {
+				\velocity, { 1 },
+				\energy, { 2.reciprocal.sqrt },
+				\controlled, { 2.reciprocal },
+				\single, { 2.reciprocal.sqrt },
+				\dual, {
 					shelfFreq = 400.0;
 					shelfK = [(3/2).sqrt, 3.sqrt/2];
 					1 // return
@@ -604,11 +604,11 @@ FoaDecoderMatrix : FoaMatrix {
 			^k
 		}, {
 			^switch(k,
-				'velocity', { 1 },
-				'energy', { 3.reciprocal.sqrt },
-				'controlled', { 3.reciprocal },
-				'single', { 3.reciprocal.sqrt },
-				'dual', {
+				\velocity, { 1 },
+				\energy, { 3.reciprocal.sqrt },
+				\controlled, { 3.reciprocal },
+				\single, { 3.reciprocal.sqrt },
+				\dual, {
 					shelfFreq = 400.0;
 					shelfK = [2.sqrt, (2 / 3).sqrt];
 					1 // return
@@ -700,8 +700,8 @@ FoaDecoderMatrix : FoaMatrix {
 		// return theta from output channel (speaker) number
 		theta = numChans.collect({ |channel|
 			switch(orientation,
-				'flat', { ((1.0 + (2.0 * channel)) / numChans) * pi },
-				'point', { ((2.0 * channel) / numChans) * pi }
+				\flat, { ((1.0 + (2.0 * channel)) / numChans) * pi },
+				\point, { ((2.0 * channel) / numChans) * pi }
 			)
 		});
 		theta = (theta + pi).mod(2pi) - pi;
@@ -736,7 +736,7 @@ FoaDecoderMatrix : FoaMatrix {
 			theta = theta ++ [2 * pi * i / numChanPairs]
 		});
 
-		if(orientation == 'flat', {
+		if(orientation == \flat, {
 			theta = theta + (pi / numChanPairs)  // 'flat' case
 		});
 
@@ -766,7 +766,7 @@ FoaDecoderMatrix : FoaMatrix {
 		upMatrix = matrix[..(numChanPairs - 1)];
 		downMatrix = matrix[(numChanPairs)..];
 
-		if(((orientation == 'flat') and: { numChanPairs.mod(2) == 1 }), {
+		if(((orientation == \flat) and: { numChanPairs.mod(2) == 1 }), {
 			// odd, 'flat'
 			downDirs = downDirs.rotate((numChanPairs / 2 + 1).asInteger);
 			downMatrix = downMatrix.rotate((numChanPairs / 2 + 1).asInteger)
@@ -845,12 +845,12 @@ FoaDecoderMatrix : FoaMatrix {
 			dirChannels = if(fileParse.dirOutputs.notNil, {
 				fileParse.dirOutputs.asFloat
 			}, { // output directions are unspecified in the provided matrix
-				(this.matrix.rows).collect({ 'unspecified' })
+				(this.matrix.rows).collect({ \unspecified })
 			});
 			shelfK = fileParse.shelfK !? { fileParse.shelfK.asFloat };
 			shelfFreq = fileParse.shelfFreq !? { fileParse.shelfFreq.asFloat };
 		}, { // txt file provided, no fileParse
-			dirChannels = (this.matrix.rows).collect({ 'unspecified' });
+			dirChannels = (this.matrix.rows).collect({ \unspecified });
 		});
 	}
 
@@ -862,66 +862,66 @@ FoaDecoderMatrix : FoaMatrix {
 
 FoaEncoderMatrix : FoaMatrix {
 
-	*newAtoB { |orientation = 'flu', weight = 'dec'|
-		^super.new('AtoB').loadFromLib(orientation, weight)
+	*newAtoB { |orientation = \flu, weight = \dec|
+		^super.new(\AtoB).loadFromLib(orientation, weight)
 	}
 
-	*newHoa1 { |ordering = 'acn', normalisation = 'n3d'|
-		^super.new('hoa1').loadFromLib(ordering, normalisation);
+	*newHoa1 { |ordering = \acn, normalisation = \n3d|
+		^super.new(\hoa1).loadFromLib(ordering, normalisation);
 	}
 
 	*newAmbix1 {
-		var ordering = 'acn', normalisation = 'sn3d';
-		^super.new('hoa1').loadFromLib(ordering, normalisation);
+		var ordering = \acn, normalisation = \sn3d;
+		^super.new(\hoa1).loadFromLib(ordering, normalisation);
 	}
 
 	*newZoomH2n {
-		var ordering = 'acn', normalisation = 'sn3d';
-		^super.new('hoa1').loadFromLib(ordering, normalisation);
+		var ordering = \acn, normalisation = \sn3d;
+		^super.new(\hoa1).loadFromLib(ordering, normalisation);
 	}
 
 	*newOmni {
-		^super.new('omni').loadFromLib;
+		^super.new(\omni).loadFromLib;
 	}
 
 	*newDirection { |theta = 0, phi = 0|
-		^super.new('dir').initDirection(theta, phi);
+		^super.new(\dir).initDirection(theta, phi);
 	}
 
 	*newStereo { |angle = 0|
-		^super.new('stereo').initStereo(angle);
+		^super.new(\stereo).initStereo(angle);
 	}
 
 	*newQuad {
-		^super.new('quad').loadFromLib;
+		^super.new(\quad).loadFromLib;
 	}
 
 	*new5_0 {
-		^super.new('5_0').loadFromLib;
+		^super.new(\5_0).loadFromLib;
 	}
 
 	*new7_0 {
-		^super.new('7_0').loadFromLib;
+		^super.new(\7_0).loadFromLib;
 	}
 
 	*newDirections { |directions, pattern = nil|
-		^super.new('dirs').initDirections(directions, pattern);
+		^super.new(\dirs).initDirections(directions, pattern);
 	}
 
-	*newPanto { |numChans = 4, orientation = 'flat'|
-		^super.new('panto').initPanto(numChans, orientation);
+	*newPanto { |numChans = 4, orientation = \flat|
+		^super.new(\panto).initPanto(numChans, orientation);
 	}
 
-	*newPeri { |numChanPairs = 4, elevation = 0.61547970867039, orientation = 'flat'|
-		^super.new('peri').initPeri(numChanPairs, elevation, orientation);
+	*newPeri { |numChanPairs = 4, elevation = 0.61547970867039, orientation = \flat|
+		^super.new(\peri).initPeri(numChanPairs, elevation, orientation);
 	}
 
 	*newZoomH2 { |angles = ([pi / 3, 3 / 4 * pi]), pattern = 0.5857, k = 1|
-		^super.new('zoomH2').initZoomH2(angles, pattern, k);
+		^super.new(\zoomH2).initZoomH2(angles, pattern, k);
 	}
 
 	*newFromFile { |filePathOrName|
-		^super.new.initFromFile(filePathOrName, 'encoder', true).initEncoderVarsForFiles
+		^super.new.initFromFile(filePathOrName, \encoder, true).initEncoderVarsForFiles
 	}
 
 	init2D {
@@ -1074,8 +1074,8 @@ FoaEncoderMatrix : FoaMatrix {
 		// return theta from output channel (speaker) number
 		theta = numChans.collect({ |channel|
 			switch(orientation,
-				'flat', { ((1.0 + (2.0 * channel)) / numChans) * pi },
-				'point', { ((2.0 * channel) / numChans) * pi }
+				\flat, { ((1.0 + (2.0 * channel)) / numChans) * pi },
+				\point, { ((2.0 * channel) / numChans) * pi }
 			)
 		});
 		theta = (theta + pi).mod(2pi) - pi;
@@ -1095,7 +1095,7 @@ FoaEncoderMatrix : FoaMatrix {
 		numChanPairs.do({ |i|
 			theta = theta ++ [2 * pi * i / numChanPairs]
 		});
-		if(orientation == 'flat', {
+		if(orientation == \flat, {
 			theta = theta + (pi / numChanPairs)
 		});       // 'flat' case
 
@@ -1115,7 +1115,7 @@ FoaEncoderMatrix : FoaMatrix {
 		});
 
 		// reorder the lower polygon
-		if((orientation == 'flat' and: { numChanPairs.mod(2) == 1 }), {
+		if((orientation == \flat and: { numChanPairs.mod(2) == 1 }), {
 			// odd, 'flat'
 			downDirs = downDirs.rotate((numChanPairs / 2 + 1).asInteger)
 		}, {
@@ -1145,10 +1145,10 @@ FoaEncoderMatrix : FoaMatrix {
 			if(fileParse.dirInputs.notNil, {
 				fileParse.dirInputs.asFloat
 			}, { // so input directions are unspecified in the provided matrix
-				(this.matrix.cols).collect({ 'unspecified' })
+				(this.matrix.cols).collect({ \unspecified })
 			})
 		}, { // txt file provided, no fileParse
-			(this.matrix.cols).collect({ 'unspecified' })
+			(this.matrix.cols).collect({ \unspecified })
 		})
 	}
 
@@ -1166,7 +1166,7 @@ FoaXformerMatrix : FoaMatrix {
 
 	// overload FoaMatrix *newFromMatrix
 	*newFromMatrix { |matrix|
-		^super.new('fromMatrix').initFromMatrix(matrix, nil)
+		^super.new(\fromMatrix).initFromMatrix(matrix, nil)
 	}
 
 	// ~~
@@ -1174,152 +1174,152 @@ FoaXformerMatrix : FoaMatrix {
 	// superceded by the kind specified in the .yml file
 	// e.g. 'mirrorX'
 	*newMirrorX {
-		^super.new('mirrorAxis').loadFromLib('x');
+		^super.new(\mirrorAxis).loadFromLib(\x);
 	}
 
 	*newMirrorY {
-		^super.new('mirrorAxis').loadFromLib('y');
+		^super.new(\mirrorAxis).loadFromLib(\y);
 	}
 
 	*newMirrorZ {
-		^super.new('mirrorAxis').loadFromLib('z');
+		^super.new(\mirrorAxis).loadFromLib(\z);
 	}
 
 	*newMirrorO {
-		^super.new('mirrorAxis').loadFromLib('o');
+		^super.new(\mirrorAxis).loadFromLib(\o);
 	}
 	//~~~
 
 	*newRotate { |angle = 0|
-		^super.new('rotate').initRotate(angle);
+		^super.new(\rotate).initRotate(angle);
 	}
 
 	*newTilt { |angle = 0|
-		^super.new('tilt').initTilt(angle);
+		^super.new(\tilt).initTilt(angle);
 	}
 
 	*newTumble { |angle = 0|
-		^super.new('tumble').initTumble(angle);
+		^super.new(\tumble).initTumble(angle);
 	}
 
 	*newDirectO { |angle = 0|
-		^super.new('directO').initDirectO(angle);
+		^super.new(\directO).initDirectO(angle);
 	}
 
 	*newDirectX { |angle = 0|
-		^super.new('directX').initDirectX(angle);
+		^super.new(\directX).initDirectX(angle);
 	}
 
 	*newDirectY { |angle = 0|
-		^super.new('directY').initDirectY(angle);
+		^super.new(\directY).initDirectY(angle);
 	}
 
 	*newDirectZ { |angle = 0|
-		^super.new('directZ').initDirectZ(angle);
+		^super.new(\directZ).initDirectZ(angle);
 	}
 
 	*newDominateX { |gain = 0|
-		^super.new('dominateX').initDominateX(gain);
+		^super.new(\dominateX).initDominateX(gain);
 	}
 
 	*newDominateY { |gain = 0|
-		^super.new('dominateY').initDominateY(gain);
+		^super.new(\dominateY).initDominateY(gain);
 	}
 
 	*newDominateZ { |gain = 0|
-		^super.new('dominateZ').initDominateZ(gain);
+		^super.new(\dominateZ).initDominateZ(gain);
 	}
 
 	*newZoomX { |angle = 0|
-		^super.new('zoomX').initZoomX(angle);
+		^super.new(\zoomX).initZoomX(angle);
 	}
 
 	*newZoomY { |angle = 0|
-		^super.new('zoomY').initZoomY(angle);
+		^super.new(\zoomY).initZoomY(angle);
 	}
 
 	*newZoomZ { |angle = 0|
-		^super.new('zoomZ').initZoomZ(angle);
+		^super.new(\zoomZ).initZoomZ(angle);
 	}
 
 	*newFocusX { |angle = 0|
-		^super.new('focusX').initFocusX(angle);
+		^super.new(\focusX).initFocusX(angle);
 	}
 
 	*newFocusY { |angle = 0|
-		^super.new('focusY').initFocusY(angle);
+		^super.new(\focusY).initFocusY(angle);
 	}
 
 	*newFocusZ { |angle = 0|
-		^super.new('focusZ').initFocusZ(angle);
+		^super.new(\focusZ).initFocusZ(angle);
 	}
 
 	*newPushX { |angle = 0|
-		^super.new('pushX').initPushX(angle);
+		^super.new(\pushX).initPushX(angle);
 	}
 
 	*newPushY { |angle = 0|
-		^super.new('pushY').initPushY(angle);
+		^super.new(\pushY).initPushY(angle);
 	}
 
 	*newPushZ { |angle = 0|
-		^super.new('pushZ').initPushZ(angle);
+		^super.new(\pushZ).initPushZ(angle);
 	}
 
 	*newPressX { |angle = 0|
-		^super.new('pressX').initPressX(angle);
+		^super.new(\pressX).initPressX(angle);
 	}
 
 	*newPressY { |angle = 0|
-		^super.new('pressY').initPressY(angle);
+		^super.new(\pressY).initPressY(angle);
 	}
 
 	*newPressZ { |angle = 0|
-		^super.new('pressZ').initPressZ(angle);
+		^super.new(\pressZ).initPressZ(angle);
 	}
 
 	*newAsymmetry { |angle = 0|
-		^super.new('asymmetry').initAsymmetry(angle);
+		^super.new(\asymmetry).initAsymmetry(angle);
 	}
 
 	*newBalance { |angle = 0|
-		^super.new('zoomY').initZoomY(angle);
+		^super.new(\zoomY).initZoomY(angle);
 	}
 
 	*newRTT { |rotAngle = 0, tilAngle = 0, tumAngle = 0|
-		^super.new('rtt').initRTT(rotAngle, tilAngle, tumAngle);
+		^super.new(\rtt).initRTT(rotAngle, tilAngle, tumAngle);
 	}
 
 	*newMirror { |theta = 0, phi = 0|
-		^super.new('mirror').initMirror(theta, phi);
+		^super.new(\mirror).initMirror(theta, phi);
 	}
 
 	*newDirect { |angle = 0, theta = 0, phi = 0|
-		^super.new('direct').initDirect(angle, theta, phi);
+		^super.new(\direct).initDirect(angle, theta, phi);
 	}
 
 	*newDominate { |gain = 0, theta = 0, phi = 0|
-		^super.new('dominate').initDominate(gain, theta, phi);
+		^super.new(\dominate).initDominate(gain, theta, phi);
 	}
 
 	*newZoom { |angle = 0, theta = 0, phi = 0|
-		^super.new('zoom').initZoom(angle, theta, phi);
+		^super.new(\zoom).initZoom(angle, theta, phi);
 	}
 
 	*newFocus { |angle = 0, theta = 0, phi = 0|
-		^super.new('focus').initFocus(angle, theta, phi);
+		^super.new(\focus).initFocus(angle, theta, phi);
 	}
 
 	*newPush { |angle = 0, theta = 0, phi = 0|
-		^super.new('push').initPush(angle, theta, phi);
+		^super.new(\push).initPush(angle, theta, phi);
 	}
 
 	*newPress { |angle = 0, theta = 0, phi = 0|
-		^super.new('press').initPress(angle, theta, phi);
+		^super.new(\press).initPress(angle, theta, phi);
 	}
 
 	*newFromFile { |filePathOrName|
-		^super.new.initFromFile(filePathOrName, 'xformer', true);
+		^super.new.initFromFile(filePathOrName, \xformer, true);
 	}
 
 	initRotate { |angle|
@@ -1785,36 +1785,36 @@ FoaDecoderKernel {
 	var <kind, <subjectID;
 	var <kernel, kernelBundle, kernelInfo;
 	var <dirChannels;
-	var <op = 'kernel';
-	var <set = 'FOA';
+	var <op = \kernel;
+	var <set = \FOA;
 
 
 	// *newSpherical { |subjectID = 0004, kernelSize = 512, server = Server.default|
-	// 	^super.newCopyArgs('spherical', subjectID).initKernel(kernelSize, server);
+	// 	^super.newCopyArgs(\spherical, subjectID).initKernel(kernelSize, server);
 	// }
 	//
 	// *newListen { |subjectID = 1002, server = Server.default|
-	// 	^super.newCopyArgs('listen', subjectID).initKernel(512, server);
+	// 	^super.newCopyArgs(\listen, subjectID).initKernel(512, server);
 	// }
 	//
 	// *newCIPIC { |subjectID = 0021, server = Server.default|
-	// 	^super.newCopyArgs('cipic', subjectID).initKernel(256, server);
+	// 	^super.newCopyArgs(\cipic, subjectID).initKernel(256, server);
 	// }
 
 	*newSpherical { |subjectID = 0004, server = (Server.default), sampleRate, score|
-		^super.newCopyArgs('spherical', subjectID).initKernel(nil, server, sampleRate, score);
+		^super.newCopyArgs(\spherical, subjectID).initKernel(nil, server, sampleRate, score);
 	}
 
 	*newListen { |subjectID = 1002, server = (Server.default), sampleRate, score|
-		^super.newCopyArgs('listen', subjectID).initKernel(nil, server, sampleRate, score);
+		^super.newCopyArgs(\listen, subjectID).initKernel(nil, server, sampleRate, score);
 	}
 
 	*newCIPIC { |subjectID = 0021, server = (Server.default), sampleRate, score|
-		^super.newCopyArgs('cipic', subjectID).initKernel(nil, server, sampleRate, score);
+		^super.newCopyArgs(\cipic, subjectID).initKernel(nil, server, sampleRate, score);
 	}
 
 	*newUHJ { |kernelSize = 512, server = (Server.default), sampleRate, score|
-		^super.newCopyArgs('uhj', 0).initKernel(kernelSize, server, sampleRate, score);
+		^super.newCopyArgs(\uhj, 0).initKernel(kernelSize, server, sampleRate, score);
 	}
 
 	initPath {
@@ -1861,7 +1861,7 @@ FoaDecoderKernel {
 		chans = 2;			// stereo kernel
 
 		// init dirChannels (output channel (speaker) directions) and kernel sr
-		if(this.kind == 'uhj', {
+		if(this.kind == \uhj, {
 			dirChannels = [pi/6, (pi/6).neg];
 			sampleRateStr = "None"
 		}, {
@@ -1874,13 +1874,13 @@ FoaDecoderKernel {
 		// init kernelSize if need be (usually for HRIRs)
 		if(kernelSize == nil, {
 			kernelSize = switch(sampleRateStr.asSymbol,
-				'None', 512,
-				'44100', 512,
-				'48000', 512,
-				'88200', 1024,
-				'96000', 1024,
-				'176400', 2048,
-				'192000', 2048
+				\None, 512,
+				\44100, 512,
+				\48000, 512,
+				\88200, 1024,
+				\96000, 1024,
+				\176400, 2048,
+				\192000, 2048
 			)
 		});
 
@@ -2055,7 +2055,7 @@ FoaDecoderKernel {
 
 	directions { ^dirChannels }
 
-	type { ^'decoder' }
+	type { ^\decoder }
 
 	printOn { |stream|
 		stream << this.class.name << "(" <<*
@@ -2071,23 +2071,23 @@ FoaEncoderKernel {
 	var <kind, <subjectID;
 	var <kernel, kernelBundle, kernelInfo;
 	var <dirChannels;
-	var <op = 'kernel';
-	var <set = 'FOA';
+	var <op = \kernel;
+	var <set = \FOA;
 
 	*newUHJ { |kernelSize = nil, server = (Server.default), sampleRate, score|
-		^super.newCopyArgs('uhj', 0).initKernel(kernelSize, server, sampleRate, score);
+		^super.newCopyArgs(\uhj, 0).initKernel(kernelSize, server, sampleRate, score);
 	}
 
 	*newSuper { |kernelSize = nil, server = (Server.default), sampleRate, score|
-		^super.newCopyArgs('super', 0).initKernel(kernelSize, server, sampleRate, score);
+		^super.newCopyArgs(\super, 0).initKernel(kernelSize, server, sampleRate, score);
 	}
 
 	*newSpread { |subjectID = 0006, kernelSize = 2048, server = (Server.default), sampleRate, score|
-		^super.newCopyArgs('spread', subjectID).initKernel(kernelSize, server, sampleRate, score);
+		^super.newCopyArgs(\spread, subjectID).initKernel(kernelSize, server, sampleRate, score);
 	}
 
 	*newDiffuse { |subjectID = 0003, kernelSize = 2048, server = (Server.default), sampleRate, score|
-		^super.newCopyArgs('diffuse', subjectID).initKernel(kernelSize, server, sampleRate, score);
+		^super.newCopyArgs(\diffuse, subjectID).initKernel(kernelSize, server, sampleRate, score);
 	}
 
 	// Encoding via Isophonics Room Impulse Response Data Set, not yet implemented.
@@ -2096,15 +2096,15 @@ FoaEncoderKernel {
 	// NOTE: Convolution2 doesn't support large, arbitrary sized kernels.
 
 //	*newGreatHall { |subjectID = "x06y02", server = Server.default|
-//		^super.newCopyArgs('greathall', subjectID).initKernel("None", server);
+//		^super.newCopyArgs(\greathall, subjectID).initKernel("None", server);
 //	}
 //
 //	*newOctagon { |subjectID = "x06y02", server = Server.default|
-//		^super.newCopyArgs('octagon', subjectID).initKernel("None", server);
+//		^super.newCopyArgs(\octagon, subjectID).initKernel("None", server);
 //	}
 //
 //	*newClassroom { |subjectID = "x30y10", server = Server.default|
-//		^super.newCopyArgs('classroom', subjectID).initKernel("None", server);
+//		^super.newCopyArgs(\classroom, subjectID).initKernel("None", server);
 //	}
 
 	initPath {
@@ -2145,26 +2145,26 @@ FoaEncoderKernel {
 
 		// init dirChannels (output channel (speaker) directions) and kernel sr
 		switch(this.kind,
-			'super', {
+			\super, {
 				dirChannels = [pi/4, (pi/4).neg];	 // approx, doesn't include phasiness
 				sampleRateStr = "None";
 				chans = 3					// [w, x, y]
 			},
-			'uhj', {
+			\uhj, {
 				dirChannels = [inf, inf];
 				if(sampleRateStr.isNil, {
 					sampleRateStr = server.sampleRate.asInteger.asString
 				});
 				chans = 3					// [w, x, y]
 			},
-			'spread', {
+			\spread, {
 				dirChannels = [inf];
 				if(sampleRateStr.isNil, {
 					sampleRateStr = server.sampleRate.asInteger.asString
 				});
 				chans = 4					// [w, x, y, z]
 			},
-			'diffuse', {
+			\diffuse, {
 				dirChannels = [inf];
 				sampleRateStr = "None";
 				chans = 4					// [w, x, y, z]
@@ -2174,13 +2174,13 @@ FoaEncoderKernel {
 		// init kernelSize if need be
 		if(kernelSize.isNil, {
 			kernelSize = switch(sampleRateStr.asSymbol,
-				'None', 512,
-				'44100', 512,
-				'48000', 512,
-				'88200', 1024,
-				'96000', 1024,
-				'176400', 2048,
-				'192000', 2048
+				\None, 512,
+				\44100, 512,
+				\48000, 512,
+				\88200, 1024,
+				\96000, 1024,
+				\176400, 2048,
+				\192000, 2048
 			)
 		});
 
@@ -2355,7 +2355,7 @@ FoaEncoderKernel {
 
 	directions { ^dirChannels }
 
-	type { ^'encoder' }
+	type { ^\encoder }
 
 	printOn { |stream|
 		stream << this.class.name << "(" <<*

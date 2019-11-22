@@ -95,7 +95,7 @@ FoaEval : FoaUGen {
 	*initClass {
 		reg = -192.dbamp;  // regularization factor
 		gamAlpA = 0.01.degrad;  // Active Alpha threshold, for Gamma calc
-		gamAlpR = (90.0 - 5.5).degrad;  // Reactive Alpha threshold, '' ''
+		gamAlpR = (90.0 - 5.5).degrad;  // Reactive Alpha threshold, for Gamma calc
 	}
 }
 
@@ -105,17 +105,17 @@ FoaEval : FoaUGen {
 
 // FOA potential energy
 FoaWp : FoaEval {
-	*ar { |in, size = 2048, method = 'instant'|
+	*ar { |in, size = 2048, method = \instant|
 		var p;
 
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
 
 		case(
-			{ method == 'instant' }, {
+			{ method == \instant }, {
 				^HilbertW.ar(p, size).squared.sum
 			},
-			{ method == 'average' }, {
+			{ method == \average }, {
 				var normFac;
 
 				normFac = 2 * size.reciprocal;
@@ -129,20 +129,20 @@ FoaWp : FoaEval {
 
 // FOA kinetic energy
 FoaWu : FoaEval {
-	*ar { |in, size = 2048, method = 'instant'|
+	*ar { |in, size = 2048, method = \instant|
 		var u;
 
 		in = this.checkChans(in);
 		u = in[1..3];  // [x, y, z] = velocity (vector)
 
 		case(
-			{ method == 'instant' }, {
+			{ method == \instant }, {
 
 				^HilbertW.ar(u, size).sum({ |item|
 					item.squared.sum
 				})
 			},
-			{ method == 'average' }, {
+			{ method == \average }, {
 				var normFac;
 
 				normFac = 2 * size.reciprocal;
@@ -156,7 +156,7 @@ FoaWu : FoaEval {
 
 // FOA potential & kinetic energy mean
 FoaWs : FoaEval {
-	*ar { |in, size = 2048, method = 'instant'|
+	*ar { |in, size = 2048, method = \instant|
 		var p, u;
 
 		in = this.checkChans(in);
@@ -164,7 +164,7 @@ FoaWs : FoaEval {
 		u = in[1..3];  // [x, y, z] = velocity (vector)
 
 		case(
-			{ method == 'instant' }, {
+			{ method == \instant }, {
 				var wp, wu;
 
 				wp = HilbertW.ar(p, size).squared.sum;
@@ -174,7 +174,7 @@ FoaWs : FoaEval {
 
 				^(0.5 * (wp + wu))
 			},
-			{ method == 'average' }, {
+			{ method == \average }, {
 				var wp, wu;
 				var normFac;
 
@@ -192,7 +192,7 @@ FoaWs : FoaEval {
 
 // FOA potential & kinetic energy difference
 FoaWd : FoaEval {
-	*ar { |in, size = 2048, method = 'instant'|
+	*ar { |in, size = 2048, method = \instant|
 		var p, u;
 
 		in = this.checkChans(in);
@@ -200,7 +200,7 @@ FoaWd : FoaEval {
 		u = in[1..3];  // [x, y, z] = velocity (vector)
 
 		case(
-			{ method == 'instant' }, {
+			{ method == \instant }, {
 				var wp, wu;
 
 				wp = HilbertW.ar(p, size).squared.sum;
@@ -210,7 +210,7 @@ FoaWd : FoaEval {
 
 				^(0.5 * (wp - wu))
 			},
-			{ method == 'average' }, {
+			{ method == \average }, {
 				var wp, wu;
 				var normFac;
 
@@ -228,7 +228,7 @@ FoaWd : FoaEval {
 
 // FOA Heyser energy density
 FoaWh : FoaEval {
-	*ar { |in, size = 2048, method = 'instant'|
+	*ar { |in, size = 2048, method = \instant|
 		var p, u;
 
 		in = this.checkChans(in);
@@ -236,7 +236,7 @@ FoaWh : FoaEval {
 		u = in[1..3];  // [x, y, z] = velocity (vector)
 
 		case(
-			{ method == 'instant' }, {
+			{ method == \instant }, {
 				var pReIm, pImRe, uReIm, wp, wu, ws, ir, magIr;
 
 				pReIm = HilbertW.ar(p, size);
@@ -256,7 +256,7 @@ FoaWh : FoaEval {
 
 				^(ws - magIr)
 			},
-			{ method == 'average' }, {
+			{ method == \average }, {
 				var wp, wu, ws, ia, magI_squared, magIa_squared, magIr;
 				var normFac;
 
@@ -284,7 +284,7 @@ FoaWh : FoaEval {
 
 // FOA Magnitude Intensity
 FoaMagI : FoaEval {
-	*ar { |in, size = 2048, method = 'instant'|
+	*ar { |in, size = 2048, method = \instant|
 		var p, u;
 
 		in = this.checkChans(in);
@@ -292,7 +292,7 @@ FoaMagI : FoaEval {
 		u = in[1..3];  // [x, y, z] = velocity (vector)
 
 		case(
-			{ method == 'instant' }, {
+			{ method == \instant }, {
 				var wp, wu;
 
 				wp = HilbertW.ar(p, size).squared.sum;
@@ -302,7 +302,7 @@ FoaMagI : FoaEval {
 
 				^(wp * wu).sqrt
 			},
-			{ method == 'average' }, {
+			{ method == \average }, {
 				var wp, wu;
 				var normFac;
 
@@ -320,7 +320,7 @@ FoaMagI : FoaEval {
 
 // FOA Magnitude Active Intensity
 FoaMagIa : FoaEval {
-	*ar { |in, size = 2048, method = 'instant'|
+	*ar { |in, size = 2048, method = \instant|
 		var p, u;
 
 		in = this.checkChans(in);
@@ -328,7 +328,7 @@ FoaMagIa : FoaEval {
 		u = in[1..3];  // [x, y, z] = velocity (vector)
 
 		case(
-			{ method == 'instant' }, {
+			{ method == \instant }, {
 				var pReIm, ia;
 
 				pReIm = HilbertW.ar(p, size);
@@ -339,7 +339,7 @@ FoaMagIa : FoaEval {
 
 				^ia.squared.sum.sqrt
 			},
-			{ method == 'average' }, {
+			{ method == \average }, {
 				var ia;
 				var normFac;
 
@@ -356,7 +356,7 @@ FoaMagIa : FoaEval {
 
 // FOA Magnitude Reactive Intensity
 FoaMagIr : FoaEval {
-	*ar { |in, size = 2048, method = 'instant'|
+	*ar { |in, size = 2048, method = \instant|
 		var p, u;
 
 		in = this.checkChans(in);
@@ -364,7 +364,7 @@ FoaMagIr : FoaEval {
 		u = in[1..3];  // [x, y, z] = velocity (vector)
 
 		case(
-			{ method == 'instant' }, {
+			{ method == \instant }, {
 				var pImRe, ir;
 
 				pImRe = [1, -1] * HilbertW.ar(p, size).reverse;
@@ -375,7 +375,7 @@ FoaMagIr : FoaEval {
 
 				^ir.squared.sum.sqrt
 			},
-			{ method == 'average' }, {
+			{ method == \average }, {
 				var wp, wu, ia, magI_squared, magIa_squared;
 				var normFac;
 
@@ -398,7 +398,7 @@ FoaMagIr : FoaEval {
 
 // FOA Magnitude Admittance
 FoaMagA : FoaEval {
-	*ar { |in, size = 2048, method = 'instant'|
+	*ar { |in, size = 2048, method = \instant|
 		var p, u;
 
 		in = this.checkChans(in);
@@ -406,7 +406,7 @@ FoaMagA : FoaEval {
 		u = in[1..3];  // [x, y, z] = velocity (vector)
 
 		case(
-			{ method == 'instant' }, {
+			{ method == \instant }, {
 				var wp, wu, magI;
 
 				wp = HilbertW.ar(p, size).squared.sum;
@@ -418,7 +418,7 @@ FoaMagA : FoaEval {
 
 				^(magI / (wp + DC.ar(FoaEval.reg)))
 			},
-			{ method == 'average' }, {
+			{ method == \average }, {
 				var wp, wu, magI;
 				var normFac;
 
@@ -438,7 +438,7 @@ FoaMagA : FoaEval {
 
 // FOA Magnitude Active Admittance
 FoaMagAa : FoaEval {
-	*ar { |in, size = 2048, method = 'instant'|
+	*ar { |in, size = 2048, method = \instant|
 		var p, u;
 
 		in = this.checkChans(in);
@@ -446,7 +446,7 @@ FoaMagAa : FoaEval {
 		u = in[1..3];  // [x, y, z] = velocity (vector)
 
 		case(
-			{ method == 'instant' }, {
+			{ method == \instant }, {
 				var pReIm, wp, ia, magIa;
 
 				pReIm = HilbertW.ar(p, size);
@@ -459,7 +459,7 @@ FoaMagAa : FoaEval {
 
 				^(magIa / (wp + DC.ar(FoaEval.reg)))
 			},
-			{ method == 'average' }, {
+			{ method == \average }, {
 				var wp, ia, magIa;
 				var normFac;
 
@@ -478,7 +478,7 @@ FoaMagAa : FoaEval {
 
 // FOA Magnitude Reactive Admittance
 FoaMagAr : FoaEval {
-	*ar { |in, size = 2048, method = 'instant'|
+	*ar { |in, size = 2048, method = \instant|
 		var p, u;
 
 		in = this.checkChans(in);
@@ -486,7 +486,7 @@ FoaMagAr : FoaEval {
 		u = in[1..3];  // [x, y, z] = velocity (vector)
 
 		case(
-			{ method == 'instant' }, {
+			{ method == \instant }, {
 				var pReIm, pImRe, wp, ir, magIr;
 
 				pReIm = HilbertW.ar(p, size);
@@ -502,7 +502,7 @@ FoaMagAr : FoaEval {
 
 				^(magIr / (wp + DC.ar(FoaEval.reg)))
 			},
-			{ method == 'average' }, {
+			{ method == \average }, {
 				var wp, wu, ia, magI_squared, magIa_squared, magIr;
 				var normFac;
 
@@ -525,7 +525,7 @@ FoaMagAr : FoaEval {
 
 // FOA Magnitude Energy
 FoaMagW : FoaEval {
-	*ar { |in, size = 2048, method = 'instant'|
+	*ar { |in, size = 2048, method = \instant|
 		var p, u;
 
 		in = this.checkChans(in);
@@ -533,7 +533,7 @@ FoaMagW : FoaEval {
 		u = in[1..3];  // [x, y, z] = velocity (vector)
 
 		case(
-			{ method == 'instant' }, {
+			{ method == \instant }, {
 				var wp, wu, ws, magI;
 
 				wp = HilbertW.ar(p, size).squared.sum;
@@ -546,7 +546,7 @@ FoaMagW : FoaEval {
 
 				^(magI / (ws + DC.ar(FoaEval.reg)))
 			},
-			{ method == 'average' }, {
+			{ method == \average }, {
 				var wp, wu, ws, magI;
 				var normFac;
 
@@ -567,7 +567,7 @@ FoaMagW : FoaEval {
 
 // FOA Magnitude Active Energy
 FoaMagWa : FoaEval {
-	*ar { |in, size = 2048, method = 'instant'|
+	*ar { |in, size = 2048, method = \instant|
 		var p, u;
 
 		in = this.checkChans(in);
@@ -575,7 +575,7 @@ FoaMagWa : FoaEval {
 		u = in[1..3];  // [x, y, z] = velocity (vector)
 
 		case(
-			{ method == 'instant' }, {
+			{ method == \instant }, {
 				var pReIm, uReIm, wp, wu, ws, ia, magIa;
 
 				pReIm = HilbertW.ar(p, size);
@@ -594,7 +594,7 @@ FoaMagWa : FoaEval {
 
 				^(magIa / (ws + DC.ar(FoaEval.reg)))
 			},
-			{ method == 'average' }, {
+			{ method == \average }, {
 				var wp, wu, ws, ia, magIa;
 				var normFac;
 
@@ -616,7 +616,7 @@ FoaMagWa : FoaEval {
 
 // FOA Magnitude Reactive Energy
 FoaMagWr : FoaEval {
-	*ar { |in, size = 2048, method = 'instant'|
+	*ar { |in, size = 2048, method = \instant|
 		var p, u;
 
 		in = this.checkChans(in);
@@ -624,7 +624,7 @@ FoaMagWr : FoaEval {
 		u = in[1..3];  // [x, y, z] = velocity (vector)
 
 		case(
-			{ method == 'instant' }, {
+			{ method == \instant }, {
 				var pReIm, pImRe, uReIm, wp, wu, ws, ir, magIr;
 
 				pReIm = HilbertW.ar(p, size);
@@ -644,7 +644,7 @@ FoaMagWr : FoaEval {
 
 				^(magIr / (ws + DC.ar(FoaEval.reg)))
 			},
-			{ method == 'average' }, {
+			{ method == \average }, {
 				var wp, wu, ws, ia, magI_squared, magIa_squared, magIr;
 				var normFac;
 
@@ -668,7 +668,7 @@ FoaMagWr : FoaEval {
 
 // FOA Magnitude Unit Normalized Active Intensity
 FoaMagNa : FoaEval {
-	*ar { |in, size = 2048, method = 'instant'|
+	*ar { |in, size = 2048, method = \instant|
 		var p, u;
 
 		in = this.checkChans(in);
@@ -676,7 +676,7 @@ FoaMagNa : FoaEval {
 		u = in[1..3];  // [x, y, z] = velocity (vector)
 
 		case(
-			{ method == 'instant' }, {
+			{ method == \instant }, {
 				var pReIm, uReIm, wp, wu, magI, ia, magIa;
 
 				pReIm = HilbertW.ar(p, size);
@@ -695,7 +695,7 @@ FoaMagNa : FoaEval {
 
 				^(magIa / (magI + DC.ar(FoaEval.reg)))
 			},
-			{ method == 'average' }, {
+			{ method == \average }, {
 				var wp, wu, magI, ia, magIa;
 				var normFac;
 
@@ -717,7 +717,7 @@ FoaMagNa : FoaEval {
 
 // FOA Magnitude Unit Normalized Reactive Intensity
 FoaMagNr : FoaEval {
-	*ar { |in, size = 2048, method = 'instant'|
+	*ar { |in, size = 2048, method = \instant|
 		var p, u;
 
 		in = this.checkChans(in);
@@ -725,7 +725,7 @@ FoaMagNr : FoaEval {
 		u = in[1..3];  // [x, y, z] = velocity (vector)
 
 		case(
-			{ method == 'instant' }, {
+			{ method == \instant }, {
 				var pReIm, pImRe, uReIm, wp, wu, magI, ir, magIr;
 
 				pReIm = HilbertW.ar(p, size);
@@ -745,7 +745,7 @@ FoaMagNr : FoaEval {
 
 				^(magIr / (magI + DC.ar(FoaEval.reg)))
 			},
-			{ method == 'average' }, {
+			{ method == \average }, {
 				var wp, wu, magI, ia, magI_squared, magIa_squared, magIr;
 				var normFac;
 
@@ -772,7 +772,7 @@ FoaMagNr : FoaEval {
 
 // FOA SFPL
 FoaSFPL : FoaEval {
-	*ar { |in, size = 2048, method = 'instant'|
+	*ar { |in, size = 2048, method = \instant|
 		var wp;
 
 		wp = FoaWp.ar(in, size = 2048, method);
@@ -784,7 +784,7 @@ FoaSFPL : FoaEval {
 
 // FOA SFVL
 FoaSFVL : FoaEval {
-	*ar { |in, size = 2048, method = 'instant'|
+	*ar { |in, size = 2048, method = \instant|
 		var wu;
 
 		wu = FoaWu.ar(in, size = 2048, method);
@@ -796,7 +796,7 @@ FoaSFVL : FoaEval {
 
 // FOA SFWL
 FoaSFWL : FoaEval {
-	*ar { |in, size = 2048, method = 'instant'|
+	*ar { |in, size = 2048, method = \instant|
 		var ws;
 
 		ws = FoaWs.ar(in, size = 2048, method);
@@ -808,7 +808,7 @@ FoaSFWL : FoaEval {
 
 // FOA SFWhL
 FoaSFWhL : FoaEval {
-	*ar { |in, size = 2048, method = 'instant'|
+	*ar { |in, size = 2048, method = \instant|
 		var wh;
 
 		wh = FoaWh.ar(in, size = 2048, method);
@@ -820,7 +820,7 @@ FoaSFWhL : FoaEval {
 
 // FOA SFIL
 FoaSFIL : FoaEval {
-	*ar { |in, size = 2048, method = 'instant'|
+	*ar { |in, size = 2048, method = \instant|
 		var i;
 
 		i = FoaMagI.ar(in, size = 2048, method);
@@ -837,7 +837,7 @@ FoaSFIL : FoaEval {
 
 // FOA Active-Reactive Soundfield Balance Angle: Alpha
 FoaAlpha : FoaEval {
-	*ar { |in, size = 2048, method = 'instant'|
+	*ar { |in, size = 2048, method = \instant|
 		var p, u;
 
 		in = this.checkChans(in);
@@ -845,7 +845,7 @@ FoaAlpha : FoaEval {
 		u = in[1..3];  // [x, y, z] = velocity (vector)
 
 		case(
-			{ method == 'instant' }, {
+			{ method == \instant }, {
 				var pReIm, pImRe, uReIm, ia, magIa, ir, magIr;
 
 				pReIm = HilbertW.ar(p, size);
@@ -864,7 +864,7 @@ FoaAlpha : FoaEval {
 
 				^atan2(magIr, magIa + DC.ar(FoaEval.reg))
 			},
-			{ method == 'average' }, {
+			{ method == \average }, {
 				var wp, wu, ia, magI_squared, magIa_squared, magIa, magIr;
 				var normFac;
 
@@ -889,7 +889,7 @@ FoaAlpha : FoaEval {
 
 // FOA Potential-Kinetic Soundfield Balance Angle: Beta
 FoaBeta : FoaEval {
-	*ar { |in, size = 2048, method = 'instant'|
+	*ar { |in, size = 2048, method = \instant|
 		var p, u;
 
 		in = this.checkChans(in);
@@ -897,7 +897,7 @@ FoaBeta : FoaEval {
 		u = in[1..3];  // [x, y, z] = velocity (vector)
 
 		case(
-			{ method == 'instant' }, {
+			{ method == \instant }, {
 				var wp, wu, wd, magI;
 
 				wp = HilbertW.ar(p, size).squared.sum;
@@ -909,7 +909,7 @@ FoaBeta : FoaEval {
 
 				^atan2(wd, magI + DC.ar(FoaEval.reg))
 			},
-			{ method == 'average' }, {
+			{ method == \average }, {
 				var wp, wu, wd, magI;
 				var normFac;
 
@@ -930,7 +930,7 @@ FoaBeta : FoaEval {
 
 // FOA Active-Reactive Vector Alignment Angle: Gamma
 FoaGamma : FoaEval {
-	*ar { |in, size = 2048, method = 'instant'|
+	*ar { |in, size = 2048, method = \instant|
 		var p, u;
 
 		in = this.checkChans(in);
@@ -938,7 +938,7 @@ FoaGamma : FoaEval {
 		u = in[1..3];  // [x, y, z] = velocity (vector)
 
 		case(
-			{ method == 'instant' }, {
+			{ method == \instant }, {
 				var pReIm, pImRe, uReIm, ia, magIa, ir, magIr, cosFac, sinFac;
 				var reg, alpha, gateA, gateR;  // gate using -thresh
 
@@ -973,7 +973,7 @@ FoaGamma : FoaEval {
 
 				^atan2(sinFac, cosFac + reg)
 			},
-			{ method == 'average' }, {
+			{ method == \average }, {
 				// Consider re-writing this!!
 				Error(format("FoaGamma.ar argument method = %, INVALID.", method)).throw;
 			}
@@ -992,7 +992,7 @@ FoaGamma : FoaEval {
 
 // FOA Active Intensity Azimuth, Elevation
 FoaThetaPhiA : FoaEval {
-	*ar { |in, size = 2048, method = 'instant'|
+	*ar { |in, size = 2048, method = \instant|
 		var p, u;
 
 		in = this.checkChans(in);
@@ -1000,7 +1000,7 @@ FoaThetaPhiA : FoaEval {
 		u = in[1..3];  // [x, y, z] = velocity (vector)
 
 		case(
-			{ method == 'instant' }, {
+			{ method == \instant }, {
 				var pReIm, pImRe, uReIm, ia, magIa, ir, magIr, theta, phi;
 				var reg, alpha, gateA;  // gate using -thresh
 
@@ -1031,7 +1031,7 @@ FoaThetaPhiA : FoaEval {
 
 				^Array.with(theta, phi)
 			},
-			{ method == 'average' }, {
+			{ method == \average }, {
 				var wp, wu, ia, magI_squared, magIa_squared, magIa, magIr, theta, phi;
 				var reg, alpha, gateA;  // gate using -thresh
 				var normFac;
@@ -1068,7 +1068,7 @@ FoaThetaPhiA : FoaEval {
 
 // FOA Reactive Intensity Azimuth, Elevation
 FoaThetaPhiR : FoaEval {
-	*ar { |in, size = 2048, method = 'instant'|
+	*ar { |in, size = 2048, method = \instant|
 		var p, u;
 
 		in = this.checkChans(in);
@@ -1076,7 +1076,7 @@ FoaThetaPhiR : FoaEval {
 		u = in[1..3];  // [x, y, z] = velocity (vector)
 
 		case(
-			{ method == 'instant' }, {
+			{ method == \instant }, {
 				var pReIm, pImRe, uReIm, ia, magIa, ir, magIr, theta, phi;
 				var reg, alpha, gateR;  // gate using -thresh
 
@@ -1107,7 +1107,7 @@ FoaThetaPhiR : FoaEval {
 
 				^Array.with(theta, phi)
 			},
-			{ method == 'average' }, {
+			{ method == \average }, {
 				// Consider re-writing this!!
 				Error(format("FoaThetaPhiR.ar argument method = %, INVALID.", method)).throw;
 			}
@@ -1121,7 +1121,7 @@ FoaThetaPhiR : FoaEval {
 
 // FOA Active Intensity
 FoaIa : FoaEval {
-	*ar { |in, size = 2048, method = 'instant'|
+	*ar { |in, size = 2048, method = \instant|
 		var p, u;
 
 		in = this.checkChans(in);
@@ -1129,7 +1129,7 @@ FoaIa : FoaEval {
 		u = in[1..3];  // [x, y, z] = velocity (vector)
 
 		case(
-			{ method == 'instant' }, {
+			{ method == \instant }, {
 				var pReIm, ia;
 
 				pReIm = HilbertW.ar(p, size);
@@ -1140,7 +1140,7 @@ FoaIa : FoaEval {
 
 				^ia
 			},
-			{ method == 'average' }, {
+			{ method == \average }, {
 				var ia;
 				var normFac;
 
@@ -1157,7 +1157,7 @@ FoaIa : FoaEval {
 
 // FOA Reactive Intensity
 FoaIr : FoaEval {
-	*ar { |in, size = 2048, method = 'instant'|
+	*ar { |in, size = 2048, method = \instant|
 		var p, u;
 
 		in = this.checkChans(in);
@@ -1165,7 +1165,7 @@ FoaIr : FoaEval {
 		u = in[1..3];  // [x, y, z] = velocity (vector)
 
 		case(
-			{ method == 'instant' }, {
+			{ method == \instant }, {
 				var pImRe, ir;
 
 				pImRe = [1, -1] * HilbertW.ar(p, size).reverse;
@@ -1176,7 +1176,7 @@ FoaIr : FoaEval {
 
 				^ir
 			},
-			{ method == 'average' }, {
+			{ method == \average }, {
 				// Consider re-writing this!!
 				Error(format("FoaIr.ar argument method = %, INVALID.", method)).throw;
 			}
@@ -1187,7 +1187,7 @@ FoaIr : FoaEval {
 
 // FOA Active Admittance
 FoaAa : FoaEval {
-	*ar { |in, size = 2048, method = 'instant'|
+	*ar { |in, size = 2048, method = \instant|
 		var p, u;
 
 		in = this.checkChans(in);
@@ -1195,7 +1195,7 @@ FoaAa : FoaEval {
 		u = in[1..3];  // [x, y, z] = velocity (vector)
 
 		case(
-			{ method == 'instant' }, {
+			{ method == \instant }, {
 				var pReIm, wp, ia, aa;
 
 				pReIm = HilbertW.ar(p, size);
@@ -1208,7 +1208,7 @@ FoaAa : FoaEval {
 
 				^aa
 			},
-			{ method == 'average' }, {
+			{ method == \average }, {
 				var wp, ia, aa;
 				var normFac;
 
@@ -1227,7 +1227,7 @@ FoaAa : FoaEval {
 
 // FOA Reactive Admittance
 FoaAr : FoaEval {
-	*ar { |in, size = 2048, method = 'instant'|
+	*ar { |in, size = 2048, method = \instant|
 		var p, u;
 
 		in = this.checkChans(in);
@@ -1235,7 +1235,7 @@ FoaAr : FoaEval {
 		u = in[1..3];  // [x, y, z] = velocity (vector)
 
 		case(
-			{ method == 'instant' }, {
+			{ method == \instant }, {
 				var pReIm, pImRe, wp, ir, ar;
 
 				pReIm = HilbertW.ar(p, size);
@@ -1251,7 +1251,7 @@ FoaAr : FoaEval {
 
 				^ar
 			},
-			{ method == 'average' }, {
+			{ method == \average }, {
 				// Consider re-writing this!!
 				Error(format("FoaAr.ar argument method = %, INVALID.", method)).throw;
 			}
@@ -1262,7 +1262,7 @@ FoaAr : FoaEval {
 
 // FOA Active Energy
 FoaWa : FoaEval {
-	*ar { |in, size = 2048, method = 'instant'|
+	*ar { |in, size = 2048, method = \instant|
 		var p, u;
 
 		in = this.checkChans(in);
@@ -1270,7 +1270,7 @@ FoaWa : FoaEval {
 		u = in[1..3];  // [x, y, z] = velocity (vector)
 
 		case(
-			{ method == 'instant' }, {
+			{ method == \instant }, {
 				var pReIm, uReIm, wp, wu, ws, ia, wa;
 
 				pReIm = HilbertW.ar(p, size);
@@ -1289,7 +1289,7 @@ FoaWa : FoaEval {
 
 				^wa
 			},
-			{ method == 'average' }, {
+			{ method == \average }, {
 				var wp, wu, ws, ia, wa;
 				var normFac;
 
@@ -1311,7 +1311,7 @@ FoaWa : FoaEval {
 
 // FOA Reactive Energy
 FoaWr : FoaEval {
-	*ar { |in, size = 2048, method = 'instant'|
+	*ar { |in, size = 2048, method = \instant|
 		var p, u;
 
 		in = this.checkChans(in);
@@ -1319,7 +1319,7 @@ FoaWr : FoaEval {
 		u = in[1..3];  // [x, y, z] = velocity (vector)
 
 		case(
-			{ method == 'instant' }, {
+			{ method == \instant }, {
 				var pReIm, pImRe, uReIm, wp, wu, ws, ir, wr;
 
 				pReIm = HilbertW.ar(p, size);
@@ -1339,7 +1339,7 @@ FoaWr : FoaEval {
 
 				^wr
 			},
-			{ method == 'average' }, {
+			{ method == \average }, {
 				// Consider re-writing this!!
 				Error(format("FoaWr.ar argument method = %, INVALID.", method)).throw;
 			}
@@ -1350,7 +1350,7 @@ FoaWr : FoaEval {
 
 // FOA Unit Normalized Active Intensity
 FoaNa : FoaEval {
-	*ar { |in, size = 2048, method = 'instant'|
+	*ar { |in, size = 2048, method = \instant|
 		var p, u;
 
 		in = this.checkChans(in);
@@ -1358,7 +1358,7 @@ FoaNa : FoaEval {
 		u = in[1..3];  // [x, y, z] = velocity (vector)
 
 		case(
-			{ method == 'instant' }, {
+			{ method == \instant }, {
 				var pReIm, uReIm, wp, wu, magI, ia, na;
 
 				pReIm = HilbertW.ar(p, size);
@@ -1377,7 +1377,7 @@ FoaNa : FoaEval {
 
 				^na
 			},
-			{ method == 'average' }, {
+			{ method == \average }, {
 				var wp, wu, magI, ia, na;
 				var normFac;
 
@@ -1399,7 +1399,7 @@ FoaNa : FoaEval {
 
 // FOA Unit Normalized Reactive Intensity
 FoaNr : FoaEval {
-	*ar { |in, size = 2048, method = 'instant'|
+	*ar { |in, size = 2048, method = \instant|
 		var p, u;
 
 		in = this.checkChans(in);
@@ -1407,7 +1407,7 @@ FoaNr : FoaEval {
 		u = in[1..3];  // [x, y, z] = velocity (vector)
 
 		case(
-			{ method == 'instant' }, {
+			{ method == \instant }, {
 				var pReIm, pImRe, uReIm, wp, wu, magI, ir, nr;
 
 				pReIm = HilbertW.ar(p, size);
@@ -1427,7 +1427,7 @@ FoaNr : FoaEval {
 
 				^nr
 			},
-			{ method == 'average' }, {
+			{ method == \average }, {
 				// Consider re-writing this!!
 				Error(format("FoaNr.ar argument method = %, INVALID.", method)).throw;
 			}
@@ -1458,10 +1458,10 @@ FoaAnalyze : FoaEval {
 
 		switch(kind,
 
-			'Wp', {
+			\Wp, {
 
 				ugen = FoaWp;
-				argDefaults = [2048, 'instant'];
+				argDefaults = [2048, \instant];
 
 				argDict = this.argDict(ugen, args, argDefaults);
 
@@ -1471,10 +1471,10 @@ FoaAnalyze : FoaEval {
 				)
 			},
 
-			'Wu', {
+			\Wu, {
 
 				ugen = FoaWu;
-				argDefaults = [2048, 'instant'];
+				argDefaults = [2048, \instant];
 
 				argDict = this.argDict(ugen, args, argDefaults);
 
@@ -1484,10 +1484,10 @@ FoaAnalyze : FoaEval {
 				)
 			},
 
-			'Ws', {
+			\Ws, {
 
 				ugen = FoaWs;
-				argDefaults = [2048, 'instant'];
+				argDefaults = [2048, \instant];
 
 				argDict = this.argDict(ugen, args, argDefaults);
 
@@ -1497,10 +1497,10 @@ FoaAnalyze : FoaEval {
 				)
 			},
 
-			'Wd', {
+			\Wd, {
 
 				ugen = FoaWd;
-				argDefaults = [2048, 'instant'];
+				argDefaults = [2048, \instant];
 
 				argDict = this.argDict(ugen, args, argDefaults);
 
@@ -1510,10 +1510,10 @@ FoaAnalyze : FoaEval {
 				)
 			},
 
-			'Wh', {
+			\Wh, {
 
 				ugen = FoaWh;
-				argDefaults = [2048, 'instant'];
+				argDefaults = [2048, \instant];
 
 				argDict = this.argDict(ugen, args, argDefaults);
 
@@ -1523,11 +1523,11 @@ FoaAnalyze : FoaEval {
 				)
 			},
 
-			// 'magI', {
+			// \magI, {
 			'||I||', {
 
 				ugen = FoaMagI;
-				argDefaults = [2048, 'instant'];
+				argDefaults = [2048, \instant];
 
 				argDict = this.argDict(ugen, args, argDefaults);
 
@@ -1537,11 +1537,11 @@ FoaAnalyze : FoaEval {
 				)
 			},
 
-			// 'magIa', {
+			// \magIa, {
 			'||Ia||', {
 
 				ugen = FoaMagIa;
-				argDefaults = [2048, 'instant'];
+				argDefaults = [2048, \instant];
 
 				argDict = this.argDict(ugen, args, argDefaults);
 
@@ -1551,11 +1551,11 @@ FoaAnalyze : FoaEval {
 				)
 			},
 
-			// 'magIr', {
+			// \magIr, {
 			'||Ir||', {
 
 				ugen = FoaMagIr;
-				argDefaults = [2048, 'instant'];
+				argDefaults = [2048, \instant];
 
 				argDict = this.argDict(ugen, args, argDefaults);
 
@@ -1565,11 +1565,11 @@ FoaAnalyze : FoaEval {
 				)
 			},
 
-			// 'magA', {
+			// \magA, {
 			'||A||', {
 
 				ugen = FoaMagA;
-				argDefaults = [2048, 'instant'];
+				argDefaults = [2048, \instant];
 
 				argDict = this.argDict(ugen, args, argDefaults);
 
@@ -1579,11 +1579,11 @@ FoaAnalyze : FoaEval {
 				)
 			},
 
-			// 'magAa', {
+			// \magAa, {
 			'||Aa||', {
 
 				ugen = FoaMagAa;
-				argDefaults = [2048, 'instant'];
+				argDefaults = [2048, \instant];
 
 				argDict = this.argDict(ugen, args, argDefaults);
 
@@ -1593,11 +1593,11 @@ FoaAnalyze : FoaEval {
 				)
 			},
 
-			// 'magAr', {
+			// \magAr, {
 			'||Ar||', {
 
 				ugen = FoaMagAr;
-				argDefaults = [2048, 'instant'];
+				argDefaults = [2048, \instant];
 
 				argDict = this.argDict(ugen, args, argDefaults);
 
@@ -1607,11 +1607,11 @@ FoaAnalyze : FoaEval {
 				)
 			},
 
-			// 'magW', {
+			// \magW, {
 			'||W||', {
 
 				ugen = FoaMagW;
-				argDefaults = [2048, 'instant'];
+				argDefaults = [2048, \instant];
 
 				argDict = this.argDict(ugen, args, argDefaults);
 
@@ -1621,11 +1621,11 @@ FoaAnalyze : FoaEval {
 				)
 			},
 
-			// 'magWa', {
+			// \magWa, {
 			'||Wa||', {
 
 				ugen = FoaMagWa;
-				argDefaults = [2048, 'instant'];
+				argDefaults = [2048, \instant];
 
 				argDict = this.argDict(ugen, args, argDefaults);
 
@@ -1635,11 +1635,11 @@ FoaAnalyze : FoaEval {
 				)
 			},
 
-			// 'magWr', {
+			// \magWr, {
 			'||Wr||', {
 
 				ugen = FoaMagWr;
-				argDefaults = [2048, 'instant'];
+				argDefaults = [2048, \instant];
 
 				argDict = this.argDict(ugen, args, argDefaults);
 
@@ -1649,11 +1649,11 @@ FoaAnalyze : FoaEval {
 				)
 			},
 
-			// 'magNa', {
+			// \magNa, {
 			'||Na||', {
 
 				ugen = FoaMagNa;
-				argDefaults = [2048, 'instant'];
+				argDefaults = [2048, \instant];
 
 				argDict = this.argDict(ugen, args, argDefaults);
 
@@ -1663,11 +1663,11 @@ FoaAnalyze : FoaEval {
 				)
 			},
 
-			// 'magNr', {
+			// \magNr, {
 			'||Nr||', {
 
 				ugen = FoaMagNr;
-				argDefaults = [2048, 'instant'];
+				argDefaults = [2048, \instant];
 
 				argDict = this.argDict(ugen, args, argDefaults);
 
@@ -1677,10 +1677,10 @@ FoaAnalyze : FoaEval {
 				)
 			},
 
-			'SFPL', {
+			\SFPL, {
 
 				ugen = FoaSFPL;
-				argDefaults = [2048, 'instant'];
+				argDefaults = [2048, \instant];
 
 				argDict = this.argDict(ugen, args, argDefaults);
 
@@ -1690,10 +1690,10 @@ FoaAnalyze : FoaEval {
 				)
 			},
 
-			'SFVL', {
+			\SFVL, {
 
 				ugen = FoaSFVL;
-				argDefaults = [2048, 'instant'];
+				argDefaults = [2048, \instant];
 
 				argDict = this.argDict(ugen, args, argDefaults);
 
@@ -1703,10 +1703,10 @@ FoaAnalyze : FoaEval {
 				)
 			},
 
-			'SFWL', {
+			\SFWL, {
 
 				ugen = FoaSFWL;
-				argDefaults = [2048, 'instant'];
+				argDefaults = [2048, \instant];
 
 				argDict = this.argDict(ugen, args, argDefaults);
 
@@ -1716,10 +1716,10 @@ FoaAnalyze : FoaEval {
 				)
 			},
 
-			'SFWhL', {
+			\SFWhL, {
 
 				ugen = FoaSFWhL;
-				argDefaults = [2048, 'instant'];
+				argDefaults = [2048, \instant];
 
 				argDict = this.argDict(ugen, args, argDefaults);
 
@@ -1729,10 +1729,10 @@ FoaAnalyze : FoaEval {
 				)
 			},
 
-			'SFIL', {
+			\SFIL, {
 
 				ugen = FoaSFIL;
-				argDefaults = [2048, 'instant'];
+				argDefaults = [2048, \instant];
 
 				argDict = this.argDict(ugen, args, argDefaults);
 
@@ -1742,10 +1742,10 @@ FoaAnalyze : FoaEval {
 				)
 			},
 
-			'alpha', {
+			\alpha, {
 
 				ugen = FoaAlpha;
-				argDefaults = [2048, 'instant'];
+				argDefaults = [2048, \instant];
 
 				argDict = this.argDict(ugen, args, argDefaults);
 
@@ -1755,10 +1755,10 @@ FoaAnalyze : FoaEval {
 				)
 			},
 
-			'beta', {
+			\beta, {
 
 				ugen = FoaBeta;
-				argDefaults = [2048, 'instant'];
+				argDefaults = [2048, \instant];
 
 				argDict = this.argDict(ugen, args, argDefaults);
 
@@ -1768,10 +1768,10 @@ FoaAnalyze : FoaEval {
 				)
 			},
 
-			'gamma', {
+			\gamma, {
 
 				ugen = FoaGamma;
-				argDefaults = [2048, 'instant'];
+				argDefaults = [2048, \instant];
 
 				argDict = this.argDict(ugen, args, argDefaults);
 
@@ -1781,10 +1781,10 @@ FoaAnalyze : FoaEval {
 				)
 			},
 
-			'thetaPhia', {
+			\thetaPhia, {
 
 				ugen = FoaThetaPhiA;
-				argDefaults = [2048, 'instant'];
+				argDefaults = [2048, \instant];
 
 				argDict = this.argDict(ugen, args, argDefaults);
 
@@ -1794,10 +1794,10 @@ FoaAnalyze : FoaEval {
 				)
 			},
 
-			'thetaPhir', {
+			\thetaPhir, {
 
 				ugen = FoaThetaPhiR;
-				argDefaults = [2048, 'instant'];
+				argDefaults = [2048, \instant];
 
 				argDict = this.argDict(ugen, args, argDefaults);
 
@@ -1807,10 +1807,10 @@ FoaAnalyze : FoaEval {
 				)
 			},
 
-			'Ia', {
+			\Ia, {
 
 				ugen = FoaIa;
-				argDefaults = [2048, 'instant'];
+				argDefaults = [2048, \instant];
 
 				argDict = this.argDict(ugen, args, argDefaults);
 
@@ -1820,10 +1820,10 @@ FoaAnalyze : FoaEval {
 				)
 			},
 
-			'Ir', {
+			\Ir, {
 
 				ugen = FoaIr;
-				argDefaults = [2048, 'instant'];
+				argDefaults = [2048, \instant];
 
 				argDict = this.argDict(ugen, args, argDefaults);
 
@@ -1833,10 +1833,10 @@ FoaAnalyze : FoaEval {
 				)
 			},
 
-			'Aa', {
+			\Aa, {
 
 				ugen = FoaAa;
-				argDefaults = [2048, 'instant'];
+				argDefaults = [2048, \instant];
 
 				argDict = this.argDict(ugen, args, argDefaults);
 
@@ -1846,10 +1846,10 @@ FoaAnalyze : FoaEval {
 				)
 			},
 
-			'Ar', {
+			\Ar, {
 
 				ugen = FoaAr;
-				argDefaults = [2048, 'instant'];
+				argDefaults = [2048, \instant];
 
 				argDict = this.argDict(ugen, args, argDefaults);
 
@@ -1859,10 +1859,10 @@ FoaAnalyze : FoaEval {
 				)
 			},
 
-			'Wa', {
+			\Wa, {
 
 				ugen = FoaWa;
-				argDefaults = [2048, 'instant'];
+				argDefaults = [2048, \instant];
 
 				argDict = this.argDict(ugen, args, argDefaults);
 
@@ -1872,10 +1872,10 @@ FoaAnalyze : FoaEval {
 				)
 			},
 
-			'Wr', {
+			\Wr, {
 
 				ugen = FoaWr;
-				argDefaults = [2048, 'instant'];
+				argDefaults = [2048, \instant];
 
 				argDict = this.argDict(ugen, args, argDefaults);
 
@@ -1885,10 +1885,10 @@ FoaAnalyze : FoaEval {
 				)
 			},
 
-			'Na', {
+			\Na, {
 
 				ugen = FoaNa;
-				argDefaults = [2048, 'instant'];
+				argDefaults = [2048, \instant];
 
 				argDict = this.argDict(ugen, args, argDefaults);
 
@@ -1898,10 +1898,10 @@ FoaAnalyze : FoaEval {
 				)
 			},
 
-			'Nr', {
+			\Nr, {
 
 				ugen = FoaNr;
-				argDefaults = [2048, 'instant'];
+				argDefaults = [2048, \instant];
 
 				argDict = this.argDict(ugen, args, argDefaults);
 

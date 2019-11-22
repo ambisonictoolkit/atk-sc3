@@ -75,7 +75,7 @@ AtkTests {
 	// orientation:  tetrahedral orientation for \tetra group
 	// numDirs:      number of directions to return in the case the
 	//               group doesn't inherently determine the number (e.g. random directions)
-	*getDirs { |group = \tetra, orientation = 'flu', numDirs = 25|
+	*getDirs { |group = \tetra, orientation = \flu, numDirs = 25|
 
 		^switch(group,
 			\axis, {  // axis directions

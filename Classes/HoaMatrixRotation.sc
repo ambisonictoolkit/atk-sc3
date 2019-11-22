@@ -124,7 +124,7 @@ HoaMatrixRotation {
 
 	init { |order|
 		r3x3 = this.eulerToR3(r1, r2, r3, axes);
-		matrix = this.buildSHRotMtx(r3x3, order, 'real');
+		matrix = this.buildSHRotMtx(r3x3, order, \real);
 	}
 
 
@@ -160,21 +160,21 @@ HoaMatrixRotation {
 		// commented rows to the right show source's values,
 		^Matrix.with(
 			switch(axis,
-				'x', {
+				\x, {
 					[
 						[1, 0, 0],
 						[0, cost, sint_neg], // [0, cost, sint],
 						[0, sint, cost]      // [0, sint_neg, cost]
 					]
 				},
-				'y', {
+				\y, {
 					[
 						[cost, 0, sint_neg],
 						[0, 1, 0],
 						[sint, 0, cost]
 					]
 				},
-				'z', {
+				\z, {
 					[
 						[cost, sint_neg, 0], // [cost, sint, 0],
 						[sint, cost, 0],     // [sint_neg, cost, 0],

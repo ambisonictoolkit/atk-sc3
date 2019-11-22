@@ -170,7 +170,7 @@ TestHoaMatrixRotation : UnitTest {
 			ref = FoaXformerMatrix.newRTT(*rtt).matrix * FoaEncoderMatrix.newDirection(0, 0).matrix.addRow([0]);
 			// A first order planewave, encoded with HOA rotation matrix
 			test = (
-				HoaMatrixRotation(rtt[0], rtt[1], rtt[2], 'zxy', 1).matrix *
+				HoaMatrixRotation(rtt[0], rtt[1], rtt[2], \zxy, 1).matrix *
 				HoaMatrixEncoder.newDirection(0, 0, order: 1).matrix;
 			);
 			// "decode" the HOA (acn-n3d) to FOA (fuma-maxN), for test comparison
@@ -192,7 +192,7 @@ TestHoaMatrixRotation : UnitTest {
 
 // test for buildSHRotMtx
 (
-var r1, r2, r3, axes = 'xyz';
+var r1, r2, r3, axes = \xyz;
 10.do{
 #r1,r2,r3 = 3.collect{rrand(-2pi,2pi)};
 x = HoaMatrixRotation(r1, r2, r3, axes, 3);
@@ -209,7 +209,7 @@ nil
 
 // test for eulerToR3
 (
-var r1, r2, r3, axes = 'xyz';
+var r1, r2, r3, axes = \xyz;
 10.do{
 #r1,r2,r3 = 3.collect{rrand(-2pi,2pi)};
 x = HoaMatrixRotation(r1, r2, r3, axes);
@@ -226,7 +226,7 @@ nil
 
 // test for buildR1
 (
-var r123, x, res, axes = 'xyz';
+var r123, x, res, axes = \xyz;
 10.do{
 	r123 = 3.collect{rrand(-2pi,2pi)};
 	x = HoaMatrixRotation(r1, r2, r3, axes);

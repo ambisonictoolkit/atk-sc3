@@ -97,24 +97,24 @@ FoaAudition {
 		fork({
 			(auditionEnabled.not and: { loading }).if({ "waiting for load".postln; initCond.wait });
 
-			if(['inbus', 'soundfile', 'pwNoise', 'diffuseNoise'].includes(which).not, {
+			if([\inbus, \soundfile, \pwNoise, \diffuseNoise].includes(which).not, {
 				error("didn't find that synth tag.")
 			});
 
 			#synth, tag = switch(which,
-				'inbus',        { [inbusSynth, \inbusSynthRunning] },
-				'soundfile',    { [soundfileSynth, \sfSynthRunning] },
-				'pwNoise',      { [pwSynth, \pwSynthRunning] },
-				'diffuseNoise', { [diffSynth, \diffSynthRunning] }
+				\inbus,        { [inbusSynth, \inbusSynthRunning] },
+				\soundfile,    { [soundfileSynth, \sfSynthRunning] },
+				\pwNoise,      { [pwSynth, \pwSynthRunning] },
+				\diffuseNoise, { [diffSynth, \diffSynthRunning] }
 			);
 
 			// for sf case, check that there's a buffer
-			if(which == 'soundfile', {
+			if(which == \soundfile, {
 				soundfileBuf ?? {
 					abort = true;
 					this.changed(\status, warn("No Soundfile buffer loaded!"));
 					this.changed(\sfSynthRunning, false);
-					['inbus', 'soundfile', 'pwNoise', 'diffuseNoise'].do({ |name| this.stopSynth(name) })
+					[\inbus, \soundfile, \pwNoise, \diffuseNoise].do({ |name| this.stopSynth(name) })
 				}
 			});
 
@@ -123,14 +123,14 @@ FoaAudition {
 				// BufRateScale to work correctly
 				synth.run;
 				server.sync;
-				if(which == 'soundfile', {
+				if(which == \soundfile, {
 					soundfileSynth.set(\buffer, soundfileBuf);
 					server.sync;
 				});
 				synth.set(\gate, 1);
 				this.changed(tag, true);
 				// stop the other synths - ony 1 plays at a time
-				['inbus', 'soundfile', 'pwNoise', 'diffuseNoise'].do({ |name|
+				[\inbus, \soundfile, \pwNoise, \diffuseNoise].do({ |name|
 					(name != which).if({ this.stopSynth(name) })
 				})
 			})
@@ -143,15 +143,15 @@ FoaAudition {
 	stopSynth { |which|
 		var synth, tag;
 
-		if(['inbus', 'soundfile', 'pwNoise', 'diffuseNoise'].includes(which).not, {
+		if([\inbus, \soundfile, \pwNoise, \diffuseNoise].includes(which).not, {
 				error("stopSynth didn't find that synth tag")
 		});
 
 		#synth, tag = switch(which,
-			'inbus',        { [inbusSynth, \inbusSynthRunning] },
-			'soundfile',    { [soundfileSynth, \sfSynthRunning] },
-			'pwNoise',        { [pwSynth, \pwSynthRunning] },
-			'diffuseNoise', { [diffSynth, \diffSynthRunning] }
+			\inbus,        { [inbusSynth, \inbusSynthRunning] },
+			\soundfile,    { [soundfileSynth, \sfSynthRunning] },
+			\pwNoise,        { [pwSynth, \pwSynthRunning] },
+			\diffuseNoise, { [diffSynth, \diffSynthRunning] }
 		);
 
 		// if(synth.notNil and: synth.isRunning) {
@@ -351,49 +351,49 @@ FoaAudition {
 			};
 
 			pwSynth = Synth.newPaused(\FoaAudition_foaPanNoise,
-				['outbus', matrixFader.inbus,
-					'rotating', 1, 'rotfreq', 0.1,
-					'tumbling', 0, 'tumfreq', 0.1,
-					'pulsed', 1, 'pulsefreq', 3,
-					'releaseTime', synthReleaseTime,
-					'gate', 0  // initialized with gate closed
+				[\outbus, matrixFader.inbus,
+					\rotating, 1, \rotfreq, 0.1,
+					\tumbling, 0, \tumfreq, 0.1,
+					\pulsed, 1, \pulsefreq, 3,
+					\releaseTime, synthReleaseTime,
+					\gate, 0  // initialized with gate closed
 				],
 				group, \addToHead
 			);
 
 			sfSynth_3ch = Synth.newPaused(\FoaAudition_foaSoundfile_3ch,
-				['outbus', matrixFader.inbus,
-					'buffer', dummyBuf,
-					// 'buffer', ,    // set by .loadSoundfileBuffer
-					'releaseTime', synthReleaseTime,
-					'gate', 0
+				[\outbus, matrixFader.inbus,
+					\buffer, dummyBuf,
+					// \buffer, ,    // set by .loadSoundfileBuffer
+					\releaseTime, synthReleaseTime,
+					\gate, 0
 				],
 				group, \addToHead
 			);
 
 			sfSynth_4ch = Synth.newPaused(\FoaAudition_foaSoundfile_4ch,
-				['outbus', matrixFader.inbus,
-					'buffer', dummyBuf,
-					// 'buffer', ,    // set by .loadSoundfileBuffer
-					'releaseTime', synthReleaseTime,
-					'gate', 0
+				[\outbus, matrixFader.inbus,
+					\buffer, dummyBuf,
+					// \buffer, ,    // set by .loadSoundfileBuffer
+					\releaseTime, synthReleaseTime,
+					\gate, 0
 				],
 				group, \addToHead
 			);
 
 			inbusSynth = Synth.newPaused(\FoaAudition_foaInbus,
-				['outbus', matrixFader.inbus,
-					'inbus', inbus,
-					'releaseTime', synthReleaseTime,
-					'gate', 0
+				[\outbus, matrixFader.inbus,
+					\inbus, inbus,
+					\releaseTime, synthReleaseTime,
+					\gate, 0
 				],
 				group, \addToHead
 			);
 
 			diffSynth = Synth.newPaused(\FoaAudition_foaDiffuseNoise,
-				['outbus', matrixFader.inbus,
-					'releaseTime', synthReleaseTime,
-					'gate', 0
+				[\outbus, matrixFader.inbus,
+					\releaseTime, synthReleaseTime,
+					\gate, 0
 				],
 				group, \addToHead
 			);
@@ -594,9 +594,9 @@ FoaAuditionView {
 
 	initWidgets {
 		/* global controls */
-		ampSpec = ControlSpec(-80, 12, warp: 'db', default: 0);
-		azimSpec = ControlSpec(180, -180, warp: 'lin', default: 0);
-		elSpec = ControlSpec(-90, 90, warp: 'lin', default: 0);
+		ampSpec = ControlSpec(-80, 12, warp: \db, default: 0);
+		azimSpec = ControlSpec(180, -180, warp: \lin, default: 0);
+		elSpec = ControlSpec(-90, 90, warp: \lin, default: 0);
 
 		outbusBx = NumberBox().action_({ |bx|
 			audition.outbus_(bx.value);
@@ -626,10 +626,10 @@ FoaAuditionView {
 		.mouseDownAction_({ |but|
 			audition.pwSynth.get(\gate, { |gate|
 				if(gate.asBoolean, {
-					audition.stopSynth('pwNoise');
+					audition.stopSynth(\pwNoise);
 					defer({ but.stringColor_(stopColor) })
 				}, {
-					audition.playSynth('pwNoise');
+					audition.playSynth(\pwNoise);
 					defer({ but.stringColor_(playColor) })
 				})
 			})
@@ -767,16 +767,16 @@ FoaAuditionView {
 				// found a running synth, switch it's state
 				synth.get(\gate, { |gate|
 					if(gate.asBoolean, {
-						audition.stopSynth('soundfile');
+						audition.stopSynth(\soundfile);
 						defer({ but.stringColor_(stopColor) })
 					}, {
-						audition.playSynth('soundfile');
+						audition.playSynth(\soundfile);
 						defer({ but.stringColor_(playColor) })
 					})
 				})
 			}, {
 				// found a no running synth, start one
-				audition.playSynth('soundfile')
+				audition.playSynth(\soundfile)
 			})
 		});
 
@@ -786,10 +786,10 @@ FoaAuditionView {
 		.mouseDownAction_({ |but|
 			audition.diffSynth.get(\gate, { |gate|
 				if(gate.asBoolean, {
-					audition.stopSynth('diffuseNoise');
+					audition.stopSynth(\diffuseNoise);
 					defer({ but.stringColor_(stopColor) })
 				}, {
-					audition.playSynth('diffuseNoise');
+					audition.playSynth(\diffuseNoise);
 					defer({ but.stringColor_(playColor) })
 				})
 			})
@@ -801,10 +801,10 @@ FoaAuditionView {
 		.mouseDownAction_({ |but|
 			audition.inbusSynth.get(\gate, { |gate|
 				if(gate.asBoolean, {
-					audition.stopSynth('inbus');
+					audition.stopSynth(\inbus);
 					defer({ but.stringColor_(stopColor) })
 				}, {
-					audition.playSynth('inbus');
+					audition.playSynth(\inbus);
 					defer({ but.stringColor_(playColor) })
 				})
 			})
@@ -987,7 +987,7 @@ FoaAuditionView {
 						VLayout(
 							// [StaticText().string_("Degree").align_(\center), a: \center],
 							[azimBx.fixedWidth_(40).fixedHeight_(18), a: \center],
-							azimSl.orientation_('horizontal').fixedHeight_(18),
+							azimSl.orientation_(\horizontal).fixedHeight_(18),
 						)
 					).margins_(0)
 				),
@@ -1008,7 +1008,7 @@ FoaAuditionView {
 						VLayout(
 							// [StaticText().string_("Degree").align_(\center), a: \center],
 							[elBx.fixedWidth_(40).fixedHeight_(18), a: \center],
-							elSl.orientation_('horizontal').fixedHeight_(18),
+							elSl.orientation_(\horizontal).fixedHeight_(18),
 						)
 					).margins_(0)
 				),
@@ -1088,10 +1088,10 @@ FoaAuditionView {
 						.layout_(
 							HLayout(
 								[StaticText().string_("Gain")
-									.align_('left').stringColor_(paramHeaderTxtColor),
+									.align_(\left).stringColor_(paramHeaderTxtColor),
 									a: \center],
 								[ampBx.fixedWidth_(45), a: \center],
-								[ampSl.orientation_('horizontal').minWidth_(285), a: \left],
+								[ampSl.orientation_(\horizontal).minWidth_(285), a: \left],
 							).margins_(0),
 						),
 

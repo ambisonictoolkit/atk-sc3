@@ -172,15 +172,15 @@ FoaXformDisplay {
 		scrnB = Window.screenBounds;
 		winW= 600;
 		winH= 450;
-		dirDisplay = 'size';
+		dirDisplay = \size;
 
 		// create the transform view, index [0][1] in displayChain
-		displayXFormView = FoaXformView(this, 'display', 0, 1);
+		displayXFormView = FoaXformView(this, \display, 0, 1);
 
 		// initialize aeds for display before drawing
-		this.prUpdateMatrix('display');
+		this.prUpdateMatrix(\display);
 		// init var
-		lastUpdatedMatrix = 'display';
+		lastUpdatedMatrix = \display;
 
 		sfWin = Window("Soundfield Transform",
 			Rect(scrnB.center.x - (winW / 2), scrnB.height - winH - 45, winW, winH),
@@ -203,8 +203,8 @@ FoaXformDisplay {
 
 		sfWin.view.palette_(
 			QPalette.dark
-			.setColor(Color.gray, 'base')
-			.setColor(Color.gray, 'alternateBase')
+			.setColor(Color.gray, \base)
+			.setColor(Color.gray, \alternateBase)
 		)
 		.background_(xfColor)
 		.layout_(VLayout(uv, ctlv).margins_(0));
@@ -212,7 +212,7 @@ FoaXformDisplay {
 		this.prDefineDrawSoundfield;
 
 		displayXFormView.ctlLayout.insert(
-			StaticText().string_("Display Transform").align_('center').maxHeight_(15),
+			StaticText().string_("Display Transform").align_(\center).maxHeight_(15),
 			0
 		);
 
@@ -318,7 +318,7 @@ FoaXformDisplay {
 
 		// set color pallette
 		xfWin.view.palette_(QPalette.dark.setColor(
-			Color.gray, 'base').setColor(Color.gray, 'alternateBase')
+			Color.gray, \base).setColor(Color.gray, \alternateBase)
 		).background_(xfColor);
 
 		// an HLayout in which to place chain views
@@ -447,7 +447,7 @@ FoaXformDisplay {
 
 					// directivity circle
 					switch(dirDisplay,
-						'size', {
+						\size, {
 							Pen.fillColor_(gainColor.alpha_(alphaSpec.map(dir)));
 							Pen.fillOval(Rect(
 								drawPnt.x - omniRad, drawPnt.y - omniRad, omniDiam, omniDiam));
@@ -471,7 +471,7 @@ FoaXformDisplay {
 							// scale in/out toward/away from origin
 							gainPnt = azPnt * 1.15
 						},
-						'radius', {
+						\radius, {
 							Pen.fillColor_(gainColor);
 							Pen.fillOval(Rect(drawPnt.x - pointRad, drawPnt.y - pointRad, d, d));
 
@@ -667,7 +667,7 @@ FoaXformDisplay {
 						StaticText().string_("Directivity Display"),
 						PopUpMenu().items_(['Size + Radius', 'Radius Only'])
 						.action_({ |mn|
-							dirDisplay = switch(mn.value, 0, { 'size' }, 1, { 'radius' });
+							dirDisplay = switch(mn.value, 0, { \size }, 1, { \radius });
 							this.prUpdateMatrix(lastUpdatedMatrix); // which matrix?
 						}).maxWidth_(130),
 						nil
@@ -684,7 +684,7 @@ FoaXformDisplay {
 	createNewXForm { |whichChain, index|
 		var xForm, maxChainSize = 0;
 
-		xForm = FoaXformView(this, 'chain', whichChain, index);
+		xForm = FoaXformView(this, \chain, whichChain, index);
 
 		// add the xformView object to the chain list
 		xfViewChains[whichChain].insert(index, xForm);
@@ -829,8 +829,8 @@ FoaXformDisplay {
 	// and the matrix in the transform chain, depending on the last touched
 	curXformMatrix {
 		^case(
-			{ lastUpdatedMatrix === 'chain' }, { chain.curXformMatrix },
-			{ lastUpdatedMatrix === 'display' }, { displayChain.curXformMatrix },
+			{ lastUpdatedMatrix === \chain }, { chain.curXformMatrix },
+			{ lastUpdatedMatrix === \display }, { displayChain.curXformMatrix },
 			{ (lastUpdatedMatrix.isKindOf(Matrix) or: lastUpdatedMatrix.isKindOf(FoaXformerMatrix)) }, {
 				lastUpdatedMatrix
 			}
@@ -843,8 +843,8 @@ FoaXformDisplay {
 		var xfMatrix;
 
 		xfMatrix = case(
-			{ whichMatrix === 'chain' }, { chain.curXformMatrix },
-			{ whichMatrix === 'display' }, { displayChain.curXformMatrix },
+			{ whichMatrix === \chain }, { chain.curXformMatrix },
+			{ whichMatrix === \display }, { displayChain.curXformMatrix },
 			{ (whichMatrix.isKindOf(Matrix) or: whichMatrix.isKindOf(FoaXformerMatrix)) }, {
 				whichMatrix
 			}
@@ -1084,7 +1084,7 @@ FoaXformDisplay {
 					index = args[0];
 					// postf("responding to \chainRemoved: %\n", index);
 					this.removeChainView(index);
-					this.prUpdateMatrix('chain')
+					this.prUpdateMatrix(\chain)
 				},
 				\transformAdded, {
 					var xformName, whichChain, index;
@@ -1092,7 +1092,7 @@ FoaXformDisplay {
 					#xformName, whichChain, index = args[0..2];
 					this.createNewXForm(whichChain, index);
 					this.prUpdateInputMenus;
-					this.prUpdateMatrix('chain')
+					this.prUpdateMatrix(\chain)
 				},
 				\transformRemoved, {
 					{
@@ -1102,7 +1102,7 @@ FoaXformDisplay {
 						this.prRemoveXForm(whichChain, index);
 						0.02.wait; // for some reason needs time to remove
 						this.prUpdateInputMenus;
-						this.prUpdateMatrix('chain')
+						this.prUpdateMatrix(\chain)
 					}.fork(clock: AppClock)
 				},
 				\transformReplaced, {
@@ -1110,13 +1110,13 @@ FoaXformDisplay {
 
 					#newXformName, whichChain, index = args[0..2];
 					xfViewChains[whichChain][index].rebuildControls;
-					this.prUpdateMatrix('chain')
+					this.prUpdateMatrix(\chain)
 				},
 				\transformMuted, {
 					var whichChain, index, bool;
 
 					#whichChain, index, bool = args[0..2];
-					this.prUpdateMatrix('chain');
+					this.prUpdateMatrix(\chain);
 					xfViewChains[whichChain][index].muteState(bool); // update UI with muted state
 
 					// if another xf is soloed, re-perform the solo
@@ -1149,7 +1149,7 @@ FoaXformDisplay {
 					var whichChain, index, bool, unmuting, chainDex;
 
 					#whichChain, index, bool = args[0..2];
-					this.prUpdateMatrix('chain');
+					this.prUpdateMatrix(\chain);
 					unmuting = bool.not;
 					xfViewChains[whichChain][index].soloState(bool); // update UI with soloed state
 
@@ -1182,7 +1182,7 @@ FoaXformDisplay {
 					})
 				},
 				\paramUpdated, {
-					this.prUpdateMatrix('chain')
+					this.prUpdateMatrix(\chain)
 				}
 			)
 		});
@@ -1194,10 +1194,10 @@ FoaXformDisplay {
 
 					#newXformName, whichChain, index = args[0..2];
 					displayXFormView.rebuildControls;
-					this.prUpdateMatrix('display')
+					this.prUpdateMatrix(\display)
 				},
 				\paramUpdated, {
-					this.prUpdateMatrix('display')
+					this.prUpdateMatrix(\display)
 				}
 			)
 		});

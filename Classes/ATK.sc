@@ -116,9 +116,9 @@ Atk {
 		// Supported sets—this is only for directory management and
 		// should be revisited. No need for arbitrary set limit.
 		sets = [
-			'FOA', 'HOA1', 'HOA2', 'HOA3', 'HOA4', 'HOA5',
-			'HOA6', 'HOA7', 'HOA8', 'HOA9', 'HOA10', 'HOA11',
-			'HOA12', 'HOA13', 'HOA14', 'HOA15'
+			\FOA, \HOA1, \HOA2, \HOA3, \HOA4, \HOA5,
+			\HOA6, \HOA7, \HOA8, \HOA9, \HOA10, \HOA11,
+			\HOA12, \HOA13, \HOA14, \HOA15
 		];
 	}
 
@@ -208,18 +208,18 @@ Atk {
 		})
 	}
 
-	// op: 'matrices', 'kernels'
+	// op: \matrices, \kernels
 	*getAtkOpPath { |op, isExtension = false|
 		var str, subPath, kindPath, fullPath, tested;
 
 		tested = List();
 
 		str = switch(op.asSymbol,
-			'matrices', { "/matrices" },
-			'kernels',  { "/kernels" },
+			\matrices, { "/matrices" },
+			\kernels,  { "/kernels" },
 			// include singular
-			'matrix',   { "/matrices" },
-			'kernel',   { "/kernels" }
+			\matrix,   { "/matrices" },
+			\kernel,   { "/kernels" }
 		);
 
 		// assume user directory first
@@ -253,9 +253,9 @@ Atk {
 		^subPath
 	}
 
-	//  set: 'FOA', 'HOA1', 'HOA2', etc
-	//  type: 'decoder(s)', 'encoder(s)', 'xformer(s)'
-	//  op: 'matrices', 'kernels'
+	//  set: \FOA, \HOA1, \HOA2, etc
+	//  type: \decoder(s), \encoder(s), \xformer(s)
+	//  op: \matrices, \kernels
 	*getExtensionSubPath { |set, type, op|
 		var subPath, typePath, fullPath;
 
@@ -266,13 +266,13 @@ Atk {
 		typePath = PathName.new(
 			set.asString.toUpper ++ "/" ++ // folder structure is uppercase
 			switch(type.asSymbol,
-				'decoders', { "decoders" },
-				'encoders', { "encoders" },
-				'xformers', { "xformers" },
+				\decoders, { "decoders" },
+				\encoders, { "encoders" },
+				\xformers, { "xformers" },
 				// include singular
-				'decoder', { "decoders" },
-				'encoder', { "encoders" },
-				'xformer', { "xformers" }
+				\decoder, { "decoders" },
+				\encoder, { "encoders" },
+				\xformer, { "xformers" }
 			)
 		);
 
@@ -281,9 +281,9 @@ Atk {
 		^fullPath
 	}
 
-	//  set: 'FOA', 'HOA1', 'HOA2', etc
-	//  type: 'decoder(s)', 'encoder(s)', 'xformer(s)'
-	//  op: 'matrices', 'kernels'
+	//  set: \FOA, \HOA1, \HOA2, etc
+	//  type: \decoder(s), \encoder(s), \xformer(s)
+	//  op: \matrices, \kernels
 	*getAtkOpSubPath { |set, type, op|
 		var subPath, typePath, fullPath;
 
@@ -294,13 +294,13 @@ Atk {
 		typePath = PathName.new(
 			set.asString.toUpper ++ "/" ++ // folder structure is uppercase
 			switch(type.asSymbol,
-				'decoders', { "decoders" },
-				'encoders', { "encoders" },
-				'xformers', { "xformers" },
+				\decoders, { "decoders" },
+				\encoders, { "encoders" },
+				\xformers, { "xformers" },
 				// include singular
-				'decoder', { "decoders" },
-				'encoder', { "encoders" },
-				'xformer', { "xformers" }
+				\decoder, { "decoders" },
+				\encoder, { "encoders" },
+				\xformer, { "xformers" }
 			)
 		);
 
@@ -312,22 +312,22 @@ Atk {
 	// shortcuts for matrices and kernels, aka 'ops'
 	*getMatrixExtensionSubPath { |set, type|
 		type ?? { Error("Unspecified matrix type. Please specify 'encoder', 'decoder', or 'xformer'.").errorString.postln; ^nil };
-		^Atk.getExtensionSubPath(set, type, 'matrices');
+		^Atk.getExtensionSubPath(set, type, \matrices);
 	}
 
 	*getKernelExtensionSubPath { |set, type|
 		type ?? { Error("Unspecified kernel type. Please specify 'encoder', 'decoder', or 'xformer'.").errorString.postln; ^nil };
-		^Atk.getExtensionSubPath(set, type, 'kernels');
+		^Atk.getExtensionSubPath(set, type, \kernels);
 	}
 
 	*getAtkMatrixSubPath { |set, type|
 		type ?? { Error("Unspecified matrix type. Please specify 'encoder', 'decoder', or 'xformer'.").errorString.postln; ^nil };
-		^Atk.getAtkOpSubPath(set, type, 'matrices');
+		^Atk.getAtkOpSubPath(set, type, \matrices);
 	}
 
 	*getAtkKernelSubPath { |set, type|
 		type ?? { Error("Unspecified matrix type. Please specify 'encoder', 'decoder', or 'xformer'.").errorString.postln; ^nil };
-		^Atk.getAtkOpSubPath(set, type, 'kernels');
+		^Atk.getAtkOpSubPath(set, type, \kernels);
 	}
 
 	*folderExists { |folderPathName, throwOnFail = true|
@@ -346,7 +346,7 @@ Atk {
 	}
 
 	// NOTE: could be generalized for other user extensions, e.g. kernels, etc.
-	// set: 'FOA', 'HOA1', 'HOA2', etc., required if filePathOrName isn't a full path
+	// set: \FOA, \HOA1, \HOA2, etc., required if filePathOrName isn't a full path
 	*resolveMtxPath { |filePathOrName, mtxType, set, searchExtensions = false|
 		var usrPN, srcPath, relPath, mtxDirPath;
 		var hasExtension, hasRelPath;
@@ -479,7 +479,7 @@ Atk {
 	}
 
 	// NOTE: could be generalized for other user extensions.
-	// e.g. kernels, etc. type: 'decoders', 'encoders', 'xformers'
+	// e.g. kernels, etc. type: \decoders, \encoders, \xformers
 	*postMyMatrices { |set, type|
 		var postContents;
 
@@ -514,11 +514,11 @@ Atk {
 
 			postContents.(
 				if(type.isNil, {
-					Atk.getAtkOpPath('matrices', isExtension:true) +/+ set.asString.toUpper
+					Atk.getAtkOpPath(\matrices, isExtension:true) +/+ set.asString.toUpper
 				}, {
 					if([
-						'decoders', 'encoders', 'xformers',
-						'decoder', 'encoder', 'xformer'		// include singular
+						\decoders, \encoders, \xformers,
+						\decoder, \encoder, \xformer		// include singular
 					].includes(type.asSymbol), {
 						Atk.getMatrixExtensionSubPath(set, type)
 					}, {
@@ -539,7 +539,7 @@ Atk {
 FoaPanB : MultiOutUGen {
 
 	*ar { |in, azimuth = 0, elevation = 0, mul = 1, add = 0|
-		^this.multiNew('audio', in, azimuth, elevation).madd(mul, add);
+		^this.multiNew(\audio, in, azimuth, elevation).madd(mul, add);
 	}
 
 	init { |... theInputs|
@@ -601,7 +601,7 @@ FoaDirectO : Foa {
 
 		in = this.checkChans(in);
 		#w, x, y, z = in;
-		^this.multiNew('audio', w, x, y, z, angle).madd(mul, add);
+		^this.multiNew(\audio, w, x, y, z, angle).madd(mul, add);
 	}
 }
 
@@ -612,7 +612,7 @@ FoaDirectX : Foa {
 
 		in = this.checkChans(in);
 		#w, x, y, z = in;
-		^this.multiNew('audio', w, x, y, z, angle).madd(mul, add);
+		^this.multiNew(\audio, w, x, y, z, angle).madd(mul, add);
 	}
 }
 
@@ -625,7 +625,7 @@ FoaRotate : Foa {
 
 		in = this.checkChans(in);
 		#w, x, y, z = in;
-		^this.multiNew('audio', w, x, y, z, angle).madd(mul, add);
+		^this.multiNew(\audio, w, x, y, z, angle).madd(mul, add);
 	}
 }
 FoaTilt : FoaRotate { }
@@ -664,7 +664,7 @@ FoaDominateX : Foa {
 
 		in = this.checkChans(in);
 		#w, x, y, z = in;
-		^this.multiNew('audio', w, x, y, z, gain).madd(mul, add);
+		^this.multiNew(\audio, w, x, y, z, gain).madd(mul, add);
 	}
 }
 
@@ -768,7 +768,7 @@ FoaProximity : Foa {
 
 		in = this.checkChans(in);
 		#w, x, y, z = in;
-		^this.multiNew('audio', w, x, y, z, distance).madd(mul, add);
+		^this.multiNew(\audio, w, x, y, z, distance).madd(mul, add);
 	}
 
 }
@@ -779,7 +779,7 @@ FoaNFC : Foa {
 
 		in = this.checkChans(in);
 		#w, x, y, z = in;
-		^this.multiNew('audio', w, x, y, z, distance).madd(mul, add);
+		^this.multiNew(\audio, w, x, y, z, distance).madd(mul, add);
 	}
 
 }
@@ -790,7 +790,7 @@ FoaPsychoShelf : Foa {
 
 		in = this.checkChans(in);
 		#w, x, y, z = in;
-		^this.multiNew('audio', w, x, y, z, freq, k0, k1).madd(mul, add);
+		^this.multiNew(\audio, w, x, y, z, freq, k0, k1).madd(mul, add);
 	}
 
 }
@@ -966,7 +966,7 @@ FoaXform : FoaUGen {
 // Transformer: UGen wrapper
 /*
 argument key - see helpfile for reasonable values
-'rtt' - angle
+\rtt - angle
 
 */
 
@@ -985,7 +985,7 @@ FoaTransform : FoaUGen {
 //			// find index dividing ordered and named args
 //			index = args.detectIndex({ |item| item.isKindOf(Symbol) });
 //
-//			// find ugen args, drop ['this', w, x, y, z]
+//			// find ugen args, drop [\this, w, x, y, z]
 //			ugenKeys = ugen.class.findRespondingMethodFor(\ar).argNames.drop(2);
 //			ugenDict = Dictionary.new;
 //			ugenKeys.do({ |key, i| ugenDict.put(key, argDefaults[i]) });
@@ -1009,7 +1009,7 @@ FoaTransform : FoaUGen {
 
 		switch(kind,
 
-			'rotate', {
+			\rotate, {
 
 				ugen = FoaRotate;
 				argDefaults = [0, 1, 0];
@@ -1022,7 +1022,7 @@ FoaTransform : FoaUGen {
 				)
 			},
 
-			'tilt', {
+			\tilt, {
 
 				ugen = FoaTilt;
 				argDefaults = [0, 1, 0];
@@ -1035,7 +1035,7 @@ FoaTransform : FoaUGen {
 				)
 			},
 
-			'tumble', {
+			\tumble, {
 
 				ugen = FoaTumble;
 				argDefaults = [0, 1, 0];
@@ -1048,7 +1048,7 @@ FoaTransform : FoaUGen {
 				)
 			},
 
-			'directO', {
+			\directO, {
 
 				ugen = FoaDirectO;
 				argDefaults = [0, 1, 0];
@@ -1061,7 +1061,7 @@ FoaTransform : FoaUGen {
 				)
 			},
 
-			'directX', {
+			\directX, {
 
 				ugen = FoaDirectX;
 				argDefaults = [0, 1, 0];
@@ -1074,7 +1074,7 @@ FoaTransform : FoaUGen {
 				)
 			},
 
-			'directY', {
+			\directY, {
 
 				ugen = FoaDirectY;
 				argDefaults = [0, 1, 0];
@@ -1087,7 +1087,7 @@ FoaTransform : FoaUGen {
 				)
 			},
 
-			'directZ', {
+			\directZ, {
 
 				ugen = FoaDirectZ;
 				argDefaults = [0, 1, 0];
@@ -1100,7 +1100,7 @@ FoaTransform : FoaUGen {
 				)
 			},
 
-			'dominateX', {
+			\dominateX, {
 
 				ugen = FoaDominateX;
 				argDefaults = [0, 1, 0];
@@ -1113,7 +1113,7 @@ FoaTransform : FoaUGen {
 				)
 			},
 
-			'dominateY', {
+			\dominateY, {
 
 				ugen = FoaDominateY;
 				argDefaults = [0, 1, 0];
@@ -1126,7 +1126,7 @@ FoaTransform : FoaUGen {
 				)
 			},
 
-			'dominateZ', {
+			\dominateZ, {
 
 				ugen = FoaDominateZ;
 				argDefaults = [0, 1, 0];
@@ -1139,7 +1139,7 @@ FoaTransform : FoaUGen {
 				)
 			},
 
-			'zoomX', {
+			\zoomX, {
 
 				ugen = FoaZoomX;
 				argDefaults = [0, 1, 0];
@@ -1152,7 +1152,7 @@ FoaTransform : FoaUGen {
 				)
 			},
 
-			'zoomY', {
+			\zoomY, {
 
 				ugen = FoaZoomY;
 				argDefaults = [0, 1, 0];
@@ -1165,7 +1165,7 @@ FoaTransform : FoaUGen {
 				)
 			},
 
-			'zoomZ', {
+			\zoomZ, {
 
 				ugen = FoaZoomZ;
 				argDefaults = [0, 1, 0];
@@ -1178,7 +1178,7 @@ FoaTransform : FoaUGen {
 				)
 			},
 
-			'focusX', {
+			\focusX, {
 
 				ugen = FoaFocusX;
 				argDefaults = [0, 1, 0];
@@ -1191,7 +1191,7 @@ FoaTransform : FoaUGen {
 				)
 			},
 
-			'focusY', {
+			\focusY, {
 
 				ugen = FoaFocusY;
 				argDefaults = [0, 1, 0];
@@ -1204,7 +1204,7 @@ FoaTransform : FoaUGen {
 				)
 			},
 
-			'focusZ', {
+			\focusZ, {
 
 				ugen = FoaFocusZ;
 				argDefaults = [0, 1, 0];
@@ -1217,7 +1217,7 @@ FoaTransform : FoaUGen {
 				)
 			},
 
-			'pushX', {
+			\pushX, {
 
 				ugen = FoaPushX;
 				argDefaults = [0, 1, 0];
@@ -1230,7 +1230,7 @@ FoaTransform : FoaUGen {
 				)
 			},
 
-			'pushY', {
+			\pushY, {
 
 				ugen = FoaPushY;
 				argDefaults = [0, 1, 0];
@@ -1243,7 +1243,7 @@ FoaTransform : FoaUGen {
 				)
 			},
 
-			'pushZ', {
+			\pushZ, {
 
 				ugen = FoaPushZ;
 				argDefaults = [0, 1, 0];
@@ -1256,7 +1256,7 @@ FoaTransform : FoaUGen {
 				)
 			},
 
-			'pressX', {
+			\pressX, {
 
 				ugen = FoaPressX;
 				argDefaults = [0, 1, 0];
@@ -1269,7 +1269,7 @@ FoaTransform : FoaUGen {
 				)
 			},
 
-			'pressY', {
+			\pressY, {
 
 				ugen = FoaPressY;
 				argDefaults = [0, 1, 0];
@@ -1282,7 +1282,7 @@ FoaTransform : FoaUGen {
 				)
 			},
 
-			'pressZ', {
+			\pressZ, {
 
 				ugen = FoaPressZ;
 				argDefaults = [0, 1, 0];
@@ -1295,7 +1295,7 @@ FoaTransform : FoaUGen {
 				)
 			},
 
-			'asymmetry', {
+			\asymmetry, {
 
 				ugen = FoaAsymmetry;
 				argDefaults = [0, 1, 0];
@@ -1308,7 +1308,7 @@ FoaTransform : FoaUGen {
 				)
 			},
 
-			'balance', {
+			\balance, {
 
 				ugen = FoaZoomY;
 				argDefaults = [0, 1, 0];
@@ -1321,7 +1321,7 @@ FoaTransform : FoaUGen {
 				)
 			},
 
-			'rtt', {
+			\rtt, {
 
 				ugen = FoaRTT;
 				argDefaults = [0, 0, 0, 1, 0];
@@ -1335,7 +1335,7 @@ FoaTransform : FoaUGen {
 				)
 			},
 
-			'mirror', {
+			\mirror, {
 
 				ugen = FoaMirror;
 				argDefaults = [0, 0, 1, 0];
@@ -1349,7 +1349,7 @@ FoaTransform : FoaUGen {
 				)
 			},
 
-			'direct', {
+			\direct, {
 
 				ugen = FoaDirect;
 				argDefaults = [0, 0, 0, 1, 0];
@@ -1363,7 +1363,7 @@ FoaTransform : FoaUGen {
 				)
 			},
 
-			'dominate', {
+			\dominate, {
 
 				ugen = FoaDominate;
 				argDefaults = [0, 0, 0, 1, 0];
@@ -1377,7 +1377,7 @@ FoaTransform : FoaUGen {
 				)
 			},
 
-			'zoom', {
+			\zoom, {
 
 				ugen = FoaZoom;
 				argDefaults = [0, 0, 0, 1, 0];
@@ -1391,7 +1391,7 @@ FoaTransform : FoaUGen {
 				)
 			},
 
-			'focus', {
+			\focus, {
 
 				ugen = FoaFocus;
 				argDefaults = [0, 0, 0, 1, 0];
@@ -1405,7 +1405,7 @@ FoaTransform : FoaUGen {
 				)
 			},
 
-			'push', {
+			\push, {
 
 				ugen = FoaPush;
 				argDefaults = [0, 0, 0, 1, 0];
@@ -1419,7 +1419,7 @@ FoaTransform : FoaUGen {
 				)
 			},
 
-			'press', {
+			\press, {
 
 				ugen = FoaPress;
 				argDefaults = [0, 0, 0, 1, 0];
@@ -1433,7 +1433,7 @@ FoaTransform : FoaUGen {
 				)
 			},
 
-			'nfc', {
+			\nfc, {
 
 				ugen = FoaNFC;
 				argDefaults = [1, 1, 0];
@@ -1447,7 +1447,7 @@ FoaTransform : FoaUGen {
 				)
 			},
 
-			'proximity', {
+			\proximity, {
 
 				ugen = FoaProximity;
 				argDefaults = [1, 1, 0];

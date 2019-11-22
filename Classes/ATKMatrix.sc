@@ -99,7 +99,7 @@ AtkMatrix {
 			Atk.checkSet(this.set);
 
 			// This is only needed for relative file paths in user-matrices directory
-			if(['encoder', 'decoder', 'xformer'].includes(this.type).not, {
+			if([\encoder, \decoder, \xformer].includes(this.type).not, {
 				Error(
 					"'type' argument must be 'encoder', 'decoder', or 'xformer'"
 				).errorString.postln;
@@ -249,11 +249,11 @@ AtkMatrix {
 			})
 		};
 
-		// bump 'type' to the top of the post...
+		// bump \type to the top of the post...
 		if(attributes.includes(\type), { attributes.remove(\type) });
 		attributes.addFirst(\type);
 
-		// ... then bump 'set' to the top of the post
+		// ... then bump \set to the top of the post
 		if(attributes.includes(\set), { attributes.remove(\set) });
 		attributes.addFirst(\set);
 

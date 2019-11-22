@@ -54,12 +54,12 @@ HoaMatrix : AtkMatrix {
 
 	// call by subclass, only
 	*newFromMatrix { |matrix, directions = ([[0, 0]]), order = (AtkHoa.defaultOrder)|
-		^super.new('fromMatrix', order).initDirections(directions).initFromMatrix(matrix)
+		^super.new(\fromMatrix, order).initDirections(directions).initFromMatrix(matrix)
 	}
 
 	// call by subclass, only
 	*newFromFile { |filePathOrName, searchExtensions = true, order = (AtkHoa.defaultOrder)|
-		^super.new('fromFile', order).initFromFile(filePathOrName, searchExtensions)
+		^super.new(\fromFile, order).initFromFile(filePathOrName, searchExtensions)
 	}
 
 	initDirections { |argDirections|
@@ -96,9 +96,9 @@ HoaMatrix : AtkMatrix {
 
 		// 2) Check: matrix size (numCoeffs) == declared order
 		size = switch(this.type,
-			'encoder', { matrix.rows },
-			'decoder', { matrix.cols },
-			'xformer', { matrix.rows }
+			\encoder, { matrix.rows },
+			\decoder, { matrix.cols },
+			\xformer, { matrix.rows }
 		);
 		matrixOrder = AtkHoa.detectOrder(size);
 
@@ -114,7 +114,7 @@ HoaMatrix : AtkMatrix {
 		});
 
 		// 3) Check: xformer is square matrix
-		if((this.type == 'xformer' and: { matrix.isSquare.not }), {
+		if((this.type == \xformer and: { matrix.isSquare.not }), {
 			Error(
 				(
 					"[%:-initFromMatrix] An 'xformer' matrix "
@@ -397,9 +397,9 @@ HoaMatrix : AtkMatrix {
 
 	numChannels {
 		^switch(this.type,
-			'\encoder', { this.numInputs },
-			'\decoder', { this.numOutputs },
-			'\xformer', { this.order.asHoaOrder.size }
+			\encoder, { this.numInputs },
+			\decoder, { this.numOutputs },
+			\xformer, { this.order.asHoaOrder.size }
 		)
 	}
 
@@ -416,17 +416,17 @@ HoaMatrix : AtkMatrix {
 
 	dirInputs {
 		^switch(this.type,
-			'\encoder', { this.directions },
-			'\decoder', { (this.numInputs).collect({ inf }) },
-			'\xformer', { this.directions }  // requires set to inf
+			\encoder, { this.directions },
+			\decoder, { (this.numInputs).collect({ inf }) },
+			\xformer, { this.directions }  // requires set to inf
 		)
 	}
 
 	dirOutputs {
 		^switch(this.type,
-			'\encoder', { (this.numOutputs).collect({ inf }) },
-			'\decoder', { this.directions },
-			'\xformer', { this.directions }  // requires set to inf
+			\encoder, { (this.numOutputs).collect({ inf }) },
+			\decoder, { this.directions },
+			\xformer, { this.directions }  // requires set to inf
 		)
 	}
 
@@ -439,13 +439,13 @@ HoaMatrixEncoder : HoaMatrix {
 
 	// Format Encoder
 	*newFormat { |format =\atk, order = (AtkHoa.defaultOrder)|
-		^super.new('format', order).initDirections.initFormat(format, \atk);
+		^super.new(\format, order).initDirections.initFormat(format, \atk);
 	}
 
 	// Projection Encoding beam - 'basic' & multi pattern
 	*newDirection { |theta = 0, phi = 0, beamShape = nil, order = (AtkHoa.defaultOrder)|
 		var directions = [[theta, phi]];
-		var instance = super.new('dir', order).initDirections(directions);
+		var instance = super.new(\dir, order).initDirections(directions);
 
 		^if(beamShape == nil, {
 			instance.initBasic  // (\basic, \amp)
@@ -456,7 +456,7 @@ HoaMatrixEncoder : HoaMatrix {
 
 	// Projection Encoding beams - 'basic' & multi pattern
 	*newDirections { |directions = ([[0, 0]]), beamShape = nil, match = nil, order = (AtkHoa.defaultOrder)|
-		var instance = super.new('dirs', order).initDirections(directions);
+		var instance = super.new(\dirs, order).initDirections(directions);
 
 		^case(
 			{ (beamShape == nil) && (match == nil) }, { instance.initBasic },  // (\basic, \amp)
@@ -470,17 +470,17 @@ HoaMatrixEncoder : HoaMatrix {
 	*newPanto { |numChans = 4, orientation = \flat, order = (AtkHoa.defaultOrder)|
 		var directions = Array.regularPolygon(numChans, orientation, pi);
 
-		^super.new('panto', order).initDirections(directions).initBasic;
+		^super.new(\panto, order).initDirections(directions).initBasic;
 	}
 
 	// Modal Encoding beams - multi pattern
 	*newModeMatch { |directions = ([[0, 0]]), beamShape = \basic, match = \beam, order = (AtkHoa.defaultOrder)|
-		^super.new('modeMatch', order).initDirections(directions).initMode(beamShape, match);
+		^super.new(\modeMatch, order).initDirections(directions).initMode(beamShape, match);
 	}
 
 	// spherical design wrapper for *newBeams, match = \beam
 	*newSphericalDesign { |design, beamShape = \basic, order = (AtkHoa.defaultOrder)|
-		var instance = super.new('spherical', order);
+		var instance = super.new(\spherical, order);
 
 		^switch(design.class,
 			TDesign, { instance.initDirTDesign(design, order).initBeam(beamShape, \beam) },  // TDesign only, for now
@@ -562,10 +562,10 @@ HoaMatrixEncoder : HoaMatrix {
 			if(fileParse.dirInputs.notNil, {
 				fileParse.dirInputs.asFloat
 			}, {
-				(this.matrix.cols).collect({ 'unspecified' })
+				(this.matrix.cols).collect({ \unspecified })
 			})
 		}, { // txt file provided, no fileParse
-			(this.matrix.cols).collect({ 'unspecified' })
+			(this.matrix.cols).collect({ \unspecified })
 		})
 	}
 }
@@ -582,14 +582,14 @@ HoaMatrixXformer : HoaMatrix {
 
 	// overload HoaMatrix *newFromMatrix
 	*newFromMatrix { |matrix, order = (AtkHoa.defaultOrder)|
-		^super.new('fromMatrix', order).initDirections.initFromMatrix(matrix)
+		^super.new(\fromMatrix, order).initDirections.initFromMatrix(matrix)
 	}
 
 	// ------------
 	// Rotation
 
 	*newRotate { |r1 = 0, r2 = 0, r3 = 0, axes = \xyz, order = (AtkHoa.defaultOrder)|
-		^super.new('rotate', order).initDirections.initRotation(r1, r2, r3, axes, order)
+		^super.new(\rotate, order).initDirections.initRotation(r1, r2, r3, axes, order)
 	}
 
 	*newRotateAxis { |axis = \z, angle = 0, order = (AtkHoa.defaultOrder)|
@@ -606,22 +606,22 @@ HoaMatrixXformer : HoaMatrix {
 			\pitch, { r2 = angle },
 			\roll, { r1 = angle }
 		);
-		^super.new('rotateAxis', order).initDirections.initRotation(r1, r2, r3, \xyz)
+		^super.new(\rotateAxis, order).initDirections.initRotation(r1, r2, r3, \xyz)
 	}
 
 	*newRTT { |rotate = 0, tilt = 0, tumble = 0, order = (AtkHoa.defaultOrder)|
-		^super.new('rotation', order).initDirections.initRotation(rotate, tilt, tumble, \zxy)
+		^super.new(\rotation, order).initDirections.initRotation(rotate, tilt, tumble, \zxy)
 	}
 
 	*newYPR { |yaw = 0, pitch = 0, roll = 0, order = (AtkHoa.defaultOrder)|
-		^super.new('rotation', order).initDirections.initRotation(roll, pitch, yaw, \xyz)
+		^super.new(\rotation, order).initDirections.initRotation(roll, pitch, yaw, \xyz)
 	}
 
 	/// ------------
 	// Mirroring
 
 	*newReflect { |mirror = \reflect, order = (AtkHoa.defaultOrder)|
-		^super.new('reflect', order).initDirections.initReflect(mirror);
+		^super.new(\reflect, order).initDirections.initReflect(mirror);
 	}
 
 	// Swap one axis for another.
@@ -629,7 +629,7 @@ HoaMatrixXformer : HoaMatrix {
 	// - if yes, would need a way to fork to initSwapAxes in *newReflect
 	// - if yes, kind = 'mirror', otherwise need new kind e.g. 'axisSwap'
 	*newSwapAxes { |axes = \yz, order = (AtkHoa.defaultOrder)|
-		^super.new('swap', order).initDirections.initSwapAxes(axes);
+		^super.new(\swap, order).initDirections.initSwapAxes(axes);
 	}
 
 	// ------------
@@ -638,13 +638,13 @@ HoaMatrixXformer : HoaMatrix {
 	*newBeam { |theta = 0, phi = 0, beamShape = \basic, order = (AtkHoa.defaultOrder)|
 		var directions = [[theta, phi]];
 
-		^super.new('beam', order).initDirections(directions).initBeam(beamShape);
+		^super.new(\beam, order).initDirections(directions).initBeam(beamShape);
 	}
 
 	*newNull { |theta = 0, phi = 0, beamShape = \basic, order = (AtkHoa.defaultOrder)|
 		var directions = [[theta, phi]];
 
-		^super.new('null', order).initDirections(directions).initNull(beamShape);
+		^super.new(\null, order).initDirections(directions).initNull(beamShape);
 	}
 
 	initRotation { |r1, r2, r3, convention|
@@ -974,13 +974,13 @@ HoaMatrixDecoder : HoaMatrix {
 
 	// Format Encoder
 	*newFormat { |format = \atk, order = (AtkHoa.defaultOrder)|
-		^super.new('format', order).initDirections.initFormat(\atk, format);
+		^super.new(\format, order).initDirections.initFormat(\atk, format);
 	}
 
 	// Projection Decoding beam - 'basic' & multi pattern
 	*newDirection { |theta = 0, phi = 0, beamShape, order = (AtkHoa.defaultOrder)|
 		var directions = [[theta, phi]];
-		var instance = super.new('dir', order).initDirections(directions);
+		var instance = super.new(\dir, order).initDirections(directions);
 
 		^if(beamShape == nil, {
 			instance.initBasic  // (\basic, \beam)
@@ -991,7 +991,7 @@ HoaMatrixDecoder : HoaMatrix {
 
 	// Projection Decoding beams - 'basic' & multi pattern
 	*newDirections { |directions = ([[0, 0]]), beamShape = nil, match = nil, order = (AtkHoa.defaultOrder)|
-		var instance = super.new('dirs', order).initDirections(directions);
+		var instance = super.new(\dirs, order).initDirections(directions);
 
 		^case(
 			{ (beamShape == nil) && (match == nil) }, { instance.initBeam(\basic, \amp) },
@@ -1004,19 +1004,19 @@ HoaMatrixDecoder : HoaMatrix {
 
 	// Projection: Simple Ambisonic Decoding, aka SAD
 	*newProjection { |directions, beamShape = \basic, match = \amp, order = (AtkHoa.defaultOrder)|
-		^super.new('projection', order).initDirections(directions).initSAD(beamShape, match);
+		^super.new(\projection, order).initDirections(directions).initSAD(beamShape, match);
 	}
 
 	// Projection: Simple Ambisonic Decoding, aka SAD (convenience to match FOA: may wish to deprecate)
 	*newPanto { |numChans = 4, orientation = \flat, beamShape = \basic, match = \amp, order = (AtkHoa.defaultOrder)|
 		var directions = Array.regularPolygon(numChans, orientation, pi);
 
-		^super.new('panto', order).initDirections(directions).initSAD(beamShape, match);
+		^super.new(\panto, order).initDirections(directions).initSAD(beamShape, match);
 	}
 
 	// Mode Match: Mode Matched Decoding, aka Pseudoinverse
 	*newModeMatch { |directions, beamShape = \basic, match = \amp, order = (AtkHoa.defaultOrder)|
-		^super.new('modeMatch', order).initDirections(directions).initMMD(beamShape, match)
+		^super.new(\modeMatch, order).initDirections(directions).initMMD(beamShape, match)
 	}
 
 	// Diametric: Mode Matched Decoding, aka Diametric Pseudoinverse
@@ -1034,12 +1034,12 @@ HoaMatrixDecoder : HoaMatrix {
 			}
 		);
 
-		^super.new('diametric', order).initDirections(directionPairs).initMMD(beamShape, match)
+		^super.new(\diametric, order).initDirections(directionPairs).initMMD(beamShape, match)
 	}
 
 	// spherical design wrapper for *newBeams, match = \beam
 	*newSphericalDesign { |design, beamShape = \basic, order = (AtkHoa.defaultOrder)|
-		var instance = super.new('spherical', order);
+		var instance = super.new(\spherical, order);
 
 		^switch(design.class,
 			TDesign, { instance.initDirTDesign(design, order).initBeam(beamShape, \beam) },  // TDesign only, for now
@@ -1273,12 +1273,12 @@ HoaMatrixDecoder : HoaMatrix {
 	//         dirOutputs = if (fileParse.dirOutputs.notNil) {
 	//             fileParse.dirOutputs.asFloat
 	//         } { // output directions are unspecified in the provided matrix
-	//             matrix.rows.collect({ 'unspecified' })
+	//             matrix.rows.collect({ \unspecified })
 	//         };
 	//         shelfK = fileParse.shelfK !? { fileParse.shelfK.asFloat };
 	//         shelfFreq = fileParse.shelfFreq !? { fileParse.shelfFreq.asFloat };
 	//     } { // txt file provided, no fileParse
-	//         dirOutputs = matrix.rows.collect({ 'unspecified' });
+	//         dirOutputs = matrix.rows.collect({ \unspecified });
 	//     };
 	// }
 

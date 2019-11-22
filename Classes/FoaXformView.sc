@@ -55,7 +55,7 @@ FoaXformView {
 	var muteBut, soloBut;
 
 
-	*new { |sfView, target = 'chain', chainDex, index|
+	*new { |sfView, target = \chain, chainDex, index|
 
 		if(sfView.debug, { "creating new XForm".postln });
 		^super.newCopyArgs(sfView, target, chainDex, index).init
@@ -66,8 +66,8 @@ FoaXformView {
 		if(sfView.debug, { "initializing new XForm".postln });
 
 		chain = switch(target,
-			'chain', { sfView.chain },          // xform in chain view UI
-			'display', { sfView.displayChain }  // or xform view in the xformDisplay UI
+			\chain, { sfView.chain },          // xform in chain view UI
+			\display, { sfView.displayChain }  // or xform view in the xformDisplay UI
 		);
 
 		// if this xform takes a chain index for an input,
@@ -101,7 +101,7 @@ FoaXformView {
 		ctlLayout = VLayout();
 		layout.add(ctlLayout);
 		// this allows the ctlLayout to move all the way left
-		if(target == 'chain', { layout.add(1) });
+		if(target == \chain, { layout.add(1) });
 
 		name = chain.chains[initChainDex][initDex].name;
 
@@ -115,7 +115,7 @@ FoaXformView {
 				this.addInputMenuCtl('this index', 0)
 			})
 		}, {
-			if(target == 'chain', { this.addAddRmvButs(true) });
+			if(target == \chain, { this.addAddRmvButs(true) });
 			// add the first dropdown, no controls until a menu item selected
 			// this assumes a 'soundfield thru' transform right when created
 			this.addTransformMenu()
@@ -151,7 +151,7 @@ FoaXformView {
 			);
 
 			// '-' mutes the transform
-			name = if(mn.item == '-', { 'mute' }, { mn.item });
+			name = if(mn.item == '-', { \mute }, { mn.item });
 
 			#chDex, dex = this.getViewIndex;
 			chain.replaceTransform(name, chDex, dex);
@@ -162,7 +162,7 @@ FoaXformView {
 			HLayout([xFormMenu, a: \topLeft], nil).margins_(0);
 		);
 
-		if(selectedName != 'mute', {
+		if(selectedName != \mute, {
 			// update with the current transform selection
 			xFormMenu.value_(xFormMenu.items.indexOf(selectedName))
 		})
@@ -181,13 +181,13 @@ FoaXformView {
 		view.removeAll;
 		(ctlLayout.children).do(_.destroy);
 
-		if(target == 'chain', { this.addAddRmvButs });
+		if(target == \chain, { this.addAddRmvButs });
 
 		// add menu back, with new xform selected
 		this.addTransformMenu(name);
 
 		// don't rebuild controls if muted
-		if(name != 'mute', {
+		if(name != \mute, {
 			var controls;
 
 			controls = chain.xFormDict[name].controls.clump(2);
@@ -200,7 +200,7 @@ FoaXformView {
 					{ ctl.isKindOf(ControlSpec) }, {
 						this.addSliderCtl(ctlName, ctl, i)
 					},
-					// a ctl of a Symbol, e.g. 'A0' yields a
+					// a ctl of a Symbol, e.g. \A0 yields a
 					// dropdown menu for an input soundfield
 					{ ctl.isKindOf(Symbol) }, {
 						this.addInputMenuCtl(ctlName, i)
@@ -233,7 +233,7 @@ FoaXformView {
 		});
 
 		dropLayout = HLayout(
-			StaticText().string_(xfname.asString).align_('left'),
+			StaticText().string_(xfname.asString).align_(\left),
 			[menu, a: \left],
 			nil
 		);
@@ -264,7 +264,7 @@ FoaXformView {
 			});
 			chain.setParam(chDex, dex, ctlOrder, val)
 		})
-		.orientation_('horizontal')
+		.orientation_(\horizontal)
 		.value_(spec.unmap(spec.default))
 		;
 
@@ -289,12 +289,12 @@ FoaXformView {
 		;
 
 		unitTxt = StaticText().string_(spec.units)
-		.align_('left')
+		.align_(\left)
 		.fixedWidth_(20)
 		;
 
 		nameTxt = StaticText().string_(ctlName.asString)
-		.align_('center')
+		.align_(\center)
 		.fixedWidth_(65)
 		;
 
@@ -365,22 +365,22 @@ FoaXformView {
 
 		lay = if(includeRmv, {
 			VLayout(
-				[labelTxt,	a: 'top'],
+				[labelTxt,	a: \top],
 				HLayout(
-					[muteBut,	a: 'left'],
-					[soloBut,	a: 'right'],
+					[muteBut,	a: \left],
+					[soloBut,	a: \right],
 				),
 				400, // force it to grow to enclosing view's max height
 				HLayout(
-					[rmvBut,	a: 'left'],
-					[addBut,	a: 'right'],
+					[rmvBut,	a: \left],
+					[addBut,	a: \right],
 				)
 			)
 		}, {
 			VLayout(
-				[labelTxt,	a: 'top'],
+				[labelTxt,	a: \top],
 				15, // force it to grow the height of the view
-				[addBut,	a: 'bottom']
+				[addBut,	a: \bottom]
 			)
 		});
 
@@ -389,8 +389,8 @@ FoaXformView {
 
 	getViewIndex {
 		^switch(target,
-			'chain', { sfView.prGetXfViewID(this) },
-			'display', { [0, 1] }
+			\chain, { sfView.prGetXfViewID(this) },
+			\display, { [0, 1] }
 		)
 	}
 

@@ -122,10 +122,10 @@ HoaUGen {
 		});
 
 		mtx = switch(which,
-			'k',  { kMatrix }, // swap Z<>X axes
-			'j',  { jMatrix }, // swap Z<>Y axes
-			'jk', { jkMatrix }, // J * K
-			'kj', { kjMatrix } // K * J
+			\k,  { kMatrix }, // swap Z<>X axes
+			\j,  { jMatrix }, // swap Z<>Y axes
+			\jk, { jkMatrix }, // J * K
+			\kj, { kjMatrix } // K * J
 		);
 
 		^if(jkOrder > order, {
@@ -353,7 +353,7 @@ HoaTilt : HoaUGen {
 		n = HoaUGen.confirmOrder(in, order);
 
 		// "K" matrix: swap Z<>X axes
-		mK = HoaUGen.getJKMatrix('k', n);
+		mK = HoaUGen.getJKMatrix(\k, n);
 
 		// tilt/roll : K -> Z(tilt) -> K
 		// Note: the rotation is negated here to conform with
@@ -375,7 +375,7 @@ HoaTumble : HoaUGen {
 		n = HoaUGen.confirmOrder(in, order);
 
 		// "J" matrix: swap Z<>Y axes
-		mJ = HoaUGen.getJKMatrix('j', n);
+		mJ = HoaUGen.getJKMatrix(\j, n);
 
 		// tumple/pitch : J -> Z(tumble) -> J
 		hoa = HoaUGen.mixMatrix(in, mJ);
@@ -401,9 +401,9 @@ HoaRTT : HoaUGen {
 
 		n = HoaUGen.confirmOrder(in, order);
 
-		mK = this.getJKMatrix('k', n);   // "K" matrix: swap Z<>X axes
-		mJ = this.getJKMatrix('j', n);   // "J" matrix: swap Z<>Y axes
-		mJK = this.getJKMatrix('jk', n); // combine (J * K)
+		mK = this.getJKMatrix(\k, n);   // "K" matrix: swap Z<>X axes
+		mJ = this.getJKMatrix(\j, n);   // "J" matrix: swap Z<>Y axes
+		mJK = this.getJKMatrix(\jk, n); // combine (J * K)
 
 		// rotate : Z(rotate)
 		hoa  = HoaRotate.ar(in, rotate, n);
@@ -433,9 +433,9 @@ HoaYPR : HoaUGen {
 
 		// Note reversed order of rotations to achieve intrinsic YPR
 
-		mK = this.getJKMatrix('k', n);    // "K" matrix: swap Z<>X axes
-		mJ = this.getJKMatrix('j', n);    // "J" matrix: swap Z<>Y axes
-		mJK = this.getJKMatrix('jk', n);  // combine (J * K)
+		mK = this.getJKMatrix(\k, n);    // "K" matrix: swap Z<>X axes
+		mJ = this.getJKMatrix(\j, n);    // "J" matrix: swap Z<>Y axes
+		mJK = this.getJKMatrix(\jk, n);  // combine (J * K)
 
 		// roll (tilt) : K -> Z(tilt) ->
 		hoa = HoaUGen.mixMatrix(in, mK);

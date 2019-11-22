@@ -558,7 +558,7 @@ FoaDecoderMatrix : FoaMatrix {
 	}
 
 	*new5_0 { |irregKind = \focused|
-		^super.new(\5_0).loadFromLib(irregKind);
+		^super.new('5_0').loadFromLib(irregKind);
 	}
 
 	*newBtoA { |orientation = \flu, weight = \dec|
@@ -897,11 +897,11 @@ FoaEncoderMatrix : FoaMatrix {
 	}
 
 	*new5_0 {
-		^super.new(\5_0).loadFromLib;
+		^super.new('5_0').loadFromLib;
 	}
 
 	*new7_0 {
-		^super.new(\7_0).loadFromLib;
+		^super.new('7_0').loadFromLib;
 	}
 
 	*newDirections { |directions, pattern = nil|

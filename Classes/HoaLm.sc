@@ -291,6 +291,12 @@ HoaLm {
 		// normalize (l, m) = (0, 0) to 1
 		res = 4pi.sqrt * res;
 
+		/*
+		NOTE: may want to revisit this optimization
+		*/
+		// near zero
+		res = if(res.abs <= AtkHoa.nearZero, { 0.0 }, { res });
+
 		// return
 		^res
 	}

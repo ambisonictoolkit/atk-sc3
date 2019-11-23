@@ -412,7 +412,7 @@ Return an average analysis of decoder amplitude and energies.
 
 returns::
 
-Analysis is returned in a link::Classes/Dictionary::, with the following keys:
+Analysis is returned in an link::Classes/IdentityDictionary::, with the following keys:
 
 table::
 ## strong::keyword:: || strong::analysis::
@@ -457,13 +457,13 @@ code::
 ~hoaOrder = HoaOrder.new(~order)
 
 // analyze average - 'reduced energy E' for an Ambisonic decoder
-~decoder.analyzeAverage[\meanE]
+~decoder.analyzeAverage.meanE
 
 // compare to theoretical - 'reduced energy E' for an Ambisonic decoder
 ~hoaOrder.meanE(~beamShape, ~decoder.dim)
 
 // analyze average - measured amplitude
-~decoder.analyzeAverage[\amp]
+~decoder.analyzeAverage.amp
 
 // compare to theoretical - expected amplitude
 ~hoaOrder.matchWeight(~beamShape, ~decoder.dim, ~match, ~decoder.numChannels)
@@ -491,13 +491,13 @@ code::
 ~hoaOrder = HoaOrder.new(~order)
 
 // analyze average - 'reduced energy E' for an Ambisonic decoder
-~decoder.analyzeAverage[\meanE]
+~decoder.analyzeAverage.meanE
 
 // compare to theoretical - 'reduced energy E' for an Ambisonic decoder
 ~hoaOrder.meanE(~beamShape, ~decoder.dim)
 
 // analyze average - measured amplitude
-~decoder.analyzeAverage[\amp]
+~decoder.analyzeAverage.amp
 
 // compare to theoretical - expected amplitude
 ~hoaOrder.matchWeight(~beamShape, ~decoder.dim, ~match, ~decoder.numChannels)
@@ -526,7 +526,7 @@ code::
 
 returns::
 
-Analysis is returned in a link::Classes/Dictionary::, with the following keys:
+Analysis is returned in a an link::Classes/IdentityDictionary::, with the following keys:
 
 table::
 ## strong::keyword:: || strong::analysis::
@@ -598,20 +598,20 @@ code::
 // analyze
 ~analysis = ~decoder.analyzeDirections(~testDirections)
 
-~analysis[\amp].abs.ampdb.round(0.01)
-~analysis[\rms].sqrt.ampdb.round(0.01)
-~analysis[\energy].sqrt.ampdb.round(0.01)
+~analysis.amp.abs.ampdb.round(0.01)
+~analysis.rms.sqrt.ampdb.round(0.01)
+~analysis.energy.sqrt.ampdb.round(0.01)
 
-~analysis[\spreadE][\cos].raddeg
+~analysis.spreadE.cos.raddeg
 
-~analysis[\rV][\mag]
-~analysis[\rV][\directions].raddeg.round(0.1)
-~analysis[\rV][\dist].raddeg.round(0.1)
-~analysis[\rV][\rEdist].raddeg.round(0.1)
+~analysis.rV.mag
+~analysis.rV.directions.raddeg.round(0.1)
+~analysis.rV.dist.raddeg.round(0.1)
+~analysis.rV.rEdist.raddeg.round(0.1)
 
-~analysis[\rE][\mag]
-~analysis[\rE][\directions].raddeg.round(0.1)
-~analysis[\rE][\dist].raddeg.round(0.1)
+~analysis.rE.mag
+~analysis.rE.directions.raddeg.round(0.1)
+~analysis.rE.dist.raddeg.round(0.1)
 ::
 
 Unevenly distributed loudspeakers:
@@ -641,20 +641,20 @@ code::
 // analyze
 ~analysis = ~decoder.analyzeDirections(~testDirections)
 
-~analysis[\amp].abs.ampdb.round(0.01)
-~analysis[\rms].sqrt.ampdb.round(0.01)
-~analysis[\energy].sqrt.ampdb.round(0.01)
+~analysis.amp.abs.ampdb.round(0.01)
+~analysis.rms.sqrt.ampdb.round(0.01)
+~analysis.energy.sqrt.ampdb.round(0.01)
 
-~analysis[\spreadE][\cos].raddeg
+~analysis.spreadE.cos.raddeg
 
-~analysis[\rV][\mag]
-~analysis[\rV][\directions].raddeg.round(0.1)
-~analysis[\rV][\dist].raddeg.round(0.1)
-~analysis[\rV][\rEdist].raddeg.round(0.1)
+~analysis.rV.mag
+~analysis.rV.directions.raddeg.round(0.1)
+~analysis.rV.dist.raddeg.round(0.1)
+~analysis.rV.rEdist.raddeg.round(0.1)
 
-~analysis[\rE][\mag]
-~analysis[\rE][\directions].raddeg.round(0.1)
-~analysis[\rE][\dist].raddeg.round(0.1)
+~analysis.rE.mag
+~analysis.rE.directions.raddeg.round(0.1)
+~analysis.rE.dist.raddeg.round(0.1)
 ::
 
 EXAMPLES::

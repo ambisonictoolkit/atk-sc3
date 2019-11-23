@@ -246,10 +246,12 @@ HoaOrder {
 
 	// 1/2 angle maximum average energy spread for an Ambisonic decoder
 	spreadE { |beamShape = \basic, dim = 3|
-		^Dictionary.with(*[
-			\cos->this.rE(beamShape, dim).acos,  // Zotter & Frank: ~-3dB
-			\hvc->((2 * this.rE(beamShape, dim)) - 1).acos  // Carpentier, Politis: ~-6dB
-		])
+		var rE = this.rE(beamShape, dim);
+
+		^IdentityDictionary.with(*[
+			\cos->rE.acos,  // Zotter & Frank: ~-3dB
+			\hvc->((2 * rE) - 1).acos  // Carpentier, Politis: ~-6dB
+		]).know_(true)
 	}
 
 	// 'l’énergie réduite E' for an Ambisonic decoder

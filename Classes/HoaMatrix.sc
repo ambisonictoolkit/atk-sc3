@@ -898,10 +898,10 @@ HoaMatrixXformer : HoaMatrix {
 		rEu = rExyz / rEmag;
 
 		// find 1/2 angle energy spread
-		spreadE = Dictionary.with(*[
+		spreadE = IdentityDictionary.with(*[
 			\cos->rEmag.acos,  // Zotter & Frank: ~-3dB
 			\hvc->((2 * rEmag) - 1).acos  // Carpentier, Politis: ~-6dB
-		]);
+		]).know_(true);
 
 		// ------------
 		// measure rV & rE direction distortion
@@ -920,20 +920,20 @@ HoaMatrixXformer : HoaMatrix {
 		});
 
 		// return
-		^Dictionary.with(*[
+		^IdentityDictionary.with(*[
 			\amp->amp,
 			\rms->rms,
 			\energy->energy,
 			\spreadE->spreadE,
-			\rV->Dictionary.with(*[
+			\rV->IdentityDictionary.with(*[
 				\xyz->rVxyz, \mag->rVmag, \directions->rVdir,
 				\dist->rVdist, \rEdist->rVrEdist
-			]),
-			\rE->Dictionary.with(*[
+			]).know_(true),
+			\rE->IdentityDictionary.with(*[
 				\xyz->rExyz, \mag->rEmag, \directions->rEdir,
 				\dist->rEdist, \rVdist->rVrEdist
-			]),
-		])
+			]).know_(true),
+		]).know_(true)
 	}
 
 	analyzeAverage {
@@ -953,17 +953,17 @@ HoaMatrixXformer : HoaMatrix {
 		meanE = this.numChannels * energy / amp.squared;
 
 		// return
-		^Dictionary.with(*[
+		^IdentityDictionary.with(*[
 			\amp->amp,
 			\rms->rms,
 			\energy->energy,
 			\meanE->meanE,
-			\matchWeight->Dictionary.with(*[
+			\matchWeight->IdentityDictionary.with(*[
 				\amp->amp.reciprocal,
 				\rms->rms.sqrt.reciprocal,
 				\energy->energy.sqrt.reciprocal,
-			])
-		])
+			]).know_(true)
+		]).know_(true)
 	}
 
 	dim { ^3 }  // all transforms are 3D
@@ -1387,10 +1387,10 @@ HoaMatrixDecoder : HoaMatrix {
 		rEu = rExyz / rEmag;
 
 		// find 1/2 angle energy spread
-		spreadE = Dictionary.with(*[
+		spreadE = IdentityDictionary.with(*[
 			\cos->rEmag.acos,  // Zotter & Frank: ~-3dB
 			\hvc->((2 * rEmag) - 1).acos  // Carpentier, Politis: ~-6dB
-		]);
+		]).know_(true);
 
 		// ------------
 		// measure rV & rE direction distortion
@@ -1409,20 +1409,20 @@ HoaMatrixDecoder : HoaMatrix {
 		});
 
 		// return
-		^Dictionary.with(*[
+		^IdentityDictionary.with(*[
 			\amp->amp,
 			\rms->rms,
 			\energy->energy,
 			\spreadE->spreadE,
-			\rV->Dictionary.with(*[
+			\rV->IdentityDictionary.with(*[
 				\xyz->rVxyz, \mag->rVmag, \directions->rVdir,
 				\dist->rVdist, \rEdist->rVrEdist
-			]),
-			\rE->Dictionary.with(*[
+			]).know_(true),
+			\rE->IdentityDictionary.with(*[
 				\xyz->rExyz, \mag->rEmag, \directions->rEdir,
 				\dist->rEdist, \rVdist->rVrEdist
-			]),
-		])
+			]).know_(true),
+		]).know_(true)
 	}
 
 	analyzeAverage {
@@ -1462,17 +1462,17 @@ HoaMatrixDecoder : HoaMatrix {
 		meanE = this.numChannels * energy / amp.squared;
 
 		// return
-		^Dictionary.with(*[
+		^IdentityDictionary.with(*[
 			\amp->amp,
 			\rms->rms,
 			\energy->energy,
 			\meanE->meanE,
-			\matchWeight->Dictionary.with(*[
+			\matchWeight->IdentityDictionary.with(*[
 				\amp->amp.reciprocal,
 				\rms->rms.sqrt.reciprocal,
 				\energy->energy.sqrt.reciprocal,
-			])
-		])
+			]).know_(true)
+		]).know_(true)
 	}
 
 }

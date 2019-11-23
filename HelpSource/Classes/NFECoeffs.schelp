@@ -81,7 +81,7 @@ Speed of sound, in meters per second.
 
 SUBSECTION:: Coefficient Dictionary
 
-link::Classes/FOS:: and link::Classes/SOS:: coefficients are returned as link::Classes/ArrayedCollection#-rank#rank:: two arrays of coefficients, available via the code::\sos:: and code::\fos:: keys. Additionally, a a normalizing scalar is also returned via the code::\g:: key.
+link::Classes/FOS:: and link::Classes/SOS:: coefficients are returned as link::Classes/ArrayedCollection#-rank#rank:: two arrays of coefficients, available via the link::Classes/IdentityDictionary:: code::\sos:: and code::\fos:: keys. Additionally, a a normalizing scalar is also returned via the code::\g:: key.
 
 code::
 ~degree = 3;
@@ -89,7 +89,10 @@ code::
 ~decRadius = 1.5;
 ~sampleRate = 44100;
 
-NFECoeffs.new(~degree).ctrl(~encRadius, ~decRadius, ~sampleRate);
+~coeffs = NFECoeffs.new(~degree).ctrl(~encRadius, ~decRadius, ~sampleRate);
+~coeffs.fos;
+~coeffs.sos;
+~coeffs.g;
 ::
 
 

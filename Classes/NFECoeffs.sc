@@ -159,7 +159,7 @@ NFECoeffs {
 			]
 		});
 
-		^Dictionary.with(*[\sos->coeffsSOS, \fos->coeffsFOS, \g->g])
+		^IdentityDictionary.with(*[\sos->coeffsSOS, \fos->coeffsFOS, \g->g]).know_(true)
 	}
 
 	dist { |radius, sampleRate, speedOfSound = (AtkHoa.speedOfSound)|
@@ -233,7 +233,7 @@ NFECoeffs {
 			]
 		});
 
-		^Dictionary.with(*[\sos->coeffsSOS, \fos->coeffsFOS, \g->g])
+		^IdentityDictionary.with(*[\sos->coeffsSOS, \fos->coeffsFOS, \g->g]).know_(true)
 	}
 
 	ctrl { |encRadius, decRadius, sampleRate, speedOfSound = (AtkHoa.speedOfSound)|
@@ -327,6 +327,6 @@ NFECoeffs {
 			]
 		});
 
-		^Dictionary.with(*[\sos->coeffsSOS, \fos->coeffsFOS, \g->g])
+		^IdentityDictionary.with(*[\sos->coeffsSOS, \fos->coeffsFOS, \g->g]).know_(true)
 	}
 }

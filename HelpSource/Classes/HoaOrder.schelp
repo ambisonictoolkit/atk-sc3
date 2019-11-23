@@ -253,7 +253,7 @@ Keyword argument for beam shape. See link::#Beaming & Decoder matching#above::.
 ARGUMENT:: dim
 The number of dimensions: 2D or 3D.
 
-RETURNS:: A Dictionary of values:
+RETURNS:: An link::Classes/IdentityDictionary:: of values:
 table::
 ## code::\cos:: || roll-off to ~-3dB, in radians
 ## code::\hvc:: || roll-off to ~-6dB, in radians

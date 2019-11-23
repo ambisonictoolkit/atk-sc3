@@ -124,7 +124,7 @@ HoaMatrixRotation {
 
 	init { |order|
 		r3x3 = this.eulerToR3(r1, r2, r3, axes);
-		matrix = this.buildSHRotMtx(r3x3, order, 'real');
+		matrix = this.buildSHRotMtx(r3x3, order, \real);
 	}
 
 
@@ -160,23 +160,29 @@ HoaMatrixRotation {
 		// commented rows to the right show source's values,
 		^Matrix.with(
 			switch(axis,
-				'x', { [
-					[1, 0, 0],
-					[0, cost, sint_neg], // [0, cost, sint],
-					[0, sint, cost]      // [0, sint_neg, cost]
-				] },
-				'y', { [
-					[cost, 0, sint_neg],
-					[0, 1, 0],
-					[sint, 0, cost]
-				] },
-				'z', { [
-					[cost, sint_neg, 0], // [cost, sint, 0],
-					[sint, cost, 0],     // [sint_neg, cost, 0],
-					[0, 0, 1]
-				] },
+				\x, {
+					[
+						[1, 0, 0],
+						[0, cost, sint_neg], // [0, cost, sint],
+						[0, sint, cost]      // [0, sint_neg, cost]
+					]
+				},
+				\y, {
+					[
+						[cost, 0, sint_neg],
+						[0, 1, 0],
+						[sint, 0, cost]
+					]
+				},
+				\z, {
+					[
+						[cost, sint_neg, 0], // [cost, sint, 0],
+						[sint, cost, 0],     // [sint_neg, cost, 0],
+						[0, 0, 1]
+					]
+				},
 			)
-		);
+		)
 	}
 
 	/*
@@ -197,7 +203,7 @@ HoaMatrixRotation {
 		// zeroth-band (l = 0) is invariant to rotation
 		r.put(0, 0, 1);
 
-		(maxDegree == 0).if{ ^r };
+		if(maxDegree == 0, { ^r });
 
 		r_1 = Matrix.newClear(3, 3); // l = 1 rotation matrix
 
@@ -216,31 +222,31 @@ HoaMatrixRotation {
 		r_1.put(2, 2, r3x3.at(0, 0));
 
 		// insert this matrix into the output matrix in 1st band
-		r_1.rows.do{ |rowi|
-			r_1.cols.do{ |coli|
+		(r_1.rows).do({ |rowi|
+			(r_1.cols).do({ |coli|
 				r.put(rowi + 1, coli + 1, r_1.at(rowi, coli))
-			}
-		};
+			})
+		});
 
-		(maxDegree == 1).if{ ^r };
+		if(maxDegree == 1, { ^r });
 
 		r_lm1 = r_1;    // 1st band becomes "previous"
 		band_idx = 4;   // index into output matrix for placing each new band sub-matrix
 
 		// compute rotation matrix of each subsequent band recursively
 		// for band 2 to "l"
-		(2..maxDegree).do{ |l|
+		(2..maxDegree).do({ |l|
 
 			setSize = 2 * l + 1;
 
 			r_l = Matrix.newClear(setSize, setSize);
 
-			(l.neg..l).do{ |m|
-				(l.neg..l).do{ |n|
+			(l.neg..l).do({ |m|
+				(l.neg..l).do({ |n|
 
 					// compute u, v, w terms of Eq.8.1 (Table I)
 					d = (m == 0).asInteger; // the delta function d_m0
-					denom = (n.abs == l).if({
+					denom = if(n.abs == l, {
 						(2 * l) * (2 * l - 1)
 					}, {
 						l.squared - n.squared
@@ -251,27 +257,27 @@ HoaMatrixRotation {
 					w = sqrt((l - abs(m) - 1) * (l - abs(m)) / denom) * (1 - d) * -0.5;
 
 					//  computes Eq.8.1
-					(u != 0).if{ u = u * this.prU(l, m, n, r_1, r_lm1) };
-					(v != 0).if{ v = v * this.prV(l, m, n, r_1, r_lm1) };
-					(w != 0).if{ w = w * this.prW(l, m, n, r_1, r_lm1) };
+					if(u != 0, { u = u * this.prU(l, m, n, r_1, r_lm1) });
+					if(v != 0, { v = v * this.prV(l, m, n, r_1, r_lm1) });
+					if(w != 0, { w = w * this.prW(l, m, n, r_1, r_lm1) });
 
-					r_l.put(m + l, n + l, u + v + w);
-				}
-			};
+					r_l.put(m + l, n + l, u + v + w)
+				})
+			});
 
 			// insert roation matrix for this band into it's proper
 			// place in the output rotation matrix
-			r_l.rows.do{ |rowi|
-				r_l.cols.do{ |coli|
+			(r_l.rows).do({ |rowi|
+				(r_l.cols).do({ |coli|
 					r.put(rowi + band_idx, coli + band_idx, r_l.at(rowi, coli))
-				}
-			};
+				})
+			});
 
 			// assign current band matrix to previous
 			r_lm1 = r_l;
 
 			band_idx = band_idx + setSize;
-		};
+		});
 
 		^r // return rotation matrix
 	}
@@ -288,21 +294,21 @@ HoaMatrixRotation {
 	prV { |l, m, n, r_1, r_lm1|
 		var p0, p1, d;
 
-		^(m == 0).if({
+		^if(m == 0, {
 			p0 = this.prP(1, l, 1, n, r_1, r_lm1);
 			p1 = this.prP(-1, l, -1, n, r_1, r_lm1);
-			p0 + p1; // return
+			p0 + p1 // return
 		}, {
-			(m > 0).if({
+			if(m > 0, {
 				d = (m == 1).asInteger;
 				p0 = this.prP(1, l, m - 1, n, r_1, r_lm1);
 				p1 = this.prP(-1, l, m.neg + 1, n, r_1, r_lm1);
-				(p0 * sqrt(1 + d)) - (p1 * (1 - d)); // return
+				(p0 * sqrt(1 + d)) - (p1 * (1 - d)) // return
 			}, {
 				d = (m == -1).asInteger;
 				p0 = this.prP(1, l, m + 1, n, r_1, r_lm1);
 				p1 = this.prP(-1, l, m.neg - 1, n, r_1, r_lm1);
-				(p0 * (1 - d)) + (p1 * sqrt(1 + d)); // return
+				(p0 * (1 - d)) + (p1 * sqrt(1 + d)) // return
 			})
 		})
 	}
@@ -311,16 +317,16 @@ HoaMatrixRotation {
 	prW { |l, m, n, r_1, r_lm1|
 		var p0, p1;
 
-		(m == 0).if{ "HoaRotationMatrix:prW should not be called with m = 0".throw };
+		if(m == 0, { "HoaRotationMatrix:prW should not be called with m = 0".throw });
 
-		^(m > 0).if({
+		^if(m > 0, {
 			p0 = this.prP(1, l, m + 1, n, r_1, r_lm1);
 			p1 = this.prP(-1, l, m.neg - 1, n, r_1, r_lm1);
-			p0 + p1; // return
+			p0 + p1 // return
 		}, {
 			p0 = this.prP(1, l, m - 1, n, r_1, r_lm1);
 			p1 = this.prP(-1, l, m.neg + 1, n, r_1, r_lm1);
-			p0 - p1; // return
+			p0 - p1 // return
 		})
 	}
 
@@ -332,13 +338,13 @@ HoaMatrixRotation {
 		rim1 = r_1.at(i + 1, 0);
 		ri0 = r_1.at(i + 1, 1);
 
-		^(b == l.neg).if({
-			(ri1 * r_lm1.at(a + l - 1, 0)) + (rim1 * r_lm1.at(a + l - 1, 2 * l - 2));
+		^if(b == l.neg, {
+			(ri1 * r_lm1.at(a + l - 1, 0)) + (rim1 * r_lm1.at(a + l - 1, 2 * l - 2))
 		}, {
-			(b == l).if({
-				(ri1 * r_lm1.at(a + l - 1, 2 * l - 2)) - (rim1 * r_lm1.at(a + l - 1, 0));
+			if(b == l, {
+				(ri1 * r_lm1.at(a + l - 1, 2 * l - 2)) - (rim1 * r_lm1.at(a + l - 1, 0))
 			}, {
-				ri0 * r_lm1.at(a + l - 1, b + l - 1);
+				ri0 * r_lm1.at(a + l - 1, b + l - 1)
 			})
 		})
 	}
@@ -355,18 +361,18 @@ HoaMatrixRotation {
 
 		// complex -> real SH matrix
 		wMtx = Matrix.with(
-			setSize.collect{
-				setSize.collect{
+			setSize.collect({
+				setSize.collect({
 					Complex(0, 0)
-				}
-			}
+				})
+			})
 		);
 
 		wMtx.put(0, 0, Complex(1, 0)); // l = 0
 
-		(order > 0).if{
+		if(order > 0, {
 			idx = 1;
-			(1..order).do{ |l|
+			(1..order).do({ |l|
 				degreeSize = 2 * l + 1;
 
 				m = (1..l);
@@ -379,13 +385,13 @@ HoaMatrixRotation {
 				) / 2.sqrt;
 
 				diagTMtx = Matrix.with(
-					degreeSize.collect{
-						degreeSize.collect{
+					degreeSize.collect({
+						degreeSize.collect({
 							Complex(0, 0)
-						}
-					}
+						})
+					})
 				);
-				diagT.do{ |me, i| diagTMtx.put(i, i, me) };
+				diagT.do({ |me, i| diagTMtx.put(i, i, me) });
 
 				// form the antidiagonal
 				adiagT = (
@@ -397,23 +403,24 @@ HoaMatrixRotation {
 				adiagTMtx = Matrix.newClear(degreeSize, degreeSize);
 
 				// place into diagnal, flipped L<>R
-				adiagT.do{ |me, i|
+				adiagT.do({ |me, i|
 					var dex = degreeSize - i - 1;
+
 					adiagTMtx.put(i, dex, me)
-				};
+				});
 
 				// form the transformation matrix for the specific band n
 				tempT = diagTMtx + adiagTMtx;
 
-				tempT.rows.do{ |rowi|
-					tempT.cols.do{ |coli|
+				(tempT.rows).do({ |rowi|
+					(tempT.cols).do({ |coli|
 						wMtx.put(rowi + idx, coli + idx, tempT.at(rowi, coli))
-					}
-				};
+					})
+				});
 
-				idx = idx + (2 * l + 1);
-			}
-		};
+				idx = idx + (2 * l + 1)
+			})
+		});
 
 		conjW = Matrix.with(
 			wMtx.rows.collect({ |row|

@@ -209,7 +209,7 @@ code::
 //       SRxxxR.wav
 // correct input for FoaEncoderMatrix.newZoomH2 is:
 
-~in = [ SRxxxR.at(0), SRxxxR.at(1), SRxxxF.at(0), SRxxxF.at(1) ]
+~in = [ SRxxxR[0], SRxxxR[1], SRxxxF[0], SRxxxF[1] ]
 ::
 
 anchor::newzoomh2k::

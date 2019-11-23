@@ -53,7 +53,7 @@ SynthDef(\foaEncode1, {
 	// decode our signal using our decoder defined above
 	out = FoaDecode.ar(foa, decoder);
 
- 	Out.ar(0, out);
+	Out.ar(0, out);
 }).add;
 )
 
@@ -118,7 +118,7 @@ SynthDef(\foaEncode2, {
 	out = FoaDecode.ar(foa, decoder);
 
 
- 	Out.ar(0, out);
+	Out.ar(0, out);
 }).add;
 
 )
@@ -149,21 +149,21 @@ a = Bus.audio(s, 4);
 
 // Encoding Synth
 SynthDef(\foaEncode3, {arg outBus, duration = 0.05, theta, phi;
-    var src, foa, env;
+	var src, foa, env;
 
 	// our mono source
-    src = PinkNoise.ar(-6.dbamp);
+	src = PinkNoise.ar(-6.dbamp);
 
 	// amplitude scaling envelope
 	env = EnvGen.kr(
-            Env([0, 1, 0], [0.5, 0.5], \sin),
-            timeScale: duration,
-            doneAction: 2);
+			Env([0, 1, 0], [0.5, 0.5], \sin),
+			timeScale: duration,
+			doneAction: 2);
 
-    // Encode into our foa signal
-    foa = FoaPanB.ar(src, theta, phi, env);
+	// Encode into our foa signal
+	foa = FoaPanB.ar(src, theta, phi, env);
 
-    Out.ar(outBus, foa);
+	Out.ar(outBus, foa);
 }).add;
 
 // Decoding Synth
@@ -176,7 +176,7 @@ SynthDef(\foaDecode, {arg inBus;
 	// decode to stereo
 	out = FoaDecode.ar(foa, decoder);
 
- 	Out.ar(0, out);
+	Out.ar(0, out);
 }).add;
 
 )
@@ -522,14 +522,14 @@ sndPath = Atk.userSoundsDir ++  "/uhj/Palestrina-O_Bone.wav";
 
 // get some info about the soundfile we are decoding for the Score requirements
 SoundFile.use(
-    sndPath,
-    {arg soundFile;
-        headerFormat = soundFile.headerFormat;
-        sampleFormat = soundFile.sampleFormat;
-        sampleRate = soundFile.sampleRate;
+	sndPath,
+	{arg soundFile;
+		headerFormat = soundFile.headerFormat;
+		sampleFormat = soundFile.sampleFormat;
+		sampleRate = soundFile.sampleRate;
 				numChannels = soundFile.numChannels;
-        duration = soundFile.duration;
-    }
+		duration = soundFile.duration;
+	}
 );
 
 // define a CtkBuffer and add it to our score
@@ -538,45 +538,45 @@ sndbuf = CtkBuffer.playbuf(sndPath).addTo(score);
 // define the UHJ encoder
 // the decoder takes a score argument so that it will add the kernels to the score for you
 encoder = FoaEncoderKernel.newUHJ(
-    sampleRate: sampleRate,
-    score: score
+	sampleRate: sampleRate,
+	score: score
 );
 
 // define a decoder of your choosing
 // the decoder takes a score argument so that it will add the kernels to the score for you
 decoder = FoaDecoderKernel.newListen(
 	subjectID: 1013,
-    sampleRate: sampleRate,
-    score: score
+	sampleRate: sampleRate,
+	score: score
 );
 
 // define a CtkSynthDef
 synth = CtkSynthDef(\kernelEncodeDecode, {arg buffer;
-    var out, encoded, src;
+	var out, encoded, src;
 
-    // play a sound file from a buffer
-    src = PlayBuf.ar(numChannels, buffer, BufRateScale.kr(buffer));
+	// play a sound file from a buffer
+	src = PlayBuf.ar(numChannels, buffer, BufRateScale.kr(buffer));
 
-    // encode our UHJ sound file
-    encoded = FoaEncode.ar(src, encoder);
+	// encode our UHJ sound file
+	encoded = FoaEncode.ar(src, encoder);
 
-    // decode our B-format sound file
-    out = FoaDecode.ar(encoded, decoder);
+	// decode our B-format sound file
+	out = FoaDecode.ar(encoded, decoder);
 
-    Out.ar(0, out);
+	Out.ar(0, out);
 });
 
 // create a synth note and add it to the score
 score.add(
-    synth.note(0.0, duration).buffer_(sndbuf)
+	synth.note(0.0, duration).buffer_(sndbuf)
 );
 
 // write our score to disk
 score.write("~/Desktop/myDecode.wav".standardizePath,
-    sampleRate: sampleRate,
-    headerFormat: headerFormat,
-    sampleFormat: sampleFormat,
-    options: ServerOptions.new.numOutputBusChannels_(decoder.numChannels)
+	sampleRate: sampleRate,
+	headerFormat: headerFormat,
+	sampleFormat: sampleFormat,
+	options: ServerOptions.new.numOutputBusChannels_(decoder.numChannels)
 );
 )
 ::

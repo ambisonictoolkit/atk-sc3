@@ -68,6 +68,7 @@ HoaLm {
 			},
 			\sid, {
 				var m0, m1, bool;
+
 				l = index.sqrt.floor.asInteger;
 				m0 = (((l + 1).squared - (index + 1)) / 2).floor.asInteger;
 				m1 = -1 * (((l + 1).squared - index) / 2).floor.asInteger;
@@ -78,7 +79,7 @@ HoaLm {
 			\fuma, {
 				l = index.sqrt.floor.asInteger;
 
-				^(l <= 1).if({
+				^if(l <= 1, {
 					this.newIndex(index, \sid)
 				}, {
 					var m, m0, m1, bool;
@@ -91,7 +92,7 @@ HoaLm {
 
 					this.new([l, m])
 				})
-			},
+			}
 		)
 	}
 
@@ -100,11 +101,11 @@ HoaLm {
 	// Return l, m
 
 	l {
-		^this.lm.at(0);
+		^this.lm[0];
 	}
 
 	m {
-		^this.lm.at(1);
+		^this.lm[1];
 	}
 
 	// ------------
@@ -112,6 +113,7 @@ HoaLm {
 
 	index { |ordering = \acn|
 		var l, m;
+
 		#l, m = this.lm;
 
 		switch(ordering,
@@ -122,10 +124,10 @@ HoaLm {
 				^((l**2 + (2 * (l - m.abs))) - m.sign.clip(-1, 0)).asInteger
 			},
 			\fuma, {
-				^(l <= 1).if ({
+				^if(l <= 1, {
 					this.index(\sid)
 				}, {
-					((l.squared + (2 * m.abs)) - m.sign.clip(0, 1)).asInteger;
+					((l.squared + (2 * m.abs)) - m.sign.clip(0, 1)).asInteger
 				})
 			}
 		)
@@ -136,6 +138,7 @@ HoaLm {
 
 	isInSubset { |subset = \zonal|
 		var l, m;
+
 		#l, m = this.lm;
 
 		switch(subset,
@@ -150,7 +153,7 @@ HoaLm {
 			},
 			\rotate, {  // rotate around z-axis, aka yaw
 				^(m != 0)
-			},
+			}
 		)
 	}
 
@@ -159,23 +162,24 @@ HoaLm {
 
 	reflection { |mirror = \reflect|
 		var l, m;
+
 		#l, m = this.lm;
 
 		switch(mirror,
 			\reflect, {  // reflect - mirror across origin - flip * flop * flap
-				^l.odd.if({ -1.0 }, { 1.0 });
+				^if(l.odd, { -1.0 }, { 1.0 })
 			},
 			\flip, {  // flip - mirror across y-axis
-				^(m < 0).if({ -1.0 }, { 1.0 })
+				^if(m < 0, { -1.0 }, { 1.0 })
 			},
 			\flop, {  // flop - mirror across x-axis
-				^((m < 0 && m.even) || (m > 0 && m.odd)).if({ -1.0 }, { 1.0 })
+				^if(((m < 0 && m.even) || (m > 0 && m.odd)), { -1.0 }, { 1.0 })
 			},
 			\flap, {  // flap - mirror across z-axis
-				^(m + l).odd.if({ -1.0 }, { 1.0 })
+				^if((m + l).odd, { -1.0 }, { 1.0 })
 			},
 			\CondonShortleyPhase, {  // Condon-Shortley Phase - flip * flop
-				^m.odd.if({ -1.0 }, { 1.0 });
+				^if(m.odd, { -1.0 }, { 1.0 })
 			},
 			\origin, {
 				^this.reflection(\reflect)
@@ -188,7 +192,7 @@ HoaLm {
 			},
 			\z, {
 				^this.reflection(\flap)
-			},
+			}
 		)
 	}
 
@@ -197,6 +201,7 @@ HoaLm {
 
 	normalisation { |scheme = \n3d|
 		var l, m;
+
 		#l, m = this.lm;
 
 		switch(scheme,
@@ -205,6 +210,7 @@ HoaLm {
 			},
 			\sn3d, {
 				var dm, mabs;
+
 				dm = (m == 0).asInteger;
 				mabs = m.abs;
 				^sqrt(
@@ -220,12 +226,14 @@ HoaLm {
 			},
 			\sn2d, {
 				var lne0;
+
 				lne0 = (l>0).asInteger;
 				^2.pow(-0.5 * lne0) * this.normalisation(\n2d)
 			},
 			\maxN, {
 				var twoDivSqrt3, sqrt45_32, threeDivSqrt5, sqrt8_5;
 				var norms;
+
 				twoDivSqrt3 = 2/3.sqrt;
 				sqrt45_32 = (45/32).sqrt;
 				threeDivSqrt5 = 3/5.sqrt;
@@ -243,7 +251,7 @@ HoaLm {
 				^norms[this.index(\acn)] * this.normalisation(\sn3d)
 			},
 			\MaxN, {
-				^(this.index(\acn) == 0).if({
+				^if((this.index(\acn) == 0), {
 					2.sqrt.reciprocal  // W
 				}, {
 					this.normalisation(\maxN)
@@ -251,7 +259,7 @@ HoaLm {
 			},
 			\fuma, {
 				^this.normalisation(\MaxN)
-			},
+			}
 		)
 	}
 
@@ -271,10 +279,11 @@ HoaLm {
 		phi = pi/2 - phi;
 
 		// evaluate spherical harmonic
-		case
-		{ m < 0 } { res = 2.sqrt * sphericalHarmonicI(l, mabs, phi, theta) }  // imag
-		{ m == 0 } { res = sphericalHarmonicR(l, mabs, phi, theta) }          // real
-		{ m > 0 } { res = 2.sqrt * sphericalHarmonicR(l, mabs, phi, theta) }; // real
+		case(
+			{ m < 0 }, { res = 2.sqrt * sphericalHarmonicI(l, mabs, phi, theta) },  // imag
+			{ m == 0 }, { res = sphericalHarmonicR(l, mabs, phi, theta) },          // real
+			{ m > 0 }, { res = 2.sqrt * sphericalHarmonicR(l, mabs, phi, theta) }   // real
+		);
 
 		// remove Condon-Shortley phase
 		res = this.reflection(\CondonShortleyPhase) * res;

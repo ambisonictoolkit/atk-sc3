@@ -54,8 +54,8 @@
 		var designList;
 
 		minT = switch(optimize,
-			\energy, { 2 * order },  // energy
-			\spreadE, { 2 * order + 1 },  // energy spread
+			\energy, { 2 * order },      // energy
+			\spreadE, { 2 * order + 1 }  // energy spread
 		);
 
 		lib ?? { this.initLib };

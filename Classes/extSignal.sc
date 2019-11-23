@@ -53,13 +53,14 @@
 			spectrum.asComplex
 		});
 
-		^(size.isPowerOfTwo).if({  // rfft
+		^if(size.isPowerOfTwo, {  // rfft
 			var rfftsize = (size / 2 + 1).asInteger;
 			var cosTable = Signal.rfftCosTable(rfftsize);
 
 			// synthesize kernels
 			complexes.collect({ |complex|
 				var rcomplex = complex.real.fftToRfft(complex.imag);
+
 				rcomplex.real.irfft(rcomplex.imag, cosTable)
 			})
 		}, {  // dft
@@ -75,13 +76,14 @@
 			spectrum.asComplex
 		});
 
-		^(size.isPowerOfTwo).if({  // rfft
+		^if(size.isPowerOfTwo, {  // rfft
 			var rfftsize = (size / 2 + 1).asInteger;
 			var cosTable = Signal.rfftCosTable(rfftsize);
 
 			// synthesize kernels
 			complexes.collect({ |complex|
 				var rcomplex = complex.real.fftToRfft(complex.imag);
+
 				rcomplex.real.irfft(rcomplex.imag, cosTable)
 			})
 		}, {  // dft
@@ -97,13 +99,14 @@
 			spectrum.linearPhase.asComplex  // linear phase
 		});
 
-		^(size.isPowerOfTwo).if({  // rfft
+		^if(size.isPowerOfTwo, {  // rfft
 			var rfftsize = (size / 2 + 1).asInteger;
 			var cosTable = Signal.rfftCosTable(rfftsize);
 
 			// synthesize kernels
 			complexes.collect({ |complex|
 				var rcomplex = complex.real.fftToRfft(complex.imag);
+
 				rcomplex.real.irfft(rcomplex.imag, cosTable)
 			})
 		}, {  // dft
@@ -119,13 +122,14 @@
 			spectrum.linearPhase.asComplex  // linear phase
 		});
 
-		^(size.isPowerOfTwo).if({  // rfft
+		^if(size.isPowerOfTwo, {  // rfft
 			var rfftsize = (size / 2 + 1).asInteger;
 			var cosTable = Signal.rfftCosTable(rfftsize);
 
 			// synthesize kernels
 			complexes.collect({ |complex|
 				var rcomplex = complex.real.fftToRfft(complex.imag);
+
 				rcomplex.real.irfft(rcomplex.imag, cosTable)
 			})
 		}, {  // dft

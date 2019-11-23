@@ -53,7 +53,7 @@
 
 		sizeSqrt = this.size.squareOf;
 
-		^(sizeSqrt == nil).if({
+		^if((sizeSqrt == nil), {
 			nil
 		}, {
 			sizeSqrt - 1

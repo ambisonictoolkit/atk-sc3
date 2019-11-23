@@ -54,24 +54,24 @@ HoaMatrix : AtkMatrix {
 
 	// call by subclass, only
 	*newFromMatrix { |matrix, directions = ([[0, 0]]), order = (AtkHoa.defaultOrder)|
-		^super.new('fromMatrix', order).initDirections(directions).initFromMatrix(matrix)
+		^super.new(\fromMatrix, order).initDirections(directions).initFromMatrix(matrix)
 	}
 
 	// call by subclass, only
 	*newFromFile { |filePathOrName, searchExtensions = true, order = (AtkHoa.defaultOrder)|
-		^super.new('fromFile', order).initFromFile(filePathOrName, searchExtensions)
+		^super.new(\fromFile, order).initFromFile(filePathOrName, searchExtensions)
 	}
 
 	initDirections { |argDirections|
-		directions = (argDirections == nil).if({
-			this.order.asHoaOrder.size.collect({ inf })
+		directions = if(argDirections == nil, {
+			(this.order.asHoaOrder.size).collect({ inf })
 		}, {
-			argDirections.rank.switch(
+			switch(argDirections.rank,
 				0, { Array.with(argDirections, 0.0).reshape(1, 2) },
 				1, { argDirections.collect({ |dir| Array.with(dir, 0.0) }) },
-				2, { argDirections },
+				2, { argDirections }
 			).collect({ |thetaPhi|  // wrap to [ + /-pi, +/-pi/2]
-				Spherical.new(1, thetaPhi.at(0), thetaPhi.at(1)).asCartesian.asSpherical.angles
+				Spherical.new(1, thetaPhi[0], thetaPhi[1]).asCartesian.asSpherical.angles
 			})
 		})
 	}
@@ -83,7 +83,7 @@ HoaMatrix : AtkMatrix {
 		matrix = aMatrix;
 
 		// 1) Check: matrix numChannels == directions.size
-		(this.numChannels != this.directions.size).if{
+		if(this.numChannels != this.directions.size, {
 			Error(
 				format(
 					"[%:-initFromMatrix] Matrix number of channels "
@@ -91,18 +91,18 @@ HoaMatrix : AtkMatrix {
 					this.class.asString, this.numChannels, this.directions.size
 				)
 			).errorString.postln;
-			this.halt;
-		};
+			this.halt
+		});
 
 		// 2) Check: matrix size (numCoeffs) == declared order
 		size = switch(this.type,
-			'encoder', { matrix.rows },
-			'decoder', { matrix.cols },
-			'xformer', { matrix.rows },
+			\encoder, { matrix.rows },
+			\decoder, { matrix.cols },
+			\xformer, { matrix.rows }
 		);
 		matrixOrder = AtkHoa.detectOrder(size);
 
-		(this.order != matrixOrder).if{
+		if(this.order != matrixOrder, {
 			Error(
 				format(
 					"[%:-initFromMatrix] Order specified doesn't match order "
@@ -110,11 +110,11 @@ HoaMatrix : AtkMatrix {
 					this.class.asString, this.order, matrixOrder
 				)
 			).errorString.postln;
-			this.halt;
-		};
+			this.halt
+		});
 
 		// 3) Check: xformer is square matrix
-		(this.type == 'xformer' and: { matrix.isSquare.not }).if{
+		if((this.type == \xformer and: { matrix.isSquare.not }), {
 			Error(
 				(
 					"[%:-initFromMatrix] An 'xformer' matrix "
@@ -123,8 +123,8 @@ HoaMatrix : AtkMatrix {
 					this.class.asString, matrix.rows, matrix.cols
 				)
 			).errorString.postln;
-			this.halt;
-		}
+			this.halt
+		})
 	}
 
 	initFromFile { |filePathOrName, searchExtensions|
@@ -147,90 +147,91 @@ HoaMatrix : AtkMatrix {
 		// instance var
 		filePath = pn.fullPath;
 
-		case
-		{ pn.extension == "yml" } {
-			dict = filePath.parseYAMLFile;
-			fileParse = IdentityDictionary(know: true);
+		case(
+			{ pn.extension == "yml" }, {
+				dict = filePath.parseYAMLFile;
+				fileParse = IdentityDictionary(know: true);
 
-			// replace String keys with Symbol keys, make "knowable"
-			dict.keysValuesDo{ |k, v|
-				fileParse.put(k.asSymbol,
-					(v == "nil").if({ nil }, { v }) // so .info parsing doesn't see nil as array
-				)
-			};
-
-			// check against \set
-			fileParse[\set].isNil.if({
-				"Matrix 'set' is undefined in the .yml file: cannot confirm the "
-				"set matches the loaded object".warn
-			}, {
-				(fileParse[\set].asSymbol != this.set.asSymbol).if{
-					Error(
-						(
-							"[%:-initFromFile] Matrix 'set' defined in the .yml file (%) doesn't match "
-							"the object set trying to load (%)"
-						).format(
-							this.class.asString, fileParse[\set], this.set
-						).errorString.postln;
-						this.halt
+				// replace String keys with Symbol keys, make "knowable"
+				dict.keysValuesDo{ |k, v|
+					fileParse.put(k.asSymbol,
+						if(v == "nil", { nil }, { v }) // so .info parsing doesn't see nil as array
 					)
-				}
-			});
+				};
 
-			// check against \type
-			(fileParse[\type].isNil).if({
-				"Matrix 'type' is undefined in the .yml file: cannot confirm the "
-				"type matches the loaded object (encoder/decoder/xformer)".warn
-			}, {
-				(fileParse[\type].asSymbol != this.type.asSymbol).if{
-					Error(
-						format(
-							"[%:-initFromFile] Matrix 'type' defined in the .yml file (%) doesn't match "
-							"the type of matrix you're trying to load (%)",
-							this.class.asString, fileParse[\type], this.type
-						).errorString.postln;
-						this.halt
-					)
-				}
-			});
+				// check against \set
+				if(fileParse[\set].isNil, {
+					"Matrix 'set' is undefined in the .yml file: cannot confirm the "
+					"set matches the loaded object".warn
+				}, {
+					if((fileParse[\set].asSymbol != this.set.asSymbol), {
+						Error(
+							(
+								"[%:-initFromFile] Matrix 'set' defined in the .yml file (%) doesn't match "
+								"the object set trying to load (%)"
+							).format(
+								this.class.asString, fileParse[\set], this.set
+							).errorString.postln;
+							this.halt
+						)
+					})
+				});
 
-			// set unset instance vars
-			kind = (fileParse.kind.notNil).if({  // reset kind
-				fileParse.kind.asSymbol
-			}, {
-				pn.fileNameWithoutExtension.asSymbol
-			});
-			matrix = Matrix.with(fileParse.matrix.asFloat);
-			directions = fileParse.directions.asFloat;
+				// check against \type
+				if((fileParse[\type].isNil), {
+					"Matrix 'type' is undefined in the .yml file: cannot confirm the "
+					"type matches the loaded object (encoder/decoder/xformer)".warn
+				}, {
+					if((fileParse[\type].asSymbol != this.type.asSymbol), {
+						Error(
+							format(
+								"[%:-initFromFile] Matrix 'type' defined in the .yml file (%) doesn't match "
+								"the type of matrix you're trying to load (%)",
+								this.class.asString, fileParse[\type], this.type
+							).errorString.postln;
+							this.halt
+						)
+					})
+				});
 
-			// Remove parsed Instance variables & methods from fileParse.
-			// Keep just the user defined attributes and values.
-			//
-			// May wish to revisit.
-			instVars.do({ |att|
-				fileParse.includesKey(att).if{
-					fileParse.removeAt(att)
-				}
-			});
-			instMeths.do({ |att|
-				fileParse.includesKey(att).if{
-					fileParse.removeAt(att)
-				}
-			});
-		}
-		{	// catch all, including .txt
-			Error(
-				"[%:-initFromFile] Unsupported file extension.".format(this.class.asString)
-			).errorString.postln;
-			this.halt;
-		};
+				// set unset instance vars
+				kind = if(fileParse.kind.notNil, {  // reset kind
+					fileParse.kind.asSymbol
+				}, {
+					pn.fileNameWithoutExtension.asSymbol
+				});
+				matrix = Matrix.with(fileParse.matrix.asFloat);
+				directions = fileParse.directions.asFloat;
+
+				// Remove parsed Instance variables & methods from fileParse.
+				// Keep just the user defined attributes and values.
+				//
+				// May wish to revisit.
+				instVars.do({ |att|
+					if(fileParse.includesKey(att), {
+						fileParse.removeAt(att)
+					})
+				});
+				instMeths.do({ |att|
+					if(fileParse.includesKey(att), {
+						fileParse.removeAt(att)
+					})
+				})
+			},
+			{	// catch all, including .txt
+				Error(
+					"[%:-initFromFile] Unsupported file extension.".format(this.class.asString)
+				).errorString.postln;
+				this.halt
+			}
+		)
 	}
 
 	initDirTDesign { |design, order|
 		var minT = 2 * order;
 
 		// check for valid t
-		(design.t >= minT).if({
+		if(design.t >= minT, {
 			directions = design.directions
 		}, {
 			format(
@@ -248,7 +249,7 @@ HoaMatrix : AtkMatrix {
 		var formatKeyword;
 
 		formatKeyword = { |format|
-			(format.class == Symbol).if({
+			if(format.class == Symbol, {
 				AtkHoa.formatDict[format]  // retreive named formats
 			}, {
 				format  // otherwise, presume valid array
@@ -262,26 +263,26 @@ HoaMatrix : AtkMatrix {
 		hoaOrder = this.order.asHoaOrder;  // instance order
 		size = hoaOrder.size;
 
-		(inputFormat == outputFormat).if({  // equal formats?
+		if(inputFormat == outputFormat, {  // equal formats?
 			matrix = Matrix.newIdentity(size).asFloat
 		}, {  // unequal formats
 
 			// 1) normalization - returned coefficients are ordered \acn
-			coeffs = (inputFormat.at(1) == outputFormat.at(1)).if({
+			coeffs = if(inputFormat[1] == outputFormat[1], {
 				Array.fill(size, { 1.0 })
 			}, {
-				hoaOrder.normalisation(outputFormat.at(1)) / hoaOrder.normalisation(inputFormat.at(1))
+				hoaOrder.normalisation(outputFormat[1]) / hoaOrder.normalisation(inputFormat[1])
 			});
 
 			// 2) generate matrix
-			colIndices = hoaOrder.indices(inputFormat.at(0));
-			rowIndices = hoaOrder.indices(outputFormat.at(0));
+			colIndices = hoaOrder.indices(inputFormat[0]);
+			rowIndices = hoaOrder.indices(outputFormat[0]);
 			matrix = Matrix.newClear(size, size).asFloat;
 			size.do({ |index|  // index increment ordered \acn
 				matrix.put(
-					rowIndices.at(index),
-					colIndices.at(index),
-					coeffs.at(index)
+					rowIndices[index],
+					colIndices[index],
+					coeffs[index]
 				)
 			})
 		})
@@ -307,16 +308,17 @@ HoaMatrix : AtkMatrix {
 		// function to write a multi-line attribute (2D array)
 		wrAttArr = { |att, arr|
 			var vals = arr ?? { this.tryPerform(att) };
-			vals.isNil.if({
+
+			if(vals.isNil, {
 				wr.writeLine(["% : nil".format(att)]);
 			}, {
 				wr.writeLine(["% : [".format(att)]);
-				vals.asArray.do{ |elem, i|
+				(vals.asArray).do({ |elem, i|
 					wr.write(elem.asCompileString); // allow for large row strings
 					wr.write(
 						(i == (vals.size - 1)).if({ "\n]\n" }, { ", \n" })
-					);
-				};
+					)
+				})
 			});
 			wr.write("\n");
 		};
@@ -331,12 +333,12 @@ HoaMatrix : AtkMatrix {
 
 		// remove defaults from supplied attributeDictionary
 		// and write out
-		attributeDictionary.notNil.if({
+		if(attributeDictionary.notNil, {
 			defaults.do({ |att|
 				attributeDictionary.removeAt(att)
 			});
 			attributeDictionary.keysValuesDo({ |k, v|
-				(v.isKindOf(Array)).if({ wrAttArr.(k, v) }, { wrAtt.(k, v) })
+				if(v.isKindOf(Array), { wrAttArr.(k, v) }, { wrAtt.(k, v) })
 			})
 		});
 
@@ -395,36 +397,36 @@ HoaMatrix : AtkMatrix {
 
 	numChannels {
 		^switch(this.type,
-			'\encoder', { this.numInputs },
-			'\decoder', { this.numOutputs },
-			'\xformer', { this.order.asHoaOrder.size }
+			\encoder, { this.numInputs },
+			\decoder, { this.numOutputs },
+			\xformer, { this.order.asHoaOrder.size }
 		)
 	}
 
 	dim {
 		var is2D;
 
-		^(this.kind == \format).if({
+		^if(this.kind == \format, {
 			3
 		}, {
-			is2D = this.directions.collect(_.last).every(_ == 0.0);
-			(is2D).if({ 2 }, { 3 });
+			is2D = (this.directions).collect(_.last).every(_ == 0.0);
+			if(is2D, { 2 }, { 3 })
 		})
 	}
 
 	dirInputs {
 		^switch(this.type,
-			'\encoder', { this.directions },
-			'\decoder', { this.numInputs.collect({ inf }) },
-			'\xformer', { this.directions }  // requires set to inf
+			\encoder, { this.directions },
+			\decoder, { (this.numInputs).collect({ inf }) },
+			\xformer, { this.directions }  // requires set to inf
 		)
 	}
 
 	dirOutputs {
 		^switch(this.type,
-			'\encoder', { this.numOutputs.collect({ inf }) },
-			'\decoder', { this.directions },
-			'\xformer', { this.directions }  // requires set to inf
+			\encoder, { (this.numOutputs).collect({ inf }) },
+			\decoder, { this.directions },
+			\xformer, { this.directions }  // requires set to inf
 		)
 	}
 
@@ -437,15 +439,15 @@ HoaMatrixEncoder : HoaMatrix {
 
 	// Format Encoder
 	*newFormat { |format =\atk, order = (AtkHoa.defaultOrder)|
-		^super.new('format', order).initDirections.initFormat(format, \atk);
+		^super.new(\format, order).initDirections.initFormat(format, \atk);
 	}
 
 	// Projection Encoding beam - 'basic' & multi pattern
 	*newDirection { |theta = 0, phi = 0, beamShape = nil, order = (AtkHoa.defaultOrder)|
 		var directions = [[theta, phi]];
-		var instance = super.new('dir', order).initDirections(directions);
+		var instance = super.new(\dir, order).initDirections(directions);
 
-		^(beamShape == nil).if({
+		^if(beamShape == nil, {
 			instance.initBasic  // (\basic, \amp)
 		}, {
 			instance.initBeam(beamShape, nil)  // (beamShape, \amp)
@@ -454,36 +456,39 @@ HoaMatrixEncoder : HoaMatrix {
 
 	// Projection Encoding beams - 'basic' & multi pattern
 	*newDirections { |directions = ([[0, 0]]), beamShape = nil, match = nil, order = (AtkHoa.defaultOrder)|
-		var instance = super.new('dirs', order).initDirections(directions);
-		^case
-		{ (beamShape == nil) && (match == nil) } { instance.initBasic }  // (\basic, \amp)
-		{ (beamShape != nil) && (match == nil) } { instance.initBeam(beamShape, \beam) }
-		{ (beamShape == nil) && (match != nil) } { instance.initBeam(\basic, match) }
-		{ (beamShape != nil) && (match != nil) } { instance.initBeam(beamShape, match) };
+		var instance = super.new(\dirs, order).initDirections(directions);
+
+		^case(
+			{ (beamShape == nil) && (match == nil) }, { instance.initBasic },  // (\basic, \amp)
+			{ (beamShape != nil) && (match == nil) }, { instance.initBeam(beamShape, \beam) },
+			{ (beamShape == nil) && (match != nil) }, { instance.initBeam(\basic, match) },
+			{ (beamShape != nil) && (match != nil) }, { instance.initBeam(beamShape, match) }
+		)
 	}
 
 	// Projection Encoding beams (convenience to match FOA: may wish to deprecate) - 'basic' pattern
 	*newPanto { |numChans = 4, orientation = \flat, order = (AtkHoa.defaultOrder)|
 		var directions = Array.regularPolygon(numChans, orientation, pi);
-		^super.new('panto', order).initDirections(directions).initBasic;
+
+		^super.new(\panto, order).initDirections(directions).initBasic;
 	}
 
 	// Modal Encoding beams - multi pattern
 	*newModeMatch { |directions = ([[0, 0]]), beamShape = \basic, match = \beam, order = (AtkHoa.defaultOrder)|
-		^super.new('modeMatch', order).initDirections(directions).initMode(beamShape, match);
+		^super.new(\modeMatch, order).initDirections(directions).initMode(beamShape, match);
 	}
 
 	// spherical design wrapper for *newBeams, match = \beam
 	*newSphericalDesign { |design, beamShape = \basic, order = (AtkHoa.defaultOrder)|
-		var instance = super.new('spherical', order);
+		var instance = super.new(\spherical, order);
 
-		^switch
-		(design.class,
+		^switch(design.class,
 			TDesign, { instance.initDirTDesign(design, order).initBeam(beamShape, \beam) },  // TDesign only, for now
-			{ format(  // ... or, catch un-supported
-				"[HoaMatrixEncoder *newSphericalDesign] Design % is not supported!",
-				design.class
-			).throw
+			{                                                                                // ... or, catch un-supported
+				format(
+					"[HoaMatrixEncoder *newSphericalDesign] Design % is not supported!",
+					design.class
+				).throw
 			}
 		)
 	}
@@ -500,8 +505,8 @@ HoaMatrixEncoder : HoaMatrix {
 		// build encoder matrix, and set for instance
 		// norm = 1.0, beamWeights = [1, 1, ..., 1]
 		matrix = Matrix.with(
-			this.directions.collect({ |thetaPhi|
-				hoaOrder.sph(thetaPhi.at(0), thetaPhi.at(1))
+			(this.directions).collect({ |thetaPhi|
+				hoaOrder.sph(thetaPhi[0], thetaPhi[1])
 			}).flop
 		).zeroWithin(AtkHoa.nearZero)
 	}
@@ -519,14 +524,14 @@ HoaMatrixEncoder : HoaMatrix {
 		degreeSeries = Array.series(this.order + 1, 1, 2);
 		norm = (degreeSeries * beamWeights).sum / degreeSeries.sum;
 		// rescale for matching a/b normalization?
-		(match == \beam).if({
+		if(match == \beam, {
 			norm = degreeSeries.sum / this.directions.size * norm
 		});
 
 		// build encoder matrix, and set for instance
 		matrix = norm * Matrix.with(
-			this.directions.collect({ |thetaPhi|
-				(1 / beamWeights)[hoaOrder.l] * hoaOrder.sph(thetaPhi.at(0), thetaPhi.at(1));
+			(this.directions).collect({ |thetaPhi|
+				(1 / beamWeights)[hoaOrder.l] * hoaOrder.sph(thetaPhi[0], thetaPhi[1])
 			}).flop
 		).zeroWithin(AtkHoa.nearZero)
 	}
@@ -553,15 +558,15 @@ HoaMatrixEncoder : HoaMatrix {
 	}
 
 	initEncoderVarsForFiles {
-		directions = fileParse.notNil.if({
-			fileParse.dirInputs.notNil.if({
+		directions = if(fileParse.notNil, {
+			if(fileParse.dirInputs.notNil, {
 				fileParse.dirInputs.asFloat
 			}, {
-				matrix.cols.collect({ 'unspecified' })
-			});
+				(this.matrix.cols).collect({ \unspecified })
+			})
 		}, { // txt file provided, no fileParse
-			matrix.cols.collect({ 'unspecified' });
-		});
+			(this.matrix.cols).collect({ \unspecified })
+		})
 	}
 }
 
@@ -577,18 +582,19 @@ HoaMatrixXformer : HoaMatrix {
 
 	// overload HoaMatrix *newFromMatrix
 	*newFromMatrix { |matrix, order = (AtkHoa.defaultOrder)|
-		^super.new('fromMatrix', order).initDirections.initFromMatrix(matrix)
+		^super.new(\fromMatrix, order).initDirections.initFromMatrix(matrix)
 	}
 
 	// ------------
 	// Rotation
 
 	*newRotate { |r1 = 0, r2 = 0, r3 = 0, axes = \xyz, order = (AtkHoa.defaultOrder)|
-		^super.new('rotate', order).initDirections.initRotation(r1, r2, r3, axes, order)
+		^super.new(\rotate, order).initDirections.initRotation(r1, r2, r3, axes, order)
 	}
 
 	*newRotateAxis { |axis = \z, angle = 0, order = (AtkHoa.defaultOrder)|
 		var r1 = 0, r2 = 0, r3 = 0;
+
 		switch(axis,
 			\x, { r1 = angle },
 			\y, { r2 = angle },
@@ -598,24 +604,24 @@ HoaMatrixXformer : HoaMatrix {
 			\tumble, { r2 = angle },
 			\yaw, { r3 = angle },
 			\pitch, { r2 = angle },
-			\roll, { r1 = angle },
+			\roll, { r1 = angle }
 		);
-		^super.new('rotateAxis', order).initDirections.initRotation(r1, r2, r3, \xyz)
+		^super.new(\rotateAxis, order).initDirections.initRotation(r1, r2, r3, \xyz)
 	}
 
 	*newRTT { |rotate = 0, tilt = 0, tumble = 0, order = (AtkHoa.defaultOrder)|
-		^super.new('rotation', order).initDirections.initRotation(rotate, tilt, tumble, \zxy)
+		^super.new(\rotation, order).initDirections.initRotation(rotate, tilt, tumble, \zxy)
 	}
 
 	*newYPR { |yaw = 0, pitch = 0, roll = 0, order = (AtkHoa.defaultOrder)|
-		^super.new('rotation', order).initDirections.initRotation(roll, pitch, yaw, \xyz)
+		^super.new(\rotation, order).initDirections.initRotation(roll, pitch, yaw, \xyz)
 	}
 
 	/// ------------
 	// Mirroring
 
 	*newReflect { |mirror = \reflect, order = (AtkHoa.defaultOrder)|
-		^super.new('reflect', order).initDirections.initReflect(mirror);
+		^super.new(\reflect, order).initDirections.initReflect(mirror);
 	}
 
 	// Swap one axis for another.
@@ -623,7 +629,7 @@ HoaMatrixXformer : HoaMatrix {
 	// - if yes, would need a way to fork to initSwapAxes in *newReflect
 	// - if yes, kind = 'mirror', otherwise need new kind e.g. 'axisSwap'
 	*newSwapAxes { |axes = \yz, order = (AtkHoa.defaultOrder)|
-		^super.new('swap', order).initDirections.initSwapAxes(axes);
+		^super.new(\swap, order).initDirections.initSwapAxes(axes);
 	}
 
 	// ------------
@@ -631,12 +637,14 @@ HoaMatrixXformer : HoaMatrix {
 
 	*newBeam { |theta = 0, phi = 0, beamShape = \basic, order = (AtkHoa.defaultOrder)|
 		var directions = [[theta, phi]];
-		^super.new('beam', order).initDirections(directions).initBeam(beamShape);
+
+		^super.new(\beam, order).initDirections(directions).initBeam(beamShape);
 	}
 
 	*newNull { |theta = 0, phi = 0, beamShape = \basic, order = (AtkHoa.defaultOrder)|
 		var directions = [[theta, phi]];
-		^super.new('null', order).initDirections(directions).initNull(beamShape);
+
+		^super.new(\null, order).initDirections(directions).initNull(beamShape);
 	}
 
 	initRotation { |r1, r2, r3, convention|
@@ -659,54 +667,60 @@ HoaMatrixXformer : HoaMatrix {
 	// NOTE: this contains near-zero values.
 	// You can optimize these out by calling Matrix:-zeroWithin
 	initSwapAxes { |axes|
-		case
-		{ axes == \yz or: { axes == \zy } } // swap Z<>Y axes, "J-matrix"
-		{
-			var rx, my;
+		case(
 
-			rx = this.class.newRotateAxis(\x, 0.5pi, this.order).matrix;
-			my = this.class.newReflect(\y, this.order).matrix;
+			// swap Z<>Y axes, "J-matrix"
+			{ axes == \yz or: { axes == \zy } }, {
+				var rx, my;
 
-			// matrix = my * rx;
+				rx = this.class.newRotateAxis(\x, 0.5pi, this.order).matrix;
+				my = this.class.newReflect(\y, this.order).matrix;
 
-			// TODO: bake in this omptimization? larger question of migrating from Matrix to MatrixArray
-			rx = MatrixArray.with(rx.asArray);
-			my = MatrixArray.with(my.asArray);
-			matrix = Matrix.with(my * rx);
-		}
-		{ axes == \xz or: { axes == \zx } } // swap Z<>X axes, "K-matrix"
-		{
-			var ry, mx;
+				// matrix = my * rx;
 
-			ry = this.class.newRotateAxis(\y, 0.5pi, this.order).matrix;
-			mx = this.class.newReflect(\x, this.order).matrix;
+				// TODO: bake in this omptimization? larger question of migrating from Matrix to MatrixArray
+				rx = MatrixArray.with(rx.asArray);
+				my = MatrixArray.with(my.asArray);
+				matrix = Matrix.with(my * rx)
+			},
 
-			// matrix = mx * ry;
+			// swap Z<>X axes, "K-matrix"
+			{ axes == \xz or: { axes == \zx } }, {
+				var ry, mx;
 
-			// TODO: bake in this omptimization? larger question of migrating from Matrix to MatrixArray
-			mx = MatrixArray.with(mx.asArray);
-			ry = MatrixArray.with(ry.asArray);
-			matrix = Matrix.with(mx * ry);
-		}
-		{ axes == \xy or: { axes == \yx } } // swap X<>Y axes
-		{
-			var rz, mx;
+				ry = this.class.newRotateAxis(\y, 0.5pi, this.order).matrix;
+				mx = this.class.newReflect(\x, this.order).matrix;
 
-			rz = this.class.newRotateAxis(\z, 0.5pi, this.order).matrix;
-			mx = this.class.newReflect(\x, this.order).matrix;
+				// matrix = mx * ry;
 
-			matrix = mx * rz;
-		}
-		{
-			"Cannot swap axes '%'".format(axes).throw
-		};
+				// TODO: bake in this omptimization? larger question of migrating from Matrix to MatrixArray
+				mx = MatrixArray.with(mx.asArray);
+				ry = MatrixArray.with(ry.asArray);
+				matrix = Matrix.with(mx * ry);
+			},
+
+			// swap X<>Y axes
+			{ axes == \xy or: { axes == \yx } }, {
+				var rz, mx;
+
+				rz = this.class.newRotateAxis(\z, 0.5pi, this.order).matrix;
+				mx = this.class.newReflect(\x, this.order).matrix;
+
+				matrix = mx * rz;
+			},
+
+			// cannot do it!!
+			{
+				"Cannot swap axes '%'".format(axes).throw
+			}
+		)
 	}
 
 	initBeam { |beamShape|
 		var theta, phi;
 		var decodingMatrix, encodingMatrix;
 
-		#theta, phi = this.directions.at(0);
+		#theta, phi = this.directions[0];
 		this.initDirections;  // reset directions to infs
 
 		// build decoder matrix
@@ -734,7 +748,7 @@ HoaMatrixXformer : HoaMatrix {
 		var decodingMatrix, encodingMatrix;
 		var xformingMatrix;
 
-		#theta, phi = this.directions.at(0);
+		#theta, phi = this.directions[0];
 		this.initDirections;  // reset directions to infs
 
 		// build xforming matrix
@@ -766,16 +780,16 @@ HoaMatrixXformer : HoaMatrix {
 
 		// reshape (test) encoding directions, as need be...
 		// ... then find test unit vectors
-		xyzEncDirs = directions.rank.switch(
+		xyzEncDirs = switch(directions.rank,
 			0, { Array.with(directions, 0.0).reshape(1, 2) },
 			1, { directions.collect({ |dir| Array.with(dir, 0.0) }) },
-			2, { directions },
+			2, { directions }
 		).collect({ |thetaPhi|
-			Spherical.new(1, thetaPhi.at(0), thetaPhi.at(1)).asCartesian.asArray
+			Spherical.new(1, thetaPhi[0], thetaPhi[1]).asCartesian.asArray
 		});
 		// ... and back to [theta, phi]...
 		encDirs = xyzEncDirs.collect({ |xyz|  // wrap to [ + /-pi, +/-pi/2]
-			Cartesian.new(xyz.at(0), xyz.at(1), xyz.at(2)).asSpherical.angles
+			Cartesian.new(xyz[0], xyz[1], xyz[2]).asSpherical.angles
 		});
 
 		// encode test directions (basic), return encoding matrix
@@ -818,6 +832,7 @@ HoaMatrixXformer : HoaMatrix {
 		// in spherical, for convenience to find rVmag, rVdir
 		rVsphr = rVxyz.collect({ |xyz|
 			var x, y, z;
+
 			#x, y, z = xyz;
 			Cartesian.new(x, y, z).asSpherical
 		});
@@ -867,6 +882,7 @@ HoaMatrixXformer : HoaMatrix {
 		// in spherical, for convenience to find rEmag, rEdir
 		rEsphr = rExyz.collect({ |xyz|
 			var x, y, z;
+
 			#x, y, z = xyz;
 			Cartesian.new(x, y, z).asSpherical
 		});
@@ -958,15 +974,15 @@ HoaMatrixDecoder : HoaMatrix {
 
 	// Format Encoder
 	*newFormat { |format = \atk, order = (AtkHoa.defaultOrder)|
-		^super.new('format', order).initDirections.initFormat(\atk, format);
+		^super.new(\format, order).initDirections.initFormat(\atk, format);
 	}
 
 	// Projection Decoding beam - 'basic' & multi pattern
 	*newDirection { |theta = 0, phi = 0, beamShape, order = (AtkHoa.defaultOrder)|
 		var directions = [[theta, phi]];
-		var instance = super.new('dir', order).initDirections(directions);
+		var instance = super.new(\dir, order).initDirections(directions);
 
-		^(beamShape == nil).if({
+		^if(beamShape == nil, {
 			instance.initBasic  // (\basic, \beam)
 		}, {
 			instance.initBeam(beamShape, nil)  // (beamShape, \beam)
@@ -975,34 +991,37 @@ HoaMatrixDecoder : HoaMatrix {
 
 	// Projection Decoding beams - 'basic' & multi pattern
 	*newDirections { |directions = ([[0, 0]]), beamShape = nil, match = nil, order = (AtkHoa.defaultOrder)|
-		var instance = super.new('dirs', order).initDirections(directions);
-		^case
-		{ (beamShape == nil) && (match == nil) } { instance.initBeam(\basic, \amp) }
-		{ (beamShape != nil) && (match == nil) } { instance.initBeam(beamShape, \beam) }
-		{ (beamShape == \basic) && (match == \beam) } { instance.initBasic }  // (\basic, \beam)
-		{ (beamShape == nil) && (match != nil) } { instance.initBeam(\basic, match) }
-		{ (beamShape != nil) && (match != nil) } { instance.initBeam(beamShape, match) };
+		var instance = super.new(\dirs, order).initDirections(directions);
+
+		^case(
+			{ (beamShape == nil) && (match == nil) }, { instance.initBeam(\basic, \amp) },
+			{ (beamShape != nil) && (match == nil) }, { instance.initBeam(beamShape, \beam) },
+			{ (beamShape == \basic) && (match == \beam) }, { instance.initBasic },  // (\basic, \beam)
+			{ (beamShape == nil) && (match != nil) }, { instance.initBeam(\basic, match) },
+			{ (beamShape != nil) && (match != nil) }, { instance.initBeam(beamShape, match) }
+		)
 	}
 
 	// Projection: Simple Ambisonic Decoding, aka SAD
 	*newProjection { |directions, beamShape = \basic, match = \amp, order = (AtkHoa.defaultOrder)|
-		^super.new('projection', order).initDirections(directions).initSAD(beamShape, match);
+		^super.new(\projection, order).initDirections(directions).initSAD(beamShape, match);
 	}
 
 	// Projection: Simple Ambisonic Decoding, aka SAD (convenience to match FOA: may wish to deprecate)
 	*newPanto { |numChans = 4, orientation = \flat, beamShape = \basic, match = \amp, order = (AtkHoa.defaultOrder)|
 		var directions = Array.regularPolygon(numChans, orientation, pi);
-		^super.new('panto', order).initDirections(directions).initSAD(beamShape, match);
+
+		^super.new(\panto, order).initDirections(directions).initSAD(beamShape, match);
 	}
 
 	// Mode Match: Mode Matched Decoding, aka Pseudoinverse
 	*newModeMatch { |directions, beamShape = \basic, match = \amp, order = (AtkHoa.defaultOrder)|
-		^super.new('modeMatch', order).initDirections(directions).initMMD(beamShape, match)
+		^super.new(\modeMatch, order).initDirections(directions).initMMD(beamShape, match)
 	}
 
 	// Diametric: Mode Matched Decoding, aka Diametric Pseudoinverse
 	*newDiametric { |directions, beamShape = \basic, match = \amp, order = (AtkHoa.defaultOrder)|
-		var directionPairs = directions ++ directions.rank.switch(
+		var directionPairs = directions ++ switch(directions.rank,
 			1, {  // 2D
 				directions.collect({ |item|
 					Polar.new(1, item).neg.angle
@@ -1010,24 +1029,25 @@ HoaMatrixDecoder : HoaMatrix {
 			},
 			2, {  // 3D
 				directions.collect({ |item|
-					Spherical.new(1, item.at(0), item.at(1)).neg.angles
+					Spherical.new(1, item[0], item[1]).neg.angles
 				})
 			}
 		);
-		^super.new('diametric', order).initDirections(directionPairs).initMMD(beamShape, match)
+
+		^super.new(\diametric, order).initDirections(directionPairs).initMMD(beamShape, match)
 	}
 
 	// spherical design wrapper for *newBeams, match = \beam
 	*newSphericalDesign { |design, beamShape = \basic, order = (AtkHoa.defaultOrder)|
-		var instance = super.new('spherical', order);
+		var instance = super.new(\spherical, order);
 
-		^switch
-		(design.class,
+		^switch(design.class,
 			TDesign, { instance.initDirTDesign(design, order).initBeam(beamShape, \beam) },  // TDesign only, for now
-			{ format(  // ... or, catch un-supported
-				"[HoaMatrixEncoder *newSphericalDesign] Design % is not supported!",
-				design.class
-			).throw
+			{                                                                                // ... or, catch un-supported
+				format(
+					"[HoaMatrixEncoder *newSphericalDesign] Design % is not supported!",
+					design.class
+				).throw
 			}
 		)
 	}
@@ -1048,8 +1068,8 @@ HoaMatrixDecoder : HoaMatrix {
 		// build decoder matrix, and set for instance
 		// beamWeights = [1, 1, ..., 1]
 		matrix =  norm * Matrix.with(
-			this.directions.collect({ |thetaPhi|
-			   hoaOrder.sph(thetaPhi.at(0), thetaPhi.at(1))
+			(this.directions).collect({ |thetaPhi|
+			   hoaOrder.sph(thetaPhi[0], thetaPhi[1])
 			})
 		).zeroWithin(AtkHoa.nearZero)
 	}
@@ -1067,14 +1087,14 @@ HoaMatrixDecoder : HoaMatrix {
 		degreeSeries = Array.series(this.order + 1, 1, 2);
 		norm = 1 / (degreeSeries * beamWeights).sum;
 		// rescale for matching a/b normalization?
-		(match == \amp).if({
+		if(match == \amp, {
 			norm = degreeSeries.sum / this.directions.size * norm
 		});
 
 		// build decoder matrix, and set for instance
 		matrix = norm * Matrix.with(
-			this.directions.collect({ |thetaPhi|
-				beamWeights[hoaOrder.l] * hoaOrder.sph(thetaPhi.at(0), thetaPhi.at(1));
+			(this.directions).collect({ |thetaPhi|
+				beamWeights[hoaOrder.l] * hoaOrder.sph(thetaPhi[0], thetaPhi[1])
 			})
 		).zeroWithin(AtkHoa.nearZero)
 	}
@@ -1095,16 +1115,16 @@ HoaMatrixDecoder : HoaMatrix {
 		dim = this.dim;
 
 		// 1) determine decoder output order - estimate
-		outputOrder = dim.switch(
+		outputOrder = switch(dim,
 			2, {  // 2D
-				(numOutputs >= (2 * inputOrder + 1)).if({
+				if((numOutputs >= (2 * inputOrder + 1)), {
 					inputOrder
 				}, {
 					((numOutputs - 1) / 2).asInteger
 				})
 			},
 			3, {  // 3D
-				(numOutputs >= (inputOrder + 1).squared).if({
+				if((numOutputs >= (inputOrder + 1).squared), {
 					inputOrder
 				}, {
 					numOutputs.sqrt.asInteger - 1
@@ -1121,17 +1141,17 @@ HoaMatrixDecoder : HoaMatrix {
 		// --------------------------------
 		// 3) generate prototype planewave (basic) encoding matrix
 		encodingMatrix = Matrix.with(
-			this.directions.collect({ |item|
-				hoaOrder.sph(item.at(0), item.at(1));  // encoding coefficients
+			(this.directions).collect({ |item|
+				hoaOrder.sph(item[0], item[1])  // encoding coefficients
 			}).flop
 		);
 
 		// 3a) if 2D, convert (decode) output to N2D scaling & zero non-sectoral (3D) harmonics
-		(dim == 2).if({
+		if(dim == 2, {
 			encodingMatrix = this.class.newFormat([\acn, \n2d], outputOrder).matrix.mulMatrix(
 				encodingMatrix
 			);
-			hoaOrder.indices.difference(hoaOrder.indices(subset: \sectoral)).do({ |row|
+			(hoaOrder.indices.difference(hoaOrder.indices(subset: \sectoral))).do({ |row|
 				encodingMatrix.putRow(row, Array.fill(numOutputs, { 0.0 }))
 			})
 		});
@@ -1141,7 +1161,7 @@ HoaMatrixDecoder : HoaMatrix {
 
 		// 4a) if 2D, convert (encode) input to N2D scaling
 		// NOTE: could be included in step 3a, above
-		(dim == 2).if({
+		if(dim == 2, {
 			decodingMatrix = decodingMatrix.mulMatrix(
 				this.class.newFormat([\acn, \n2d], outputOrder).matrix
 			)
@@ -1151,7 +1171,7 @@ HoaMatrixDecoder : HoaMatrix {
 		decodingMatrix = decodingMatrix.mulMatrix(weights);
 
 		// 6) expand to match input order (if necessary)
-		(inputOrder > outputOrder).if({
+		if(inputOrder > outputOrder, {
 			decodingMatrix = (decodingMatrix.flop ++ Matrix.newClear(
 				(inputOrder + 1).squared - (outputOrder + 1).squared, numOutputs)
 			).flop
@@ -1177,16 +1197,16 @@ HoaMatrixDecoder : HoaMatrix {
 		dim = this.dim;
 
 		// 1) determine decoder output order - estimate
-		outputOrder = dim.switch(
+		outputOrder = switch(dim,
 			2, {  // 2D
-				(numOutputs >= (2 * inputOrder + 1)).if({
+				if((numOutputs >= (2 * inputOrder + 1)), {
 					inputOrder
 				}, {
 					((numOutputs - 1) / 2).asInteger
 				})
 			},
 			3, {  // 3D
-				(numOutputs >= (inputOrder + 1).squared).if({
+				if((numOutputs >= (inputOrder + 1).squared), {
 					inputOrder
 				}, {
 					numOutputs.sqrt.asInteger - 1
@@ -1203,17 +1223,17 @@ HoaMatrixDecoder : HoaMatrix {
 		// --------------------------------
 		// 3) generate prototype planewave (basic) encoding matrix
 		encodingMatrix = Matrix.with(
-			this.directions.collect({ |item|
-				hoaOrder.sph(item.at(0), item.at(1));  // encoding coefficients
+			(this.directions).collect({ |item|
+				hoaOrder.sph(item[0], item[1])  // encoding coefficients
 			}).flop
 		);
 
 		// 3a) if 2D, discard non-sectoral (3D) harmonics
-		(dim == 2).if{
+		if(dim == 2, {
 			encodingMatrix = Matrix.with(
 				encodingMatrix.asArray[hoaOrder.indices(subset: \sectoral)]
 			)
-		};
+		});
 
 		// 4) pseudo inverse
 		// decodingMatrix = encodingMatrix.pseudoInverse;
@@ -1223,26 +1243,26 @@ HoaMatrixDecoder : HoaMatrix {
 
 
 		// 4a) if 2D (re-)insert non-sectoral (3D) harmonics
-		(dim == 2).if{
+		if(dim == 2, {
 			zerosMatrix = Matrix.newClear(numOutputs, (outputOrder + 1).squared);
-			hoaOrder.indices(subset: \sectoral).do({ |index, i|
+			(hoaOrder.indices(subset: \sectoral)).do({ |index, i|
 				zerosMatrix.putCol(
 					index,
 					decodingMatrix.getCol(i)
 				)
 			});
-			decodingMatrix = zerosMatrix;  // now filled
-		};
+			decodingMatrix = zerosMatrix  // now filled
+		});
 
 		// 5) apply weights: matching weight, beam weights
 		decodingMatrix = decodingMatrix.mulMatrix(weights);
 
 		// 6) expand to match input order (if necessary)
-		(inputOrder > outputOrder).if{
+		if(inputOrder > outputOrder, {
 			decodingMatrix = (decodingMatrix.flop ++ Matrix.newClear(
 				(inputOrder + 1).squared - (outputOrder + 1).squared, numOutputs)
 			).flop
-		};
+		});
 
 		// assign
 		matrix = decodingMatrix.zeroWithin(AtkHoa.nearZero)
@@ -1253,12 +1273,12 @@ HoaMatrixDecoder : HoaMatrix {
 	//         dirOutputs = if (fileParse.dirOutputs.notNil) {
 	//             fileParse.dirOutputs.asFloat
 	//         } { // output directions are unspecified in the provided matrix
-	//             matrix.rows.collect({ 'unspecified' })
+	//             matrix.rows.collect({ \unspecified })
 	//         };
 	//         shelfK = fileParse.shelfK !? { fileParse.shelfK.asFloat };
 	//         shelfFreq = fileParse.shelfFreq !? { fileParse.shelfFreq.asFloat };
 	//     } { // txt file provided, no fileParse
-	//         dirOutputs = matrix.rows.collect({ 'unspecified' });
+	//         dirOutputs = matrix.rows.collect({ \unspecified });
 	//     };
 	// }
 
@@ -1277,21 +1297,21 @@ HoaMatrixDecoder : HoaMatrix {
 
 		// reshape (test) encoding directions, as need be...
 		// ... then find test unit vectors
-		xyzEncDirs = directions.rank.switch(
+		xyzEncDirs = switch(directions.rank,
 			0, { Array.with(directions, 0.0).reshape(1, 2) },
 			1, { directions.collect({ |dir| Array.with(dir, 0.0) }) },
-			2, { directions },
+			2, { directions }
 		).collect({ |thetaPhi|
-			Spherical.new(1, thetaPhi.at(0), thetaPhi.at(1)).asCartesian.asArray
+			Spherical.new(1, thetaPhi[0], thetaPhi[1]).asCartesian.asArray
 		});
 		// ... and back to [theta, phi]...
 		encDirs = xyzEncDirs.collect({ |xyz|  // wrap to [+/-pi, +/-pi/2]
-			Cartesian.new(xyz.at(0), xyz.at(1), xyz.at(2)).asSpherical.angles
+			Cartesian.new(xyz[0], xyz[1], xyz[2]).asSpherical.angles
 		});
 
 		// find decoding unit vectors
-		xyzDecDirs = this.directions.collect({ |thetaPhi|
-			Spherical.new(1, thetaPhi.at(0), thetaPhi.at(1)).asCartesian.asArray
+		xyzDecDirs = (this.directions).collect({ |thetaPhi|
+			Spherical.new(1, thetaPhi[0], thetaPhi[1]).asCartesian.asArray
 		});
 
 		// encode test directions (basic), return encoding matrix
@@ -1315,7 +1335,7 @@ HoaMatrixDecoder : HoaMatrix {
 		energy = g2.sumCols;
 
 		// rms for each (test) encoding direction
-		numDecHarms = this.dim.switch(
+		numDecHarms = switch(this.dim,
 			2, { (2 * this.order) + 1 },  // 2D -- sectoral
 			3, { (this.order + 1).squared }   // 3D -- all
 		);
@@ -1331,6 +1351,7 @@ HoaMatrixDecoder : HoaMatrix {
 		// in spherical, for convenience to find rVmag, rVdir
 		rVsphr = rVxyz.collect({ |xyz|
 			var x, y, z;
+
 			#x, y, z = xyz;
 			Cartesian.new(x, y, z).asSpherical
 		});
@@ -1350,6 +1371,7 @@ HoaMatrixDecoder : HoaMatrix {
 		// in spherical, for convenience to find rEmag, rEdir
 		rEsphr = rExyz.collect({ |xyz|
 			var x, y, z;
+
 			#x, y, z = xyz;
 			Cartesian.new(x, y, z).asSpherical
 		});
@@ -1405,7 +1427,7 @@ HoaMatrixDecoder : HoaMatrix {
 		var numCoeffs;
 
 		// Resolve testing matrix: 2D or 3D
-		this.dim.switch(
+		switch(this.dim,
 			2, {  // 2D -- N2D
 				testMatrix = this.matrix.mulMatrix(
 					HoaMatrixEncoder.newFormat(

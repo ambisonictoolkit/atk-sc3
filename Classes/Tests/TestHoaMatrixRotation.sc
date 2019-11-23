@@ -68,32 +68,32 @@ TestHoaMatrixRotation : UnitTest {
 		r123 = [r1, r2, r3];
 
 		// Use Spherical class to initialize the directions.
-		initialDirs = dirsArray.collect{ |azel| Spherical(1, *azel) };
+		initialDirs = dirsArray.collect({ |azel| Spherical(1, *azel) });
 
-		rotatedDirs = initialDirs.collect{ |sph|
+		rotatedDirs = initialDirs.collect({ |sph|
 			// perform rotation on the sphere in the order specified
-			axes.asString.do{ |axis, j|
-				sph = sph.perform(rotMethod[axis.asSymbol], r123[j]);
-			};
+			(axes.asString).do({ |axis, j|
+				sph = sph.perform(rotMethod[axis.asSymbol], r123[j])
+			});
 			sph
-		};
+		});
 
 		// generate the planewaves from the initial directions
-		initializedPws = initialDirs.collect{ |sph|
-			HoaMatrixEncoder.newDirection(sph.theta, sph.phi, order: argOrder ?? order).matrix.flop.getRow(0);
-		};
+		initializedPws = initialDirs.collect({ |sph|
+			HoaMatrixEncoder.newDirection(sph.theta, sph.phi, order: argOrder ?? order).matrix.flop.getRow(0)
+		});
 
 		// Encode the rotated directions as planewaves.
 		// These are the targets for comparison
-		targetPws = rotatedDirs.collect{ |sph|
-			HoaMatrixEncoder.newDirection(sph.theta, sph.phi, order: argOrder ?? order).matrix.flop.getRow(0);
-		};
+		targetPws = rotatedDirs.collect({ |sph|
+			HoaMatrixEncoder.newDirection(sph.theta, sph.phi, order: argOrder ?? order).matrix.flop.getRow(0)
+		});
 	}
 
 	test_newKeywords {
 		var r1, r2, r3, t1, t2;
 
-		#r1, r2, r3 = 3.collect{ rrand(-2pi, 2pi) };
+		#r1, r2, r3 = 3.collect({ rrand(-2pi, 2pi) });
 
 		// TODO: check the following 2 tests to make sure it's a valid comparison
 		t1 = HoaMatrixXformer.newRTT(r1, r2, r3, order);
@@ -119,10 +119,10 @@ TestHoaMatrixRotation : UnitTest {
 
 		// a function to perform rotation tests on groups of directions
 		testDirs = { |dirs, groupName = "a tetrahedron", numRotTests = 5|
-			numRotTests.do{
+			numRotTests.do({
 				var r1, r2, r3, axes, rMtx, rotatedPws, groupTests;
 
-				#r1, r2, r3 = 3.collect{ rrand(-2pi, 2pi) };
+				#r1, r2, r3 = 3.collect({ rrand(-2pi, 2pi) });
 				axes = "xyz".scramble;      // randomize the convention
 
 				// initialize the initializedPws an targetPws vars
@@ -131,17 +131,17 @@ TestHoaMatrixRotation : UnitTest {
 				rMtx = HoaMatrixRotation(r1, r2, r3, axes.asSymbol, order);
 
 				// "encode" the planewave coeffs via matrix multiply
-				rotatedPws = initializedPws.collect{ |pw|
-					rMtx.matrix * Matrix.with([pw]).flop;
-				};
+				rotatedPws = initializedPws.collect({ |pw|
+					rMtx.matrix * Matrix.with([pw]).flop
+				});
 
 				// convert to an Array for the test
-				rotatedPws = rotatedPws.collect{ |mtx| mtx.asArray.flat };
+				rotatedPws = rotatedPws.collect({ |mtx| mtx.asArray.flat });
 
 				// compare to target planewaves, directly encoded in the pre-rotated directions
-				groupTests = rotatedPws.collect{ |rpw, i|
+				groupTests = rotatedPws.collect({ |rpw, i|
 					rpw.round(floatWithin) == targetPws[i].round(floatWithin)
-				};
+				});
 
 				this.assert(groupTests.every({ |item| item }),
 					format("Planewaves encoded in the directions of %, "
@@ -151,7 +151,7 @@ TestHoaMatrixRotation : UnitTest {
 					), report
 				)
 
-			};
+			})
 		};
 
 		// run tests on each of the direction groups
@@ -163,23 +163,24 @@ TestHoaMatrixRotation : UnitTest {
 
 	test_FoaRttVsHoaRtt {
 		var rtt, test, ref, res;
-		res = 50.collect{
-			rtt = 3.collect{ rrand(-2pi, 2pi) };
+
+		res = 50.collect({
+			rtt = 3.collect({ rrand(-2pi, 2pi) });
 			// A first order planewave, encoded with FOA rotation matrix
 			ref = FoaXformerMatrix.newRTT(*rtt).matrix * FoaEncoderMatrix.newDirection(0, 0).matrix.addRow([0]);
 			// A first order planewave, encoded with HOA rotation matrix
 			test = (
-				HoaMatrixRotation(rtt.at(0), rtt.at(1), rtt.at(2), 'zxy', 1).matrix *
+				HoaMatrixRotation(rtt[0], rtt[1], rtt[2], \zxy, 1).matrix *
 				HoaMatrixEncoder.newDirection(0, 0, order: 1).matrix;
 			);
 			// "decode" the HOA (acn-n3d) to FOA (fuma-maxN), for test comparison
 			test = HoaMatrixDecoder.newFormat(\fuma, 1).matrix * test;
 			// test
 			ref.round(0.00001) == test.round(0.00001)
-		};
+		});
 
 		// did every test return true?
-		this.assert(res.every({ |item| item }), "Rotations using Atk-Foa should match those of Atk-Hoa", report);
+		this.assert(res.every({ |item| item }), "Rotations using Atk-Foa should match those of Atk-Hoa", report)
 	}
 
 }
@@ -191,7 +192,7 @@ TestHoaMatrixRotation : UnitTest {
 
 // test for buildSHRotMtx
 (
-var r1, r2, r3, axes = 'xyz';
+var r1, r2, r3, axes = \xyz;
 10.do{
 #r1,r2,r3 = 3.collect{rrand(-2pi,2pi)};
 x = HoaMatrixRotation(r1, r2, r3, axes, 3);
@@ -208,7 +209,7 @@ nil
 
 // test for eulerToR3
 (
-var r1, r2, r3, axes = 'xyz';
+var r1, r2, r3, axes = \xyz;
 10.do{
 #r1,r2,r3 = 3.collect{rrand(-2pi,2pi)};
 x = HoaMatrixRotation(r1, r2, r3, axes);
@@ -225,7 +226,7 @@ nil
 
 // test for buildR1
 (
-var r123, x, res, axes = 'xyz';
+var r123, x, res, axes = \xyz;
 10.do{
 	r123 = 3.collect{rrand(-2pi,2pi)};
 	x = HoaMatrixRotation(r1, r2, r3, axes);

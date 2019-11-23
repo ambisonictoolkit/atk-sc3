@@ -111,8 +111,8 @@ code::
 
 // design encoding spectra @ [ ~theta, ~phi, ~radius ]
 ~encodingSpectra = ~radialSpectra[~hoaOrder.l].collect({ arg spectrum, index;
-	var newSpec = spectrum.deepCopy.scale(~angularCoeffs.at(index).abs);
-	~angularCoeffs.at(index).isNegative({ newSpec = newSpec.neg });
+	var newSpec = spectrum.deepCopy.scale(~angularCoeffs[index].abs);
+	~angularCoeffs[index].isNegative({ newSpec = newSpec.neg });
 	newSpec
 });
 

@@ -116,9 +116,9 @@ Atk {
 		// Supported sets—this is only for directory management and
 		// should be revisited. No need for arbitrary set limit.
 		sets = [
-			'FOA', 'HOA1', 'HOA2', 'HOA3', 'HOA4', 'HOA5',
-			'HOA6', 'HOA7', 'HOA8', 'HOA9', 'HOA10', 'HOA11',
-			'HOA12', 'HOA13', 'HOA14', 'HOA15'
+			\FOA, \HOA1, \HOA2, \HOA3, \HOA4, \HOA5,
+			\HOA6, \HOA7, \HOA8, \HOA9, \HOA10, \HOA11,
+			\HOA12, \HOA13, \HOA14, \HOA15
 		];
 	}
 
@@ -139,8 +139,8 @@ Atk {
 	}
 
 	*openUserSupportDir {
-		File.exists(Atk.userSupportDir).if({
-			Atk.userSupportDir.openOS;
+		if(File.exists(Atk.userSupportDir), {
+			Atk.userSupportDir.openOS
 		}, {
 			"User Support Dir may not exist. Run \n\tAtk.createUserSupportDir\nto create it".warn
 		})
@@ -155,8 +155,8 @@ Atk {
 	}
 
 	*openSystemSupportDir {
-		File.exists(Atk.systemSupportDir).if({
-			Atk.systemSupportDir.openOS;
+		if(File.exists(Atk.systemSupportDir), {
+			Atk.systemSupportDir.openOS
 		}, {
 			"System Support Dir may not exist.".warn
 		})
@@ -169,91 +169,93 @@ Atk {
 		mtxTypes =	["encoders", "decoders", "xformers"];
 
 		makeDirs = { |baseDir|
-			Atk.sets.do{ |set|
+			(Atk.sets).do({ |set|
 				var path;
-				ops.do{ |op|
-					mtxTypes.do{ |mtxType|
+
+				ops.do({ |op|
+					mtxTypes.do({ |mtxType|
 						path = baseDir +/+ op +/+ set.asString +/+ mtxType;
 						File.mkdir(path);
-					}
-				}
-			}
+					})
+				})
+			})
 		};
 
-		if (File.exists(userExtensionsDir)) {
+		if(File.exists(userExtensionsDir), {
 			exists = true;
-			dir = userExtensionsDir;
-		};
+			dir = userExtensionsDir
+		});
 
-		if (File.exists(systemExtensionsDir)) {
+		if(File.exists(systemExtensionsDir), {
 			exists = true;
-			dir = userExtensionsDir;
-		};
+			dir = userExtensionsDir
+		});
 
-		if (exists) { ^"ATK extensions directory already found at: %\n".format(dir).warn };
+		if(exists, { ^"ATK extensions directory already found at: %\n".format(dir).warn });
 
-		if (File.exists(userSupportDir)) { // try user dir first
-			makeDirs.(Atk.userExtensionsDir);
-		} {
-			if (File.exists(systemSupportDir)) { // then system dir
-				makeDirs.(systemExtensionsDir);
-			} {
-				format("No /ATK directory found in\n\t%\nor\n\t%\n",
+		if(File.exists(userSupportDir), {  // try user dir first
+			makeDirs.(Atk.userExtensionsDir)
+		}, {
+			if(File.exists(systemSupportDir), {  // then system dir
+				makeDirs.(systemExtensionsDir)
+			}, {
+				format(
+					"No /ATK directory found in\n\t%\nor\n\t%\n",
 					Platform.userAppSupportDir.dirname,
 					Platform.systemAppSupportDir.dirname
 				).throw
-			};
-		};
+			})
+		})
 	}
 
-	// op: 'matrices', 'kernels'
+	// op: \matrices, \kernels
 	*getAtkOpPath { |op, isExtension = false|
 		var str, subPath, kindPath, fullPath, tested;
 
 		tested = List();
 
 		str = switch(op.asSymbol,
-			'matrices', { "/matrices" },
-			'kernels',  { "/kernels" },
+			\matrices, { "/matrices" },
+			\kernels,  { "/kernels" },
 			// include singular
-			'matrix',   { "/matrices" },
-			'kernel',   { "/kernels" }
+			\matrix,   { "/matrices" },
+			\kernel,   { "/kernels" }
 		);
 
 		// assume user directory first
 		subPath = PathName.new(
-			if (isExtension) {
+			if(isExtension, {
 				Atk.userExtensionsDir ++ str
-			} {
+			}, {
 				Atk.userSupportDir ++ str
-			}
+			})
 		);
 
 		tested.add(subPath);
 
-		subPath.isFolder.not.if{ // is  lib installed for user?
+		if(subPath.isFolder.not, {   // is  lib installed for user?
 			subPath = PathName.new(  // no? check for system wide install
-				if (isExtension) {
+				if(isExtension, {
 					Atk.systemExtensionsDir ++ str
-				} {
+				}, {
 					Atk.systemSupportDir ++ str
-				}
+				})
 			);
-			tested.add(subPath);
-		};
+			tested.add(subPath)
+		});
 
-		if (subPath.isFolder.not) {
+		if(subPath.isFolder.not, {
 			Error(
 				format("\nNo folder found in\n\t%\nor\n\t%\n", *tested)
-			).throw;
-		};
+			).throw
+		});
 
 		^subPath
 	}
 
-	//  set: 'FOA', 'HOA1', 'HOA2', etc
-	//  type: 'decoder(s)', 'encoder(s)', 'xformer(s)'
-	//  op: 'matrices', 'kernels'
+	//  set: \FOA, \HOA1, \HOA2, etc
+	//  type: \decoder(s), \encoder(s), \xformer(s)
+	//  op: \matrices, \kernels
 	*getExtensionSubPath { |set, type, op|
 		var subPath, typePath, fullPath;
 
@@ -264,14 +266,14 @@ Atk {
 		typePath = PathName.new(
 			set.asString.toUpper ++ "/" ++ // folder structure is uppercase
 			switch(type.asSymbol,
-				'decoders', { "decoders" },
-				'encoders', { "encoders" },
-				'xformers', { "xformers" },
+				\decoders, { "decoders" },
+				\encoders, { "encoders" },
+				\xformers, { "xformers" },
 				// include singular
-				'decoder', { "decoders" },
-				'encoder', { "encoders" },
-				'xformer', { "xformers" }
-			);
+				\decoder, { "decoders" },
+				\encoder, { "encoders" },
+				\xformer, { "xformers" }
+			)
 		);
 
 		fullPath = subPath +/+ typePath;
@@ -279,9 +281,9 @@ Atk {
 		^fullPath
 	}
 
-	//  set: 'FOA', 'HOA1', 'HOA2', etc
-	//  type: 'decoder(s)', 'encoder(s)', 'xformer(s)'
-	//  op: 'matrices', 'kernels'
+	//  set: \FOA, \HOA1, \HOA2, etc
+	//  type: \decoder(s), \encoder(s), \xformer(s)
+	//  op: \matrices, \kernels
 	*getAtkOpSubPath { |set, type, op|
 		var subPath, typePath, fullPath;
 
@@ -292,14 +294,14 @@ Atk {
 		typePath = PathName.new(
 			set.asString.toUpper ++ "/" ++ // folder structure is uppercase
 			switch(type.asSymbol,
-				'decoders', { "decoders" },
-				'encoders', { "encoders" },
-				'xformers', { "xformers" },
+				\decoders, { "decoders" },
+				\encoders, { "encoders" },
+				\xformers, { "xformers" },
 				// include singular
-				'decoder', { "decoders" },
-				'encoder', { "encoders" },
-				'xformer', { "xformers" }
-			);
+				\decoder, { "decoders" },
+				\encoder, { "encoders" },
+				\xformer, { "xformers" }
+			)
 		);
 
 		fullPath = subPath +/+ typePath;
@@ -310,39 +312,41 @@ Atk {
 	// shortcuts for matrices and kernels, aka 'ops'
 	*getMatrixExtensionSubPath { |set, type|
 		type ?? { Error("Unspecified matrix type. Please specify 'encoder', 'decoder', or 'xformer'.").errorString.postln; ^nil };
-		^Atk.getExtensionSubPath(set, type, 'matrices');
+		^Atk.getExtensionSubPath(set, type, \matrices);
 	}
 
 	*getKernelExtensionSubPath { |set, type|
 		type ?? { Error("Unspecified kernel type. Please specify 'encoder', 'decoder', or 'xformer'.").errorString.postln; ^nil };
-		^Atk.getExtensionSubPath(set, type, 'kernels');
+		^Atk.getExtensionSubPath(set, type, \kernels);
 	}
 
 	*getAtkMatrixSubPath { |set, type|
 		type ?? { Error("Unspecified matrix type. Please specify 'encoder', 'decoder', or 'xformer'.").errorString.postln; ^nil };
-		^Atk.getAtkOpSubPath(set, type, 'matrices');
+		^Atk.getAtkOpSubPath(set, type, \matrices);
 	}
 
 	*getAtkKernelSubPath { |set, type|
 		type ?? { Error("Unspecified matrix type. Please specify 'encoder', 'decoder', or 'xformer'.").errorString.postln; ^nil };
-		^Atk.getAtkOpSubPath(set, type, 'kernels');
+		^Atk.getAtkOpSubPath(set, type, \kernels);
 	}
 
 	*folderExists { |folderPathName, throwOnFail = true|
-		if (folderPathName.isFolder) {
+		if(folderPathName.isFolder, {
 			^true
-		} {
-			if (throwOnFail) {
+		}, {
+			if(throwOnFail, {
 				Error(
 					format("No directory found at\n\t%\n", folderPathName.fullPath)
 				).errorString.postln;
-				this.halt;
-			} { ^false }
-		};
+				this.halt
+			}, {
+				^false
+			})
+		})
 	}
 
 	// NOTE: could be generalized for other user extensions, e.g. kernels, etc.
-	// set: 'FOA', 'HOA1', 'HOA2', etc., required if filePathOrName isn't a full path
+	// set: \FOA, \HOA1, \HOA2, etc., required if filePathOrName isn't a full path
 	*resolveMtxPath { |filePathOrName, mtxType, set, searchExtensions = false|
 		var usrPN, srcPath, relPath, mtxDirPath;
 		var hasExtension, hasRelPath;
@@ -353,9 +357,9 @@ Atk {
 
 		usrPN = PathName(filePathOrName); // as PathName
 
-		if (usrPN.isFile) {
-			srcPath = usrPN; // valid absolute path, easy!
-		} {
+		if(usrPN.isFile, {
+			srcPath = usrPN // valid absolute path, easy!
+		}, {
 			// TODO: consider implementing, if no set provided, recursively
 			// search through the appropriate directory for a file matching
 			// the name, posting results if multiple are found.
@@ -364,61 +368,60 @@ Atk {
 			hasExtension = usrPN.extension.size > 0;
 			hasRelPath = usrPN.colonIndices.size > 0;
 
-			mtxDirPath = searchExtensions.if({
-				Atk.getMatrixExtensionSubPath(set, mtxType);
+			mtxDirPath = if(searchExtensions, {
+				Atk.getMatrixExtensionSubPath(set, mtxType)
 			}, {
-				Atk.getAtkMatrixSubPath(set, mtxType);
+				Atk.getAtkMatrixSubPath(set, mtxType)
 			});
 
 			relPath = mtxDirPath +/+ usrPN;
 
-			if (hasRelPath) {
+			if(hasRelPath, {
 				// search specific path within matrix directory
-				if (hasExtension) {
-					if (relPath.isFile) {
+				if(hasExtension, {
+					if(relPath.isFile, {
 						srcPath = relPath; // valid relative path, with file extension
-					} {
+					}, {
 						Error(format(
 							"[%:*resolveMtxPath] No file found at\n\t%\n",
 							this.class.asString, relPath
 						)).errorString.postln;
-						this.halt;
-					};
-
-				} { // user gives a path, but no file extension
+						this.halt
+					})
+				}, { // user gives a path, but no file extension
 
 					relWithoutLast = PathName(relPath.fullPath.dirname);
 
-					if (relWithoutLast.isFolder) { // test enclosing folder
+					if(relWithoutLast.isFolder, { // test enclosing folder
 						foundCnt = 0;
 						name = usrPN.fileNameWithoutExtension;
 
 						// NOTE: filesDo searches recursively in the parent folder,
 						// so keep track of matches in case there are multiple
-						relWithoutLast.filesDo{ |file|
-							if (file.fileNameWithoutExtension == name) {
+						relWithoutLast.filesDo({ |file|
+							if(file.fileNameWithoutExtension == name, {
 								srcPath = file;
-								foundCnt = foundCnt + 1;
-							};
-						};
+								foundCnt = foundCnt + 1
+							})
+						});
 
-						if (foundCnt > 1) {
+						if(foundCnt > 1, {
 							Error(format(
 								"Found multiple matches in recursive search of\n\t%\n"
 								"Please provide a more specific path",
 								relWithoutLast.fullPath
 							)).errorString.postln;
-							this.halt;
-						};
-					} {
+							this.halt
+						})
+					}, {
 						Error(format(
 							"Parent directory isn't a folder:\n\t%\n",
 							relWithoutLast.fullPath
 						)).errorString.postln;
-						this.halt;
-					}
-				};
-			} {	// single filename, no other path
+						this.halt
+					})
+				})
+			}, {	// single filename, no other path
 				matches = [];
 
 				// name = usrPN.fileNameWithoutExtension;
@@ -427,105 +430,107 @@ Atk {
 				// recursively search whole directory
 				mtxDirPath.filesDo { |file|
 					var test;
-					test = hasExtension.if({
+
+					test = if(hasExtension, {
 						file.fileName
 					}, {
 						file.fileNameWithoutExtension
 					});
-					(test == name).if{ matches = matches.add(file) };
+					(test == name).if({ matches = matches.add(file) })
 				};
 
-				case
-				{ matches.size == 1 } {
-					srcPath = matches[0]
-				}
-				{ matches.size == 0 } {
-					Error("No file found for %".format(name)).errorString.postln;
-					this.halt
-				}
-				{ matches.size > 1 } {
-					str = "Multiple matches found for filename:\t%\n".format(usrPN.fileName);
-					matches.do{ |file|
-						str = str ++ "\t" ++ file.asRelativePath(mtxDirPath) ++ "\n"
-					};
-					str = str ++ format(
-						"Provide either an absolute path to the matrix, or one relative to\n\t%\n",
-						mtxDirPath
-					);
-					Error(str).errorString.postln; this.halt;
-				};
-			};
-		};
+				case(
+					{ matches.size == 1 }, {
+						srcPath = matches[0]
+					},
+					{ matches.size == 0 }, {
+						Error("No file found for %".format(name)).errorString.postln;
+						this.halt
+					},
+					{ matches.size > 1 }, {
+						str = "Multiple matches found for filename:\t%\n".format(usrPN.fileName);
+						matches.do({ |file|
+							str = str ++ "\t" ++ file.asRelativePath(mtxDirPath) ++ "\n"
+						});
+						str = str ++ format(
+							"Provide either an absolute path to the matrix, or one relative to\n\t%\n",
+							mtxDirPath
+						);
+						Error(str).errorString.postln; this.halt
+					}
+				)
+			})
+		});
 
-		if (srcPath.notNil) {
+		if(srcPath.notNil, {
 			^srcPath
-		} {
+		}, {
 			Error("No matrix file found!").throw
-		};
+		})
 	}
 
 	// TODO: revisit how available sets are handled.
 	// Not ideal to have hardcoded sets in Atk.sets.
 	*checkSet { |set|
-		if (Atk.sets.includes(set.asString.toUpper.asSymbol).not) {
+		if(Atk.sets.includes(set.asString.toUpper.asSymbol).not, {
 			Error("Invalid set").errorString.postln;
-			this.halt;
-		};
+			this.halt
+		})
 	}
 
 	// NOTE: could be generalized for other user extensions.
-	// e.g. kernels, etc. type: 'decoders', 'encoders', 'xformers'
+	// e.g. kernels, etc. type: \decoders, \encoders, \xformers
 	*postMyMatrices { |set, type|
 		var postContents;
 
-		block { |break|
-			set.isNil.if({
+		block({ |break|
+			if(set.isNil, {
 				// no set provided, show all sets
-				Atk.sets.do(Atk.postMyMatrices(_, type));
+				(Atk.sets).do(Atk.postMyMatrices(_, type));
 				break.()
 			}, {
-				Atk.checkSet(set);
+				Atk.checkSet(set)
 			});
 
 			postf("~ %%% ~\n", set.asString.toUpper, type.notNil.if({ " " }, { "" }), type ?? "");
 
 			postContents = { |folderPN, depth = 1|
 				var offset, f_offset;
+
 				offset = ("\t"!depth).join;
 				f_offset = ("\t"!(depth - 1)).join;
 				postf("%:: % ::\n", f_offset, folderPN.folderName);
 
-				folderPN.entries.do{ |entry|
+				(folderPN.entries).do({ |entry|
 					offset = ("\t"!depth).join;
 					offset.post;
-					entry.isFolder.if(
-						{ postContents.(entry, depth + 1) },
-						{ postf("%%\n", offset, entry.fileName) }
-					)
-				};
+					if(entry.isFolder, {
+						postContents.(entry, depth + 1)
+					}, {
+						postf("%%\n", offset, entry.fileName)
+					})
+				})
 			};
 
 			postContents.(
-				if (type.isNil) {
-					Atk.getAtkOpPath('matrices', isExtension:true) +/+ set.asString.toUpper
-				} {
-					if (
-						[
-							'decoders', 'encoders', 'xformers',
-							'decoder', 'encoder', 'xformer'		// include singular
-						].includes(type.asSymbol)
-					) {
+				if(type.isNil, {
+					Atk.getAtkOpPath(\matrices, isExtension:true) +/+ set.asString.toUpper
+				}, {
+					if([
+						\decoders, \encoders, \xformers,
+						\decoder, \encoder, \xformer		// include singular
+					].includes(type.asSymbol), {
 						Atk.getMatrixExtensionSubPath(set, type)
-					} {
+					}, {
 						Error(
 							"'type' must be 'decoder', 'encoder', 'xformer', "
 							"or nil (to see all matrix directories)"
 						).errorString.postln;
-						this.halt;
-					};
-				};
-			);
-		}
+						this.halt
+					})
+				})
+			)
+		})
 	}
 
 }
@@ -534,7 +539,7 @@ Atk {
 FoaPanB : MultiOutUGen {
 
 	*ar { |in, azimuth = 0, elevation = 0, mul = 1, add = 0|
-		^this.multiNew('audio', in, azimuth, elevation).madd(mul, add);
+		^this.multiNew(\audio, in, azimuth, elevation).madd(mul, add);
 	}
 
 	init { |... theInputs|
@@ -581,11 +586,11 @@ Foa : MultiOutUGen {
 	 checkInputs { ^this.checkNInputs(4) }
 
 	*checkChans { |in|
-		(in.size < 4).if({
-			^([in] ++ (4 - in.size).collect({ Silent.ar })).flat;
+		if(in.size < 4, {
+			^([in] ++ (4 - in.size).collect({ Silent.ar })).flat
 		}, {
 			^in
-		});
+		})
 	}
 
 }
@@ -593,9 +598,10 @@ Foa : MultiOutUGen {
 FoaDirectO : Foa {
 	*ar { |in, angle = (pi/2), mul = 1, add = 0|
 		var w, x, y, z;
+
 		in = this.checkChans(in);
 		#w, x, y, z = in;
-		^this.multiNew('audio', w, x, y, z, angle).madd(mul, add);
+		^this.multiNew(\audio, w, x, y, z, angle).madd(mul, add);
 	}
 }
 
@@ -603,9 +609,10 @@ FoaDirectO : Foa {
 FoaDirectX : Foa {
 	*ar { |in, angle = (pi/2), mul = 1, add = 0|
 		var w, x, y, z;
+
 		in = this.checkChans(in);
 		#w, x, y, z = in;
-		^this.multiNew('audio', w, x, y, z, angle).madd(mul, add);
+		^this.multiNew(\audio, w, x, y, z, angle).madd(mul, add);
 	}
 }
 
@@ -615,9 +622,10 @@ FoaDirectZ : FoaDirectX { }
 FoaRotate : Foa {
 	*ar { |in, angle = 0, mul = 1, add = 0|
 		var w, x, y, z;
+
 		in = this.checkChans(in);
 		#w, x, y, z = in;
-		^this.multiNew('audio', w, x, y, z, angle).madd(mul, add);
+		^this.multiNew(\audio, w, x, y, z, angle).madd(mul, add);
 	}
 }
 FoaTilt : FoaRotate { }
@@ -642,6 +650,7 @@ FoaZoomZ : FoaRotate { }
 FoaBalance {
 	*ar { |in, angle = 0, mul = 1, add = 0|
 		var w, x, y, z;
+
 		in = this.checkChans(in);
 		#w, x, y, z = in;
 		^FoaZoomY.ar(w, x, y, z, angle, mul, add);
@@ -652,9 +661,10 @@ FoaBalance {
 FoaDominateX : Foa {
 	*ar { |in, gain = 0, mul = 1, add = 0|
 		var w, x, y, z;
+
 		in = this.checkChans(in);
 		#w, x, y, z = in;
-		^this.multiNew('audio', w, x, y, z, gain).madd(mul, add);
+		^this.multiNew(\audio, w, x, y, z, gain).madd(mul, add);
 	}
 }
 
@@ -755,9 +765,10 @@ FoaPress {
 FoaProximity : Foa {
 	*ar { |in, distance = 1, mul = 1, add = 0|
 		var w, x, y, z;
+
 		in = this.checkChans(in);
 		#w, x, y, z = in;
-		^this.multiNew('audio', w, x, y, z, distance).madd(mul, add);
+		^this.multiNew(\audio, w, x, y, z, distance).madd(mul, add);
 	}
 
 }
@@ -765,9 +776,10 @@ FoaProximity : Foa {
 FoaNFC : Foa {
 	*ar { |in, distance = 1, mul = 1, add = 0|
 		var w, x, y, z;
+
 		in = this.checkChans(in);
 		#w, x, y, z = in;
-		^this.multiNew('audio', w, x, y, z, distance).madd(mul, add);
+		^this.multiNew(\audio, w, x, y, z, distance).madd(mul, add);
 	}
 
 }
@@ -775,9 +787,10 @@ FoaNFC : Foa {
 FoaPsychoShelf : Foa {
 	*ar { |in, freq = 400, k0 = ((3/2).sqrt), k1 = (3.sqrt/2), mul = 1, add = 0|
 		var w, x, y, z;
+
 		in = this.checkChans(in);
 		#w, x, y, z = in;
-		^this.multiNew('audio', w, x, y, z, freq, k0, k1).madd(mul, add);
+		^this.multiNew(\audio, w, x, y, z, freq, k0, k1).madd(mul, add);
 	}
 
 }
@@ -788,15 +801,14 @@ FoaPsychoShelf : Foa {
 
 AtkMatrixMix {
 	*ar { |in, matrix, mul = 1, add = 0|
-
 		var out;
 
 		// wrap input as array if needed, for mono inputs
-		in.isArray.not.if({ in = [in] });
+		(in.isArray.not).if({ in = [in] });
 
 		out = Mix.fill(matrix.cols, { |i| // fill input
 			UGen.replaceZeroesWithSilence(
-				matrix.flop.asArray.at(i) * in.at(i)
+				matrix.flop.asArray[i] * in[i]
 			)
 		});
 
@@ -806,19 +818,18 @@ AtkMatrixMix {
 
 AtkKernelConv {
 	*ar { |in, kernel, mul = 1, add = 0|
-
 		var out;
 
 		// wrap input as array if needed, for mono inputs
-		in.isArray.not.if({ in = [in] });
+		(in.isArray.not).if({ in = [in] });
 
 		out = Mix.new(
-			kernel.shape.at(0).collect({ |i|
-				kernel.shape.at(1).collect({ |j|
+			(kernel.shape[0]).collect({ |i|
+				(kernel.shape[1]).collect({ |j|
 					Convolution2.ar(
-						in.at(i),
-						kernel.at(i).at(j),
-						framesize: kernel.at(i).at(j).numFrames
+						in[i],
+						kernel[i][j],
+						framesize: kernel[i][j].numFrames
 					)
 				})
 			})
@@ -834,11 +845,11 @@ AtkKernelConv {
 
 FoaUGen {
 	*checkChans { |in|
-		(in.size < 4).if({
-			^([in] ++ (4 - in.size).collect({ Silent.ar })).flat;
+		if(in.size < 4, {
+			^([in] ++ (4 - in.size).collect({ Silent.ar })).flat
 		}, {
 			^in
-		});
+		})
 	}
 
 	*argDict { |ugen, args, argDefaults|
@@ -849,24 +860,29 @@ FoaUGen {
 		// find ugen args, drop ['this', sig]
 		ugenKeys = ugen.class.findRespondingMethodFor(\ar).argNames.drop(2);
 		ugenDict = Dictionary.new;
-		ugenKeys.do({ |key, i| ugenDict.put(key, argDefaults.at(i)) });
+		ugenKeys.do({ |key, i| ugenDict.put(key, argDefaults[i]) });
 
 		// find index dividing ordered and named args
 		index = args.detectIndex({ |item| ugenKeys.matchItem(item) });
 
 		// build user dictionary
 		userDict = Dictionary.new(ugenKeys.size);
-		(index == nil).not.if({
-			userDict = userDict.putAll(Dictionary.newFrom(args[index..]));
+		if((index == nil).not, {
+			userDict = userDict.putAll(Dictionary.newFrom(args[index..]))
 		}, {
-			index = args.size;
+			index = args.size
 		});
-		userDict = userDict.putAll(Dictionary.newFrom((index).collect({ |i|
-			[ugenKeys.at(i), args.at(i)] }).flat));
+		userDict = userDict.putAll(
+			Dictionary.newFrom(
+				index.collect({ |i|
+					[ugenKeys[i], args[i]]
+				}).flat
+			)
+		);
 
 		// merge
 		^ugenDict.merge(userDict, { |ugenArg, userArg|
-			userArg.notNil.if{ userArg }
+			(userArg.notNil).if{ userArg }
 		})
 	}
 }
@@ -875,19 +891,20 @@ FoaDecode : FoaUGen {
 	*ar { |in, decoder, mul = 1, add = 0|
 		in = this.checkChans(in);
 
-		case
-			{ decoder.isKindOf(FoaDecoderMatrix) } {
+		case(
+			{ decoder.isKindOf(FoaDecoderMatrix) }, {
 
-				(decoder.shelfFreq.isNumber).if{ // shelf filter?
+				if(decoder.shelfFreq.isNumber, { // shelf filter?
 					in = FoaPsychoShelf.ar(in,
-						decoder.shelfFreq, decoder.shelfK.at(0), decoder.shelfK.at(1))
-				};
+						decoder.shelfFreq, decoder.shelfK[0], decoder.shelfK[1])
+				});
 
 				^AtkMatrixMix.ar(in, decoder.matrix, mul, add)
-			}
-			{ decoder.isKindOf(FoaDecoderKernel) } {
+			},
+			{ decoder.isKindOf(FoaDecoderKernel) }, {
 				^AtkKernelConv.ar(in, decoder.kernel, mul, add)
-			};
+			}
+		)
 	}
 }
 
@@ -899,13 +916,14 @@ FoaEncode : FoaUGen {
 	*ar { |in, encoder, mul = 1, add = 0|
 		var out;
 
-		case
-			{ encoder.isKindOf(FoaEncoderMatrix) } {
+		case(
+			{ encoder.isKindOf(FoaEncoderMatrix) }, {
 				out = AtkMatrixMix.ar(in, encoder.matrix, mul, add)
-			}
-			{ encoder.isKindOf(FoaEncoderKernel) } {
+			},
+			{ encoder.isKindOf(FoaEncoderKernel) }, {
 				out = AtkKernelConv.ar(in, encoder.kernel, mul, add)
-			};
+			}
+		);
 
 //		if (out.size < 4, {			// 1st order, fill missing harms with zeros
 //			out = out ++ Silent.ar(4 - out.size)
@@ -921,8 +939,8 @@ FoaEncode : FoaUGen {
 
 FoaXform : FoaUGen {
 	*ar { |in, xformer, mul = 1, add = 0|
-
 		var out;
+
 		in = this.checkChans(in);
 
 //		switch(xformer.class,
@@ -948,15 +966,15 @@ FoaXform : FoaUGen {
 // Transformer: UGen wrapper
 /*
 argument key - see helpfile for reasonable values
-'rtt' - angle
+\rtt - angle
 
 */
 
 FoaTransform : FoaUGen {
 	*ar { |in, kind ... args|
-
 		var argDict, argDefaults;
 		var ugen;
+
 		in = this.checkChans(in);
 
 //		argDict = { |ugen, args, argDefaults|
@@ -967,10 +985,10 @@ FoaTransform : FoaUGen {
 //			// find index dividing ordered and named args
 //			index = args.detectIndex({ |item| item.isKindOf(Symbol) });
 //
-//			// find ugen args, drop ['this', w, x, y, z]
+//			// find ugen args, drop [\this, w, x, y, z]
 //			ugenKeys = ugen.class.findRespondingMethodFor(\ar).argNames.drop(2);
 //			ugenDict = Dictionary.new;
-//			ugenKeys.do({ |key, i| ugenDict.put(key, argDefaults.at(i)) });
+//			ugenKeys.do({ |key, i| ugenDict.put(key, argDefaults[i]) });
 //
 //			// build user dictionary
 //			userDict = Dictionary.new(ugenKeys.size);
@@ -980,7 +998,7 @@ FoaTransform : FoaUGen {
 //				index = args.size;
 //			});
 //			userDict = userDict.putAll(Dictionary.newFrom((index).collect({ |i|
-//				[ugenKeys.at(i), args.at(i)] }).flat));
+//				[ugenKeys[i], args[i]] }).flat));
 //
 //			// merge
 //			ugenDict.merge(userDict, {
@@ -991,7 +1009,7 @@ FoaTransform : FoaUGen {
 
 		switch(kind,
 
-			'rotate', {
+			\rotate, {
 
 				ugen = FoaRotate;
 				argDefaults = [0, 1, 0];
@@ -1004,7 +1022,7 @@ FoaTransform : FoaUGen {
 				)
 			},
 
-			'tilt', {
+			\tilt, {
 
 				ugen = FoaTilt;
 				argDefaults = [0, 1, 0];
@@ -1017,7 +1035,7 @@ FoaTransform : FoaUGen {
 				)
 			},
 
-			'tumble', {
+			\tumble, {
 
 				ugen = FoaTumble;
 				argDefaults = [0, 1, 0];
@@ -1030,7 +1048,7 @@ FoaTransform : FoaUGen {
 				)
 			},
 
-			'directO', {
+			\directO, {
 
 				ugen = FoaDirectO;
 				argDefaults = [0, 1, 0];
@@ -1043,7 +1061,7 @@ FoaTransform : FoaUGen {
 				)
 			},
 
-			'directX', {
+			\directX, {
 
 				ugen = FoaDirectX;
 				argDefaults = [0, 1, 0];
@@ -1056,7 +1074,7 @@ FoaTransform : FoaUGen {
 				)
 			},
 
-			'directY', {
+			\directY, {
 
 				ugen = FoaDirectY;
 				argDefaults = [0, 1, 0];
@@ -1069,7 +1087,7 @@ FoaTransform : FoaUGen {
 				)
 			},
 
-			'directZ', {
+			\directZ, {
 
 				ugen = FoaDirectZ;
 				argDefaults = [0, 1, 0];
@@ -1082,7 +1100,7 @@ FoaTransform : FoaUGen {
 				)
 			},
 
-			'dominateX', {
+			\dominateX, {
 
 				ugen = FoaDominateX;
 				argDefaults = [0, 1, 0];
@@ -1095,7 +1113,7 @@ FoaTransform : FoaUGen {
 				)
 			},
 
-			'dominateY', {
+			\dominateY, {
 
 				ugen = FoaDominateY;
 				argDefaults = [0, 1, 0];
@@ -1108,7 +1126,7 @@ FoaTransform : FoaUGen {
 				)
 			},
 
-			'dominateZ', {
+			\dominateZ, {
 
 				ugen = FoaDominateZ;
 				argDefaults = [0, 1, 0];
@@ -1121,7 +1139,7 @@ FoaTransform : FoaUGen {
 				)
 			},
 
-			'zoomX', {
+			\zoomX, {
 
 				ugen = FoaZoomX;
 				argDefaults = [0, 1, 0];
@@ -1134,7 +1152,7 @@ FoaTransform : FoaUGen {
 				)
 			},
 
-			'zoomY', {
+			\zoomY, {
 
 				ugen = FoaZoomY;
 				argDefaults = [0, 1, 0];
@@ -1147,7 +1165,7 @@ FoaTransform : FoaUGen {
 				)
 			},
 
-			'zoomZ', {
+			\zoomZ, {
 
 				ugen = FoaZoomZ;
 				argDefaults = [0, 1, 0];
@@ -1160,7 +1178,7 @@ FoaTransform : FoaUGen {
 				)
 			},
 
-			'focusX', {
+			\focusX, {
 
 				ugen = FoaFocusX;
 				argDefaults = [0, 1, 0];
@@ -1173,7 +1191,7 @@ FoaTransform : FoaUGen {
 				)
 			},
 
-			'focusY', {
+			\focusY, {
 
 				ugen = FoaFocusY;
 				argDefaults = [0, 1, 0];
@@ -1186,7 +1204,7 @@ FoaTransform : FoaUGen {
 				)
 			},
 
-			'focusZ', {
+			\focusZ, {
 
 				ugen = FoaFocusZ;
 				argDefaults = [0, 1, 0];
@@ -1199,7 +1217,7 @@ FoaTransform : FoaUGen {
 				)
 			},
 
-			'pushX', {
+			\pushX, {
 
 				ugen = FoaPushX;
 				argDefaults = [0, 1, 0];
@@ -1212,7 +1230,7 @@ FoaTransform : FoaUGen {
 				)
 			},
 
-			'pushY', {
+			\pushY, {
 
 				ugen = FoaPushY;
 				argDefaults = [0, 1, 0];
@@ -1225,7 +1243,7 @@ FoaTransform : FoaUGen {
 				)
 			},
 
-			'pushZ', {
+			\pushZ, {
 
 				ugen = FoaPushZ;
 				argDefaults = [0, 1, 0];
@@ -1238,7 +1256,7 @@ FoaTransform : FoaUGen {
 				)
 			},
 
-			'pressX', {
+			\pressX, {
 
 				ugen = FoaPressX;
 				argDefaults = [0, 1, 0];
@@ -1251,7 +1269,7 @@ FoaTransform : FoaUGen {
 				)
 			},
 
-			'pressY', {
+			\pressY, {
 
 				ugen = FoaPressY;
 				argDefaults = [0, 1, 0];
@@ -1264,7 +1282,7 @@ FoaTransform : FoaUGen {
 				)
 			},
 
-			'pressZ', {
+			\pressZ, {
 
 				ugen = FoaPressZ;
 				argDefaults = [0, 1, 0];
@@ -1277,7 +1295,7 @@ FoaTransform : FoaUGen {
 				)
 			},
 
-			'asymmetry', {
+			\asymmetry, {
 
 				ugen = FoaAsymmetry;
 				argDefaults = [0, 1, 0];
@@ -1290,7 +1308,7 @@ FoaTransform : FoaUGen {
 				)
 			},
 
-			'balance', {
+			\balance, {
 
 				ugen = FoaZoomY;
 				argDefaults = [0, 1, 0];
@@ -1303,7 +1321,7 @@ FoaTransform : FoaUGen {
 				)
 			},
 
-			'rtt', {
+			\rtt, {
 
 				ugen = FoaRTT;
 				argDefaults = [0, 0, 0, 1, 0];
@@ -1317,7 +1335,7 @@ FoaTransform : FoaUGen {
 				)
 			},
 
-			'mirror', {
+			\mirror, {
 
 				ugen = FoaMirror;
 				argDefaults = [0, 0, 1, 0];
@@ -1331,7 +1349,7 @@ FoaTransform : FoaUGen {
 				)
 			},
 
-			'direct', {
+			\direct, {
 
 				ugen = FoaDirect;
 				argDefaults = [0, 0, 0, 1, 0];
@@ -1345,7 +1363,7 @@ FoaTransform : FoaUGen {
 				)
 			},
 
-			'dominate', {
+			\dominate, {
 
 				ugen = FoaDominate;
 				argDefaults = [0, 0, 0, 1, 0];
@@ -1359,7 +1377,7 @@ FoaTransform : FoaUGen {
 				)
 			},
 
-			'zoom', {
+			\zoom, {
 
 				ugen = FoaZoom;
 				argDefaults = [0, 0, 0, 1, 0];
@@ -1373,7 +1391,7 @@ FoaTransform : FoaUGen {
 				)
 			},
 
-			'focus', {
+			\focus, {
 
 				ugen = FoaFocus;
 				argDefaults = [0, 0, 0, 1, 0];
@@ -1387,7 +1405,7 @@ FoaTransform : FoaUGen {
 				)
 			},
 
-			'push', {
+			\push, {
 
 				ugen = FoaPush;
 				argDefaults = [0, 0, 0, 1, 0];
@@ -1401,7 +1419,7 @@ FoaTransform : FoaUGen {
 				)
 			},
 
-			'press', {
+			\press, {
 
 				ugen = FoaPress;
 				argDefaults = [0, 0, 0, 1, 0];
@@ -1415,7 +1433,7 @@ FoaTransform : FoaUGen {
 				)
 			},
 
-			'nfc', {
+			\nfc, {
 
 				ugen = FoaNFC;
 				argDefaults = [1, 1, 0];
@@ -1429,7 +1447,7 @@ FoaTransform : FoaUGen {
 				)
 			},
 
-			'proximity', {
+			\proximity, {
 
 				ugen = FoaProximity;
 				argDefaults = [1, 1, 0];

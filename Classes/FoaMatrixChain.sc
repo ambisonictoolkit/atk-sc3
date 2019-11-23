@@ -58,7 +58,7 @@ FoaMatrixChain {
 
 
 	// abcs used for transform id keys in the chain(s)
-	*abcs { ^['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'] }
+	*abcs { ^[\A, \B, \C, \D, \E, \F, \G, \H, \I, \J] }
 
 
 	init {
@@ -74,7 +74,7 @@ FoaMatrixChain {
 		chains.insert(index, List());
 		this.changed(\chainAdded, index);
 
-		(index == 0).if({
+		if(index == 0, {
 			this.addTransform('a soundfield', index, 0)	// first "transform" in first chain
 		}, {
 			this.addTransform(								// head of a new chain
@@ -91,9 +91,10 @@ FoaMatrixChain {
 
 	removeChain { |index|
 		var removedLinks;
-		removedLinks = chains[index].collect{ |lnk| lnk };
+
+		removedLinks = chains[index].collect({ |lnk| lnk });
 		chains.removeAt(index);
-		removedLinks.do{ |rmvdLink| this.checkIfInputRemoved(rmvdLink) };
+		removedLinks.do({ |rmvdLink| this.checkIfInputRemoved(rmvdLink) });
 		this.chainXForms;
 		this.changed(\chainRemoved, index);
 	}
@@ -115,7 +116,7 @@ FoaMatrixChain {
 		var link, controls;
 
 		// let 'mute' by, check that xformName is in the xFormDict
-		(xformName != 'mute').if({
+		if(xformName != \mute, {
 			xFormDict[xformName] ?? { error("transform name not found!") };
 
 			// initialize the transform
@@ -124,25 +125,26 @@ FoaMatrixChain {
 			// initialize controls
 			controls = xFormDict[xformName].controls.clump(2);
 
-			controls.do{ |pair, i|
+			controls.do({ |pair, i|
 				var paramName, ctl;
+
 				#paramName, ctl = pair;
 
-				params[i].notNil.if({
+				if(params[i].notNil, {
 					link.controlStates.put(i, params[i])
 				}, {
-					ctl.isKindOf(ControlSpec).if({
+					if(ctl.isKindOf(ControlSpec), {
 						link.controlStates.put(i, ctl.default)
 					}, {
-						(ctl == 'A0').if({
+						if(ctl == \A0, {
 							// default to the first link in the chain (a soundfield)
 							link.controlStates.put(i, chains[0][0])
 						}, {
 							link.controlStates.put(i, ctl)
 						})
-					});
-				});
-			};
+					})
+				})
+			})
 		}, {
 			// mute
 			link = FoaMatrixChainLink(xformName);
@@ -155,7 +157,7 @@ FoaMatrixChain {
 
 		this.checkLinkExists(whichChain, index) ?? { ^this };
 
-		chains[whichChain][index].controlStates[ctlDex] = value.isKindOf(Symbol).if({
+		if(chains[whichChain][index].controlStates[ctlDex] = value.isKindOf(Symbol), {
 			this.getLinkByKey(value)		// for controls with input index parameter
 		}, {
 			value
@@ -178,6 +180,7 @@ FoaMatrixChain {
 	// for changing the transform at a point in the chain
 	replaceTransform { | newXformName, whichChain, index ... params |
 		var newLink, formerLink;
+
 		this.checkLinkExists(whichChain, index) ?? { ^this };
 		newLink = this.createXformLink(newXformName, *params);
 		formerLink = chains[whichChain][index];
@@ -191,6 +194,7 @@ FoaMatrixChain {
 
 	removeTransform { | whichChain, index |
 		var rmvdLink;
+
 		this.checkLinkExists(whichChain, index) ?? { ^this };
 		rmvdLink = chains[whichChain][index];
 		chains[whichChain].removeAt(index);
@@ -211,34 +215,36 @@ FoaMatrixChain {
 
 	soloXform { | bool, whichChain, index |
 		var changed = List();
+
 		this.checkLinkExists(whichChain, index) ?? { ^this };
 		// keep a list of the solo states that are changing
 
-		bool.if{ // if activating solo
-			chains.do{ |chain, i|
-				chain.do{ |lnk, j|
-					lnk.soloed.if {
+		if(bool, { // if activating solo
+			chains.do({ |chain, i|
+				chain.do({ |lnk, j|
+					if(lnk.soloed, {
 						lnk.soloed = false;			// ... un-solo anything else that's soloed
-						changed.add([i, j, false]);	// keep track of the changes
-					}
-				}
-			}
-		};
+						changed.add([i, j, false])	// keep track of the changes
+					})
+				})
+			})
+		});
 
 		chains[whichChain][index].soloed = bool;	// perform this solo
 		changed.add([whichChain, index, bool]);		// add this solo to changed list last
 
 		this.chainXForms;
-		changed.do{ |whichDxBool|
-			this.changed(\transformSoloed, *whichDxBool);
-		}
+		changed.do({ |whichDxBool|
+			this.changed(\transformSoloed, *whichDxBool)
+		})
 	}
 
 
 	checkLinkExists { |whichChain, index|
 		var warning;
+
 		warning = format("No transform found at chain % index %", whichChain, index);
-		try { chains[whichChain][index] } { warning.warn; ^nil };
+		try({ chains[whichChain][index] }, { warning.warn; ^nil });
 		// return the link. this can be nil if
 		// only the index is out of range but whichChain isn't
 		// so it should still get caught by the receiver
@@ -247,17 +253,18 @@ FoaMatrixChain {
 
 
 	checkIfInputRemoved { | rmvdLink, replacementLink |
-		chains.do{ |chain, i|
-			chain.do{ |lnk, j|
+		chains.do({ |chain, i|
+			chain.do({ |lnk, j|
 				var cStates = lnk.controlStates;
-				cStates.indices.do{ |dex|
-					(cStates[dex] === rmvdLink).if{
+
+				(cStates.indices).do({ |dex|
+					if(cStates[dex] === rmvdLink, {
 						// replace input with new link or A0 if none
-						cStates.put(dex, replacementLink ?? chains[0][0]);
-					};
-				}
-			}
-		}
+						cStates.put(dex, replacementLink ?? chains[0][0])
+					})
+				})
+			})
+		})
 	}
 
 
@@ -265,27 +272,29 @@ FoaMatrixChain {
 	// last transform in the last transform chain
 	chainXForms {
 		var mtx;
-		block { |break|
-			chains.do{ |chain, i|
-				chain.do{ |xf, j|
 
-					(i == 0 and: { j == 0 }).if({
+		block({ |break|
+			chains.do({ |chain, i|
+				chain.do({ |xf, j|
+
+					if((i == 0 and: { j == 0 }), {
 						// init input soundfield for first chain
 						mtx = Matrix.newIdentity(4);
 						xf.mtx_(mtx);
-						curXformMatrix = mtx; // init var
+						curXformMatrix = mtx // init var
 					}, {
 						// Note: names set to 'mute' ('-') or .muted are skipped
 						// 'mute' is a psuedo transform ('-'), like a pass-through,
 						// while .muted is a state
-						(xf.name != 'mute' and: { xf.muted.not }).if({
+						if((xf.name != \mute and: { xf.muted.not }), {
 							var ctlStates, ctlVals;
 
 							ctlStates = xf.controlStates;
 
-							ctlVals = ctlStates.indices.collect({ |dex|
+							ctlVals = (ctlStates.indices).collect({ |dex|
 								var val = ctlStates[dex];
-								val.isKindOf(FoaMatrixChainLink).if({
+
+								if(val.isKindOf(FoaMatrixChainLink), {
 									val.mtx
 								}, {
 									val
@@ -294,35 +303,35 @@ FoaMatrixChain {
 
 							// pass in preceding soundfield followed by the control
 							// values for the transform operation, in order
-							mtx = xFormDict[xf.name]['getMatrix'].(mtx, *ctlVals);
-							xf.mtx_(mtx);     // store resulting matrix
+							mtx = xFormDict[xf.name][\getMatrix].(mtx, *ctlVals);
+							xf.mtx_(mtx)     // store resulting matrix
 						}, {
-							xf.mtx_(mtx);     // xf is muted or "thru", forward the preceding the matrix
+							xf.mtx_(mtx)     // xf is muted or "thru", forward the preceding the matrix
 						});
 
-						xf.soloed.if{ break.() }  // stop chaining here if solo'd
-					});
-				}
-			};
-		};
+						if(xf.soloed, { break.() })  // stop chaining here if solo'd
+					})
+				})
+			})
+		});
 
-		verbose.if{ this.postChain };
+		if(verbose, { this.postChain });
 
-		curXformMatrix = mtx;
+		curXformMatrix = mtx
 	}
 
 
 	postChain {
-		chains.do{ |chain, i|
+		chains.do({ |chain, i|
 			("\nCHAIN " ++ i).postln;
-			chain.do{ |xf, j|
+			chain.do({ |xf, j|
 				postf("\t%, % %\n", xf.name, xf.controlStates,
 					xf.muted.if({ "[MUTED]" }, { "" })
 					++ xf.soloed.if({ "[SOLOED]" }, { "" })
 				)
-			};
-			"".postln;
-		};
+			});
+			"".postln
+		})
 	}
 
 
@@ -340,7 +349,7 @@ FoaMatrixChain {
 	loadXForms {
 		var xformSpecs;
 		/* [
-			'xformName',
+			\xformName,
 			[    // this order defines the order of arguments passed to the transform matrix
 				ctl1Name, ctl1Spec,
 				ctl2Name, ctl2Spec,
@@ -350,137 +359,137 @@ FoaMatrixChain {
 		] */
 
 		xformSpecs = [
-			'push', [
-				'Degree',     ControlSpec(-pi/2, pi/2, default: 0, units: "π"),
-				'Azimuth',    ControlSpec(pi, -pi, default: 0, units: "π"),
-				'Elevation',  ControlSpec(-pi/2, pi/2, default: 0, units: "π"),
+			\push, [
+				\Degree,     ControlSpec(-pi/2, pi/2, default: 0, units: "π"),
+				\Azimuth,    ControlSpec(pi, -pi, default: 0, units: "π"),
+				\Elevation,  ControlSpec(-pi/2, pi/2, default: 0, units: "π"),
 			],
 			{ |mtx, deg = 0, az = 0, el = 0|
 				FoaXformerMatrix.newPush(deg, az, el).matrix * mtx },
 
-			'press', [
-				'Degree',     ControlSpec(-pi/2, pi/2, default: 0, units: "π"),
-				'Azimuth',    ControlSpec(pi, -pi, default: 0, units: "π"),
-				'Elevation',  ControlSpec(-pi/2, pi/2, default: 0, units: "π"),
+			\press, [
+				\Degree,     ControlSpec(-pi/2, pi/2, default: 0, units: "π"),
+				\Azimuth,    ControlSpec(pi, -pi, default: 0, units: "π"),
+				\Elevation,  ControlSpec(-pi/2, pi/2, default: 0, units: "π"),
 			],
 			{ |mtx, deg = 0, az = 0, el = 0|
 				FoaXformerMatrix.newPress(deg, az, el).matrix * mtx },
 
-			'focus', [
-				'Degree',     ControlSpec(-pi/2, pi/2, default: 0, units: "π"),
-				'Azimuth',    ControlSpec(pi, -pi, default: 0, units: "π"),
-				'Elevation',  ControlSpec(-pi/2, pi/2, default: 0, units: "π"),
+			\focus, [
+				\Degree,     ControlSpec(-pi/2, pi/2, default: 0, units: "π"),
+				\Azimuth,    ControlSpec(pi, -pi, default: 0, units: "π"),
+				\Elevation,  ControlSpec(-pi/2, pi/2, default: 0, units: "π"),
 			],
 			{ |mtx, deg = 0, az = 0, el = 0|
 				FoaXformerMatrix.newFocus(deg, az, el).matrix * mtx },
 
-			'zoom',    [
-				'Degree',     ControlSpec(-pi/2, pi/2, default: 0, units: "π"),
-				'Azimuth',    ControlSpec(pi, -pi, default: 0, units: "π"),
-				'Elevation',  ControlSpec(-pi/2, pi/2, default: 0, units: "π"),
+			\zoom,    [
+				\Degree,     ControlSpec(-pi/2, pi/2, default: 0, units: "π"),
+				\Azimuth,    ControlSpec(pi, -pi, default: 0, units: "π"),
+				\Elevation,  ControlSpec(-pi/2, pi/2, default: 0, units: "π"),
 			],
 			{ |mtx, deg = 0, az = 0, el = 0|
 				FoaXformerMatrix.newZoom(deg, az, el).matrix * mtx },
 
-			'direct', [
-				'Degree',     ControlSpec(-pi/2, pi/2, default: 0, units: "π"),
-				'Azimuth',    ControlSpec(pi, -pi, default: 0, units: "π"),
-				'Elevation',  ControlSpec(-pi/2, pi/2, default: 0, units: "π"),
+			\direct, [
+				\Degree,     ControlSpec(-pi/2, pi/2, default: 0, units: "π"),
+				\Azimuth,    ControlSpec(pi, -pi, default: 0, units: "π"),
+				\Elevation,  ControlSpec(-pi/2, pi/2, default: 0, units: "π"),
 			],
 			{ |mtx, deg = 0, az = 0, el = 0|
 				FoaXformerMatrix.newDirect(deg, az, el).matrix * mtx },
 
-			'directO', [
-				'Degree',     ControlSpec(-pi/2, pi/2, default: 0, units: "π"),
+			\directO, [
+				\Degree,     ControlSpec(-pi/2, pi/2, default: 0, units: "π"),
 			],
 			{ |mtx, deg = 0, az = 0, el = 0|
 				FoaXformerMatrix.newDirectO(deg).matrix * mtx },
 
-			'directX', [
-				'Degree',     ControlSpec(-pi/2, pi/2, default: 0, units: "π"),
+			\directX, [
+				\Degree,     ControlSpec(-pi/2, pi/2, default: 0, units: "π"),
 			],
 			{ |mtx, deg = 0|
 				FoaXformerMatrix.newDirectX(deg).matrix * mtx },
 
-			'directY', [
-				'Degree',     ControlSpec(-pi/2, pi/2, default: 0, units: "π"),
+			\directY, [
+				\Degree,     ControlSpec(-pi/2, pi/2, default: 0, units: "π"),
 			],
 			{ |mtx, deg = 0|
 				FoaXformerMatrix.newDirectY(deg).matrix * mtx },
 
-			'directZ', [
-				'Degree',     ControlSpec(-pi/2, pi/2, default: 0, units: "π"),
+			\directZ, [
+				\Degree,     ControlSpec(-pi/2, pi/2, default: 0, units: "π"),
 			],
 			{ |mtx, deg = 0|
 				FoaXformerMatrix.newDirectZ(deg).matrix * mtx },
 
-			'rotate', [
-				'Azimuth',    ControlSpec(2pi, -2pi, default: 0, units: "π")
+			\rotate, [
+				\Azimuth,    ControlSpec(2pi, -2pi, default: 0, units: "π")
 			],
 			{ |mtx, az = 0|
 				FoaXformerMatrix.newRotate(az).matrix * mtx },
 
-			'tilt',    [
-				'Angle',      ControlSpec(2pi, -2pi, default: 0, units: "π")
+			\tilt,    [
+				\Angle,      ControlSpec(2pi, -2pi, default: 0, units: "π")
 			],
 			{ |mtx, ang = 0|
 				FoaXformerMatrix.newTilt(ang).matrix * mtx },
 
-			'tumble', [
-				'Angle',      ControlSpec(2pi, -2pi, default: 0, units: "π")
+			\tumble, [
+				\Angle,      ControlSpec(2pi, -2pi, default: 0, units: "π")
 			],
 			{ |mtx, ang = 0|
 				FoaXformerMatrix.newTumble(ang).matrix * mtx },
 
-			'rtt',    [
-				'rotate',     ControlSpec(2pi, -2pi, default: 0, units: "π"),
-				'tilt',       ControlSpec(2pi, -2pi, default: 0, units: "π"),
-				'tumble',     ControlSpec(2pi, -2pi, default: 0, units: "π"),
+			\rtt,    [
+				\rotate,     ControlSpec(2pi, -2pi, default: 0, units: "π"),
+				\tilt,       ControlSpec(2pi, -2pi, default: 0, units: "π"),
+				\tumble,     ControlSpec(2pi, -2pi, default: 0, units: "π"),
 			],
 			{ |mtx, rotate = 0, tilt = 0, tumble = 0|
 				FoaXformerMatrix.newRTT(rotate, tilt, tumble).matrix * mtx },
 
-			'asymmetry', [
-				'Degree',     ControlSpec(-pi/2, pi/2, default: 0, units: "π")
+			\asymmetry, [
+				\Degree,     ControlSpec(-pi/2, pi/2, default: 0, units: "π")
 			],
 			{ |mtx, deg = 0|
 				FoaXformerMatrix.newAsymmetry(deg).matrix * mtx },
 
-			'balance', [
-				'Degree',     ControlSpec(pi/2, -pi/2, default: 0, units: "π")
+			\balance, [
+				\Degree,     ControlSpec(pi/2, -pi/2, default: 0, units: "π")
 			],
 			{ |mtx, deg = 0|
 				FoaXformerMatrix.newBalance(deg).matrix * mtx },
 
-			'mirror', [
-				'Azimuth',    ControlSpec(pi, -pi, default: 0, units: "π"),
-				'Elevation',  ControlSpec(-pi/2, pi/2, default: 0, units: "π"),
+			\mirror, [
+				\Azimuth,    ControlSpec(pi, -pi, default: 0, units: "π"),
+				\Elevation,  ControlSpec(-pi/2, pi/2, default: 0, units: "π"),
 			],
 			{ |mtx, theta = 0, phi = 0|
 				FoaXformerMatrix.newMirror(theta, phi).matrix * mtx },
 
-			'mirrorO', [],
+			\mirrorO, [],
 			{ |mtx| FoaXformerMatrix.newMirrorO.matrix * mtx },
 
-			'mirrorX', [],
+			\mirrorX, [],
 			{ |mtx| FoaXformerMatrix.newMirrorX.matrix * mtx },
 
-			'mirrorY', [],
+			\mirrorY, [],
 			{ |mtx| FoaXformerMatrix.newMirrorY.matrix * mtx },
 
-			'mirrorZ', [],
+			\mirrorZ, [],
 			{ |mtx| FoaXformerMatrix.newMirrorZ.matrix * mtx },
 
-			'dominate', [
-				'Gain',       ControlSpec(-24, 24, warp: \db, default: 0, units: "dB"),
-				'Azimuth',    ControlSpec(pi, -pi, default: 0, units: "π"),
-				'Elevation',  ControlSpec(-pi/2, pi/2, default: 0, units: "π"),
+			\dominate, [
+				\Gain,       ControlSpec(-24, 24, warp: \db, default: 0, units: "dB"),
+				\Azimuth,    ControlSpec(pi, -pi, default: 0, units: "π"),
+				\Elevation,  ControlSpec(-pi/2, pi/2, default: 0, units: "π"),
 			],
 			{ |mtx, gain = 0, az = 0, el = 0|
 				FoaXformerMatrix.newDominate(gain, az, el).matrix * mtx },
 
-			'gain', [
-				'Gain',       ControlSpec(-48, 24, warp: \db, default: 0, units: "dB")
+			\gain, [
+				\Gain,       ControlSpec(-48, 24, warp: \db, default: 0, units: "dB")
 			],
 			{ |mtx, gainDB = 0| gainDB.dbamp * mtx },
 
@@ -489,48 +498,49 @@ FoaMatrixChain {
 			// Note:  'this index' param defaults to first xform in chain,
 			// as it's constant and won't ever be removed or changed
 
-			'subtract', [  // subtract another soundfield from me
-				'this index', 'A0',
-				'amount',   ControlSpec(-inf, 0, warp: \db, default: 0, units: "dB")
+			\subtract, [  // subtract another soundfield from me
+				'this index', \A0,
+				\amount,   ControlSpec(-inf, 0, warp: \db, default: 0, units: "dB")
 			],
 			{ |receiverMtx, subMtx, amountDB|
 				receiverMtx + (subMtx * -1 * amountDB.dbamp) },
 
 			'subtract from', [  // subtract me from another soundfield
-				'from this index', 'A0',
-				'amount',   ControlSpec(-inf, 0, warp: \db, default: 0, units: "dB")
+				'from this index', \A0,
+				\amount,   ControlSpec(-inf, 0, warp: \db, default: 0, units: "dB")
 			],
 			{ | subtrMtx, receiverMtx, amountDB|
 				receiverMtx + (subtrMtx * -1 * amountDB.dbamp) },
 
-			'add', [  // add another soundfield to me
-				'this index', 'A0',
-				'amount',   ControlSpec(-inf, 0, warp: \db, default: 0, units: "dB")
+			\add, [  // add another soundfield to me
+				'this index', \A0,
+				\amount,   ControlSpec(-inf, 0, warp: \db, default: 0, units: "dB")
 			],
 			{ |receiverMtx, addMtx, amountDB|
 				receiverMtx + (addMtx * amountDB.dbamp) },
 
 			'add to', [  // add me to another soundfield
-				'this index', 'A0',
-				'amount',   ControlSpec(-inf, 0, warp: \db, default: 0, units: "dB")
+				'this index', \A0,
+				\amount,   ControlSpec(-inf, 0, warp: \db, default: 0, units: "dB")
 			],
 			{ |addMtx, receiverMtx, amountDB|
 				receiverMtx + (addMtx * amountDB.dbamp) },
 
 			'xfade-lin', [
-				'fade with', 'A0',
-				'xfade',    ControlSpec(0, 1, default: 0.5, units: "")
+				'fade with', \A0,
+				\xfade,    ControlSpec(0, 1, default: 0.5, units: "")
 			],
 			{ |thisMtx, thatMtx, fade = 0|
 				(thisMtx * (1-fade)) + (thatMtx * fade);
 			},
 
 			'xfade-cos', [
-				'fade with', 'A0',
-				'xfade',    ControlSpec(0, 1, default: 0.5, units: "")
+				'fade with', \A0,
+				\xfade,    ControlSpec(0, 1, default: 0.5, units: "")
 			],
 			{ |thisMtx, thatMtx, fade = 0|
 				var thisAmp, thatAmp;
+
 				thisAmp = cos((1 - fade) * 0.5pi);
 				thatAmp = cos(fade * 0.5pi);
 				(thisMtx * thisAmp) + (thatMtx * thatAmp);
@@ -538,7 +548,7 @@ FoaMatrixChain {
 
 			// input a soundfield - only used at the head of each chain
 			'input soundfield', [
-				'this index', 'A0',
+				'this index', \A0,
 			],
 			{ |mtx, inMtx| inMtx },
 
@@ -556,15 +566,16 @@ FoaMatrixChain {
 		// pack the above transform specification triplets in to a dictionary
 		xFormDict = IdentityDictionary(know: true);
 
-		xformSpecs.do{ |clump|
+		xformSpecs.do({ |clump|
 			var name, ctls, func;
+
 			#name, ctls, func = clump; // unpack the clump
 			xFormDict.put(name,
 				 IdentityDictionary(know: true)
-				.put('controls', ctls)
-				.put('getMatrix', func)
-			);
-		};
+				.put(\controls, ctls)
+				.put(\getMatrix, func)
+			)
+		});
 
 		// alphabetically sorted for menu displays
 		xFormDict_sorted = xFormDict.asSortedArray;

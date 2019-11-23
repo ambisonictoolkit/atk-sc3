@@ -63,16 +63,16 @@ FoaMatrixFade {
 
 
 	init {
-		fork {
+		fork({
 			var addAct, targ;
 			var cond = Condition(false);
 
 			server = server ?? Server.default;
 
-			FoaMatrixFade.mtxFadeDef.isNil.if{
+			if(FoaMatrixFade.mtxFadeDef.isNil, {
 				FoaMatrixFade.loadSynthDefs(server, cond);
-				cond.wait;
-			};
+				cond.wait
+			});
 
 			inbus ?? {
 				internalInbus = true;
@@ -99,16 +99,17 @@ FoaMatrixFade {
 			initMatrix !? { this.matrix_(initMatrix) };
 
 			completeCond !? { completeCond.test_(true).signal; };
-		}
+		})
 	}
 
 
 	matrix_ { |newMatrix|
 		var flatMatrix;
 
-		flatMatrix = case
-		{ newMatrix.isKindOf(Matrix) } { newMatrix.asArray.flat }
-		{ newMatrix.isKindOf(FoaXformerMatrix) } { newMatrix.matrix.asArray.flat };
+		flatMatrix = case(
+			{ newMatrix.isKindOf(Matrix) }, { newMatrix.asArray.flat },
+			{ newMatrix.isKindOf(FoaXformerMatrix) }, { newMatrix.matrix.asArray.flat }
+		);
 
 		synth.set(\fade, xFade, \matrixArray, flatMatrix);
 
@@ -125,8 +126,8 @@ FoaMatrixFade {
 
 	free {
 		synth.free;
-		internalInbus.if{ server.audioBusAllocator.free(inbus) };
-		internalOutbus.if{ server.audioBusAllocator.free(outbus) };
+		if(internalInbus, { server.audioBusAllocator.free(inbus) });
+		if(internalOutbus, { server.audioBusAllocator.free(outbus) });
 	}
 
 
@@ -146,7 +147,7 @@ FoaMatrixFade {
 				array = array.clump(4).flop;
 
 				out = Mix.fill(4, { |i| // fill input
-					array.at(i) * foaSrc.at(i)
+					array[i] * foaSrc[i]
 				});
 
 				Out.ar(outbus, out);

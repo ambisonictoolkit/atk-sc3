@@ -83,16 +83,17 @@ HoaDegree {
 	// Return indices
 
 	indices { |ordering = \acn, subset = \all|
-		(subset == \all).if({
+		if(subset == \all, {
 			// all
-			^this.lm.collect({ |lm|
+			^(this.lm).collect({ |lm|
 				HoaLm.new(lm).index(ordering)
 			})
 		}, {
 			// subset
-			^this.lm.collect({ |lm|
+			^(this.lm).collect({ |lm|
 				var hoaLm = HoaLm.new(lm);
-				hoaLm.isInSubset(subset).if({
+
+				if(hoaLm.isInSubset(subset), {
 					hoaLm.index(ordering)
 				})
 			}).removeEvery([nil])
@@ -107,7 +108,7 @@ HoaDegree {
 	// Return reflection coefficients
 
 	reflection { |mirror = \reflect|
-		^this.lm.collect({ |lm|
+		^(this.lm).collect({ |lm|
 			HoaLm.new(lm).reflection(mirror)
 		})
 	}
@@ -116,7 +117,7 @@ HoaDegree {
 	// Return normalisation coefficients
 
 	normalisation { |scheme = \n3d|
-		^this.lm.collect({ |lm|
+		^(this.lm).collect({ |lm|
 			HoaLm.new(lm).normalisation(scheme)
 		})
 	}
@@ -126,7 +127,7 @@ HoaDegree {
 
 	// N3D normalized coefficients
 	sph { |theta = 0.0, phi = 0.0|
-		^this.lm.collect({ |lm|
+		^(this.lm).collect({ |lm|
 			HoaLm.new(lm).sph(theta, phi)
 		})
 	}

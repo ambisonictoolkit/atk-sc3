@@ -74,41 +74,41 @@ code::
 
 (
 {
-    var sig;                            // audio signal
-    var angle, azim;                    // angle and azimuth control
+	var sig;                            // audio signal
+	var angle, azim;                    // angle and azimuth control
 
 
-    // display encoder and decoder
-    "Ambisonic encoding via % encoder".format(~encoder.kind).postln;
-    "Ambisonic decoding via % decoder".format(~decoder.kind).postln;
+	// display encoder and decoder
+	"Ambisonic encoding via % encoder".format(~encoder.kind).postln;
+	"Ambisonic decoding via % decoder".format(~decoder.kind).postln;
 
-    // angle ---> top           = push to plane wave
-    //            bottom        = omni-directional
-    angle = MouseY.kr(pi/2, 0);
+	// angle ---> top           = push to plane wave
+	//            bottom        = omni-directional
+	angle = MouseY.kr(pi/2, 0);
 
-    // azimuth -> hard left     = back
-    //            centre        = centre
-    //            hard right    = back
-    azim = MouseX.kr(pi, -pi);
+	// azimuth -> hard left     = back
+	//            centre        = centre
+	//            hard right    = back
+	azim = MouseX.kr(pi, -pi);
 
-    // ------------------------------------------------------------
-    // test sig
-    sig = PinkNoise.ar;                         // mono pink noise
-
-
-    // ------------------------------------------------------------
-    // encode
-    sig = FoaEncode.ar(sig, ~encoder);
-
-    // ------------------------------------------------------------
-    // transform
-    sig = FoaTransform.ar(sig, 'push', angle, azim);
+	// ------------------------------------------------------------
+	// test sig
+	sig = PinkNoise.ar;                         // mono pink noise
 
 
+	// ------------------------------------------------------------
+	// encode
+	sig = FoaEncode.ar(sig, ~encoder);
 
-    // ------------------------------------------------------------
-    // decode (via ~renderDecode)
-    ~renderDecode.value(sig, ~decoder)
+	// ------------------------------------------------------------
+	// transform
+	sig = FoaTransform.ar(sig, 'push', angle, azim);
+
+
+
+	// ------------------------------------------------------------
+	// decode (via ~renderDecode)
+	~renderDecode.value(sig, ~decoder)
 
 }.scope;
 )
@@ -146,41 +146,41 @@ code::
 
 (
 {
-    var sig;                            // audio signal
-    var angle, azim;                    // angle and azimuth control
+	var sig;                            // audio signal
+	var angle, azim;                    // angle and azimuth control
 
 
-    // display encoder and decoder
-    "Ambisonic encoding via % encoder".format(~encoder.kind).postln;
-    "Ambisonic decoding via % decoder".format(~decoder.kind).postln;
+	// display encoder and decoder
+	"Ambisonic encoding via % encoder".format(~encoder.kind).postln;
+	"Ambisonic decoding via % decoder".format(~decoder.kind).postln;
 
-    // angle ---> top           = push to plane wave
-    //            bottom        = omni-directional
-    angle = MouseY.kr(pi/2, 0);
+	// angle ---> top           = push to plane wave
+	//            bottom        = omni-directional
+	angle = MouseY.kr(pi/2, 0);
 
-    // azimuth -> hard left     = back
-    //            centre        = centre
-    //            hard right    = back
-    azim = MouseX.kr(pi, -pi);
+	// azimuth -> hard left     = back
+	//            centre        = centre
+	//            hard right    = back
+	azim = MouseX.kr(pi, -pi);
 
-    // ------------------------------------------------------------
-    // test sig
-    sig = PinkNoise.ar;                         // mono pink noise
-
-
-    // ------------------------------------------------------------
-    // encode
-    sig = FoaEncode.ar(sig, ~encoder);
-
-    // ------------------------------------------------------------
-    // transform
-    sig = FoaTransform.ar(sig, 'push', angle, azim);
+	// ------------------------------------------------------------
+	// test sig
+	sig = PinkNoise.ar;                         // mono pink noise
 
 
+	// ------------------------------------------------------------
+	// encode
+	sig = FoaEncode.ar(sig, ~encoder);
 
-    // ------------------------------------------------------------
-    // decode (via ~renderDecode)
-    ~renderDecode.value(sig, ~decoder)
+	// ------------------------------------------------------------
+	// transform
+	sig = FoaTransform.ar(sig, 'push', angle, azim);
+
+
+
+	// ------------------------------------------------------------
+	// decode (via ~renderDecode)
+	~renderDecode.value(sig, ~decoder)
 
 }.scope;
 )
@@ -220,41 +220,41 @@ code::
 
 (
 {
-    var sig;                            // audio signal
-    var angle, azim;                    // angle and azimuth control
+	var sig;                            // audio signal
+	var angle, azim;                    // angle and azimuth control
 
 
-    // display encoder and decoder
-    "Ambisonic encoding via % encoder".format(~encoder.kind).postln;
-    "Ambisonic decoding via % decoder".format(~decoder.kind).postln;
+	// display encoder and decoder
+	"Ambisonic encoding via % encoder".format(~encoder.kind).postln;
+	"Ambisonic decoding via % decoder".format(~decoder.kind).postln;
 
-    // angle ---> top           = push to plane wave
-    //            bottom        = omni-directional
-    angle = MouseY.kr(pi/2, 0);
+	// angle ---> top           = push to plane wave
+	//            bottom        = omni-directional
+	angle = MouseY.kr(pi/2, 0);
 
-    // azimuth -> hard left     = back
-    //            centre        = centre
-    //            hard right    = back
-    azim = MouseX.kr(pi, -pi);
+	// azimuth -> hard left     = back
+	//            centre        = centre
+	//            hard right    = back
+	azim = MouseX.kr(pi, -pi);
 
-    // ------------------------------------------------------------
-    // test sig
-    sig = PinkNoise.ar;                         // mono pink noise
-
-
-    // ------------------------------------------------------------
-    // encode
-    sig = FoaEncode.ar(sig, ~encoder);
-
-    // ------------------------------------------------------------
-    // transform
-    sig = FoaTransform.ar(sig, 'push', angle, azim);
+	// ------------------------------------------------------------
+	// test sig
+	sig = PinkNoise.ar;                         // mono pink noise
 
 
+	// ------------------------------------------------------------
+	// encode
+	sig = FoaEncode.ar(sig, ~encoder);
 
-    // ------------------------------------------------------------
-    // decode (via ~renderDecode)
-    ~renderDecode.value(sig, ~decoder)
+	// ------------------------------------------------------------
+	// transform
+	sig = FoaTransform.ar(sig, 'push', angle, azim);
+
+
+
+	// ------------------------------------------------------------
+	// decode (via ~renderDecode)
+	~renderDecode.value(sig, ~decoder)
 
 }.scope;
 )
@@ -293,41 +293,41 @@ code::
 
 (
 {
-    var sig;				// audio signal
-    var angle, azim;			// angle and azimuth control
+	var sig;				// audio signal
+	var angle, azim;			// angle and azimuth control
 
 
-    // display encoder and decoder
-    "Ambisonic encoding via % encoder".format(~encoder.kind).postln;
-    "Ambisonic decoding via % decoder".format(~decoder.kind).postln;
+	// display encoder and decoder
+	"Ambisonic encoding via % encoder".format(~encoder.kind).postln;
+	"Ambisonic decoding via % decoder".format(~decoder.kind).postln;
 
-    // angle ---> top 		= push to plane wave
-    //		  bottom	= omni-directional
-    angle = MouseY.kr(pi/2, 0);
+	// angle ---> top 		= push to plane wave
+	//		  bottom	= omni-directional
+	angle = MouseY.kr(pi/2, 0);
 
-    // azimuth -> hard left 	= back
-    //		  centre 	= centre
-    //		  hard right 	= back
-    azim = MouseX.kr(pi, -pi);
+	// azimuth -> hard left 	= back
+	//		  centre 	= centre
+	//		  hard right 	= back
+	azim = MouseX.kr(pi, -pi);
 
-    // ------------------------------------------------------------
-    // test sig
-    sig = -3.dbamp * PinkNoise.ar([1, 1, 1, 1]); // 4 channels decorrelated pink noise
-
-
-    // ------------------------------------------------------------
-    // encode
-    sig = FoaEncode.ar(sig, ~encoder);
-
-    // ------------------------------------------------------------
-    // transform
-    sig = FoaTransform.ar(sig, 'push', angle, azim);
+	// ------------------------------------------------------------
+	// test sig
+	sig = -3.dbamp * PinkNoise.ar([1, 1, 1, 1]); // 4 channels decorrelated pink noise
 
 
+	// ------------------------------------------------------------
+	// encode
+	sig = FoaEncode.ar(sig, ~encoder);
 
-    // ------------------------------------------------------------
-    // decode (via ~renderDecode)
-    ~renderDecode.value(sig, ~decoder)
+	// ------------------------------------------------------------
+	// transform
+	sig = FoaTransform.ar(sig, 'push', angle, azim);
+
+
+
+	// ------------------------------------------------------------
+	// decode (via ~renderDecode)
+	~renderDecode.value(sig, ~decoder)
 
 }.scope;
 )
@@ -370,25 +370,25 @@ code::
 
 (
 {
-    var sig;                            // audio signal
+	var sig;                            // audio signal
 
 
-    // display encoder and decoder
-    "Ambisonic encoding via % encoder".format(~encoder.kind).postln;
-    "Ambisonic decoding via % decoder".format(~decoder.kind).postln;
+	// display encoder and decoder
+	"Ambisonic encoding via % encoder".format(~encoder.kind).postln;
+	"Ambisonic decoding via % decoder".format(~decoder.kind).postln;
 
-    // ------------------------------------------------------------
-    // test sig
-    sig = PlayBuf.ar(~sndbuf.numChannels, ~sndbuf, BufRateScale.kr(~sndbuf), doneAction:2);   // soundfile
+	// ------------------------------------------------------------
+	// test sig
+	sig = PlayBuf.ar(~sndbuf.numChannels, ~sndbuf, BufRateScale.kr(~sndbuf), doneAction:2);   // soundfile
 
-    // ------------------------------------------------------------
-    // encode
-    sig = FoaEncode.ar(sig, ~encoder);
+	// ------------------------------------------------------------
+	// encode
+	sig = FoaEncode.ar(sig, ~encoder);
 
 
-    // ------------------------------------------------------------
-    // decode (via ~renderDecode)
-    ~renderDecode.value(sig, ~decoder)
+	// ------------------------------------------------------------
+	// decode (via ~renderDecode)
+	~renderDecode.value(sig, ~decoder)
 
 }.scope;
 )
@@ -437,43 +437,43 @@ code::
 
 (
 {
-    var sig;                            // audio signal
-    var angle, azim;                    // angle and azimuth control
+	var sig;                            // audio signal
+	var angle, azim;                    // angle and azimuth control
 
 
-    // display encoder and decoder
-    "Ambisonic encoding via % encoder".format(~encoder.kind).postln;
-    "Ambisonic decoding via % decoder".format(~decoder.kind).postln;
+	// display encoder and decoder
+	"Ambisonic encoding via % encoder".format(~encoder.kind).postln;
+	"Ambisonic decoding via % decoder".format(~decoder.kind).postln;
 
-    // angle ---> top           = zoom to plane wave at front
-    //            bottom        = zoom to plane wave at back
-    angle = MouseY.kr(pi/2, pi.neg/2);
+	// angle ---> top           = zoom to plane wave at front
+	//            bottom        = zoom to plane wave at back
+	angle = MouseY.kr(pi/2, pi.neg/2);
 
-    // azimuth -> hard left     = back
-    //            centre        = centre
-    //            hard right    = back
-    azim = MouseX.kr(pi, -pi);
+	// azimuth -> hard left     = back
+	//            centre        = centre
+	//            hard right    = back
+	azim = MouseX.kr(pi, -pi);
 
-    // ------------------------------------------------------------
-    // test sig
-    sig = PinkNoise.ar;                                 // mono pink noise
+	// ------------------------------------------------------------
+	// test sig
+	sig = PinkNoise.ar;                                 // mono pink noise
 
-    // ------------------------------------------------------------
-    // pan (encode) to stereo
-    sig = Pan2.ar(sig, azim.neg/pi);
+	// ------------------------------------------------------------
+	// pan (encode) to stereo
+	sig = Pan2.ar(sig, azim.neg/pi);
 
-    // ------------------------------------------------------------
-    // encode
-    sig = FoaEncode.ar(sig, ~encoder);
+	// ------------------------------------------------------------
+	// encode
+	sig = FoaEncode.ar(sig, ~encoder);
 
-    // ------------------------------------------------------------
-    // transform
-    sig = FoaTransform.ar(sig, 'zoom', angle);
+	// ------------------------------------------------------------
+	// transform
+	sig = FoaTransform.ar(sig, 'zoom', angle);
 
 
-    // ------------------------------------------------------------
-    // decode (via ~renderDecode)
-    ~renderDecode.value(sig, ~decoder)
+	// ------------------------------------------------------------
+	// decode (via ~renderDecode)
+	~renderDecode.value(sig, ~decoder)
 
 }.scope;
 )
@@ -523,25 +523,25 @@ code::
 
 (
 {
-    var sig;                            // audio signal
+	var sig;                            // audio signal
 
 
-    // display encoder and decoder
-    "Ambisonic encoding via % encoder".format(~encoder.kind).postln;
-    "Ambisonic decoding via % decoder".format(~decoder.kind).postln;
+	// display encoder and decoder
+	"Ambisonic encoding via % encoder".format(~encoder.kind).postln;
+	"Ambisonic decoding via % decoder".format(~decoder.kind).postln;
 
-    // ------------------------------------------------------------
-    // test sig
-    sig = PlayBuf.ar(~sndbuf.numChannels, ~sndbuf, BufRateScale.kr(~sndbuf), doneAction:2);   // soundfile
+	// ------------------------------------------------------------
+	// test sig
+	sig = PlayBuf.ar(~sndbuf.numChannels, ~sndbuf, BufRateScale.kr(~sndbuf), doneAction:2);   // soundfile
 
-    // ------------------------------------------------------------
-    // encode
-    sig = FoaEncode.ar(sig, ~encoder);
+	// ------------------------------------------------------------
+	// encode
+	sig = FoaEncode.ar(sig, ~encoder);
 
 
-    // ------------------------------------------------------------
-    // decode (via ~renderDecode)
-    ~renderDecode.value(sig, ~decoder)
+	// ------------------------------------------------------------
+	// decode (via ~renderDecode)
+	~renderDecode.value(sig, ~decoder)
 
 }.scope;
 )
@@ -601,25 +601,25 @@ code::
 
 (
 {
-    var sig;                            // audio signal
+	var sig;                            // audio signal
 
 
-    // display encoder and decoder
-    "Ambisonic encoding via % encoder".format(~encoder.kind).postln;
-    "Ambisonic decoding via % decoder".format(~decoder.kind).postln;
+	// display encoder and decoder
+	"Ambisonic encoding via % encoder".format(~encoder.kind).postln;
+	"Ambisonic decoding via % decoder".format(~decoder.kind).postln;
 
-    // ------------------------------------------------------------
-    // test sig
-    sig = PlayBuf.ar(~sndbuf.numChannels, ~sndbuf, BufRateScale.kr(~sndbuf), doneAction:2);   // soundfile
+	// ------------------------------------------------------------
+	// test sig
+	sig = PlayBuf.ar(~sndbuf.numChannels, ~sndbuf, BufRateScale.kr(~sndbuf), doneAction:2);   // soundfile
 
-    // ------------------------------------------------------------
-    // encode
-    sig = FoaEncode.ar(sig, ~encoder);
+	// ------------------------------------------------------------
+	// encode
+	sig = FoaEncode.ar(sig, ~encoder);
 
 
-    // ------------------------------------------------------------
-    // decode (via ~renderDecode)
-    ~renderDecode.value(sig, ~decoder)
+	// ------------------------------------------------------------
+	// decode (via ~renderDecode)
+	~renderDecode.value(sig, ~decoder)
 
 }.scope;
 )
@@ -681,25 +681,25 @@ code::
 
 (
 {
-    var sig;                            // audio signal
+	var sig;                            // audio signal
 
 
-    // display encoder and decoder
-    "Ambisonic encoding via % encoder".format(~encoder.kind).postln;
-    "Ambisonic decoding via % decoder".format(~decoder.kind).postln;
+	// display encoder and decoder
+	"Ambisonic encoding via % encoder".format(~encoder.kind).postln;
+	"Ambisonic decoding via % decoder".format(~decoder.kind).postln;
 
-    // ------------------------------------------------------------
-    // test sig
-    sig = PlayBuf.ar(~sndbuf.numChannels, ~sndbuf, BufRateScale.kr(~sndbuf), doneAction:2);   // soundfile
+	// ------------------------------------------------------------
+	// test sig
+	sig = PlayBuf.ar(~sndbuf.numChannels, ~sndbuf, BufRateScale.kr(~sndbuf), doneAction:2);   // soundfile
 
-    // ------------------------------------------------------------
-    // encode
-    sig = FoaEncode.ar(sig, ~encoder);
+	// ------------------------------------------------------------
+	// encode
+	sig = FoaEncode.ar(sig, ~encoder);
 
 
-    // ------------------------------------------------------------
-    // decode (via ~renderDecode)
-    ~renderDecode.value(sig, ~decoder)
+	// ------------------------------------------------------------
+	// decode (via ~renderDecode)
+	~renderDecode.value(sig, ~decoder)
 
 }.scope;
 )
@@ -761,30 +761,30 @@ code::
 
 (
 {
-    var sig;                            // audio signal
+	var sig;                            // audio signal
 
 
-    // display encoder and decoder
-    "Ambisonic encoding via % encoder".format(~encoder.kind).postln;
-    "Ambisonic decoding via % decoder".format(~decoder.kind).postln;
+	// display encoder and decoder
+	"Ambisonic encoding via % encoder".format(~encoder.kind).postln;
+	"Ambisonic decoding via % decoder".format(~decoder.kind).postln;
 
-    // ------------------------------------------------------------
-    // test sig
-    sig = PlayBuf.ar(~sndbuf.numChannels, ~sndbuf, BufRateScale.kr(~sndbuf), doneAction:2);   // soundfile
+	// ------------------------------------------------------------
+	// test sig
+	sig = PlayBuf.ar(~sndbuf.numChannels, ~sndbuf, BufRateScale.kr(~sndbuf), doneAction:2);   // soundfile
 
-    // ------------------------------------------------------------
-    // encode
-    sig = FoaEncode.ar(sig, ~encoder);
-
-
-    // ------------------------------------------------------------
-    // xform
-    sig = FoaXform.ar(sig, ~xformer);
+	// ------------------------------------------------------------
+	// encode
+	sig = FoaEncode.ar(sig, ~encoder);
 
 
-    // ------------------------------------------------------------
-    // decode (via ~renderDecode)
-    ~renderDecode.value(sig, ~decoder)
+	// ------------------------------------------------------------
+	// xform
+	sig = FoaXform.ar(sig, ~xformer);
+
+
+	// ------------------------------------------------------------
+	// decode (via ~renderDecode)
+	~renderDecode.value(sig, ~decoder)
 
 }.scope;
 )
@@ -843,25 +843,25 @@ code::
 
 (
 {
-    var sig;                            // audio signal
+	var sig;                            // audio signal
 
 
-    // display encoder and decoder
-    "Ambisonic encoding via % encoder".format(~encoder.kind).postln;
-    "Ambisonic decoding via % decoder".format(~decoder.kind).postln;
+	// display encoder and decoder
+	"Ambisonic encoding via % encoder".format(~encoder.kind).postln;
+	"Ambisonic decoding via % decoder".format(~decoder.kind).postln;
 
-    // ------------------------------------------------------------
-    // test sig
-    sig = PlayBuf.ar(~sndbuf.numChannels, ~sndbuf, BufRateScale.kr(~sndbuf), doneAction:2);   // soundfile
+	// ------------------------------------------------------------
+	// test sig
+	sig = PlayBuf.ar(~sndbuf.numChannels, ~sndbuf, BufRateScale.kr(~sndbuf), doneAction:2);   // soundfile
 
-    // ------------------------------------------------------------
-    // encode
-    sig = FoaEncode.ar(sig, ~encoder);
+	// ------------------------------------------------------------
+	// encode
+	sig = FoaEncode.ar(sig, ~encoder);
 
 
-    // ------------------------------------------------------------
-    // decode (via ~renderDecode)
-    ~renderDecode.value(sig, ~decoder)
+	// ------------------------------------------------------------
+	// decode (via ~renderDecode)
+	~renderDecode.value(sig, ~decoder)
 
 }.scope;
 )
@@ -916,25 +916,25 @@ code::
 
 (
 {
-    var sig;                            // audio signal
+	var sig;                            // audio signal
 
 
-    // display encoder and decoder
-    "Ambisonic encoding via % encoder".format(~encoder.kind).postln;
-    "Ambisonic decoding via % decoder".format(~decoder.kind).postln;
+	// display encoder and decoder
+	"Ambisonic encoding via % encoder".format(~encoder.kind).postln;
+	"Ambisonic decoding via % decoder".format(~decoder.kind).postln;
 
-    // ------------------------------------------------------------
-    // test sig
-    sig = PlayBuf.ar(~sndbuf.numChannels, ~sndbuf, BufRateScale.kr(~sndbuf), doneAction:2);   // soundfile
+	// ------------------------------------------------------------
+	// test sig
+	sig = PlayBuf.ar(~sndbuf.numChannels, ~sndbuf, BufRateScale.kr(~sndbuf), doneAction:2);   // soundfile
 
-    // ------------------------------------------------------------
-    // encode
-    sig = FoaEncode.ar(sig, ~encoder);
+	// ------------------------------------------------------------
+	// encode
+	sig = FoaEncode.ar(sig, ~encoder);
 
 
-    // ------------------------------------------------------------
-    // decode (via ~renderDecode)
-    ~renderDecode.value(sig, ~decoder)
+	// ------------------------------------------------------------
+	// decode (via ~renderDecode)
+	~renderDecode.value(sig, ~decoder)
 
 }.scope;
 )
@@ -985,25 +985,25 @@ code::
 
 (
 {
-    var sig;                            // audio signal
+	var sig;                            // audio signal
 
 
-    // display encoder and decoder
-    "Ambisonic encoding via % encoder".format(~encoder.kind).postln;
-    "Ambisonic decoding via % decoder".format(~decoder.kind).postln;
+	// display encoder and decoder
+	"Ambisonic encoding via % encoder".format(~encoder.kind).postln;
+	"Ambisonic decoding via % decoder".format(~decoder.kind).postln;
 
-    // ------------------------------------------------------------
-    // test sig
-    sig = PlayBuf.ar(~sndbuf.numChannels, ~sndbuf, BufRateScale.kr(~sndbuf) doneAction:2);   // soundfile
+	// ------------------------------------------------------------
+	// test sig
+	sig = PlayBuf.ar(~sndbuf.numChannels, ~sndbuf, BufRateScale.kr(~sndbuf) doneAction:2);   // soundfile
 
-    // ------------------------------------------------------------
-    // encode
-    sig = FoaEncode.ar(sig, ~encoder);
+	// ------------------------------------------------------------
+	// encode
+	sig = FoaEncode.ar(sig, ~encoder);
 
 
-    // ------------------------------------------------------------
-    // decode (via ~renderDecode)
-    ~renderDecode.value(sig, ~decoder)
+	// ------------------------------------------------------------
+	// decode (via ~renderDecode)
+	~renderDecode.value(sig, ~decoder)
 
 }.scope;
 )

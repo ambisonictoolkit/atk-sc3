@@ -38,34 +38,34 @@ The full structure will look like this:
 tree::
   ## teletype::Application Support::
   tree::
-    ## teletype::ATK::
-    tree::
-      ## teletype::kernels::  (ATK default)
-      ## teletype::matrices::  (ATK default)
-      ## teletype::sounds::  (ATK default)
-      ## teletype::extensions::  (our custom additions)
-      tree::
-        ## teletype::kernels::
-        ## teletype::matrices::
-        tree::
-          ##teletype::FOA::
-          tree::
-            ##teletype::decoders::
-            tree::
-              ##myDecoderMatrix.txt
-              ##myDecoderMatrixForReaper.mosl.txt
-              ##myDecoderMatrixWithMetadata.yml
-            ::
-            ##teletype::encoders::
-            ##teletype::xformers::
-          ::
-          ##teletype::HOA1::
-          ##teletype::HOA2::
-          ##teletype::...::
-          ##teletype::HOAN::
-        ::
-      ::
-    ::
+	## teletype::ATK::
+	tree::
+	  ## teletype::kernels::  (ATK default)
+	  ## teletype::matrices::  (ATK default)
+	  ## teletype::sounds::  (ATK default)
+	  ## teletype::extensions::  (our custom additions)
+	  tree::
+		## teletype::kernels::
+		## teletype::matrices::
+		tree::
+		  ##teletype::FOA::
+		  tree::
+			##teletype::decoders::
+			tree::
+			  ##myDecoderMatrix.txt
+			  ##myDecoderMatrixForReaper.mosl.txt
+			  ##myDecoderMatrixWithMetadata.yml
+			::
+			##teletype::encoders::
+			##teletype::xformers::
+		  ::
+		  ##teletype::HOA1::
+		  ##teletype::HOA2::
+		  ##teletype::...::
+		  ##teletype::HOAN::
+		::
+	  ::
+	::
   ::
 ::
 Each of the folders (code::FOA>encoders::, code::HOA5>decoders::, etc.) are
@@ -118,8 +118,8 @@ planewaves arriving from those nine uniformly distributed incidences. Within
 the ATK's classification hierarchy, code::~encoder:: looks like this:
 
 table::
-    ## strong::set:: || strong::type:: || strong::op:: || strong::kind::
-    ## code::'FOA':: || code::'encoder':: || code::'matrix':: || code::'dirs'::
+	## strong::set:: || strong::type:: || strong::op:: || strong::kind::
+	## code::'FOA':: || code::'encoder':: || code::'matrix':: || code::'dirs'::
 ::
 
 For fun, let's inspect:
@@ -191,10 +191,10 @@ code::
 
 // A Dictionary of more metadata to add.
 ~properties =  (
-    author: "Me, the Reader",
+	author: "Me, the Reader",
 	dateCreated: Date.getDate.stamp,
-    ordering: AtkFoa.ordering,  // Furse-Malham (FuMa)
-    normalisation: AtkFoa.normalisation,  // Gerzon / Furse-Malham (MaxN)
+	ordering: AtkFoa.ordering,  // Furse-Malham (FuMa)
+	normalisation: AtkFoa.normalisation,  // Gerzon / Furse-Malham (MaxN)
 );
 )
 ::
@@ -212,9 +212,9 @@ the same name and extension.
 code::
 (
 ~encoder.writeToFile( "my9PointEncoder.yml",
-    note: ~note,
-    attributeDictionary: ~properties,
-    overwrite: true
+	note: ~note,
+	attributeDictionary: ~properties,
+	overwrite: true
 )
 )
 ::
@@ -232,10 +232,10 @@ code::
 (
 // Here's a raw (FOA) A-to-B encoder matrix:
 ~matrix = Matrix.with([
-    [ 0.61237243569579, 0.61237243569579, 0.61237243569579, 0.61237243569579 ],
-    [ 0.5, 0.5, -0.5, -0.5 ],
-    [ 0.5, -0.5, 0.5, -0.5 ],
-    [ 0.5, -0.5, -0.5, 0.5 ]
+	[ 0.61237243569579, 0.61237243569579, 0.61237243569579, 0.61237243569579 ],
+	[ 0.5, 0.5, -0.5, -0.5 ],
+	[ 0.5, -0.5, 0.5, -0.5 ],
+	[ 0.5, -0.5, -0.5, 0.5 ]
 ]);
 
 // along with associated encoding directions
@@ -252,10 +252,10 @@ code::
 
 // A Dictionary of more metadata to add.
 ~properties =  (
-    author: "Me, the Reader",
-    dateCreated: Date.getDate.stamp,
-    ordering: AtkFoa.ordering,  // Furse-Malham (FuMa)
-    normalisation: AtkFoa.normalisation,  // Gerzon / Furse-Malham (MaxN)
+	author: "Me, the Reader",
+	dateCreated: Date.getDate.stamp,
+	ordering: AtkFoa.ordering,  // Furse-Malham (FuMa)
+	normalisation: AtkFoa.normalisation,  // Gerzon / Furse-Malham (MaxN)
 );
 )
 ::
@@ -323,8 +323,8 @@ File.mkdir( Atk.getMatrixExtensionSubPath('FOA', 'encoders').fullPath +/+ ~projS
 );
 
 ~encoder.writeToFile(~projSubFolderName +/+ "projectEncoder1.yml",
-    note: ~note,
-    attributeDictionary: ~properties
+	note: ~note,
+	attributeDictionary: ~properties
 )
 )
 ::
@@ -478,7 +478,7 @@ And... have a go!
 code::
 (
 ~decoderDef = SynthDef(\pinv_decoder, { arg outbus=0, amp=1
-    var foa, out;
+	var foa, out;
 
 	// Test signal: panning noise
 	foa = FoaPanB.ar( PinkNoise.ar, LFSaw.kr( 12.reciprocal, 1, pi/2 ), 0 );

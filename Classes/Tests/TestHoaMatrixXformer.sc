@@ -60,24 +60,24 @@ TestHoaMatrixXformer : UnitTest {
 		var initialDirs, rotatedDirs;
 
 		// Use Spherical class to initialize the directions.
-		initialDirs = dirsArray.collect{ |azel| Spherical(1, *azel) };
+		initialDirs = dirsArray.collect({ |azel| Spherical(1, *azel) });
 
 		// Use Spherical class to rotate the directions.
 		// The following rotations are extrinsic, so Y-P-R (which is an intrinsic convention of Tait-Bryan rotations)
 		// needs to be applied in reverse order: roll (tilt), pitch (tumble), yaw (rotate)
-		rotatedDirs = initialDirs.collect{ |sph|
+		rotatedDirs = initialDirs.collect({ |sph|
 			sph.tilt(roll).tumble(pitch).rotate(yaw)
-		};
+		});
 
-		initializedPlanewaves = initialDirs.collect{ |sph|
-			HoaMatrixEncoder.newDirection(sph.theta, sph.phi, nil, order).matrix.flop.getRow(0);
-		};
+		initializedPlanewaves = initialDirs.collect({ |sph|
+			HoaMatrixEncoder.newDirection(sph.theta, sph.phi, nil, order).matrix.flop.getRow(0)
+		});
 
 		// Encode the resulting rotated directions as planewaves.
 		// These are the targets for comparison
-		targetPlanewaves = rotatedDirs.collect{ |sph|
-			HoaMatrixEncoder.newDirection(sph.theta, sph.phi, nil, order).matrix.flop.getRow(0);
-		};
+		targetPlanewaves = rotatedDirs.collect({ |sph|
+			HoaMatrixEncoder.newDirection(sph.theta, sph.phi, nil, order).matrix.flop.getRow(0)
+		});
 	}
 
 
@@ -109,30 +109,32 @@ TestHoaMatrixXformer : UnitTest {
 		// planewave coefficients, encoded at [pi/2, 0] (+Y)
 		pw90 = HoaMatrixEncoder.newDirection(pi/2, 0, nil, order);
 
-		numTests.do{
+		numTests.do({
 			var angle = rrand(-2pi, 2pi);
 			var rMtx = HoaMatrixXformer.newRotateAxis(\z, angle, order);
+
 			comparePwFunc.(pw00, rMtx, angle, 0, \z);
 
 			rMtx = HoaMatrixXformer.newRotateAxis(\y, angle, order);
 			comparePwFunc.(pw00, rMtx, 0, angle, \y);
 
 			rMtx = HoaMatrixXformer.newRotateAxis(\x, angle, order);
-			comparePwFunc.(pw90, rMtx, pi/2, angle, \x);
-		};
+			comparePwFunc.(pw90, rMtx, pi/2, angle, \x)
+		})
 	}
 
 	// test the equivalence between multiple individual axis rotations
 	// via *newRotateAxis and they're *newRotate counterpart
 	test_axisRotationOrder {
 		var angles, axes, r123, r1, r2, r3, compoundRot;
-		5.do{
-			angles = 3.collect{ rrand(0, 2pi) }; // choose random rotation amounts
+
+		5.do({
+			angles = 3.collect({ rrand(0, 2pi) }); // choose random rotation amounts
 			axes = "xyz".scramble;      // randomize the axis convention
 			// *newRotateAxis
-			#r1, r2, r3 = 3.collect{ |i|
-				HoaMatrixXformer.newRotateAxis(axes[i].asSymbol, angles[i], order).matrix;
-			};
+			#r1, r2, r3 = 3.collect({ |i|
+				HoaMatrixXformer.newRotateAxis(axes[i].asSymbol, angles[i], order).matrix
+			});
 			compoundRot = r3 * (r2 * r1);
 
 			// *newRotate
@@ -141,7 +143,7 @@ TestHoaMatrixXformer : UnitTest {
 			this.assertArrayFloatEquals(r123.asArray.flat, compoundRot.asArray.flat,
 				"3 individual axis rotations (*newRotateAxis) should equal the compound rotation (*newRotate)",
 				floatWithin, report
-			);
-		}
+			)
+		})
 	}
 }

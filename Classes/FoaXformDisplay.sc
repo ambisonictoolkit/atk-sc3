@@ -81,25 +81,24 @@ FoaXformDisplay {
 
 		this.prDefineColors;
 
-		directions = numPoints.collect{ |i| (2pi / numPoints) * i };
+		directions = numPoints.collect({ |i| (2pi / numPoints) * i });
 
 		// planewave "point" matrices collected
-		planewaveMatrices = numPoints.collect{ |i|
+		planewaveMatrices = numPoints.collect({ |i|
 			FoaEncoderMatrix.newDirection(
 				directions[i]
-			).matrix.addRow([0]); // need to add z manually, for planewaves with no elev
-		};
+			).matrix.addRow([0]) // need to add z manually, for planewaves with no elev
+		});
 
 		// store tranform info for each "probe" point
-		prePostStats = numPoints.collect{ |i|
+		prePostStats = numPoints.collect({ |i|
 			IdentityDictionary(know: true).putPairs([
 				\inAz, directions[i],
 				\inEl, 0,
 				\az, nil, \el, nil, \dir, nil, \ampdb, nil,
 				\scrnPnt, nil // point in userview
-			]);
-
-		};
+			])
+		});
 
 		// a list containing a master view of each chain
 		chainViews = List();
@@ -148,24 +147,24 @@ FoaXformDisplay {
 		chain.removeDependant(this);
 
 		audition !? {
-			iOpenedAudition.if({
-				audition.ui.notNil.if({
-					audition.ui.win.isClosed.not.if{
+			if(iOpenedAudition, {
+				if(audition.ui.notNil, {
+					if(audition.ui.win.isClosed.not, {
 						// this frees audition
 						audition.ui.win.close
-					}
+					})
 				}, {
 					audition.removeDependant(this);
 					audition.free;
 				})
 			}, {
 				audition.removeDependant(this);
-			});
+			})
 		};
 
-		[sfWin, xfWin, codeWin].do{ |win|
-			win !? { win.isClosed.not.if{ win.close } }
-		};
+		[sfWin, xfWin, codeWin].do({ |win|
+			win !? { if(win.isClosed.not, { win.close }) }
+		});
 	}
 
 
@@ -173,15 +172,15 @@ FoaXformDisplay {
 		scrnB = Window.screenBounds;
 		winW= 600;
 		winH= 450;
-		dirDisplay = 'size';
+		dirDisplay = \size;
 
 		// create the transform view, index [0][1] in displayChain
-		displayXFormView = FoaXformView(this, 'display', 0, 1);
+		displayXFormView = FoaXformView(this, \display, 0, 1);
 
 		// initialize aeds for display before drawing
-		this.prUpdateMatrix('display');
+		this.prUpdateMatrix(\display);
 		// init var
-		lastUpdatedMatrix = 'display';
+		lastUpdatedMatrix = \display;
 
 		sfWin = Window("Soundfield Transform",
 			Rect(scrnB.center.x - (winW / 2), scrnB.height - winH - 45, winW, winH),
@@ -204,8 +203,8 @@ FoaXformDisplay {
 
 		sfWin.view.palette_(
 			QPalette.dark
-			.setColor(Color.gray, 'base')
-			.setColor(Color.gray, 'alternateBase')
+			.setColor(Color.gray, \base)
+			.setColor(Color.gray, \alternateBase)
 		)
 		.background_(xfColor)
 		.layout_(VLayout(uv, ctlv).margins_(0));
@@ -213,7 +212,7 @@ FoaXformDisplay {
 		this.prDefineDrawSoundfield;
 
 		displayXFormView.ctlLayout.insert(
-			StaticText().string_("Display Transform").align_('center').maxHeight_(15),
+			StaticText().string_("Display Transform").align_(\center).maxHeight_(15),
 			0
 		);
 
@@ -249,42 +248,43 @@ FoaXformDisplay {
 					VLayout(
 						Button().states_([["Chain >>"]]).action_({
 
-							xfWin.isNil.if({
+							if(xfWin.isNil, {
 								this.initChainGui
 							}, {
-								xfWin.isClosed.if{
+								if(xfWin.isClosed, {
 									this.initChainGui
-								}
-							});
+								})
+							})
 						}),
 						Button().states_([["Audition >>"]]).action_({
 							var test = false;
 
-							test = audition.isNil.if({
+							test = if(audition.isNil, {
 								true
 							}, {
 								audition.ui.win.isClosed
 							});
 
-							test.if({
-								fork ({
+							if(test, {
+								fork({
 									var auditionCond = Condition(false);
+
 									audition = FoaAudition(
 										0, 0.1, this.curXformMatrix,
 										initCond: auditionCond, initGUI: true);
 									auditionCond.wait;
-									audition.addDependant(this);
-								}, AppClock)
+									audition.addDependant(this)
+								},
+								AppClock
+								)
 							}, {
 								audition.ui.win.front
-							});
-
+							})
 						}),
 					)
 				),
 			)
 		);
-
 		sfWin.refresh;
 	}
 
@@ -318,7 +318,7 @@ FoaXformDisplay {
 
 		// set color pallette
 		xfWin.view.palette_(QPalette.dark.setColor(
-			Color.gray, 'base').setColor(Color.gray, 'alternateBase')
+			Color.gray, \base).setColor(Color.gray, \alternateBase)
 		).background_(xfColor);
 
 		// an HLayout in which to place chain views
@@ -357,13 +357,15 @@ FoaXformDisplay {
 		// algorithmic rainbow color scheme
 		getColor = { |gain|
 			var i;
+
 			i = colorSpec.map(gainSpec.unmap(gain));
-			case
-			{ i < 256 } { Color.new255(255, i, 0) }
-			{ i < 384 } { Color.new255(255 - (i - 256), 255, 0) }
-			{ i < 512 } { Color.new255(0, 255, (i - 384) * 2) }
-			{ i < 768 } { Color.new255(0, 255 - (i - 512), 255) }
-			{ i >= 768 } { Color.new255(0, 0, 255) }; // catch all
+			case(
+				{ i < 256 }, { Color.new255(255, i, 0) },
+				{ i < 384 }, { Color.new255(255 - (i - 256), 255, 0) },
+				{ i < 512 }, { Color.new255(0, 255, (i - 384) * 2) },
+				{ i < 768 }, { Color.new255(0, 255 - (i - 512), 255) },
+				{ i >= 768 }, { Color.new255(0, 0, 255) } // catch all
+			);
 		};
 
 		/* Drawing the soundfield transform */
@@ -393,15 +395,18 @@ FoaXformDisplay {
 
 			// background circles
 			Pen.strokeColor_(Color.gray.alpha_(0.2));
-			[0.0, 0.5236, 1.0472].do{ |el|
+			[0.0, 0.5236, 1.0472].do({ |el|
 				var val;
+
 				// val = cos(i + 1 / 3);
 				val = cos(el);
-				Pen.strokeOval(Rect(
-					(arcH * val).neg, (arcH * val).neg,
-					arcH * 2 * val, arcH * 2 * val
-				));
-			};
+				Pen.strokeOval(
+					Rect(
+						(arcH * val).neg, (arcH * val).neg,
+						arcH * 2 * val, arcH * 2 * val
+					)
+				)
+			});
 
 			// line from center to point
 			azLineClr = Color.gray.alpha_(0.2);
@@ -409,14 +414,14 @@ FoaXformDisplay {
 			// get sort order by directivity (arr[2]) to draw most transparent first
 			aeds_sortOrder = aeds.collect({ |arr| arr[2] }).order;
 
-			aeds_sortOrder.do{ |sortDex, i|
+			aeds_sortOrder.do({ |sortDex, i|
 
 				#az, el, dir, gain = aeds[sortDex];
 
 				// warp elevation for visual scaling
 				thisElWarp = elWarp.at(el + pi/2);
 
-				(gain > gainThresh).if{
+				if(gain > gainThresh, {
 					omniDiam = 1 - dir * fullOmni;
 					omniDiam = omniDiam.clip(d, fullOmni);
 					omniDiam = omniDiam * thisElWarp; // warp for elevation perspective
@@ -442,42 +447,42 @@ FoaXformDisplay {
 
 					// directivity circle
 					switch(dirDisplay,
-						'size', {
+						\size, {
 							Pen.fillColor_(gainColor.alpha_(alphaSpec.map(dir)));
 							Pen.fillOval(Rect(
 								drawPnt.x - omniRad, drawPnt.y - omniRad, omniDiam, omniDiam));
 
 							// center point for mouse click guidance to cue stats
 							Pen.fillColor_(
-								(sortDex == selectedDex).if({ Color.yellow }, { azLineClr })
+								if(sortDex == selectedDex, { Color.yellow }, { azLineClr })
 							);
 							Pen.fillOval(Rect(
 								drawPnt.x - (pointRad * 0.5), drawPnt.y - (pointRad * 0.5),
 								pointRad, pointRad));
 
 							// outline the selected directivity circle
-							(sortDex == selectedDex).if{
+							if(sortDex == selectedDex, {
 								Pen.strokeColor_(Color.yellow);
 								Pen.strokeOval(Rect(
 									drawPnt.x - omniRad, drawPnt.y - omniRad,
-									omniDiam, omniDiam));
-							};
+									omniDiam, omniDiam))
+							});
 
 							// scale in/out toward/away from origin
-							gainPnt = azPnt * 1.15;
+							gainPnt = azPnt * 1.15
 						},
-						'radius', {
+						\radius, {
 							Pen.fillColor_(gainColor);
 							Pen.fillOval(Rect(drawPnt.x - pointRad, drawPnt.y - pointRad, d, d));
 
 							// outline the selected directivity circle
-							(sortDex == selectedDex).if{
+							if(sortDex == selectedDex, {
 								Pen.strokeColor_(Color.yellow);
-								Pen.strokeOval(Rect(drawPnt.x - pointRad, drawPnt.y - pointRad, d, d));
-							};
+								Pen.strokeOval(Rect(drawPnt.x - pointRad, drawPnt.y - pointRad, d, d))
+							});
 
 							// scale in/out toward/away from origin
-							gainPnt = drawPnt * dir.linlin(0, 1, 1.75, 1.15);
+							gainPnt = drawPnt * dir.linlin(0, 1, 1.75, 1.15)
 						}
 					);
 
@@ -487,8 +492,8 @@ FoaXformDisplay {
 						gain.round(0.1).asString,
 						Rect(gainPnt.x - (pointRad * 10), gainPnt.y - (pointRad * 10), d * 10, d * 10)
 					);
-				}
-			};
+				})
+			});
 
 			// input 0 deg azimuth point circle ---
 			#az, el, dir, gain = aeds[0];
@@ -555,6 +560,7 @@ FoaXformDisplay {
 
 			selectedDex !? {
 				var selStats = prePostStats[selectedDex];
+
 				// proto point inspection text window;
 				inspWidth = 85;
 				inspHeight = 130;
@@ -602,7 +608,7 @@ FoaXformDisplay {
 			#x, y = [newCursorPnt.x, newCursorPnt.y];   // translate cursor coords to origin
 
 			distances = prePostStats.collect({ |statdict|
-				statdict.scrnPnt.dist(x@y);
+				statdict.scrnPnt.dist(x@y)
 			});
 
 			// select the closest point to mouse click
@@ -619,7 +625,7 @@ FoaXformDisplay {
 		.resize_(5)
 		.drawFunc_({ |view|
 			// draw test signal planewave
-			pwPlaying.if{
+			if(pwPlaying, {
 				rH = arcH * 0.2; // rect height as a ratio of arcH
 				rW = rH * whRatio;
 				w_2 = rW * 0.5;
@@ -649,8 +655,8 @@ FoaXformDisplay {
 				Pen.lineTo(h_2@w_2neg);
 
 				Pen.strokeColor_(Color(*(0.8!3)));
-				Pen.stroke;
-			};
+				Pen.stroke
+			})
 		});
 
 		// Transform View - overlays the User View
@@ -661,7 +667,7 @@ FoaXformDisplay {
 						StaticText().string_("Directivity Display"),
 						PopUpMenu().items_(['Size + Radius', 'Radius Only'])
 						.action_({ |mn|
-							dirDisplay = switch(mn.value, 0, { 'size' }, 1, { 'radius' });
+							dirDisplay = switch(mn.value, 0, { \size }, 1, { \radius });
 							this.prUpdateMatrix(lastUpdatedMatrix); // which matrix?
 						}).maxWidth_(130),
 						nil
@@ -678,7 +684,7 @@ FoaXformDisplay {
 	createNewXForm { |whichChain, index|
 		var xForm, maxChainSize = 0;
 
-		xForm = FoaXformView(this, 'chain', whichChain, index);
+		xForm = FoaXformView(this, \chain, whichChain, index);
 
 		// add the xformView object to the chain list
 		xfViewChains[whichChain].insert(index, xForm);
@@ -697,11 +703,11 @@ FoaXformDisplay {
 
 
 	prRemoveXForm { |whichChain, rmvDex|
-		{
+		fork({
 			var xf;
 
 			xf = xfViewChains[whichChain][rmvDex];
-			xf.isNil.if{ "view not found!".error };
+			xf.isNil.if({ "view not found!".error });
 
 			xf.view.layout.destroy;
 			xf.view.remove;
@@ -711,9 +717,10 @@ FoaXformDisplay {
 			0.01.wait;
 
 			this.alignRows;
-			this.prUpdateChainIdLabels();
-
-		}.fork(AppClock)
+			this.prUpdateChainIdLabels()
+		},
+		AppClock
+		)
 	}
 
 
@@ -739,7 +746,7 @@ FoaXformDisplay {
 		).align_(\center);
 
 		// chain title layout
-		titleLayout = (chainIndex == 0).if({
+		titleLayout = if(chainIndex == 0, {
 			// no remove button on first chain
 			HLayout(25, nil, [chLabel, a: \center], nil, [abut, a: \right])
 		}, {
@@ -771,7 +778,7 @@ FoaXformDisplay {
 		// add this chain view to the list of chain views
 		chainViews.insert(chainIndex, chView);
 
-		(chainIndex > 0).if{ this.prUpdateChainTitles };
+		if(chainIndex > 0, { this.prUpdateChainTitles });
 		this.prUpdateChainIdLabels;
 	}
 
@@ -797,33 +804,37 @@ FoaXformDisplay {
 			this.prUpdateChainTitles;
 			this.prUpdateChainIdLabels;
 			this.prUpdateInputMenus;
-		}, AppClock)
+		},
+		AppClock
+		)
 	}
 
 
 	prUpdateChainTitles {
-		chainViews.do{ |chv, i|
+		chainViews.do({ |chv, i|
 			var titleView;
+
 			titleView = chv.children[0];
 			// find the StaticText
-			titleView.children.do{ |child|
-				child.isKindOf(StaticText).if{
-					child.string_(format("Chain %", FoaMatrixChain.abcs[i]));
-				}
-			}
-		}
+			titleView.children.do({ |child|
+				if(child.isKindOf(StaticText), {
+					child.string_(format("Chain %", FoaMatrixChain.abcs[i]))
+				})
+			})
+		})
 	}
 
 
 	// handles the switching between the matrix in the display,
 	// and the matrix in the transform chain, depending on the last touched
 	curXformMatrix {
-		^case
-		{ lastUpdatedMatrix === 'chain' } { chain.curXformMatrix }
-		{ lastUpdatedMatrix === 'display' } { displayChain.curXformMatrix }
-		{ (lastUpdatedMatrix.isKindOf(Matrix) or:
-			lastUpdatedMatrix.isKindOf(FoaXformerMatrix)) }
-		{ lastUpdatedMatrix };
+		^case(
+			{ lastUpdatedMatrix === \chain }, { chain.curXformMatrix },
+			{ lastUpdatedMatrix === \display }, { displayChain.curXformMatrix },
+			{ (lastUpdatedMatrix.isKindOf(Matrix) or: lastUpdatedMatrix.isKindOf(FoaXformerMatrix)) }, {
+				lastUpdatedMatrix
+			}
+		)
 	}
 
 
@@ -831,13 +842,13 @@ FoaXformDisplay {
 	prUpdateMatrix { |whichMatrix|
 		var xfMatrix;
 
-		xfMatrix = case
-		{ whichMatrix === 'chain' } { chain.curXformMatrix }
-		{ whichMatrix === 'display' } { displayChain.curXformMatrix }
-		{ (whichMatrix.isKindOf(Matrix) or:
-			whichMatrix.isKindOf(FoaXformerMatrix)) }
-		{ whichMatrix }
-		;
+		xfMatrix = case(
+			{ whichMatrix === \chain }, { chain.curXformMatrix },
+			{ whichMatrix === \display }, { displayChain.curXformMatrix },
+			{ (whichMatrix.isKindOf(Matrix) or: whichMatrix.isKindOf(FoaXformerMatrix)) }, {
+				whichMatrix
+			}
+		);
 
 		xfMatrix ?? { error("invalid updateMatrix selection") };
 
@@ -845,17 +856,17 @@ FoaXformDisplay {
 
 		// send the new matrix to the audition matrix fading synth
 		audition !? {
-			audition.auditionEnabled.if{
-				audition.matrixFader.matrix_(xfMatrix);
-			}
+			if(audition.auditionEnabled, {
+				audition.matrixFader.matrix_(xfMatrix)
+			})
 		};
 
-		transformedPlanewaves = planewaveMatrices.collect{ |pointMtx|
+		transformedPlanewaves = planewaveMatrices.collect({ |pointMtx|
 			xfMatrix * pointMtx
-		};
+		});
 
 		// calculate and set aeds var for gui update
-		aeds = transformedPlanewaves.collect{ |ptMtx, i|
+		aeds = transformedPlanewaves.collect({ |ptMtx, i|
 			var aeda, statDict, az, el, dir, ampdb;
 			var dir_orig, aeda2;
 
@@ -870,36 +881,36 @@ FoaXformDisplay {
 			statDict.dir = dir;
 			statDict.ampdb = ampdb;
 
-			aeda; // return
-		};
+			aeda // return
+		});
 
 		sfWin !? { sfWin.refresh };
 	}
 
 
 	prUpdateChainIdLabels {
-		xfViewChains.do{ |vchain, i|
-			vchain.do{ |xf, j|
+		xfViewChains.do({ |vchain, i|
+			vchain.do({ |xf, j|
 				xf.labelTxt.string_(FoaMatrixChain.abcs[i]++j)
-			}
-		}
+			})
+		})
 	}
 
 
 	prGetInputList { |stopChainDex, stopLinkDex|
 		var items = [];
 
-		block { |break|
+		block({ |break|
 			chain.chains.do({ |ch, i|
-				ch.size.do{ |j|
-					(i == stopChainDex and: { j == stopLinkDex }).if({
+				ch.size.do({ |j|
+					if((i == stopChainDex and: { j == stopLinkDex }), {
 						break.()
 					}, {
 						items = items.add((FoaMatrixChain.abcs[i]++j).asSymbol)
 					})
-				}
+				})
 			})
-		};
+		});
 
 		^items
 	}
@@ -909,14 +920,14 @@ FoaXformDisplay {
 	// input index menus need to be updated
 	prUpdateInputMenus {
 
-		xfViewChains.do{ |vchain, i|
-			vchain.do{ |xf, j|
+		xfViewChains.do({ |vchain, i|
+			vchain.do({ |xf, j|
 				var items, inMenu, newSelection;
 
 				inMenu = xf.inputMenu;
 
 				// check if the xform has an input parameter
-				inMenu.notNil.if{
+				if(inMenu.notNil, {
 					var items, thisLink, inputLink;
 
 					// regenerate possible menu items based on new chain
@@ -930,24 +941,24 @@ FoaXformDisplay {
 					// find my control state param (the input link),
 					inputLink = thisLink.controlStates.select({ |cstate|
 						cstate.isKindOf(FoaMatrixChainLink)
-					}).at(0); // should only return 1 state param: an FoaMatrixChainLink
+					})[0]; // should only return 1 state param: an FoaMatrixChainLink
 
 					// find the index of that link in the chain
 					// and get the key label for that index
-					chain.chains.do{ |xfchain, i|
-						xfchain.do{ |link, j|
-							(inputLink === link).if{
-								newSelection = (FoaMatrixChain.abcs[i] ++ j).asSymbol;
-							};
-						}
-					};
+					(chain.chains).do({ |xfchain, i|
+						xfchain.do({ |link, j|
+							if(inputLink === link, {
+								newSelection = (FoaMatrixChain.abcs[i] ++ j).asSymbol
+							})
+						})
+					});
 
 					newSelection ?? { error("input link not found in the chain!") };
 
-					inMenu.value_(items.indexOf(newSelection));
-				};
-			}
-		}
+					inMenu.value_(items.indexOf(newSelection))
+				})
+			})
+		})
 	}
 
 
@@ -957,15 +968,16 @@ FoaXformDisplay {
 		// pad other shorter chain columns with a nil layout so rows align
 		maxChainSize = xfViewChains.collect({ |chain| chain.size }).maxItem;
 
-		xfViewChains.do{ |vchain, i|
+		xfViewChains.do({ |vchain, i|
 			var numxforms;
+
 			numxforms = vchain.size;
-			(numxforms < maxChainSize).if{
-				(maxChainSize - numxforms).do{
+			if(numxforms < maxChainSize, {
+				(maxChainSize - numxforms).do({
 					chainViews[i].layout.add(nil)
-				}
-			};
-		};
+				})
+			})
+		});
 
 		maxChainHeight = (maxChainSize * xfHeight) + chTitleHeight;
 		xfWin.bounds_(
@@ -978,23 +990,24 @@ FoaXformDisplay {
 	// xfView is an instance of FoaXformView
 	prGetXfViewID { |xfView|
 		var whichChain, rmvDex;
-		xfViewChains.do{ |vchain, i|
-			vchain.do{ |view, j|
-				(view === xfView).if{
+
+		xfViewChains.do({ |vchain, i|
+			vchain.do({ |view, j|
+				if(view === xfView, {
 					rmvDex = j; whichChain = i;
 					^[whichChain, rmvDex]
-				};
-			}
-		};
+				})
+			})
+		});
 		^error("xfView not found!")
 	}
 
 
 	// xfView is an instance of FoaXformView
 	prGetChainViewID { |chainView|
-		chainViews.do{ |chv, i|
-			(chv === chainView).if{ ^i };
-		};
+		chainViews.do({ |chv, i|
+			if(chv === chainView, { ^i })
+		});
 		^error("chainView not found!")
 	}
 
@@ -1009,7 +1022,7 @@ FoaXformDisplay {
 		evalMtxString =
 		"/* Enter valid SC code here that returns a Matrix or FoaXformerMatrix to display */\n";
 
-		codeWin.isNil.if({
+		if(codeWin.isNil, {
 			codeWin = Window("Evaluate Matrix",
 				Rect(sfWin.bounds.left,
 					scrnB.height - sfWin.bounds.height - mwinH
@@ -1023,21 +1036,20 @@ FoaXformDisplay {
 				VLayout(
 					evalTxtView = TextView().enterInterpretsSelection_(true)
 					.string_(
-						postCurrentMatrix.if({ postMtxString }, { evalMtxString })
+						if(postCurrentMatrix, { postMtxString }, { evalMtxString })
 					),
 
 					HLayout(
 						Button().states_([["Evaluate"]])
 						.action_({
 							var mtx;
+
 							mtx = evalTxtView.string.interpret;
-							(
-								mtx.isKindOf(Matrix) or: { mtx.isKindOf(FoaXformerMatrix) }
-							).if({
+							if((mtx.isKindOf(Matrix) or: { mtx.isKindOf(FoaXformerMatrix) }), {
 								this.prUpdateMatrix(mtx)
 							}, {
 								warn("code did not return a Matrix or FoaXformerMatrix")
-							});
+							})
 						}),
 						Button().states_([["Reset"]])
 						.action_({ evalTxtView.string = evalMtxString }),
@@ -1045,164 +1057,173 @@ FoaXformDisplay {
 				)
 			)
 		}, {
-			evalTxtView.string = postCurrentMatrix.if({
+			evalTxtView.string = if(postCurrentMatrix, {
 				postMtxString
 			}, {
 				evalMtxString
-			});
-		});
+			})
+		})
 	}
 
 
 	update {
 		| who, what ... args |
 
-		(who == chain).if{
+		if(who == chain, {
 			switch(what,
 				\chainAdded, {
 					var index;
+
 					index = args[0];
 					// postf("responding to \chainAdded: %\n", index);
-					this.addChainView(index);
+					this.addChainView(index)
 				},
 				\chainRemoved, {
 					var index;
+
 					index = args[0];
 					// postf("responding to \chainRemoved: %\n", index);
 					this.removeChainView(index);
-					this.prUpdateMatrix('chain');
+					this.prUpdateMatrix(\chain)
 				},
 				\transformAdded, {
 					var xformName, whichChain, index;
+
 					#xformName, whichChain, index = args[0..2];
 					this.createNewXForm(whichChain, index);
 					this.prUpdateInputMenus;
-					this.prUpdateMatrix('chain');
+					this.prUpdateMatrix(\chain)
 				},
 				\transformRemoved, {
 					{
 						var whichChain, index;
+
 						#whichChain, index = args[0..1];
 						this.prRemoveXForm(whichChain, index);
 						0.02.wait; // for some reason needs time to remove
 						this.prUpdateInputMenus;
-						this.prUpdateMatrix('chain');
+						this.prUpdateMatrix(\chain)
 					}.fork(clock: AppClock)
 				},
 				\transformReplaced, {
 					var whichChain, index, newXformName;
+
 					#newXformName, whichChain, index = args[0..2];
 					xfViewChains[whichChain][index].rebuildControls;
-					this.prUpdateMatrix('chain');
+					this.prUpdateMatrix(\chain)
 				},
 				\transformMuted, {
 					var whichChain, index, bool;
+
 					#whichChain, index, bool = args[0..2];
-					this.prUpdateMatrix('chain');
+					this.prUpdateMatrix(\chain);
 					xfViewChains[whichChain][index].muteState(bool); // update UI with muted state
 
 					// if another xf is soloed, re-perform the solo
 					// in case this un-mute changes its color
 					// downstream from a soloed xf
-					block { |break|
-						xfViewChains[..whichChain].do{ |vchain, i|
-							(i < whichChain).if({					// check all xf's in the chain
-								vchain.do{ |xfv, j|
-									chain.chains[i][j].soloed.if{
+					block({ |break|
+						xfViewChains[..whichChain].do({ |vchain, i|
+							if(i < whichChain, {					// check all xf's in the chain
+								vchain.do({ |xfv, j|
+									if(chain.chains[i][j].soloed, {
 										xfViewChains[whichChain][index].updateStateColors(true);
-										break.();
-									}
-								}
+										break.()
+									})
+								})
 							}, {
 								// same chain as the un-muted xf, check only the xf's up to this index
-								vchain[..index].do{ |xfv, j|
-									chain.chains[i][j].soloed.if{
-										(j != index).if{			// only re-"mute" color if this isn't the soloed xf
-											xfViewChains[whichChain][index].updateStateColors(true);
-										};
-										break.();
-									}
-								}
+								vchain[..index].do({ |xfv, j|
+									if(chain.chains[i][j].soloed, {
+										if(j != index, {			// only re-"mute" color if this isn't the soloed xf
+											xfViewChains[whichChain][index].updateStateColors(true)
+										});
+										break.()
+									})
+								})
 							})
-						}
-					}
+						})
+					})
 				},
 				\transformSoloed, {
 					var whichChain, index, bool, unmuting, chainDex;
+
 					#whichChain, index, bool = args[0..2];
-					this.prUpdateMatrix('chain');
+					this.prUpdateMatrix(\chain);
 					unmuting = bool.not;
 					xfViewChains[whichChain][index].soloState(bool); // update UI with soloed state
 
 					// mute the colors of the UI for every link after this one
-					xfViewChains[whichChain..].do{ |vchain, i|
+					xfViewChains[whichChain..].do({ |vchain, i|
 						chainDex = whichChain + i;
-						vchain.do{ |xfv, j|
-							(i == 0).if({
-								(j > index and: {
+						vchain.do({ |xfv, j|
+							if(i == 0, {
+								if((j > index and: {
 									bool or: {
 										unmuting and: {
 											// don't unmute colors if xform state is .muted
 											chain.chains[chainDex][j].muted.not
 										}
 									}
-								}).if{
+								}), {
 									xfv.updateStateColors(bool)
-								}
+								})
 							}, {
-								(bool or: {
+								if((bool or: {
 									unmuting and: {
 										// don't unmute colors if xform state is .muted
 										chain.chains[chainDex][j].muted.not
 									}
-								}).if{
+								}), {
 									xfv.updateStateColors(bool)
-								}
+								})
 							})
-						}
-					};
+						})
+					})
 				},
 				\paramUpdated, {
-					this.prUpdateMatrix('chain');
+					this.prUpdateMatrix(\chain)
 				}
-			);
-		};
+			)
+		});
 
-		(who == displayChain).if{
+		if(who == displayChain, {
 			switch(what,
 				\transformReplaced, {
 					var whichChain, index, newXformName;
+
 					#newXformName, whichChain, index = args[0..2];
 					displayXFormView.rebuildControls;
-					this.prUpdateMatrix('display');
+					this.prUpdateMatrix(\display)
 				},
 				\paramUpdated, {
-					this.prUpdateMatrix('display');
+					this.prUpdateMatrix(\display)
 				}
-			);
-		};
+			)
+		});
 
-		(who == audition).if{
+		if(who == audition, {
 			switch(what,
 				\pwAzim, {
 					var state = args[0]; // can be a number of bool
+
 					(state == false).if({
 						pwPlaying = false
 					}, {
 						pwAzim = state
 					});
-					defer { pv.refresh };
+					defer({ pv.refresh })
 				},
 				\pwSynthRunning, {
 					pwPlaying = args[0];
-					defer { uv.refresh };
+					defer({ uv.refresh })
 				},
 				\closed, {
 					pwPlaying = false;
 					audition.removeDependant(this);
-					defer { uv.refresh };
+					defer({ uv.refresh })
 				}
-			);
-		};
+			)
+		})
 	}
 }

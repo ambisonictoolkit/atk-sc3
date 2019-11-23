@@ -73,11 +73,11 @@ AtkMatrix {
 	Add a warning against calling directly.
 	*/
 	init { |argOrder|
-		(this.set == \FOA).if({
-			order = 1;
+		if(this.set == \FOA, {
+			order = 1
 		}, {
 			// resolve HOA
-			order = argOrder ?? { AtkHoa.defaultOrder };
+			order = argOrder ?? { AtkHoa.defaultOrder }
 		})
 	}
 
@@ -92,112 +92,117 @@ AtkMatrix {
 
 		pn = PathName(fileNameOrPath);
 
-		PathName(pn.parentPath).isFolder.not.if{ // check for an enclosing folder
+		if(PathName(pn.parentPath).isFolder.not, { // check for an enclosing folder
 			// ... no enclosing folder found so assumed
 			// to be relative to extensions/matrices/'type' directory
 
 			Atk.checkSet(this.set);
 
 			// This is only needed for relative file paths in user-matrices directory
-			['encoder', 'decoder', 'xformer'].includes(this.type).not.if{
+			if([\encoder, \decoder, \xformer].includes(this.type).not, {
 				Error(
 					"'type' argument must be 'encoder', 'decoder', or 'xformer'"
 				).errorString.postln;
-				this.halt;
-			};
+				this.halt
+			});
 
-			case
-			{ pn.colonIndices.size == 0 } {
-				// only filename provided, write to dir matching 'type'
-				pn = Atk.getMatrixExtensionSubPath(this.set, this.type) +/+ pn;
-			}
-			{ pn.colonIndices.size > 0 } {
-				// relative path given, look for it
-				mtxPath = Atk.getMatrixExtensionSubPath(this.set, this.type);
-				relPath = (mtxPath +/+ PathName(pn.parentPath));
-				relPath.isFolder.if({
-					// valid relative path confirmed
-					pn = mtxPath +/+ pn;
-				}, {
-					Error(
-						format(
-							"Specified relative folder path was not found in %\n",
-							relPath.fullPath
-						)
-					).errorString.postln;
-					this.halt;
-				})
-			};
-		}; // otherwise, provided path is absolute
+			case(
+				{ pn.colonIndices.size == 0 }, {
+					// only filename provided, write to dir matching 'type'
+					pn = Atk.getMatrixExtensionSubPath(this.set, this.type) +/+ pn
+				},
+				{ pn.colonIndices.size > 0 }, {
+					// relative path given, look for it
+					mtxPath = Atk.getMatrixExtensionSubPath(this.set, this.type);
+					relPath = (mtxPath +/+ PathName(pn.parentPath));
+					if(relPath.isFolder, {
+						// valid relative path confirmed
+						pn = mtxPath +/+ pn
+					}, {
+						Error(
+							format(
+								"Specified relative folder path was not found in %\n",
+								relPath.fullPath
+							)
+						).errorString.postln;
+						this.halt
+					})
+				}
+			)
+		}); // otherwise, provided path is absolute
 
 		ext = pn.extension;
-		(ext == "").if{ pn = pn +/+ PathName(".yml") };
+		(ext == "").if({ pn = pn +/+ PathName(".yml") });
 
-		overwrite.not.if{
-			pn.isFile.if{
+		if(overwrite.not, {
+			if(pn.isFile, {
 				Error(
 					format(
 						"File already exists:\n\t%\nChoose another name or location, "
 						"or set overwrite: true", pn.fullPath
 					)
 				).errorString.postln;
-				this.halt;
-			}
-		};
-
-		case
-		{ ext == "txt" } {
-			pn.fileName.contains(".mosl").if({
-				this.prWriteMatrixToMOSL(pn)
-			}, {
-				this.prWriteMatrixToTXT(pn)
+				this.halt
 			})
-		}
-		{ ext == "yml" } { this.prWriteMatrixToYML(pn, note, attributeDictionary) }
-		{	// catch all
-			Error(
-				"Invalid file extension: provide '.txt' for writing matrix only, "
-				"or '.yml' or no extension to write matrix with metadata (as YAML)"
-			).errorString.postln;
-			this.halt;
-		};
+		});
+
+		case(
+			{ ext == "txt" }, {
+				if(pn.fileName.contains(".mosl"), {
+					this.prWriteMatrixToMOSL(pn)
+				}, {
+					this.prWriteMatrixToTXT(pn)
+				})
+			},
+			{ ext == "yml" }, { this.prWriteMatrixToYML(pn, note, attributeDictionary) },
+			{	// catch all
+				Error(
+					"Invalid file extension: provide '.txt' for writing matrix only, "
+					"or '.yml' or no extension to write matrix with metadata (as YAML)"
+				).errorString.postln;
+				this.halt
+			}
+		)
 	}
 
 
 	prWriteMatrixToTXT { |pn| // a PathName
 		var wr;
+
 		wr = FileWriter(pn.fullPath);
 		// write the matrix into it by row, and close
-		matrix.rows.do{ |i| wr.writeLine(matrix.getRow(i)) };
+		(this.matrix.rows).do({ |i| wr.writeLine(this.matrix.getRow(i)) });
 		wr.close;
 	}
 
 	prWriteMatrixToMOSL { |pn| // a PathName
 		var wr;
+
 		wr = FileWriter(pn.fullPath);
 
 		// write num rows and cols to first 2 lines
 		wr.writeLine(["// Dimensions: rows, columns"]);
-		wr.writeLine(matrix.rows.asArray);
-		wr.writeLine(matrix.cols.asArray);
+		wr.writeLine(this.matrix.rows.asArray);
+		wr.writeLine(this.matrix.cols.asArray);
 		// write the matrix into it by row, and close
-		matrix.rows.do{ |i|
+		(this.matrix.rows).do({ |i|
 			var row;
+
 			wr.writeLine([""]); // blank line
 			wr.writeLine([format("// Row %", i)]);
 
-			row = matrix.getRow(i);
-			row.do{ |j| wr.writeLine(j.asArray) };
-		};
+			row = this.matrix.getRow(i);
+			row.do({ |j| wr.writeLine(j.asArray) })
+		});
 		wr.close;
 	}
 
 	// separate YML writer for FOA & HOA
 	// prWriteMatrixToYML
 
-	fileName { ^try { PathName(filePath).fileName } }
+	fileName { ^try({ PathName(this.filePath).fileName }) }
 
-	asArray { ^matrix.asArray }
+	asArray { ^this.matrix.asArray }
 
 	// ---------
 	// return info
@@ -217,12 +222,12 @@ AtkMatrix {
 
 	op { ^\matrix }
 
-	numInputs { ^matrix.cols }
+	numInputs { ^this.matrix.cols }
 
-	numOutputs { ^matrix.rows }
+	numOutputs { ^this.matrix.rows }
 
 	printOn { |stream|
-		stream << this.class.name << "(" <<* [kind, this.dim, this.numChannels] <<")";
+		stream << this.class.name << "(" <<* [this.kind, this.dim, this.numChannels] <<")";
 	}
 
 	// post readable matrix information
@@ -231,32 +236,32 @@ AtkMatrix {
 
 		// gather attributes in order of posting
 		attributes = List.with(\set, \kind, \dim);
-		this.isKindOf(FoaDecoderMatrix).if{
+		if(this.isKindOf(FoaDecoderMatrix), {
 			attributes.add(\shelfK).add(\shelfFreq)
-		};
+		});
 
 		// other non-standard metadata provided in yml file
 		fileParse !? {
-			fileParse.keys.do{ |key|
-				attributes.includes(key.asSymbol).not.if{
-					attributes.add(key.asSymbol);
-				}
-			}
+			(fileParse.keys).do({ |key|
+				if(attributes.includes(key.asSymbol).not, {
+					attributes.add(key.asSymbol)
+				})
+			})
 		};
 
-		// bump 'type' to the top of the post...
-		attributes.includes(\type).if{ attributes.remove(\type) };
+		// bump \type to the top of the post...
+		if(attributes.includes(\type), { attributes.remove(\type) });
 		attributes.addFirst(\type);
 
-		// ... then bump 'set' to the top of the post
-		attributes.includes(\set).if{ attributes.remove(\set) };
+		// ... then bump \set to the top of the post
+		if(attributes.includes(\set), { attributes.remove(\set) });
 		attributes.addFirst(\set);
 
 		// bump to the bottom of the post
-		[\dirInputs, \dirOutputs, \matrix].do{ |att|
-			attributes.includes(att).if{ attributes.remove(att) };
-			attributes.add(att);
-		};
+		[\dirInputs, \dirOutputs, \matrix].do({ |att|
+			if(attributes.includes(att), { attributes.remove(att) });
+			attributes.add(att)
+		});
 
 		filePath !? { attributes.add(\fileName).add(\filePath) };
 
@@ -265,40 +270,43 @@ AtkMatrix {
 
 		postf("\n*** % Info ***\n", this.class);
 
-		attributes.do{ |attribute|
+		attributes.do({ |attribute|
 			var value, str;
 
 			value = this.tryPerform(attribute);
 
-			(value.isNil and: fileParse.notNil).if{
+			if((value.isNil and: fileParse.notNil), {
 				value = fileParse[attribute] // this can still return nil
-			};
+			});
 
-			value.isKindOf(Array).if({
+			if(value.isKindOf(Array), {
 				value = value.asArray; // cast the Matrix to array for posting
-				(value.rank > 1).if({
+
+				if((value.rank > 1), {
 					postf("-> %\n  [\n", attribute);
-					value.do{ |elem|
+					value.do({ |elem|
 						postf("\t%\n",
-							try {
-								elem.round(0.0001).collect({ |num|
+							try({
+								(elem.round(0.0001)).collect({ |num|
 									str = num.asString.padRight(
-										num.isPositive.if({ 6 }, { 7 }),
+										if(num.isPositive, { 6 }, { 7 }),
 										"0"
 									);
 									str.padLeft(7, " ")
 								})
-							} { elem }
+							}, {
+								elem
+							})
 						)
-					};
-					"  ]".postln;
+					});
+					"  ]".postln
 				}, {
-					postf("-> %\n\t%\n", attribute, value);
+					postf("-> %\n\t%\n", attribute, value)
 				})
 			}, {
-				postf("-> %\n\t%\n", attribute, value);
-			});
-		};
+				postf("-> %\n\t%\n", attribute, value)
+			})
+		})
 	}
 
 }

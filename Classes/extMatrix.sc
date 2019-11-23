@@ -68,25 +68,25 @@
 	*with { |array| // return matrix from 2D array (array of rows)
 		var shapes, shapeTest, numTest, rows;
 
-		shapes = array.asArray.collect(_.shape).flatten;
+		shapes = (array.asArray).collect(_.shape).flatten;
 
 		shapeTest = shapes.every(_ == shapes[0]);
 		numTest = array.flatten.every(_.isNumber);
 
-		(shapeTest and: numTest).if({
+		if((shapeTest and: numTest), {
 			rows = array.size;
-			^super.fill(rows, { |col| array.at(col) });
+			^super.fill(rows, { |col| array[col] })
 			}, {
 				error("wrong type of argument in Meta_Matrix-with");this.halt
-		});
+		})
 	}
 
 	rowsDo { |func|
-		this.rows.do{ |row, ri| func.(this.getRow(row), ri) }
+		(this.rows).do({ |row, ri| func.(this.getRow(row), ri) })
 	}
 
 	colsDo { |func|
-		this.cols.do{ |col, ci| func.(this.getCol(col), ci) }
+		(this.cols).do({ |col, ci| func.(this.getCol(col), ci) })
 	}
 
 	// return a sub matrix
@@ -99,20 +99,20 @@
 		width = rowLength ?? { maxw };
 		height = colHeight ?? { maxh };
 
-		((width > maxw) or: (height > maxh)).if{
+		if(((width > maxw) or: (height > maxh)), {
 			format("dimensions of requested sub-matrix exceed bounds: "
 				"you asked for %x%, remaining space after starting index is %x%",
 				rowLength, colHeight, maxw, maxh
 			).throw
-		};
+		});
 
 		mtx = Matrix.newClear(height, width);
 
-		(colStart..colStart + height - 1).do{ |row, i|
+		(colStart..colStart + height - 1).do({ |row, i|
 			mtx.putRow(i,
 				this.getRow(row).drop(rowStart).keep(width)
-			);
-		};
+			)
+		});
 
 		^mtx
 	}
@@ -126,7 +126,7 @@
 
 		pmtx.rowsDo({ |rowArray, i|
 			rowArray.collect({ |item| item.asString.padLeft(maxstrlen) }).postln;
-			"".postln; // space it out vertically
+			"".postln // space it out vertically
 		})
 	}
 
@@ -138,12 +138,12 @@
 				this.put(
 					ri,
 					ci,
-					(item.abs <= within).if({
-						item.isInteger.if({  // there could be more cases...
-								0
-							}, {
-								0.0
-							})
+					if(item.abs <= within, {
+						if(item.isInteger, {  // there could be more cases...
+							0
+						}, {
+							0.0
+						})
 					}, {
 						item
 					})

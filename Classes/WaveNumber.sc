@@ -119,14 +119,15 @@ WaveNumber {
 		var r0 = radius;
 		var nearZero = 1e-08;
 
-		(this.waveNumber.abs <= nearZero).if({
-			^Array.with(Complex.new(1, 0)) ++ m.collect({ |k|
+		^if(this.waveNumber.abs <= nearZero, {
+			Array.with(Complex.new(1, 0)) ++ m.collect({ |k|
 				Complex.new(-inf.pow(((k + 1) / 2).floor), -inf.pow(((k + 2) / 2).floor))
 			})
 		}, {
-			^(m + 1).collect({ |j|
+			(m + 1).collect({ |j|
 				(j + 1).collect({ |k|
 					var fact;
+
 					fact = (j + k).asFloat.factorial / ((j - k).asFloat.factorial * k.asFloat.factorial);
 					fact * Complex.new(0, -1 / (2 * this.waveNumber * r0)).pow(k)
 				}).sum
@@ -140,12 +141,13 @@ WaveNumber {
 		var r1 = radius;
 		var nearZero = 1e-08;
 
-		(this.waveNumber.abs <= nearZero).if({
-			^Array.with(Complex.new(1, 0)) ++ m.collect({ Complex.new(0, 0) })
+		^if(this.waveNumber.abs <= nearZero, {
+			Array.with(Complex.new(1, 0)) ++ m.collect({ Complex.new(0, 0) })
 		}, {
-			^(m + 1).collect({ |j|
+			(m + 1).collect({ |j|
 				(j + 1).collect({ |k|
 					var fact;
+
 					fact = (j + k).asFloat.factorial / ((j - k).asFloat.factorial * k.asFloat.factorial);
 					fact * Complex.new(0, -1 / (2 * this.waveNumber * r1)).pow(k)
 				}).sum.reciprocal
@@ -160,18 +162,20 @@ WaveNumber {
 		var r1 = decRadius;
 		var nearZero = 1e-08;
 
-		(this.waveNumber.abs <= nearZero).if({
-			^(m + 1).collect({ |k|
+		^if(this.waveNumber.abs <= nearZero, {
+			(m + 1).collect({ |k|
 				Complex.new((r1 / r0).pow(k), 0)
 			})
 		}, {
-			^(m + 1).collect({ |j|
+			(m + 1).collect({ |j|
 				((j + 1).collect({ |k|
 					var fact;
+
 					fact = (j + k).asFloat.factorial / ((j - k).asFloat.factorial * k.asFloat.factorial);
 					fact * Complex.new(0, -1 / (2 * this.waveNumber * r0)).pow(k)
 				}).sum) / ((j + 1).collect({ |k|
 					var fact;
+
 					fact = (j + k).asFloat.factorial / ((j - k).asFloat.factorial * k.asFloat.factorial);
 					fact * Complex.new(0, -1 / (2 * this.waveNumber * r1)).pow(k)
 				}).sum)

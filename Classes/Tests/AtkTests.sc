@@ -75,13 +75,15 @@ AtkTests {
 	// orientation:  tetrahedral orientation for \tetra group
 	// numDirs:      number of directions to return in the case the
 	//               group doesn't inherently determine the number (e.g. random directions)
-	*getDirs { |group = \tetra, orientation = 'flu', numDirs = 25|
+	*getDirs { |group = \tetra, orientation = \flu, numDirs = 25|
 
 		^switch(group,
-			\axis, { [ // axis directions
-				[0, 0], [pi/2, 0], [0, pi/2],      // +X, +Y, +Z
-				[pi/2, 0], [-pi/2, 0], [0, -pi/2]  // -X, -Y, -Z
-			] },
+			\axis, {  // axis directions
+				[
+					[0, 0], [pi/2, 0], [0, pi/2],      // +X, +Y, +Z
+					[pi/2, 0], [-pi/2, 0], [0, -pi/2]  // -X, -Y, -Z
+				]
+			},
 			\tetra, { // tetrahedral directions
 				FoaDecoderMatrix.newBtoA(orientation).dirOutputs
 			},
@@ -93,8 +95,8 @@ AtkTests {
 				})
 			},
 			\random, { // random directions
-				numDirs.collect{ [rrand(-2pi, 2pi), rrand(-2pi, 2pi)] }
+				numDirs.collect({ [rrand(-2pi, 2pi), rrand(-2pi, 2pi)] })
 			}
-		);
+		)
 	}
 }

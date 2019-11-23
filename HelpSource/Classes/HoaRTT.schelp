@@ -76,44 +76,44 @@ s.scope(~order.asHoaOrder.size, ~outbus);
 // audition
 (
 {
-    // saw params
-    var freq = 110.0;
-    var gain = -12;
+	// saw params
+	var freq = 110.0;
+	var gain = -12;
 
-    // azimuth & elevation
-    var theta = 0.0;
-    var phi = 0.0;
-    var rotateRate = 0.25;
+	// azimuth & elevation
+	var theta = 0.0;
+	var phi = 0.0;
+	var rotateRate = 0.25;
 
-    // radius
-    // var radius = 1.0;  // inside reference radius
-    var radius = 1.5;  // at reference radius
-    // var radius = 2.0;  // beyond reference radius
+	// radius
+	// var radius = 1.0;  // inside reference radius
+	var radius = 1.5;  // at reference radius
+	// var radius = 2.0;  // beyond reference radius
 
-    // signals
-    var sig;
-    var sigHoa;
-    var sigHoaRot;
+	// signals
+	var sig;
+	var sigHoa;
+	var sigHoaRot;
 	var rtt;
 
-    sig = Saw.ar(freq, gain.dbamp);
+	sig = Saw.ar(freq, gain.dbamp);
 
 	rtt = LFSaw.kr(LFNoise2.kr(1.dup(3)).range(0.75 * rotateRate, 1.25 * rotateRate), mul: pi);
 
-    // encode
-    sigHoa = HoaEncodeDirection.ar(sig, theta, phi, radius, ~order);
+	// encode
+	sigHoa = HoaEncodeDirection.ar(sig, theta, phi, radius, ~order);
 
-    // rotate
-    sigHoaRot = HoaRTT.ar(
-        sigHoa,
-		rtt.at(0),
-		rtt.at(1),
-		rtt.at(2),
-        ~order
-    );
+	// rotate
+	sigHoaRot = HoaRTT.ar(
+		sigHoa,
+		rtt[0],
+		rtt[1],
+		rtt[2],
+		~order
+	);
 
-    // out
-    sigHoaRot
+	// out
+	sigHoaRot
 }.play(outbus: ~outbus)
 )
 

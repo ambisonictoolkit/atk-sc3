@@ -55,6 +55,7 @@ TestNumberForHoa : UnitTest {
 
 	test_sphericalHarmonic {
 		var t;
+
 		t = sphericalHarmonic(3, 2, 30.degrad, 15.degrad);
 
 		this.assert(t.isKindOf(Complex),

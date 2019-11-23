@@ -14,7 +14,7 @@ METHOD:: ar
 ARGUMENT:: in
 The input signal.
 
-ARGUMENT:: radians
+ARGUMENT:: angle
 Rotation angle, in radians.
 
 ARGUMENT:: order

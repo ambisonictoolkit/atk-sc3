@@ -45,23 +45,23 @@ subsection:: Monophonic to FOA
 code::
 // hand code a mono signal to a planewave in B-format
 (
-{ 
-    var matrix;
-    var sig;
+	{
+	var matrix;
+	var sig;
 
-    // define encoding matrix
-    matrix = Matrix.with([
-        [ 2.sqrt.reciprocal ],
-        [ 1 ],
-        [ 0 ],
-        [ 0 ]
-    ]);
+	// define encoding matrix
+	matrix = Matrix.with([
+		[ 2.sqrt.reciprocal ],
+		[ 1 ],
+		[ 0 ],
+		[ 0 ]
+	]);
 
-    // pink noise
-    sig = PinkNoise.ar;
+	// pink noise
+	sig = PinkNoise.ar;
 
-    // encode
-    AtkMatrixMix.ar(sig, matrix);
+	// encode
+	AtkMatrixMix.ar(sig, matrix);
 }.scope
 )
 ::
@@ -70,23 +70,23 @@ subsection:: Stereophonic to FOA
 code::
 // hand code a stereo signal to a +/-45deg in B-format
 (
-{ 
-    var matrix;
-    var sig;
+{
+	var matrix;
+	var sig;
 
-    // define encoding matrix
-    matrix = Matrix.with([
-        [ 2.sqrt.reciprocal, 2.sqrt.reciprocal ],
-        [ 2.sqrt.reciprocal, 2.sqrt.reciprocal ],
-        [ 2.sqrt.reciprocal, 2.sqrt.reciprocal.neg ],
-        [ 0,                 0 ]
-    ]);
+	// define encoding matrix
+	matrix = Matrix.with([
+		[ 2.sqrt.reciprocal, 2.sqrt.reciprocal ],
+		[ 2.sqrt.reciprocal, 2.sqrt.reciprocal ],
+		[ 2.sqrt.reciprocal, 2.sqrt.reciprocal.neg ],
+		[ 0, 0 ]
+	]);
 
-    // pink noise
-    sig = PinkNoise.ar([1, 1]);
+	// pink noise
+	sig = PinkNoise.ar([1, 1]);
 
-    // encode
-    AtkMatrixMix.ar(sig, matrix);
+	// encode
+	AtkMatrixMix.ar(sig, matrix);
 }.scope
 )
 ::

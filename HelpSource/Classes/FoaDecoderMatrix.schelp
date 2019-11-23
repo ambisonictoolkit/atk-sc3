@@ -306,45 +306,45 @@ code::
 
 (
 {
-    var sig;                            // audio signal
-    var azim;                    	// azimuth control
-    var fl, bl, br, fr;                 // quad output channels
-    var delaytime, decaytime;		// allpass parameters
+	var sig;                            // audio signal
+	var azim;                    	// azimuth control
+	var fl, bl, br, fr;                 // quad output channels
+	var delaytime, decaytime;		// allpass parameters
 
 
-    // display decoder
-    "Ambisonic decoding via % decoder".format(~decoder.kind).postln;
+	// display decoder
+	"Ambisonic decoding via % decoder".format(~decoder.kind).postln;
 
-    // ------------------------------------------------------------
-    // parameters
-    delaytime = 0.1;
-    decaytime = 0.2;
+	// ------------------------------------------------------------
+	// parameters
+	delaytime = 0.1;
+	decaytime = 0.2;
 
-    // azimuth -> hard left     = back
-    //            centre        = centre
-    //            hard right    = back
-    azim = MouseX.kr(pi, -pi);
+	// azimuth -> hard left     = back
+	//            centre        = centre
+	//            hard right    = back
+	azim = MouseX.kr(pi, -pi);
 
-    // ------------------------------------------------------------
-    // test sig
-    sig = PinkNoise.ar * LFPulse.ar(2.0); // enveloped mono pink noise
-
-
-    // ------------------------------------------------------------
-    // encode to b-format
-    sig = FoaPanB.ar(sig, azim);
-
-    // ------------------------------------------------------------
-    // b-to-a --> allpass --> a-to-b
-    sig = FoaDecode.ar(sig, ~b2a);
-    sig = AllpassN.ar(sig, delaytime, Array.fill(4, {delaytime}).rand, decaytime);
-    sig = FoaEncode.ar(sig, ~a2b);
+	// ------------------------------------------------------------
+	// test sig
+	sig = PinkNoise.ar * LFPulse.ar(2.0); // enveloped mono pink noise
 
 
-    // ------------------------------------------------------------
-    // decode (to quad)
-    #fl, bl, br, fr = FoaDecode.ar(sig, ~decoder);
-    [fl, fr, bl, br]    // reorder output to match speaker arrangement
+	// ------------------------------------------------------------
+	// encode to b-format
+	sig = FoaPanB.ar(sig, azim);
+
+	// ------------------------------------------------------------
+	// b-to-a --> allpass --> a-to-b
+	sig = FoaDecode.ar(sig, ~b2a);
+	sig = AllpassN.ar(sig, delaytime, Array.fill(4, {delaytime}).rand, decaytime);
+	sig = FoaEncode.ar(sig, ~a2b);
+
+
+	// ------------------------------------------------------------
+	// decode (to quad)
+	#fl, bl, br, fr = FoaDecode.ar(sig, ~decoder);
+	[fl, fr, bl, br]    // reorder output to match speaker arrangement
 
 }.scope;
 )

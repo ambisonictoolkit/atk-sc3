@@ -105,7 +105,7 @@ FoaSpeakerMatrix {
 			},
 			2, { positions = Matrix.with(			// 3D
 					directions.collect({ |item|
-						Spherical.new(1, item.at(0), item.at(1)).asCartesian.asArray
+						Spherical.new(1, item[0], item[1]).asCartesian.asArray
 					})
 				)
 			}
@@ -173,7 +173,6 @@ FoaSpeakerMatrix {
 
 
 FoaMatrix : AtkMatrix {
-
 	var <>dirChannels;  // setter added for matrix-to-file & file-to-matrix support
 
 	// most typically called by subclass
@@ -182,7 +181,7 @@ FoaMatrix : AtkMatrix {
 	}
 
 	*newFromMatrix { |matrix, directions|
-		^super.new('fromMatrix').initFromMatrix(matrix, directions)
+		^super.new(\fromMatrix).initFromMatrix(matrix, directions)
 	}
 
 	initFromMatrix { |aMatrix, argDirections|
@@ -196,7 +195,7 @@ FoaMatrix : AtkMatrix {
 		dirChannels = argDirections;
 
 		// 1) Check: matrix numChannels == directions.size
-		(this.numChannels != this.dirChannels.size).if{
+		if(this.numChannels != this.dirChannels.size, {
 			Error(
 				format(
 					"[%:-initFromMatrix] Matrix number of channels "
@@ -204,16 +203,16 @@ FoaMatrix : AtkMatrix {
 					this.class.asString, this.numChannels, this.dirChannels.size
 				)
 			).errorString.postln;
-			this.halt;
-		};
+			this.halt
+		});
 
 		// 2) Check: matrix numCoeffs == 3 || 4, is it a valid 2D or 3D FOA matrix?
 		numCoeffs = switch(this.type,
-			'encoder', { matrix.rows },
-			'decoder', { matrix.cols },
-			'xformer', { matrix.rows },
+			\encoder, { matrix.rows },
+			\decoder, { matrix.cols },
+			\xformer, { matrix.rows }
 		);
-		(numCoeffs == 3 or: { numCoeffs == 4 }).not.if{
+		if((numCoeffs == 3 or: { numCoeffs == 4 }).not, {
 			Error(
 				format(
 					"[%:-initFromMatrix] Matrix coefficient size invalid for FOA."
@@ -221,17 +220,17 @@ FoaMatrix : AtkMatrix {
 					this.class.asString, numCoeffs
 				)
 			).errorString.postln;
-			this.halt;
-		};
+			this.halt
+		});
 
 		// 3) Check: matrix dim against dirChannels dim
 		numCoeffsDim = numCoeffs - 1;
-		dirChannelsDim = (this.type == \xformer).if({
+		dirChannelsDim = if(this.type == \xformer, {
 			this.dim  // exception required for \xformer, as dirChannels = nil
 		}, {
-			this.dirChannels.rank + 1;
+			this.dirChannels.rank + 1
 		});
-		(numCoeffsDim != dirChannelsDim).if{
+		if(numCoeffsDim != dirChannelsDim, {
 			Error(
 				format(
 					"[%:-initFromMatrix] Detected matrix and specified directions "
@@ -239,11 +238,11 @@ FoaMatrix : AtkMatrix {
 					this.class.asString, numCoeffsDim, dirChannelsDim
 				)
 			).errorString.postln;
-			this.halt;
-		};
+			this.halt
+		});
 
 		// 4) Check: xformer is square matrix
-		(this.type == 'xformer' and: { matrix.isSquare.not }).if{
+		if((this.type == \xformer and: { matrix.isSquare.not }), {
 			Error(
 				format(
 					"[%:-initFromMatrix] An 'xformer' matrix "
@@ -251,8 +250,8 @@ FoaMatrix : AtkMatrix {
 					this.class.asString, matrix.rows, matrix.cols
 				)
 			).errorString.postln;
-			this.halt;
-		}
+			this.halt
+		})
 	}
 
 	initFromFile { |filePathOrName, mtxType, searchExtensions = false|
@@ -269,61 +268,62 @@ FoaMatrix : AtkMatrix {
 		// instance var
 		filePath = pn.fullPath;
 
-		case
-		{ pn.extension == "txt" } {
-			matrix = pn.fileName.contains(".mosl").if({
-				// .mosl.txt file: expected to be matrix only,
-				// single values on each line, by rows
-				Matrix.with(this.prParseMOSL(pn));
-			}, {
-				// .txt file: expected to be matrix only, cols
-				// separated by spaces, rows by newlines
-				Matrix.with(FileReader.read(filePath).asFloat);
-			});
+		case(
+			{ pn.extension == "txt" }, {
+				matrix = if(pn.fileName.contains(".mosl"), {
+					// .mosl.txt file: expected to be matrix only,
+					// single values on each line, by rows
+					Matrix.with(this.prParseMOSL(pn));
+				}, {
+					// .txt file: expected to be matrix only, cols
+					// separated by spaces, rows by newlines
+					Matrix.with(FileReader.read(filePath).asFloat);
+				});
 
-			kind = pn.fileName.asSymbol; // kind defaults to filename
-		}
-		{ pn.extension == "yml" } {
-			dict = filePath.parseYAMLFile;
-			fileParse = IdentityDictionary(know: true);
+				kind = pn.fileName.asSymbol // kind defaults to filename
+			},
+			{ pn.extension == "yml" }, {
+				dict = filePath.parseYAMLFile;
+				fileParse = IdentityDictionary(know: true);
 
-			// replace String keys with Symbol keys, make "knowable"
-			dict.keysValuesDo{ |k, v|
-				fileParse.put(k.asSymbol,
-					(v == "nil").if({ nil }, { v }) // so .info parsing doesn't see nil as array
-				)
-			};
-
-			fileParse[\type].isNil.if({
-				"Matrix 'type' is undefined in the .yml file: cannot confirm the "
-				"type matches the loaded object (encoder/decoder/xformer)".warn
-			}, {
-				(fileParse[\type].asSymbol != mtxType.asSymbol).if{
-					Error(
-						format(
-							"[%:-initFromFile] Matrix 'type' defined in the .yml file (%) doesn't match "
-							"the type of matrix you're trying to load (%)",
-							this.class.asString, fileParse[\type], mtxType
-						).errorString.postln;
-						this.halt
+				// replace String keys with Symbol keys, make "knowable"
+				dict.keysValuesDo{ |k, v|
+					fileParse.put(k.asSymbol,
+						(v == "nil").if({ nil }, { v }) // so .info parsing doesn't see nil as array
 					)
-				}
-			});
+				};
 
-			matrix = Matrix.with(fileParse.matrix.asFloat);
+				if(fileParse[\type].isNil, {
+					"Matrix 'type' is undefined in the .yml file: cannot confirm the "
+					"type matches the loaded object (encoder/decoder/xformer)".warn
+				}, {
+					if((fileParse[\type].asSymbol != mtxType.asSymbol), {
+						Error(
+							format(
+								"[%:-initFromFile] Matrix 'type' defined in the .yml file (%) doesn't match "
+								"the type of matrix you're trying to load (%)",
+								this.class.asString, fileParse[\type], mtxType
+							).errorString.postln;
+							this.halt
+						)
+					})
+				});
 
-			kind = fileParse.kind.notNil.if({
-				fileParse.kind.asSymbol
-			}, {
-				pn.fileNameWithoutExtension.asSymbol
-			});
-		}
-		{ // catch all
-			Error(
-				"[%:-initFromFile] Unsupported file extension.".format(this.class.asString)
-			).errorString.postln;
-			this.halt;
-		};
+				matrix = Matrix.with(fileParse.matrix.asFloat);
+
+				kind = if(fileParse.kind.notNil, {
+					fileParse.kind.asSymbol
+				}, {
+					pn.fileNameWithoutExtension.asSymbol
+				})
+			},
+			{ // catch all
+				Error(
+					"[%:-initFromFile] Unsupported file extension.".format(this.class.asString)
+				).errorString.postln;
+				this.halt
+			}
+		)
 	}
 
 	// separate YML writer for FOA
@@ -341,24 +341,25 @@ FoaMatrix : AtkMatrix {
 					val ?? { this.tryPerform(att) }
 				).asCompileString; // allow for large strings
 			);
-			wr.write("\n\n");
+			wr.write("\n\n")
 		};
 
 		// write a multi-line attribute (2D array)
 		wrAttArr = { |att, arr|
 			var vals = arr ?? { this.tryPerform(att) };
-			vals.isNil.if({
-				wr.writeLine(["% : nil".format(att)]);
+
+			if(vals.isNil, {
+				wr.writeLine(["% : nil".format(att)])
 			}, {
 				wr.writeLine(["% : [".format(att)]);
-				vals.asArray.do{ |elem, i|
+				(vals.asArray).do({ |elem, i|
 					wr.write(elem.asCompileString); // allow for large row strings
 					wr.write(
 						(i == (vals.size - 1)).if({ "\n]\n" }, { ",\n" })
-					);
-				};
+					)
+				})
 			});
-			wr.write("\n");
+			wr.write("\n")
 		};
 
 		note !? { wrAtt.(\note, note) };
@@ -366,35 +367,35 @@ FoaMatrix : AtkMatrix {
 		wrAtt.(\type);
 
 		// write default attributes
-		defaults = (this.type == 'decoder').if({
+		defaults = if(this.type == \decoder, {
 			[\kind, \shelfK, \shelfFreq]
 		}, {
 			[\kind]
 		});
 
-		attributeDictionary.notNil.if({
+		if(attributeDictionary.notNil, {
 			// make sure attribute dict doesn't explicitly set the attribute first
-			defaults.do{ |att|
+			defaults.do({ |att|
 				attributeDictionary[att] ?? { wrAtt.(att) }
-			};
+			})
 		}, {
-			defaults.do{ |att| wrAtt.(att) };
+			defaults.do({ |att| wrAtt.(att) })
 		});
 
 		attributeDictionary !? {
 			attributeDictionary.keysValuesDo{ |k, v|
 				// catch overridden dirIn/Outputs
 				switch(k,
-					'dirInputs', { dirIns = v },
-					'dirOutputs', { dirOuts = v },
+					\dirInputs, { dirIns = v },
+					\dirOutputs, { dirOuts = v },
 					{
-						v.isKindOf(Array).if({
+						if(v.isKindOf(Array), {
 							wrAttArr.(k, v)
 						}, {
 							wrAtt.(k, v)
 						})
 					}
-				);
+				)
 			}
 		};
 
@@ -407,49 +408,52 @@ FoaMatrix : AtkMatrix {
 
 	prParseMOSL { |pn|
 		var file, numRows, numCols, mtx, row;
+
 		file = FileReader.read(pn.fullPath);
 		numRows = nil;
 		numCols = nil;
 		mtx = [];
 		row = [];
-		file.do{ |line|
+		file.do({ |line|
 			var val = line[0];
+
 			switch(val,
 				"//",	{ }, // ignore comments
 				"",		{ },	// ignore blank line
 				{	// found valid line
-					case
-					{ numRows.isNil } { numRows = val.asInteger }
-					{ numCols.isNil } { numCols = val.asInteger }
-					{
-						row = row.add(val.asFloat);
-						(row.size == numCols).if{
-							mtx = mtx.add(row);
-							row = [];
+					case(
+						{ numRows.isNil }, { numRows = val.asInteger },
+						{ numCols.isNil }, { numCols = val.asInteger },
+						{
+							row = row.add(val.asFloat);
+							if(row.size == numCols, {
+								mtx = mtx.add(row);
+								row = [];
+							})
 						}
-					}
+					)
 				}
 			)
-		};
+		});
 		// test matrix dimensions
-		(mtx.size == numRows).not.if{
+		if((mtx.size == numRows).not, {
 			Error(
 				format(
 					"Mismatch in matrix dimensions: rows specified [%], rows parsed from file [%]",
 					numRows, mtx.size
 				)
 			).throw
-		};
-		mtx.do{ |row, i|
-			(row.size != numCols).if{
+		});
+		mtx.do({ |row, i|
+			if(row.size != numCols, {
 				Error(
 					format(
 						"Mismatch in matrix dimensions: rows % has % columns, but file species %",
 						i, row.size, numCols
 					)
 				).throw
-			}
-		};
+			})
+		});
 
 		^mtx
 	}
@@ -457,27 +461,28 @@ FoaMatrix : AtkMatrix {
 	// FOA only
 	loadFromLib { |...args|
 		var pathStr;
+
 		pathStr = this.kind.asString ++ "/";
 
-		(args.size == 0).if({
+		if(args.size == 0, {
 			// no args... filename is assumed to be this.kind
-			pathStr = this.kind.asString;
+			pathStr = this.kind.asString
 		}, {
-			args.do{ |argParam, i|
-				pathStr = (i > 0).if({
+			args.do({ |argParam, i|
+				pathStr = if(i > 0, {
 					format("%-%", pathStr, argParam.asString)
 				}, {
 					format("%%", pathStr, argParam.asString)
-				});
-			};
+				})
+			})
 		});
 
 		this.initFromFile(pathStr ++ ".yml", this.type, false);
 
 		switch(this.type,
-			'\encoder', { this.initEncoderVarsForFiles }, // properly set dirInputs
-			'\decoder', { this.initDecoderVarsForFiles }, // properly set dirOutputs
-			'\xformer', { }
+			\encoder, { this.initEncoderVarsForFiles }, // properly set dirInputs
+			\decoder, { this.initDecoderVarsForFiles }, // properly set dirOutputs
+			\xformer, { }
 		)
 	}
 
@@ -488,35 +493,35 @@ FoaMatrix : AtkMatrix {
 
 	numChannels {
 		^switch(this.type,
-			'\encoder', { this.numInputs },
-			'\decoder', { this.numOutputs },
-			'\xformer', { 4 }
+			\encoder, { this.numInputs },
+			\decoder, { this.numOutputs },
+			\xformer, { 4 }
 		)
 	}
 
 	dim {
 		^switch(this.type,
-			'\encoder', { this.numOutputs - 1 },
-			'\decoder', { this.numInputs - 1 },
-			'\xformer', { 3 }  // all transforms are 3D
+			\encoder, { this.numOutputs - 1 },
+			\decoder, { this.numInputs - 1 },
+			\xformer, { 3 }  // all transforms are 3D
 		)
 	}
 
 	dirInputs {
 		^switch(this.type,
-			'\encoder', { this.dirChannels },
-			'\decoder', { this.numInputs.collect({ inf }) },
-			// '\xformer', { this.numInputs.collect({ inf }) },
-			'\xformer', { this.dirChannels }  // requires set to inf
+			\encoder, { this.dirChannels },
+			\decoder, { (this.numInputs).collect({ inf }) },
+			// \xformer, { this.numInputs.collect({ inf }) },
+			\xformer, { this.dirChannels }  // requires set to inf
 		)
 	}
 
 	dirOutputs {
 		^switch(this.type,
-			'\encoder', { this.numOutputs.collect({ inf }) },
-			'\decoder', { this.dirChannels },
-			// '\xformer', { this.numInputs.collect({ inf }) },
-			'\xformer', { this.dirChannels }  // requires set to inf
+			\encoder, { (this.numOutputs).collect({ inf }) },
+			\decoder, { this.dirChannels },
+			// \xformer, { this.numInputs.collect({ inf }) },
+			\xformer, { this.dirChannels }  // requires set to inf
 		)
 	}
 
@@ -528,65 +533,66 @@ FoaMatrix : AtkMatrix {
 FoaDecoderMatrix : FoaMatrix {
 	var <>shelfFreq, <shelfK;
 
-		*newDiametric { |directions = ([pi / 4, 3 * pi / 4]), k = 'single'|
-		^super.new('diametric').initDiametric(directions, k);
+		*newDiametric { |directions = ([pi / 4, 3 * pi / 4]), k = \single|
+		^super.new(\diametric).initDiametric(directions, k);
 	}
 
-	*newPanto { |numChans = 4, orientation = 'flat', k = 'single'|
-		^super.new('panto').initPanto(numChans, orientation, k);
+	*newPanto { |numChans = 4, orientation = \flat, k = \single|
+		^super.new(\panto).initPanto(numChans, orientation, k);
 	}
 
-	*newPeri { |numChanPairs = 4, elevation = 0.61547970867039, orientation = 'flat', k = 'single'|
-		^super.new('peri').initPeri(numChanPairs, elevation, orientation, k);
+	*newPeri { |numChanPairs = 4, elevation = 0.61547970867039, orientation = \flat, k = \single|
+		^super.new(\peri).initPeri(numChanPairs, elevation, orientation, k);
 	}
 
-	*newQuad { |angle = (pi / 4), k = 'single'|
-		^super.new('quad').initQuad(angle, k);
+	*newQuad { |angle = (pi / 4), k = \single|
+		^super.new(\quad).initQuad(angle, k);
 	}
 
 	*newStereo { |angle = (pi/2), pattern = 0.5|
-		^super.new('stereo').initStereo(angle, pattern);
+		^super.new(\stereo).initStereo(angle, pattern);
 	}
 
 	*newMono { |theta = 0, phi = 0, pattern = 0|
-		^super.new('mono').initMono(theta, phi, pattern);
+		^super.new(\mono).initMono(theta, phi, pattern);
 	}
 
-	*new5_0 { |irregKind = 'focused'|
+	*new5_0 { |irregKind = \focused|
 		^super.new('5_0').loadFromLib(irregKind);
 	}
 
-	*newBtoA { |orientation = 'flu', weight = 'dec'|
-		^super.new('BtoA').loadFromLib(orientation, weight);
+	*newBtoA { |orientation = \flu, weight = \dec|
+		^super.new(\BtoA).loadFromLib(orientation, weight);
 	}
 
-	*newHoa1 { |ordering = 'acn', normalisation = 'n3d'|
-		^super.new('hoa1').loadFromLib(ordering, normalisation);
+	*newHoa1 { |ordering = \acn, normalisation = \n3d|
+		^super.new(\hoa1).loadFromLib(ordering, normalisation);
 	}
 
 	*newAmbix1 {
-		var ordering = 'acn', normalisation = 'sn3d';
-		^super.new('hoa1').loadFromLib(ordering, normalisation);
+		var ordering = \acn, normalisation = \sn3d;
+
+		^super.new(\hoa1).loadFromLib(ordering, normalisation);
 	}
 
 	*newFromFile { |filePathOrName|
-		^super.new.initFromFile(filePathOrName, 'decoder', true).initDecoderVarsForFiles;
+		^super.new.initFromFile(filePathOrName, \decoder, true).initDecoderVarsForFiles;
 	}
 
 	initK2D { |k|
 
-		k.isNumber.if({
+		if(k.isNumber, {
 			^k
 		}, {
 			^switch(k,
-				'velocity', { 1 },
-				'energy', { 2.reciprocal.sqrt },
-				'controlled', { 2.reciprocal },
-				'single', { 2.reciprocal.sqrt },
-				'dual', {
+				\velocity, { 1 },
+				\energy, { 2.reciprocal.sqrt },
+				\controlled, { 2.reciprocal },
+				\single, { 2.reciprocal.sqrt },
+				\dual, {
 					shelfFreq = 400.0;
 					shelfK = [(3/2).sqrt, 3.sqrt/2];
-					1; // return
+					1 // return
 				}
 			)
 		})
@@ -594,25 +600,24 @@ FoaDecoderMatrix : FoaMatrix {
 
 	initK3D { |k|
 
-		k.isNumber.if({
+		if(k.isNumber, {
 			^k
 		}, {
 			^switch(k,
-				'velocity', { 1 },
-				'energy', { 3.reciprocal.sqrt },
-				'controlled', { 3.reciprocal },
-				'single', { 3.reciprocal.sqrt },
-				'dual', {
+				\velocity, { 1 },
+				\energy, { 3.reciprocal.sqrt },
+				\controlled, { 3.reciprocal },
+				\single, { 3.reciprocal.sqrt },
+				\dual, {
 					shelfFreq = 400.0;
 					shelfK = [2.sqrt, (2 / 3).sqrt];
-					1; // return
+					1 // return
 				}
 			)
 		})
 	}
 
 	initDiametric { |directions, k|
-
 		var positions, positions2;
 		var speakerMatrix, n;
 
@@ -636,14 +641,14 @@ FoaDecoderMatrix : FoaMatrix {
 				});
 
 				// initialise k
-				k = this.initK2D(k);
+				k = this.initK2D(k)
 			},
 			2, {  // 3D
 
 				// find positions
 				positions = Matrix.with(
 					directions.collect({ |item|
-						Spherical.new(1, item.at(0), item.at(1)).asCartesian.asArray
+						Spherical.new(1, item[0], item[1]).asCartesian.asArray
 					})
 				);
 
@@ -652,12 +657,12 @@ FoaDecoderMatrix : FoaMatrix {
 				positions2 = positions ++ (positions.neg);
 
 				// set output channel (speaker) directions for instance
-				dirChannels = positions2.asArray.collect({ |item|
+				dirChannels = (positions2.asArray).collect({ |item|
 					item.asCartesian.asSpherical.angles
 				});
 
 				// initialise k
-				k = this.initK3D(k);
+				k = this.initK3D(k)
 			}
 		);
 
@@ -686,7 +691,6 @@ FoaDecoderMatrix : FoaMatrix {
 	}
 
 	initPanto { |numChans, orientation, k|
-
 		var g0, g1, theta;
 
 		g0 = 1.0;     // decoder gains
@@ -696,8 +700,8 @@ FoaDecoderMatrix : FoaMatrix {
 		// return theta from output channel (speaker) number
 		theta = numChans.collect({ |channel|
 			switch(orientation,
-				'flat',	{ ((1.0 + (2.0 * channel)) / numChans) * pi },
-				'point',	{ ((2.0 * channel) / numChans) * pi }
+				\flat, { ((1.0 + (2.0 * channel)) / numChans) * pi },
+				\point, { ((2.0 * channel) / numChans) * pi }
 			)
 		});
 		theta = (theta + pi).mod(2pi) - pi;
@@ -715,15 +719,14 @@ FoaDecoderMatrix : FoaMatrix {
 		numChans.do({ |i|
 			matrix.putRow(i, [
 				g0,
-				k * g1 * theta.at(i).cos,
-				k * g1 * theta.at(i).sin
+				k * g1 * theta[i].cos,
+				k * g1 * theta[i].sin
 			])
 		});
 		matrix = 2.sqrt / numChans * matrix
 	}
 
 	initPeri { |numChanPairs, elevation, orientation, k|
-
 		var theta, directions, upDirs, downDirs, upMatrix, downMatrix;
 
 		// generate output channel (speaker) pair positions
@@ -733,9 +736,9 @@ FoaDecoderMatrix : FoaMatrix {
 			theta = theta ++ [2 * pi * i / numChanPairs]
 		});
 
-		(orientation == 'flat').if{
+		if(orientation == \flat, {
 			theta = theta + (pi / numChanPairs)  // 'flat' case
-		};
+		});
 
 		// collect directions [[theta, phi], ...]
 		// upper ring only
@@ -749,7 +752,7 @@ FoaDecoderMatrix : FoaMatrix {
 		upDirs = (directions + pi).mod(2pi) - pi;
 
 		downDirs = upDirs.collect({ |angles|
-			Spherical.new(1, angles.at(0), angles.at(1)).neg.angles
+			Spherical.new(1, angles[0], angles[1]).neg.angles
 		});
 
 		// initialise k
@@ -763,7 +766,7 @@ FoaDecoderMatrix : FoaMatrix {
 		upMatrix = matrix[..(numChanPairs - 1)];
 		downMatrix = matrix[(numChanPairs)..];
 
-		((orientation == 'flat') and: { numChanPairs.mod(2) == 1 }).if({
+		if(((orientation == \flat) and: { numChanPairs.mod(2) == 1 }), {
 			// odd, 'flat'
 			downDirs = downDirs.rotate((numChanPairs / 2 + 1).asInteger);
 			downMatrix = downMatrix.rotate((numChanPairs / 2 + 1).asInteger)
@@ -779,7 +782,6 @@ FoaDecoderMatrix : FoaMatrix {
 	}
 
 	initQuad { |angle, k|
-
 		var g0, g1, g2;
 
 		// set output channel (speaker) directions for instance
@@ -804,7 +806,6 @@ FoaDecoderMatrix : FoaMatrix {
 	}
 
 	initStereo { |angle, pattern|
-
 		var g0, g1, g2;
 
 		// set output channel (speaker) directions for instance
@@ -839,17 +840,17 @@ FoaDecoderMatrix : FoaMatrix {
 	}
 
 	initDecoderVarsForFiles {
-		fileParse.notNil.if({
+		if(fileParse.notNil, {
 			// TODO: check use of dirOutputs vs. dirChannels here
-			dirChannels = fileParse.dirOutputs.notNil.if({
+			dirChannels = if(fileParse.dirOutputs.notNil, {
 				fileParse.dirOutputs.asFloat
 			}, { // output directions are unspecified in the provided matrix
-				matrix.rows.collect({ 'unspecified' })
+				(this.matrix.rows).collect({ \unspecified })
 			});
 			shelfK = fileParse.shelfK !? { fileParse.shelfK.asFloat };
 			shelfFreq = fileParse.shelfFreq !? { fileParse.shelfFreq.asFloat };
 		}, { // txt file provided, no fileParse
-			dirChannels = matrix.rows.collect({ 'unspecified' });
+			dirChannels = (this.matrix.rows).collect({ \unspecified });
 		});
 	}
 
@@ -861,38 +862,38 @@ FoaDecoderMatrix : FoaMatrix {
 
 FoaEncoderMatrix : FoaMatrix {
 
-	*newAtoB { |orientation = 'flu', weight = 'dec'|
-		^super.new('AtoB').loadFromLib(orientation, weight)
+	*newAtoB { |orientation = \flu, weight = \dec|
+		^super.new(\AtoB).loadFromLib(orientation, weight)
 	}
 
-	*newHoa1 { |ordering = 'acn', normalisation = 'n3d'|
-		^super.new('hoa1').loadFromLib(ordering, normalisation);
+	*newHoa1 { |ordering = \acn, normalisation = \n3d|
+		^super.new(\hoa1).loadFromLib(ordering, normalisation);
 	}
 
 	*newAmbix1 {
-		var ordering = 'acn', normalisation = 'sn3d';
-		^super.new('hoa1').loadFromLib(ordering, normalisation);
+		var ordering = \acn, normalisation = \sn3d;
+		^super.new(\hoa1).loadFromLib(ordering, normalisation);
 	}
 
 	*newZoomH2n {
-		var ordering = 'acn', normalisation = 'sn3d';
-		^super.new('hoa1').loadFromLib(ordering, normalisation);
+		var ordering = \acn, normalisation = \sn3d;
+		^super.new(\hoa1).loadFromLib(ordering, normalisation);
 	}
 
 	*newOmni {
-		^super.new('omni').loadFromLib;
+		^super.new(\omni).loadFromLib;
 	}
 
 	*newDirection { |theta = 0, phi = 0|
-		^super.new('dir').initDirection(theta, phi);
+		^super.new(\dir).initDirection(theta, phi);
 	}
 
 	*newStereo { |angle = 0|
-		^super.new('stereo').initStereo(angle);
+		^super.new(\stereo).initStereo(angle);
 	}
 
 	*newQuad {
-		^super.new('quad').loadFromLib;
+		^super.new(\quad).loadFromLib;
 	}
 
 	*new5_0 {
@@ -904,27 +905,26 @@ FoaEncoderMatrix : FoaMatrix {
 	}
 
 	*newDirections { |directions, pattern = nil|
-		^super.new('dirs').initDirections(directions, pattern);
+		^super.new(\dirs).initDirections(directions, pattern);
 	}
 
-	*newPanto { |numChans = 4, orientation = 'flat'|
-		^super.new('panto').initPanto(numChans, orientation);
+	*newPanto { |numChans = 4, orientation = \flat|
+		^super.new(\panto).initPanto(numChans, orientation);
 	}
 
-	*newPeri { |numChanPairs = 4, elevation = 0.61547970867039, orientation = 'flat'|
-		^super.new('peri').initPeri(numChanPairs, elevation, orientation);
+	*newPeri { |numChanPairs = 4, elevation = 0.61547970867039, orientation = \flat|
+		^super.new(\peri).initPeri(numChanPairs, elevation, orientation);
 	}
 
 	*newZoomH2 { |angles = ([pi / 3, 3 / 4 * pi]), pattern = 0.5857, k = 1|
-		^super.new('zoomH2').initZoomH2(angles, pattern, k);
+		^super.new(\zoomH2).initZoomH2(angles, pattern, k);
 	}
 
 	*newFromFile { |filePathOrName|
-		^super.new.initFromFile(filePathOrName, 'encoder', true).initEncoderVarsForFiles
+		^super.new.initFromFile(filePathOrName, \encoder, true).initEncoderVarsForFiles
 	}
 
 	init2D {
-
 		var g0 = 2.sqrt.reciprocal;
 
 		// build encoder matrix, and set for instance
@@ -940,7 +940,6 @@ FoaEncoderMatrix : FoaMatrix {
 	}
 
 	init3D {
-
 		var g0 = 2.sqrt.reciprocal;
 
 		// build encoder matrix, and set for instance
@@ -949,26 +948,25 @@ FoaEncoderMatrix : FoaMatrix {
 		dirChannels.do({ |thetaPhi, i|
 			matrix.putCol(i, [
 				g0,
-				thetaPhi.at(1).cos * thetaPhi.at(0).cos,
-				thetaPhi.at(1).cos * thetaPhi.at(0).sin,
-				thetaPhi.at(1).sin
+				thetaPhi[1].cos * thetaPhi[0].cos,
+				thetaPhi[1].cos * thetaPhi[0].sin,
+				thetaPhi[1].sin
 			])
 		})
 	}
 
 	initInv2D { |pattern|
-
 		var g0 = 2.sqrt.reciprocal;
 
 		// build 'decoder' matrix, and set for instance
 		matrix = Matrix.newClear(dirChannels.size, 3); // start w/ empty matrix
 
-		pattern.isArray.if({
+		if(pattern.isArray, {
 			dirChannels.do({ |theta, i|  // mic positions, indivd patterns
 				matrix.putRow(i, [
-					(1.0 - pattern.at(i)),
-					pattern.at(i) * theta.cos,
-					pattern.at(i) * theta.sin
+					(1.0 - pattern[i]),
+					pattern[i] * theta.cos,
+					pattern[i] * theta.sin
 				])
 			})
 		}, {
@@ -992,28 +990,27 @@ FoaEncoderMatrix : FoaMatrix {
 	}
 
 	initInv3D { |pattern|
-
 		var g0 = 2.sqrt.reciprocal;
 
 		// build 'decoder' matrix, and set for instance
 		matrix = Matrix.newClear(dirChannels.size, 4);  // start w/ empty matrix
 
-		pattern.isArray.if({
+		if(pattern.isArray, {
 			dirChannels.do({ |thetaPhi, i|  // mic positions, indivd patterns
 				matrix.putRow(i, [
-					(1.0 - pattern.at(i)),
-					pattern.at(i) * thetaPhi.at(1).cos * thetaPhi.at(0).cos,
-					pattern.at(i) * thetaPhi.at(1).cos * thetaPhi.at(0).sin,
-					pattern.at(i) * thetaPhi.at(1).sin
+					(1.0 - pattern[i]),
+					pattern[i] * thetaPhi[1].cos * thetaPhi[0].cos,
+					pattern[i] * thetaPhi[1].cos * thetaPhi[0].sin,
+					pattern[i] * thetaPhi[1].sin
 				])
 			})
 		}, {
 			dirChannels.do({ |thetaPhi, i|  // mic positions
 				matrix.putRow(i, [
 					(1.0 - pattern),
-					pattern * thetaPhi.at(1).cos * thetaPhi.at(0).cos,
-					pattern * thetaPhi.at(1).cos * thetaPhi.at(0).sin,
-					pattern * thetaPhi.at(1).sin
+					pattern * thetaPhi[1].cos * thetaPhi[0].cos,
+					pattern * thetaPhi[1].cos * thetaPhi[0].sin,
+					pattern * thetaPhi[1].sin
 				])
 			})
 		});
@@ -1031,12 +1028,12 @@ FoaEncoderMatrix : FoaMatrix {
 	initDirection { |theta, phi|
 
 		// set input channel directions for instance
-		(phi == 0).if({
+		if(phi == 0, {
 			dirChannels = [theta];
-				this.init2D
+			this.init2D
 		}, {
-				dirChannels = [[theta, phi]];
-				this.init3D
+			dirChannels = [[theta, phi]];
+			this.init3D
 		})
 	}
 
@@ -1054,32 +1051,31 @@ FoaEncoderMatrix : FoaMatrix {
 		dirChannels = directions;
 
 		switch(directions.rank,					// 2D or 3D?
-			1, {									// 2D
-				pattern.isNil.if({
+			1, {								// 2D
+				if(pattern.isNil, {
 					this.init2D					// plane wave
 				}, {
-					this.initInv2D(pattern)			// mic inversion
+					this.initInv2D(pattern)		// mic inversion
 				})
 			},
-			2, {									// 3D
-				pattern.isNil.if({
+			2, {								// 3D
+				if(pattern.isNil, {
 					this.init3D					// plane wave
 				}, {
-					this.initInv3D(pattern)			// mic inversion
+					this.initInv3D(pattern)		// mic inversion
 				})
 			}
 		)
 	}
 
 	initPanto { |numChans, orientation|
-
 		var theta;
 
 		// return theta from output channel (speaker) number
 		theta = numChans.collect({ |channel|
 			switch(orientation,
-				'flat', { ((1.0 + (2.0 * channel)) / numChans) * pi },
-				'point', { ((2.0 * channel) / numChans) * pi }
+				\flat, { ((1.0 + (2.0 * channel)) / numChans) * pi },
+				\point, { ((2.0 * channel) / numChans) * pi }
 			)
 		});
 		theta = (theta + pi).mod(2pi) - pi;
@@ -1091,17 +1087,17 @@ FoaEncoderMatrix : FoaMatrix {
 	}
 
 	initPeri { |numChanPairs, elevation, orientation|
-
 		var theta, directions, upDirs, downDirs, upMatrix, downMatrix;
 
 		// generate input channel pair positions
 		// start with polar positions. . .
 		theta = [];
 		numChanPairs.do({ |i|
-			theta = theta ++ [2 * pi * i / numChanPairs] }
-		);
-		if (orientation == 'flat',
-			{ theta = theta + (pi / numChanPairs) });       // 'flat' case
+			theta = theta ++ [2 * pi * i / numChanPairs]
+		});
+		if(orientation == \flat, {
+			theta = theta + (pi / numChanPairs)
+		});       // 'flat' case
 
 		// collect directions [[theta, phi], ...]
 		// upper ring only
@@ -1115,16 +1111,16 @@ FoaEncoderMatrix : FoaMatrix {
 		upDirs = (directions + pi).mod(2pi) - pi;
 
 		downDirs = upDirs.collect({ |angles|
-			Spherical.new(1, angles.at(0), angles.at(1)).neg.angles
+			Spherical.new(1, angles[0], angles[1]).neg.angles
 		});
 
 		// reorder the lower polygon
-		(orientation == 'flat' and: { numChanPairs.mod(2) == 1 }).if({
+		if((orientation == \flat and: { numChanPairs.mod(2) == 1 }), {
 			// odd, 'flat'
-			downDirs = downDirs.rotate((numChanPairs / 2 + 1).asInteger);
+			downDirs = downDirs.rotate((numChanPairs / 2 + 1).asInteger)
 		}, {
 			// 'flat' case, default
-			downDirs = downDirs.rotate((numChanPairs / 2).asInteger);
+			downDirs = downDirs.rotate((numChanPairs / 2).asInteger)
 		});
 
 		// set input channel directions for instance
@@ -1136,7 +1132,7 @@ FoaEncoderMatrix : FoaMatrix {
 	initZoomH2 { |angles, pattern, k|
 
 		// set input channel directions for instance
-		dirChannels = [angles.at(0), angles.at(0).neg, angles.at(1), angles.at(1).neg];
+		dirChannels = [angles[0], angles[0].neg, angles[1], angles[1].neg];
 
 		this.initInv2D(pattern);
 
@@ -1144,16 +1140,16 @@ FoaEncoderMatrix : FoaMatrix {
 	}
 
 	initEncoderVarsForFiles {
-		dirChannels = fileParse.notNil.if({
+		dirChannels = if(fileParse.notNil, {
 			// TODO: check use of dirInputs vs. dirChannels here
-			fileParse.dirInputs.notNil.if({
+			if(fileParse.dirInputs.notNil, {
 				fileParse.dirInputs.asFloat
 			}, { // so input directions are unspecified in the provided matrix
-				matrix.cols.collect({ 'unspecified' })
-			});
+				(this.matrix.cols).collect({ \unspecified })
+			})
 		}, { // txt file provided, no fileParse
-			matrix.cols.collect({ 'unspecified' });
-		});
+			(this.matrix.cols).collect({ \unspecified })
+		})
 	}
 
 }
@@ -1170,7 +1166,7 @@ FoaXformerMatrix : FoaMatrix {
 
 	// overload FoaMatrix *newFromMatrix
 	*newFromMatrix { |matrix|
-		^super.new('fromMatrix').initFromMatrix(matrix, nil)
+		^super.new(\fromMatrix).initFromMatrix(matrix, nil)
 	}
 
 	// ~~
@@ -1178,152 +1174,152 @@ FoaXformerMatrix : FoaMatrix {
 	// superceded by the kind specified in the .yml file
 	// e.g. 'mirrorX'
 	*newMirrorX {
-		^super.new('mirrorAxis').loadFromLib('x');
+		^super.new(\mirrorAxis).loadFromLib(\x);
 	}
 
 	*newMirrorY {
-		^super.new('mirrorAxis').loadFromLib('y');
+		^super.new(\mirrorAxis).loadFromLib(\y);
 	}
 
 	*newMirrorZ {
-		^super.new('mirrorAxis').loadFromLib('z');
+		^super.new(\mirrorAxis).loadFromLib(\z);
 	}
 
 	*newMirrorO {
-		^super.new('mirrorAxis').loadFromLib('o');
+		^super.new(\mirrorAxis).loadFromLib(\o);
 	}
 	//~~~
 
 	*newRotate { |angle = 0|
-		^super.new('rotate').initRotate(angle);
+		^super.new(\rotate).initRotate(angle);
 	}
 
 	*newTilt { |angle = 0|
-		^super.new('tilt').initTilt(angle);
+		^super.new(\tilt).initTilt(angle);
 	}
 
 	*newTumble { |angle = 0|
-		^super.new('tumble').initTumble(angle);
+		^super.new(\tumble).initTumble(angle);
 	}
 
 	*newDirectO { |angle = 0|
-		^super.new('directO').initDirectO(angle);
+		^super.new(\directO).initDirectO(angle);
 	}
 
 	*newDirectX { |angle = 0|
-		^super.new('directX').initDirectX(angle);
+		^super.new(\directX).initDirectX(angle);
 	}
 
 	*newDirectY { |angle = 0|
-		^super.new('directY').initDirectY(angle);
+		^super.new(\directY).initDirectY(angle);
 	}
 
 	*newDirectZ { |angle = 0|
-		^super.new('directZ').initDirectZ(angle);
+		^super.new(\directZ).initDirectZ(angle);
 	}
 
 	*newDominateX { |gain = 0|
-		^super.new('dominateX').initDominateX(gain);
+		^super.new(\dominateX).initDominateX(gain);
 	}
 
 	*newDominateY { |gain = 0|
-		^super.new('dominateY').initDominateY(gain);
+		^super.new(\dominateY).initDominateY(gain);
 	}
 
 	*newDominateZ { |gain = 0|
-		^super.new('dominateZ').initDominateZ(gain);
+		^super.new(\dominateZ).initDominateZ(gain);
 	}
 
 	*newZoomX { |angle = 0|
-		^super.new('zoomX').initZoomX(angle);
+		^super.new(\zoomX).initZoomX(angle);
 	}
 
 	*newZoomY { |angle = 0|
-		^super.new('zoomY').initZoomY(angle);
+		^super.new(\zoomY).initZoomY(angle);
 	}
 
 	*newZoomZ { |angle = 0|
-		^super.new('zoomZ').initZoomZ(angle);
+		^super.new(\zoomZ).initZoomZ(angle);
 	}
 
 	*newFocusX { |angle = 0|
-		^super.new('focusX').initFocusX(angle);
+		^super.new(\focusX).initFocusX(angle);
 	}
 
 	*newFocusY { |angle = 0|
-		^super.new('focusY').initFocusY(angle);
+		^super.new(\focusY).initFocusY(angle);
 	}
 
 	*newFocusZ { |angle = 0|
-		^super.new('focusZ').initFocusZ(angle);
+		^super.new(\focusZ).initFocusZ(angle);
 	}
 
 	*newPushX { |angle = 0|
-		^super.new('pushX').initPushX(angle);
+		^super.new(\pushX).initPushX(angle);
 	}
 
 	*newPushY { |angle = 0|
-		^super.new('pushY').initPushY(angle);
+		^super.new(\pushY).initPushY(angle);
 	}
 
 	*newPushZ { |angle = 0|
-		^super.new('pushZ').initPushZ(angle);
+		^super.new(\pushZ).initPushZ(angle);
 	}
 
 	*newPressX { |angle = 0|
-		^super.new('pressX').initPressX(angle);
+		^super.new(\pressX).initPressX(angle);
 	}
 
 	*newPressY { |angle = 0|
-		^super.new('pressY').initPressY(angle);
+		^super.new(\pressY).initPressY(angle);
 	}
 
 	*newPressZ { |angle = 0|
-		^super.new('pressZ').initPressZ(angle);
+		^super.new(\pressZ).initPressZ(angle);
 	}
 
 	*newAsymmetry { |angle = 0|
-		^super.new('asymmetry').initAsymmetry(angle);
+		^super.new(\asymmetry).initAsymmetry(angle);
 	}
 
 	*newBalance { |angle = 0|
-		^super.new('zoomY').initZoomY(angle);
+		^super.new(\zoomY).initZoomY(angle);
 	}
 
 	*newRTT { |rotAngle = 0, tilAngle = 0, tumAngle = 0|
-		^super.new('rtt').initRTT(rotAngle, tilAngle, tumAngle);
+		^super.new(\rtt).initRTT(rotAngle, tilAngle, tumAngle);
 	}
 
 	*newMirror { |theta = 0, phi = 0|
-		^super.new('mirror').initMirror(theta, phi);
+		^super.new(\mirror).initMirror(theta, phi);
 	}
 
 	*newDirect { |angle = 0, theta = 0, phi = 0|
-		^super.new('direct').initDirect(angle, theta, phi);
+		^super.new(\direct).initDirect(angle, theta, phi);
 	}
 
 	*newDominate { |gain = 0, theta = 0, phi = 0|
-		^super.new('dominate').initDominate(gain, theta, phi);
+		^super.new(\dominate).initDominate(gain, theta, phi);
 	}
 
 	*newZoom { |angle = 0, theta = 0, phi = 0|
-		^super.new('zoom').initZoom(angle, theta, phi);
+		^super.new(\zoom).initZoom(angle, theta, phi);
 	}
 
 	*newFocus { |angle = 0, theta = 0, phi = 0|
-		^super.new('focus').initFocus(angle, theta, phi);
+		^super.new(\focus).initFocus(angle, theta, phi);
 	}
 
 	*newPush { |angle = 0, theta = 0, phi = 0|
-		^super.new('push').initPush(angle, theta, phi);
+		^super.new(\push).initPush(angle, theta, phi);
 	}
 
 	*newPress { |angle = 0, theta = 0, phi = 0|
-		^super.new('press').initPress(angle, theta, phi);
+		^super.new(\press).initPress(angle, theta, phi);
 	}
 
 	*newFromFile { |filePathOrName|
-		^super.new.initFromFile(filePathOrName, 'xformer', true);
+		^super.new.initFromFile(filePathOrName, \xformer, true);
 	}
 
 	initRotate { |angle|
@@ -1776,7 +1772,7 @@ FoaXformerMatrix : FoaMatrix {
 	}
 
 	// overload instance var dirChannels
-	dirChannels { ^this.numOutputs.collect({ inf }) }
+	dirChannels { ^(this.numOutputs).collect({ inf }) }
 
 }
 
@@ -1789,77 +1785,74 @@ FoaDecoderKernel {
 	var <kind, <subjectID;
 	var <kernel, kernelBundle, kernelInfo;
 	var <dirChannels;
-	var <op = 'kernel';
-	var <set = 'FOA';
+	var <op = \kernel;
+	var <set = \FOA;
 
 
 	// *newSpherical { |subjectID = 0004, kernelSize = 512, server = Server.default|
-	// 	^super.newCopyArgs('spherical', subjectID).initKernel(kernelSize, server);
+	// 	^super.newCopyArgs(\spherical, subjectID).initKernel(kernelSize, server);
 	// }
 	//
 	// *newListen { |subjectID = 1002, server = Server.default|
-	// 	^super.newCopyArgs('listen', subjectID).initKernel(512, server);
+	// 	^super.newCopyArgs(\listen, subjectID).initKernel(512, server);
 	// }
 	//
 	// *newCIPIC { |subjectID = 0021, server = Server.default|
-	// 	^super.newCopyArgs('cipic', subjectID).initKernel(256, server);
+	// 	^super.newCopyArgs(\cipic, subjectID).initKernel(256, server);
 	// }
 
 	*newSpherical { |subjectID = 0004, server = (Server.default), sampleRate, score|
-		^super.newCopyArgs('spherical', subjectID).initKernel(nil, server, sampleRate, score);
+		^super.newCopyArgs(\spherical, subjectID).initKernel(nil, server, sampleRate, score);
 	}
 
 	*newListen { |subjectID = 1002, server = (Server.default), sampleRate, score|
-		^super.newCopyArgs('listen', subjectID).initKernel(nil, server, sampleRate, score);
+		^super.newCopyArgs(\listen, subjectID).initKernel(nil, server, sampleRate, score);
 	}
 
 	*newCIPIC { |subjectID = 0021, server = (Server.default), sampleRate, score|
-		^super.newCopyArgs('cipic', subjectID).initKernel(nil, server, sampleRate, score);
+		^super.newCopyArgs(\cipic, subjectID).initKernel(nil, server, sampleRate, score);
 	}
 
 	*newUHJ { |kernelSize = 512, server = (Server.default), sampleRate, score|
-		^super.newCopyArgs('uhj', 0).initKernel(kernelSize, server, sampleRate, score);
+		^super.newCopyArgs(\uhj, 0).initKernel(kernelSize, server, sampleRate, score);
 	}
 
 	initPath {
-
 		var kernelLibPath;
 		var decodersPath;
+
 		kernelLibPath = PathName.new(
 			Atk.userKernelDir
 		);
 
-		kernelLibPath.isFolder.not.if{	// is kernel lib installed for all users?
-			PathName.new(				// no? set for single user
+		if(kernelLibPath.isFolder.not, {	// is kernel lib installed for all users?
+			PathName.new(					// no? set for single user
 				Atk.systemKernelDir
 			)
-		};
+		});
 
-		decodersPath	= PathName.new("/FOA/decoders");
+		decodersPath = PathName.new("/FOA/decoders");
 
-		^kernelLibPath +/+ decodersPath +/+ PathName.new(kind.asString)
+		^kernelLibPath +/+ decodersPath +/+ PathName.new(this.kind.asString)
 	}
 
 	initKernel { |kernelSize, server, sampleRate, score|
-
 		var databasePath, subjectPath;
 		var chans;
 		var errorMsg;
 		var sampleRateStr;
 
-		sampleRate.notNil.if{
-			sampleRateStr = sampleRate.asInteger.asString;
-		};
+		if(sampleRate.notNil, {
+			sampleRateStr = sampleRate.asInteger.asString
+		});
 
-		(
-			server.serverRunning.not and: { sampleRateStr.isNil and: { score.isNil } }
-		).if{
+		if((server.serverRunning.not and: { sampleRateStr.isNil and: { score.isNil } }), {
 			Error(
 				"Please boot server: %, or provide a CtkScore or Score.".format(
 					server.name.asString
 				)
 			).throw
-		};
+		});
 
 		kernelBundle = [0.0];
 		kernelInfo = [];
@@ -1868,28 +1861,28 @@ FoaDecoderKernel {
 		chans = 2;			// stereo kernel
 
 		// init dirChannels (output channel (speaker) directions) and kernel sr
-		(kind == 'uhj').if({
+		if(this.kind == \uhj, {
 			dirChannels = [pi/6, (pi/6).neg];
-			sampleRateStr = "None";
+			sampleRateStr = "None"
 		}, {
 			dirChannels = [5/9 * pi, 5/9 * pi.neg];
-			sampleRateStr.isNil.if{
-				sampleRateStr = server.sampleRate.asInteger.asString;
-			};
+			if(sampleRateStr.isNil, {
+				sampleRateStr = server.sampleRate.asInteger.asString
+			})
 		});
 
 		// init kernelSize if need be (usually for HRIRs)
-		(kernelSize == nil).if{
+		if(kernelSize == nil, {
 			kernelSize = switch(sampleRateStr.asSymbol,
-				'None', 512,
-				'44100', 512,
-				'48000', 512,
-				'88200', 1024,
-				'96000', 1024,
-				'176400', 2048,
-				'192000', 2048
-			);
-		};
+				\None, 512,
+				\44100, 512,
+				\48000, 512,
+				\88200, 1024,
+				\96000, 1024,
+				\176400, 2048,
+				\192000, 2048
+			)
+		});
 
 
 		// init kernel root, generate subjectPath and kernelFiles
@@ -1903,64 +1896,61 @@ FoaDecoderKernel {
 
 
 		// attempt to load kernel
-		subjectPath.isFolder.not.if({	// does kernel path exist?
+		if(subjectPath.isFolder.not, {	// does kernel path exist?
 
-			case
-			// --> missing kernel database
-			{ databasePath.isFolder.not }
-			{
-				errorMsg = "ATK kernel database missing!" +
-				"Please install % database.".format(kind)
-			}
+			case(
+				// --> missing kernel database
+				{ databasePath.isFolder.not }, {
+					errorMsg = "ATK kernel database missing!" +
+					"Please install % database.".format(this.kind)
+				},
 
-			// --> unsupported SR
-			{ PathName.new(subjectPath.parentLevelPath(2)).isFolder.not }
-			{
-				"Supported samplerates:".warn;
-				PathName.new(subjectPath.parentLevelPath(3)).folders.do({
-					|folder|
-					("\t" + folder.folderName).postln;
-				});
+				// --> unsupported SR
+				{ PathName.new(subjectPath.parentLevelPath(2)).isFolder.not }, {
+					"Supported samplerates:".warn;
+					(PathName.new(subjectPath.parentLevelPath(3)).folders).do({
+						|folder|
+						("\t" + folder.folderName).postln
+					});
 
-				errorMsg = "Samplerate = % is not available for".format(sampleRateStr)
-				+
-							"% kernel decoder.".format(kind)
-			}
+					errorMsg = "Samplerate = % is not available for".format(sampleRateStr)
+					+
+								"% kernel decoder.".format(this.kind)
+				},
 
-			// --> unsupported kernelSize
-			{ PathName.new(subjectPath.parentLevelPath(1)).isFolder.not }
-			{
-				"Supported kernel sizes:".warn;
-				PathName.new(subjectPath.parentLevelPath(2)).folders.do({
-					|folder|
-					("\t" + folder.folderName).postln;
-				});
+				// --> unsupported kernelSize
+				{ PathName.new(subjectPath.parentLevelPath(1)).isFolder.not }, {
+					"Supported kernel sizes:".warn;
+					(PathName.new(subjectPath.parentLevelPath(2)).folders).do({
+						|folder|
+						("\t" + folder.folderName).postln
+					});
 
-				errorMsg = "Kernel size = % is not available for".format(kernelSize)
-				+
-						"% kernel decoder.".format(kind)
-			}
+					errorMsg = "Kernel size = % is not available for".format(kernelSize)
+					+
+							"% kernel decoder.".format(this.kind)
+				},
 
-			// --> unsupported subject
-			{ subjectPath.isFolder.not }
-			{
-				"Supported subjects:".warn;
-				PathName.new(subjectPath.parentLevelPath(1)).folders.do({
-					|folder|
-					("\t" + folder.folderName).postln;
-				});
+				// --> unsupported subject
+				{ subjectPath.isFolder.not }, {
+					"Supported subjects:".warn;
+					(PathName.new(subjectPath.parentLevelPath(1)).folders).do({
+						|folder|
+						("\t" + folder.folderName).postln
+					});
 
-				errorMsg = "Subject % is not available for".format(subjectID)
-				+
-						"% kernel decoder.".format(kind)
-			};
+					errorMsg = "Subject % is not available for".format(subjectID)
+					+
+							"% kernel decoder.".format(this.kind)
+				}
+			);
 
 			// throw error!
 			"\n".post;
 			Error(errorMsg).throw
 		}, {
-			score.isNil.if({
-				server.serverRunning.not.if({		// is server running?
+			if(score.isNil, {
+				if(server.serverRunning.not, {		// is server running?
 					// throw server error!
 					Error(
 						"Please boot server: %. Encoder kernel failed to load.".format(
@@ -1969,7 +1959,7 @@ FoaDecoderKernel {
 					).throw
 				}, {
 					// Else... everything is fine! Load kernel.
-					kernel = subjectPath.files.collect({ |kernelPath|
+					kernel = (subjectPath.files).collect({ |kernelPath|
 						chans.collect({ |chan|
 							Buffer.readChannel(server, kernelPath.fullPath, channels: [chan],
 								action: { |buf|
@@ -1989,49 +1979,51 @@ FoaDecoderKernel {
 				})
 			});
 
-			(\CtkScore.asClass.notNil and: { score.isKindOf(\CtkScore.asClass) }).if{
-				kernel = subjectPath.files.collect({ |kernelPath|
+			if((\CtkScore.asClass.notNil and: { score.isKindOf(\CtkScore.asClass) }), {
+				kernel = (subjectPath.files).collect({ |kernelPath|
 					chans.collect({ |chan|
 						var buf = CtkBuffer(kernelPath.fullPath, channels: [chan]);
+
 						kernelInfo = kernelInfo.add([kernelPath.fullPath, buf.bufnum, [chan]]);
 						score.add(buf);
-						buf;
+						buf
 					})
 				})
-			};
+			});
 
-			score.isKindOf(Score).if{
-				kernel = subjectPath.files.collect({ |kernelPath|
+			if(score.isKindOf(Score), {
+				kernel = (subjectPath.files).collect({ |kernelPath|
 					chans.collect({ |chan|
 						var buf;
+
 						buf = Buffer(server, kernelSize);
 						kernelBundle = kernelBundle.add(
 							["/b_allocReadChannel", buf.bufnum, kernelPath.fullPath, 0, kernelSize, chan]
 						);
 						kernelInfo = kernelInfo.add([kernelPath.fullPath, buf.bufnum, [chan]]);
-						buf;
+						buf
 					})
 				});
 				score.add(kernelBundle)
-			};
+			});
 
-			(kernel.isNil and: { score.notNil }).if{
+			if((kernel.isNil and: { score.notNil }), {
 				Error(
 					"Score is not a Score or a CtkScore. Score is a %.".format(
 						score.class.asString
 					)
 				).throw
-			}
-
+			})
 		})
 	}
 
 	free {
 		var path;
-		kernel.shape.at(0).do({ |i|
-			kernel.shape.at(1).do({ |j|
-				path = kernel.at(i).at(j).path;
-				kernel.at(i).at(j).free;
+
+		(kernel.shape[0]).do({ |i|
+			(kernel.shape[1]).do({ |j|
+				path = kernel[i][j].path;
+				kernel[i][j].free;
 				(
 					"Kernel %, channel % freed.".format(
 						PathName.new(path).fileName, j
@@ -2047,27 +2039,27 @@ FoaDecoderKernel {
 
 	kernelBundle { ^kernelBundle }
 
-	dim { ^kernel.shape.at(0) - 1 }
+	dim { ^kernel.shape[0] - 1 }
 
-	numChannels { ^kernel.shape.at(1) }
+	numChannels { ^kernel.shape[1] }
 
-	kernelSize { ^kernel.at(0).at(0).numFrames }
+	kernelSize { ^kernel[0][0].numFrames }
 
-	numOutputs { ^kernel.shape.at(1) }
+	numOutputs { ^kernel.shape[1] }
 
 	dirOutputs { ^dirChannels }
 
-	numInputs { ^kernel.shape.at(0) }
+	numInputs { ^kernel.shape[0] }
 
-	dirInputs { ^this.numInputs.collect({ inf }) }
+	dirInputs { ^(this.numInputs).collect({ inf }) }
 
 	directions { ^dirChannels }
 
-	type { ^'decoder' }
+	type { ^\decoder }
 
 	printOn { |stream|
 		stream << this.class.name << "(" <<*
-			[kind, this.dim, this.numChannels, subjectID, this.kernelSize] <<")";
+			[this.kind, this.dim, this.numChannels, subjectID, this.kernelSize] <<")";
 	}
 }
 
@@ -2079,23 +2071,23 @@ FoaEncoderKernel {
 	var <kind, <subjectID;
 	var <kernel, kernelBundle, kernelInfo;
 	var <dirChannels;
-	var <op = 'kernel';
-	var <set = 'FOA';
+	var <op = \kernel;
+	var <set = \FOA;
 
 	*newUHJ { |kernelSize = nil, server = (Server.default), sampleRate, score|
-		^super.newCopyArgs('uhj', 0).initKernel(kernelSize, server, sampleRate, score);
+		^super.newCopyArgs(\uhj, 0).initKernel(kernelSize, server, sampleRate, score);
 	}
 
 	*newSuper { |kernelSize = nil, server = (Server.default), sampleRate, score|
-		^super.newCopyArgs('super', 0).initKernel(kernelSize, server, sampleRate, score);
+		^super.newCopyArgs(\super, 0).initKernel(kernelSize, server, sampleRate, score);
 	}
 
 	*newSpread { |subjectID = 0006, kernelSize = 2048, server = (Server.default), sampleRate, score|
-		^super.newCopyArgs('spread', subjectID).initKernel(kernelSize, server, sampleRate, score);
+		^super.newCopyArgs(\spread, subjectID).initKernel(kernelSize, server, sampleRate, score);
 	}
 
 	*newDiffuse { |subjectID = 0003, kernelSize = 2048, server = (Server.default), sampleRate, score|
-		^super.newCopyArgs('diffuse', subjectID).initKernel(kernelSize, server, sampleRate, score);
+		^super.newCopyArgs(\diffuse, subjectID).initKernel(kernelSize, server, sampleRate, score);
 	}
 
 	// Encoding via Isophonics Room Impulse Response Data Set, not yet implemented.
@@ -2104,119 +2096,93 @@ FoaEncoderKernel {
 	// NOTE: Convolution2 doesn't support large, arbitrary sized kernels.
 
 //	*newGreatHall { |subjectID = "x06y02", server = Server.default|
-//		^super.newCopyArgs('greathall', subjectID).initKernel("None", server);
+//		^super.newCopyArgs(\greathall, subjectID).initKernel("None", server);
 //	}
 //
 //	*newOctagon { |subjectID = "x06y02", server = Server.default|
-//		^super.newCopyArgs('octagon', subjectID).initKernel("None", server);
+//		^super.newCopyArgs(\octagon, subjectID).initKernel("None", server);
 //	}
 //
 //	*newClassroom { |subjectID = "x30y10", server = Server.default|
-//		^super.newCopyArgs('classroom', subjectID).initKernel("None", server);
+//		^super.newCopyArgs(\classroom, subjectID).initKernel("None", server);
 //	}
 
 	initPath {
-
 		var kernelLibPath;
 		var encodersPath;
 
 		kernelLibPath = PathName.new(Atk.userKernelDir);
 
-		kernelLibPath.isFolder.not.if{			// is kernel lib installed for all users?
+		if(kernelLibPath.isFolder.not, {		// is kernel lib installed for all users?
 			PathName.new(Atk.systemKernelDir)	// no? set for single user
-		};
+		});
 
 		encodersPath = PathName.new("/FOA/encoders");
 
-		^kernelLibPath +/+ encodersPath +/+ PathName.new(kind.asString)
+		^kernelLibPath +/+ encodersPath +/+ PathName.new(this.kind.asString)
 	}
 
 	initKernel { |kernelSize, server, sampleRate, score|
-
 		var databasePath, subjectPath;
 		var chans;
 		var errorMsg;
 		var sampleRateStr;
 
-		sampleRate.notNil.if{
-			sampleRateStr = sampleRate.asInteger.asString;
-		};
+		if(sampleRate.notNil, {
+			sampleRateStr = sampleRate.asInteger.asString
+		});
 
-		(
-			server.serverRunning.not and: { sampleRateStr.isNil and: { score.isNil } }
-		).if{
+		if((server.serverRunning.not and: { sampleRateStr.isNil and: { score.isNil } }), {
 			Error(
 				"Please boot server: %, or provide a CtkScore or Score.".format(
 					server.name.asString
 				)
 			).throw
-		};
+		});
 
 		kernelBundle = [0.0];
 		kernelInfo = [];
 
 		// init dirChannels (output channel (speaker) directions) and kernel sr
-		switch(kind,
-			'super', {
+		switch(this.kind,
+			\super, {
 				dirChannels = [pi/4, (pi/4).neg];	 // approx, doesn't include phasiness
 				sampleRateStr = "None";
-				chans = 3;					// [w, x, y]
+				chans = 3					// [w, x, y]
 			},
-			'uhj', {
+			\uhj, {
 				dirChannels = [inf, inf];
-				sampleRateStr.isNil.if{
-					sampleRateStr = server.sampleRate.asInteger.asString;
-				};
-				chans = 3;					// [w, x, y]
+				if(sampleRateStr.isNil, {
+					sampleRateStr = server.sampleRate.asInteger.asString
+				});
+				chans = 3					// [w, x, y]
 			},
-			'spread', {
+			\spread, {
 				dirChannels = [inf];
-				sampleRateStr.isNil.if{
-					sampleRateStr = server.sampleRate.asInteger.asString;
-				};
-				chans = 4;					// [w, x, y, z]
+				if(sampleRateStr.isNil, {
+					sampleRateStr = server.sampleRate.asInteger.asString
+				});
+				chans = 4					// [w, x, y, z]
 			},
-			'diffuse', {
+			\diffuse, {
 				dirChannels = [inf];
 				sampleRateStr = "None";
-				chans = 4;					// [w, x, y, z]
+				chans = 4					// [w, x, y, z]
 			}
-
-			// Encoding via Isophonics Room Impulse Response Data Set, not yet implemented.
-			// (http://isophonics.net/content/room-impulse-response-data-set)
-			//
-			// NOTE: Convolution2 doesn't support large, arbitrary sized kernels.
-
-			//			},
-			//			'greathall', {
-			//				dirChannels = [inf];
-			//				sampleRateStr = server.sampleRate.asInteger.asString;
-			//				chans = 4;					// [w, x, y, z]
-			//			},
-			//			'octagon', {
-			//				dirChannels = [inf];
-			//				sampleRateStr = server.sampleRate.asInteger.asString;
-			//				chans = 4;					// [w, x, y, z]
-			//			},
-			//			'classroom', {
-			//				dirChannels = [inf];
-			//				sampleRateStr = server.sampleRate.asInteger.asString;
-			//				chans = 4;					// [w, x, y, z]
-			//			}
 		);
 
 		// init kernelSize if need be
-		kernelSize.isNil.if{
+		if(kernelSize.isNil, {
 			kernelSize = switch(sampleRateStr.asSymbol,
-				'None', 512,
-				'44100', 512,
-				'48000', 512,
-				'88200', 1024,
-				'96000', 1024,
-				'176400', 2048,
-				'192000', 2048
-			);
-		};
+				\None, 512,
+				\44100, 512,
+				\48000, 512,
+				\88200, 1024,
+				\96000, 1024,
+				\176400, 2048,
+				\192000, 2048
+			)
+		});
 
 
 		// init kernel root, generate subjectPath and kernelFiles
@@ -2230,64 +2196,61 @@ FoaEncoderKernel {
 
 		// attempt to load kernel
 
-		subjectPath.isFolder.not.if({	// does kernel path exist?
+		if(subjectPath.isFolder.not, {	// does kernel path exist?
 
-			case
-			// --> missing kernel database
-			{ databasePath.isFolder.not }
-			{
-				errorMsg = "ATK kernel database missing!" +
-				"Please install % database.".format(kind)
-			}
+			case(
+				// --> missing kernel database
+				{ databasePath.isFolder.not }, {
+					errorMsg = "ATK kernel database missing!" +
+					"Please install % database.".format(this.kind)
+				},
 
-			// --> unsupported SR
-			{ PathName.new(subjectPath.parentLevelPath(2)).isFolder.not }
-			{
-				"Supported samplerates:".warn;
-				PathName.new(subjectPath.parentLevelPath(3)).folders.do({
-					|folder|
-					("\t" + folder.folderName).postln;
-				});
+				// --> unsupported SR
+				{ PathName.new(subjectPath.parentLevelPath(2)).isFolder.not }, {
+					"Supported samplerates:".warn;
+					(PathName.new(subjectPath.parentLevelPath(3)).folders).do({
+						|folder|
+						("\t" + folder.folderName).postln
+					});
 
-				errorMsg = "Samplerate = % is not available for".format(sampleRateStr)
-				+
-				"% kernel encoder.".format(kind)
-			}
+					errorMsg = "Samplerate = % is not available for".format(sampleRateStr)
+					+
+					"% kernel encoder.".format(this.kind)
+				},
 
-			// --> unsupported kernelSize
-			{ PathName.new(subjectPath.parentLevelPath(1)).isFolder.not }
-			{
-				"Supported kernel sizes:".warn;
-				PathName.new(subjectPath.parentLevelPath(2)).folders.do({
-					|folder|
-					("\t" + folder.folderName).postln;
-				});
+				// --> unsupported kernelSize
+				{ PathName.new(subjectPath.parentLevelPath(1)).isFolder.not }, {
+					"Supported kernel sizes:".warn;
+					(PathName.new(subjectPath.parentLevelPath(2)).folders).do({
+						|folder|
+						("\t" + folder.folderName).postln
+					});
 
-				errorMsg = "Kernel size = % is not available for".format(kernelSize)
-				+
-				"% kernel encoder.".format(kind)
-			}
+					errorMsg = "Kernel size = % is not available for".format(kernelSize)
+					+
+					"% kernel encoder.".format(this.kind)
+				},
 
-			// --> unsupported subject
-			{ subjectPath.isFolder.not }
-			{
-				"Supported subjects:".warn;
-				PathName.new(subjectPath.parentLevelPath(1)).folders.do({
-					|folder|
-					("\t" + folder.folderName).postln;
-				});
+				// --> unsupported subject
+				{ subjectPath.isFolder.not }, {
+					"Supported subjects:".warn;
+					(PathName.new(subjectPath.parentLevelPath(1)).folders).do({
+						|folder|
+						("\t" + folder.folderName).postln
+					});
 
-				errorMsg = "Subject % is not available for".format(subjectID)
-				+
-				"% kernel encoder.".format(kind)
-			};
+					errorMsg = "Subject % is not available for".format(subjectID)
+					+
+					"% kernel encoder.".format(this.kind)
+				}
+			);
 
 			// throw error!
 			"\n".post;
 			Error(errorMsg).throw
 		}, {
-			score.isNil.if({
-				if (server.serverRunning.not, {		// is server running?
+			if(score.isNil, {
+				if(server.serverRunning.not, {		// is server running?
 					// throw server error!
 					Error(
 						"Please boot server: %. Encoder kernel failed to load.".format(
@@ -2296,7 +2259,7 @@ FoaEncoderKernel {
 					).throw
 				}, {
 					// Else... everything is fine! Load kernel.
-					kernel = subjectPath.files.collect({ |kernelPath|
+					kernel = (subjectPath.files).collect({ |kernelPath|
 						chans.collect({ |chan|
 							Buffer.readChannel(server, kernelPath.fullPath, channels: [chan],
 								action: { |buf|
@@ -2316,49 +2279,51 @@ FoaEncoderKernel {
 				})
 			});
 
-			(\CtkScore.asClass.notNil and: { score.isKindOf(\CtkScore.asClass) }).if({
-				kernel = subjectPath.files.collect({ |kernelPath|
+			if((\CtkScore.asClass.notNil and: { score.isKindOf(\CtkScore.asClass) }), {
+				kernel = (subjectPath.files).collect({ |kernelPath|
 					chans.collect({ |chan|
 						var buf = CtkBuffer(kernelPath.fullPath, channels: [chan]);
+
 						kernelInfo = kernelInfo.add([kernelPath.fullPath, buf.bufnum, [chan]]);
 						score.add(buf);
-						buf;
+						buf
 					})
 				})
 			});
 
-			score.isKindOf(Score).if{
-				kernel = subjectPath.files.collect({ |kernelPath|
+			if(score.isKindOf(Score), {
+				kernel = (subjectPath.files).collect({ |kernelPath|
 					chans.collect({ |chan|
 						var buf;
+
 						buf = Buffer(server, kernelSize);
 						kernelBundle = kernelBundle.add(
 							["/b_allocReadChannel", buf.bufnum, kernelPath.fullPath, 0, kernelSize, chan]
 						);
 						kernelInfo = kernelInfo.add([kernelPath.fullPath, buf.bufnum, [chan]]);
-						buf;
+						buf
 					})
 				});
 				score.add(kernelBundle)
-			};
+			});
 
-			(kernel.isNil and: { score.notNil }).if{
+			if((kernel.isNil and: { score.notNil }), {
 				Error(
 					"Score is not a Score or a CtkScore. Score is a %.".format(
 						score.class.asString
 					)
 				).throw
-			};
-
+			})
 		})
 	}
 
 	free {
 		var path;
-		kernel.shape.at(0).do({ |i|
-			kernel.shape.at(1).do({ |j|
-				path = kernel.at(i).at(j).path;
-				kernel.at(i).at(j).free;
+
+		(kernel.shape[0]).do({ |i|
+			(kernel.shape[1]).do({ |j|
+				path = kernel[i][j].path;
+				kernel[i][j].free;
 				(
 					"Kernel %, channel % freed.".format(
 						PathName.new(path).fileName, j
@@ -2374,26 +2339,26 @@ FoaEncoderKernel {
 
 	kernelBundle { ^kernelBundle }
 
-	dim { ^kernel.shape.at(1) - 1 }
+	dim { ^kernel.shape[1] - 1 }
 
-	numChannels { ^kernel.shape.at(0) }
+	numChannels { ^kernel.shape[0] }
 
-	kernelSize { ^kernel.at(0).at(0).numFrames }
+	kernelSize { ^kernel[0][0].numFrames }
 
-	numOutputs { ^kernel.shape.at(1) }
+	numOutputs { ^kernel.shape[1] }
 
 	dirInputs { ^dirChannels }
 
-	numInputs { ^kernel.shape.at(0) }
+	numInputs { ^kernel.shape[0] }
 
-	dirOutputs { ^this.numOutputs.collect({ inf }) }
+	dirOutputs { ^(this.numOutputs).collect({ inf }) }
 
 	directions { ^dirChannels }
 
-	type { ^'encoder' }
+	type { ^\encoder }
 
 	printOn { |stream|
 		stream << this.class.name << "(" <<*
-			[kind, this.dim, this.numChannels, subjectID, this.kernelSize] <<")";
+			[this.kind, this.dim, this.numChannels, subjectID, this.kernelSize] <<")";
 	}
 }

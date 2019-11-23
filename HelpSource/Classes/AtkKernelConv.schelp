@@ -62,17 +62,17 @@ scale = 24.neg.dbamp;
 
 // convolve
 (
-{ 
-    var sig;
+{
+	var sig;
 
-    // pink noise
-    sig = PinkNoise.ar;
+	// pink noise
+	sig = PinkNoise.ar;
 
-    // encode
-    AtkKernelConv.ar(sig, ~kernel);
+	// encode
+	AtkKernelConv.ar(sig, ~kernel);
 }.scope
 )
 
 // free kernel when finished
-~kernel.at(0).do({arg kern; kern.free})
+~kernel[0].do({arg kern; kern.free})
 ::

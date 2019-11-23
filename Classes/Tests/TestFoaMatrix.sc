@@ -56,7 +56,7 @@ TestFoaMatrix : UnitTest {
 	// basic check that matrix attributes are populated correctly
 	test_encoderMatrixAttributes {
 		var m;
-		var directions = AtkTests.getDirs('tetra');
+		var directions = AtkTests.getDirs(\tetra);
 
 		// encoder
 		m = FoaEncoderMatrix.newDirections(directions, 0.5);
@@ -115,8 +115,9 @@ TestFoaMatrix : UnitTest {
 			\type, 'encoder',
 			\op,   'matrix',
 			\dim,  3
-		].clump(2).do{ |mrPair|
+		].clump(2).do({ |mrPair|
 			var method, result;
+
 			#method, result = mrPair;
 			this.assertEquals(
 				m.perform(method),
@@ -124,14 +125,14 @@ TestFoaMatrix : UnitTest {
 				"FoaEncoderMatrix(*newDirections):-% should be %".format(method, result),
 				report
 			)
-		};
+		})
 	}
 
 	test_decoderMatrixAttributes {
 		var m;
 
 		// decoder
-		m = FoaDecoderMatrix.newQuad(45.degrad, 'dual');
+		m = FoaDecoderMatrix.newQuad(45.degrad, \dual);
 
 		// matrix
 		this.assert(
@@ -188,8 +189,9 @@ TestFoaMatrix : UnitTest {
 			\op,   'matrix',
 			\dim,  2,
 			\shelfFreq, 400.0  // default shelfK
-		].clump(2).do{ |mrPair|
+		].clump(2).do({ |mrPair|
 			var method, result;
+
 			#method, result = mrPair;
 			this.assertEquals(
 				m.perform(method),
@@ -197,7 +199,7 @@ TestFoaMatrix : UnitTest {
 				"FoaDecoderMatrix(*newQuad, k:'dual'):-% should be %".format(method, result),
 				report
 			)
-		};
+		})
 	}
 
 	test_xformerMatrixAttributes {
@@ -222,7 +224,7 @@ TestFoaMatrix : UnitTest {
 		);
 
 		// dirOutputs, dirInputs, dirChannels
-		[\dirOutputs, \dirInputs, \dirChannels].do{ |attribute|
+		[\dirOutputs, \dirInputs, \dirChannels].do({ |attribute|
 			this.assertEquals(  // appears assertArrayFloatEquals doens't work on inf's?
 				m.perform(attribute),
 				inf ! 4,
@@ -230,7 +232,7 @@ TestFoaMatrix : UnitTest {
 				"matches the number of b-format channels".format(attribute),
 				report
 			)
-		};
+		});
 
 		[
 			\kind, 'focus',
@@ -238,8 +240,9 @@ TestFoaMatrix : UnitTest {
 			\type, 'xformer',
 			\op,   'matrix',
 			\dim,  3
-		].clump(2).do{ |mrPair|
+		].clump(2).do({ |mrPair|
 			var method, result;
+
 			#method, result = mrPair;
 			this.assertEquals(
 				m.perform(method),
@@ -247,13 +250,13 @@ TestFoaMatrix : UnitTest {
 				"FoaXformerMatrix(*newFocus):-% should be %".format(method, result),
 				report
 			)
-		};
+		})
 	}
 
 	// create an FoaEncoderMatrix from a Matrix directly
 	test_fromMatrixMatrixAttributes {
 		var m;
-		var directions = AtkTests.getDirs('tetra');
+		var directions = AtkTests.getDirs(\tetra);
 
 		// encoder
 		m = FoaEncoderMatrix.newFromMatrix(
@@ -279,7 +282,7 @@ TestFoaMatrix : UnitTest {
 		);
 
 		// dirChannels, dirInputs
-		[\dirChannels, \dirInputs].do{ |attribute|
+		[\dirChannels, \dirInputs].do({ |attribute|
 			this.assertEquals(
 				m.perform(attribute),
 				directions,
@@ -287,7 +290,7 @@ TestFoaMatrix : UnitTest {
 				"of 'unspecified' of size directions".format(attribute),
 				report
 			)
-		};
+		});
 
 		// dirOutputs
 		this.assertEquals( // appears assertArrayFloatEquals doens't work on inf's?
@@ -312,8 +315,9 @@ TestFoaMatrix : UnitTest {
 			\type, 'encoder',
 			\op,   'matrix',
 			\dim,  3
-		].clump(2).do{ |mrPair|
+		].clump(2).do({ |mrPair|
 			var method, result;
+
 			#method, result = mrPair;
 			this.assertEquals(
 				m.perform(method),
@@ -321,12 +325,12 @@ TestFoaMatrix : UnitTest {
 				"FoaEncoderMatrix(*newFromMatrix):-% should be %".format(method, result),
 				report
 			)
-		};
+		})
 	}
 
 	test_matrixFileRdWr {
 		var not, properties, atkMatrix, enc, note, path;
-		var directions = AtkTests.getDirs('tetra');
+		var directions = AtkTests.getDirs(\tetra);
 		var att, orig, fromFile;
 
 		// start with "raw" A-to-B encoder matrix:
@@ -353,7 +357,7 @@ TestFoaMatrix : UnitTest {
 
 		// compare properties of the encoder loaded from file to
 		// properties of the original atkMatrix
-		[\kind, \set, \type, \op, \dim].do{ |p|
+		[\kind, \set, \type, \op, \dim].do({ |p|
 			orig = atkMatrix.tryPerform(p);
 			fromFile = enc.tryPerform(p);
 			this.assertEquals(
@@ -362,8 +366,8 @@ TestFoaMatrix : UnitTest {
 				"FoaEncoderMatrix that was written to file. '%' was written, "
 				"'%' was read and loaded".format(p, orig, fromFile),
 				report
-			);
-		};
+			)
+		});
 
 		// .matrix
 		this.assertArrayFloatEquals(
@@ -374,10 +378,10 @@ TestFoaMatrix : UnitTest {
 		);
 
 		// user-defined attributes
-		properties.keys.do{ |a|
+		properties.keys.do({ |a|
 			orig = properties[a];
-			fromFile = enc.fileParse[a];
-		};
+			fromFile = enc.fileParse[a]
+		});
 
 		// These properties may differ, as they're "unspecified" when created, but the
 		// attributeDictionary may overwrite them (as in dirIniputs, in this case)

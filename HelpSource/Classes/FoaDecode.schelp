@@ -84,41 +84,41 @@ code::
 
 (
 {
-    var sig;// audio signal
-    var angle, azim;			// angle and azimuth control
+	var sig;// audio signal
+	var angle, azim;			// angle and azimuth control
 
 
-    // display encoder and decoder
-    "Ambisonic encoding via % encoder".format(~encoder.kind).postln;
-    "Ambisonic decoding via % decoder".format(~decoder.kind).postln;
+	// display encoder and decoder
+	"Ambisonic encoding via % encoder".format(~encoder.kind).postln;
+	"Ambisonic decoding via % decoder".format(~decoder.kind).postln;
 
-    // angle ---> top 		= push to plane wave
-    //            bottom        = omni-directional
-    angle = MouseY.kr(pi/2, 0);
+	// angle ---> top     = push to plane wave
+	//            bottom  = omni-directional
+	angle = MouseY.kr(pi/2, 0);
 
-    // azimuth -> hard left 	= back
-    //		  centre 	= centre
-    //		  hard right 	= back
-    azim = MouseX.kr(pi, -pi);
-
-
-    // ------------------------------------------------------------
-    // test sig
-    sig = PinkNoise.ar; 			// mono pink noise
+	// azimuth -> hard left 	= back
+	//		  centre 	= centre
+	//		  hard right 	= back
+	azim = MouseX.kr(pi, -pi);
 
 
-    // ------------------------------------------------------------
-    // encode
-    sig = FoaEncode.ar(sig, ~encoder);
-
-    // ------------------------------------------------------------
-    // transform
-    sig = FoaTransform.ar(sig, 'push', angle, azim);
+	// ------------------------------------------------------------
+	// test sig
+	sig = PinkNoise.ar; 			// mono pink noise
 
 
-    // ------------------------------------------------------------
-    // decode (to stereo)
-    FoaDecode.ar(sig, ~decoder);
+	// ------------------------------------------------------------
+	// encode
+	sig = FoaEncode.ar(sig, ~encoder);
+
+	// ------------------------------------------------------------
+	// transform
+	sig = FoaTransform.ar(sig, 'push', angle, azim);
+
+
+	// ------------------------------------------------------------
+	// decode (to stereo)
+	FoaDecode.ar(sig, ~decoder);
 
 }.scope;
 )
@@ -152,8 +152,8 @@ code::
 
 // define encoder / decoder matrices
 ~encoder = FoaEncoderMatrix.newOmni
-~decoder = FoaDecoderKernel.newUHJ       // kernel decoders should be freed after use!!
-                                         // free below...
+~decoder = FoaDecoderKernel.newUHJ	// kernel decoders should be freed after use!!
+									// free below...
 
 // inspect
 ~encoder.kind
@@ -166,41 +166,41 @@ code::
 
 (
 {
-    var sig;// audio signal
-    var angle, azim;			// angle and azimuth control
+	var sig;// audio signal
+	var angle, azim;			// angle and azimuth control
 
 
-    // display encoder and decoder
-    "Ambisonic encoding via % encoder".format(~encoder.kind).postln;
-    "Ambisonic decoding via % decoder".format(~decoder.kind).postln;
+	// display encoder and decoder
+	"Ambisonic encoding via % encoder".format(~encoder.kind).postln;
+	"Ambisonic decoding via % decoder".format(~decoder.kind).postln;
 
-    // angle ---> top 		= push to plane wave
-    //            bottom        = omni-directional
-    angle = MouseY.kr(pi/2, 0);
+	// angle ---> top 		= push to plane wave
+	//            bottom        = omni-directional
+	angle = MouseY.kr(pi/2, 0);
 
-    // azimuth -> hard left 	= back
-    //		  centre 	= centre
-    //		  hard right 	= back
-    azim = MouseX.kr(pi, -pi);
-
-
-    // ------------------------------------------------------------
-    // test sig
-    sig = PinkNoise.ar; 			// mono pink noise
+	// azimuth -> hard left 	= back
+	//		  centre 	= centre
+	//		  hard right 	= back
+	azim = MouseX.kr(pi, -pi);
 
 
-    // ------------------------------------------------------------
-    // encode
-    sig = FoaEncode.ar(sig, ~encoder);
-
-    // ------------------------------------------------------------
-    // transform
-    sig = FoaTransform.ar(sig, 'push', angle, azim);
+	// ------------------------------------------------------------
+	// test sig
+	sig = PinkNoise.ar; 			// mono pink noise
 
 
-    // ------------------------------------------------------------
-    // decode (to stereo)
-    FoaDecode.ar(sig, ~decoder);
+	// ------------------------------------------------------------
+	// encode
+	sig = FoaEncode.ar(sig, ~encoder);
+
+	// ------------------------------------------------------------
+	// transform
+	sig = FoaTransform.ar(sig, 'push', angle, azim);
+
+
+	// ------------------------------------------------------------
+	// decode (to stereo)
+	FoaDecode.ar(sig, ~decoder);
 
 }.scope;
 )
@@ -235,7 +235,7 @@ code::
 // define encoder / decoder matrices
 ~encoder = FoaEncoderMatrix.newOmni
 ~decoder = FoaDecoderKernel.newSpherical // kernel decoders should be freed after use!!
-                                         // free below...
+										 // free below...
 
 // inspect
 ~encoder.kind
@@ -248,41 +248,41 @@ code::
 
 (
 {
-    var sig;// audio signal
-    var angle, azim;			// angle and azimuth control
+	var sig;// audio signal
+	var angle, azim;			// angle and azimuth control
 
 
-    // display encoder and decoder
-    "Ambisonic encoding via % encoder".format(~encoder.kind).postln;
-    "Ambisonic decoding via % decoder".format(~decoder.kind).postln;
+	// display encoder and decoder
+	"Ambisonic encoding via % encoder".format(~encoder.kind).postln;
+	"Ambisonic decoding via % decoder".format(~decoder.kind).postln;
 
-    // angle ---> top 		= push to plane wave
-    //            bottom        = omni-directional
-    angle = MouseY.kr(pi/2, 0);
+	// angle ---> top    = push to plane wave
+	//            bottom = omni-directional
+	angle = MouseY.kr(pi/2, 0);
 
-    // azimuth -> hard left 	= back
-    //		  centre 	= centre
-    //		  hard right 	= back
-    azim = MouseX.kr(pi, -pi);
-
-
-    // ------------------------------------------------------------
-    // test sig
-    sig = PinkNoise.ar; 			// mono pink noise
+	// azimuth -> hard left 	= back
+	//		  centre 	= centre
+	//		  hard right 	= back
+	azim = MouseX.kr(pi, -pi);
 
 
-    // ------------------------------------------------------------
-    // encode
-    sig = FoaEncode.ar(sig, ~encoder);
-
-    // ------------------------------------------------------------
-    // transform
-    sig = FoaTransform.ar(sig, 'push', angle, azim);
+	// ------------------------------------------------------------
+	// test sig
+	sig = PinkNoise.ar; 			// mono pink noise
 
 
-    // ------------------------------------------------------------
-    // decode (to binaural)
-    FoaDecode.ar(sig, ~decoder);
+	// ------------------------------------------------------------
+	// encode
+	sig = FoaEncode.ar(sig, ~encoder);
+
+	// ------------------------------------------------------------
+	// transform
+	sig = FoaTransform.ar(sig, 'push', angle, azim);
+
+
+	// ------------------------------------------------------------
+	// decode (to binaural)
+	FoaDecode.ar(sig, ~decoder);
 
 }.scope;
 )
@@ -313,8 +313,8 @@ code::
 
 // define encoder / decoder matrices
 ~encoder = FoaEncoderMatrix.newOmni
-~decoder = FoaDecoderKernel.newCIPIC     // kernel decoders should be freed after use!!
-                                         // free below...
+~decoder = FoaDecoderKernel.newCIPIC	// kernel decoders should be freed after use!!
+										// free below...
 
 // inspect
 ~encoder.kind
@@ -327,41 +327,41 @@ code::
 
 (
 {
-    var sig;// audio signal
-    var angle, azim;			// angle and azimuth control
+	var sig;// audio signal
+	var angle, azim;			// angle and azimuth control
 
 
-    // display encoder and decoder
-    "Ambisonic encoding via % encoder".format(~encoder.kind).postln;
-    "Ambisonic decoding via % decoder".format(~decoder.kind).postln;
+	// display encoder and decoder
+	"Ambisonic encoding via % encoder".format(~encoder.kind).postln;
+	"Ambisonic decoding via % decoder".format(~decoder.kind).postln;
 
-    // angle ---> top 		= push to plane wave
-    //            bottom        = omni-directional
-    angle = MouseY.kr(pi/2, 0);
+	// angle ---> top 		= push to plane wave
+	//            bottom        = omni-directional
+	angle = MouseY.kr(pi/2, 0);
 
-    // azimuth -> hard left 	= back
-    //		  centre 	= centre
-    //		  hard right 	= back
-    azim = MouseX.kr(pi, -pi);
-
-
-    // ------------------------------------------------------------
-    // test sig
-    sig = PinkNoise.ar; 			// mono pink noise
+	// azimuth -> hard left 	= back
+	//		  centre 	= centre
+	//		  hard right 	= back
+	azim = MouseX.kr(pi, -pi);
 
 
-    // ------------------------------------------------------------
-    // encode
-    sig = FoaEncode.ar(sig, ~encoder);
-
-    // ------------------------------------------------------------
-    // transform
-    sig = FoaTransform.ar(sig, 'push', angle, azim);
+	// ------------------------------------------------------------
+	// test sig
+	sig = PinkNoise.ar; 			// mono pink noise
 
 
-    // ------------------------------------------------------------
-    // decode (to binaural)
-    FoaDecode.ar(sig, ~decoder);
+	// ------------------------------------------------------------
+	// encode
+	sig = FoaEncode.ar(sig, ~encoder);
+
+	// ------------------------------------------------------------
+	// transform
+	sig = FoaTransform.ar(sig, 'push', angle, azim);
+
+
+	// ------------------------------------------------------------
+	// decode (to binaural)
+	FoaDecode.ar(sig, ~decoder);
 
 }.scope;
 )
@@ -404,43 +404,43 @@ code::
 
 (
 {
-    var sig;				// audio signal
-    var angle, azim;			// angle and azimuth control
-    var fl, bl, br, fr;			// quad output channels
+	var sig;				// audio signal
+	var angle, azim;			// angle and azimuth control
+	var fl, bl, br, fr;			// quad output channels
 
 
-    // display encoder and decoder
-    "Ambisonic encoding via % encoder".format(~encoder.kind).postln;
-    "Ambisonic decoding via % decoder".format(~decoder.kind).postln;
+	// display encoder and decoder
+	"Ambisonic encoding via % encoder".format(~encoder.kind).postln;
+	"Ambisonic decoding via % decoder".format(~decoder.kind).postln;
 
-    // angle ---> top 		= push to plane wave
-    //		  bottom	= omni-directional
-    angle = MouseY.kr(pi/2, 0);
+	// angle ---> top 		= push to plane wave
+	//		  bottom	= omni-directional
+	angle = MouseY.kr(pi/2, 0);
 
-    // azimuth -> hard left 	= back
-    //		  centre 	= centre
-    //		  hard right 	= back
-    azim = MouseX.kr(pi, -pi);
+	// azimuth -> hard left 	= back
+	//		  centre 	= centre
+	//		  hard right 	= back
+	azim = MouseX.kr(pi, -pi);
 
-    // ------------------------------------------------------------
-    // test sig
-    sig = PinkNoise.ar; 			// mono pink noise
-
-
-    // ------------------------------------------------------------
-    // encode
-    sig = FoaEncode.ar(sig, ~encoder);
-
-    // ------------------------------------------------------------
-    // transform
-    sig = FoaTransform.ar(sig, 'push', angle, azim);
+	// ------------------------------------------------------------
+	// test sig
+	sig = PinkNoise.ar; 			// mono pink noise
 
 
+	// ------------------------------------------------------------
+	// encode
+	sig = FoaEncode.ar(sig, ~encoder);
 
-    // ------------------------------------------------------------
-    // decode (to quad)
-    #fl, bl, br, fr = FoaDecode.ar(sig, ~decoder);
-    [fl, fr, bl, br]	// reorder output to match speaker arrangement
+	// ------------------------------------------------------------
+	// transform
+	sig = FoaTransform.ar(sig, 'push', angle, azim);
+
+
+
+	// ------------------------------------------------------------
+	// decode (to quad)
+	#fl, bl, br, fr = FoaDecode.ar(sig, ~decoder);
+	[fl, fr, bl, br]	// reorder output to match speaker arrangement
 
 }.scope;
 )
@@ -498,46 +498,46 @@ funK = { arg k;
 
 (
 {
-    var sig;                            // audio signal
-    var angle, azim;                    // angle and azimuth control
-    var fl, bl, br, fr;                 // quad output channels
-    var w, x, y, z;                 	// b-format channels (split)
+	var sig;                            // audio signal
+	var angle, azim;                    // angle and azimuth control
+	var fl, bl, br, fr;                 // quad output channels
+	var w, x, y, z;                 	// b-format channels (split)
 
 
-    // display encoder and decoder
-    "Ambisonic encoding via % encoder".format(~encoder.kind).postln;
-    "Ambisonic decoding via % decoder".format("inbuilt").postln;
+	// display encoder and decoder
+	"Ambisonic encoding via % encoder".format(~encoder.kind).postln;
+	"Ambisonic decoding via % decoder".format("inbuilt").postln;
 
-    // angle ---> top           = push to plane wave
-    //            bottom        = omni-directional
-    angle = MouseY.kr(pi/2, 0);
+	// angle ---> top           = push to plane wave
+	//            bottom        = omni-directional
+	angle = MouseY.kr(pi/2, 0);
 
-    // azimuth -> hard left     = back
-    //            centre        = centre
-    //            hard right    = back
-    azim = MouseX.kr(pi, -pi);
+	// azimuth -> hard left     = back
+	//            centre        = centre
+	//            hard right    = back
+	azim = MouseX.kr(pi, -pi);
 
-    // ------------------------------------------------------------
-    // test sig
-    sig = PinkNoise.ar;                         // mono pink noise
+	// ------------------------------------------------------------
+	// test sig
+	sig = PinkNoise.ar;                         // mono pink noise
 
 
-    // ------------------------------------------------------------
-    // encode
-    sig = FoaEncode.ar(sig, ~encoder);
+	// ------------------------------------------------------------
+	// encode
+	sig = FoaEncode.ar(sig, ~encoder);
 
-    // ------------------------------------------------------------
-    // transform
-    sig = FoaTransform.ar(sig, 'push', angle, azim);
+	// ------------------------------------------------------------
+	// transform
+	sig = FoaTransform.ar(sig, 'push', angle, azim);
 
-    // ------------------------------------------------------------
-    // split to w, x, y, z, and scale k
-    #w, x, y, z = sig * ~kScale;
+	// ------------------------------------------------------------
+	// split to w, x, y, z, and scale k
+	#w, x, y, z = sig * ~kScale;
 
-    // ------------------------------------------------------------
-    // decode (to quad), and match gain to ATK decoders
-    #fl, fr, br, bl = DecodeB2.ar(~numChans, w, x, y) * 6.neg.dbamp;
-    [fl, fr, bl, br]    // reorder output to match speaker arrangement
+	// ------------------------------------------------------------
+	// decode (to quad), and match gain to ATK decoders
+	#fl, fr, br, bl = DecodeB2.ar(~numChans, w, x, y) * 6.neg.dbamp;
+	[fl, fr, bl, br]    // reorder output to match speaker arrangement
 
 }.scope;
 )
@@ -582,45 +582,45 @@ code::
 
 (
 {
-    var sig;                            // audio signal
-    var angle, azim;                    // angle and azimuth control
-    var fl, bl, br, fr;                 // quad output channels
+	var sig;                            // audio signal
+	var angle, azim;                    // angle and azimuth control
+	var fl, bl, br, fr;                 // quad output channels
 
 
-    // display encoder and decoder
-    "Ambisonic encoding via % encoder".format(~encoder.kind).postln;
-    "Ambisonic decoding via % decoder".format(~decoder.kind).postln;
+	// display encoder and decoder
+	"Ambisonic encoding via % encoder".format(~encoder.kind).postln;
+	"Ambisonic decoding via % decoder".format(~decoder.kind).postln;
 
 
-    // angle ---> top           = push to plane wave
-    //            bottom        = omni-directional
-    angle = MouseY.kr(pi/2, 0);
+	// angle ---> top           = push to plane wave
+	//            bottom        = omni-directional
+	angle = MouseY.kr(pi/2, 0);
 
-    // azimuth -> hard left     = back
-    //            centre        = centre
-    //            hard right    = back
-    azim = MouseX.kr(pi, -pi);
+	// azimuth -> hard left     = back
+	//            centre        = centre
+	//            hard right    = back
+	azim = MouseX.kr(pi, -pi);
 
-    // ------------------------------------------------------------
-    // test sig
-    sig = PinkNoise.ar;                         // mono pink noise
-
-
-    // ------------------------------------------------------------
-    // encode
-    sig = FoaEncode.ar(sig, ~encoder);
-
-    // ------------------------------------------------------------
-    // transform
-    sig = FoaTransform.ar(sig, 'push', angle, azim);
+	// ------------------------------------------------------------
+	// test sig
+	sig = PinkNoise.ar;                         // mono pink noise
 
 
+	// ------------------------------------------------------------
+	// encode
+	sig = FoaEncode.ar(sig, ~encoder);
 
-    // ------------------------------------------------------------
-    // nfc & decode (to quad)
-    sig = FoaTransform.ar(sig, 'nfc', ~distance);
-    #fl, bl, br, fr = FoaDecode.ar(sig, ~decoder);
-    [fl, fr, bl, br]    // reorder output to match speaker arrangement
+	// ------------------------------------------------------------
+	// transform
+	sig = FoaTransform.ar(sig, 'push', angle, azim);
+
+
+
+	// ------------------------------------------------------------
+	// nfc & decode (to quad)
+	sig = FoaTransform.ar(sig, 'nfc', ~distance);
+	#fl, bl, br, fr = FoaDecode.ar(sig, ~decoder);
+	[fl, fr, bl, br]    // reorder output to match speaker arrangement
 
 }.scope;
 )
@@ -659,46 +659,46 @@ code::
 
 (
 {
-    var sig;// audio signal
-    var angle, azim;			// angle and azimuth control
-    var fc, fl, bl, br, fr;		// 5.0 output channels
-    var lo;	 			// low freq channel place holder
+	var sig;// audio signal
+	var angle, azim;			// angle and azimuth control
+	var fc, fl, bl, br, fr;		// 5.0 output channels
+	var lo;	 			// low freq channel place holder
 
 
-    // display encoder and decoder
-    "Ambisonic encoding via % encoder".format(~encoder.kind).postln;
-    "Ambisonic decoding via % decoder".format(~decoder.kind).postln;
+	// display encoder and decoder
+	"Ambisonic encoding via % encoder".format(~encoder.kind).postln;
+	"Ambisonic decoding via % decoder".format(~decoder.kind).postln;
 
-    // angle ---> top 		= push to plane wave
-    //            bottom        = omni-directional
-    angle = MouseY.kr(pi/2, 0);
+	// angle ---> top 		= push to plane wave
+	//            bottom        = omni-directional
+	angle = MouseY.kr(pi/2, 0);
 
-    // azimuth -> hard left 	= back
-    //		  centre 	= centre
-    //		  hard right 	= back
-    azim = MouseX.kr(pi, -pi);
-
-
-    // ------------------------------------------------------------
-    // test sig
-    sig = PinkNoise.ar; 			// mono pink noise
+	// azimuth -> hard left 	= back
+	//		  centre 	= centre
+	//		  hard right 	= back
+	azim = MouseX.kr(pi, -pi);
 
 
-    // ------------------------------------------------------------
-    // encode
-    sig = FoaEncode.ar(sig, ~encoder);
-
-    // ------------------------------------------------------------
-    // transform
-    sig = FoaTransform.ar(sig, 'push', angle, azim);
+	// ------------------------------------------------------------
+	// test sig
+	sig = PinkNoise.ar; 			// mono pink noise
 
 
-    // ------------------------------------------------------------
-    // decode (to 5.0)
-    #fc, fl, bl, br, fr = FoaDecode.ar(sig, ~decoder);
-    lo = Silent.ar;
+	// ------------------------------------------------------------
+	// encode
+	sig = FoaEncode.ar(sig, ~encoder);
 
-    [fl, fr, fc, lo, bl, br]	// reorder output to match speaker arrangement
+	// ------------------------------------------------------------
+	// transform
+	sig = FoaTransform.ar(sig, 'push', angle, azim);
+
+
+	// ------------------------------------------------------------
+	// decode (to 5.0)
+	#fc, fl, bl, br, fr = FoaDecode.ar(sig, ~decoder);
+	lo = Silent.ar;
+
+	[fl, fr, fc, lo, bl, br]	// reorder output to match speaker arrangement
 
 }.scope;
 )
@@ -738,44 +738,44 @@ code::
 
 (
 {
-    var sig;				// audio signal
-    var angle, azim;			// angle and azimuth control
-    var flu, blu, bru, fru;		// cube output channels
-    var fld, bld, brd, frd;
+	var sig;				// audio signal
+	var angle, azim;			// angle and azimuth control
+	var flu, blu, bru, fru;		// cube output channels
+	var fld, bld, brd, frd;
 
 
-    // display encoder and decoder
-    "Ambisonic encoding via % encoder".format(~encoder.kind).postln;
-    "Ambisonic decoding via % decoder".format(~decoder.kind).postln;
+	// display encoder and decoder
+	"Ambisonic encoding via % encoder".format(~encoder.kind).postln;
+	"Ambisonic decoding via % decoder".format(~decoder.kind).postln;
 
-    // angle ---> top 		= push to plane wave
-    //		  bottom	= omni-directional
-    angle = MouseY.kr(pi/2, 0);
+	// angle ---> top 		= push to plane wave
+	//		  bottom	= omni-directional
+	angle = MouseY.kr(pi/2, 0);
 
-    // azimuth -> hard left 	= back
-    //		  centre 	= centre
-    //		  hard right 	= back
-    azim = MouseX.kr(pi, -pi);
+	// azimuth -> hard left 	= back
+	//		  centre 	= centre
+	//		  hard right 	= back
+	azim = MouseX.kr(pi, -pi);
 
-    // ------------------------------------------------------------
-    // test sig
-    sig = PinkNoise.ar; 			// mono pink noise
-
-
-    // ------------------------------------------------------------
-    // encode
-    sig = FoaEncode.ar(sig, ~encoder);
-
-    // ------------------------------------------------------------
-    // transform
-    sig = FoaTransform.ar(sig, 'push', angle, azim);
+	// ------------------------------------------------------------
+	// test sig
+	sig = PinkNoise.ar; 			// mono pink noise
 
 
+	// ------------------------------------------------------------
+	// encode
+	sig = FoaEncode.ar(sig, ~encoder);
 
-    // ------------------------------------------------------------
-    // decode (to cube)
-    #flu, blu, bru, fru, fld, bld, brd, frd = FoaDecode.ar(sig, ~decoder);
-    [flu, fru, blu, bru, fld, frd, bld, brd]	// reorder output to match speaker arrangement
+	// ------------------------------------------------------------
+	// transform
+	sig = FoaTransform.ar(sig, 'push', angle, azim);
+
+
+
+	// ------------------------------------------------------------
+	// decode (to cube)
+	#flu, blu, bru, fru, fld, bld, brd, frd = FoaDecode.ar(sig, ~decoder);
+	[flu, fru, blu, bru, fld, frd, bld, brd]	// reorder output to match speaker arrangement
 
 }.scope;
 )
@@ -808,8 +808,8 @@ code::
 // define encoder / decoder matrices
 ~encoder = FoaEncoderMatrix.newOmni
 ~decoder = FoaDecoderMatrix.newDiametric(
-    [[30, 0], [-30, 0], [90, 35.3], [-90, 35.3]].degrad,
-    'dual'
+	[[30, 0], [-30, 0], [90, 35.3], [-90, 35.3]].degrad,
+	'dual'
 )
 ~distance = 1.2                 // louspeaker distance, for NFC, in meters
 
@@ -825,45 +825,45 @@ code::
 
 (
 {
-    var sig;				// audio signal
-    var angle, azim;			// angle and azimuth control
-    var fl, fr, bl, br;			// bi-rectangle output channels
-    var slu, sru, sld, srd;
+	var sig;				// audio signal
+	var angle, azim;			// angle and azimuth control
+	var fl, fr, bl, br;			// bi-rectangle output channels
+	var slu, sru, sld, srd;
 
 
-    // display encoder and decoder
-    "Ambisonic encoding via % encoder".format(~encoder.kind).postln;
-    "Ambisonic decoding via % decoder".format(~decoder.kind).postln;
+	// display encoder and decoder
+	"Ambisonic encoding via % encoder".format(~encoder.kind).postln;
+	"Ambisonic decoding via % decoder".format(~decoder.kind).postln;
 
-    // angle ---> top 		= push to plane wave
-    //		  bottom	= omni-directional
-    angle = MouseY.kr(pi/2, 0);
+	// angle ---> top 		= push to plane wave
+	//		  bottom	= omni-directional
+	angle = MouseY.kr(pi/2, 0);
 
-    // azimuth -> hard left 	= back
-    //		  centre 	= centre
-    //		  hard right 	= back
-    azim = MouseX.kr(pi, -pi);
+	// azimuth -> hard left 	= back
+	//		  centre 	= centre
+	//		  hard right 	= back
+	azim = MouseX.kr(pi, -pi);
 
-    // ------------------------------------------------------------
-    // test sig
-    sig = PinkNoise.ar; 			// mono pink noise
-
-
-    // ------------------------------------------------------------
-    // encode
-    sig = FoaEncode.ar(sig, ~encoder);
-
-    // ------------------------------------------------------------
-    // transform
-    sig = FoaTransform.ar(sig, 'push', angle, azim);
+	// ------------------------------------------------------------
+	// test sig
+	sig = PinkNoise.ar; 			// mono pink noise
 
 
+	// ------------------------------------------------------------
+	// encode
+	sig = FoaEncode.ar(sig, ~encoder);
 
-    // ------------------------------------------------------------
-    // nfc & decode (to bi-rectangle)
-    sig = FoaTransform.ar(sig, 'nfc', ~distance);
-    #fl, fr, slu, sru, br, bl, srd, sld = FoaDecode.ar(sig, ~decoder);
-    [fl, fr, bl, br, slu, sru, sld, srd]	// reorder output to match speaker arrangement
+	// ------------------------------------------------------------
+	// transform
+	sig = FoaTransform.ar(sig, 'push', angle, azim);
+
+
+
+	// ------------------------------------------------------------
+	// nfc & decode (to bi-rectangle)
+	sig = FoaTransform.ar(sig, 'nfc', ~distance);
+	#fl, fr, slu, sru, br, bl, srd, sld = FoaDecode.ar(sig, ~decoder);
+	[fl, fr, bl, br, slu, sru, sld, srd]	// reorder output to match speaker arrangement
 
 }.scope;
 )

@@ -56,15 +56,15 @@ s.scope(~order.asHoaOrder.size, ~outbus);
 // audition
 (
 {
-    // saw params
-    var freq = 110.0;
-    var gain = -12;
+	// saw params
+	var freq = 110.0;
+	var gain = -12;
 
-    var sig;
+	var sig;
 
-    sig = Saw.ar(freq, gain.dbamp);
+	sig = Saw.ar(freq, gain.dbamp);
 
-    HoaEncodeMatrix.ar(sig, ~matrixEncoder);
+	HoaEncodeMatrix.ar(sig, ~matrixEncoder);
 
 }.play(outbus: ~outbus)
 )
@@ -105,13 +105,13 @@ s.scope(~order.asHoaOrder.size, ~outbus);
 // audition
 (
 {
-    var gain = -18;
+	var gain = -18;
 
-    var sig;
+	var sig;
 
-    sig = SinOsc.ar(~freqs, mul: gain.dbamp * ~amps);
+	sig = SinOsc.ar(~freqs, mul: gain.dbamp * ~amps);
 
-    HoaEncodeMatrix.ar(sig, ~matrixEncoder);
+	HoaEncodeMatrix.ar(sig, ~matrixEncoder);
 
 }.play(outbus: ~outbus)
 )

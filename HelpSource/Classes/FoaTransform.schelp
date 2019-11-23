@@ -121,32 +121,32 @@ code::
 
 (
 {
-    var sig;                            // audio signal
-    var azim;                           // azimuth control
+	var sig;                            // audio signal
+	var azim;                           // azimuth control
 
 
-    // display transformer & decoder
-    "Ambisonic transforming via % transformer".format(~transformer).postln;
-    "Ambisonic decoding via % decoder".format(~decoder.kind).postln;
+	// display transformer & decoder
+	"Ambisonic transforming via % transformer".format(~transformer).postln;
+	"Ambisonic decoding via % decoder".format(~decoder.kind).postln;
 
-    // azimuth -> hard left     = back
-    //            centre        = centre
-    //            hard right    = back
-    azim = MouseX.kr(pi, -pi);
-
-
-    // ------------------------------------------------------------
-    // test sig
-    sig = PlayBuf.ar(~sndbuf.numChannels, ~sndbuf, BufRateScale.kr(~sndbuf), doneAction:2);   // soundfile
-
-    // ------------------------------------------------------------
-    // transform
-    sig = FoaTransform.ar(sig, ~transformer, azim);
+	// azimuth -> hard left     = back
+	//            centre        = centre
+	//            hard right    = back
+	azim = MouseX.kr(pi, -pi);
 
 
-    // ------------------------------------------------------------
-    // decode (via ~renderDecode)
-    ~renderDecode.value(sig, ~decoder)
+	// ------------------------------------------------------------
+	// test sig
+	sig = PlayBuf.ar(~sndbuf.numChannels, ~sndbuf, BufRateScale.kr(~sndbuf), doneAction:2);   // soundfile
+
+	// ------------------------------------------------------------
+	// transform
+	sig = FoaTransform.ar(sig, ~transformer, azim);
+
+
+	// ------------------------------------------------------------
+	// decode (via ~renderDecode)
+	~renderDecode.value(sig, ~decoder)
 
 }.scope;
 )
@@ -199,31 +199,31 @@ code::
 
 (
 {
-    var sig;                            // audio signal
-    var gain;                           // gain control
+	var sig;                            // audio signal
+	var gain;                           // gain control
 
 
-    // display transformer & decoder
-    "Ambisonic transforming via % transformer".format(~transformer).postln;
-    "Ambisonic decoding via % decoder".format(~decoder.kind).postln;
+	// display transformer & decoder
+	"Ambisonic transforming via % transformer".format(~transformer).postln;
+	"Ambisonic decoding via % decoder".format(~decoder.kind).postln;
 
-    // gain ---> top            = +4.5db for front
-    //            bottom        = -4.5db for front
-    gain = MouseY.kr(4.5, 4.5.neg);
-
-
-    // ------------------------------------------------------------
-    // test sig
-    sig = PlayBuf.ar(~sndbuf.numChannels, ~sndbuf, BufRateScale.kr(~sndbuf), doneAction:2);   // soundfile
-
-    // ------------------------------------------------------------
-    // transform
-    sig = FoaTransform.ar(sig, ~transformer, gain);
+	// gain ---> top            = +4.5db for front
+	//            bottom        = -4.5db for front
+	gain = MouseY.kr(4.5, 4.5.neg);
 
 
-    // ------------------------------------------------------------
-    // decode (via ~renderDecode)
-    ~renderDecode.value(sig, ~decoder)
+	// ------------------------------------------------------------
+	// test sig
+	sig = PlayBuf.ar(~sndbuf.numChannels, ~sndbuf, BufRateScale.kr(~sndbuf), doneAction:2);   // soundfile
+
+	// ------------------------------------------------------------
+	// transform
+	sig = FoaTransform.ar(sig, ~transformer, gain);
+
+
+	// ------------------------------------------------------------
+	// decode (via ~renderDecode)
+	~renderDecode.value(sig, ~decoder)
 
 }.scope;
 )
@@ -273,52 +273,52 @@ code::
 
 (
 {
-    var sig;				// audio signal
-    var angle, azim;			// angle and azimuth control
-    var freq;
+	var sig;				// audio signal
+	var angle, azim;			// angle and azimuth control
+	var freq;
 
 
-    // display encoder and decoder
-    "Ambisonic encoding via % encoder".format(~encoder.kind).postln;
-    "Ambisonic transforming via % transformer".format(~transformer).postln;
-    "Ambisonic decoding via % decoder".format(~decoder.kind).postln;
+	// display encoder and decoder
+	"Ambisonic encoding via % encoder".format(~encoder.kind).postln;
+	"Ambisonic transforming via % transformer".format(~transformer).postln;
+	"Ambisonic decoding via % decoder".format(~decoder.kind).postln;
 
-    // frequencies
-    freq = 220;
+	// frequencies
+	freq = 220;
 
-    // angle ---> top 		= push to plane wave
-    //		  bottom	= omni-directional
-    angle = MouseY.kr(pi/2, 0);
+	// angle ---> top 		= push to plane wave
+	//		  bottom	= omni-directional
+	angle = MouseY.kr(pi/2, 0);
 
-    // azimuth -> hard left 	= back
-    //		  centre 	= centre
-    //		  hard right 	= back
-    azim = MouseX.kr(pi, -pi);
-
-
-    // ------------------------------------------------------------
-    // test sig
-    sig = PinkNoise.ar([1, 1, 1, 1]); // 4 channels decorrelated pink noise
-
-    // ------------------------------------------------------------
-    // comb filter
-    sig = HPF.ar(sig, freq);
-    sig = CombL.ar(sig, freq.reciprocal, freq.reciprocal, mul: 9.neg.dbamp);
+	// azimuth -> hard left 	= back
+	//		  centre 	= centre
+	//		  hard right 	= back
+	azim = MouseX.kr(pi, -pi);
 
 
-    // ------------------------------------------------------------
-    // encode
-    sig = FoaEncode.ar(sig, ~encoder);
+	// ------------------------------------------------------------
+	// test sig
+	sig = PinkNoise.ar([1, 1, 1, 1]); // 4 channels decorrelated pink noise
 
-    // ------------------------------------------------------------
-    // transform
-    sig = FoaTransform.ar(sig, ~transformer, angle, azim);
+	// ------------------------------------------------------------
+	// comb filter
+	sig = HPF.ar(sig, freq);
+	sig = CombL.ar(sig, freq.reciprocal, freq.reciprocal, mul: 9.neg.dbamp);
+
+
+	// ------------------------------------------------------------
+	// encode
+	sig = FoaEncode.ar(sig, ~encoder);
+
+	// ------------------------------------------------------------
+	// transform
+	sig = FoaTransform.ar(sig, ~transformer, angle, azim);
 
 
 
-    // ------------------------------------------------------------
-    // decode (via ~renderDecode)
-    ~renderDecode.value(sig, ~decoder)
+	// ------------------------------------------------------------
+	// decode (via ~renderDecode)
+	~renderDecode.value(sig, ~decoder)
 
 }.scope;
 )
@@ -354,81 +354,81 @@ code::
 
 (
 {
-    var sig;				     // audio signal
-    var angle, azim;			// angle and azimuth control
-    var freq;
+	var sig;				     // audio signal
+	var angle, azim;			// angle and azimuth control
+	var freq;
 
-    // ir...
-    var gain = -18;
+	// ir...
+	var gain = -18;
 
-    var freqs = [50.0, 7000.0], gains = [-24, 0], rtimes = [0.1, 2.0];
-    var frequencies, amplitudes, ringTimes;
-    var numModes = 20;
+	var freqs = [50.0, 7000.0], gains = [-24, 0], rtimes = [0.1, 2.0];
+	var frequencies, amplitudes, ringTimes;
+	var numModes = 20;
 
-    var density = 20;                  // grain/klank density
+	var density = 20;                  // grain/klank density
 
-    var rttFreq = 10 * density;
-
-
-    // display encoder and decoder
-    "Ambisonic encoding via % encoder".format(~encoder.kind).postln;
-    "Ambisonic transforming via % transformer".format(~transformer1).postln;
-    "Ambisonic transforming via % transformer".format(~transformer2).postln;
-    "Ambisonic decoding via % decoder".format(~decoder.kind).postln;
+	var rttFreq = 10 * density;
 
 
-    // calculate klank args
-    frequencies = Array.rand(numModes, freqs[0], freqs[1]).sort;
-    amplitudes = Array.rand(numModes, gains[0], gains[1]).sort.reverse.dbamp;
-    ringTimes = Array.rand(numModes, rtimes[0], rtimes[1]).sort.reverse;
+	// display encoder and decoder
+	"Ambisonic encoding via % encoder".format(~encoder.kind).postln;
+	"Ambisonic transforming via % transformer".format(~transformer1).postln;
+	"Ambisonic transforming via % transformer".format(~transformer2).postln;
+	"Ambisonic decoding via % decoder".format(~decoder.kind).postln;
 
 
-    // angle ---> top 		= push to plane wave
-    //		  bottom	= omni-directional
-    angle = MouseY.kr(pi/2, 0);
-
-    // azimuth -> hard left 	= back
-    //		  centre 	= centre
-    //		  hard right 	= back
-    azim = MouseX.kr(pi, -pi);
+	// calculate klank args
+	frequencies = Array.rand(numModes, freqs[0], freqs[1]).sort;
+	amplitudes = Array.rand(numModes, gains[0], gains[1]).sort.reverse.dbamp;
+	ringTimes = Array.rand(numModes, rtimes[0], rtimes[1]).sort.reverse;
 
 
-    // ------------------------------------------------------------
-    // test sig
-    sig = Dust.ar(Array.fill(4, density / 4));
+	// angle ---> top 		= push to plane wave
+	//		  bottom	= omni-directional
+	angle = MouseY.kr(pi/2, 0);
 
-    // ------------------------------------------------------------
-    // encode
-    sig = FoaEncode.ar(sig, ~encoder);
-
-    // ------------------------------------------------------------
-    // transform 1 (rtt)
-    sig = FoaTransform.ar(
-        sig,
-        ~transformer1,
-        LFSaw.ar(rttFreq, pi, add: pi),
-        LFSaw.ar(rttFreq**(1/3), pi, add: pi),
-        LFSaw.ar(rttFreq**(2/3), pi, add: pi)
-    );
+	// azimuth -> hard left 	= back
+	//		  centre 	= centre
+	//		  hard right 	= back
+	azim = MouseX.kr(pi, -pi);
 
 
-    // ------------------------------------------------------------
-    // Klank
-    sig = gain.dbamp * Klank.ar(
-        `[ frequencies, amplitudes, ringTimes ],
-        sig
-    );
+	// ------------------------------------------------------------
+	// test sig
+	sig = Dust.ar(Array.fill(4, density / 4));
+
+	// ------------------------------------------------------------
+	// encode
+	sig = FoaEncode.ar(sig, ~encoder);
+
+	// ------------------------------------------------------------
+	// transform 1 (rtt)
+	sig = FoaTransform.ar(
+		sig,
+		~transformer1,
+		LFSaw.ar(rttFreq, pi, add: pi),
+		LFSaw.ar(rttFreq**(1/3), pi, add: pi),
+		LFSaw.ar(rttFreq**(2/3), pi, add: pi)
+	);
 
 
-    // ------------------------------------------------------------
-    // transform 2 (push)
-    sig = FoaTransform.ar(sig, ~transformer2, angle, azim);
+	// ------------------------------------------------------------
+	// Klank
+	sig = gain.dbamp * Klank.ar(
+		`[ frequencies, amplitudes, ringTimes ],
+		sig
+	);
+
+
+	// ------------------------------------------------------------
+	// transform 2 (push)
+	sig = FoaTransform.ar(sig, ~transformer2, angle, azim);
 
 
 
-    // ------------------------------------------------------------
-    // decode (via ~renderDecode)
-    ~renderDecode.value(sig, ~decoder)
+	// ------------------------------------------------------------
+	// decode (via ~renderDecode)
+	~renderDecode.value(sig, ~decoder)
 
 }.scope;
 )
@@ -488,47 +488,47 @@ code::
 
 (
 {
-    var sig;                            // audio signal
-    var angle, azim;                    // angle and azimuth control
+	var sig;                            // audio signal
+	var angle, azim;                    // angle and azimuth control
 
 
-    // display encoder and decoder
-    "Ambisonic encoding via % encoder".format(~encoder.kind).postln;
-    "Ambisonic decoding via % decoder".format(~decoder.kind).postln;
+	// display encoder and decoder
+	"Ambisonic encoding via % encoder".format(~encoder.kind).postln;
+	"Ambisonic decoding via % decoder".format(~decoder.kind).postln;
 
-    // angle ---> top           = push to plane wave
-    //            bottom        = omni-directional
-    angle = MouseY.kr(pi/2, 0);
+	// angle ---> top           = push to plane wave
+	//            bottom        = omni-directional
+	angle = MouseY.kr(pi/2, 0);
 
-    // azimuth -> hard left     = back
-    //            centre        = centre
-    //            hard right    = back
-    azim = MouseX.kr(pi, -pi);
+	// azimuth -> hard left     = back
+	//            centre        = centre
+	//            hard right    = back
+	azim = MouseX.kr(pi, -pi);
 
-    // ------------------------------------------------------------
-    // test sig
-    sig = PlayBuf.ar(~sndbuf.numChannels, ~sndbuf, BufRateScale.kr(~sndbuf), doneAction:2);   // soundfile
-    sig = 0.5 * sig.sum; // to mono
+	// ------------------------------------------------------------
+	// test sig
+	sig = PlayBuf.ar(~sndbuf.numChannels, ~sndbuf, BufRateScale.kr(~sndbuf), doneAction:2);   // soundfile
+	sig = 0.5 * sig.sum; // to mono
 
 
-    // ------------------------------------------------------------
-    // encode
-    sig = FoaEncode.ar(sig, ~encoder);
+	// ------------------------------------------------------------
+	// encode
+	sig = FoaEncode.ar(sig, ~encoder);
 
-    // ------------------------------------------------------------
-    // transform
+	// ------------------------------------------------------------
+	// transform
 	sig = FoaRTT.ar(sig,
 		LFNoise2.kr(1.0/5.0, pi),
 		LFNoise2.kr(1.0/5.0, pi),
 		LFNoise2.kr(1.0/5.0, pi)
 	);
-    sig = FoaTransform.ar(sig, 'push', angle, azim);
+	sig = FoaTransform.ar(sig, 'push', angle, azim);
 
 
 
-    // ------------------------------------------------------------
-    // decode (via ~renderDecode)
-    ~renderDecode.value(sig, ~decoder)
+	// ------------------------------------------------------------
+	// decode (via ~renderDecode)
+	~renderDecode.value(sig, ~decoder)
 
 }.scope;
 )
@@ -564,10 +564,10 @@ code::
 // define encoder matricies, for each cardinal point
 (
 ~encoder = [
-    FoaEncoderMatrix.newDirection,
-    FoaEncoderMatrix.newDirection(pi/2),
-    FoaEncoderMatrix.newDirection(pi),
-    FoaEncoderMatrix.newDirection(pi.neg/2)
+	FoaEncoderMatrix.newDirection,
+	FoaEncoderMatrix.newDirection(pi/2),
+	FoaEncoderMatrix.newDirection(pi),
+	FoaEncoderMatrix.newDirection(pi.neg/2)
 ]
 )
 
@@ -578,50 +578,50 @@ code::
 
 (
 {
-    var sig;                            // audio signal
-    var angle;                          // angle control
-    var freq;
-    var density = 10;                   // grain density
+	var sig;                            // audio signal
+	var angle;                          // angle control
+	var freq;
+	var density = 10;                   // grain density
 
 
-    // display encoder and decoder
-    "Ambisonic encoding via % encoder".format(~encoder[0].kind).postln;
-    "Ambisonic transforming via % transformer".format(~transformer).postln;
-    "Ambisonic decoding via % decoder".format(~decoder.kind).postln;
+	// display encoder and decoder
+	"Ambisonic encoding via % encoder".format(~encoder[0].kind).postln;
+	"Ambisonic transforming via % transformer".format(~transformer).postln;
+	"Ambisonic decoding via % decoder".format(~decoder.kind).postln;
 
-    // frequencies
-    freq = 220 * [ 4, 5, 7, 6 ] / 4;
+	// frequencies
+	freq = 220 * [ 4, 5, 7, 6 ] / 4;
 
-    // angle ---> top           = pi/2
-    //            bottom        = -pi/2
-    angle = MouseY.kr(pi/2, pi.neg/2);
-
-
-    // ------------------------------------------------------------
-    // test sig
-    sig = Dust.ar(Array.fill(4, density / 4));
+	// angle ---> top           = pi/2
+	//            bottom        = -pi/2
+	angle = MouseY.kr(pi/2, pi.neg/2);
 
 
-    // ------------------------------------------------------------
-    // comb filter
-    sig = BPF.ar(sig, freq, mul: 18.dbamp);
-    sig = CombL.ar(sig, freq.reciprocal, freq.reciprocal, mul: 9.neg.dbamp);
+	// ------------------------------------------------------------
+	// test sig
+	sig = Dust.ar(Array.fill(4, density / 4));
 
 
-    // ------------------------------------------------------------
-    // encode
+	// ------------------------------------------------------------
+	// comb filter
+	sig = BPF.ar(sig, freq, mul: 18.dbamp);
+	sig = CombL.ar(sig, freq.reciprocal, freq.reciprocal, mul: 9.neg.dbamp);
+
+
+	// ------------------------------------------------------------
+	// encode
 	sig = Mix.fill(sig.numChannels, { arg i;  FoaEncode.ar(sig[i], ~encoder[i]) });
 
 
-    // ------------------------------------------------------------
-    // transform
-    sig = FoaTransform.ar(sig, ~transformer, angle);
+	// ------------------------------------------------------------
+	// transform
+	sig = FoaTransform.ar(sig, ~transformer, angle);
 
 
 
-    // ------------------------------------------------------------
-    // decode (via ~renderDecode)
-    ~renderDecode.value(sig, ~decoder)
+	// ------------------------------------------------------------
+	// decode (via ~renderDecode)
+	~renderDecode.value(sig, ~decoder)
 
 }.scope;
 )
@@ -651,10 +651,10 @@ code::
 // define encoder matricies, for each cardinal point
 (
 ~encoder = [
-    FoaEncoderMatrix.newDirection,
-    FoaEncoderMatrix.newDirection(pi/2),
-    FoaEncoderMatrix.newDirection(pi),
-    FoaEncoderMatrix.newDirection(pi.neg/2)
+	FoaEncoderMatrix.newDirection,
+	FoaEncoderMatrix.newDirection(pi/2),
+	FoaEncoderMatrix.newDirection(pi),
+	FoaEncoderMatrix.newDirection(pi.neg/2)
 ]
 )
 
@@ -664,50 +664,50 @@ code::
 
 (
 {
-    var sig;                            // audio signal
-    var angle;                          // angle control
-    var freq;
-    var density = 10;                   // grain density
+	var sig;                            // audio signal
+	var angle;                          // angle control
+	var freq;
+	var density = 10;                   // grain density
 
 
-    // display encoder and decoder
-    "Ambisonic encoding via % encoder".format(~encoder[0].kind).postln;
-    "Ambisonic transforming via % transformer".format(~transformer).postln;
-    "Ambisonic decoding via % decoder".format(~decoder.kind).postln;
+	// display encoder and decoder
+	"Ambisonic encoding via % encoder".format(~encoder[0].kind).postln;
+	"Ambisonic transforming via % transformer".format(~transformer).postln;
+	"Ambisonic decoding via % decoder".format(~decoder.kind).postln;
 
-    // frequencies
-    freq = 220 * [ 4, 5, 7, 6 ] / 4;
+	// frequencies
+	freq = 220 * [ 4, 5, 7, 6 ] / 4;
 
-    // angle ---> left          = pi/2
-    //            right         = -pi/2
-    angle = MouseX.kr(pi/2, pi.neg/2);
-
-
-    // ------------------------------------------------------------
-    // test sig
-    sig = Dust.ar(Array.fill(4, density / 4));
+	// angle ---> left          = pi/2
+	//            right         = -pi/2
+	angle = MouseX.kr(pi/2, pi.neg/2);
 
 
-    // ------------------------------------------------------------
-    // comb filter
-    sig = BPF.ar(sig, freq, mul: 18.dbamp);
-    sig = CombL.ar(sig, freq.reciprocal, freq.reciprocal, mul: 9.neg.dbamp);
+	// ------------------------------------------------------------
+	// test sig
+	sig = Dust.ar(Array.fill(4, density / 4));
 
 
-    // ------------------------------------------------------------
-    // encode
+	// ------------------------------------------------------------
+	// comb filter
+	sig = BPF.ar(sig, freq, mul: 18.dbamp);
+	sig = CombL.ar(sig, freq.reciprocal, freq.reciprocal, mul: 9.neg.dbamp);
+
+
+	// ------------------------------------------------------------
+	// encode
 	sig = Mix.fill(sig.numChannels, { arg i;  FoaEncode.ar(sig[i], ~encoder[i]) });
 
 
-    // ------------------------------------------------------------
-    // transform
-    sig = FoaTransform.ar(sig, ~transformer, angle);
+	// ------------------------------------------------------------
+	// transform
+	sig = FoaTransform.ar(sig, ~transformer, angle);
 
 
 
-    // ------------------------------------------------------------
-    // decode (via ~renderDecode)
-    ~renderDecode.value(sig, ~decoder)
+	// ------------------------------------------------------------
+	// decode (via ~renderDecode)
+	~renderDecode.value(sig, ~decoder)
 
 }.scope;
 )
@@ -740,10 +740,10 @@ code::
 // define encoder matricies
 (
 ~encoder = [
-    FoaEncoderMatrix.newDirection(pi/6),
-    FoaEncoderMatrix.newDirection(pi/12),
-    FoaEncoderMatrix.newDirection(pi.neg/12),
-    FoaEncoderMatrix.newDirection(pi.neg/6)
+	FoaEncoderMatrix.newDirection(pi/6),
+	FoaEncoderMatrix.newDirection(pi/12),
+	FoaEncoderMatrix.newDirection(pi.neg/12),
+	FoaEncoderMatrix.newDirection(pi.neg/6)
 ]
 )
 
@@ -752,50 +752,50 @@ code::
 
 (
 {
-    var sig;                            // audio signal
-    var dist;                           // distance control
-    var freq;
-    var density = 10;                   // grain density
+	var sig;                            // audio signal
+	var dist;                           // distance control
+	var freq;
+	var density = 10;                   // grain density
 
 
-    // display encoder and decoder
-    "Ambisonic encoding via % encoder".format(~encoder[0].kind).postln;
-    "Ambisonic transforming via % transformer".format(~transformer).postln;
-    "Ambisonic decoding via % decoder".format(~decoder.kind).postln;
+	// display encoder and decoder
+	"Ambisonic encoding via % encoder".format(~encoder[0].kind).postln;
+	"Ambisonic transforming via % transformer".format(~transformer).postln;
+	"Ambisonic decoding via % decoder".format(~decoder.kind).postln;
 
-    // frequencies
-    freq = 220 * [ 4, 5, 7, 6 ] / 4;
+	// frequencies
+	freq = 220 * [ 4, 5, 7, 6 ] / 4;
 
-    // dist  ---> top           = 0.5
-    //            bottom        = 0.05
-    dist = MouseY.kr(0.5, 0.05);
-
-
-    // ------------------------------------------------------------
-    // test sig
-    sig = Dust.ar(Array.fill(4, density / 4));
+	// dist  ---> top           = 0.5
+	//            bottom        = 0.05
+	dist = MouseY.kr(0.5, 0.05);
 
 
-    // ------------------------------------------------------------
-    // comb filter
-    sig = BPF.ar(sig, freq, mul: 18.dbamp);
-    sig = CombL.ar(sig, freq.reciprocal, freq.reciprocal, mul: 9.neg.dbamp);
+	// ------------------------------------------------------------
+	// test sig
+	sig = Dust.ar(Array.fill(4, density / 4));
 
 
-    // ------------------------------------------------------------
-    // encode
-    sig = Mix.fill(sig.numChannels, { arg i;  FoaEncode.ar(sig[i], ~encoder[i]) });
+	// ------------------------------------------------------------
+	// comb filter
+	sig = BPF.ar(sig, freq, mul: 18.dbamp);
+	sig = CombL.ar(sig, freq.reciprocal, freq.reciprocal, mul: 9.neg.dbamp);
 
 
-    // ------------------------------------------------------------
-    // transform
-    sig = FoaTransform.ar(sig, ~transformer, dist);
+	// ------------------------------------------------------------
+	// encode
+	sig = Mix.fill(sig.numChannels, { arg i;  FoaEncode.ar(sig[i], ~encoder[i]) });
+
+
+	// ------------------------------------------------------------
+	// transform
+	sig = FoaTransform.ar(sig, ~transformer, dist);
 
 
 
-    // ------------------------------------------------------------
-    // decode (via ~renderDecode)
-    ~renderDecode.value(sig, ~decoder)
+	// ------------------------------------------------------------
+	// decode (via ~renderDecode)
+	~renderDecode.value(sig, ~decoder)
 
 }.scope;
 )
@@ -837,33 +837,33 @@ code::
 
 (
 {
-    var sig;                            // audio signal
-    var dist;                           // distance control
+	var sig;                            // audio signal
+	var dist;                           // distance control
 
 
 
-    // display encoder and decoder
-    "Ambisonic transforming via % transformer".format(~transformer).postln;
-    "Ambisonic decoding via % decoder".format(~decoder.kind).postln;
+	// display encoder and decoder
+	"Ambisonic transforming via % transformer".format(~transformer).postln;
+	"Ambisonic decoding via % decoder".format(~decoder.kind).postln;
 
-    // dist  ---> top           = 0.05
-    //            bottom        = 1.0
-    dist = MouseY.kr(0.05, 1.0);
-
-
-    // ------------------------------------------------------------
-    // test sig
-    sig = PlayBuf.ar(~sndbuf.numChannels, ~sndbuf, BufRateScale.kr(~sndbuf), doneAction:2);   // soundfile
+	// dist  ---> top           = 0.05
+	//            bottom        = 1.0
+	dist = MouseY.kr(0.05, 1.0);
 
 
-    // ------------------------------------------------------------
-    // transform
-    sig = FoaTransform.ar(sig, ~transformer, dist);
+	// ------------------------------------------------------------
+	// test sig
+	sig = PlayBuf.ar(~sndbuf.numChannels, ~sndbuf, BufRateScale.kr(~sndbuf), doneAction:2);   // soundfile
 
 
-    // ------------------------------------------------------------
-    // decode (via ~renderDecode)
-    ~renderDecode.value(sig, ~decoder)
+	// ------------------------------------------------------------
+	// transform
+	sig = FoaTransform.ar(sig, ~transformer, dist);
+
+
+	// ------------------------------------------------------------
+	// decode (via ~renderDecode)
+	~renderDecode.value(sig, ~decoder)
 
 }.scope;
 )

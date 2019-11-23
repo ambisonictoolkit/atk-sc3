@@ -93,13 +93,13 @@ s.scope(~order.asHoaOrder.size, ~outbus);
 // audition
 (
 {
-    var gain = -12;
+	var gain = -12;
 
-    var sig, hoa;
+	var sig, hoa;
 
-    sig = SinOsc.ar(~freqs, mul: gain.dbamp * ~amps);
+	sig = SinOsc.ar(~freqs, mul: gain.dbamp * ~amps);
 
-    hoa = HoaNFCtrl.ar(
+	hoa = HoaNFCtrl.ar(
 		HoaEncodeMatrix.ar(sig, ~matrixEncoder),
 		~encRadius,  // encoding radius
 		AtkHoa.refRadius,  // reference radius

@@ -77,25 +77,25 @@ code::
 
 (
 {
-    var sig;                            // audio signal
+	var sig;                            // audio signal
 
 
-    // display xformer & decoder
-    "Ambisonic transforming via % xformer".format(~xformer.kind).postln;
-    "Ambisonic decoding via % decoder".format(~decoder.kind).postln;
+	// display xformer & decoder
+	"Ambisonic transforming via % xformer".format(~xformer.kind).postln;
+	"Ambisonic decoding via % decoder".format(~decoder.kind).postln;
 
-    // ------------------------------------------------------------
-    // test sig
-    sig = PlayBuf.ar(~sndbuf.numChannels, ~sndbuf, BufRateScale.kr(~sndbuf), doneAction:2);   // soundfile
+	// ------------------------------------------------------------
+	// test sig
+	sig = PlayBuf.ar(~sndbuf.numChannels, ~sndbuf, BufRateScale.kr(~sndbuf), doneAction:2);   // soundfile
 
-    // ------------------------------------------------------------
-    // transform
-    sig = FoaXform.ar(sig, ~xformer);
+	// ------------------------------------------------------------
+	// transform
+	sig = FoaXform.ar(sig, ~xformer);
 
 
-    // ------------------------------------------------------------
-    // decode (via ~renderDecode)
-    ~renderDecode.value(sig, ~decoder)
+	// ------------------------------------------------------------
+	// decode (via ~renderDecode)
+	~renderDecode.value(sig, ~decoder)
 
 }.scope;
 )
@@ -148,42 +148,42 @@ code::
 
 (
 {
-    var sig;                            // audio signal
-    var delSig;                         // delayed signal
-    var freq;                           // lp frequency
-    var delay;                          // delay time
-    var scale;                          // delay gain (as scale)
+	var sig;                            // audio signal
+	var delSig;                         // delayed signal
+	var freq;                           // lp frequency
+	var delay;                          // delay time
+	var scale;                          // delay gain (as scale)
 
-    // display xformer & decoder
-    "Ambisonic transforming via % xformer".format(~xformer.kind).postln;
-    "Ambisonic decoding via % decoder".format(~decoder.kind).postln;
+	// display xformer & decoder
+	"Ambisonic transforming via % xformer".format(~xformer.kind).postln;
+	"Ambisonic decoding via % decoder".format(~decoder.kind).postln;
 
-    // ------------------------------------------------------------
-    // parameters
-    freq = 1200;                        // in Hz
-    delay = 0.5;                        // in seconds
-    scale = 9.neg.dbamp;
+	// ------------------------------------------------------------
+	// parameters
+	freq = 1200;                        // in Hz
+	delay = 0.5;                        // in seconds
+	scale = 9.neg.dbamp;
 
-    // ------------------------------------------------------------
-    // test sig
-    sig = PlayBuf.ar(~sndbuf.numChannels, ~sndbuf, BufRateScale.kr(~sndbuf), doneAction:2);   // soundfile
+	// ------------------------------------------------------------
+	// test sig
+	sig = PlayBuf.ar(~sndbuf.numChannels, ~sndbuf, BufRateScale.kr(~sndbuf), doneAction:2);   // soundfile
 
-    // ------------------------------------------------------------
-    // delay, lp and gain
-    delSig = LPF.ar(DelayN.ar(sig, delay, delay), freq, scale);
+	// ------------------------------------------------------------
+	// delay, lp and gain
+	delSig = LPF.ar(DelayN.ar(sig, delay, delay), freq, scale);
 
-    // ------------------------------------------------------------
-    // transform
-    delSig = FoaXform.ar(delSig, ~xformer);
+	// ------------------------------------------------------------
+	// transform
+	delSig = FoaXform.ar(delSig, ~xformer);
 
-    // ------------------------------------------------------------
-    // sum (comment this out to hear original signal)
-    sig = sig + delSig;
+	// ------------------------------------------------------------
+	// sum (comment this out to hear original signal)
+	sig = sig + delSig;
 //    sig = delSig;                    // or listen to the mirrored sig
 
-    // ------------------------------------------------------------
-    // decode (via ~renderDecode)
-    ~renderDecode.value(sig, ~decoder)
+	// ------------------------------------------------------------
+	// decode (via ~renderDecode)
+	~renderDecode.value(sig, ~decoder)
 
 }.scope;
 )
@@ -237,24 +237,24 @@ code::
 
 (
 {
-    var sig;                            // audio signal
+	var sig;                            // audio signal
 
-    // display xformer & decoder
-    "Ambisonic transforming via % xformer".format(~xformer.kind).postln;
-    "Ambisonic decoding via % decoder".format(~decoder.kind).postln;
+	// display xformer & decoder
+	"Ambisonic transforming via % xformer".format(~xformer.kind).postln;
+	"Ambisonic decoding via % decoder".format(~decoder.kind).postln;
 
-    // ------------------------------------------------------------
-    // test sig
-    sig = PlayBuf.ar(~sndbuf.numChannels, ~sndbuf, BufRateScale.kr(~sndbuf), doneAction:2);   // soundfile
+	// ------------------------------------------------------------
+	// test sig
+	sig = PlayBuf.ar(~sndbuf.numChannels, ~sndbuf, BufRateScale.kr(~sndbuf), doneAction:2);   // soundfile
 
-    // ------------------------------------------------------------
-    // transform
-    sig = FoaXform.ar(sig, ~xformer);
+	// ------------------------------------------------------------
+	// transform
+	sig = FoaXform.ar(sig, ~xformer);
 
 
-    // ------------------------------------------------------------
-    // decode (via ~renderDecode)
-    ~renderDecode.value(sig, ~decoder)
+	// ------------------------------------------------------------
+	// decode (via ~renderDecode)
+	~renderDecode.value(sig, ~decoder)
 
 }.scope;
 )

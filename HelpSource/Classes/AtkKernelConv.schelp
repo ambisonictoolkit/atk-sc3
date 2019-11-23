@@ -63,13 +63,13 @@ scale = 24.neg.dbamp;
 // convolve
 (
 {
-    var sig;
+	var sig;
 
-    // pink noise
-    sig = PinkNoise.ar;
+	// pink noise
+	sig = PinkNoise.ar;
 
-    // encode
-    AtkKernelConv.ar(sig, ~kernel);
+	// encode
+	AtkKernelConv.ar(sig, ~kernel);
 }.scope
 )
 

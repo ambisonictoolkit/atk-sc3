@@ -66,15 +66,15 @@ s.scope(1, ~outbus);
 // audition
 (
 {
-    var gain = -18;
+	var gain = -18;
 
-    var sig, hoa;
+	var sig, hoa;
 
-    sig = SinOsc.ar(~freqs, mul: gain.dbamp * ~amps);
+	sig = SinOsc.ar(~freqs, mul: gain.dbamp * ~amps);
 
-    hoa = HoaEncodeMatrix.ar(sig, ~matrixEncoder);
+	hoa = HoaEncodeMatrix.ar(sig, ~matrixEncoder);
 
-    HoaDecodeMatrix.ar(hoa, ~matrixDecoder);
+	HoaDecodeMatrix.ar(hoa, ~matrixDecoder);
 
 }.play(outbus: ~outbus)
 )
@@ -123,15 +123,15 @@ s.scope(6, ~outbus);
 // audition
 (
 {
-    var gain = -18;
+	var gain = -18;
 
-    var sig, hoa;
+	var sig, hoa;
 
-    sig = SinOsc.ar(~freqs, mul: gain.dbamp * ~amps);
+	sig = SinOsc.ar(~freqs, mul: gain.dbamp * ~amps);
 
-    hoa = HoaEncodeMatrix.ar(sig, ~matrixEncoder);
+	hoa = HoaEncodeMatrix.ar(sig, ~matrixEncoder);
 
-    HoaDecodeMatrix.ar(hoa, ~matrixDecoder);
+	HoaDecodeMatrix.ar(hoa, ~matrixDecoder);
 
 }.play(outbus: ~outbus)
 )

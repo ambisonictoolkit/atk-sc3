@@ -80,7 +80,7 @@ HoaMatrix : AtkMatrix {
 		var size, matrixOrder;
 
 		// set instance matrix
-		matrix = aMatrix;
+		matrix = aMatrix.zeroWithin(AtkHoa.nearZero);
 
 		// 1) Check: matrix numChannels == directions.size
 		if(this.numChannels != this.directions.size, {
@@ -200,7 +200,7 @@ HoaMatrix : AtkMatrix {
 				}, {
 					pn.fileNameWithoutExtension.asSymbol
 				});
-				matrix = Matrix.with(fileParse.matrix.asFloat);
+				matrix = Matrix.with(fileParse.matrix.asFloat).zeroWithin(AtkHoa.nearZero);
 				directions = fileParse.directions.asFloat;
 
 				// Remove parsed Instance variables & methods from fileParse.
@@ -745,7 +745,7 @@ HoaMatrixXformer : HoaMatrix {
 		).matrix;
 
 		// decode, re-encode
-		matrix = encodingMatrix.mulMatrix(decodingMatrix)
+		matrix = encodingMatrix.mulMatrix(decodingMatrix).zeroWithin(AtkHoa.nearZero)
 	}
 
 	initNull { |beamShape|
@@ -765,7 +765,7 @@ HoaMatrixXformer : HoaMatrix {
 		).matrix;
 
 		// null
-		matrix = Matrix.newIdentity((this.order + 1).squared) - xformingMatrix
+		matrix = (Matrix.newIdentity((this.order + 1).squared) - xformingMatrix).zeroWithin(AtkHoa.nearZero)
 	}
 
 

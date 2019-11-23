@@ -706,7 +706,12 @@ HoaMatrixXformer : HoaMatrix {
 				rz = this.class.newRotateAxis(\z, 0.5pi, this.order).matrix;
 				mx = this.class.newReflect(\x, this.order).matrix;
 
-				matrix = mx * rz;
+				// matrix = mx * rz;
+
+				// TODO: bake in this omptimization? larger question of migrating from Matrix to MatrixArray
+				mx = MatrixArray.with(mx.asArray);
+				rz = MatrixArray.with(rz.asArray);
+				matrix = Matrix.with(mx * rz);
 			},
 
 			// cannot do it!!

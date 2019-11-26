@@ -353,10 +353,10 @@ Information regarding strong::rV::, the emphasis::velocity localisation vector::
 
 table::
 ## strong::keyword:: || strong::analysis::
-## code::\mag:: || vector magnitudes
+## code::\magnitudes:: || vector magnitudes
 ## code::\directions:: || vector directions, in radians
-## code::\dist:: || distortion from test directions, in radians
-## code::\rEdist:: || distortion from strong::rE::, in radians
+## code::\warp:: || angle distortion from test directions, in radians
+## code::\rEwarp:: || angle distortion from strong::rE::, in radians
 ## code::\xyz:: || strong::rV::, in cartesian coordinates
 ::
 
@@ -364,10 +364,10 @@ Similarly, information regarding strong::rE::, the emphasis::energy localisation
 
 table::
 ## strong::keyword:: || strong::analysis::
-## code::\mag:: || vector magnitudes
+## code::\magnitudes:: || vector magnitudes
 ## code::\directions:: || vector directions, in radians
-## code::\dist:: || distortion from test directions, in radians
-## code::\rVdist:: || distortion from strong::rV::, in radians
+## code::\warp:: || angle distortion from test directions, in radians
+## code::\rVwarp:: || angle distortion from strong::rV::, in radians
 ## code::\xyz:: || strong::rE::, in cartesian coordinates
 ::
 
@@ -400,14 +400,14 @@ code::
 
 ~analysis.spreadE.cos.raddeg
 
-~analysis.rV.mag
+~analysis.rV.magnitudes
 ~analysis.rV.directions.raddeg.round(0.1)
-~analysis.rV.dist.raddeg.round(0.1)
-~analysis.rV.rEdist.raddeg.round(0.1)
+~analysis.rV.warp.raddeg.round(0.1)
+~analysis.rV.rEwarp.raddeg.round(0.1)
 
-~analysis.rE.mag
+~analysis.rE.magnitudes
 ~analysis.rE.directions.raddeg.round(0.1)
-~analysis.rE.dist.raddeg.round(0.1)
+~analysis.rE.warp.raddeg.round(0.1)
 ::
 
 
@@ -438,14 +438,14 @@ code::
 
 ~analysis.spreadE.cos.raddeg
 
-~analysis.rV.mag
+~analysis.rV.magnitudes
 ~analysis.rV.directions.raddeg.round(0.1)
-~analysis.rV.dist.raddeg.round(0.1)
-~analysis.rV.rEdist.raddeg.round(0.1)
+~analysis.rV.warp.raddeg.round(0.1)
+~analysis.rV.rEwarp.raddeg.round(0.1)
 
-~analysis.rE.mag
+~analysis.rE.magnitudes
 ~analysis.rE.directions.raddeg.round(0.1)
-~analysis.rE.dist.raddeg.round(0.1)
+~analysis.rE.warp.raddeg.round(0.1)
 ::
 
 
@@ -476,14 +476,14 @@ code::
 
 ~analysis.spreadE.cos.raddeg
 
-~analysis.rV.mag
+~analysis.rV.magnitudes
 ~analysis.rV.directions.raddeg.round(0.1)
-~analysis.rV.dist.raddeg.round(0.1)
-~analysis.rV.rEdist.raddeg.round(0.1)
+~analysis.rV.warp.raddeg.round(0.1)
+~analysis.rV.rEwarp.raddeg.round(0.1)
 
-~analysis.rE.mag
+~analysis.rE.magnitudes
 ~analysis.rE.directions.raddeg.round(0.1)
-~analysis.rE.dist.raddeg.round(0.1)
+~analysis.rE.warp.raddeg.round(0.1)
 ::
 
 

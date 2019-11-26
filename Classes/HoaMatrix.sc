@@ -926,12 +926,12 @@ HoaMatrixXformer : HoaMatrix {
 			\energy->energy,
 			\spreadE->spreadE,
 			\rV->IdentityDictionary.with(*[
-				\xyz->rVxyz, \mag->rVmag, \directions->rVdir,
-				\dist->rVdist, \rEdist->rVrEdist
+				\xyz->rVxyz, \magnitudes->rVmag, \directions->rVdir,
+				\warp->rVdist, \rEwarp->rVrEdist
 			]).know_(true),
 			\rE->IdentityDictionary.with(*[
-				\xyz->rExyz, \mag->rEmag, \directions->rEdir,
-				\dist->rEdist, \rVdist->rVrEdist
+				\xyz->rExyz, \magnitudes->rEmag, \directions->rEdir,
+				\warp->rEdist, \rVwarp->rVrEdist
 			]).know_(true),
 		]).know_(true)
 	}
@@ -1415,12 +1415,12 @@ HoaMatrixDecoder : HoaMatrix {
 			\energy->energy,
 			\spreadE->spreadE,
 			\rV->IdentityDictionary.with(*[
-				\xyz->rVxyz, \mag->rVmag, \directions->rVdir,
-				\dist->rVdist, \rEdist->rVrEdist
+				\xyz->rVxyz, \magnitudes->rVmag, \directions->rVdir,
+				\warp->rVdist, \rEwarp->rVrEdist
 			]).know_(true),
 			\rE->IdentityDictionary.with(*[
-				\xyz->rExyz, \mag->rEmag, \directions->rEdir,
-				\dist->rEdist, \rVdist->rVrEdist
+				\xyz->rExyz, \magnitudes->rEmag, \directions->rEdir,
+				\warp->rEdist, \rVwarp->rVrEdist
 			]).know_(true),
 		]).know_(true)
 	}

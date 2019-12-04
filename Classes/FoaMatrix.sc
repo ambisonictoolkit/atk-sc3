@@ -1901,8 +1901,7 @@ FoaDecoderKernel {
 			case(
 				// --> missing kernel database
 				{ databasePath.isFolder.not }, {
-					errorMsg = "ATK kernel database missing!" +
-					"Please install % database.".format(this.kind)
+					errorMsg = "Atk: kernels don't appear to be installed\nRun 'Atk.downloadKernels' to attempt automatic installation"
 				},
 
 				// --> unsupported SR

@@ -13,6 +13,35 @@ METHOD:: sets
 
 returns:: an Array listing valid ATK sets.
 
+SUBSECTION:: Installation of ATK dependencies
+
+Kernels, Matrices, and Soundfiles can be installed using following methods:
+code::
+Atk.downloadKernels;
+Atk.downloadMatrices;
+Atk.downloadSounds;
+::
+
+note::On code::Windows:: there is no feedback on download progress. Please wait until the message confirming decompressing of the downloaded archive is posted.::
+
+In case the automatic installation fails, please see the Ambisonic Toolkit webpage to proceed with manual installation:
+code::
+"http://ambisonictoolkit.net/download/kernels/".openOS; //kernels
+"http://ambisonictoolkit.net/download/matrices/".openOS; //matrices
+"http://ambisonictoolkit.net/download/recordings/".openOS; //soundfiles
+::
+
+
+METHOD:: downloadKernels
+Download Atk Kernels, required by kernel encoders/decoders
+
+METHOD:: downloadMatrices
+Download Atk Matrices, required by matrix encoders/decoders/transformers
+
+METHOD:: downloadSounds
+Download Atk Example Soundfiles
+
+
 SUBSECTION:: ATK's default asset directories
 
 NOTE:: The following methods have both strong::user:: and
@@ -168,4 +197,4 @@ A shortcut for code::Atk.getExtensionSubPath(set, op, 'kernels')::
 
 
 
-PRIVATE:: checkSet, sets, getAtkLibSubPath, getKernelExtensionPath, getBuiltInPath, getMatrixBuiltInPath, resolveMtxPath, folderExists
+PRIVATE:: checkSet, sets, getAtkLibSubPath, getKernelExtensionPath, getBuiltInPath, getMatrixBuiltInPath, resolveMtxPath, folderExists, checkSupportDirsExist, downloadAndUnzip, downloadFile, kernelsDownloadUrl, matricesDownloadUrl, soundsDownloadUrl, unzipFile

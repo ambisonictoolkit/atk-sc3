@@ -65,7 +65,9 @@ With [git](https://git-scm.com/) installed, you can easily install the
 [atk-sc3 Quark](https://github.com/ambisonictoolkit/atk-sc3) directly by
 running the following line of code in SuperCollider:
 
-    Quarks.install("https://github.com/ambisonictoolkit/atk-sc3.git");
+```supercollider
+Quarks.install("https://github.com/ambisonictoolkit/atk-sc3.git");
+```
 
 
 sc3-plugins
@@ -85,25 +87,34 @@ You may need to create the `Extensions` folder if it does not already exist.
 On other platforms, you can find where this is by running the following line of
 code in SuperCollider:
 
-    (  
-    // post the directory in which to move the SC3Plugins folder  
-    Platform.userExtensionDir.postln;  
-    )  
-    (  
-    // alternatively, SC can open it for you  
-    // (assuming it already exists! - you may need to create /Extensions)  
-    Platform.userExtensionDir.openOS;  
-    )  
+```supercollider
+(  
+// post the directory in which to move the SC3Plugins folder  
+Platform.userExtensionDir.postln;  
+)  
+(  
+// alternatively, SC can open it for you  
+// (assuming it already exists! - you may need to create /Extensions)  
+Platform.userExtensionDir.openOS;  
+)
+```
 
 
-Kernels, Matrices & Recordings
+Kernels, Matrices & Soundfiles
 --------------------
 
 Additionally, the SuperCollider3 version of the ATK has further dependencies:
 
-* Download and install [ATK Kernels](http://www.ambisonictoolkit.net/download/kernels/).
-* Download and install [ATK Matrices](http://www.ambisonictoolkit.net/download/matrices/).
-* Download and install [ATK Sound File Example Recordings](http://www.ambisonictoolkit.net/download/recordings/).
+* [ATK Kernels](http://www.ambisonictoolkit.net/download/kernels/)
+* [ATK Matrices](http://www.ambisonictoolkit.net/download/matrices/)
+* [ATK Soundfiles](http://www.ambisonictoolkit.net/download/recordings/)
+
+Install Kernels, Matrices, and Soundfiles by running the following code:
+```supercollider
+Atk.downloadKernels;
+Atk.downloadMatrices;
+Atk.downloadSounds;
+```
 
 
 &nbsp;

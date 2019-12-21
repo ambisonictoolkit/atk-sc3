@@ -81,13 +81,13 @@
 		})
 	}
 
-	// rowsDo { |func|
-	// 	(this.rows).do({ |row, ri| func.(this.getRow(row), ri) })
-	// }
-	//
-	// colsDo { |func|
-	// 	(this.cols).do({ |col, ci| func.(this.getCol(col), ci) })
-	// }
+	rowsDo { |func|
+		(this.rows).do({ |row, ri| func.(this.getRow(row), ri) })
+	}
+
+	colsDo { |func|
+		(this.cols).do({ |col, ci| func.(this.getCol(col), ci) })
+	}
 
 	// return a sub matrix
 	getSub { |rowStart = 0, colStart = 0, rowLength, colHeight|

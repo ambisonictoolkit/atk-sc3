@@ -48,18 +48,36 @@
 
 + Matrix {
 
-	// diagonal matrix - consider adding to Matrix Quark Extension
-	*newDiagonal { |diagonal|
-		var matrix;
-
-		matrix = Matrix.newClear(diagonal.size, diagonal.size);  // empty
-		diagonal.do({ |item, i| matrix.put(i, i, item) });  // fill
-		diagonal.any({ |item| item.isFloat }).if({  // test and recast to float
-			matrix = matrix.asFloat
-		});
-
-		^matrix
-	}
+	// // diagonal matrix - consider adding to Matrix Quark Extension
+	// *newDiagonal { |diagonal|
+	// 	var matrix;
+	//
+	// 	// matrix = Matrix.newClear(diagonal.size, diagonal.size);  // empty
+	// 	// diagonal.do({ |item, i| matrix.put(i, i, item) });  // fill
+	// 	// diagonal.any({ |item| item.isFloat }).if({  // test and recast to float
+	// 	// 	matrix = matrix.asFloat
+	// 	// });
+	//
+	// 	/*
+	// 	assume Float or Integer
+	//
+	// 	More comprehensive testing and casting could be done here, including
+	// 	test for Complex. Doing so would imply reviewing whether currently
+	// 	implemented Matrix methods otherwise support operations with complex
+	// 	values.
+	// 	*/
+	// 	diagonal.any({ |item| item.isFloat }).if({  // test for Float
+	// 		matrix = super.fill(diagonal.size, {  // empty: 0.0
+	// 			Array.newClear(diagonal.size).fill(0.0)
+	// 		});
+	// 		diagonal.do({ |item, i| matrix.put(i, i, item.asFloat) });  // fill with Float
+	// 	}, {  // otherwise... assume Integer, and cast
+	// 		matrix = Matrix.newClear(diagonal.size, diagonal.size);  // empty: 0
+	// 		diagonal.do({ |item, i| matrix.put(i, i, item.asInteger) });  // fill with Integer
+	// 	});
+	//
+	// 	^matrix
+	// }
 
 	// TEMP (or submit to MathLib as PR) override Matrix:*with
 	// work around to avoid .flop.flop, which if called on Array, will expose

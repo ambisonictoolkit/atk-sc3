@@ -2,20 +2,6 @@
 CLASSMETHODS::
 
 
-METHOD:: newDiagonal
-
-Create a new square link::https://en.wikipedia.org/wiki/Diagonal_matrix##diagonal matrix::.
-
-code::
-Matrix.newDiagonal(Array.series(8))
-::
-
-ARGUMENT:: diagonal
-
-An array of values with which to fill the diagonal.
-
-
-
 INSTANCEMETHODS::
 
 SUBSECTION:: Changing Matrices

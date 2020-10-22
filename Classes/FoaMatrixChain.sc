@@ -157,7 +157,7 @@ FoaMatrixChain {
 
 		this.checkLinkExists(whichChain, index) ?? { ^this };
 
-		if(chains[whichChain][index].controlStates[ctlDex] = value.isKindOf(Symbol), {
+		chains[whichChain][index].controlStates[ctlDex] = if(value.isKindOf(Symbol), {
 			this.getLinkByKey(value)		// for controls with input index parameter
 		}, {
 			value

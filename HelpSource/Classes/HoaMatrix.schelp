@@ -122,13 +122,13 @@ SUBSECTION:: Matrix
 COPYMETHOD:: AtkMatrix, -matrix
 
 
-METHOD:: zeroWithin
+METHOD:: thresh2
 
-Force matrix values to zero, within threshold distance (positive or negative).
+Bilateral thresholding strong::in place::.
 
-ARGUMENT:: within
+ARGUMENT:: thresh
 
-Near zero value.
+When the code::input.abs < thresh::, the output is forced to 0. Should be a positive value.
 
 COPYMETHOD:: AtkMatrix, -asArray
 

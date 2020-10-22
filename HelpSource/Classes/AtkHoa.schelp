@@ -110,7 +110,7 @@ SUBSECTION:: Zeroing
 
 
 METHOD:: nearZero
-Ambisonic Toolkit "near zero" precision value default used by link::Classes/HoaMatrix#-zeroWithin::.
+Ambisonic Toolkit "near zero" precision value default used by link::Classes/HoaMatrix#-thresh2::.
 
 
 METHOD:: setNearZero

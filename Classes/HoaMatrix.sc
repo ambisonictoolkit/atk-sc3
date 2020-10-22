@@ -80,7 +80,7 @@ HoaMatrix : AtkMatrix {
 		var size, matrixOrder;
 
 		// set instance matrix
-		matrix = aMatrix.zeroWithin(AtkHoa.nearZero);
+		matrix = aMatrix.thresh2(AtkHoa.nearZero);
 
 		// 1) Check: matrix numChannels == directions.size
 		if(this.numChannels != this.directions.size, {
@@ -200,7 +200,7 @@ HoaMatrix : AtkMatrix {
 				}, {
 					pn.fileNameWithoutExtension.asSymbol
 				});
-				matrix = Matrix.with(fileParse.matrix.asFloat).zeroWithin(AtkHoa.nearZero);
+				matrix = Matrix.with(fileParse.matrix.asFloat).thresh2(AtkHoa.nearZero);
 				directions = fileParse.directions.asFloat;
 
 				// Remove parsed Instance variables & methods from fileParse.
@@ -382,8 +382,12 @@ HoaMatrix : AtkMatrix {
 	}
 
 	// force values to zero that are within threshold distance (positive or negative)
-	zeroWithin { |within = (AtkHoa.nearZero)|
-		this.matrix.zeroWithin(within);
+	// threshold _in place_
+	/*
+	this is differs from Matrix:-thresh2
+	*/
+	thresh2 { |thresh = (AtkHoa.nearZero)|
+		matrix = this.matrix.thresh2(thresh);
 	}
 
 	// ---------
@@ -508,7 +512,7 @@ HoaMatrixEncoder : HoaMatrix {
 			(this.directions).collect({ |thetaPhi|
 				hoaOrder.sph(thetaPhi[0], thetaPhi[1])
 			}).flop
-		).zeroWithin(AtkHoa.nearZero)
+		).thresh2(AtkHoa.nearZero)
 	}
 
 	// ------------
@@ -533,7 +537,7 @@ HoaMatrixEncoder : HoaMatrix {
 			(this.directions).collect({ |thetaPhi|
 				(1 / beamWeights)[hoaOrder.l] * hoaOrder.sph(thetaPhi[0], thetaPhi[1])
 			}).flop
-		).zeroWithin(AtkHoa.nearZero)
+		).thresh2(AtkHoa.nearZero)
 	}
 
 	// ------------
@@ -551,10 +555,10 @@ HoaMatrixEncoder : HoaMatrix {
 		).matrix;
 
 		// match modes
-		// matrix = decodingMatrix.pseudoInverse.zeroWithin(AtkHoa.nearZero)
+		// matrix = decodingMatrix.pseudoInverse.thresh2(AtkHoa.nearZero)
 		matrix = Matrix.with(  // Matrix -pseudoInverse not optimal for HOA
 			MatrixArray.with(decodingMatrix.asArray).pseudoInverse
-		).zeroWithin(AtkHoa.nearZero)
+		).thresh2(AtkHoa.nearZero)
 	}
 
 	initEncoderVarsForFiles {
@@ -648,7 +652,7 @@ HoaMatrixXformer : HoaMatrix {
 	}
 
 	initRotation { |r1, r2, r3, convention|
-		matrix = HoaMatrixRotation(r1, r2, r3, convention, this.order).matrix.zeroWithin(AtkHoa.nearZero);
+		matrix = HoaMatrixRotation(r1, r2, r3, convention, this.order).matrix.thresh2(AtkHoa.nearZero);
 	}
 
 	initReflect { |mirror|
@@ -665,7 +669,7 @@ HoaMatrixXformer : HoaMatrix {
 	}
 
 	// NOTE: this contains near-zero values.
-	// You can optimize these out by calling Matrix:-zeroWithin
+	// You can optimize these out by calling Matrix:-thresh2
 	initSwapAxes { |axes|
 		case(
 
@@ -745,7 +749,7 @@ HoaMatrixXformer : HoaMatrix {
 		).matrix;
 
 		// decode, re-encode
-		matrix = encodingMatrix.mulMatrix(decodingMatrix).zeroWithin(AtkHoa.nearZero)
+		matrix = encodingMatrix.mulMatrix(decodingMatrix).thresh2(AtkHoa.nearZero)
 	}
 
 	initNull { |beamShape|
@@ -765,7 +769,7 @@ HoaMatrixXformer : HoaMatrix {
 		).matrix;
 
 		// null
-		matrix = (Matrix.newIdentity((this.order + 1).squared) - xformingMatrix).zeroWithin(AtkHoa.nearZero)
+		matrix = (Matrix.newIdentity((this.order + 1).squared) - xformingMatrix).thresh2(AtkHoa.nearZero)
 	}
 
 
@@ -832,7 +836,7 @@ HoaMatrixXformer : HoaMatrix {
 		).matrix.mulMatrix(b).flop.asArray.collect({ |bSn3d|
 			(bSn3d[HoaDegree.new(1).indices] / bSn3d[HoaDegree.new(0).indices]).rotate(1)
 		});
-		rVxyz = Matrix.with(rVxyz).zeroWithin(AtkHoa.nearZero).asArray;
+		rVxyz = Matrix.with(rVxyz).thresh2(AtkHoa.nearZero).asArray;
 
 		// in spherical, for convenience to find rVmag, rVdir
 		rVsphr = rVxyz.collect({ |xyz|
@@ -882,7 +886,7 @@ HoaMatrixXformer : HoaMatrix {
 		).matrix.mulMatrix(e).flop.asArray.collect({ |bSn3d|
 			(bSn3d[HoaDegree.new(1).indices] / bSn3d[HoaDegree.new(0).indices]).rotate(1)
 		});
-		rExyz = Matrix.with(rExyz).zeroWithin(AtkHoa.nearZero).asArray;
+		rExyz = Matrix.with(rExyz).thresh2(AtkHoa.nearZero).asArray;
 
 		// in spherical, for convenience to find rEmag, rEdir
 		rEsphr = rExyz.collect({ |xyz|
@@ -1076,7 +1080,7 @@ HoaMatrixDecoder : HoaMatrix {
 			(this.directions).collect({ |thetaPhi|
 			   hoaOrder.sph(thetaPhi[0], thetaPhi[1])
 			})
-		).zeroWithin(AtkHoa.nearZero)
+		).thresh2(AtkHoa.nearZero)
 	}
 
 	// ------------
@@ -1101,7 +1105,7 @@ HoaMatrixDecoder : HoaMatrix {
 			(this.directions).collect({ |thetaPhi|
 				beamWeights[hoaOrder.l] * hoaOrder.sph(thetaPhi[0], thetaPhi[1])
 			})
-		).zeroWithin(AtkHoa.nearZero)
+		).thresh2(AtkHoa.nearZero)
 	}
 
 	// ------------
@@ -1183,7 +1187,7 @@ HoaMatrixDecoder : HoaMatrix {
 		});
 
 		// assign
-		matrix = decodingMatrix.zeroWithin(AtkHoa.nearZero)
+		matrix = decodingMatrix.thresh2(AtkHoa.nearZero)
 	}
 
 	// ------------
@@ -1244,7 +1248,7 @@ HoaMatrixDecoder : HoaMatrix {
 		// decodingMatrix = encodingMatrix.pseudoInverse;
 		decodingMatrix = Matrix.with(  // Matrix -pseudoInverse not optimal for HOA
 			MatrixArray.with(encodingMatrix.asArray).pseudoInverse
-		).zeroWithin(AtkHoa.nearZero);
+		).thresh2(AtkHoa.nearZero);
 
 
 		// 4a) if 2D (re-)insert non-sectoral (3D) harmonics
@@ -1270,7 +1274,7 @@ HoaMatrixDecoder : HoaMatrix {
 		});
 
 		// assign
-		matrix = decodingMatrix.zeroWithin(AtkHoa.nearZero)
+		matrix = decodingMatrix.thresh2(AtkHoa.nearZero)
 	}
 
 	// initDecoderVarsForFiles {
@@ -1351,7 +1355,7 @@ HoaMatrixDecoder : HoaMatrix {
 
 		// rV vector, expected matrix is Real only
 		rVxyz = g.flop.mulMatrix(Matrix.with(xyzDecDirs)) / amp;
-		rVxyz = Matrix.with(rVxyz).zeroWithin(AtkHoa.nearZero).asArray;
+		rVxyz = Matrix.with(rVxyz).thresh2(AtkHoa.nearZero).asArray;
 
 		// in spherical, for convenience to find rVmag, rVdir
 		rVsphr = rVxyz.collect({ |xyz|
@@ -1371,7 +1375,7 @@ HoaMatrixDecoder : HoaMatrix {
 
 		// rE vector, expected matrix is Real only
 		rExyz = g2.flop.mulMatrix(Matrix.with(xyzDecDirs)) / energy;
-		rExyz = Matrix.with(rExyz).zeroWithin(AtkHoa.nearZero).asArray;
+		rExyz = Matrix.with(rExyz).thresh2(AtkHoa.nearZero).asArray;
 
 		// in spherical, for convenience to find rEmag, rEdir
 		rEsphr = rExyz.collect({ |xyz|

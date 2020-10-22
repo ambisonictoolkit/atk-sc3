@@ -389,7 +389,7 @@ SUBSECTION:: Matrix
 
 COPYMETHOD:: HoaMatrix, -matrix
 
-COPYMETHOD:: HoaMatrix, -zeroWithin
+COPYMETHOD:: HoaMatrix, -thresh2
 
 COPYMETHOD:: HoaMatrix, -asArray
 

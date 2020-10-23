@@ -145,10 +145,10 @@ HoaUGen {
 		yz = HoaMatrixXformer.newSwapAxes(\yz, order);
 
 		// Save as MatrixArrays for efficiency.
-		// Use zeroWithin optimization for synth graphs:
+		// Use thresh2 optimization for synth graphs:
 		// elements which are zero are optimized out.
-		kMatrix = MatrixArray.with(xz.asArray).zeroWithin(AtkHoa.thresh);
-		jMatrix = MatrixArray.with(yz.asArray).zeroWithin(AtkHoa.thresh);
+		kMatrix = MatrixArray.with(xz.asArray).thresh2(AtkHoa.thresh);
+		jMatrix = MatrixArray.with(yz.asArray).thresh2(AtkHoa.thresh);
 
 		jkMatrix = MatrixArray.with(jMatrix * kMatrix);
 		kjMatrix = MatrixArray.with(kMatrix * jMatrix);

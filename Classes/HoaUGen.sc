@@ -147,8 +147,8 @@ HoaUGen {
 		// Save as MatrixArrays for efficiency.
 		// Use zeroWithin optimization for synth graphs:
 		// elements which are zero are optimized out.
-		kMatrix = MatrixArray.with(xz.asArray).zeroWithin(AtkHoa.nearZero);
-		jMatrix = MatrixArray.with(yz.asArray).zeroWithin(AtkHoa.nearZero);
+		kMatrix = MatrixArray.with(xz.asArray).zeroWithin(AtkHoa.thresh);
+		jMatrix = MatrixArray.with(yz.asArray).zeroWithin(AtkHoa.thresh);
 
 		jkMatrix = MatrixArray.with(jMatrix * kMatrix);
 		kjMatrix = MatrixArray.with(kMatrix * jMatrix);
@@ -235,13 +235,7 @@ HoaEncodeDirection : HoaUGen {
 
 		// 1) generate basic (real) coefficients at zenith and optimize near-zeros out
 		coeffs = hoaOrder.sph(0, 0.5pi);
-		coeffs = coeffs.collect({ |item|
-			if(item.abs <= AtkHoa.nearZero, {
-				0
-			}, {
-				item
-			})
-		});
+		coeffs = coeffs.thresh2(AtkHoa.thresh);
 
 		// 2) encode as basic (real) or NFE (complex) wave at zenith
 		zenith = if(((radius == nil) || (radius == AtkHoa.refRadius)), {
@@ -555,13 +549,7 @@ HoaBeam : HoaUGen {
 
 		// 2) generate basic (real) coefficients at zenith and optimize near-zeros out
 		basicCoeffs = hoaOrder.sph(0, 0.5pi);
-		basicCoeffs = basicCoeffs.collect({ |item|
-			if(item.abs <= AtkHoa.nearZero, {
-				0
-			}, {
-				item
-			})
-		});
+		basicCoeffs = basicCoeffs.thresh2(AtkHoa.thresh);
 
 		// 3) form beam coefficients
 		beamCoeffs = beamWeights[hoaOrder.l] * basicCoeffs;
@@ -685,13 +673,7 @@ HoaDecodeDirection : HoaUGen {
 
 		// 2) generate basic (real) coefficients at zenith and optimize near-zeros out
 		coeffs = hoaOrder.sph(0, 0.5pi);
-		coeffs = coeffs.collect({ |item|
-			if(item.abs <= AtkHoa.nearZero, {
-				0
-			}, {
-				item
-			})
-		});
+		coeffs = coeffs.thresh2(AtkHoa.thresh);
 
 		// 3) form beam coefficients
 		coeffs = beamWeights[hoaOrder.l] * coeffs;

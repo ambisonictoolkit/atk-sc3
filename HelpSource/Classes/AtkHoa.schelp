@@ -106,15 +106,15 @@ Speed of sound, in meters per second.
 
 
 
-SUBSECTION:: Zeroing
+SUBSECTION:: Thresholding
 
 
-METHOD:: nearZero
-Ambisonic Toolkit "near zero" precision value default used by link::Classes/HoaMatrix#-thresh2::.
+METHOD:: thresh
+Ambisonic Toolkit "near zero" precision value default for bilateral coefficient thresholding.
 
 
-METHOD:: setNearZero
-Setter for link::#*nearZero::.
+METHOD:: setThresh
+Setter for link::#*thresh::.
 
 
 SUBSECTION:: Testing & reporting

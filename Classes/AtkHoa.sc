@@ -1,13 +1,13 @@
 AtkHoa {
 	classvar <speedOfSound, <refRadius;
-	classvar <nearZero;
+	classvar <thresh;
 	classvar <defaultOrder;
 	classvar <formatDict;
 
 	*initClass {
 		speedOfSound = 343.0;  // (m/s)
 		refRadius = 1.5;  // reference encoding / decoding radius, i.e., basic radius
-		nearZero = -180.dbamp;  // zero optimisation threshold
+		thresh = -180.dbamp;  // zero optimisation threshold
 
 		defaultOrder = 3;
 
@@ -53,11 +53,11 @@ AtkHoa {
 		^radiusAsFloat
 	}
 
-	*setNearZero { |zero|
-		var zeroAbs = zero.abs;
+	*setThresh { |threshold|
+		var threshAbs = threshold.abs;
 
-		nearZero = zeroAbs;
-		^zeroAbs
+		thresh = threshAbs;
+		^thresh
 	}
 
 	*setDefaultOrder { |order|

@@ -294,8 +294,8 @@ HoaLm {
 		/*
 		NOTE: may want to revisit this optimization
 		*/
-		// near zero
-		res = if(res.abs <= AtkHoa.nearZero, { 0.0 }, { res });
+		// (near zero) threshold
+		res = res.thresh2(AtkHoa.thresh);
 
 		// return
 		^res

@@ -117,9 +117,9 @@ WaveNumber {
 	proxWeights { |radius, order|
 		var m = order;
 		var r0 = radius;
-		var nearZero = 1e-08;
+		var thresh = 1e-08;
 
-		^if(this.waveNumber.abs <= nearZero, {
+		^if(this.waveNumber.abs <= thresh, {
 			Array.with(Complex.new(1, 0)) ++ m.collect({ |k|
 				Complex.new(-inf.pow(((k + 1) / 2).floor), -inf.pow(((k + 2) / 2).floor))
 			})
@@ -139,9 +139,9 @@ WaveNumber {
 	distWeights { |radius, order|
 		var m = order;
 		var r1 = radius;
-		var nearZero = 1e-08;
+		var thresh = 1e-08;
 
-		^if(this.waveNumber.abs <= nearZero, {
+		^if(this.waveNumber.abs <= thresh, {
 			Array.with(Complex.new(1, 0)) ++ m.collect({ Complex.new(0, 0) })
 		}, {
 			(m + 1).collect({ |j|
@@ -160,9 +160,9 @@ WaveNumber {
 		var m = order;
 		var r0 = encRadius;
 		var r1 = decRadius;
-		var nearZero = 1e-08;
+		var thresh = 1e-08;
 
-		^if(this.waveNumber.abs <= nearZero, {
+		^if(this.waveNumber.abs <= thresh, {
 			(m + 1).collect({ |k|
 				Complex.new((r1 / r0).pow(k), 0)
 			})

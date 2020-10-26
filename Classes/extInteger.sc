@@ -61,8 +61,8 @@
 			res = 0;
 
 			while({ sum < this }, {
-				sum = Array.series(res + 1, 1, 2).sum;
 				res = res + 1;
+				sum = res.squared; // (1,3,..).sum
 			});
 
 			if(sum == this, {

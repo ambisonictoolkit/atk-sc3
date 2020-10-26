@@ -1,9 +1,0 @@
-
-INSTANCEMETHODS::
-
-
-subsection:: math support
-
-METHOD:: sqrt
-
-Complex square root.

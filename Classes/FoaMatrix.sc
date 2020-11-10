@@ -2024,11 +2024,11 @@ FoaDecoderKernel {
 			(kernel.shape[1]).do({ |j|
 				path = kernel[i][j].path;
 				kernel[i][j].free;
-				(
-					"Kernel %, channel % freed.".format(
+				if(path.notNil, {
+					"Decoder kernel %, channel % freed.\n".postf(
 						PathName.new(path).fileName, j
 					)
-				).postln
+				});
 			})
 		})
 	}
@@ -2324,11 +2324,11 @@ FoaEncoderKernel {
 			(kernel.shape[1]).do({ |j|
 				path = kernel[i][j].path;
 				kernel[i][j].free;
-				(
-					"Kernel %, channel % freed.".format(
+				if(path.notNil, {
+					"Encoder kernel %, channel % freed.\n".postf(
 						PathName.new(path).fileName, j
 					)
-				).postln
+				});
 			})
 		})
 	}

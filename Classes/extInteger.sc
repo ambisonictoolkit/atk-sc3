@@ -47,31 +47,7 @@
 //---------------------------------------------------------------------
 
 
-// factorial calculation using 64-bit double precision floating point numbers
-// NOTE: may wish to add this to "https://github.com/supercollider-quarks/MathLib"
 + Integer {
-
-	squareOf {
-		var sum = 0;
-		var res;
-
-		^if(this.isNegative, {
-			nil
-		}, {
-			res = 0;
-
-			while({ sum < this }, {
-				res = res + 1;
-				sum = res.squared; // (1,3,..).sum
-			});
-
-			if(sum == this, {
-				res
-			}, {
-				nil
-			})
-		})
-	}
 
 	asHoaOrder {
 		^HoaOrder.new(this)

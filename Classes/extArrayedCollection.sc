@@ -49,20 +49,25 @@
 + ArrayedCollection {
 
 	detectHoaOrder {
-		var sizeSqrt;
+		var testOrder = this.size.perfectSqrt - 1;
 
-		sizeSqrt = this.size.squareOf;
-
-		^if((sizeSqrt == nil), {
+		^if(testOrder.isNaN, {
 			nil
 		}, {
-			sizeSqrt - 1
+			testOrder
 		})
 	}
 
 	clumpByHoaDegree {
-		^this.clumps(
-			Array.series(this.detectHoaOrder + 1, 1, 2)
-		)
+		var testOrder = this.detectHoaOrder;
+
+		if(testOrder.isNil, {
+			"Could not detect order from % coefficients".format(this.size).throw
+		}, {
+			^this.clumps(
+				Array.series(testOrder + 1, 1, 2)
+			)
+		})
 	}
+
 }

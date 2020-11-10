@@ -2,24 +2,6 @@
 INSTANCEMETHODS::
 
 
-METHOD:: squareOf
-
-RETURNS:: the Integer square root, if it exists.
-
-DISCUSSION::
-
-code::
-(
-10.do({ arg i;
-	"----------".postln;
-	"integer: ".post; i.postln;
-	"sqrt: ".post; i.sqrt.postln;
-	"squareOf: ".post; i.squareOf.postln;
-})
-)
-::
-
-
 subsection:: Ambisonic Toolkit
 
 METHOD:: asHoaOrder

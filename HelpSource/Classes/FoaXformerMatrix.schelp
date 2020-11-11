@@ -8,6 +8,8 @@ Generates transform matrices required by the Ambisonic Toolkit's first order (ma
 
 You may wish to explore the visualizations of the available transforms via link::Classes/FoaXformDisplay::.
 
+note:: The ATK matrices are required for using some of the matrix transformers. Please see link::Classes/Atk#Installation of ATK dependencies:: for instructions.::
+
 CLASSMETHODS::
 
 SUBSECTION:: Rotations

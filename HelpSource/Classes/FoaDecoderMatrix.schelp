@@ -6,7 +6,7 @@ related:: Classes/FoaDecoderKernel, Classes/FoaDecode
 DESCRIPTION::
 Generates decoding matrices required by the Ambisonic Toolkit's first order decoder, link::Classes/FoaDecode::.
 
-
+note:: The ATK matrices are required for using some of the matrix decoders. Please see link::Classes/Atk#Installation of ATK dependencies:: for instructions.::
 
 CLASSMETHODS::
 

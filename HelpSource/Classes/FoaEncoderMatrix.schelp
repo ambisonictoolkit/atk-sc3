@@ -6,7 +6,7 @@ related:: Classes/FoaEncoderKernel, Classes/FoaEncode
 DESCRIPTION::
 Generates encoding matrices required by the Ambisonic Toolkit's first order encoder, link::Classes/FoaEncode::.
 
-
+note:: The ATK matrices are required for using some of the matrix encoders. Please see link::Classes/Atk#Installation of ATK dependencies:: for instructions.::
 
 CLASSMETHODS::
 

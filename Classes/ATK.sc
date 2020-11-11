@@ -99,6 +99,9 @@ Atk {
 	classvar <userSupportDir, <userSoundsDir, <userKernelDir, <userMatrixDir, <userExtensionsDir;
 	classvar <systemSupportDir, <systemSoundsDir, <systemKernelDir, <systemMatrixDir, <systemExtensionsDir;
 	classvar <sets;
+	classvar <matricesDownloadUrl = "https://github.com/ambisonictoolkit/atk-matrices/releases/latest/download/matrices.zip";
+	classvar <kernelsDownloadUrl = "https://github.com/ambisonictoolkit/atk-kernels/releases/latest/download/kernels.zip";
+	classvar <soundsDownloadUrl = "https://github.com/ambisonictoolkit/atk-sounds/archive/v1.0.0.zip";
 
 	*initClass {
 		userSupportDir = Platform.userAppSupportDir.dirname ++ "/ATK";
@@ -120,6 +123,8 @@ Atk {
 			\HOA6, \HOA7, \HOA8, \HOA9, \HOA10, \HOA11,
 			\HOA12, \HOA13, \HOA14, \HOA15
 		];
+
+		this.checkSupportDirsExist;
 	}
 
 	*userSupportDir_ { |userSupportDirIn|
@@ -136,6 +141,195 @@ Atk {
 		systemKernelDir = systemSupportDir ++ "/kernels";
 		systemMatrixDir = systemSupportDir ++ "/matrices";
 		systemExtensionsDir = systemSupportDir ++ "/extensions";
+	}
+
+	*checkSupportDirsExist {
+		if((File.exists(Atk.userKernelDir) || File.exists(Atk.systemKernelDir)).not, {
+			"Atk: kernels don't appear to be installed".warn;
+			"Run 'Atk.downloadKernels' to attempt automatic installation".postln;
+		});
+		if((File.exists(Atk.userMatrixDir) || File.exists(Atk.systemMatrixDir)).not, {
+			"Atk: matrices don't appear to be installed".warn;
+			"Run 'Atk.downloadMatrices' to attempt automatic installation".postln;
+		});
+	}
+
+	*downloadFile { |url, path, action|
+		var cmd;
+		if(url.notNil && path.notNil, {
+			thisProcess.platform.name.switch(
+				\windows, {
+					cmd = format("powershell.exe -nologo -noprofile -command \"try{(New-Object System.Net.WebClient).DownloadFile('%', '%')} catch [Exception] {Write-Host $_.Exception | format-list -force; exit 1}\"", url, (path.asString));
+					"Please note, there is no download progress indication on Windows; you will be notified once the download finishes.".postln;
+				}, { //assuming linux/macOS
+					if("which curl".unixCmdGetStdOut.replace($\n).size.asBoolean, {
+						cmd = format("curl -L % --output % -# 2>&1", url, (path.asString).shellQuote);
+					}, {
+						if("which wget".unixCmdGetStdOut.replace($\n).size.asBoolean, {
+							cmd = format("wget % --output-document % 2>&1", url, (path.asString).shellQuote);
+						}, {
+							"Neither 'curl' nor 'wget' appear to be installed or are not in your $PATH".warn;
+							"If you would like to proceed with manual installation, please see the Ambisonic Toolkit webpage at ambisonictoolkit.net or run \"http://ambisonictoolkit.net\".openOS".postln;
+						});
+					});
+				}
+			);
+			cmd !? {
+				// cmd.postln;
+				cmd.unixCmd({|err|
+					if(err == 0, {
+						postf("downloaded %\n", path);
+						action.(err);
+					}, {
+						postf("download error, exit code %\n", err);
+						"If you would like to proceed with manual installation, please see the Ambisonic Toolkit webpage at ambisonictoolkit.net or run \"http://ambisonictoolkit.net\".openOS".postln;
+					});
+				});
+				postf("downloading\n%\ninto\n%\nplease wait...\n", url, path);
+			};
+		}, {
+			"url or path is nil, not downloading".warn;
+		});
+	}
+
+	*unzipFile { |filePath, destDir, action|
+		var cmd;
+		if(filePath.notNil && destDir.notNil, {
+			thisProcess.platform.name.switch(
+				\windows, {
+					cmd = format("powershell.exe -nologo -noprofile -command \"& { Add-Type -A 'System.IO.Compression.FileSystem'; [IO.Compression.ZipFile]::ExtractToDirectory('%', '%'); }\"", filePath.asString, destDir.asString);
+				}, { //assuming linux/macOS
+					if("which unzip".unixCmdGetStdOut.replace($\n).size.asBoolean, {
+						cmd = format("unzip -q % -d % -x '__MACOSX/*'", (filePath.asString).shellQuote, (destDir.asString).shellQuote)
+					}, {
+						"'unzip' doesn't seem to be installed or is not in your $PATH".warn;
+					});
+				}
+			);
+			cmd !? {
+				// cmd.postln;
+				cmd.unixCmd({|err|
+					if(err <= 1, { //exit code 1 from unzip means warning errors, but processing completed successfully
+						"decompressing finished".postln;
+						action.(err);
+					}, {
+						postf("decompressing error for file at %, exit code %\n", filePath, err);
+					});
+				});
+				postf("\ndecompressing\n%\ninto\n%\nplease wait...\n", filePath, destDir);
+			};
+		}, {
+			"filePath or destDir is nil, not decompressing".warn;
+		});
+	}
+
+	*downloadAndUnzip { |url, tempPath, destDir, action| //action triggered after the last command
+		this.downloadFile(url, tempPath, {|err|
+			this.unzipFile(tempPath, destDir, {|err|
+				File.delete(tempPath);
+				postf("temporary file deleted: %\n", tempPath);
+				action.();
+				if(err != 0, {postf("error decompressing file, code %\n", err)});
+			});
+			if(err != 0, {postf("error downloading file, code %\n", err)});
+		})
+	}
+
+	*downloadMatrices { |useSystemLocation = false, action|
+		var tmpPath, url;
+		tmpPath = Platform.defaultTempDir ++ this.hash.asString ++ "matrices.zip";
+		url = this.matricesDownloadUrl;
+		if(useSystemLocation, {
+			if(File.exists(Atk.systemMatrixDir), {
+				"Atk.systemMatrixDir exists, will not download matrices".warn;
+				this.halt;
+			}, {
+				this.createSystemSupportDir;
+			});
+		}, {
+			if(File.exists(Atk.userMatrixDir), {
+				"Atk.userMatrixDir exists, will not download matrices".warn;
+				this.halt;
+			}, {
+				this.createUserSupportDir;
+			});
+		});
+		this.downloadAndUnzip(url, tmpPath, if(useSystemLocation, {this.systemSupportDir}, {this.userSupportDir}), {postf("\nAtk matrices should now be installed. Confirm by reviewing contents of the support directory: %\n\n", if(useSystemLocation, {"Atk.openSystemSupportDir"}, {"Atk.openUserSupportDir"})); action.()});
+	}
+
+	*downloadKernels { |useSystemLocation = false, action|
+		var tmpPath, url;
+		tmpPath = Platform.defaultTempDir ++ this.hash.asString ++ "kernels.zip";
+		url = this.kernelsDownloadUrl;
+		if(useSystemLocation, {
+			if(File.exists(Atk.systemKernelDir), {
+				"Atk.systemKernelDir exists, will not download kernels".warn;
+				this.halt;
+			}, {
+				this.createSystemSupportDir;
+			});
+		}, {
+			if(File.exists(Atk.userKernelDir), {
+				"Atk.userKernelDir exists, will not download kernels".warn;
+				this.halt;
+			}, {
+				this.createUserSupportDir;
+			});
+		});
+		this.downloadAndUnzip(url, tmpPath, if(useSystemLocation, {this.systemSupportDir}, {this.userSupportDir}), {postf("\nAtk kernels should now be installed. Confirm by reviewing contents of the support directory: %\n\n", if(useSystemLocation, {"Atk.openSystemSupportDir"}, {"Atk.openUserSupportDir"})); action.()});
+	}
+
+	*downloadSounds { |useSystemLocation = false, action|
+		var tmpPath, url;
+		var oldFolders, newFolders, diffFolders, pathBeforeRenaiming, pathAfterRenaiming;
+		tmpPath = Platform.defaultTempDir ++ this.hash.asString ++ "sounds.zip";
+		url = this.soundsDownloadUrl;
+		if(useSystemLocation, {
+			if(File.exists(Atk.systemSoundsDir), {
+				"Atk.systemSoundsDir exists, will not download soundfiles".warn;
+				this.halt;
+			}, {
+				this.createSystemSupportDir;
+			});
+		}, {
+			if(File.exists(Atk.userSoundsDir), {
+				"Atk.userSoundsDir exists, will not download soundfiles".warn;
+				this.halt;
+			}, {
+				this.createUserSupportDir;
+			});
+		});
+		oldFolders = PathName(if(useSystemLocation, {this.systemSupportDir}, {this.userSupportDir})).folders.collect({|pn| pn.fullPath.asSymbol});
+		// "old folders: ".post; oldFolders.postln;
+		this.downloadAndUnzip(url, tmpPath, if(useSystemLocation, {this.systemSupportDir}, {this.userSupportDir}), {
+			//let's try renaming extracted folder
+			newFolders = PathName(if(useSystemLocation, {this.systemSupportDir}, {this.userSupportDir})).folders.collect({|pn| pn.fullPath.asSymbol});
+			// "new folders:".postln; newFolders.postln;
+			//select only difference between new and old
+			diffFolders = newFolders.select({|item| oldFolders.includes(item).not;});
+			//select the path name with "sounds" in it
+			diffFolders = diffFolders.select({|pathSymbol| pathSymbol.asString.contains("sounds")});
+			//continue only if we have a single folder
+			if(diffFolders.size == 1, {
+				var cmd;
+				pathBeforeRenaiming = PathName(diffFolders.first.asString);
+				pathAfterRenaiming = PathName(pathBeforeRenaiming.fullPath.dirname +/+ "sounds");
+				postf("renaming % to %\n", pathBeforeRenaiming.fullPath.withoutTrailingSlash, pathAfterRenaiming.fullPath.withoutTrailingSlash);
+				thisProcess.platform.name.switch(
+					\windows, {
+						cmd = format("move \"%\" \"%\"", pathBeforeRenaiming.fullPath.withoutTrailingSlash, pathAfterRenaiming.fullPath.withoutTrailingSlash);
+					}, {//assuming linux/macOS
+						cmd = format("mv % %", pathBeforeRenaiming.fullPath.shellQuote, pathAfterRenaiming.fullPath.shellQuote);
+					}
+				);
+				cmd !? {
+					// cmd.postln;
+					cmd.unixCmd({|err| if(err != 0, {"renaming failed...".postln})})
+				};
+			});
+			postf("\nAtk sounds should now be installed. Confirm by reviewing contents of the support directory: %\n", if(useSystemLocation, {"Atk.openSystemSupportDir"}, {"Atk.openUserSupportDir"}));
+			action.()
+		});
 	}
 
 	*openUserSupportDir {
@@ -245,9 +439,8 @@ Atk {
 		});
 
 		if(subPath.isFolder.not, {
-			Error(
-				format("\nNo folder found in\n\t%\nor\n\t%\n", *tested)
-			).throw
+			format("\nNo folder found in\n\t%\nor\n\t%\n", *tested).warn;
+			Error("Atk: matrices don't appear to be installed\nRun 'Atk.downloadMatrices' to attempt automatic installation").throw;
 		});
 
 		^subPath
@@ -382,12 +575,8 @@ Atk {
 					if(relPath.isFile, {
 						srcPath = relPath; // valid relative path, with file extension
 					}, {
-						Error(format(
-							"[%:*resolveMtxPath] No file found at\n\t%\n",
-							this.class.asString, relPath
-						)).errorString.postln;
-						this.halt
-					})
+						Error(format("[%:*resolveMtxPath] No file found at\n\t%", this.class.asString, relPath)).throw;
+					});
 				}, { // user gives a path, but no file extension
 
 					relWithoutLast = PathName(relPath.fullPath.dirname);

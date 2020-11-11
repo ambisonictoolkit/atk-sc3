@@ -225,16 +225,22 @@ Platform.userExtensionDir.openOS;
 )
 ::
 
-subsection:: Kernels, Matrices & Recordings
+subsection:: Kernels, Matrices & Soundfiles
 
 Additionally, the SuperCollider3 version of the ATK has further dependencies:
 
 list::
-## Download and install
-link::http://www.ambisonictoolkit.net/download/kernels/##ATK Kernels::.
-## Download and install
-link::http://www.ambisonictoolkit.net/download/matrices/##ATK Matrices::.
-## Download and install link::http://www.ambisonictoolkit.net/download/recordings/##ATK Example Soundfiles::.
+## link::http://www.ambisonictoolkit.net/download/kernels/##ATK Kernels::
+## link::http://www.ambisonictoolkit.net/download/matrices/##ATK Matrices::
+## link::http://www.ambisonictoolkit.net/download/recordings/##ATK Example Soundfiles::
+::
+
+link::Classes/Atk#Installation of ATK dependencies#Install Kernels, Matrices, and Soundfiles:: by running the following code:
+
+code::
+Atk.downloadKernels;
+Atk.downloadMatrices;
+Atk.downloadSounds;
 ::
 
 If you are using Ambisonic Toolkit with Reaper as well,

@@ -49,12 +49,12 @@
 + ArrayedCollection {
 
 	detectHoaOrder {
-		var testOrder = this.size.perfectSqrt - 1;
+		var perfectSqrt = this.size.perfectSqrt;
 
-		^if(testOrder.isNaN, {
+		^if(perfectSqrt.isNil, {
 			nil
 		}, {
-			testOrder
+			perfectSqrt - 1
 		})
 	}
 

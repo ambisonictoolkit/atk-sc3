@@ -75,12 +75,12 @@ AtkHoa {
 
 	// full 3D only
 	*detectOrder { |size|
-		var testOrder = size.perfectSqrt - 1;
+		var perfectSqrt = size.perfectSqrt;
 
-		if(testOrder.isNaN, {
+		if(perfectSqrt.isNil, {
 			"Could not detect order from % coefficients".format(size).throw
 		}, {
-			^testOrder
+			^(perfectSqrt - 1)
 		})
 	}
 

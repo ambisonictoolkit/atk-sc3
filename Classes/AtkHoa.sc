@@ -75,13 +75,13 @@ AtkHoa {
 
 	// full 3D only
 	*detectOrder { |size|
-		var squareOf = size.squareOf;
+		var perfectSqrt = size.perfectSqrt;
 
-		(squareOf == nil).if({
+		if(perfectSqrt.isNil, {
 			"Could not detect order from % coefficients".format(size).throw
 		}, {
-			^(squareOf - 1)
-		});
+			^(perfectSqrt - 1)
+		})
 	}
 
 	*confirmOrder { |size, order = (AtkHoa.defaultOrder)|

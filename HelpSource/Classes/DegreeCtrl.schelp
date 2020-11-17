@@ -1,6 +1,6 @@
 TITLE:: DegreeCtrl
 summary:: Higher Order Ambisonic (HOA) "by degree" control radial filter
-categories:: Libraries>Ambisonic Toolkit>HOA>Framework>UGens, UGens>Multichannel>Ambisonics
+categories:: Libraries>Ambisonic Toolkit>UGens>Abstract & Base>HOA, UGens>Multichannel>Ambisonics
 related:: Classes/HoaNFCtrl, Classes/DegreeProx, Classes/DegreeDist
 
 DESCRIPTION::

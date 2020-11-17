@@ -1,6 +1,6 @@
 CLASS:: AtkMatrixMix
 summary:: Matrix mixer from the Ambisonic Toolkit (ATK)
-categories:: Libraries>Ambisonic Toolkit>Environment>Framework>UGens, UGens>Multichannel>Ambisonics
+categories:: Libraries>Ambisonic Toolkit>UGens>Abstract & Base, UGens>Multichannel>Ambisonics
 related:: Classes/Mix, Classes/AtkKernelConv
 
 

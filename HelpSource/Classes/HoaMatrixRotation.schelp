@@ -1,6 +1,6 @@
 TITLE:: HoaMatrixRotation
 summary:: Matrix transformer from the Ambisonic Toolkit (ATK)
-categories:: Libraries>Ambisonic Toolkit>HOA>Framework>Coefficient
+categories:: Libraries>Ambisonic Toolkit>Coefficients & Theory
 related:: Classes/HoaMatrixXformer
 
 DESCRIPTION::

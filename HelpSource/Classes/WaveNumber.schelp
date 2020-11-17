@@ -1,6 +1,6 @@
 TITLE:: WaveNumber
 summary:: Higher order ambisonic (HOA) radial utilities
-categories:: Libraries>Ambisonic Toolkit>HOA>Framework>Theory
+categories:: Libraries>Ambisonic Toolkit>Coefficients & Theory
 related:: Classes/HoaRadius, Classes/HoaOrder
 
 DESCRIPTION::

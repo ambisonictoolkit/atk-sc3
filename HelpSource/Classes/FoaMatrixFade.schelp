@@ -1,6 +1,6 @@
 TITLE:: FoaMatrixFade
 summary:: A system for fading between FOA matrices (tranforms).
-categories:: Libraries>Ambisonic Toolkit>FOA>Utilities
+categories:: Libraries>Ambisonic Toolkit>Utilities>FOA
 related:: Classes/FoaMatrixChain, Classes/FoaXformDisplay, Classes/FoaXformerMatrix, Classes/FoaXformerMatrix
 
 DESCRIPTION::

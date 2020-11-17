@@ -1,6 +1,6 @@
 TITLE:: FoaAudition
 summary:: Audition FOA recordings, panning planewaves, diffuse soundfields, and transforms.
-categories:: Libraries>Ambisonic Toolkit>FOA>Utilities
+categories:: Libraries>Ambisonic Toolkit>Utilities>FOA
 related:: Classes/FoaMatrixChain, Classes/FoaXformDisplay
 
 DESCRIPTION::

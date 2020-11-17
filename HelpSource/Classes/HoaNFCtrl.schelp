@@ -1,6 +1,6 @@
 TITLE:: HoaNFCtrl
 summary:: Higher Order Ambisonic (HOA) NFE control transformer
-categories:: Libraries>Ambisonic Toolkit>HOA>Transforming>UGens, UGens>Multichannel>Ambisonics, UGens>Multichannel>Panners
+categories:: Libraries>Ambisonic Toolkit>HOA>Transforming>UGens, UGens>Multichannel>Ambisonics
 related:: Classes/HoaNFDist, Classes/HoaNFProx, Classes/DegreeDist, Classes/DegreeProx, Classes/DegreeCtrl
 
 DESCRIPTION::

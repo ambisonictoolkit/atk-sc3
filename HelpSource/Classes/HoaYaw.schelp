@@ -1,6 +1,6 @@
 TITLE:: HoaYaw
 summary:: Higher Order Ambisonic (HOA) rotation transformer
-categories:: Libraries>Ambisonic Toolkit>HOA>Transforming>UGens, UGens>Multichannel>Ambisonics, UGens>Multichannel>Panners
+categories:: Libraries>Ambisonic Toolkit>HOA>Transforming>UGens, UGens>Multichannel>Ambisonics
 related:: Classes/HoaRotate, Classes/HoaTilt, Classes/HoaTumble, Classes/HoaRTT, Classes/HoaPitch, Classes/HoaRoll, Classes/HoaYPR
 
 DESCRIPTION::

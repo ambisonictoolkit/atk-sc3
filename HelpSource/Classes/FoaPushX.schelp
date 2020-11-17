@@ -1,6 +1,6 @@
 CLASS:: FoaPushX
 summary:: First Order Ambisonic (FOA) push transformer
-categories:: Libraries>Ambisonic Toolkit>FOA>Transforming>UGens, UGens>Multichannel>Ambisonics, UGens>Multichannel>Panners
+categories:: Libraries>Ambisonic Toolkit>FOA>Transforming>UGens, UGens>Multichannel>Ambisonics
 related:: Classes/FoaPushY, Classes/FoaPushZ, Classes/FoaPush, Classes/FoaTransform, Classes/FoaXform
 
 DESCRIPTION::

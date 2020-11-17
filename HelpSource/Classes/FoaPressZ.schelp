@@ -1,6 +1,6 @@
 CLASS:: FoaPressZ
 summary:: First Order Ambisonic (FOA) press transformer
-categories:: Libraries>Ambisonic Toolkit>FOA>Transforming>UGens, UGens>Multichannel>Ambisonics, UGens>Multichannel>Panners
+categories:: Libraries>Ambisonic Toolkit>FOA>Transforming>UGens, UGens>Multichannel>Ambisonics
 related:: Classes/FoaPressX, Classes/FoaPressY, Classes/FoaPress, Classes/FoaTransform, Classes/FoaXform
 
 DESCRIPTION::

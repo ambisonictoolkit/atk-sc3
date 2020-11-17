@@ -1,6 +1,6 @@
 CLASS:: FoaNFC
 summary:: First Order Ambisonic (FOA) nearfield compensation filter
-categories:: Libraries>Ambisonic Toolkit>FOA>Decoding>UGens, Libraries>Ambisonic Toolkit>FOA>Transforming>UGens, UGens>Multichannel>Ambisonics, UGens>Multichannel>Panners
+categories:: Libraries>Ambisonic Toolkit>FOA>Decoding>UGens, Libraries>Ambisonic Toolkit>FOA>Transforming>UGens, UGens>Multichannel>Ambisonics
 related:: Classes/FoaProximity, Classes/FoaTransform, Classes/FoaDecode
 
 DESCRIPTION::

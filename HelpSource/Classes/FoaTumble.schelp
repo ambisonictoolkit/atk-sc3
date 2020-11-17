@@ -1,6 +1,6 @@
 CLASS:: FoaTumble
 summary:: First Order Ambisonic (FOA) rotation transformer
-categories:: Libraries>Ambisonic Toolkit>FOA>Transforming>UGens, UGens>Multichannel>Ambisonics, UGens>Multichannel>Panners
+categories:: Libraries>Ambisonic Toolkit>FOA>Transforming>UGens, UGens>Multichannel>Ambisonics
 related:: Classes/FoaRotate, Classes/FoaTilt, Classes/FoaRTT, Classes/FoaTransform, Classes/FoaXform, Classes/Rotate2
 
 DESCRIPTION::

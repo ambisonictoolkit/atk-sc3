@@ -1,6 +1,6 @@
 TITLE:: HoaXformMatrix
 summary:: Matrix transformer from the Ambisonic Toolkit (ATK)
-categories:: Libraries>Ambisonic Toolkit>HOA>Transforming>UGens, UGens>Multichannel>Ambisonics, UGens>Multichannel>Panners
+categories:: Libraries>Ambisonic Toolkit>HOA>Transforming>UGens, UGens>Multichannel>Ambisonics
 related:: Classes/Mix, Classes/AtkMatrixMix, Classes/HoaRenderMatrix, Classes/HoaEncodeMatrix, Classes/HoaDecodeMatrix
 
 DESCRIPTION::

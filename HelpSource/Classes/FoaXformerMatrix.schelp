@@ -1,6 +1,6 @@
 CLASS:: FoaXformerMatrix
 summary:: First Order Ambisonic (FOA) transformer matrices
-categories:: Libraries>Ambisonic Toolkit>FOA>Transforming
+categories:: Libraries>Ambisonic Toolkit>Matrix & Kernel>FOA
 related:: Classes/FoaXform
 
 DESCRIPTION::

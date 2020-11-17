@@ -1,6 +1,6 @@
 TITLE:: HoaMatrix
 summary:: A superclass to the Atk's various Higher Order Ambisonic (HOA) matrix classes.
-categories:: Libraries>Ambisonic Toolkit>HOA>Framework
+categories:: Libraries>Ambisonic Toolkit>Matrix & Kernel>HOA
 related:: Classes/AtkMatrix, Classes/HoaMatrixEncoder, Classes/HoaMatrixDecoder, Classes/HoaMatrixXformer, Classes/Matrix, Guides/Guide-to-ATK-Matrix-Files
 
 DESCRIPTION::

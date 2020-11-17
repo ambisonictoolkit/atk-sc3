@@ -1,6 +1,6 @@
 CLASS:: FoaEncoderMatrix
 summary:: First Order Ambisonic (FOA) encoder matrices
-categories:: Libraries>Ambisonic Toolkit>FOA>Encoding
+categories:: Libraries>Ambisonic Toolkit>Matrix & Kernel>FOA
 related:: Classes/FoaEncoderKernel, Classes/FoaEncode
 
 DESCRIPTION::

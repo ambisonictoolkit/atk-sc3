@@ -1,6 +1,6 @@
 TITLE:: HoaMatrixXformer
 summary:: Higher Order Ambisonic (HOA) matrix transformers
-categories:: Libraries>Ambisonic Toolkit>HOA>Transforming
+categories:: Libraries>Ambisonic Toolkit>Matrix & Kernel>HOA
 related:: Classes/HoaXformMatrix
 
 DESCRIPTION::

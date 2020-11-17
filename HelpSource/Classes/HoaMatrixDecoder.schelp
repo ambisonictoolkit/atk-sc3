@@ -1,6 +1,6 @@
 TITLE:: HoaMatrixDecoder
 summary:: Higher Order Ambisonic (HOA) matrix decoders
-categories:: Libraries>Ambisonic Toolkit>HOA>Decoding
+categories:: Libraries>Ambisonic Toolkit>Matrix & Kernel>HOA
 related:: Classes/HoaDecodeMatrix
 
 DESCRIPTION::

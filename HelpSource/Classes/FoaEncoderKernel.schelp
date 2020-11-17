@@ -1,6 +1,6 @@
 CLASS:: FoaEncoderKernel
 summary:: First Order Ambisonic (FOA) encoder kernels
-categories:: Libraries>Ambisonic Toolkit>FOA>Encoding
+categories:: Libraries>Ambisonic Toolkit>Matrix & Kernel>FOA
 related:: Classes/FoaEncoderMatrix, Classes/FoaEncode
 
 DESCRIPTION::

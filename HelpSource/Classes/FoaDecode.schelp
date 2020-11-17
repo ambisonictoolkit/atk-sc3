@@ -1,6 +1,6 @@
 CLASS:: FoaDecode
 summary:: First Order Ambisonic (FOA) decoder
-categories:: Libraries>Ambisonic Toolkit>FOA>Decoding, UGens>Multichannel>Ambisonics
+categories:: Libraries>Ambisonic Toolkit>UGens>FOA>Decoding, UGens>Multichannel>Ambisonics
 related:: Classes/FoaDecoderMatrix, Classes/FoaDecoderKernel
 
 DESCRIPTION::

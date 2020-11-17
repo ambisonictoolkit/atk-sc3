@@ -1,6 +1,6 @@
 CLASS:: FoaXform
 summary:: First Order Ambisonic (FOA) matrix transformer
-categories:: Libraries>Ambisonic Toolkit>FOA>Transforming, UGens>Multichannel>Ambisonics
+categories:: Libraries>Ambisonic Toolkit>UGens>FOA>Transforming, UGens>Multichannel>Ambisonics
 related:: Classes/FoaXformerMatrix, Classes/FoaTransform
 
 DESCRIPTION::

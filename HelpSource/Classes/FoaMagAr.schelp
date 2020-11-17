@@ -1,6 +1,6 @@
 CLASS:: FoaMagAr
 summary:: First Order Ambisonic (FOA) Magnitude of Soundfield Reactive Admittance Vector
-categories:: Libraries>Ambisonic Toolkit>FOA>Analyzing>UGens, UGens>Multichannel>Ambisonics, UGens>Analysis>Ambisonics
+categories:: Libraries>Ambisonic Toolkit>UGens>FOA>Analyzing, UGens>Multichannel>Ambisonics, UGens>Analysis>Ambisonics
 related:: Classes/FoaMagA, Classes/FoaMagAa, Classes/FoaAa, Classes/FoaAr
 
 DESCRIPTION::

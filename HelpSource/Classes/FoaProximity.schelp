@@ -1,6 +1,6 @@
 CLASS:: FoaProximity
 summary:: First Order Ambisonic (FOA) proximity effect filter
-categories:: Libraries>Ambisonic Toolkit>FOA>Transforming>UGens, UGens>Multichannel>Ambisonics
+categories:: Libraries>Ambisonic Toolkit>UGens>FOA>Transforming, UGens>Multichannel>Ambisonics
 related:: Classes/FoaNFC, Classes/FoaTransform
 
 DESCRIPTION::

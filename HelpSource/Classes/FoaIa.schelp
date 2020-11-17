@@ -1,6 +1,6 @@
 CLASS:: FoaIa
 summary:: First Order Ambisonic (FOA) Soundfield Active Intensity Vector
-categories:: Libraries>Ambisonic Toolkit>FOA>Analyzing>UGens, UGens>Multichannel>Ambisonics, UGens>Analysis>Ambisonics
+categories:: Libraries>Ambisonic Toolkit>UGens>FOA>Analyzing, UGens>Multichannel>Ambisonics, UGens>Analysis>Ambisonics
 related:: Classes/FoaMagI, Classes/FoaMagIa, Classes/FoaMagIr, Classes/FoaIr
 
 DESCRIPTION::

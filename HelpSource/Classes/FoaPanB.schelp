@@ -1,6 +1,6 @@
 CLASS:: FoaPanB
 summary:: First Order Ambisonic (FOA) panner
-categories:: Libraries>Ambisonic Toolkit>FOA>Encoding>UGens, UGens>Multichannel>Ambisonics, UGens>Multichannel>Panners
+categories:: Libraries>Ambisonic Toolkit>UGens>FOA>Encoding, UGens>Multichannel>Ambisonics, UGens>Multichannel>Panners
 related:: Classes/FoaEncode
 
 DESCRIPTION::

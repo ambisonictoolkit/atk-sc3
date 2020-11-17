@@ -1,6 +1,6 @@
 TITLE:: AtkHoa
 summary:: A class that stores some global HOA variables for the Ambisonic Toolkit
-categories:: Libraries>Ambisonic Toolkit>Environment, Libraries>Ambisonic Toolkit>HOA
+categories:: Libraries>Ambisonic Toolkit>Environment
 related:: Classes/Atk, Classes/AtkFoa, Guides/ATK-Glossary
 
 DESCRIPTION::

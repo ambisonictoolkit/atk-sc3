@@ -1,8 +1,8 @@
-ATK for SuperCollider3 : Read Me
+ATK for SuperCollider : Read Me
 ========================
 
-This is the SuperCollider3 version of the Ambisonic Toolkit (ATK).
-It can be used with [SuperCollider3](http://supercollider.github.io/) on OSX,
+This is the SuperCollider version of the Ambisonic Toolkit (ATK).
+It can be used with [SuperCollider](http://supercollider.github.io/) on OSX,
 Linux and Windows, and is distributed as a
 [Quark package](https://github.com/ambisonictoolkit/atk-sc3) with [sc3-plugins](https://github.com/supercollider/sc3-plugins) components, and
 [other dependencies](http://www.ambisonictoolkit.net/download/supercollider/).
@@ -28,7 +28,7 @@ For more information please visit the [Ambisonic Toolkit
 website](http:www.ambisonictoolkit.net/) or send us an
 [e-mail](mailto:info[at]ambisonictoolkit.net). See also
 [Introducing the Ambisonic Toolkit](http://doc.sccode.org/Guides/Intro-to-the-ATK.html)
-for an overview on working with the ATK for SuperCollider3.
+for an overview on working with the ATK for SuperCollider.
 
 
 
@@ -44,7 +44,7 @@ Installing
 Requirements
 ------------
 
-* ATK for [SuperCollider3](http://supercollider.github.io) requires version 3.9
+ATK for [SuperCollider](http://supercollider.github.io) requires version 3.10
 or later. Download the latest version
 [here](http://supercollider.github.io/download), or fork the source code at
 [GitHub](http://supercollider.github.io/).
@@ -54,7 +54,7 @@ or later. Download the latest version
 atk-sc3 Quark
 -----------
 
-The ATK for [SuperCollider3](http://supercollider.github.io)'s classes,
+The ATK for [SuperCollider](http://supercollider.github.io)'s classes,
 extension methods and documentation are distributed via the
 [atk-sc3 Quark](https://github.com/ambisonictoolkit/atk-sc3). Start by reviewing
 the Quark installation instructions
@@ -67,6 +67,13 @@ running the following line of code in SuperCollider:
 
 ```supercollider
 Quarks.install("https://github.com/ambisonictoolkit/atk-sc3.git");
+```
+
+If you've previously installed the ATK, you'll want to update all the dependencies
+to their current versions. The easiest way to do so is via the Quarks GUI:
+
+```supercollider
+QuarksGui.new
 ```
 
 
@@ -99,41 +106,43 @@ Platform.userExtensionDir.openOS;
 )
 ```
 
+If you've previously installed the ATK, you'll want to be sure to install the
+version of [sc3-plugins](https://github.com/supercollider/sc3-plugins/releases)
+that is compatible with your installed version of [SuperCollider](http://supercollider.github.io/download).
+
 
 Kernels, Matrices & Soundfiles
 --------------------
 
-Additionally, the SuperCollider3 version of the ATK has further dependencies:
+Additionally, the SuperCollider version of the ATK has further dependencies:
 
 * [ATK Kernels](http://www.ambisonictoolkit.net/download/kernels/)
 * [ATK Matrices](http://www.ambisonictoolkit.net/download/matrices/)
 * [ATK Soundfiles](http://www.ambisonictoolkit.net/download/recordings/)
 
 Install Kernels, Matrices, and Soundfiles by running the following code:
+
 ```supercollider
 Atk.downloadKernels;
 Atk.downloadMatrices;
 Atk.downloadSounds;
 ```
 
+If successful, these three dependencies are installed here:
+
+```supercollider
+Atk.systemKernelDir.postln;
+Atk.systemMatrixDir.postln;
+Atk.systemSoundsDir.postln;
+```
 
 &nbsp;
 
-### Source code
+Source code
+-----------
 
 You can build the ATK for SuperCollider UGen components from the [sc3-plugins](https://github.com/supercollider/sc3-plugins) source-code.
 
-
-&nbsp;
-
-If you are using Ambisonic Toolkit with Reaper as well,
-the convolution kernels and matrices are installed in the same place and have
-the exact same content. We do not expect this to cause any conflicts.
-
-If you want to take a look at the installed files and do not see the
-`Library` folder in Finder, please press the ALT button while clicking
-the "Go" menu in Finder. The `Library` folder will show up as an
-additional option.
 
 &nbsp;
 
@@ -323,7 +332,7 @@ as part of the
 versioning for UGen components is synced to the release numbers assigned to
 [sc3-plugins releases](https://github.com/supercollider/sc3-plugins/releases).
 
-As SuperCollider3's plugin system continues to develop, we expect to adopt
+As SuperCollider's plugin system continues to develop, we expect to adopt
 [Semantic Versioning](http://semver.org/) for all components when it is possible
 to do so.
 
@@ -345,7 +354,7 @@ Michael McCrea 2011, 2016-18.
 
 &nbsp;
 
-The development of the ATK for SuperCollider3 is
+The development of the ATK for SuperCollider is
 supported by [DXARTS, Center for Digital Arts and Experimental Media](https://dxarts.washington.edu/).
 
 The filter kernels distributed with the Ambisonic Toolkit are licensed
@@ -413,7 +422,7 @@ http://www.ai.sri.com/ajh/ambisonics/
 Benjamin, et al., "Localization in Horizontal-Only Ambisonic Systems"
 Preprint from AES-121, 10/2006, San Francisco
 
-Implementation in the SuperCollider3 version of the ATK is by [Joseph
+Implementation in the SuperCollider version of the ATK is by [Joseph
 Anderson](mailto:j.anderson[at]ambisonictoolkit.net).
 
 &nbsp;

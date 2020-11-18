@@ -1,6 +1,6 @@
 TITLE:: HoaRenderMatrix
 summary:: Matrix renderer from the Ambisonic Toolkit (ATK)
-categories:: Libraries>Ambisonic Toolkit>UGens>Abstract & Base>HOA, UGens>Multichannel>Ambisonics
+categories:: Libraries>Ambisonic Toolkit>UGens>Internals>HOA, UGens>Multichannel>Ambisonics
 related:: Classes/Mix, Classes/AtkMatrixMix, Classes/HoaEncodeMatrix, Classes/HoaXformMatrix, Classes/HoaDecodeMatrix
 
 DESCRIPTION::

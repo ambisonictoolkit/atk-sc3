@@ -1,6 +1,6 @@
 TITLE:: DegreeDist
 summary:: Higher Order Ambisonic (HOA) "by degree" distance radial filter
-categories:: Libraries>Ambisonic Toolkit>UGens>Abstract & Base>HOA, UGens>Multichannel>Ambisonics
+categories:: Libraries>Ambisonic Toolkit>UGens>Internals>HOA, UGens>Multichannel>Ambisonics
 related:: Classes/HoaNFDist, Classes/DegreeProx, Classes/DegreeCtrl
 
 DESCRIPTION::

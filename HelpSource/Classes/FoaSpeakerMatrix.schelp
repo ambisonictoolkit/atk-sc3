@@ -1,6 +1,6 @@
 CLASS:: FoaSpeakerMatrix
 summary:: First Order Ambisonic (FOA) diametric decoder speaker matrices
-categories:: Libraries>Ambisonic Toolkit>Matrix & Kernel>Abstract & Base
+categories:: Libraries>Ambisonic Toolkit>Matrix & Kernel>Internals
 related:: Classes/FoaDecoderMatrix
 
 DESCRIPTION::

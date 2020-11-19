@@ -56,7 +56,7 @@ atk-sc3 Quark
 
 The ATK for [SuperCollider](http://supercollider.github.io)'s classes,
 extension methods and documentation are distributed via the
-[atk-sc3 Quark](https://github.com/ambisonictoolkit/atk-sc3). Start by reviewing
+[atk-sc3 quark](https://github.com/ambisonictoolkit/atk-sc3). Start by reviewing
 the Quark installation instructions
 [found here](https://github.com/supercollider-quarks/quarks#installing). See
 also [Using Quarks](http://doc.sccode.org/Guides/UsingQuarks.html).
@@ -325,7 +325,7 @@ Version 3.5
 * First Public Release as part of the sc3-plugins project!
 
 __A note on the ATK's version numbers__: Versioning for the
-[atk-sc3 Quark](https://github.com/ambisonictoolkit/atk-sc3) adheres to the
+[atk-sc3 quark](https://github.com/ambisonictoolkit/atk-sc3) adheres to the
 familiar system known as [Semantic Versioning](http://semver.org/). In contrast,
 as part of the
 [sc3-plugins](https://github.com/supercollider/sc3-plugins) project, the

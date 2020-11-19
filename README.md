@@ -131,9 +131,12 @@ Atk.downloadSounds;
 If successful, these three dependencies are installed here:
 
 ```supercollider
-Atk.systemKernelDir.postln;
-Atk.systemMatrixDir.postln;
-Atk.systemSoundsDir.postln;
+(
+// post the kernel, matrix and sounds directories
+Atk.userKernelDir.postln;
+Atk.userMatrixDir.postln;
+Atk.userSoundsDir.postln;
+)
 ```
 
 &nbsp;

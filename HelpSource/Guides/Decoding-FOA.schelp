@@ -22,7 +22,7 @@ myServer.options.numOutputBusChannels
 ::
 
 An example link::Classes/Function::, code:: ~checkMyServerOutputs::, can
-be found link::Guides/Intro-to-the-ATK#Choose a decoder#here::.
+be found link::Guides/Intro-FOA-Examples#Choose a decoder#here::.
 code:: ~checkMyServerOutputs:: throws a warning if
 code::myServer.options.numOutputBusChannels < myDecoder.numOutputs::. If you
 need to update your link::Classes/Server::'s number of output bus channels,
@@ -107,7 +107,7 @@ code::
 
 section:: Ambisonic UHJ stereo decoder
 
-Ambisonic UHJ stereo footnote::See: link::http://en.wikipedia.org/wiki/Ambisonic_UHJ_format:::: is the 'native' stereo format for Ambisonics. A B-format signal (2D, with some losses) can be recovered from a UHJ decoded signal through the use of link::Classes/FoaEncoderKernel#*newUHJ::.
+Ambisonic UHJ stereo footnote::See: link::http://en.wikipedia.org/wiki/Ambisonic_UHJ_format:::: is the emphasis::native:: stereo format for Ambisonics. A B-format signal (2D, with some losses) can be recovered from a UHJ decoded signal through the use of link::Classes/FoaEncoderKernel#*newUHJ::.
 
 
 

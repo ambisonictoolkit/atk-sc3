@@ -12,7 +12,7 @@ As the Ambisonic technique is a hierarchal system, numerous options for playback
 
 section:: Choose a decoder
 
-Choose a decoder suitable for your system, as illustrated link::Guides/Intro-to-the-ATK#Choose a decoder#here::. You'll end up definining code:: ~decoder :: and code:: ~renderDecode :: .
+Choose a decoder suitable for your system, as illustrated link::Guides/Intro-FOA-Examples#Choose a decoder#here::. You'll end up definining code:: ~decoder :: and code:: ~renderDecode :: .
 
 note:: If you choose a kernel decoder, link::Classes/FoaDecoderKernel::, be sure to free the kernel after use. ::
 

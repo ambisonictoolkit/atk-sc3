@@ -1,7 +1,7 @@
 CLASS:: Atk
 summary:: a class that stores some global variables for the Ambisonic Toolkit
 categories:: Libraries>Ambisonic Toolkit>ATK Platform & Configuration
-related:: Classes/AtkFoa, Classes/AtkHoa, Guides/Intro-to-the-ATK
+related:: Classes/AtkFoa, Classes/AtkHoa, Tutorials/ABCs-of-the-ATK
 
 DESCRIPTION::
 The Atk class defines variables that may be used by the rest of the ATK library, including resources for kernel encoding and decoding and sample soundfile paths.

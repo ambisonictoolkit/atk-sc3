@@ -1,6 +1,6 @@
 CLASS:: FoaSFWhL
 summary:: First Order Ambisonic (FOA) Soundfield Heyser's Total Energy Density Level
-categories:: Libraries>Ambisonic Toolkit>UGens>FOA>Analyzing, UGens>Multichannel>Ambisonics, UGens>Analysis>Ambisonics
+categories:: Libraries>Ambisonic Toolkit>UGens>FOA>Analyzer, UGens>Multichannel>Ambisonics, UGens>Analysis>Ambisonics
 related:: Classes/FoaSFPL, Classes/FoaSFVL, Classes/FoaSFWL, Classes/FoaSFIL, Classes/FoaWh
 
 

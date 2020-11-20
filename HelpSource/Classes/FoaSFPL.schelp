@@ -1,6 +1,6 @@
 CLASS:: FoaSFPL
 summary:: First Order Ambisonic (FOA) Soundfield Pressure Level
-categories:: Libraries>Ambisonic Toolkit>UGens>FOA>Analyzing, UGens>Multichannel>Ambisonics, UGens>Analysis>Ambisonics
+categories:: Libraries>Ambisonic Toolkit>UGens>FOA>Analyzer, UGens>Multichannel>Ambisonics, UGens>Analysis>Ambisonics
 related:: Classes/FoaSFVL, Classes/FoaSFWL, Classes/FoaSFIL, Classes/FoaSFWhL, Classes/FoaWp
 
 DESCRIPTION::

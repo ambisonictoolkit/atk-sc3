@@ -1,6 +1,6 @@
 CLASS:: FoaAa
 summary:: First Order Ambisonic (FOA) Soundfield Active Admittance Vector
-categories:: Libraries>Ambisonic Toolkit>UGens>FOA>Analyzing, UGens>Multichannel>Ambisonics, UGens>Analysis>Ambisonics
+categories:: Libraries>Ambisonic Toolkit>UGens>FOA>Analyzer, UGens>Multichannel>Ambisonics, UGens>Analysis>Ambisonics
 related:: Classes/FoaMagA, Classes/FoaMagAa, Classes/FoaMagAr, Classes/FoaAr
 
 DESCRIPTION::

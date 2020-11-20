@@ -1,6 +1,6 @@
 CLASS:: FoaBeta
 summary:: First Order Ambisonic (FOA) Soundfield Potential-Kinetic Energy Balance
-categories:: Libraries>Ambisonic Toolkit>UGens>FOA>Analyzing, UGens>Multichannel>Ambisonics, UGens>Analysis>Ambisonics
+categories:: Libraries>Ambisonic Toolkit>UGens>FOA>Analyzer, UGens>Multichannel>Ambisonics, UGens>Analysis>Ambisonics
 related:: Classes/FoaBeta, Classes/FoaGamma, Classes/FoaWd, Classes/FoaMagI
 
 DESCRIPTION::

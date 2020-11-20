@@ -1,6 +1,6 @@
 TITLE:: HoaReflect
 summary:: Higher Order Ambisonic (HOA) mirror transformer
-categories:: Libraries>Ambisonic Toolkit>UGens>HOA>Transforming, UGens>Multichannel>Ambisonics
+categories:: Libraries>Ambisonic Toolkit>UGens>HOA>Transformer, UGens>Multichannel>Ambisonics
 related:: Classes/HoaXformMatrix
 
 DESCRIPTION::

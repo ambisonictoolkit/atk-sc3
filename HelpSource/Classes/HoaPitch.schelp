@@ -1,6 +1,6 @@
 TITLE:: HoaPitch
 summary:: Higher Order Ambisonic (HOA) rotation transformer
-categories:: Libraries>Ambisonic Toolkit>UGens>HOA>Transforming, UGens>Multichannel>Ambisonics
+categories:: Libraries>Ambisonic Toolkit>UGens>HOA>Transformer, UGens>Multichannel>Ambisonics
 related:: Classes/HoaRotate, Classes/HoaTilt, Classes/HoaTumble, Classes/HoaRTT, Classes/HoaYaw, Classes/HoaRoll, Classes/HoaYPR
 
 DESCRIPTION::

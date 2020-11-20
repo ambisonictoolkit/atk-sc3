@@ -1,6 +1,6 @@
 CLASS:: FoaGamma
 summary:: First Order Ambisonic (FOA) Soundfield Active-Reactive Intensity Alignment
-categories:: Libraries>Ambisonic Toolkit>UGens>FOA>Analyzing, UGens>Multichannel>Ambisonics, UGens>Analysis>Ambisonics
+categories:: Libraries>Ambisonic Toolkit>UGens>FOA>Analyzer, UGens>Multichannel>Ambisonics, UGens>Analysis>Ambisonics
 related:: Classes/FoaAlpha, Classes/FoaGamma, Classes/FoaIa, Classes/FoaIr
 
 DESCRIPTION::

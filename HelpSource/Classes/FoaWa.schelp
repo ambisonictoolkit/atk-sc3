@@ -1,6 +1,6 @@
 CLASS:: FoaWa
 summary:: First Order Ambisonic (FOA) Soundfield Active Energy Vector
-categories:: Libraries>Ambisonic Toolkit>UGens>FOA>Analyzing, UGens>Multichannel>Ambisonics, UGens>Analysis>Ambisonics
+categories:: Libraries>Ambisonic Toolkit>UGens>FOA>Analyzer, UGens>Multichannel>Ambisonics, UGens>Analysis>Ambisonics
 related:: Classes/FoaMagW, Classes/FoaMagWa, Classes/FoaMagWr, Classes/FoaWr
 
 DESCRIPTION::

@@ -1,6 +1,6 @@
 CLASS:: FoaMirror
 summary:: First Order Ambisonic (FOA) mirror transformer
-categories:: Libraries>Ambisonic Toolkit>UGens>FOA>Transforming, UGens>Multichannel>Ambisonics
+categories:: Libraries>Ambisonic Toolkit>UGens>FOA>Transformer, UGens>Multichannel>Ambisonics
 related:: Classes/FoaTransform, Classes/FoaXform
 
 DESCRIPTION::

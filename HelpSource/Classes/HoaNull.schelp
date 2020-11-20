@@ -1,6 +1,6 @@
 TITLE:: HoaNull
 summary:: Higher Order Ambisonic (HOA) null transformer
-categories:: Libraries>Ambisonic Toolkit>UGens>HOA>Transforming, UGens>Multichannel>Ambisonics
+categories:: Libraries>Ambisonic Toolkit>UGens>HOA>Transformer, UGens>Multichannel>Ambisonics
 related:: Classes/HoaBeam, Classes/HoaXformMatrix
 
 DESCRIPTION::

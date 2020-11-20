@@ -1,6 +1,6 @@
 CLASS:: FoaMFreqOsc
 summary:: First Order Ambisonic (FOA) monofrequent soundfield generator
-categories:: Libraries>Ambisonic Toolkit>UGens>FOA>Encoding, UGens>Multichannel>Ambisonics, UGens>Generators>Deterministic
+categories:: Libraries>Ambisonic Toolkit>UGens>FOA>Encoder, UGens>Multichannel>Ambisonics, UGens>Generators>Deterministic
 related:: Classes/FoaEncode
 
 DESCRIPTION::

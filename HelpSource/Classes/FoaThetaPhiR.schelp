@@ -1,6 +1,6 @@
 CLASS:: FoaThetaPhiR
 summary:: First Order Ambisonic (FOA) Azimuth & Elevation of Soundfield Reactive Intensity Vector
-categories:: Libraries>Ambisonic Toolkit>UGens>FOA>Analyzing, UGens>Multichannel>Ambisonics, UGens>Analysis>Ambisonics
+categories:: Libraries>Ambisonic Toolkit>UGens>FOA>Analyzer, UGens>Multichannel>Ambisonics, UGens>Analysis>Ambisonics
 related:: Classes/FoaIr, Classes/FoaMagIr, Classes/FoaThetaPhiA
 
 DESCRIPTION::

@@ -1,6 +1,6 @@
 CLASS:: FoaMagI
 summary:: First Order Ambisonic (FOA) Magnitude of Soundfield Complex Intensity Vector
-categories:: Libraries>Ambisonic Toolkit>UGens>FOA>Analyzing, UGens>Multichannel>Ambisonics, UGens>Analysis>Ambisonics
+categories:: Libraries>Ambisonic Toolkit>UGens>FOA>Analyzer, UGens>Multichannel>Ambisonics, UGens>Analysis>Ambisonics
 related:: Classes/FoaMagIa, Classes/FoaMagIr, Classes/FoaIa, Classes/FoaIr, Classes/FoaSFIL
 
 DESCRIPTION::

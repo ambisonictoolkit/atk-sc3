@@ -1,6 +1,6 @@
 CLASS:: FoaNa
 summary:: First Order Ambisonic (FOA) Soundfield Unit Normalized Active Intensity Vector
-categories:: Libraries>Ambisonic Toolkit>UGens>FOA>Analyzing, UGens>Multichannel>Ambisonics, UGens>Analysis>Ambisonics
+categories:: Libraries>Ambisonic Toolkit>UGens>FOA>Analyzer, UGens>Multichannel>Ambisonics, UGens>Analysis>Ambisonics
 related:: Classes/FoaMagNa, Classes/FoaMagNr, Classes/FoaNr
 
 DESCRIPTION::

@@ -1,6 +1,6 @@
 TITLE:: HoaBeam
 summary:: Higher Order Ambisonic (HOA) beam transformer
-categories:: Libraries>Ambisonic Toolkit>UGens>HOA>Transforming, UGens>Multichannel>Ambisonics
+categories:: Libraries>Ambisonic Toolkit>UGens>HOA>Transformer, UGens>Multichannel>Ambisonics
 related:: Classes/HoaNull, Classes/HoaXformMatrix
 
 DESCRIPTION::

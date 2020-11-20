@@ -1,6 +1,6 @@
 CLASS:: FoaAlpha
 summary:: First Order Ambisonic (FOA) Soundfield Active-Reactive Intensity Balance
-categories:: Libraries>Ambisonic Toolkit>UGens>FOA>Analyzing, UGens>Multichannel>Ambisonics, UGens>Analysis>Ambisonics
+categories:: Libraries>Ambisonic Toolkit>UGens>FOA>Analyzer, UGens>Multichannel>Ambisonics, UGens>Analysis>Ambisonics
 related:: Classes/FoaBeta, Classes/FoaGamma, Classes/FoaMagIa, Classes/FoaMagIr
 
 DESCRIPTION::

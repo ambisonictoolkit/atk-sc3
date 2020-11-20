@@ -1,6 +1,6 @@
 CLASS:: FoaSFWL
 summary:: First Order Ambisonic (FOA) Soundfield Energy Level
-categories:: Libraries>Ambisonic Toolkit>UGens>FOA>Analyzing, UGens>Multichannel>Ambisonics, UGens>Analysis>Ambisonics
+categories:: Libraries>Ambisonic Toolkit>UGens>FOA>Analyzer, UGens>Multichannel>Ambisonics, UGens>Analysis>Ambisonics
 related:: Classes/FoaSFPL, Classes/FoaSFVL, Classes/FoaSFIL, Classes/FoaSFWhL, Classes/FoaWs
 
 

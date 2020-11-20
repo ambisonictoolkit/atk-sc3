@@ -1,6 +1,6 @@
 CLASS:: FoaRotate
 summary:: First Order Ambisonic (FOA) rotation transformer
-categories:: Libraries>Ambisonic Toolkit>UGens>FOA>Transforming, UGens>Multichannel>Ambisonics
+categories:: Libraries>Ambisonic Toolkit>UGens>FOA>Transformer, UGens>Multichannel>Ambisonics
 related:: Classes/FoaTilt, Classes/FoaTumble, Classes/FoaRTT, Classes/FoaTransform, Classes/FoaXform, Classes/Rotate2
 
 DESCRIPTION::

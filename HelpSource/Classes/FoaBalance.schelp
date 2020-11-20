@@ -1,6 +1,6 @@
 CLASS:: FoaBalance
 summary:: First Order Ambisonic (FOA) balance transformer
-categories:: Libraries>Ambisonic Toolkit>UGens>FOA>Transforming, UGens>Multichannel>Ambisonics
+categories:: Libraries>Ambisonic Toolkit>UGens>FOA>Transformer, UGens>Multichannel>Ambisonics
 related:: Classes/FoaZoomX, Classes/FoaZoomY, Classes/FoaZoomZ, Classes/FoaZoom, Classes/FoaTransform, Classes/FoaXform
 
 DESCRIPTION::

@@ -1,6 +1,6 @@
 TITLE:: HoaNFDist
 summary:: Higher Order Ambisonic (HOA) NFE distance transformer
-categories:: Libraries>Ambisonic Toolkit>UGens>HOA>Transforming, UGens>Multichannel>Ambisonics
+categories:: Libraries>Ambisonic Toolkit>UGens>HOA>Transformer, UGens>Multichannel>Ambisonics
 related:: Classes/HoaNFProx, Classes/HoaNFCtrl, Classes/DegreeDist, Classes/DegreeProx, Classes/DegreeCtrl
 
 DESCRIPTION::

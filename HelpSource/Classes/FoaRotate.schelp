@@ -40,4 +40,4 @@ note:: Corresponding matrix transformer: link::Classes/FoaXformerMatrix#*newRota
 
 EXAMPLES::
 
-Please see various examples link::Classes/FoaTransform#examples#here::.
+link::Guides/Transforming-FOA::.

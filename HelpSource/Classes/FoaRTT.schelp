@@ -48,4 +48,4 @@ note:: Corresponding matrix transformer: link::Classes/FoaXformerMatrix#*newRTT:
 
 EXAMPLES::
 
-Please see various examples link::Classes/FoaTransform#examples#here::.
+link::Guides/Transforming-FOA::.

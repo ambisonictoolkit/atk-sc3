@@ -627,4 +627,4 @@ COPYMETHOD:: AtkMatrix, -writeToFile
 
 EXAMPLES::
 
-Please see link::Classes/FoaDecode#Examples::.
+link::Guides/Decoding-FOA::

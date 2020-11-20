@@ -8,10 +8,15 @@ section:: Theory
 link::Guides/ATK-Glossary::
 
 
-section:: Stuff
+section:: Doing things
 
 link::Guides/Intro-FOA-Examples::
 
-link::Guides/Guide-to-ATK-Matrix-Files::
+link::Guides/Decoding-FOA::
 
 link::Guides/ATK-SynthDef-Examples::
+
+
+section:: Understanding the ATK
+
+link::Guides/Guide-to-ATK-Matrix-Files::

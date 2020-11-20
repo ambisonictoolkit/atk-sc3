@@ -387,4 +387,4 @@ warning:: Only free the kernel when the link::Classes/FoaDecode#*ar:: is no long
 
 EXAMPLES::
 
-Please see link::Classes/FoaDecode#Examples::.
+link::Guides/Decoding-FOA::

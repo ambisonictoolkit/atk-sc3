@@ -5,23 +5,13 @@ keyword::Atk
 
 section:: ATK with SynthDef and Synth
 
-For a more in-depth overview of the paradigm of ATK and a complete presentation
-of its capabilities, see link::Guides/Intro-to-the-ATK::. These examples show a
-limited set of the ATK's functionality, but illustrate how to work with the
-library when using link::Classes/SynthDef##SynthDefs:: and
-link::Classes/Synth##Synths::, and a single decoder that reads the Ambisonic
-signal through audio bus routing. Additionally, examples for
-link::Guides/Non-Realtime-Synthesis##Non-Realtime (NRT):: processing are found
-in this guide.
+The FOA examples found here show a limited set of the ATK's functionality, but illustrate how to work with the library when using link::Classes/SynthDef##SynthDefs:: and link::Classes/Synth##Synths::, and a single decoder that reads an Ambisonic signal through audio bus routing. Additionally, examples for link::Guides/Non-Realtime-Synthesis##Non-Realtime (NRT):: processing are found in this guide.
 
 subsection:: Mono Encoder using FoaPanB
 
-link::Classes/FoaPanB:: encodes a monophonic input to a first order ambisonic
-signal (B-format), as a planewave. link::Classes/PanB:: is the SuperCollider
-inbuilt equivalent.
+link::Classes/FoaPanB:: encodes a monophonic input to a first order ambisonic signal (B-format), as a planewave. link::Classes/PanB:: is the SuperCollider inbuilt equivalent.
 
-This first example encodes a link::Classes/PinkNoise:: source as a planewave and
-decodes to stereo.
+This first example encodes a link::Classes/PinkNoise:: source as a planewave and decodes to stereo.
 
 
 code::

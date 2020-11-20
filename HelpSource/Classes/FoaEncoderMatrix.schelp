@@ -494,4 +494,4 @@ COPYMETHOD:: AtkMatrix, -writeToFile
 
 EXAMPLES::
 
-Please see link::Classes/FoaEncode#Examples::.
+link::Guides/Encoding-FOA::

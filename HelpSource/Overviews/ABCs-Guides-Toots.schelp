@@ -12,6 +12,8 @@ section:: Doing things
 
 link::Guides/Intro-FOA-Examples::
 
+link::Guides/Encoding-FOA::
+
 link::Guides/Decoding-FOA::
 
 link::Guides/ATK-SynthDef-Examples::

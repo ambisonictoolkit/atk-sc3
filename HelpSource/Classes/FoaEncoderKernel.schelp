@@ -309,4 +309,4 @@ warning:: Only free the kernel when the link::Classes/FoaEncode#*ar:: is no long
 
 EXAMPLES::
 
-Please see link::Classes/FoaEncode#Examples::.
+link::Guides/Encoding-FOA::

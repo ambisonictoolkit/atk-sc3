@@ -54,7 +54,7 @@ keyword:: basic
 
 ## basic wave
 keyword:: basic, wave
-|| Ambisonic Toolkit soundfield designation. A travelling wave encoded with all real modal components. I.e., a emphasis::spherical wave:: encoded at the emphasis::reference radius::.
+|| Ambisonic Toolkit soundfield designation. A travelling wave encoded with all real modal components. I.e., a travelling wave encoded at the emphasis::reference radius::.
 
 ## basis function
 keyword:: basis
@@ -147,6 +147,10 @@ keyword:: isotropic
 ## kind
 keyword:: kind
 || Ambisonic Toolkit operation ID, e.g., code::\quad::.
+
+## look direction
+keyword:: look
+|| The perceived localisation direction a listener would identify as a source origin.
 
 ## Makita localisation vector
 keyword:: makita
@@ -258,7 +262,7 @@ keyword:: transform
 
 ## travelling wave
 keyword:: wave
-|| A propagating, incidental wave arriving from some direction.
+|| A propagating, incidental wave arriving from some direction. A travelling wave has a emphasis::look direction::.
 
 ## type
 keyword:: type

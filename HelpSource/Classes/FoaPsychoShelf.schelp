@@ -1,6 +1,6 @@
 CLASS:: FoaPsychoShelf
 summary:: First Order Ambisonic (FOA) psychoacoustic shelf filter
-categories:: Libraries>Ambisonic Toolkit>UGens>FOA>Decoder, UGens>Multichannel>Ambisonics
+categories:: Libraries>Ambisonic Toolkit>UGens>FOA>Transformer, UGens>Multichannel>Ambisonics
 related:: Classes/FoaNFC, Classes/FoaDecode
 
 DESCRIPTION::
@@ -43,4 +43,4 @@ note:: In normal circumstances, the user will not call link::Classes/FoaPsychoSh
 
 EXAMPLES::
 
-Please see link::Classes/FoaDecode#psychoacoustically_optimised_quadraphonic_decoder#this::.
+Please see link::Guides/Decoding-FOA#Psychoacoustically%20optimised%20quadraphonic%20decoder#this::.

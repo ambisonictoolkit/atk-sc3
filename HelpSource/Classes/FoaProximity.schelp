@@ -43,4 +43,4 @@ warning:: As link::Classes/FoaProximity:: includes a 1st-order integration, sign
 
 EXAMPLES::
 
-Please see link::Classes/FoaTransform#proximity#this::.
+Please see link::Guides/Transforming-FOA#Proximity#this::.

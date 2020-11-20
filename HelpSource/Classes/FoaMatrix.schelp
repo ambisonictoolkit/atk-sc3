@@ -124,4 +124,10 @@ COPYMETHOD:: AtkMatrix, -writeToFile
 
 EXAMPLES::
 
-TBD
+link::Guides/Guide-to-ATK-Matrix-Files::
+
+link::Guides/Encoding-FOA::
+
+link::Guides/Transforming-FOA::
+
+link::Guides/Decoding-FOA::

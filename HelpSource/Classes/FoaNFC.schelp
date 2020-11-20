@@ -1,6 +1,6 @@
 CLASS:: FoaNFC
 summary:: First Order Ambisonic (FOA) nearfield compensation filter
-categories:: Libraries>Ambisonic Toolkit>UGens>FOA>Decoder, Libraries>Ambisonic Toolkit>UGens>FOA>Transformer, UGens>Multichannel>Ambisonics
+categories:: Libraries>Ambisonic Toolkit>UGens>FOA>Transformer, UGens>Multichannel>Ambisonics
 related:: Classes/FoaProximity, Classes/FoaTransform, Classes/FoaDecode
 
 DESCRIPTION::
@@ -45,4 +45,4 @@ The Ambisonic Toolkit's proximity filter, link::Classes/FoaProximity::, undoes l
 
 EXAMPLES::
 
-Please see link::Classes/FoaDecode#psychoacoustically_optimised_quadraphonic_decoder#this:: and link::Classes/FoaTransform#nfc_(soundfile)#this::.
+Please see link::Guides/Decoding-FOA#Psychoacoustically%20optimised%20quadraphonic%20decoder#this:: and link::Guides/Transforming-FOA#NFC%20(soundfile)#this::.

@@ -73,7 +73,7 @@ If you've previously installed the ATK, you'll want to update all the dependenci
 to their current versions. The easiest way to do so is via the Quarks GUI:
 
 ```supercollider
-QuarksGui.new
+QuarksGui.new;
 ```
 
 
@@ -181,15 +181,19 @@ Feedback and Bug Reports
 Known issues are logged at
 [GitHub](https://github.com/ambisonictoolkit/atk-sc3/issues).
 
-If you experience problems or have questions pertaining to the ATK for Reaper
-plugins, please create an issue in the
-[ATK-Reaper issue tracker](https://github.com/ambisonictoolkit/atk-sc3/issues).
+If you experience problems or have questions pertaining to the ATK for
+SuperCollider, please create an issue in the
+[atk-sc3 issue tracker](https://github.com/ambisonictoolkit/atk-sc3/issues).
 
-If you use the plugins for some project, please
-[let us know](mailto:info[at]ambisonictoolkit.net). We
-[plan on](https://github.com/ambisonictoolkit/ambisonictoolkit.github.io/issues/9)
-adding a gallery of example artistic and creative projects that make use of the
-Ambisonic Toolkit.
+Experienced users and the developers are active participants on
+the [sc-users mailing list](http://www.beast.bham.ac.uk/research/sc_mailing_lists.shtml).
+Questions posted here are usually answered fairly quickly.
+
+An archive of this list can be searched from
+[this page](http://www.listarc.bham.ac.uk/lists/sc-users/search/).
+
+If need be, the developers can be contacted directly via
+[this address](info@ambisonictoolkit.net).
 
 &nbsp;
 

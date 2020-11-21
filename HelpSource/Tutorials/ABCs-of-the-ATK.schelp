@@ -1,0 +1,388 @@
+title:: ABCs of the ATK
+summary:: Ambisonic Toolkit, a library for research, analysis, synthesis and composition
+categories:: Libraries>Ambisonic Toolkit
+keyword::Atk
+
+section:: The paradigm
+
+The Ambisonic Toolkit (ATK) brings together a number of classic and novel tools and transforms for the artist working with Ambisonic surround sound and makes these available to the SuperCollider user. The toolset in intended to be both ergonomic and comprehensive, and is framed so that the user is encouraged to ‘think Ambisonically’. By this, it is meant the ATK addresses the holistic problem of creatively controlling a complete soundfield, allowing and encouraging the artist to think beyond the placement of sounds in a sound-space (sound-scene paradigm). Instead the artist is encouraged to attend to the impression and imaging of a soundfield, therefore taking advantage of the native soundfield-kernel paradigm the Ambisonic technique presents.
+
+The ATK's production model is illustrated below:
+
+image::atknetwork.png#ATK paradigm::
+
+Here you'll see that the ATK breaks down the task of working with Ambisonics into three separate elements:
+
+definitionlist::
+## Author || Capture or synthesise an Ambisonic soundfield.
+## Image || Spatially filter an Ambisonic soundfield.
+## Monitor || Playback or render an Ambisonic soundfield.
+::
+
+subsection:: Features
+
+Some notable features of the ATK include:
+
+list::
+## Integrated support for classic strong::First Order Ambisonics (FOA):: and modern strong::Higher Order Ambisonics (HOA)::.
+## Implements the emphasis::Nearfield Controlled::, aka emphasis::Nearfield Compensated::, form of Higher Order Ambisonics (NFC-HOA).
+## Ambisonic order is limited by system speed, channel capacity and numerical precision rather than by design.
+## Control and synthesis of the nearfield effect of finite distance sources in both FOA and HOA.
+## Comprehensive FOA soundfield analysis in instantaneous and time averaged forms.
+## Ambisonic coefficients and matrices are available for inspection and manipulation in the interperter.
+## Angular domain soundfield decomposition and recomposition.
+## Analysis of transformer and decoder matrices.
+::
+
+
+section:: Installation
+
+Instructions for installing the complete system are found link::https://github.com/ambisonictoolkit/atk-sc3/blob/master/README.md#installing#here::.
+
+If you're reading this document at least emphasis::one:: part of the ATK, the link::https://github.com/ambisonictoolkit/atk-sc3##atk-sc3 quark:: has most likely been corectly installed.
+
+
+note::
+If the link::Classes/HelpBrowser:: doesn't navigate to the section titled
+strong::Installing::, just search link::https://github.com/ambisonictoolkit/atk-sc3/blob/master/README.md#installing#the page:: to find.
+::
+
+subsection:: Components
+
+The complete ATK library is built from of a number of components. These are:
+
+list::
+## link::Guides/WritingUGens#Pseudo-UGens#pseudo-UGens::, classes, extension methods and documentation found in the link::https://github.com/ambisonictoolkit/atk-sc3##atk-sc3 quark::
+## ATK UGens found in link::https://github.com/supercollider/sc3-plugins/releases##sc3-plugins::
+## link::http://www.ambisonictoolkit.net/download/kernels/##kernels::, link::http://www.ambisonictoolkit.net/download/matrices/##matrices:: & link::http://www.ambisonictoolkit.net/download/recordings/##soundfiles:: found in the link::https://github.com/ambisonictoolkit##ATK repository::
+::
+
+note::
+All of these components, except for the link::http://www.ambisonictoolkit.net/download/recordings/##soundfiles:: are required!
+::
+
+If you've successfully completed the steps described link::#Installation#above::, you should have a working installation of the ATK.
+
+We can easily inspect the strong::quark:: and installed quark dependencies via the link::Classes/QuarksGui:::
+
+code::
+QuarksGui.new
+::
+
+Though we already know the answer, we can also run this test:
+
+code::
+(
+("The ATK quark component % installed!").format(
+	Quarks.isInstalled("atk-sc3").if({
+		"is"
+	}, {
+		"isn't"
+	})
+).postln
+)
+::
+
+If the strong::quark:: has been installed in code::Quarks.folder::, we can poke about:
+
+code::
+(Quarks.folder +/+ "atk-sc3").openOS
+::
+
+Similarly, if the UGens found in strong::sc3-plugins:: have been installed in code::Platform.userExtensionDir:::
+
+code::
+(Platform.userExtensionDir +/+ "SC3plugins/ATK").openOS
+::
+
+And, if the strong::kernels::, strong::matrices:: and strong::soundfiles:: have
+been installed in each related user directories, we can inspect:
+
+code::
+(
+Atk.userKernelDir.openOS;
+Atk.userMatrixDir.openOS;
+Atk.userSoundsDir.openOS;
+)
+::
+
+
+section:: Suggested extensions
+
+Users can expand the functionality of the ATK by adding additional extensions. The following are suggested.
+
+subsection:: ADT
+
+The link::https://gitlab.com/dxarts/projects/adt.quark##ADT quark:: offers a convenient interface to the link::https://bitbucket.org/ambidecodertoolbox/adt/src/master/##Ambisonic Decoder Toolbox::, a collection functions for creating Ambisonic Decoders. The interface supplied by the quark has been designed to facilitate use with the ATK.
+
+At the time of this writing, the link::https://gitlab.com/dxarts/projects/adt.quark##ADT quark:: has not yet been included the SuperCollider link::https://github.com/supercollider-quarks/quarks/blob/master/directory.txt##Quark directory::, meaning that the link::Classes/QuarksGui:: cannot be used to install.
+
+You can install the quark:
+
+code::
+Quarks.install("https://gitlab.com/dxarts/projects/adt.quark")
+::
+
+You'll then need to complete the installation by installing link::https://bitbucket.org/ambidecodertoolbox/adt/src/master/##Ambisonic Decoder Toolbox:: library and link::https://www.gnu.org/software/octave/##Octave::.
+
+Follow the instructions found link::https://gitlab.com/dxarts/projects/adt.quark#adt#here::.
+
+
+subsection:: AmbiVerbSc
+
+Everyone loves reverb! Built on the ATK, the link::https://github.com/JamesWenlock/AmbiVerbSC##AmbiVerbSc quark:: provides a native First Order Ambisonic tank style reverb algorithm.
+
+As with the link::https://gitlab.com/dxarts/projects/adt.quark##ADT quark::, the link::https://github.com/JamesWenlock/AmbiVerbSC##AmbiVerbSc quark:: has not yet been included the SuperCollider link::https://github.com/supercollider-quarks/quarks/blob/master/directory.txt##Quark directory::.
+
+To install the quark:
+
+code::
+Quarks.install("https://github.com/JamesWenlock/AmbiVerbSC")
+::
+
+
+
+section:: Related packages
+
+Support for Ambisonics within SuperCollider has existed in a variety of forms over the years. The principal form of this support has been via link::Guides/UGens-and-Synths##unit generators:: supplied for emphasis::monophonic source:: Ambisonic encoding footnote::I would describe this as panning.:: and two dimensional, aka emphasis::pantophonic::, decoding.
+
+Over the years, a number of related but different emphasis::Ambisonic encoding formats:: have been used. (These formats will be discussed in more detail, link::#Ambisonic%20formats#below::.) For now, the thing to keep in mind is that when we use tools from multiple packages, we need to be sure to correctly exchange Ambisonic encoding formats where these differ.
+
+note::
+If you feel like you'd prefer to jump ahead to review how the ATK is structured, skip to link::#ATK%20Structure#ATK Structure::, below.
+::
+
+
+
+subsection:: SuperCollider
+
+The original author of SuperCollider has provided basic support for First Order Ambisonics (FOA) via the following unit generators:
+
+definitionlist::
+## Encoder || link::Classes/PanB::, link::Classes/PanB2::, link::Classes/BiPanB2::
+## Transformer || link::Classes/Rotate2::
+## Decoder || link::Classes/DecodeB2::
+::
+
+Many SuperCollider users have been introduced to Ambisonics through experimentation
+with these UGens.
+
+subsection:: JoshUGens
+
+As with the ATK, the link::https://github.com/supercollider/sc3-plugins/tree/master/source/JoshUGens##JoshUGens:: collection is also distributed via link::https://github.com/supercollider/sc3-plugins/releases##sc3-plugins::, and offers further implementations in First and Second Order Ambisonic forms.
+
+The following unit generators are supplied:
+
+definitionlist::
+## Encoder || link::Classes/BFEncode::, link::Classes/BFEncode1::, link::Classes/BFEncode2::, link::Classes/BFEncodeSter::, link::Classes/FMHEncode0::, link::Classes/FMHEncode1::, link::Classes/FMHEncode2::, link::Classes/A2B::, link::Classes/UHJ2B::, link::Classes/UHJtoB::
+## Transformer || link::Classes/BFManipulate::, link::Classes/Rotate::, link::Classes/Tilt::, link::Classes/Tumble::
+## Decoder || link::Classes/BFDecode::, link::Classes/BFDecode1::, link::Classes/FMHDecode1::, link::Classes/B2Ster::, link::Classes/B2A::, link::Classes/B2UHJ::, link::Classes/BtoUHJ::
+## Effect || link::Classes/BFFreeVerb::, link::Classes/BFGVerb::
+::
+
+One of the authors of the link::https://github.com/supercollider/sc3-plugins/tree/master/source/JoshUGens##JoshUGens:: package is a significant contributor to the ATK.
+
+note::
+The authors consider it appropriate to regard the functionality provided by corresponding link::Guides/WritingUGens#Pseudo-UGens#pseudo-UGens:: and UGens found in strong::JoshUGens:: to be superceeded by the ATK.
+
+I.e., rather than using strong::JoshUGens:: link::Classes/B2UHJ:: (or link::Classes/BtoUHJ::), users should rely upon the ATK's UHJ implementation, link::Classes/FoaDecoderKernel#*newUHJ::.
+::
+
+
+subsection:: AmbIEM
+
+The link::https://sonenvir.at/downloads/sc3/ambiem/##AmbIEM library:: is distributed via the link::https://github.com/supercollider-quarks/AmbIEM##AmbIEM quark::, and offers support for First, Second and Third Order Ambisonics.
+
+If you've installed this quark you can search for the overview page via:
+
+code::
+HelpBrowser.openHelpFor("AmbIEM")
+::
+
+or navigate to the distributed Help:
+
+code::
+HelpBrowser.openBrowsePage("Libraries>AmbIEM")
+::
+
+AmbIEM supplies the following unit generators:
+
+definitionlist::
+## Encoder || PanAmbi1O, PanAmbi2O, PanAmbi3O
+## Transformer || RotateAmbi1O, RotateAmbi2O, RotateAmbi3O
+## Decoder || DecodeAmbi2O, DecodeAmbi3O, BinAmbi3O
+::
+
+note::
+The kernels required for binaural decoding via BinAmbi30 are not distributed via the link::https://github.com/supercollider-quarks/AmbIEM##AmbIEM quark::.
+
+At the time of this writing, the suggested link::https://github.com/supercollider-quarks/AmbIEM/blob/master/Classes/Binaural.sc#L115#link found in the source code:: appears to be broken.
+
+Instead, the currently live link to this dependency, code::full.tar.Z::, appears to be link::https://sound.media.mit.edu/resources/KEMAR.html##here::.
+::
+
+
+subsection:: SC-HOA
+
+Like the ATK and JoshUGens, the SC-HOA library, aka HOA for SuperCollider, has components distributed via link::https://github.com/supercollider/sc3-plugins/tree/master/source/HOAUGens##sc3-plugins::. Additionally, for a full installation, the link::https://github.com/florian-grond/SC-HOA##SC-HOA quark::, which includes kernel assets, must also be installed. This library provides support for First through Fifth Order Ambisonics.
+
+If you've installed this quark you can search for the overview page via:
+
+code::
+HelpBrowser.openHelpFor("HOA Guide")
+::
+
+or navigate to the distributed Help:
+
+code::
+HelpBrowser.openBrowsePage("Libraries>HOA")
+::
+
+or review SC-HOA's tutorials:
+
+code::
+HelpBrowser.openHelpFor("HOA Tutorial")
+::
+
+SC-HOA provides the following (documented or otherwise mentioned intutorials)
+user facing unit generators:
+
+definitionlist::
+## Encoder || HOAEncoder, HOAmbiPanner, HOALibEnc3D, HOAEncLebedev06, HOAEncLebedev26, HOAEncLebedev50, HOAEncEigenMike, HOAConvert
+## Transformer || HOATransRotateAz, HOATransRotateXYZ, HOATransMirror, HOABeamHCard2Hoa, HOABeamDirac2Hoa, HOALibOptim
+## Decoder || HOADec5_0, HOABeamHCard2Mono, HOABinaural, Lebedev50BinauralDecoder, HOADecLebedev06, HOADecLebedev26, HOADecLebedev50, HOAConvert
+::
+
+section:: Ambisonic formats
+
+
+
+section:: Library structure
+
+The browsing hierarchy is formatted to illustrate the structure of the ATK from a user point of view.
+
+Evaluating the line below will navigate the link::Classes/HelpBrowser:: to the top level of the documentation. (Use the back browser button to return to this page).
+
+code::
+HelpBrowser.openBrowsePage("Libraries>Ambisonic Toolkit")
+::
+
+subsection:: Getting Help
+
+Let's briefly review the presented categories:
+
+definitionlist::
+## Ambisonic Toolkit || main ATK help files
+definitionlist::
+## ATK Platform & Configuration || various ATK system settings and configurations
+## Coefficients & Theory || low level ambisonic coefficients and other theory
+## link::Overviews/ABCs-Guides-Toots##Guides & Tutorials:: || documents explaining how to use the ATK
+## Licensing || licensing documents and notices
+## Matrix & Kernel || classes returning matrices and kernels for use with
+corresponding link::Guides/WritingUGens#Pseudo-UGens#pseudo-UGens::
+definitionlist::
+## FOA || emphasis::user facing:: classes for FOA
+## HOA || emphasis::user facing:: classes for FOA
+## Internals || base classes and other utilities emphasis::(only for the curious!)::
+::
+## UGens || UGens and link::Guides/WritingUGens#Pseudo-UGens#pseudo-UGens::
+definitionlist::
+## FOA || emphasis::user facing:: FOA UGens and link::Guides/WritingUGens#Pseudo-UGens#pseudo-UGens::
+definitionlist::
+## Analyzer ||
+## Decoder ||
+## Encoder ||
+## Transformer ||
+::
+## HOA || emphasis::user facing:: HOA UGens and link::Guides/WritingUGens#Pseudo-UGens#pseudo-UGens::
+definitionlist::
+## Decoder ||
+## Encoder ||
+## Transformer ||
+::
+## Internals || base classes and other utilities emphasis::(only for the curious!)::
+definitionlist::
+## FOA ||
+## HOA ||
+::
+::
+## link::Overviews/ABCs-ATK-Utils##Utilities:: || emphasis::user facing:: high level utilities
+definitionlist::
+## FOA ||
+::
+::
+::
+
+________________
+
+The first thing that should become apparent is that documentation for classic First Order Ambisonics and modern Higher Order Ambisonics is sorted into the separately browsable categories: strong::FOA:: and strong::HOA::. This does suggest, if you only want to do FOA, stick with the strong::FOA:: sorted implementations.
+
+Maybe the next thing to notice could be that there are categories listed as strong::Internals::, which are not intended for the attention of users. These are required as part of the ATK's foundations, so if you would like to understand how the ATK is built, do have a look, but regular ATK use doesn't require going here.
+
+As you would expect, most day to day users of the ATK spend most of their time working with the supplied strong::UGens:: and any associated strong::kernel:: and strong::matrix:: classes, if these are required.
+
+
+section:: Authoring
+
+Most users approaching Ambisonics are usually presented with two avenues to author an Ambisonic soundfield: capture a natural soundfield directly with a Soundfield microphone, footnote::J.-M. Batke, "The B-Format Microphone Revised," presented at the Ambisonics Symposium 2009, Graz, 2009.
+:: or author a planewave from a monophonic signal. footnote::D. G. Malham and A. Myatt, "3-D Sound Spatialization using Ambisonic Techniques," Computer Music Journal, vol. 19, no. 4, pp. 58-70, 1995.:: SuperCollider's inbuilt link::Classes/PanB:: provides the latter solution.
+
+The ATK provides a much wider palate of authoring tools via link::Classes/FoaEncode::. These include:
+
+list::
+## emphasis::planewave: :: classic directional encoding
+## emphasis::omnidirectional: :: a soundfield from everywhere
+## emphasis::virtual loudspeaker array: :: transcoding standard formats
+## emphasis::pseudoinverse microphone array: :: encoding from discrete microphones or signals
+::
+
+The emphasis::pseudoinverse:: encoding technique provides the greatest flexibility, and can be used with both microphone arrays and synthetic signals. In the absence of a Soundfield microphone, this feature gives the opportunity to deploy real-world microphone arrays (omni, cardioid, etc.) to capture natural soundfields. With synthetic signals, emphasis::pseudoinverse:: encoding is usually regarded as the method of choice to generate spatially complex synthetic Ambisonic images. In combination with the ATK's link::#Imaging#imaging:: tools these can then be compositionally controlled as required.
+
+See link::Classes/FoaEncode::, link::Classes/FoaEncoderMatrix:: and link::Classes/FoaEncoderKernel:: for more details about encoding.
+
+
+
+section:: Imaging
+
+For the artist, the real power of the ATK is found in the imaging transforms. These are spatial domain filters which reorient, reshape or otherwise spatially filter an input soundfield. Many users will be familiar with the soundfield rotation transform, as SuperCollider provides the inbuilt link::Classes/Rotate2::.
+
+The ATK provides a much wider and comprehensive toolset, including:
+
+list::
+## emphasis::rotation: :: soundfield rotation about an axis
+## emphasis::mirror: :: soundfield reflection across an axis
+## emphasis::directivity: :: soundfield directivity
+## emphasis::dominance: :: adjust directional gain of soundfield
+## emphasis::focus: :: focus on a region of a soundfield
+## emphasis::push: :: push a soundfield in a direction
+::
+
+The imaging tools are provided in two forms: link::Classes/FoaXform##static:: and link::Classes/FoaTransform##dynamic:: implementations. While most transforms are provided in both categories, a number are found in only one guise. footnote::It is also useful to note that the link::Classes/FoaTransform##dynamic:: transforms are also available as individual UGens. However, users are advised to use link::Classes/FoaTransform:: for convenience.::
+
+See link::Classes/FoaTransform::, link::Classes/FoaXform:: and link::Classes/FoaXformerMatrix:: for more details about imaging.
+
+
+section:: Monitoring
+
+Perhaps one of the most celebrated aspects of the Ambisonic sound technique has been its design as a hierarchal reproduction system, able to target a number of varying loudspeaker arrays. Users may be familiar with SuperCollider's inbuilt regular polygon decoder, link::Classes/DecodeB2::.
+
+The ATK provides a much wider palate of optimised monitoring tools via link::Classes/FoaDecode::. These include:
+
+list::
+## emphasis::stereo UHJ: :: classic Ambisonic stereo decoding
+## emphasis::binaural: :: measured and synthetic HRTFs
+## emphasis::regular 2D & 3D: :: single and dual polygons
+## emphasis::diametric 2D & 3D: :: flexible semi-regular arrays
+## emphasis::5.0: :: link::http://www.brucewiggins.co.uk/##Wiggins:: optimised decoders
+::
+
+While the emphasis::regular:: decoders will be suitable for many users, emphasis::diametric:: decoding enables the greatest flexibility, and allows the user to design substantially varying semi-regular arrays suitable for a wide variety of playback situations.
+
+note:: All decoders presume loudspeakers are placed at equal radii from the origin of the array, and gain is normalised. Loudspeaker arrays with unequal radii may be realised if the resulting wavefront arrival times are compensated through the use of delay lines.::
+
+
+See link::Classes/FoaDecode::, link::Classes/FoaDecoderMatrix:: and link::Classes/FoaDecoderKernel:: for more details about decoding.
+
+
+
+section:: Further reading

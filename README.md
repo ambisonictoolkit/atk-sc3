@@ -27,7 +27,7 @@ We hope you enjoy the ATK!
 For more information please visit the [Ambisonic Toolkit
 website](http:www.ambisonictoolkit.net/) or send us an
 [e-mail](mailto:info[at]ambisonictoolkit.net). See also
-[Introducing the Ambisonic Toolkit](http://doc.sccode.org/Guides/Intro-to-the-ATK.html)
+[Introducing the Ambisonic Toolkit](http://doc.sccode.org/Tutorials/ABCs-of-the-ATK.html)
 for an overview on working with the ATK for SuperCollider.
 
 

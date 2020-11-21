@@ -4,7 +4,7 @@ categories:: Libraries>Ambisonic Toolkit>Coefficients & Theory
 related:: Classes/HoaDegree, Classes/HoaOrder
 
 DESCRIPTION::
-Higher order ambisonic (HOA) emphasis::component:: indexing & coefficients.
+Higher order ambisonic (HOA) emphasis::component:: indexing & coefficients, by Associated Legendre degree (ℓ) and Associated Legendre index (m).
 
 See Associated Legendre degree and Associated Legendre index in link::Guides/ATK-Glossary::.
 

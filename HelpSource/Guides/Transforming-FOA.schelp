@@ -8,11 +8,14 @@ The examples below are intended to briefly illustrate some of the first order tr
 
 Available transformers include rotations, mirroring, directivity (spatial low pass fitering), dominance (image warping), and a variety of dominance related transforms.
 
-As the Ambisonic technique is a hierarchal system, numerous options for playback are possible. These include two channel stereo, two channel binaural, pantophonic and full 3D periphonic. With the examples below, we'll take advantage of this by first choosing a suitable decoder with with to audition.
+The text immediate below follows a workflow in explicit sclang. For a quick review, you may prefer to jump below to try the included link::#Transform%20utilities#transform audition and visualization utilities::.
+
 
 section:: Choose a decoder
 
-Choose a decoder suitable for your system, as illustrated link::Guides/Intro-FOA-Examples#Choose a decoder#here::. You'll end up definining code:: ~decoder :: and code:: ~renderDecode :: .
+With the examples below, we'll start by first choosing a suitable decoder with with to audition.
+
+Choose a decoder suitable for your system, as discussed link::Guides/Intro-FOA-Examples#Choose a decoder#here::. You'll end up definining code:: ~decoder :: and code:: ~renderDecode :: .
 
 note:: If you choose a kernel decoder, link::Classes/FoaDecoderKernel::, be sure to free the kernel after use. ::
 
@@ -1051,3 +1054,16 @@ list::
 ::
 
 ::
+
+
+section:: Transform utilities
+
+The ATK includes the following useful transform audition and visualization utilities:
+
+definitionlist::
+## link::Classes/FoaAudition:: || Audition FOA recordings, panning planewaves, diffuse soundfields, and transforms
+
+## link::Classes/FoaXformDisplay:: || Visualize, audition and customize FOA soundfield transforms
+::
+
+These tools offer a very quick and convenient way to become familiar with the ATK's imaging tranforms. You might like to start with the visualizer, link::Classes/FoaXformDisplay::, as a quick way to understand transformer parameters change a soundfield.

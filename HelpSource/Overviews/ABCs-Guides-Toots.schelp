@@ -3,26 +3,33 @@ summary:: Overview of ATK Guides & Tutorials
 categories:: Libraries>Ambisonic Toolkit>Guides & Tutorials
 keyword::Atk
 
+Use this overview to find your way around the ATK's Guides and Tutorials.
+
+
 section:: Theory
 
-link::Guides/ATK-Glossary::
+definitionlist::
+## link::Guides/ATK-Glossary:: || Glossary of some relevant Ambisonic and Ambisonic Toolkit words
+::
 
+section:: Getting Started
 
-section:: Doing things
+definitionlist::
+## link::Guides/Intro-FOA-Examples:: || First Order Ambisonic (FOA) getting started sound examples
 
-link::Guides/Intro-FOA-Examples::
+## link::Guides/Reading-FOA-Imaging:: || How to read the ATK's First Order Ambisonic (FOA) imaging illustrations
 
-link::Guides/Reading-FOA-Imaging::
+## link::Guides/Encoding-FOA:: || First Order Ambisonic (FOA) encoding examples
 
-link::Guides/Encoding-FOA::
+## link::Guides/Transforming-FOA:: || First Order Ambisonic (FOA) transforming examples
 
-link::Guides/Transforming-FOA::
+## link::Guides/Decoding-FOA:: || First Order Ambisonic (FOA) decoding examples
 
-link::Guides/Decoding-FOA::
+## link::Guides/ATK-SynthDef-Examples:: || SynthDef and NRT examples for ATK
+::
 
-link::Guides/ATK-SynthDef-Examples::
+section:: Going Deeper
 
-
-section:: Understanding the ATK
-
-link::Guides/Guide-to-ATK-Matrix-Files::
+definitionlist::
+## link::Guides/Guide-to-ATK-Matrix-Files:: || A guide to reading, writing, and storing ATK matrices
+::

@@ -148,10 +148,15 @@ Support for Ambisonics within SuperCollider has existed in a variety of forms ov
 
 Over the years, a number of related but different emphasis::Ambisonic encoding formats:: have been used. (These formats will be discussed in more detail, link::#Ambisonic%20formats#below::.) For now, the thing to keep in mind is that when we use tools from multiple packages, we need to be sure to correctly exchange Ambisonic encoding formats where these differ.
 
-note::
-If you feel like you'd prefer to jump ahead to review how the ATK is structured, skip to link::#ATK%20Structure#ATK Structure::, below.
-::
+When you've fully completed the link::#Installation#installation:: of the ATK, you'll automagically also have two other packages installed, the link::#SuperCollider#SuperCollider builtins:: and those found in link::#JoshUGens::. The other two, link::#AmbIEM:: and link::#SC-HOA:: require additional steps.
 
+For ease of comparison, the UGens supplied by each package are categorized according to the ATK's link::#Ambisonic UGens#UGen classification convention::. Any additional utitilities or functionality supplied by these packages are not discussed here.
+
+note::
+At the time of this writing, ATK namespace collisions with the four packages listed here emphasis::have not:: been observed. In other words, it emphasis::should:: be possible to configure a system with all the below installed.
+
+If at some point you find a collision with the below packages (or any other), please let us know: link::Tutorials/ATK-FAQs#How%20do%20I%20report%20a%20bug?#How do I report a bug?::
+::
 
 
 subsection:: SuperCollider
@@ -255,9 +260,9 @@ definitionlist::
 
 section:: Ambisonic formats
 
+link::https://en.wikipedia.org/wiki/Ambisonic_data_exchange_formats##Ambisonic encoding formats::
 
-
-section:: Library structure
+section:: Getting Help
 
 The browsing hierarchy is formatted to illustrate the structure of the ATK from a user point of view.
 
@@ -267,7 +272,7 @@ code::
 HelpBrowser.openBrowsePage("Libraries>Ambisonic Toolkit")
 ::
 
-subsection:: Getting Help
+subsection:: Library structure
 
 Let's briefly review the presented categories:
 
@@ -320,6 +325,14 @@ The first thing that should become apparent is that documentation for classic Fi
 Maybe the next thing to notice could be that there are categories listed as strong::Internals::, which are not intended for the attention of users. These are required as part of the ATK's foundations, so if you would like to understand how the ATK is built, do have a look, but regular ATK use doesn't require going here.
 
 As you would expect, most day to day users of the ATK spend most of their time working with the supplied strong::UGens:: and any associated strong::kernel:: and strong::matrix:: classes, if these are required.
+
+subsection:: Ambisonic UGens
+
+definitionlist::
+## Encoder || UGens receiving (or otherwise synthesizing) emphasis::some:: signal, then returning a spherical domain signal encoded in (default) package ambisonic encoding convention
+## Transformer || UGens receiving a spherical domain signal encoded in (default) package ambisonic encoding convention, applying ambisonic processing, and then returning a signal encoded in (default) package ambisonic encoding convention
+## Decoder || UGens receiving a spherical domain signal encoded in (default) package ambisonic encoding convention, then returning emphasis::some:: signal emphasis::no longer encoded:: in (default) package ambisonic encoding convention
+::
 
 
 section:: Authoring

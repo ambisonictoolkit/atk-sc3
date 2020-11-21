@@ -44,4 +44,6 @@ section:: Spherical design
 
 definitionlist::
 ## link::Classes/TDesign#Ambisonic%20Toolkit#TDesign: newHoa:: || t-designs sutiable for ambisonic encoding or decoding
+
+## link::Classes/TDesignLib#Ambisonic%20Toolkit#TDesignLib: getHoaDesigns:: || Dictionary of t-designs sutiable for ambisonic encoding or decoding
 ::

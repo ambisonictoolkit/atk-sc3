@@ -15,3 +15,51 @@ Some answers here...
 section:: Platform questions
 
 Specific questions about the ATK.
+
+subsection:: What is the highest order supported for spherical decomposition?
+
+At the time of this writing, tenth order is the maximum order supported for inbuilt spherical decomposition using the link::Classes/SphericalDesign:: class. This is due to the size of the largest included spherical design.
+
+We think tenth order is, well, fairly high. Especially given:
+
+code::
+"Tenth order Ambisonics requires % channels to encode!".format(HoaOrder.new(10).size).postln;
+::
+
+Conveniently, we can directly ask this question in code:
+
+code::
+(
+// set question parameters...
+(
+~order = 10;
+~optimize = \energy;
+);
+
+// // ... or, try this one
+// (
+// ~order = 11;
+// ~optimize = \spreadE;
+// )
+
+// ask the question...
+(
+"Does the ATK support spherical decomposition for: ".postln;
+"  optimize: %".format(~optimize).postln;
+"  order: %".format(~order).postln;
+);
+
+// ... get your answer!
+(
+TDesignLib.getHoaDesigns(~optimize, ~order).isEmpty.not.if({
+	"Yes!".postln;
+}, {
+	"Yes... but... you'll need to import larger designs and/or matrices.".postln;
+});
+)
+)
+::
+
+Rendering higher orders is possible via the inclusion of larger designs and/or custom matrices.
+
+If you've installed the link::https://gitlab.com/dxarts/projects/adt.quark##ADT quark::, larger designs are available in the link::https://bitbucket.org/ambidecodertoolbox/adt/src/master/##Ambisonic Decoder Toolbox::.

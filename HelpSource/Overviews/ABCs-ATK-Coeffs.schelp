@@ -34,14 +34,14 @@ definitionlist::
 ## link::Classes/WaveNumber:: || Higher order ambisonic (HOA) radial utilities
 ::
 
-section:: Spherical design
-
-definitionlist::
-## link::Classes/TDesign#Ambisonic%20Toolkit#TDesign: newHoa:: || t-designs sutiable for ambisonic encoding or decoding
-::
-
 section:: Matrix utilities
 
 definitionlist::
 ## link::Classes/HoaMatrixRotation:: || A class to generate a matrix representing a rotation of real or complex spherical harmonics, around three axes, in a specified order of rotations
+::
+
+section:: Spherical design
+
+definitionlist::
+## link::Classes/TDesign#Ambisonic%20Toolkit#TDesign: newHoa:: || t-designs sutiable for ambisonic encoding or decoding
 ::

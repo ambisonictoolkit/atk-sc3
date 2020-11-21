@@ -1,0 +1,47 @@
+title:: ABCs of ATK Coefficients & Theory
+summary:: Overview of ATK Coefficients & Theory
+categories:: Libraries>Ambisonic Toolkit>Coefficients & Theory
+keyword::Atk
+
+Use this overview to find your way around the ATK's Coefficients & Theory.
+
+
+section:: Component indexing, coefficients, &c
+
+definitionlist::
+## link::Classes/HoaOrder:: || Higher order ambisonic (HOA) indexing & coefficients, emphasis::by order::
+
+## link::Classes/HoaDegree:: || Higher order ambisonic (HOA) indexing & coefficients, emphasis::by Associated Legendre degree::
+
+## link::Classes/HoaLm:: || Higher order ambisonic (HOA) indexing & coefficients, emphasis::by Associated Legendre degree (ℓ) and Associated Legendre index (m)::
+::
+
+section:: Radial filtering spectra & coefficients
+
+definitionlist::
+## link::Classes/FreqSpectrum#Ambisonic%20Toolkit#FreqSpectrum: NFECoeffs:: || Higher Order Ambisonic (HOA) by degree radial filtering frequency domain spectra
+
+## link::Classes/Signal#Ambisonic%20Toolkit#Signal: NFECoeffs:: || Higher Order Ambisonic (HOA) by degree radial filtering coefficients, returned for realization by link::Classes/AtkKernelConv:: or link::Classes/Convolution2::
+
+## link::Classes/NFECoeffs:: || Higher Order Ambisonic (HOA) by degree radial filtering coefficients, returned for realization by link::Classes/FOS:: and link::Classes/SOS:: cascade
+::
+
+section:: Radial utilities
+
+definitionlist::
+## link::Classes/HoaRadius:: || Higher order ambisonic (HOA) radial utilities
+
+## link::Classes/WaveNumber:: || Higher order ambisonic (HOA) radial utilities
+::
+
+section:: Spherical design
+
+definitionlist::
+## link::Classes/TDesign#Ambisonic%20Toolkit#TDesign: newHoa:: || t-designs sutiable for ambisonic encoding or decoding
+::
+
+section:: Matrix utilities
+
+definitionlist::
+## link::Classes/HoaMatrixRotation:: || A class to generate a matrix representing a rotation of real or complex spherical harmonics, around three axes, in a specified order of rotations
+::

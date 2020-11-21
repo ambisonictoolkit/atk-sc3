@@ -275,7 +275,7 @@ definitionlist::
 ## Ambisonic Toolkit || main ATK help files
 definitionlist::
 ## ATK Platform & Configuration || various ATK system settings and configurations
-## Coefficients & Theory || low level ambisonic coefficients and other theory
+## link::Overviews/ABCs-ATK-Coeffs##Coefficients & Theory:: || low level ambisonic coefficients and other theory
 ## link::Overviews/ABCs-Guides-Toots##Guides & Tutorials:: || documents explaining how to use the ATK
 ## Licensing || licensing documents and notices
 ## Matrix & Kernel || classes returning matrices and kernels for use with

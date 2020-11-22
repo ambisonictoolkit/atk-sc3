@@ -29,9 +29,8 @@ argument:: add
 This value will be added to the output.
 
 
-
 discussion::
 
-link::Classes/FoaPanB:: is provided primarily as a convenience. Encoding monophonic signals via link::Classes/FoaEncoderMatrix#*newOmni:: and transformation via link::Classes/FoaPush:: is often regarded as a more idiomatic option. See link::Classes/FoaEncode#omnidirectional_encoder#this example::.
+link::Classes/FoaPanB:: is provided primarily as a convenience. Encoding monophonic signals via link::Classes/FoaEncoderMatrix#*newOmni:: and transformation via link::Classes/FoaPush:: is often regarded as a more idiomatic option. See link::Guides/Encoding-FOA#Omnidirectional%20encoder#this example::.
 
 Additionally, use of link::Classes/FoaProximity:: to generate proximity cues is also encouraged.

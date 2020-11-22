@@ -62,8 +62,7 @@ A number of common strong::formats:: are indexed by a single keyword:
 
 table::
 ## code::\atk:: || Ambisonic Toolkit (ATK)
-## code::\ambix:: || Ambi
-sonics Exchangeable (AmbiX)
+## code::\ambix:: || Ambisonics Exchangeable (AmbiX)
 ## code::\fuma:: || Furse-Malham (FuMa)
 ::
 

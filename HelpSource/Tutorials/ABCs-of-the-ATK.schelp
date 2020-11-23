@@ -37,13 +37,13 @@ list::
 
 section:: Installation
 
-Instructions for installing the complete system are found link::https://github.com/ambisonictoolkit/atk-sc3/blob/master/README.md#installing#here::.
+strong::Instructions:: for installing the complete system are found link::https://github.com/ambisonictoolkit/atk-sc3/blob/master/README.md#installing#here::. (<-- click link!)
 
 If you're reading this document at least emphasis::one:: part of the ATK, the link::https://github.com/ambisonictoolkit/atk-sc3##atk-sc3 quark:: has most likely been corectly installed.
 
 
 note::
-If the link::Classes/HelpBrowser:: doesn't navigate to the section titled
+If the link::Classes/HelpBrowser:: doesn't navigate to the section of the quark README titled
 strong::Installing::, just search link::https://github.com/ambisonictoolkit/atk-sc3/blob/master/README.md#installing#the page:: to find.
 ::
 
@@ -130,7 +130,7 @@ Follow the instructions found link::https://gitlab.com/dxarts/projects/adt.quark
 
 subsection:: AmbiVerbSc
 
-Everyone loves reverb! Built on the ATK, the link::https://github.com/JamesWenlock/AmbiVerbSC##AmbiVerbSc quark:: provides a native First Order Ambisonic tank style reverb algorithm.
+Everyone loves reverb! Built on the ATK, the link::https://github.com/JamesWenlock/AmbiVerbSC##AmbiVerbSc quark:: provides a native first order Ambisonic tank style reverb algorithm.
 
 As with the link::https://gitlab.com/dxarts/projects/adt.quark##ADT quark::, the link::https://github.com/JamesWenlock/AmbiVerbSC##AmbiVerbSc quark:: has not yet been included the SuperCollider link::https://github.com/supercollider-quarks/quarks/blob/master/directory.txt##Quark directory::.
 
@@ -144,7 +144,7 @@ Quarks.install("https://github.com/JamesWenlock/AmbiVerbSC")
 
 section:: Related packages
 
-Support for Ambisonics within SuperCollider has existed in a variety of forms over the years. The principal form of this support has been via link::Guides/UGens-and-Synths##unit generators:: supplied for emphasis::monophonic source:: Ambisonic encoding footnote::I would describe this as panning.:: and two dimensional, aka emphasis::pantophonic::, decoding.
+Support for Ambisonics within SuperCollider has existed in a variety of forms over the years. The principal form of this support has been via link::Guides/UGens-and-Synths##unit generators:: supplied for emphasis::monophonic source:: Ambisonic encoding footnote::I would describe this as panning, or emphasis::basic:: encoding.:: and two dimensional, aka emphasis::pantophonic::, decoding.
 
 Over the years, a number of related but different emphasis::Ambisonic encoding formats:: have been used. (These formats will be discussed in more detail, link::#Ambisonic%20formats#below::.) For now, the thing to keep in mind is that when we use tools from multiple packages, we need to be sure to correctly exchange Ambisonic encoding formats where these differ.
 
@@ -161,7 +161,7 @@ If at some point you find a collision with the below packages (or any other), pl
 
 subsection:: SuperCollider
 
-The original author of SuperCollider has provided basic support for First Order Ambisonics (FOA) via the following unit generators:
+The original author of SuperCollider has provided basic support for first order Ambisonics (FOA) via the following unit generators:
 
 definitionlist::
 ## Encoder || link::Classes/PanB::, link::Classes/PanB2::, link::Classes/BiPanB2::
@@ -172,9 +172,12 @@ definitionlist::
 Many SuperCollider users have been introduced to Ambisonics through experimentation
 with these UGens.
 
+(Follow link::#SCEncodingFormat#this link:: to review SuperCollider's encoding format.)
+
+
 subsection:: JoshUGens
 
-As with the ATK, the link::https://github.com/supercollider/sc3-plugins/tree/master/source/JoshUGens##JoshUGens:: collection is also distributed via link::https://github.com/supercollider/sc3-plugins/releases##sc3-plugins::, and offers further implementations in First and Second Order Ambisonic forms.
+As with the ATK, the link::https://github.com/supercollider/sc3-plugins/tree/master/source/JoshUGens##JoshUGens:: collection is also distributed via link::https://github.com/supercollider/sc3-plugins/releases##sc3-plugins::, and offers further implementations in first and second order Ambisonic forms.
 
 The following unit generators are supplied:
 
@@ -187,6 +190,8 @@ definitionlist::
 
 One of the authors of the link::https://github.com/supercollider/sc3-plugins/tree/master/source/JoshUGens##JoshUGens:: package is a significant contributor to the ATK.
 
+(Follow link::#JoshUGensEncodingFormat#this link:: to review JoshUGens's encoding format.)
+
 note::
 The authors consider it appropriate to regard the functionality provided by corresponding link::Guides/WritingUGens#Pseudo-UGens#pseudo-UGens:: and UGens found in strong::JoshUGens:: to be superceeded by the ATK.
 
@@ -196,19 +201,9 @@ I.e., rather than using strong::JoshUGens:: link::Classes/B2UHJ:: (or link::Clas
 
 subsection:: AmbIEM
 
-The link::https://sonenvir.at/downloads/sc3/ambiem/##AmbIEM library:: is distributed via the link::https://github.com/supercollider-quarks/AmbIEM##AmbIEM quark::, and offers support for First, Second and Third Order Ambisonics.
+The link::https://sonenvir.at/downloads/sc3/ambiem/##AmbIEM library:: is distributed via the link::https://github.com/supercollider-quarks/AmbIEM##AmbIEM quark::, and offers support for first, second and third order Ambisonics.
 
-If you've installed this quark you can search for the overview page via:
-
-code::
-HelpBrowser.openHelpFor("AmbIEM")
-::
-
-or navigate to the distributed Help:
-
-code::
-HelpBrowser.openBrowsePage("Libraries>AmbIEM")
-::
+If you've installed this quark you can search for the link::search#AmbIEM#AmbIEM:: overview page, or navigate to the library's distributed link::Browse#Libraries>AmbIEM#Help::.
 
 AmbIEM supplies the following unit generators:
 
@@ -217,6 +212,8 @@ definitionlist::
 ## Transformer || RotateAmbi1O, RotateAmbi2O, RotateAmbi3O
 ## Decoder || DecodeAmbi2O, DecodeAmbi3O, BinAmbi3O
 ::
+
+(Follow link::#AmbIEMEncodingFormat#this link:: to review AmbIEM's encoding format.)
 
 note::
 The kernels required for binaural decoding via BinAmbi30 are not distributed via the link::https://github.com/supercollider-quarks/AmbIEM##AmbIEM quark::.
@@ -231,26 +228,9 @@ subsection:: SC-HOA
 
 Like the ATK and JoshUGens, the SC-HOA library, aka HOA for SuperCollider, has components distributed via link::https://github.com/supercollider/sc3-plugins/tree/master/source/HOAUGens##sc3-plugins::. Additionally, for a full installation, the link::https://github.com/florian-grond/SC-HOA##SC-HOA quark::, which includes kernel assets, must also be installed. This library provides support for First through Fifth Order Ambisonics.
 
-If you've installed this quark you can search for the overview page via:
+If you've installed this quark you can search for the link::search#HOA%20Guide#HOA Guide:: overview page, or navigate to the library's distributed link::Browse#Libraries>HOA#Help::. SC-HOA includes tutorials, too, which will be link::search#HOA Tutorial#found here:: if installed.
 
-code::
-HelpBrowser.openHelpFor("HOA Guide")
-::
-
-or navigate to the distributed Help:
-
-code::
-HelpBrowser.openBrowsePage("Libraries>HOA")
-::
-
-or review SC-HOA's tutorials:
-
-code::
-HelpBrowser.openHelpFor("HOA Tutorial")
-::
-
-SC-HOA provides the following (documented or otherwise mentioned intutorials)
-user facing unit generators:
+SC-HOA provides the following footnote::documented or otherwise mentioned intutorials:: user facing unit generators:
 
 definitionlist::
 ## Encoder || HOAEncoder, HOAmbiPanner, HOALibEnc3D, HOAEncLebedev06, HOAEncLebedev26, HOAEncLebedev50, HOAEncEigenMike, HOAConvert
@@ -258,9 +238,207 @@ definitionlist::
 ## Decoder || HOADec5_0, HOABeamHCard2Mono, HOABinaural, Lebedev50BinauralDecoder, HOADecLebedev06, HOADecLebedev26, HOADecLebedev50, HOAConvert
 ::
 
+(Follow link::#SC-HOAEncodingFormat#this link:: to review SC-HOA's encoding format.)
+
 section:: Ambisonic formats
 
-link::https://en.wikipedia.org/wiki/Ambisonic_data_exchange_formats##Ambisonic encoding formats::
+For users new to the world of Ambisonics, perhaps one of the most confusing aspects is the use of the term emphasis::format::. This confusion is understandable, given how this word has been used differently over time and in different contexts.
+
+One way this word is used is to describe the emphasis::Ambisonic encoding format::, aka the emphasis::encoding convention::, of an Ambisonic signal.
+
+Another use of the word is to describe the emphasis::spatial domain:: of an Ambisonic signal.
+
+subsection:: Encoding formats
+
+If you haven't already, a great place to start with understanding encoding formats is to review this page:
+
+list::
+## link::https://en.wikipedia.org/wiki/Ambisonic_data_exchange_formats##Ambisonic data exchange formats::
+::
+
+Given an Ambisonic signal, there are four things we need to know for the encoding format (or convention) to be completely specified and unambiguous. These are:
+
+definitionlist::
+## Ambisonic order || An integer describing the spatial resolution. Specifies the maximum emphasis::Associated Legendre:: degree, ℓ, of a given signal or coefficient set.
+
+## Ambisonic component ordering || Sorting or ordering convention applied to arrange spherical harmonic encoding coefficients and resulting signal sets. E.g., Furse-Malham (FuMa), Ambisonic Channel Number (ACN), Single Index Designation (SID). See link::https://en.wikipedia.org/wiki/Ambisonic_data_exchange_formats#Component_ordering#ordering::.
+
+## Ambisonic component normalisation || emphasis::Spherical harmonic:: coefficient normalisation convention. E.g., maxN, N3D, SN3D. See link::https://en.wikipedia.org/wiki/Ambisonic_data_exchange_formats#Normalisation#normalisation::.
+
+## Ambisonic reference radius || Encoding radius where all modal components are real.
+::
+
+note::
+Of these four quantities, many user facing Ambisonic software packages omit specifying a reference radius. If we would like to successfully synthesize soundfields with controlled nearfield effects (NFE), this value must be known.
+
+The ATK specifies reference radius in meters.
+::
+
+The ATK will report these details for the FOA implementation:
+
+code::
+AtkFoa.defaultOrder.postln;  // -> 1
+AtkFoa.ordering.postln;  // -> fuma
+AtkFoa.normalisation.postln;  // -> fuma
+AtkFoa.refRadius.postln;  // -> inf
+::
+
+You'll notice the ATK uses the normalisation indicator strong::FuMa:: as a synonym for strong::MaxN:: to indicate Furse-Malham normalisation in the form compatable with classic Gerzonic Ambisonic encoding.
+
+And the HOA implementation:
+
+code::
+AtkHoa.defaultOrder.postln;  // -> 3
+AtkHoa.ordering.postln;  // -> acn
+AtkHoa.normalisation.postln;  // -> n3d
+AtkHoa.refRadius.postln;  // -> 1.5
+::
+
+The very first, Ambisonic order, directly indicates the number of channels (or coefficients) and encoded signal will have. The math to report looks like:
+
+code::
+~order = AtkFoa.defaultOrder;
+// ~order = AtkHoa.defaultOrder;
+
+(~order + 1).squared.postln;
+::
+
+The HOA implementation offers another way of reporting the number of channels, through a method for link::Classes/HoaOrder:::
+
+code::
+~myOrder = 5;  // greater than the default!
+
+~hoaOrder = HoaOrder.new(~myOrder);
+~hoaOrder.size.postln;  // -> 36
+::
+
+For convenience, the ATK uses the keyword strong::format:: to indicate component ordering and component normalisation, grouped together:
+
+code::
+AtkFoa.format.postln;  // -> [ fuma, fuma ]
+AtkHoa.format.postln;  // -> [ acn, n3d ]
+::
+
+This use of the word format, to specify both ordering and normalisation, is the most common in the era of modern Ambisonics. So, users often speak of a signal being encoded as ACN-N3D or ACN-SN3D, the latter being known as AmbiX.
+
+We can also look up common encoding convention formats:
+
+code::
+~myOtherFormat = \ambix;  // AmbiX (Ambisonics exchangeable)
+// ~myOtherFormat = \fuma;  // Furse-Malham
+
+AtkHoa.formatDict[~myOtherFormat].postln;
+::
+
+The ATK includes another designation, strong::set::, to group all these features together. This can refer to an Ambisonic strong::signal:: or a strong::tool set::. For instance a signal described as strong::HOA5:: is specified as:
+
+anchor::HOA5::
+definitionlist::
+## strong::HOA5:: ||
+list::
+## strong::order:: : 5
+## strong::ordering:: : link::https://en.wikipedia.org/wiki/Ambisonic_data_exchange_formats#ACN#ACN::
+## strong::normalisation:: : link::https://en.wikipedia.org/wiki/Ambisonic_data_exchange_formats#N3D#N3D::
+## strong::reference radius:: : 1.5 meters
+::
+::
+
+________________
+
+Let's now consider the emphasis::Ambisonic encoding formats:: of the above link::#Related%20packages#related packages:: (package names link to UGen lists, above):
+
+anchor::SCEncodingFormat::
+definitionlist::
+## link::#SuperCollider:: ||
+list::
+## strong::order:: : 1
+## strong::ordering:: : link::https://en.wikipedia.org/wiki/Ambisonic_data_exchange_formats#Furse-Malham#FuMa::
+## strong::normalisation:: : FuMa (aka link::https://en.wikipedia.org/wiki/Ambisonic_data_exchange_formats#maxN#MaxN::) footnote::
+MaxN indicates scaling is the same as classic, aka Gerzonic, first order Ambisonics. From link::https://en.wikipedia.org/wiki/Ambisonic_data_exchange_formats#maxN#Wikipedia:::
+note::
+MaxN is used in the Furse-Malham format (with the exception of a -3dB correction factor for W, which makes it directly compatible with traditional B-Format).
+::
+::
+## strong::reference radius:: : inf footnote::For classic, aka Gerzonic, the reference radius is infinity.::
+::
+::
+
+anchor::JoshUGensEncodingFormat::
+definitionlist::
+## link::#JoshUGens:: ||
+list::
+## strong::order:: : 1, 2
+## strong::ordering:: : link::https://en.wikipedia.org/wiki/Ambisonic_data_exchange_formats#Furse-Malham#FuMa::
+## strong::normalisation:: : FuMa (aka link::https://en.wikipedia.org/wiki/Ambisonic_data_exchange_formats#maxN#MaxN::)
+## strong::reference radius:: : inf
+::
+::
+
+anchor::AmbIEMEncodingFormat::
+definitionlist::
+## link::#AmbIEM:: ||
+list::
+## strong::order:: : 1, 2, 3
+## strong::ordering:: : link::https://en.wikipedia.org/wiki/Ambisonic_data_exchange_formats#SID#SID::
+## strong::normalisation:: : link::https://en.wikipedia.org/wiki/Ambisonic_data_exchange_formats#SN3D#SN3D::
+## strong::reference radius:: : inf
+::
+::
+
+anchor::SC-HOAEncodingFormat::
+definitionlist::
+## link::#SC-HOA:: ||
+list::
+## strong::order:: : 1, 2, 3, 4, 5
+## strong::ordering:: : link::https://en.wikipedia.org/wiki/Ambisonic_data_exchange_formats#ACN#ACN::
+## strong::normalisation:: : link::https://en.wikipedia.org/wiki/Ambisonic_data_exchange_formats#N3D#N3D::
+## strong::reference radius:: : 1.07 meters footnote::This value is listed as the default value for the argument named strong::speaker_radius:: for the UGen HOAEncoder. If the SC-HOA quark is installed installed, see Help document. Or, link::https://github.com/florian-grond/SC-HOA/blob/master/classes/HOAEncoder.sc#L2#source code::. ::
+::
+::
+
+________________
+
+In reviewing the above, we can note:
+
+definitionlist::
+## SuperCollider || Encodes in the ATK's FOA encoding format
+## JoshUGens || Encodes first order in the ATK's FOA encoding format, but does not encode in the ATK's HOA encoding format
+## AmbIEM || Does not encode in the ATK's HOA encoding format
+## SC-HOA || Nearly encodes in the ATK's HOA encoding format
+::
+
+As you would expect, the ATK does facilitate emphasis::exchanging:: signals encoded with different conventions, so we can use all these libraries together if we'd like. We just need to take care to translate signals correctly for the given library.
+
+The ATK uses the naming link::#Ambisonic UGens#convention described below::.
+
+For instance, we can consider the conversion of an strong::FOA:: signal to strong::HOA1:: in two ways:
+
+list::
+## emphasis::decode:: strong::FOA:: to strong::HOA1::
+## emphasis::encode:: strong::HOA1:: from strong::FOA::
+::
+
+Both of these operations are equivalent. Review the examples found here: FORMAT EXCHANGE EXAMPLE
+
+
+subsection:: Domain formats
+
+In this section we'll discuss emphasis::Ambisonic spatial domain formats::.
+
+link::https://en.wikipedia.org/wiki/File:Spherical_Harmonics_deg5.png::
+
+section:: ATK Terms & Structure
+
+
+type
+Ambisonic Toolkit soundfield operation designation. E.g., \encode, \xform, \decode.
+
+kind
+Ambisonic Toolkit operation ID, e.g., \quad.
+
+operation (op)
+Ambisonic Toolkit designation indicating the processing domain of an Ambisonic signal set transform: \matrix or \kernel.
+
 
 section:: Getting Help
 

@@ -381,7 +381,7 @@ list::
 ## strong::order:: : 1, 2, 3
 ## strong::ordering:: : link::https://en.wikipedia.org/wiki/Ambisonic_data_exchange_formats#SID#SID::
 ## strong::normalisation:: : link::https://en.wikipedia.org/wiki/Ambisonic_data_exchange_formats#SN3D#SN3D::
-## strong::reference radius:: : inf
+## strong::reference radius:: : inf footnote::Unspecified, presume emphasis::basic encoding:: is emphasis::planewave encoding::. This would mean the reference radius is infinity.::
 ::
 ::
 
@@ -409,7 +409,7 @@ definitionlist::
 
 As you would expect, the ATK does facilitate emphasis::exchanging:: signals encoded with different conventions, so we can use all these libraries together if we'd like. We just need to take care to translate signals correctly for the given library.
 
-The ATK uses the naming link::#Ambisonic UGens#convention described below::.
+The ATK uses the link::#Ambisonic UGens#below naming convention :: to described Ambisonic operations.
 
 For instance, we can consider the conversion of an strong::FOA:: signal to strong::HOA1:: in two ways:
 
@@ -432,17 +432,17 @@ link::https://en.wikipedia.org/wiki/File:Spherical_Harmonics_deg5.png::
 
 section:: Library architecture
 
-The browsing hierarchy is formatted to illustrate the structure of the ATK from a user point of view.
+The help browsing hierarchy is formatted to illustrate the structure of the ATK from a user point of view.
 
 
 subsection:: Getting Help
 
 Let's briefly review the presented categories. Following the links below will navigate the browser to the places to find relevent documentation. Some of these links will land on splash page overviews which include a brief description of help to be found in that section.
 
-Casually explore the structure of the ATK by taking some time to navigate the links below. Use the browser back button to return to this page.
+Casually explore the structure of the ATK by taking some time to navigate these links. (Use the browser back button to return to this page.)
 
 definitionlist::
-## link::Browse#Libraries>Ambisonic Toolkit#Ambisonic Toolkit:: || top level help files
+## link::Browse#Libraries>Ambisonic Toolkit#Ambisonic Toolkit:: ||
 definitionlist::
 ## link::Browse#Libraries>Ambisonic Toolkit>ATK Platform & Configuration#ATK Platform & Configuration:: || various ATK system settings and configurations
 ## link::Overviews/ABCs-ATK-Coeffs##Coefficients & Theory:: || low level ambisonic coefficients and other theory

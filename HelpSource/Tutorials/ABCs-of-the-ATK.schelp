@@ -418,7 +418,9 @@ list::
 ## emphasis::encode:: strong::HOA1:: from strong::FOA::
 ::
 
-Both of these operations are equivalent. Review the examples found here: FORMAT EXCHANGE EXAMPLE
+Both of these operations are equivalent. Review the examples found here:
+
+FORMAT EXCHANGE EXAMPLE
 
 
 subsection:: Domain formats
@@ -427,66 +429,51 @@ In this section we'll discuss emphasis::Ambisonic spatial domain formats::.
 
 link::https://en.wikipedia.org/wiki/File:Spherical_Harmonics_deg5.png::
 
-section:: ATK Terms & Structure
 
-
-type
-Ambisonic Toolkit soundfield operation designation. E.g., \encode, \xform, \decode.
-
-kind
-Ambisonic Toolkit operation ID, e.g., \quad.
-
-operation (op)
-Ambisonic Toolkit designation indicating the processing domain of an Ambisonic signal set transform: \matrix or \kernel.
-
-
-section:: Getting Help
+section:: Library architecture
 
 The browsing hierarchy is formatted to illustrate the structure of the ATK from a user point of view.
 
-Evaluating the line below will navigate the link::Classes/HelpBrowser:: to the top level of the documentation. (Use the back browser button to return to this page).
 
-code::
-HelpBrowser.openBrowsePage("Libraries>Ambisonic Toolkit")
-::
+subsection:: Getting Help
 
-subsection:: Library structure
+Let's briefly review the presented categories. Following the links below will navigate the browser to the places to find relevent documentation. Some of these links will land on splash page overviews which include a brief description of help to be found in that section.
 
-Let's briefly review the presented categories:
+Casually explore the structure of the ATK by taking some time to navigate the links below. Use the browser back button to return to this page.
 
 definitionlist::
-## Ambisonic Toolkit || main ATK help files
+## link::Browse#Libraries>Ambisonic Toolkit#Ambisonic Toolkit:: || top level help files
 definitionlist::
-## ATK Platform & Configuration || various ATK system settings and configurations
+## link::Browse#Libraries>Ambisonic Toolkit>ATK Platform & Configuration#ATK Platform & Configuration:: || various ATK system settings and configurations
 ## link::Overviews/ABCs-ATK-Coeffs##Coefficients & Theory:: || low level ambisonic coefficients and other theory
 ## link::Overviews/ABCs-Guides-Toots##Guides & Tutorials:: || documents explaining how to use the ATK
-## Licensing || licensing documents and notices
+## link::Browse#Libraries>Ambisonic Toolkit>Licensing#Licensing:: || licensing documents and notices
 ## Matrix & Kernel || classes returning matrices and kernels for use with
 corresponding link::Guides/WritingUGens#Pseudo-UGens#pseudo-UGens::
 definitionlist::
-## FOA || emphasis::user facing:: classes for FOA
-## HOA || emphasis::user facing:: classes for FOA
-## Internals || base classes and other utilities emphasis::(only for the curious!)::
+## link::Browse#Libraries>Ambisonic Toolkit>Matrix & Kernel>FOA#FOA:: || emphasis::user facing:: classes for FOA
+## link::Browse#Libraries>Ambisonic Toolkit>Matrix & Kernel>HOA#HOA:: || emphasis::user facing:: classes for HOA
+## link::Browse#Libraries>Ambisonic Toolkit>Matrix & Kernel>Internals#Internals:: || base classes and other utilities note::only for the curious!::
 ::
 ## UGens || UGens and link::Guides/WritingUGens#Pseudo-UGens#pseudo-UGens::
 definitionlist::
 ## FOA || emphasis::user facing:: FOA UGens and link::Guides/WritingUGens#Pseudo-UGens#pseudo-UGens::
 definitionlist::
-## Analyzer ||
-## Decoder ||
-## Encoder ||
-## Transformer ||
+## link::Browse#Libraries>Ambisonic Toolkit>UGens>FOA>Analyzer#Analyzer:: ||
+## link::Browse#Libraries>Ambisonic Toolkit>UGens>FOA>Decoder#Decoder:: ||
+## link::Browse#Libraries>Ambisonic Toolkit>UGens>FOA>Encoder#Encoder:: ||
+## link::Browse#Libraries>Ambisonic Toolkit>UGens>FOA>Transformer#Transformer:: ||
 ::
 ## HOA || emphasis::user facing:: HOA UGens and link::Guides/WritingUGens#Pseudo-UGens#pseudo-UGens::
 definitionlist::
-## Decoder ||
-## Encoder ||
-## Transformer ||
+## link::Browse#Libraries>Ambisonic Toolkit>UGens>HOA>Decoder#Decoder:: ||
+## link::Browse#Libraries>Ambisonic Toolkit>UGens>HOA>Encoder#Encoder:: ||
+## link::Browse#Libraries>Ambisonic Toolkit>UGens>HOA>Transformer#Transformer:: ||
 ::
-## Internals || base classes and other utilities emphasis::(only for the curious!)::
+## Internals || base classes and other utilities note::only for the curious!::
 definitionlist::
-## FOA ||
-## HOA ||
+## link::Browse#Libraries>Ambisonic Toolkit>UGens>Internals>FOA#FOA:: ||
+## link::Browse#Libraries>Ambisonic Toolkit>UGens>Internals>HOA#HOA:: ||
 ::
 ::
 ## link::Overviews/ABCs-ATK-Utils##Utilities:: || emphasis::user facing:: high level utilities
@@ -495,6 +482,12 @@ definitionlist::
 ::
 ::
 ::
+
+________________
+
+To make finding the ATK's help overviews convenient, the titles of these pages all begin with teletype::ABCs::.
+
+Try this: link::Search#abcs::
 
 ________________
 
@@ -511,6 +504,18 @@ definitionlist::
 ## Transformer || UGens receiving a spherical domain signal encoded in (default) package ambisonic encoding convention, applying ambisonic processing, and then returning a signal encoded in (default) package ambisonic encoding convention
 ## Decoder || UGens receiving a spherical domain signal encoded in (default) package ambisonic encoding convention, then returning emphasis::some:: signal emphasis::no longer encoded:: in (default) package ambisonic encoding convention
 ::
+
+subsection:: Important terms
+
+
+type
+Ambisonic Toolkit soundfield operation designation. E.g., \encode, \xform, \decode.
+
+kind
+Ambisonic Toolkit operation ID, e.g., \quad.
+
+operation (op)
+Ambisonic Toolkit designation indicating the processing domain of an Ambisonic signal set transform: \matrix or \kernel.
 
 
 section:: Authoring

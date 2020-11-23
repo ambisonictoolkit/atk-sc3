@@ -146,11 +146,13 @@ section:: Related packages
 
 Support for Ambisonics within SuperCollider has existed in a variety of forms over the years. The principal form of this support has been via link::Guides/UGens-and-Synths##unit generators:: supplied for emphasis::monophonic source:: Ambisonic encoding footnote::I would describe this as panning, or emphasis::basic:: encoding.:: and two dimensional, aka emphasis::pantophonic::, decoding.
 
-Over the years, a number of related but different emphasis::Ambisonic encoding formats:: have been used. (These formats will be discussed in more detail, link::#Ambisonic%20formats#below::.) For now, the thing to keep in mind is that when we use tools from multiple packages, we need to be sure to correctly exchange Ambisonic encoding formats where these differ.
+Over the years, a number of related but different emphasis::Ambisonic encoding formats:: have been used. (These formats will be discussed in more detail, link::#Encoding%20formats#below::.) For now, the thing to keep in mind is that when we use tools from multiple packages, we need to be sure to correctly exchange Ambisonic encoding formats where these differ.
 
-When you've fully completed the link::#Installation#installation:: of the ATK, you'll automagically also have two other packages installed, the link::#SuperCollider#SuperCollider builtins:: and those found in link::#JoshUGens::. The other two, link::#AmbIEM:: and link::#SC-HOA:: require additional steps.
+When you've fully completed the link::#Installation#installation:: of the ATK, you'll automagically also have two other packages installed, the link::#SuperCollider#SuperCollider builtins:: footnote::Actually, already include as part of SuperCollider.:: and those found in link::#JoshUGens::. The other two, link::#AmbIEM:: and link::#SC-HOA:: require additional steps.
 
-For ease of comparison, the UGens supplied by each package are categorized according to the ATK's link::#Ambisonic UGens#UGen classification convention::. Any additional utitilities or functionality supplied by these packages are not discussed here.
+For ease of comparison, the UGens supplied by each package are listed according to the ATK's link::#Ambisonic UGens#UGen classification convention::. (In this text we'll refer to a particular Ambisonic UGen as a strong::type:: of Ambisonic UGen.)
+
+Any additional utitilities or functionality supplied by these packages are not discussed here.
 
 note::
 At the time of this writing, ATK namespace collisions with the four packages listed here emphasis::have not:: been observed. In other words, it emphasis::should:: be possible to configure a system with all the below installed.
@@ -283,7 +285,7 @@ AtkFoa.normalisation.postln;  // -> fuma
 AtkFoa.refRadius.postln;  // -> inf
 ::
 
-You'll notice the ATK uses the normalisation indicator strong::FuMa:: as a synonym for strong::MaxN:: to indicate Furse-Malham normalisation in the form compatable with classic Gerzonic Ambisonic encoding.
+The ATK uses the normalisation indicator strong::FuMa:: as a synonym for strong::MaxN:: to indicate Furse-Malham normalisation in the form compatable with classic Gerzonic Ambisonic encoding.
 
 And the HOA implementation:
 
@@ -409,16 +411,14 @@ definitionlist::
 
 As you would expect, the ATK does facilitate emphasis::exchanging:: signals encoded with different conventions, so we can use all these libraries together if we'd like. We just need to take care to translate signals correctly for the given library.
 
-The ATK uses the link::#Ambisonic UGens#below naming convention :: to described Ambisonic operations.
-
-For instance, we can consider the conversion of an strong::FOA:: signal to strong::HOA1:: in two ways:
+Because the ATK uses the link::#Ambisonic UGens#below naming convention :: to designate Ambisonic operations, we can consider the conversion of an strong::FOA:: signal to strong::HOA1:: in two different, but equivalent, ways:
 
 list::
 ## emphasis::decode:: strong::FOA:: to strong::HOA1::
 ## emphasis::encode:: strong::HOA1:: from strong::FOA::
 ::
 
-Both of these operations are equivalent. Review the examples found here:
+Review the practical examples found here:
 
 FORMAT EXCHANGE EXAMPLE
 
@@ -485,7 +485,7 @@ definitionlist::
 
 ________________
 
-To make finding the ATK's help overviews convenient, the titles of these pages all begin with teletype::ABCs::.
+To make finding the ATK's emphasis::help overviews:: convenient, the titles of these pages all begin with teletype::ABCs::.
 
 Try this: link::Search#abcs::
 
@@ -498,6 +498,8 @@ Maybe the next thing to notice could be that there are categories listed as stro
 As you would expect, most day to day users of the ATK spend most of their time working with the supplied strong::UGens:: and any associated strong::kernel:: and strong::matrix:: classes, if these are required.
 
 subsection:: Ambisonic UGens
+
+The ATK uses the keyword strong::type:: to designate soundfield operations:
 
 definitionlist::
 ## Encoder || UGens receiving (or otherwise synthesizing) emphasis::some:: signal, then returning a spherical domain signal encoded in (default) package ambisonic encoding convention

@@ -489,17 +489,10 @@ To make finding the ATK's emphasis::help overviews:: convenient, the titles of t
 
 Try this: link::Search#abcs::
 
-________________
-
-The first thing that should become apparent is that documentation for classic First Order Ambisonics and modern Higher Order Ambisonics is sorted into the separately browsable categories: strong::FOA:: and strong::HOA::. This does suggest, if you only want to do FOA, stick with the strong::FOA:: sorted implementations.
-
-Maybe the next thing to notice could be that there are categories listed as strong::Internals::, which are not intended for the attention of users. These are required as part of the ATK's foundations, so if you would like to understand how the ATK is built, do have a look, but regular ATK use doesn't require going here.
-
-As you would expect, most day to day users of the ATK spend most of their time working with the supplied strong::UGens:: and any associated strong::kernel:: and strong::matrix:: classes, if these are required.
 
 subsection:: Ambisonic UGens
 
-The ATK uses the keyword strong::type:: to designate soundfield operations:
+The ATK uses the keyword strong::type:: to designate emphasis::soundfield operations::. UGens implementing these are defined as:
 
 definitionlist::
 ## Encoder || UGens receiving (or otherwise synthesizing) emphasis::some:: signal, then returning a spherical domain signal encoded in (default) package ambisonic encoding convention
@@ -507,79 +500,194 @@ definitionlist::
 ## Decoder || UGens receiving a spherical domain signal encoded in (default) package ambisonic encoding convention, then returning emphasis::some:: signal emphasis::no longer encoded:: in (default) package ambisonic encoding convention
 ::
 
-subsection:: Important terms
 
+subsection:: Matrix & Kernel
 
-type
-Ambisonic Toolkit soundfield operation designation. E.g., \encode, \xform, \decode.
+As we've seen above, for a complete install the ATK requires the successful installation of all link::#Components#components::, which include strong::matrix:: and strong::kernel:: assests.
 
-kind
-Ambisonic Toolkit operation ID, e.g., \quad.
+In the abstract mathy sense, Ambisonic strong::operations:: can be described as emphasis::Ambisonic soundfield kernel convolutions::. Sounds difficult!
 
-operation (op)
-Ambisonic Toolkit designation indicating the processing domain of an Ambisonic signal set transform: \matrix or \kernel.
+It also sounds like the implementation of these operations will require emphasis::convolution::. If you've been poking around the link::Browse#Libraries>Ambisonic%20Toolkit>UGens>Internals#UGen internals::, you'll have spotted: link::Classes/AtkKernelConv::. This is the little workhorse handling any required convolution.
 
+The observant reader will also have noticed another UGen found in this location: link::Classes/AtkMatrixMix::.
 
-section:: Authoring
+________________
 
-Most users approaching Ambisonics are usually presented with two avenues to author an Ambisonic soundfield: capture a natural soundfield directly with a Soundfield microphone, footnote::J.-M. Batke, "The B-Format Microphone Revised," presented at the Ambisonics Symposium 2009, Graz, 2009.
-:: or author a planewave from a monophonic signal. footnote::D. G. Malham and A. Myatt, "3-D Sound Spatialization using Ambisonic Techniques," Computer Music Journal, vol. 19, no. 4, pp. 58-70, 1995.:: SuperCollider's inbuilt link::Classes/PanB:: provides the latter solution.
+Thankfully, Ambisonic operations can be simplified given two conditions:
 
-The ATK provides a much wider palate of authoring tools via link::Classes/FoaEncode::. These include:
-
-list::
-## emphasis::planewave: :: classic directional encoding
-## emphasis::omnidirectional: :: a soundfield from everywhere
-## emphasis::virtual loudspeaker array: :: transcoding standard formats
-## emphasis::pseudoinverse microphone array: :: encoding from discrete microphones or signals
+numberedlist::
+## the operation emphasis::does not:: require complex coefficients footnote::No imaginary numbers!::
+## the operation emphasis::is not:: frequency dependent
 ::
 
-The emphasis::pseudoinverse:: encoding technique provides the greatest flexibility, and can be used with both microphone arrays and synthetic signals. In the absence of a Soundfield microphone, this feature gives the opportunity to deploy real-world microphone arrays (omni, cardioid, etc.) to capture natural soundfields. With synthetic signals, emphasis::pseudoinverse:: encoding is usually regarded as the method of choice to generate spatially complex synthetic Ambisonic images. In combination with the ATK's link::#Imaging#imaging:: tools these can then be compositionally controlled as required.
+If these two are met, the operation can be simplied as multiply and add, or emphasis::matrix mixing::. In other words, the operation can be represented as a matrix of real numbers.
 
-See link::Classes/FoaEncode::, link::Classes/FoaEncoderMatrix:: and link::Classes/FoaEncoderKernel:: for more details about encoding.
+This makes life much easier! (And, yes, mixing is so important that SuperCollider provides a UGen for the purpose: link::Classes/Mix::.) As an aside, I'll also note that given a hardware mixer with enough channels (and sends and returns), these more simple Ambisonic operations can be implemented. Not necessarily convenient, but possible.
 
+Some things to note, if an ATK Ambisonic operation is implemented as a strong::kernel:: operation, we can expect:
 
-
-section:: Imaging
-
-For the artist, the real power of the ATK is found in the imaging transforms. These are spatial domain filters which reorient, reshape or otherwise spatially filter an input soundfield. Many users will be familiar with the soundfield rotation transform, as SuperCollider provides the inbuilt link::Classes/Rotate2::.
-
-The ATK provides a much wider and comprehensive toolset, including:
-
-list::
-## emphasis::rotation: :: soundfield rotation about an axis
-## emphasis::mirror: :: soundfield reflection across an axis
-## emphasis::directivity: :: soundfield directivity
-## emphasis::dominance: :: adjust directional gain of soundfield
-## emphasis::focus: :: focus on a region of a soundfield
-## emphasis::push: :: push a soundfield in a direction
+numberedlist::
+## the operation emphasis::may:: require complex coefficients
+## the operation emphasis::may:: be frequency dependent
+## the operation emphasis::does:: require more CPU time
 ::
 
-The imaging tools are provided in two forms: link::Classes/FoaXform##static:: and link::Classes/FoaTransform##dynamic:: implementations. While most transforms are provided in both categories, a number are found in only one guise. footnote::It is also useful to note that the link::Classes/FoaTransform##dynamic:: transforms are also available as individual UGens. However, users are advised to use link::Classes/FoaTransform:: for convenience.::
+A related implication: we'll expect a strong::kernel:: operation to return a more complex sounding outcome than a strong::matrix:: operation.
 
-See link::Classes/FoaTransform::, link::Classes/FoaXform:: and link::Classes/FoaXformerMatrix:: for more details about imaging.
+For example, link::Classes/FoaEncoderKernel#*newSuper::, the ATK's link::https://en.wikipedia.org/wiki/Ambisonic_UHJ_format#Super_stereo#Ambisonic Super Stereo:: strong::kernel:: encoder is usually preferred over link::Classes/FoaEncoderMatrix#*newStereo::, the much more simple strong::matrix:: encoder.
 
+________________
 
-section:: Monitoring
+Aside from structuring the architecture, the ATK also uses these two terms to:
 
-Perhaps one of the most celebrated aspects of the Ambisonic sound technique has been its design as a hierarchal reproduction system, able to target a number of varying loudspeaker arrays. Users may be familiar with SuperCollider's inbuilt regular polygon decoder, link::Classes/DecodeB2::.
-
-The ATK provides a much wider palate of optimised monitoring tools via link::Classes/FoaDecode::. These include:
-
-list::
-## emphasis::stereo UHJ: :: classic Ambisonic stereo decoding
-## emphasis::binaural: :: measured and synthetic HRTFs
-## emphasis::regular 2D & 3D: :: single and dual polygons
-## emphasis::diametric 2D & 3D: :: flexible semi-regular arrays
-## emphasis::5.0: :: link::http://www.brucewiggins.co.uk/##Wiggins:: optimised decoders
+numberedlist::
+## designate Ambisonic UGens and associated classes
+## answer strong::operation:: assets, i.e., the matrix or kernel
+## answer strong::operation::
 ::
 
-While the emphasis::regular:: decoders will be suitable for many users, emphasis::diametric:: decoding enables the greatest flexibility, and allows the user to design substantially varying semi-regular arrays suitable for a wide variety of playback situations.
+Here are a few examples:
 
-note:: All decoders presume loudspeakers are placed at equal radii from the origin of the array, and gain is normalised. Loudspeaker arrays with unequal radii may be realised if the resulting wavefront arrival times are compensated through the use of delay lines.::
+code::
+
+// 1) names
+HoaDecodeMatrix.postln;  // given an HOA signal and an HoaMatrixDecoder instance, decode
+HoaMatrixDecoder.postln;  // answer HoaMatrixDecoder instance required for the above
+::
+code::
+// 2) assets
+HoaMatrixDecoder.newPanto(4).matrix.postln;  // answer the matrix
+::
+code::
+// 3) operation
+HoaMatrixDecoder.newPanto(4).op.postln;  // the -op message answers...
+::
 
 
-See link::Classes/FoaDecode::, link::Classes/FoaDecoderMatrix:: and link::Classes/FoaDecoderKernel:: for more details about decoding.
+subsection:: Kinds of operations
+
+The ATK uses the keyword strong::kind:: to identify individual named operations.
+
+Let's review a specific class, link::Classes/HoaMatrixDecoder::, as an example. We can return a list of implemented HOA matrix decoders, listing the strong::kinds:: of decoders this class will design:
+
+code::
+~decoderClass = HoaMatrixDecoder;
+
+"% class implements:".format(~decoderClass).postln;
+~decoderClass.class.dumpInterface;
+::
+
+The class methods listed here emphasis::are:: HOA matrix decoder design methods. When we instantiate an instance with one of these methods, we emphasis::design:: a matrix to be used for decoding.
+
+Given an instance, we see that strong::kind:: returns the name of the design method used:
+
+code::
+(
+~myMatrixDecoder = HoaMatrixDecoder.newPanto(4);  // 4 channel 3rd order decoder
+
+"instance var: %".format("~myMatrixDecoder").postln;
+"tool & signal set: %".format(~myMatrixDecoder.set).postln;
+"soundfield operation: %".format(~myMatrixDecoder.op).postln;
+"soundfield operation type: %".format(~myMatrixDecoder.type).postln;
+"soundfield operation kind: %".format(~myMatrixDecoder.kind).postln;
+)
+::
+
+Or, in here's the same information, but in more natural language:
+
+code::
+(
+"% is a % channel % % % %".format(
+	"~myMatrixDecoder",
+	~myMatrixDecoder.numChannels,
+	~myMatrixDecoder.set,
+	~myMatrixDecoder.kind,
+	~myMatrixDecoder.op,
+	~myMatrixDecoder.type
+).postln
+)
+::
+
+Of course, if we'd like to review the strong::kinds:: of design methods available, we can also just visit the help page: link::Classes/HoaMatrixDecoder::
+
+
+subsection:: Static & dynamic operations
+
+In finishing up our review of the structure of the ATK, we'll note that numerous soundfield operations are available in both emphasis::static:: and emphasis::dynamic:: forms.
+
+Compare the available static and dynamic FOA transformers:
+
+list::
+## link::Classes/FoaXformerMatrix:: Class Methods: design (matrix) transform operations
+## link::Browse#Libraries>Ambisonic Toolkit>UGens>FOA>Transformer#Transformer:: UGens: apply transform operations
+::
+
+________________
+
+Let's review a specific case: HOA beam decoding. A emphasis::beam decoder::, or link::https://en.wikipedia.org/wiki/Beamforming##beamformer::, extracts a single emphasis::beam:: from a soundfield. This operation is equivalant to dropping a single virtual microphone to the soundfield and returning the result.
+
+If we link::Browse#Libraries>Ambisonic Toolkit>UGens>HOA>Decoder#browse:: to review the UGens for HOA decoding, we'll see two decoders listed:
+
+definitionlist::
+## link::Classes/HoaDecodeDirection:: || Higher Order Ambisonic (HOA) beam decoder
+## link::Classes/HoaDecodeMatrix:: || Matrix renderer from the Ambisonic Toolkit (ATK)
+::
+
+The first of these, link::Classes/HoaDecodeDirection::, is the ATK's dynamic HOA emphasis::beamformer::. Reviewing the argument list:
+
+code::
+HoaDecodeDirection.ar(in, theta, phi, radius, beamShape: 'basic', order)
+::
+
+strong::theta::, strong::phi:: and strong::radius:: may all be varied continuously.
+
+Turning to link::Classes/HoaDecodeMatrix::, we see:
+
+code::
+HoaDecodeMatrix.ar(in, hoaMatrix)
+::
+
+The matrix required as an argument is not continuously variable. We design the matrix once with link::Classes/HoaMatrixDecoder:::
+
+code::
+HoaMatrixDecoder.newDirection(theta, phi, beamShape, order)
+::
+
+and then pass it to link::Classes/HoaDecodeMatrix::.
+
+Putting this together, the equivalent beamforming use pattern looks like this:
+
+code::
+hoaMatrix = HoaMatrixDecoder.newDirection(theta, phi, beamShape, order);
+HoaDecodeMatrix.ar(in, hoaMatrix)
+::
+
+This differs from the dynamic beamformer, link::Classes/HoaDecodeDirection::, in that strong::theta:: and strong::phi:: are static and fixed at design time, and we're missing strong::radius::.
+
+________________
+
+With a little bit of effort, we could construct a network that emphasis::would:: allow us to modulate strong::theta:: and strong::phi::. And we could regain the radial functionality, too. footnote::We'd need to throw in link::Classes/HoaRTT:: (or link::Classes/HoaYPR::) and link::Classes/HoaNFCtrl::.:: However, given the ATK already supplies a dynamic HOA beamer, there's no point in doing so.
+
+Well then, what is the point of working with link::Classes/HoaMatrix:: subclass instances? In many cases, we don't actually want our matrix to be changing. When decoding for a real loudspeaker array we'll design the decoder just once. footnote::Our fixed single beam example is a special, degenerate, case.:: Another advantage is that we have access to quite a bit of further details for inspection:
+
+list::
+## link::Classes/HoaMatrixDecoder#Information::
+## link::Classes/HoaMatrixDecoder#Matrix::
+## link::Classes/HoaMatrixDecoder#Analysis::
+::
+
+note::
+This is one of the aspects of the ATK that sets it apart from the above link::#Related packages#related packages::, and allows matrix operations to be viewed as flexible, open boxes  rather than closed box solutions.
+::
+
+
+section:: What next?
+
+link::Guides/ATK-FAQs::
+
+link::Guides/ATK-Glossary::
+
+link::Overviews/ABCs-Guides-Toots::
 
 
 

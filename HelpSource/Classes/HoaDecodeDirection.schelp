@@ -1,5 +1,5 @@
 TITLE:: HoaDecodeDirection
-summary:: Higher Order Ambisonic (HOA) panner
+summary:: Higher Order Ambisonic (HOA) beam decoder
 categories:: Libraries>Ambisonic Toolkit>UGens>HOA>Decoder, UGens>Multichannel>Ambisonics
 related:: Classes/HoaDecodeMatrix, Classes/HoaEncodeDirection
 

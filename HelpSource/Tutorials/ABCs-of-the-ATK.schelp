@@ -34,10 +34,20 @@ list::
 ## Analysis of transformer and decoder matrices.
 ::
 
+subsection:: Toolsets
+
+flavors: encoding formats
+
+ethos: classic gerzon vs modern HOA
+
+remit: kitchen sink vs accessible HOA building blocks
+
+name spaces: Atk, Foa, Hoa
+
 
 section:: Installation
 
-strong::Instructions:: for installing the complete system are found link::https://github.com/ambisonictoolkit/atk-sc3/blob/master/README.md#installing#here::. (<-- click link!)
+strong::Instructions:: for installing the complete system are found link::https://github.com/ambisonictoolkit/atk-sc3/blob/master/README.md#installing#HERE::. <-- click link!
 
 If you're reading this document at least emphasis::one:: part of the ATK, the link::https://github.com/ambisonictoolkit/atk-sc3##atk-sc3 quark:: has most likely been corectly installed.
 
@@ -58,11 +68,13 @@ list::
 ::
 
 note::
-All of these components, except for the link::http://www.ambisonictoolkit.net/download/recordings/##soundfiles:: are required!
+Except for the link::http://www.ambisonictoolkit.net/download/recordings/##soundfiles::, all of these components are required!
 ::
 
-If you've successfully completed the steps described link::#Installation#above::, you should have a working installation of the ATK.
+If you've successfully completed the steps described link::#Installation#above::, you should have a working installation of the ATK. Let's review each of these:
 
+definitionlist::
+## quark ||
 We can easily inspect the strong::quark:: and installed quark dependencies via the link::Classes/QuarksGui:::
 
 code::
@@ -89,12 +101,14 @@ code::
 (Quarks.folder +/+ "atk-sc3").openOS
 ::
 
+## sc3-plugins ||
 Similarly, if the UGens found in strong::sc3-plugins:: have been installed in code::Platform.userExtensionDir:::
 
 code::
 (Platform.userExtensionDir +/+ "SC3plugins/ATK").openOS
 ::
 
+## kernel, matrices & soundfiles ||
 And, if the strong::kernels::, strong::matrices:: and strong::soundfiles:: have
 been installed in each related user directories, we can inspect:
 
@@ -104,6 +118,7 @@ Atk.userKernelDir.openOS;
 Atk.userMatrixDir.openOS;
 Atk.userSoundsDir.openOS;
 )
+::
 ::
 
 
@@ -128,11 +143,11 @@ You'll then need to complete the installation by installing link::https://bitbuc
 Follow the instructions found link::https://gitlab.com/dxarts/projects/adt.quark#adt#here::.
 
 
-subsection:: AmbiVerbSc
+subsection:: AmbiVerbSC
 
-Everyone loves reverb! Built on the ATK, the link::https://github.com/JamesWenlock/AmbiVerbSC##AmbiVerbSc quark:: provides a native first order Ambisonic tank style reverb algorithm.
+Everyone loves reverb! Built with the ATK, the link::https://github.com/JamesWenlock/AmbiVerbSC##AmbiVerbSC quark:: provides a native first order Ambisonic tank style reverb algorithm.
 
-As with the link::https://gitlab.com/dxarts/projects/adt.quark##ADT quark::, the link::https://github.com/JamesWenlock/AmbiVerbSC##AmbiVerbSc quark:: has not yet been included the SuperCollider link::https://github.com/supercollider-quarks/quarks/blob/master/directory.txt##Quark directory::.
+As with the link::https://gitlab.com/dxarts/projects/adt.quark##ADT quark::, the link::https://github.com/JamesWenlock/AmbiVerbSC##AmbiVerbSC quark:: has not yet been included the SuperCollider link::https://github.com/supercollider-quarks/quarks/blob/master/directory.txt##Quark directory::.
 
 To install the quark:
 
@@ -146,11 +161,11 @@ section:: Related packages
 
 Support for Ambisonics within SuperCollider has existed in a variety of forms over the years. The principal form of this support has been via link::Guides/UGens-and-Synths##unit generators:: supplied for emphasis::monophonic source:: Ambisonic encoding footnote::I would describe this as panning, or emphasis::basic:: encoding.:: and two dimensional, aka emphasis::pantophonic::, decoding.
 
-Over the years, a number of related but different emphasis::Ambisonic encoding formats:: have been used. (These formats will be discussed in more detail, link::#Encoding%20formats#below::.) For now, the thing to keep in mind is that when we use tools from multiple packages, we need to be sure to correctly exchange Ambisonic encoding formats where these differ.
+Over the years, a number of related but different emphasis::Ambisonic encoding formats:: have been used. (These formats are discussed in more detail, link::#Encoding%20formats#below::.) For now, the thing to keep in mind is that when we use tools from multiple packages, we need to be sure to correctly exchange Ambisonic encoding formats where these differ.
 
 When you've fully completed the link::#Installation#installation:: of the ATK, you'll automagically also have two other packages installed, the link::#SuperCollider#SuperCollider builtins:: footnote::Actually, already include as part of SuperCollider.:: and those found in link::#JoshUGens::. The other two, link::#AmbIEM:: and link::#SC-HOA:: require additional steps.
 
-For ease of comparison, the UGens supplied by each package are listed according to the ATK's link::#Ambisonic UGens#UGen classification convention::. (In this text we'll refer to a particular Ambisonic UGen as a strong::type:: of Ambisonic UGen.)
+For ease of comparison, the UGens supplied by each package are listed according to the ATK's link::#Ambisonic UGen types#UGen classification convention::. (In this text we'll refer to a particular Ambisonic UGen as a strong::type:: of Ambisonic UGen.)
 
 Any additional utitilities or functionality supplied by these packages are not discussed here.
 
@@ -181,13 +196,12 @@ subsection:: JoshUGens
 
 As with the ATK, the link::https://github.com/supercollider/sc3-plugins/tree/master/source/JoshUGens##JoshUGens:: collection is also distributed via link::https://github.com/supercollider/sc3-plugins/releases##sc3-plugins::, and offers further implementations in first and second order Ambisonic forms.
 
-The following unit generators are supplied:
+The following unit generators are supplied: footnote::Supplied reverbs are listed as strong::transformers::, with the intention of bringing them to the reader's attention. Strictly speaking, the ATK's link::#Ambisonic UGen types#classification convention:: regards Ambisonic in Ambisonic out reverb and other effects as beyond the scope of the ATK.::
 
 definitionlist::
 ## Encoder || link::Classes/BFEncode::, link::Classes/BFEncode1::, link::Classes/BFEncode2::, link::Classes/BFEncodeSter::, link::Classes/FMHEncode0::, link::Classes/FMHEncode1::, link::Classes/FMHEncode2::, link::Classes/A2B::, link::Classes/UHJ2B::, link::Classes/UHJtoB::
-## Transformer || link::Classes/BFManipulate::, link::Classes/Rotate::, link::Classes/Tilt::, link::Classes/Tumble::
+## Transformer || link::Classes/BFManipulate::, link::Classes/Rotate::, link::Classes/Tilt::, link::Classes/Tumble::, link::Classes/BFFreeVerb::, link::Classes/BFGVerb::
 ## Decoder || link::Classes/BFDecode::, link::Classes/BFDecode1::, link::Classes/FMHDecode1::, link::Classes/B2Ster::, link::Classes/B2A::, link::Classes/B2UHJ::, link::Classes/BtoUHJ::
-## Effect || link::Classes/BFFreeVerb::, link::Classes/BFGVerb::
 ::
 
 One of the authors of the link::https://github.com/supercollider/sc3-plugins/tree/master/source/JoshUGens##JoshUGens:: package is a significant contributor to the ATK.
@@ -197,7 +211,7 @@ One of the authors of the link::https://github.com/supercollider/sc3-plugins/tre
 note::
 The authors consider it appropriate to regard the functionality provided by corresponding link::Guides/WritingUGens#Pseudo-UGens#pseudo-UGens:: and UGens found in strong::JoshUGens:: to be superceeded by the ATK.
 
-I.e., rather than using strong::JoshUGens:: link::Classes/B2UHJ:: (or link::Classes/BtoUHJ::), users should rely upon the ATK's UHJ implementation, link::Classes/FoaDecoderKernel#*newUHJ::.
+E.g., rather than using strong::JoshUGens:: link::Classes/B2UHJ:: (or link::Classes/BtoUHJ::), users should rely upon the ATK's UHJ implementation, link::Classes/FoaDecoderKernel#*newUHJ::.
 ::
 
 
@@ -228,7 +242,7 @@ Instead, the currently live link to this dependency, code::full.tar.Z::, appears
 
 subsection:: SC-HOA
 
-Like the ATK and JoshUGens, the SC-HOA library, aka HOA for SuperCollider, has components distributed via link::https://github.com/supercollider/sc3-plugins/tree/master/source/HOAUGens##sc3-plugins::. Additionally, for a full installation, the link::https://github.com/florian-grond/SC-HOA##SC-HOA quark::, which includes kernel assets, must also be installed. This library provides support for First through Fifth Order Ambisonics.
+Like the ATK and JoshUGens, the SC-HOA library, aka HOA for SuperCollider, has components distributed via link::https://github.com/supercollider/sc3-plugins/tree/master/source/HOAUGens##sc3-plugins::. Additionally, for a full installation, the link::https://github.com/florian-grond/SC-HOA##SC-HOA quark::, which includes kernel assets, must also be installed. This library provides support for first through fifth order Ambisonics.
 
 If you've installed this quark you can search for the link::search#HOA%20Guide#HOA Guide:: overview page, or navigate to the library's distributed link::Browse#Libraries>HOA#Help::. SC-HOA includes tutorials, too, which will be link::search#HOA Tutorial#found here:: if installed.
 
@@ -252,7 +266,9 @@ Another use of the word is to describe the emphasis::spatial domain:: of an Ambi
 
 subsection:: Encoding formats
 
-If you haven't already, a great place to start with understanding encoding formats is to review this page:
+Here we'll briefly review the emphasis::flavors of Ambisonics::.
+
+If you haven't already, a great place to start with understanding encoding formats is to review:
 
 list::
 ## link::https://en.wikipedia.org/wiki/Ambisonic_data_exchange_formats##Ambisonic data exchange formats::
@@ -296,7 +312,9 @@ AtkHoa.normalisation.postln;  // -> n3d
 AtkHoa.refRadius.postln;  // -> 1.5
 ::
 
-The very first, Ambisonic order, directly indicates the number of channels (or coefficients) and encoded signal will have. The math to report looks like:
+The very first, Ambisonic order, directly indicates the number of channels (or coefficients) and encoded signal will have. Order specifies the spatial resolution of the soundfield.
+
+Here's the math to report the number of channels or coefficients:
 
 code::
 ~order = AtkFoa.defaultOrder;
@@ -305,7 +323,7 @@ code::
 (~order + 1).squared.postln;
 ::
 
-The HOA implementation offers another way of reporting the number of channels, through a method for link::Classes/HoaOrder:::
+The ATK's HOA toolset offers another way of reporting the number of channels, through a method for link::Classes/HoaOrder:::
 
 code::
 ~myOrder = 5;  // greater than the default!
@@ -314,6 +332,10 @@ code::
 ~hoaOrder.size.postln;  // -> 36
 ::
 
+Clearly, more channels means more spatial information, which means a soundfield with more spatial resolution.
+
+________________
+
 For convenience, the ATK uses the keyword strong::format:: to indicate component ordering and component normalisation, grouped together:
 
 code::
@@ -321,7 +343,9 @@ AtkFoa.format.postln;  // -> [ fuma, fuma ]
 AtkHoa.format.postln;  // -> [ acn, n3d ]
 ::
 
-This use of the word format, to specify both ordering and normalisation, is the most common in the era of modern Ambisonics. So, users often speak of a signal being encoded as ACN-N3D or ACN-SN3D, the latter being known as AmbiX.
+This use of the word format, to specify both ordering and normalisation, is the most common in the era of modern Ambisonics. Another modern practice is to use the word flavors and to speak of emphasis::flavors of Ambisonics::.
+
+So, users often speak of a signal being encoded as ACN-N3D or ACN-SN3D. The latter is known as link::https://en.wikipedia.org/wiki/Ambisonic_data_exchange_formats#AmbiX#AmbiX::.
 
 We can also look up common encoding convention formats:
 
@@ -332,8 +356,13 @@ code::
 AtkHoa.formatDict[~myOtherFormat].postln;
 ::
 
-The ATK includes another designation, strong::set::, to group all these features together. This can refer to an Ambisonic strong::signal:: or a strong::tool set::. For instance a signal described as strong::HOA5:: is specified as:
+________________
 
+anchor::set::
+
+The ATK uses another designation, strong::set::, to group all these features together. This can refer to an Ambisonic strong::signal:: or a strong::tool set::.
+
+For instance a signal described as strong::HOA5:: is specified as:
 anchor::HOA5::
 definitionlist::
 ## strong::HOA5:: ||
@@ -348,7 +377,6 @@ list::
 ________________
 
 Let's now consider the emphasis::Ambisonic encoding formats:: of the above link::#Related%20packages#related packages:: (package names link to UGen lists, above):
-
 anchor::SCEncodingFormat::
 definitionlist::
 ## link::#SuperCollider:: ||
@@ -364,7 +392,6 @@ MaxN is used in the Furse-Malham format (with the exception of a -3dB correction
 ## strong::reference radius:: : inf footnote::For classic, aka Gerzonic, the reference radius is infinity.::
 ::
 ::
-
 anchor::JoshUGensEncodingFormat::
 definitionlist::
 ## link::#JoshUGens:: ||
@@ -375,7 +402,6 @@ list::
 ## strong::reference radius:: : inf
 ::
 ::
-
 anchor::AmbIEMEncodingFormat::
 definitionlist::
 ## link::#AmbIEM:: ||
@@ -383,10 +409,9 @@ list::
 ## strong::order:: : 1, 2, 3
 ## strong::ordering:: : link::https://en.wikipedia.org/wiki/Ambisonic_data_exchange_formats#SID#SID::
 ## strong::normalisation:: : link::https://en.wikipedia.org/wiki/Ambisonic_data_exchange_formats#SN3D#SN3D::
-## strong::reference radius:: : inf footnote::Unspecified, presume emphasis::basic encoding:: is emphasis::planewave encoding::. This would mean the reference radius is infinity.::
+## strong::reference radius:: : inf footnote::Unspecified, presume emphasis::basic encoding:: is emphasis::planewave encoding::. This would mean the reference radius is infinity. On the other hand, the reference radius for the MIT KEMAR HRTF measurements this library uses for binaural decoding is 1.4 meters. Review link::https://sound.media.mit.edu/resources/KEMAR.html##this discussion::. ::
 ::
 ::
-
 anchor::SC-HOAEncodingFormat::
 definitionlist::
 ## link::#SC-HOA:: ||
@@ -403,24 +428,30 @@ ________________
 In reviewing the above, we can note:
 
 definitionlist::
-## SuperCollider || Encodes in the ATK's FOA encoding format
+## SuperCollider || Encodes in the ATK's FOA encoding format, aka classic Gerzonic Ambisonics
 ## JoshUGens || Encodes first order in the ATK's FOA encoding format, but does not encode in the ATK's HOA encoding format
 ## AmbIEM || Does not encode in the ATK's HOA encoding format
 ## SC-HOA || Nearly encodes in the ATK's HOA encoding format
 ::
 
+________________
+
+anchor::Exchanging formats::
+
+strong::Exchanging formats::
+
 As you would expect, the ATK does facilitate emphasis::exchanging:: signals encoded with different conventions, so we can use all these libraries together if we'd like. We just need to take care to translate signals correctly for the given library.
 
-Because the ATK uses the link::#Ambisonic UGens#below naming convention :: to designate Ambisonic operations, we can consider the conversion of an strong::FOA:: signal to strong::HOA1:: in two different, but equivalent, ways:
+Because the ATK uses the link::#Ambisonic UGen types#below convention :: to designate Ambisonic operations, we can consider the conversion of an strong::FOA:: signal to strong::HOA1:: in two different, but equivalent, ways:
 
 list::
 ## emphasis::decode:: strong::FOA:: to strong::HOA1::
 ## emphasis::encode:: strong::HOA1:: from strong::FOA::
 ::
 
-Review the practical examples found here:
+This operation is known as emphasis::format exchange::. Review the practical examples found here:
 
-FORMAT EXCHANGE EXAMPLE
+FORMAT EXCHANGE EXAMPLES
 
 
 subsection:: Domain formats
@@ -437,7 +468,7 @@ The help browsing hierarchy is formatted to illustrate the structure of the ATK 
 
 subsection:: Getting Help
 
-Let's briefly review the presented categories. Following the links below will navigate the browser to the places to find relevent documentation. Some of these links will land on splash page overviews which include a brief description of help to be found in that section.
+Let's briefly explore the presented categories. Following the links below will navigate the browser to places to find relevent documentation on the given topic. Some of these links land on splash page overviews which include a brief description of help to be found in that section.
 
 Casually explore the structure of the ATK by taking some time to navigate these links. (Use the browser back button to return to this page.)
 
@@ -490,26 +521,53 @@ To make finding the ATK's emphasis::help overviews:: convenient, the titles of t
 Try this: link::Search#abcs::
 
 
-subsection:: Ambisonic UGens
+subsection:: Ambisonic UGen types
 
-The ATK uses the keyword strong::type:: to designate emphasis::soundfield operations::. UGens implementing these are defined as:
+The ATK uses the keyword strong::type:: to designate Ambisonic emphasis::soundfield operations::. UGens are classified:
 
 definitionlist::
-## Encoder || UGens receiving (or otherwise synthesizing) emphasis::some:: signal, then returning a spherical domain signal encoded in (default) package ambisonic encoding convention
-## Transformer || UGens receiving a spherical domain signal encoded in (default) package ambisonic encoding convention, applying ambisonic processing, and then returning a signal encoded in (default) package ambisonic encoding convention
-## Decoder || UGens receiving a spherical domain signal encoded in (default) package ambisonic encoding convention, then returning emphasis::some:: signal emphasis::no longer encoded:: in (default) package ambisonic encoding convention
+## Encoder ||
+strong::receive::: emphasis::some:: signal
+
+strong::return::: emphasis::spherical domain:: signal
+
+## Transformer ||
+strong::receive::: emphasis::spherical domain:: signal
+
+strong::return::: emphasis::spherical domain:: signal
+
+## Decoder ||
+strong::receive::: emphasis::spherical domain:: signal
+
+strong::return::: emphasis::some:: signal
 ::
 
+note::
+To be regarded as emphasis::encoded:: in the emphasis::spherical domain::, the signal and tools emphasis::must:: be in the same link::#set::.
 
-subsection:: Matrix & Kernel
+In otherwords, an FOA signal emphasis::is not:: an HOA1 signal. See the discussion on link::#Exchanging formats#exchanging encoding formats::.
+::
+
+The ATK classifies UGens and related functions returning emphasis::soundfield operations:: in terms of expected emphasis::inputs:: and emphasis::outputs::. As a result we emphasis::only:: have three strong::types::.
+
+________________
+
+anchor::ATKscope::
+
+As an aside, UGens offering Ambisonic emphasis::digital audio effects:: are outside the scope of the Ambisonic Toolkit.
+
+E.g., the ATK emphasis::does not:: supply Ambisonic reverberators and granulators. Instead, the ATK supplies the emphasis::tools and infrastructure:: necessary to design and build Ambisonic reverberators and granulators. See, for instance link::#AmbiVerbSC::.
+
+
+subsection:: Matrix & Kernel operations
 
 As we've seen above, for a complete install the ATK requires the successful installation of all link::#Components#components::, which include strong::matrix:: and strong::kernel:: assests.
 
-In the abstract mathy sense, Ambisonic strong::operations:: can be described as emphasis::Ambisonic soundfield kernel convolutions::. Sounds difficult!
+In the abstract mathy sense, Ambisonic emphasis::soundfield operations:: can be described as emphasis::Ambisonic soundfield kernel convolutions::. Sounds difficult!
 
-It also sounds like the implementation of these operations will require emphasis::convolution::. If you've been poking around the link::Browse#Libraries>Ambisonic%20Toolkit>UGens>Internals#UGen internals::, you'll have spotted: link::Classes/AtkKernelConv::. This is the little workhorse handling any required convolution.
+It also sounds like the implementation of these strong::operations:: will require emphasis::convolution::. If you've been poking around the link::Browse#Libraries>Ambisonic%20Toolkit>UGens>Internals#UGen internals::, you'll have spotted: link::Classes/AtkKernelConv::. This is the little workhorse handling any required convolution.
 
-The observant reader will also have noticed another UGen found in this location: link::Classes/AtkMatrixMix::.
+The observant reader will also have noticed another UGen found in this location: link::Classes/AtkMatrixMix::. footnote::The HOA toolset uses link::Classes/HoaRenderMatrix::, instead.::
 
 ________________
 
@@ -522,28 +580,32 @@ numberedlist::
 
 If these two are met, the operation can be simplied as multiply and add, or emphasis::matrix mixing::. In other words, the operation can be represented as a matrix of real numbers.
 
-This makes life much easier! (And, yes, mixing is so important that SuperCollider provides a UGen for the purpose: link::Classes/Mix::.) As an aside, I'll also note that given a hardware mixer with enough channels (and sends and returns), these more simple Ambisonic operations can be implemented. Not necessarily convenient, but possible.
+This makes life much easier! footnote::Given a hardware mixer with enough channels (and sends and returns), these more simple matrix Ambisonic emphasis::soundfield operations:: can be implemented. Not necessarily convenient, but possible.::
 
-Some things to note, if an ATK Ambisonic operation is implemented as a strong::kernel:: operation, we can expect:
+If an ATK Ambisonic operation is implemented as a strong::kernel:: operation, we can expect this:
 
 numberedlist::
-## the operation emphasis::may:: require complex coefficients
-## the operation emphasis::may:: be frequency dependent
-## the operation emphasis::does:: require more CPU time
+## emphasis::may:: require complex coefficients
+## emphasis::may:: be frequency dependent
+## emphasis::will:: require more CPU resources
 ::
 
-A related implication: we'll expect a strong::kernel:: operation to return a more complex sounding outcome than a strong::matrix:: operation.
+A related implication:
+
+list::
+## emphasis::expect:: a strong::kernel:: operation to return a more complex sounding outcome than a strong::matrix:: operation
+::
 
 For example, link::Classes/FoaEncoderKernel#*newSuper::, the ATK's link::https://en.wikipedia.org/wiki/Ambisonic_UHJ_format#Super_stereo#Ambisonic Super Stereo:: strong::kernel:: encoder is usually preferred over link::Classes/FoaEncoderMatrix#*newStereo::, the much more simple strong::matrix:: encoder.
 
 ________________
 
-Aside from structuring the architecture, the ATK also uses these two terms to:
+Aside from structuring the architecture, the ATK also uses the strong::matrix:: and strong::kernel:: keywords to:
 
 numberedlist::
 ## designate Ambisonic UGens and associated classes
 ## answer strong::operation:: assets, i.e., the matrix or kernel
-## answer strong::operation::
+## answer the strong::operation::
 ::
 
 Here are a few examples:
@@ -566,12 +628,12 @@ HoaMatrixDecoder.newPanto(4).op.postln;  // the -op message answers...
 
 subsection:: Kinds of operations
 
-The ATK uses the keyword strong::kind:: to identify individual named operations.
+The keyword strong::kind:: is used to identify individual named operations, which is where we find the problem specific elements of the ATK.
 
-Let's review a specific class, link::Classes/HoaMatrixDecoder::, as an example. We can return a list of implemented HOA matrix decoders, listing the strong::kinds:: of decoders this class will design:
+As an example, let's review a specific class: link::Classes/HoaMatrixDecoder::. We can return a list of implemented HOA matrix decoders, listing the strong::kinds:: of decoders this class will design:
 
 code::
-~decoderClass = HoaMatrixDecoder;
+~decoderClass = HoaMatrixDecoder;  // hoa matrix decoder designer
 
 "% class implements:".format(~decoderClass).postln;
 ~decoderClass.class.dumpInterface;
@@ -593,17 +655,18 @@ code::
 )
 ::
 
-Or, in here's the same information, but in more natural language:
+Or, this and a bit more information, but in natural language:
 
 code::
 (
-"% is a % channel % % % %".format(
+"% is an % instance, and is a % channel % % % designed with the % design method.".format(
 	"~myMatrixDecoder",
+	~myMatrixDecoder.class,
 	~myMatrixDecoder.numChannels,
 	~myMatrixDecoder.set,
-	~myMatrixDecoder.kind,
 	~myMatrixDecoder.op,
-	~myMatrixDecoder.type
+	~myMatrixDecoder.type,
+	~myMatrixDecoder.kind,
 ).postln
 )
 ::
@@ -615,16 +678,7 @@ subsection:: Static & dynamic operations
 
 In finishing up our review of the structure of the ATK, we'll note that numerous soundfield operations are available in both emphasis::static:: and emphasis::dynamic:: forms.
 
-Compare the available static and dynamic FOA transformers:
-
-list::
-## link::Classes/FoaXformerMatrix:: Class Methods: design (matrix) transform operations
-## link::Browse#Libraries>Ambisonic Toolkit>UGens>FOA>Transformer#Transformer:: UGens: apply transform operations
-::
-
-________________
-
-Let's review a specific case: HOA beam decoding. A emphasis::beam decoder::, or link::https://en.wikipedia.org/wiki/Beamforming##beamformer::, extracts a single emphasis::beam:: from a soundfield. This operation is equivalant to dropping a single virtual microphone to the soundfield and returning the result.
+Let's review a specific case: HOA beam decoding. A emphasis::beam decoder::, or link::https://en.wikipedia.org/wiki/Beamforming##beamformer::, extracts a single emphasis::beam:: from a soundfield. This soundfield operation is equivalant to sampling a soundfield with a single virtual microphone and returning the result.
 
 If we link::Browse#Libraries>Ambisonic Toolkit>UGens>HOA>Decoder#browse:: to review the UGens for HOA decoding, we'll see two decoders listed:
 
@@ -633,13 +687,13 @@ definitionlist::
 ## link::Classes/HoaDecodeMatrix:: || Matrix renderer from the Ambisonic Toolkit (ATK)
 ::
 
-The first of these, link::Classes/HoaDecodeDirection::, is the ATK's dynamic HOA emphasis::beamformer::. Reviewing the argument list:
+The first of these, link::Classes/HoaDecodeDirection::, is the ATK's dynamic HOA emphasis::beamformer:: :
 
 code::
 HoaDecodeDirection.ar(in, theta, phi, radius, beamShape: 'basic', order)
 ::
 
-strong::theta::, strong::phi:: and strong::radius:: may all be varied continuously.
+Reviewing the argument list, strong::theta::, strong::phi:: and strong::radius:: may all be varied continuously.
 
 Turning to link::Classes/HoaDecodeMatrix::, we see:
 
@@ -647,7 +701,7 @@ code::
 HoaDecodeMatrix.ar(in, hoaMatrix)
 ::
 
-The matrix required as an argument is not continuously variable. We design the matrix once with link::Classes/HoaMatrixDecoder:::
+The matrix required as an argument emphasis::is not:: continuously variable. We design the matrix once with link::Classes/HoaMatrixDecoder:::
 
 code::
 HoaMatrixDecoder.newDirection(theta, phi, beamShape, order)
@@ -666,9 +720,11 @@ This differs from the dynamic beamformer, link::Classes/HoaDecodeDirection::, in
 
 ________________
 
-With a little bit of effort, we could construct a network that emphasis::would:: allow us to modulate strong::theta:: and strong::phi::. And we could regain the radial functionality, too. footnote::We'd need to throw in link::Classes/HoaRTT:: (or link::Classes/HoaYPR::) and link::Classes/HoaNFCtrl::.:: However, given the ATK already supplies a dynamic HOA beamer, there's no point in doing so.
+With a little bit of effort, we could construct a network that emphasis::would:: allow us to modulate strong::theta:: and strong::phi::. And we emphasis::could:: regain the radial functionality, too. footnote::We'd need to throw in link::Classes/HoaRTT:: (or link::Classes/HoaYPR::) and link::Classes/HoaNFCtrl::.:: However, given the ATK already supplies a dynamic HOA beamer, there's no point in doing so.
 
-Well then, what is the point of working with link::Classes/HoaMatrix:: subclass instances? In many cases, we don't actually want our matrix to be changing. When decoding for a real loudspeaker array we'll design the decoder just once. footnote::Our fixed single beam example is a special, degenerate, case.:: Another advantage is that we have access to quite a bit of further details for inspection:
+Well then, what is the point of working with link::Classes/HoaMatrix:: subclass instances?
+
+In many cases, we don't actually want our matrix to be changing. When decoding for a real loudspeaker array we'll design the decoder just once. footnote::Our fixed single beam example is a special, degenerate, case.:: Another advantage is that we have access to quite a bit of further details for inspection:
 
 list::
 ## link::Classes/HoaMatrixDecoder#Information::
@@ -676,8 +732,10 @@ list::
 ## link::Classes/HoaMatrixDecoder#Analysis::
 ::
 
+In other words, the static strong::matrix:: and strong::kernel:: emphasis::soundfield operation:: implementations offer an open framework rather than the closed UGen blackboxes found with most composer facing Ambisonic libraries.
+
 note::
-This is one of the aspects of the ATK that sets it apart from the above link::#Related packages#related packages::, and allows matrix operations to be viewed as flexible, open boxes  rather than closed box solutions.
+This is one of the aspects of the ATK that sets it apart from the above link::#Related packages#related packages::. The ATK seeks to offer an open world, appropriate for both high and low level research into the analysis and synthesis of ambisonic soundfields and related topics.
 ::
 
 
@@ -692,3 +750,5 @@ link::Overviews/ABCs-Guides-Toots::
 
 
 section:: Further reading
+
+TBD

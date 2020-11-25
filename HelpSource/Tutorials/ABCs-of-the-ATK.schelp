@@ -739,6 +739,81 @@ This is one of the aspects of the ATK that sets it apart from the above link::#R
 ::
 
 
+subsection:: Toolset namespaces
+
+As you'll have observed, the ATK uses a namespace convention to help navigate the component library classes. ScIDE's link::Guides/SCIde#Automatic%20completion#autocompletion:: is able help us find what we're looking for when we type in the link::Guides/SCIde#Code%20editor#code editor::.
+
+Create a new document, and type each of the following, observing the choices offered by the autocompletion menu:
+
+code::
+Atk
+::
+code::
+Foa
+::
+code::
+Hoa
+::
+
+Rather than navigating the Help browsing structure, this is the way regular users often find classes of interest.
+
+Typing code::Foa:: quickly brings up classes in the FOA toolet whle code::Hoa:: returns parallel HOA classes. The code::Atk:: namespace organizes library level environment settings and base classes that serve both code::Foa:: and code::Hoa:: namespaces.
+
+anchor::FvHdynamic::
+
+strong::Foa vs Hoa: dynamic UGens::
+
+The FOA toolset includes a link::Guides/WritingUGens#Pseudo-UGens#pseudo-UGen:: wrapper, link::Classes/FoaTransform::, which is intended to offer an interface for emphasis::dynamic:: transform operations paralleling the interface for emphasis::static:: transform operations, link::Classes/FoaXform::.
+
+In the development of the HOA toolset, we found link::Classes/FoaTransform:: to be rarely used. As a result, there is no code::HoaTransform::. Instead, UGens are accessed individually, by name:
+
+code::
+HoaRotate
+::
+
+anchor::FvHstatic::
+
+strong::Foa vs Hoa: static UGens::
+
+The FOA toolset's static UGens for encoding and decoding are:
+list::
+## link::Classes/FoaEncode::
+## link::Classes/FoaDecode::
+::
+
+These receive emphasis::both:: FOA strong::matrix:: and strong::kernel:: instances.
+
+The corresponding HOA UGens are: footnote::Both of these are synonyms for link::Classes/HoaRenderMatrix::.::
+list::
+## link::Classes/HoaEncodeMatrix::
+## link::Classes/HoaDecodeMatrix::
+::
+
+As you would expect from the names, these emphasis::only:: receive HOA strong::matrix:: instances. footnote::
+Why? Convolution in HOA is very easily high cost! In adopting a naming convention where the designed operation instance is in the name, the user is kept well aware of whether an inexpensive matrix or an expensive kernel operation is demanded.
+::
+
+anchor::FvHmatrix::
+
+strong::Foa vs Hoa: matrix classes::
+
+The naming pattern for equivalent matrix designers is swapped:
+
+list::
+## strong::SetTypeOperation:: for Foa
+## strong::SetOperationType:: for Hoa
+::
+
+For example:
+
+list::
+## link::Classes/FoaDecoderMatrix::
+## link::Classes/HoaMatrixDecoder::
+::
+
+This difference exists to more easily faciliting the design of matrices for HOA. When we're designing an HOA matrix, we can think in natural language word order and the link::Guides/SCIde##IDE:: will quickly answer.
+
+
 section:: What next?
 
 link::Guides/ATK-FAQs::

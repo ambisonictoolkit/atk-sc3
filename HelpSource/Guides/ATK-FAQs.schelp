@@ -76,3 +76,11 @@ As you might imagine, with a large, complex, multifacitated codebase, bugs do cr
 Visit link::https://github.com/ambisonictoolkit/atk-sc3/tree/master#feedback-and-bug-reports#Feedback and Bug Reports:: as your starting point, and follow additional links to the issue tracker to make a formal report.
 
 SuperCollider offers specific link::https://supercollider.github.io/development/bugs##guidance on reporting bugs::. Observing this advice will make the issue easier to resolve. In particular, following the steps outlined in link::https://supercollider.github.io/development/bugs#submitting-a-bug#Submitting a bug:: give the dev team the information necessary to begin understanding exactly what the bug is, and open the door to understanding how to go about squashing it.
+
+subsection:: How do I request a guide or tutorial?
+
+HELP
+
+subsection:: How do I submit a guide or tutorial?
+
+HELP

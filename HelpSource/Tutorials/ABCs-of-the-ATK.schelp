@@ -3,9 +3,37 @@ summary:: Ambisonic Toolkit, a library for research, analysis, synthesis and com
 categories:: Libraries>Ambisonic Toolkit
 keyword::Atk
 
+section:: Introduction
+
+The Ambisonic Toolkit (ATK) aspires to offer a robust and well documented research grade library of tools for the SuperCollider user.
+
+subsection:: Two toolsets in one
+
+These tools are organized into two sets.
+
+The first of these is modelled after the hardware and software tools offered in the world of classic, aka Gerzonic, emphasis::First Order Ambisonics:: (FOA), footnote::Some authors use the acronym POA, for emphasis::plain old Ambisonics::.:: while the second is framed as a modern emphasis::Nearfield Controlled Higher Order Ambisonic:: (NFC-HOA) solution.
+
+Moving between these sets is facilited through parallel tools for both FOA and HOA, and documentation on link::#Exchanging formats#exchanging Ambisonic signals:: between these two link::#Encoding formats#Ambisonic encoding conventions::.
+
+The tools are provided as open building blocks for Ambisonic workflows, signal synthesis and processing rather than closed black box algorithms. footnote::For example, given a design for a stereo reverb, the ATK provides the pieces necessary to emphasis::Ambisonic-ize:: that design.::
+
+
+subsection:: Theory and practice
+
+The ATK is solidly built upon a firm foundation of direct calculation of Ambisonic encoding coefficients. Since the inclusion footnote::https://github.com/supercollider/supercollider/releases/tag/Version-3.10.0:: of link::Guides/Tour-of-Special-Functions##Special Functions:: from the link::https://www.boost.org/##Boost library::, fast coefficient calucations are available in both sclang and on the sound synthesis server.
+
+In library solutions for a complete Ambisonic workflow are available either directly, or are otherwise documented. footnote::Are we missing something? link::Guides/ATK-FAQs#How%20do%20I%20request%20a%20guide%20or%20tutorial?#Let us know!:: ::
+
+
+subsection:: Learning
+
+An expanding collection of link::Overviews/ABCs-Guides-Toots##verbose guides and tutorial:: is provided to facilitate learning Ambisonic and ATK use patterns. Users are invited to help expand this documention through both link::Guides/ATK-FAQs#How%20do%20I%20request%20a%20guide%20or%20tutorial?#requesting:: and link::Guides/ATK-FAQs#How%20do%20I%20submit%20a%20guide%20or%20tutorial?#submitting:: guides and tutorials.
+
+
+
 section:: The paradigm
 
-The Ambisonic Toolkit (ATK) brings together a number of classic and novel tools and transforms for the artist working with Ambisonic surround sound and makes these available to the SuperCollider user. The toolset in intended to be both ergonomic and comprehensive, and is framed so that the user is encouraged to ‘think Ambisonically’. By this, it is meant the ATK addresses the holistic problem of creatively controlling a complete soundfield, allowing and encouraging the artist to think beyond the placement of sounds in a sound-space (sound-scene paradigm). Instead the artist is encouraged to attend to the impression and imaging of a soundfield, therefore taking advantage of the native soundfield-kernel paradigm the Ambisonic technique presents.
+The ATK brings together a number of classic and novel tools and transforms for the artist working with Ambisonic surround sound and makes these available to the SuperCollider user. The toolset in intended to be both ergonomic and comprehensive, and is framed so that the user is encouraged to emphasis::think Ambisonically::. By this, it is meant the ATK addresses the holistic problem of creatively controlling a complete soundfield, allowing and encouraging the artist to think beyond the placement of sounds in a sound-space (sound-scene paradigm). Instead the artist is encouraged to attend to the impression and imaging of a soundfield, therefore taking advantage of the native soundfield-kernel paradigm the Ambisonic technique presents.
 
 The ATK's production model is illustrated below:
 
@@ -24,8 +52,8 @@ subsection:: Features
 Some notable features of the ATK include:
 
 list::
-## Integrated support for classic strong::First Order Ambisonics (FOA):: and modern strong::Higher Order Ambisonics (HOA)::.
-## Implements the emphasis::Nearfield Controlled::, aka emphasis::Nearfield Compensated::, form of Higher Order Ambisonics (NFC-HOA).
+## Integrated support for classic emphasis::First Order Ambisonics (FOA):: and modern emphasis::Higher Order Ambisonics (HOA)::.
+## Implements the emphasis::Nearfield Controlled::, aka emphasis::Nearfield Compensated::, form of higher order Ambisonics (NFC-HOA).
 ## Ambisonic order is merely limited by system speed, channel capacity and numerical precision rather than by design. footnote::Caveat: link::Tutorials/ATK-FAQs#What%20is%20the%20highest%20order%20supported%20for%20spherical%20decomposition?#What is the highest order supported for spherical decomposition?:: ::
 ## Control and synthesis of the nearfield effect of finite distance sources in both FOA and HOA.
 ## Comprehensive FOA soundfield analysis in instantaneous and time averaged forms.
@@ -33,16 +61,6 @@ list::
 ## Angular domain soundfield decomposition and recomposition.
 ## Analysis of transformer and decoder matrices.
 ::
-
-subsection:: Toolsets
-
-flavors: encoding formats
-
-ethos: classic gerzon vs modern HOA
-
-remit: kitchen sink vs accessible HOA building blocks
-
-name spaces: Atk, Foa, Hoa
 
 
 section:: Installation

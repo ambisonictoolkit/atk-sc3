@@ -757,13 +757,13 @@ Hoa
 
 Rather than navigating the Help browsing structure, this is the way regular users often find classes of interest.
 
-Typing code::Foa:: quickly brings up classes in the FOA toolet whle code::Hoa:: returns parallel HOA classes. The code::Atk:: namespace organizes library level environment settings and base classes that serve both code::Foa:: and code::Hoa:: namespaces.
+Typing code::Foa:: quickly brings up classes in the FOA toolset whle code::Hoa:: returns parallel HOA classes. The code::Atk:: namespace organizes library level environment settings and base classes that serve both code::Foa:: and code::Hoa:: namespaces.
 
 anchor::FvHdynamic::
 
 strong::Foa vs Hoa: dynamic UGens::
 
-The FOA toolset includes a link::Guides/WritingUGens#Pseudo-UGens#pseudo-UGen:: wrapper, link::Classes/FoaTransform::, which is intended to offer an interface for emphasis::dynamic:: transform operations paralleling the interface for emphasis::static:: transform operations, link::Classes/FoaXform::.
+The FOA toolset includes a link::Guides/WritingUGens#Pseudo-UGens#pseudo-UGen:: wrapper, link::Classes/FoaTransform::, which is intended to offer an interface for emphasis::dynamic:: transform operations, and parallels the interface for emphasis::static:: transform operations, link::Classes/FoaXform::.
 
 In the development of the HOA toolset, we found link::Classes/FoaTransform:: to be rarely used. As a result, there is no code::HoaTransform::. Instead, UGens are accessed individually, by name:
 

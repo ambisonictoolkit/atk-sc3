@@ -15,7 +15,7 @@ The first of these is modelled after the hardware and software tools offered in 
 
 Moving between these sets is facilited through parallel tools for both FOA and HOA, and documentation on link::#Exchanging formats#exchanging Ambisonic signals:: between these two link::#Encoding formats#Ambisonic encoding conventions::.
 
-The tools are provided as open building blocks for Ambisonic workflows, signal synthesis and processing rather than closed black box algorithms. footnote::For example, given a design for a stereo reverb, the ATK provides the pieces necessary to emphasis::Ambisonic-ize:: that design.::
+The tools are provided as open building blocks for Ambisonic workflows, signal synthesis and processing. The HOA toolset, in particular, is weighted towards providing emphasis::resources:: for implementations and emphasis::design patterns:: rather than multiple, closed black box solutions. footnote::For example, given a design for a stereo reverb, the ATK provides the pieces necessary to emphasis::Ambisonic-ize:: that design.::
 
 
 subsection:: Theory and practice
@@ -27,7 +27,7 @@ In library solutions for a complete Ambisonic workflow are available either dire
 
 subsection:: Learning
 
-An expanding collection of link::Overviews/ABCs-Guides-Toots##verbose guides and tutorial:: is provided to facilitate learning Ambisonic and ATK use patterns. Users are invited to help expand this documention through both link::Guides/ATK-FAQs#How%20do%20I%20request%20a%20guide%20or%20tutorial?#requesting:: and link::Guides/ATK-FAQs#How%20do%20I%20submit%20a%20guide%20or%20tutorial?#submitting:: guides and tutorials.
+An expanding collection of link::Overviews/ABCs-Guides-Toots##verbose guides and tutorial:: is provided to facilitate learning Ambisonic and ATK emphasis::use patterns::. Users are invited to help expand this documention through both link::Guides/ATK-FAQs#How%20do%20I%20request%20a%20guide%20or%20tutorial?#requesting:: and link::Guides/ATK-FAQs#How%20do%20I%20submit%20a%20guide%20or%20tutorial?#submitting:: guides and tutorials.
 
 
 
@@ -469,7 +469,7 @@ list::
 
 This operation is known as emphasis::format exchange::. Review the practical examples found here:
 
-FORMAT EXCHANGE EXAMPLES
+TBD: FORMAT EXCHANGE EXAMPLES
 
 
 subsection:: Domain formats
@@ -477,6 +477,25 @@ subsection:: Domain formats
 In this section we'll discuss emphasis::Ambisonic spatial domain formats::.
 
 link::https://en.wikipedia.org/wiki/File:Spherical_Harmonics_deg5.png::
+
+link::https://ambisonic.info/ambisonics/channels.html::
+
+see formats here: link::http://www.ironbridge-elt.com/downloads/FrancescaOrtolani-IntroductionToAmbisonics.pdf::
+
+p-format: http://pcfarina.eng.unipr.it/SPS-conversion.htm
+https://secure.aes.org/forum/pubs/conferences/?elib=17362
+https://www.aes.org/e-lib/browse.cfm?elib=16913
+
+wiggins: https://www.brucewiggins.co.uk/wp-content/uploads/2017/07/01%20Wiggins%20-%20Ambisonic%20Convolution%20Reverbs.pdf
+
+list::
+## Near-coincident version called A-format
+##Coincident version known as P-format (Spatial PCM Sampling)
+::
+
+lots of pics: link::https://intothesoundfield.music.ox.ac.uk/:: a new version of: link::https://www.michaelgerzonphotos.org.uk/::
+
+AES: https://www.google.com/search?q=ambisonic+site:aes.org
 
 
 section:: Library architecture
@@ -845,3 +864,11 @@ link::Overviews/ABCs-Guides-Toots::
 section:: Further reading
 
 TBD
+
+https://ambisonic.net/articles.html
+
+https://wiki.xiph.org/Ambisonics#G-Format
+
+https://ambisonic.info/index.html
+
+https://www.researchgate.net/publication/280010078_Introduction_to_Ambisonics

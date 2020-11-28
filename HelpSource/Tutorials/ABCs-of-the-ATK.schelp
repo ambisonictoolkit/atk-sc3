@@ -363,7 +363,7 @@ AtkHoa.format.postln;  // -> [ acn, n3d ]
 
 This use of the word format, to specify both ordering and normalisation, is the most common in the era of modern Ambisonics. Another modern practice is to use the word flavors and to speak of emphasis::flavors of Ambisonics::.
 
-So, users often speak of a signal being encoded as ACN-N3D or ACN-SN3D. The latter is known as link::https://en.wikipedia.org/wiki/Ambisonic_data_exchange_formats#AmbiX#AmbiX::.
+So, users often speak of a signal being encoded as ACN-N3D or ACN-SN3D, the latter being known as link::https://en.wikipedia.org/wiki/Ambisonic_data_exchange_formats#AmbiX#AmbiX::.
 
 We can also look up common encoding convention formats:
 
@@ -476,6 +476,310 @@ subsection:: Domain formats
 
 In this section we'll discuss emphasis::Ambisonic spatial domain formats::.
 
+We'll start by reviewing the link::https://en.wikipedia.org/wiki/Oxford_University_Tape_Recording_Society##Oxford University Tape Recording Society (OUTRS):: tetrahedral recording experiment of 1971, briefly list the various emphasis::letter:: named Ambisonic domain formats found in the wild, and finish with the conventions the ATK has adopted to address this part of the Ambisonic puzzle.
+
+________________
+
+anchor::Tetrahedral Recording::
+strong::Tetrahedral Recording::
+
+We could suggest that Ambisonics began in 1971 with a series of articles entitled "Experimental Tetrahedral Recording". These were prepared by Michael Gerzon for the British magazine link::https://worldradiohistory.com/Archive-All-Audio/Studio-Sound.htm##Studio Sound::, footnote::The extracted articles can be link::https://intothesoundfield.music.ox.ac.uk/technical-papers##found here::, while scans of Studio Sound, Vol. 13 can be found here:
+list::
+## No. 8, pp 396-398 (August 1971): https://worldradiohistory.com/Archive-All-Audio/Archive-Studio-Sound/70s/Studio-Sound-1971-08.pdf
+## No. 9, pp 472, 473 & 475 (September 1971): https://worldradiohistory.com/Archive-All-Audio/Archive-Studio-Sound/70s/Studio-Sound-1971-09.pdf
+## No. 10, pp 510, 511, 513 & 515 (October 1971): https://worldradiohistory.com/Archive-All-Audio/Archive-Studio-Sound/70s/Studio-Sound-1971-10.pdf
+::
+::
+and detailed an experimental recording made by Gerzon and the OUTRS. We can separate the constituent parts of this experiment into: strong::capture:: and then strong::reconstruct:: a soundfield, along with another problem to consider: strong::archiving::.
+
+Let's open part one of the series:
+
+code::
+(
+/*
+Turn to page 2 & find
+
+Figure 1: SKEW-TETRAHEDRAL LOUDSPEAKER LAYOUT
+Figure 2: BASIC EXPERIMENTAL SET-UP
+*/
+"https://intothesoundfield.music.ox.ac.uk/sites/default/files/intothesoundfield/documents/media/tetrahedral_1.pdf".openOS
+)
+::
+
+In figure 2, if we follow the bottom path of the network from FOUR MIKES through to TETRAHEDRAL SPEAKER LAYOUT, we see the complete pathway for strong::capture:: to strong::reconstruct::.
+
+Figure 1, illustrates the arrangement of the loudspeakers, and the directions in which the cardioid microphones are pointed, the microphone emphasis::look directions::.
+
+The four microphones feed the four associated loudspeakers, but are filtered by a block labelled COMMON MODE REDUCTION MATRIX. Gerzon explains:
+
+"In the experiment, hypercardioids were simulated by using a common mode reduction circuit to reduce the common mode (i.e. omnidirectional) component of the four cardioid signals."
+
+Rather than feeding the loudspeakers directly, the microphone polar responses are modified from cardioid to another, variable pattern. The matrix makes each microphone's spatial response more selective. (Look directions stay the same.) Also note, though not yet named so, the "common mode" to be reduced is B-format's W.
+
+Here's a matrix corresponding to setting the variable resistor parameter, teletype::VR = 0.183 R::, which corresponds to a null in the synthesized pattern at approximately 125 degrees: footnote::
+code::
+/*
+check beaming corresponding to Gerzon's discussion (page 4):
+
+https://intothesoundfield.music.ox.ac.uk/sites/default/files/intothesoundfield/documents/media/tetrahedral_1.pdf
+*/
+// single beam decoder to check approximate null angle
+~energy = HoaMatrixDecoder.newDirection(0, 0, \energy, 1)  // VR = 0.183 R (125.3deg null);
+~energy.analyzeDirections([[ 0, 0 ], [ 0, 125.3.degrad ]]).energy.ampdb.postln;  // < --
+
+
+// spherical design
+~tdesign = TDesign.new(4, 2, 3);  // tetrahedron
+
+// encoder
+~cardToHoa1 = HoaMatrixEncoder.newSphericalDesign(
+	~tdesign,
+	\controlled,  // cardioid
+	1
+).matrix;
+
+// decoder
+~hoa1ToSuper = HoaMatrixDecoder.newSphericalDesign(
+	~tdesign,
+	\energy, // super-cardioid (VR = 0.183 R)
+	1
+).matrix;
+
+// convert
+~cardToSuper = ~cardToHoa1.mul(~hoa1ToSuper);  // VR = 0.183 R (125.3deg null)
+~cardToSuper.round(0.01);  // round
+::
+::
+
+code::
+// Figure 3:
+// FOUR-CHANNEL COMMON MODE REDUCTION MATRIX
+// VR = 0.183 R
+Matrix[
+	[ 1.13, -0.13, -0.13, -0.13 ],
+	[ -0.13, 1.13, -0.13, -0.13 ],
+	[ -0.13, -0.13, 1.13, -0.13 ],
+	[ -0.13, -0.13, -0.13, 1.13 ]
+]
+::
+
+This matrix corresponds to a mixer where each loudspeaker is fed by a mix from all the microphones. For instance, the buss feeding the loudspeaker in the front-left-up position consists of a mix of the named microphones:
+
+numberedlist::
+## front-left-up: rescale by +1.09 dB
+## back-right-up: rescale by -17.46 dB & invert polarity
+## front-right-down: rescale by -17.46 dB & invert polarity
+## back-left-down: rescale by -17.46 dB & invert polarity
+::
+
+
+link::https://intothesoundfield.music.ox.ac.uk/sites/default/files/intothesoundfield/images/page/3_calrec-4-plus-ric-good-gray_web.jpg##Here's a photo:: of OUTRS member Richard Cowderoy with the microphone array. footnote::These images are from a page titled: link::https://intothesoundfield.music.ox.ac.uk/tetrahedral-recording-session-images##Tetrahedral Recording Session Images::.:: And link::https://intothesoundfield.music.ox.ac.uk/sites/default/files/intothesoundfield/images/media/18_31_guests_2-g-web.jpg##here's a photo:: of a listening session. (The upper two loudspeakers of the loudspeaker array are visible on the two ladders.)
+
+For strong::archiving::, the four microphone signals are just directly recorded.
+
+Regarding the microphones and associated matrixing, in part two Gerzon observes:
+
+"A high degree of coincidence is desirable, as only then is it possible to obtain by a suitable matrixing of the four output signals emphasis::any:: possible cardioid or hypercardioid output pointing in emphasis::any:: possible direction."
+
+Suggesting the emphasis::world of Ambisonics:: to come, Gerzon is observing that given a tetrahedral recording in the form described, alternate, virtual microphones with any (first order) pattern and look direction can be synthesized.
+
+note::If we can synthesize virtual microphones pointing in new look directions, we can also generate feeds for loudspeakers placed in positions that emphasis::don't match:: the original microphone look directions!::
+
+________________
+
+anchor::Leter-formats::
+strong::Letter-formats:: footnote::More properly described as link::https://en.wikipedia.org/wiki/Grapheme##grapheme::-formats.::
+
+A significant amount of confusion regarding Ambisonic emphasis::domain formats:: arises from the fact that historically a variety of what we might call emphasis::letter-formats:: have arisen over time. footnote::Hodges offers a link::https://ambisonic.info/ambisonics/channels.html##very brief review::.::
+
+The list below describes what most practitioners would expect to find a soundfield in the form of:
+
+definitionlist::
+## A-format || microphone capsule signals
+## B-format || Ambisonic link::#Encoding formats#encoding format::
+## C-format || consumer distribution form
+## D-format || loudspeaker feeds
+## E-format || never in wide use, related to strong::C-format::
+## G-format || loudspeaker feeds: ITU 5.1
+## P-format || angular domain decomposition
+::
+
+Ideally, the complete, full 3D soundfield is available for retrieval, and each letter is emphasis::just:: a different emphasis::domain encoding::.
+
+Referring back to the link::#Tetrahedral%20Recording#OUTRS experiment:: and Gerzon's figure 2, we can only find two complete soundfield forms. These correspond to emphasis::A-format::, and are noted as being recorded as gain and EQ corrected microphone capsule feeds by FOUR-CHANNEL TAPE RECORDERS. The other format we see is emphasis::D-format::, the collection of the actual loudspeaker feeds.
+
+If we're interested in exchanging tetrahedral recordings, we immediately have problems. Doh!
+
+In part two, Gerzon states, "The four capsules should certainly lie within a sphere of 5 cm diameter, and preferably less, in order to ensure that phase effects do not upset the matrixing." Starting with Gerzon's comment on capsule spacing, here's a short list of interrelated factors that must be either specified or compensate for to have a truely emphasis::exchangeable A-format:::
+
+numberedlist::
+## number of microphone capsules
+## capsule offset(s) from true coincidence
+## capsule look directions
+## capsule polar response pattern(s)
+## capsule frequency response(s)
+::
+
+Assuming we have a D-format intended to emphasis::directly feed:: loudspeakers given no further signal processing,footnote::A high bar, indeed!:: to have an emphasis::exchangable D-format:: we need to know:
+
+numberedlist::
+## number of loudspeakers
+## loudspeaker distance(s) from array origin
+## loudspeaker look directions footnote::Look from perspective of listener at the loudspeaker array origin.::
+## capsule polar response pattern(s) used to create loudspeaker feeds
+## loudspeaker frequency response(s) (if this has been corrected for)
+::
+
+The remedy to these high demands for strong::capturing::, strong::reconstructing:: and strong::archiving:: tetrahedral recordings is strong::B-format::.
+
+________________
+
+anchor::Spatial Domains::
+strong::Spatial Domains::
+
+For the sake of a managable and simplied workflow, the ATK considers complete Ambisonic soundfields as existing in only two domain forms: footnote::See also: link::Guides/ATK-Glossary::.::
+
+definitionlist::
+## angular domain
+|| Information represented in terms of angular components
+## spherical domain
+|| Information represented in terms of spherical emphasis::basis functions::
+::
+
+The ATK uses this convention to associate these forms with emphasis::letter-formats:::
+
+definitionlist::
+## A-format
+|| Component or signal set in the emphasis::angular domain::, evenly distributed across the surface of the sphere in a emphasis::spherical design::. Within the context of the Ambisonic Toolkit, any required equalisation or radial filtering is expected to have been applied. In other words, the Ambisonic Toolkit views emphasis::A-format:: as a uniform spherical decomposition of the soundfield.
+## B-format
+|| Component or signal set in the emphasis::spherical domain::. In classic emphasis::first order Ambisonics::, aka Gerzonic, B-format indicates a signal encoded where Ambisonic order n = 1, and components are ordered and normalised by the (now named) Furse-Malham and MaxN conventions. emphasis::B-format:: is often used to indicate any Ambisonic signal set, without regard to Ambisonic order, component ordering or normalisation.
+::
+
+As a use pattern, the ATK prefers to refer to signals and tools as being part of a signal or tool link::#set::, as this designation completely disambiguates the problem.
+
+Furthur updating the meaning of strong::HOA5:::
+anchor::HOA5_domain::
+definitionlist::
+## strong::HOA5:: ||
+list::
+## strong::spatial domain:: : spherical
+## strong::order:: : 5
+## strong::ordering:: : link::https://en.wikipedia.org/wiki/Ambisonic_data_exchange_formats#ACN#ACN::
+## strong::normalisation:: : link::https://en.wikipedia.org/wiki/Ambisonic_data_exchange_formats#N3D#N3D::
+## strong::reference radius:: : 1.5 meters
+::
+::
+
+To be encoded in the emphasis::spherical domain:: in the ATK workflow, an Ambisonic signal is emphasis::completely specified::. There are no ambiguities.
+
+note::
+Although many authors use the term emphasis::B-format:: as a shorthand to mean any signal in the emphasis::spherical domain:: regardless of link::#Encoding formats#Ambisonic encoding convention::, we feel this use should be discouraged, as it is partly responsible for much of the confusion surrounding the word emphasis::format::.
+::
+
+In the ATK, emphasis::B-format:: is completely specified and means strong::FOA:::
+anchor::FOA_domain::
+definitionlist::
+## strong::FOA:: ||
+list::
+## strong::spatial domain:: : spherical
+## strong::order:: : 1
+## strong::ordering:: : link::https://en.wikipedia.org/wiki/Ambisonic_data_exchange_formats#Furse-Malham#FuMa::
+## strong::normalisation:: : FuMa (aka link::https://en.wikipedia.org/wiki/Ambisonic_data_exchange_formats#maxN#MaxN::)
+## strong::reference radius:: : inf
+::
+::
+
+________________
+
+strong::Spherical decomposition & recomposition::
+
+We can characterize the task of moving from the emphasis::spherical domain:: to the emphasis::angular domain:: as one of uniform emphasis::spherical decomposition::. Moving in the opposite direction is emphasis::spherical recomposition::.
+
+As you would expect, to be completely disambiguated, any exchangable decomposition must have all link::#set:: features known and specified.
+
+There are three more aspects that must be known. Because we're seeking to be general, we'll use the word emphasis::beam:: here. These are windows in the spatial domain. We can view these as both virtual microphones and/or virtual loudspeakers. (Think of link::#Tetrahedral Recording#Gerzon's experiment::.) Technically, these beams are a collection of emphasis::spatial basis functions::. emphasis::Spherical harmonics:: are just another set of emphasis::spatial basis functions::, so when we're in either domain, we're representing the same information, but in another way. Unlike spherical harmonics, these functions all have the emphasis::same shape::, but look in different directions.
+
+So, to specify a collection of functions (beams, aka windows), we need to specify:
+
+numberedlist::
+## strong::number of beams::
+## strong::beam look directions::
+## strong::beam shape::
+::
+
+For HOA, the ATK uses link::Classes/TDesign:: to help us specify the first two features. This pattern will find a link::https://en.wikipedia.org/wiki/Spherical_design##spherical t-design:: given some criteria:
+
+code::
+(
+~order = 3;
+~numChans = 24;
+~tdesign = TDesign.newHoa(~numChans, order: ~order);
+)
+::
+
+And... we can view!
+code::
+~tdesign.visualize;
+::
+
+The use pattern for decomposition looks like this:
+code::
+// design a matrix _decoder_
+~beamShape = \basic;
+~decoder = HoaMatrixDecoder.newSphericalDesign(~tdesign, ~beamShape, ~order);
+::
+
+And, recomposition is re-encoding:
+code::
+// design a matrix _encoder_
+~encoder = HoaMatrixEncoder.newSphericalDesign(~tdesign, ~beamShape, ~order);
+::
+
+We can check:
+
+code::
+// create a decode-reencode matrix
+~decodeEncode = ~decoder.matrix.mul(~encoder.matrix);
+
+// test whether it is a diagonal
+~decodeEncode.thresh2(-190.dbamp).isDiagonal.postln;
+
+// view the diagonal coeffs (should be ones!)
+~decodeEncode.getDiagonal.postln;
+
+// check the number of inputs and outputs match the number of harmonics
+~numCoeffs = ~order.asHoaOrder.size;
+~decodeEncode.shape == [ ~numCoeffs, ~numCoeffs ];
+::
+
+
+TBD: SPHERICAL DESIGN EXAMPLES
+
+
+________________
+
+1. strong::A::: capture
+
+In the context of recording a natural soundfield, we'll describe this step as emphasis::spatial sampling::. We are in the emphasis::angular domain::. The collection of signals each have an associated emphasis::look direction::. The directions are the those the microphones (sensors) are facing.
+
+--> link::https://intothesoundfield.music.ox.ac.uk/sites/default/files/intothesoundfield/images/page/3_calrec-4-plus-ric-good-gray_web.jpg##Follow this link:: to see OUTRS member Richard Cowderoy with an array of microphones arranged in a link::https://en.wikipedia.org/wiki/Tetrahedron##tetrahedron::. As a link::https://en.wikipedia.org/wiki/Platonic_solid##platonic solid::, a link::https://en.wikipedia.org/wiki/Tetrahedron##tetrahedron:: offers a uniform sampling of space.
+
+You'll notice there are four microphones in use. Four is the minimum number of look directions we need to completely sample a natural soundfield in first order resolution.
+
+2. strong::B::: store or transmit
+
+In this step we move from the emphasis::angular domain:: of the colleciton of microphone signals to the emphasis::spherical domain:: of the target Ambisonic link::#Encoding formats#encoding format::.
+
+--> link::https://intothesoundfield.music.ox.ac.uk/sites/default/files/intothesoundfield/images/media/8_7-crowng-web_cr.jpg##Notice the use:: of a four channel reel-to-reel tape machine.
+
+In this link::https://intothesoundfield.music.ox.ac.uk/tetrahedral-recording-session-images##OUTRS example::, the returned signals are in
+
+
+
+link::https://tunearch.org/wiki/Annotation:If_All_the_World_Were_Paper::
+
+link::https://rpo.library.utoronto.ca/poems/if-all-world-were-paper::
+
 link::https://en.wikipedia.org/wiki/File:Spherical_Harmonics_deg5.png::
 
 link::https://ambisonic.info/ambisonics/channels.html::
@@ -496,6 +800,15 @@ list::
 lots of pics: link::https://intothesoundfield.music.ox.ac.uk/:: a new version of: link::https://www.michaelgerzonphotos.org.uk/::
 
 AES: https://www.google.com/search?q=ambisonic+site:aes.org
+
+Before diving in to this topic, it may help to briefly consider emphasis::If all the world were paper:::
+
+code::
+(
+"https://rpo.library.utoronto.ca/poems/if-all-world-were-paper".openOS;
+"https://tunearch.org/wiki/Annotation:If_All_the_World_Were_Paper".openOS;
+)
+::
 
 
 section:: Library architecture

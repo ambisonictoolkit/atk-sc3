@@ -1,5 +1,5 @@
 title:: ABCs of the ATK
-summary:: Ambisonic Toolkit, a library for research, analysis, synthesis and composition
+summary:: Ambisonic Toolkit, a library for soundfield research, analysis, synthesis and composition
 categories:: Libraries>Ambisonic Toolkit
 keyword::Atk
 
@@ -11,7 +11,7 @@ subsection:: Two toolsets in one
 
 These tools are organized into two sets.
 
-The first of these is modelled after the hardware and software tools offered in the world of classic, aka Gerzonic, emphasis::First Order Ambisonics:: (FOA), footnote::Some authors use the acronym POA, for emphasis::plain old Ambisonics::.:: while the second is framed as a modern emphasis::Nearfield Controlled Higher Order Ambisonic:: (NFC-HOA) solution.
+The first of these is modelled after the hardware footnote::See: link::https://en.wikipedia.org/wiki/List_of_Ambisonic_hardware##List of Ambisonic hardware:: :: and software tools offered in the world of classic, aka Gerzonic, emphasis::First Order Ambisonics:: (FOA), footnote::Some authors use the acronym POA, for emphasis::plain old Ambisonics::.:: while the second is framed as a modern emphasis::Nearfield Controlled Higher Order Ambisonic:: (NFC-HOA) solution.
 
 Moving between these sets is facilited through parallel tools for both FOA and HOA, and documentation on link::#Exchanging formats#exchanging Ambisonic signals:: between these two link::#Encoding formats#Ambisonic encoding conventions::.
 
@@ -77,7 +77,7 @@ strong::Installing::, just search link::https://github.com/ambisonictoolkit/atk-
 
 subsection:: Components
 
-The complete ATK library is built from of a number of components. These are:
+The complete ATK library is built of a number of components. These are:
 
 list::
 ## link::Guides/WritingUGens#Pseudo-UGens#pseudo-UGens::, classes, extension methods and documentation found in the link::https://github.com/ambisonictoolkit/atk-sc3##atk-sc3 quark::
@@ -146,7 +146,7 @@ Users can expand the functionality of the ATK by adding additional extensions. T
 
 subsection:: ADT
 
-The link::https://gitlab.com/dxarts/projects/adt.quark##ADT quark:: offers a convenient interface to the link::https://bitbucket.org/ambidecodertoolbox/adt/src/master/##Ambisonic Decoder Toolbox::, a collection functions for creating Ambisonic Decoders. The interface supplied by the quark has been designed to facilitate use with the ATK.
+The link::https://gitlab.com/dxarts/projects/adt.quark##ADT quark:: offers a convenient interface to the link::https://bitbucket.org/ambidecodertoolbox/adt/src/master/##Ambisonic Decoder Toolbox::, a collection functions for creating Ambisonic decoders. The interface supplied by the quark has been designed to facilitate use with the ATK.
 
 At the time of this writing, the link::https://gitlab.com/dxarts/projects/adt.quark##ADT quark:: has not yet been included the SuperCollider link::https://github.com/supercollider-quarks/quarks/blob/master/directory.txt##Quark directory::, meaning that the link::Classes/QuarksGui:: cannot be used to install.
 
@@ -177,7 +177,7 @@ Quarks.install("https://github.com/JamesWenlock/AmbiVerbSC")
 
 section:: Related packages
 
-Support for Ambisonics within SuperCollider has existed in a variety of forms over the years. The principal form of this support has been via link::Guides/UGens-and-Synths##unit generators:: supplied for emphasis::monophonic source:: Ambisonic encoding footnote::I would describe this as panning, or emphasis::basic:: encoding.:: and two dimensional, aka emphasis::pantophonic::, decoding.
+Support for Ambisonics within SuperCollider has existed in a variety of forms over the years. The principal form of this support has been via link::Guides/UGens-and-Synths##unit generators:: supplied for emphasis::monophonic source:: encoding footnote::I would describe this as panning, or emphasis::basic:: encoding.:: and two dimensional, aka emphasis::pantophonic::, decoding.
 
 Over the years, a number of related but different emphasis::Ambisonic encoding formats:: have been used. (These formats are discussed in more detail, link::#Encoding%20formats#below::.) For now, the thing to keep in mind is that when we use tools from multiple packages, we need to be sure to correctly exchange Ambisonic encoding formats where these differ.
 
@@ -188,7 +188,7 @@ For ease of comparison, the UGens supplied by each package are listed according 
 Any additional utitilities or functionality supplied by these packages are not discussed here.
 
 note::
-At the time of this writing, ATK namespace collisions with the four packages listed here emphasis::have not:: been observed. In other words, it emphasis::should:: be possible to configure a system with all the below installed.
+At the time of this writing, ATK namespace collisions with the four packages listed here emphasis::have not:: been observed. As a result, it emphasis::should:: be possible to configure a system with all the below installed.
 
 If at some point you find a collision with the below packages (or any other), please let us know: link::Tutorials/ATK-FAQs#How%20do%20I%20report%20a%20bug?#How do I report a bug?::
 ::
@@ -199,7 +199,7 @@ subsection:: SuperCollider
 The original author of SuperCollider has provided basic support for first order Ambisonics (FOA) via the following unit generators:
 
 definitionlist::
-## Encoder || link::Classes/PanB::, link::Classes/PanB2::, link::Classes/BiPanB2::
+## Encoder || link::Classes/PanB::, link::Classes/PanB2::, link::Classes/BiPanB2:: footnote::link::Classes/BiPanB2:: doesn't synthesize the z-axis component.::
 ## Transformer || link::Classes/Rotate2::
 ## Decoder || link::Classes/DecodeB2::
 ::
@@ -227,15 +227,15 @@ One of the authors of the link::https://github.com/supercollider/sc3-plugins/tre
 (Follow link::#JoshUGensEncodingFormat#this link:: to review JoshUGens's encoding format.)
 
 note::
-The authors consider it appropriate to regard the functionality provided by corresponding link::Guides/WritingUGens#Pseudo-UGens#pseudo-UGens:: and UGens found in strong::JoshUGens:: to be superceeded by the ATK.
+The authors consider it appropriate to regard the functionality provided by corresponding link::Guides/WritingUGens#Pseudo-UGens#pseudo-UGens:: and UGens found in strong::JoshUGens:: to be superceeded by that provided by the ATK.
 
-E.g., rather than using strong::JoshUGens:: link::Classes/B2UHJ:: (or link::Classes/BtoUHJ::), users should rely upon the ATK's UHJ implementation, link::Classes/FoaDecoderKernel#*newUHJ::.
+E.g., rather than using strong::JoshUGens:: link::Classes/B2UHJ:: (or link::Classes/BtoUHJ::), users should employ the ATK's UHJ implementation: link::Classes/FoaDecoderKernel#*newUHJ::.
 ::
 
 
 subsection:: AmbIEM
 
-The link::https://sonenvir.at/downloads/sc3/ambiem/##AmbIEM library:: is distributed via the link::https://github.com/supercollider-quarks/AmbIEM##AmbIEM quark::, and offers support for first, second and third order Ambisonics.
+The link::https://sonenvir.at/downloads/sc3/ambiem/##AmbIEM library:: is distributed via the link::https://github.com/supercollider-quarks/AmbIEM##AmbIEM quark::, and offers support for first, second and third order Ambisonic tools.
 
 If you've installed this quark you can search for the link::search#AmbIEM#AmbIEM:: overview page, or navigate to the library's distributed link::Browse#Libraries>AmbIEM#Help::.
 
@@ -264,7 +264,7 @@ Like the ATK and JoshUGens, the SC-HOA library, aka HOA for SuperCollider, has c
 
 If you've installed this quark you can search for the link::search#HOA%20Guide#HOA Guide:: overview page, or navigate to the library's distributed link::Browse#Libraries>HOA#Help::. SC-HOA includes tutorials, too, which will be link::search#HOA Tutorial#found here:: if installed.
 
-SC-HOA provides the following footnote::documented or otherwise mentioned intutorials:: user facing unit generators:
+SC-HOA provides the following footnote::documented or otherwise mentioned in tutorials:: user facing unit generators:
 
 definitionlist::
 ## Encoder || HOAEncoder, HOAmbiPanner, HOALibEnc3D, HOAEncLebedev06, HOAEncLebedev26, HOAEncLebedev50, HOAEncEigenMike, HOAConvert
@@ -278,9 +278,9 @@ section:: Ambisonic formats
 
 For users new to the world of Ambisonics, perhaps one of the most confusing aspects is the use of the term emphasis::format::. This confusion is understandable, given how this word has been used differently over time and in different contexts.
 
-One way this word is used is to describe the emphasis::Ambisonic encoding format::, aka the emphasis::encoding convention::, of an Ambisonic signal.
+One way this word is used is to describe the emphasis::Ambisonic encoding format::, aka the emphasis::encoding convention::, of an Ambisonic signal. Another use of the word is to describe the emphasis::spatial domain:: of an Ambisonic signal.
 
-Another use of the word is to describe the emphasis::spatial domain:: of an Ambisonic signal.
+We'll consider each of these uses in the following two sub-sections.
 
 subsection:: Encoding formats
 
@@ -292,22 +292,22 @@ list::
 ## link::https://en.wikipedia.org/wiki/Ambisonic_data_exchange_formats##Ambisonic data exchange formats::
 ::
 
-Given an Ambisonic signal, there are four things we need to know for the encoding format (or convention) to be completely specified and unambiguous. These are:
+Given an Ambisonic signal, there are four things we need to know for the emphasis::encoding format:: (or convention) to be completely specified and unambiguous. These are:
 
 definitionlist::
-## Ambisonic order || An integer describing the spatial resolution. Specifies the maximum emphasis::Associated Legendre:: degree, ℓ, of a given signal or coefficient set.
+## Ambisonic order || An integer describing the spatial resolution. Specifies the maximum emphasis::Associated Legendre:: degree, ℓ, of a given signal or coefficient set. We can think of emphasis::Ambisonic order:: as a emphasis::spatial sampling rate::.
 
 ## Ambisonic component ordering || Sorting or ordering convention applied to arrange spherical harmonic encoding coefficients and resulting signal sets. E.g., Furse-Malham (FuMa), Ambisonic Channel Number (ACN), Single Index Designation (SID). See link::https://en.wikipedia.org/wiki/Ambisonic_data_exchange_formats#Component_ordering#ordering::.
 
 ## Ambisonic component normalisation || emphasis::Spherical harmonic:: coefficient normalisation convention. E.g., maxN, N3D, SN3D. See link::https://en.wikipedia.org/wiki/Ambisonic_data_exchange_formats#Normalisation#normalisation::.
 
-## Ambisonic reference radius || Encoding radius where all modal components are real.
+## Ambisonic reference radius || Encoding radius where all modal components are real. We can think of this as the radius at which the associated emphasis::virtual loudspeakers:: are found.
 ::
 
 note::
-Of these four quantities, many user facing Ambisonic software packages omit specifying a reference radius. If we would like to successfully synthesize soundfields with controlled nearfield effects (NFE), this value must be known.
+Of these four quantities, many user facing Ambisonic software packages omit specifying a reference radius. If we would like to successfully synthesize soundfields with controlled nearfield effects (NFE), this value must be specified and known.
 
-The ATK specifies reference radius in meters.
+The ATK measures this parameter in meters.
 ::
 
 The ATK will report these details for the FOA implementation:
@@ -394,7 +394,7 @@ list::
 
 ________________
 
-Let's now consider the emphasis::Ambisonic encoding formats:: of the above link::#Related%20packages#related packages:: (package names link to UGen lists, above):
+Let's now consider the emphasis::toolsets:: and emphasis::Ambisonic encoding formats:: provided by the above link::#Related%20packages#related packages:: (package names link to UGen lists, above):
 anchor::SCEncodingFormat::
 definitionlist::
 ## link::#SuperCollider:: ||
@@ -506,9 +506,9 @@ Figure 2: BASIC EXPERIMENTAL SET-UP
 )
 ::
 
-In figure 2, if we follow the bottom path of the network from FOUR MIKES through to TETRAHEDRAL SPEAKER LAYOUT, we see the complete pathway for strong::capture:: to strong::reconstruct::.
-
 Figure 1, illustrates the arrangement of the loudspeakers, and the directions in which the cardioid microphones are pointed, the microphone emphasis::look directions::.
+
+In figure 2, if we follow the bottom path of the network from FOUR MIKES through to TETRAHEDRAL SPEAKER LAYOUT, we see the complete pathway for strong::capture:: to strong::reconstruct::.
 
 The four microphones feed the four associated loudspeakers, but are filtered by a block labelled COMMON MODE REDUCTION MATRIX. Gerzon explains:
 
@@ -516,7 +516,7 @@ The four microphones feed the four associated loudspeakers, but are filtered by 
 
 Rather than feeding the loudspeakers directly, the microphone polar responses are modified from cardioid to another, variable pattern. The matrix makes each microphone's spatial response more selective. (Look directions stay the same.) Also note, though not yet named so, the "common mode" to be reduced is B-format's W.
 
-Here's a matrix corresponding to setting the variable resistor parameter, teletype::VR = 0.183 R::, which corresponds to a null in the synthesized pattern at approximately 125 degrees: footnote::
+Here's a matrix corresponding to setting the variable resistor parameter, teletype::VR = 0.183 R::, which corresponds to a null in the synthesized microphone response pattern at approximately 125 degrees: footnote::
 code::
 /*
 check beaming corresponding to Gerzon's discussion (page 4):
@@ -563,7 +563,13 @@ Matrix[
 ]
 ::
 
-This matrix corresponds to a mixer where each loudspeaker is fed by a mix from all the microphones. For instance, the buss feeding the loudspeaker in the front-left-up position consists of a mix of the named microphones:
+We can view this matrix as a mixer where each loudspeaker is fed by a mix from all the microphones. For instance, the buss feeding the loudspeaker in the front-left-up position consists of a mix of the named microphones: footnote::I'm using the ATK's naming convention. These names correspond to Gerzon's: list::
+## front-left-up: Lf (left-front-ceiling)
+## back-right-up: Rr (rear-right-ceiling)
+## front-right-down: Rf (right-front-floor)
+## back-left-down: Lr (left-rear-floor)
+::
+::
 
 numberedlist::
 ## front-left-up: rescale by +1.09 dB
@@ -573,7 +579,7 @@ numberedlist::
 ::
 
 
-link::https://intothesoundfield.music.ox.ac.uk/sites/default/files/intothesoundfield/images/page/3_calrec-4-plus-ric-good-gray_web.jpg##Here's a photo:: of OUTRS member Richard Cowderoy with the microphone array. footnote::These images are from a page titled: link::https://intothesoundfield.music.ox.ac.uk/tetrahedral-recording-session-images##Tetrahedral Recording Session Images::.:: And link::https://intothesoundfield.music.ox.ac.uk/sites/default/files/intothesoundfield/images/media/18_31_guests_2-g-web.jpg##here's a photo:: of a listening session. (The upper two loudspeakers of the loudspeaker array are visible on the two ladders.)
+link::https://intothesoundfield.music.ox.ac.uk/sites/default/files/intothesoundfield/images/page/3_calrec-4-plus-ric-good-gray_web.jpg##Here's a photo:: of OUTRS member Richard Cowderoy with the microphone array. footnote::These images are from a page titled: link::https://intothesoundfield.music.ox.ac.uk/tetrahedral-recording-session-images##Tetrahedral Recording Session Images::. You can review Thornton's review of the session, link::https://intothesoundfield.music.ox.ac.uk/tetrahedral-recording##here:: :: And link::https://intothesoundfield.music.ox.ac.uk/sites/default/files/intothesoundfield/images/media/18_31_guests_2-g-web.jpg##here's a photo:: of a listening session. (The upper two loudspeakers of the loudspeaker array are visible on the two ladders.)
 
 For strong::archiving::, the four microphone signals are just directly recorded.
 
@@ -608,15 +614,15 @@ Ideally, the complete, full 3D soundfield is available for retrieval, and each l
 
 Referring back to the link::#Tetrahedral%20Recording#OUTRS experiment:: and Gerzon's figure 2, we can only find two complete soundfield forms. These correspond to emphasis::A-format::, and are noted as being recorded as gain and EQ corrected microphone capsule feeds by FOUR-CHANNEL TAPE RECORDERS. The other format we see is emphasis::D-format::, the collection of the actual loudspeaker feeds.
 
-If we're interested in exchanging tetrahedral recordings, we immediately have problems. Doh!
+If we're interested in exchanging tetrahedral recordings, however, we immediately have problems. Doh!
 
-In part two, Gerzon states, "The four capsules should certainly lie within a sphere of 5 cm diameter, and preferably less, in order to ensure that phase effects do not upset the matrixing." Starting with Gerzon's comment on capsule spacing, here's a short list of interrelated factors that must be either specified or compensate for to have a truely emphasis::exchangeable A-format:::
+In part two, Gerzon states, "The four capsules should certainly lie within a sphere of 5 cm diameter, and preferably less, in order to ensure that phase effects do not upset the matrixing." Beginning with Gerzon's comment on capsule spacing, here's a short list of interrelated factors that must be either specified or compensate for to have a truely emphasis::exchangeable A-format:::
 
 numberedlist::
-## number of microphone capsules
+## number of microphone capsules footnote::With a tetrahedron we have four, so this is known.::
 ## capsule offset(s) from true coincidence
-## capsule look directions
-## capsule polar response pattern(s)
+## capsule look directions footnote::Gerzon appears to order these as: back-left-down, front-left-up, front-right-down, back-right-up. ::
+## capsule polar response pattern(s) footnote::Cardioid. In practice polar response may be frequency dependent!::
 ## capsule frequency response(s)
 ::
 
@@ -626,8 +632,8 @@ numberedlist::
 ## number of loudspeakers
 ## loudspeaker distance(s) from array origin
 ## loudspeaker look directions footnote::Look from perspective of listener at the loudspeaker array origin.::
-## capsule polar response pattern(s) used to create loudspeaker feeds
-## loudspeaker frequency response(s) (if this has been corrected for)
+## capsule polar response pattern(s) used to create loudspeaker feeds footnote::Recall Gerzon uses the COMMON MODE REDUCTION MATRIX to change the polar patterns.::
+## loudspeaker frequency response(s) footnote::If this has been corrected for.::
 ::
 
 The remedy to these high demands for strong::capturing::, strong::reconstructing:: and strong::archiving:: tetrahedral recordings is strong::B-format::.
@@ -637,16 +643,20 @@ ________________
 anchor::Spatial Domains::
 strong::Spatial Domains::
 
-For the sake of a managable and simplied workflow, the ATK considers complete Ambisonic soundfields as existing in only two domain forms: footnote::See also: link::Guides/ATK-Glossary::.::
+For the sake of a managable and simplied workflow, the ATK considers (complete) Ambisonic soundfields as existing in only two domain forms. footnote::See also: link::Guides/ATK-Glossary::.:: Spatial information is represented in terms of:
 
 definitionlist::
 ## angular domain
-|| Information represented in terms of angular components
+|| emphasis::angular basis functions::
 ## spherical domain
-|| Information represented in terms of spherical emphasis::basis functions::
+|| emphasis::spherical basis functions::
 ::
 
-The ATK uses this convention to associate these forms with emphasis::letter-formats:::
+The emphasis::angular basis functions:: have an unambiguous emphasis::look direction:: and are  are described as having a emphasis::beam shape::. footnote::These are virtual microphone response patterns!::
+
+When we are encoding, or measuring, a soundfield in either of these domains, we are measureing how much the soundfield is emphasis::like:: a particular basis function.
+
+The ATK uses the following convention to associate these domains with emphasis::letter-formats:::
 
 definitionlist::
 ## A-format
@@ -655,7 +665,7 @@ definitionlist::
 || Component or signal set in the emphasis::spherical domain::. In classic emphasis::first order Ambisonics::, aka Gerzonic, B-format indicates a signal encoded where Ambisonic order n = 1, and components are ordered and normalised by the (now named) Furse-Malham and MaxN conventions. emphasis::B-format:: is often used to indicate any Ambisonic signal set, without regard to Ambisonic order, component ordering or normalisation.
 ::
 
-As a use pattern, the ATK prefers to refer to signals and tools as being part of a signal or tool link::#set::, as this designation completely disambiguates the problem.
+As discussed earlier and to facilitate workflows, the ATK prefers to refer to signals and tools as being part of a signal or tool link::#set::, as this designation completely disambiguates the problem.
 
 Furthur updating the meaning of strong::HOA5:::
 anchor::HOA5_domain::
@@ -673,7 +683,7 @@ list::
 To be encoded in the emphasis::spherical domain:: in the ATK workflow, an Ambisonic signal is emphasis::completely specified::. There are no ambiguities.
 
 note::
-Although many authors use the term emphasis::B-format:: as a shorthand to mean any signal in the emphasis::spherical domain:: regardless of link::#Encoding formats#Ambisonic encoding convention::, we feel this use should be discouraged, as it is partly responsible for much of the confusion surrounding the word emphasis::format::.
+Although many authors use the term emphasis::B-format:: as a shorthand to mean any signal in the emphasis::spherical domain:: regardless of link::#Encoding formats#Ambisonic encoding convention::, we feel this practice should be discouraged, as it is partly responsible for much of the confusion surrounding the word emphasis::format::.
 ::
 
 In the ATK, emphasis::B-format:: is completely specified and means strong::FOA:::
@@ -693,13 +703,17 @@ ________________
 
 strong::Spherical decomposition & recomposition::
 
-We can characterize the task of moving from the emphasis::spherical domain:: to the emphasis::angular domain:: as one of uniform emphasis::spherical decomposition::. Moving in the opposite direction is emphasis::spherical recomposition::.
+We can characterize the task of moving from the emphasis::spherical domain:: to the emphasis::angular domain:: as one of uniform emphasis::spherical decomposition::. Moving in the opposite direction is emphasis::spherical recomposition::. footnote::Obviously, we can start with signals from scratch and use these to emphasis::compose:: a new soundfield. This is a common part of the soundfield synthesis workflow.::
 
 As you would expect, to be completely disambiguated, any exchangable decomposition must have all link::#set:: features known and specified.
 
-There are three more aspects that must be known. Because we're seeking to be general, we'll use the word emphasis::beam:: here. These are windows in the spatial domain. We can view these as both virtual microphones and/or virtual loudspeakers. (Think of link::#Tetrahedral Recording#Gerzon's experiment::.) Technically, these beams are a collection of emphasis::spatial basis functions::. emphasis::Spherical harmonics:: are just another set of emphasis::spatial basis functions::, so when we're in either domain, we're representing the same information, but in another way. Unlike spherical harmonics, these functions all have the emphasis::same shape::, but look in different directions.
+There are three more aspects that must be known. A emphasis::beam:: is a emphasis::window:: in the emphasis::spatial domain::. We can understand a single beam as a virtual microphone and/or a virtual loudspeaker. (Think of link::#Tetrahedral Recording#Gerzon's experiment::.)
 
-So, to specify a collection of functions (beams, aka windows), we need to specify:
+Reviewing link::#Spatial Domains#the above::, beams of the same shape, but with differing look directions are collected as emphasis::angular basis functions:: to describe the soundfield in the emphasis::angular domain::, while emphasis::spherical harmonics:: are the collection used to describe the soundfield in the emphasis::spherical domain::.
+
+We're representing the same information, but just in another way. This different emphasis::way of expression:: is the difference between these two spatial domains: two different sets of emphasis::spatial basis functions::.
+
+So, to specify a collection of emphasis::angular basis functions::, we need to choose:
 
 numberedlist::
 ## strong::number of beams::
@@ -707,7 +721,7 @@ numberedlist::
 ## strong::beam shape::
 ::
 
-For HOA, the ATK uses link::Classes/TDesign:: to help us specify the first two features. This pattern will find a link::https://en.wikipedia.org/wiki/Spherical_design##spherical t-design:: given some criteria:
+For HOA, the ATK uses link::Classes/TDesign:: to help us specify the first two features. Here we will find a link::https://en.wikipedia.org/wiki/Spherical_design##spherical t-design:: given some criteria:
 
 code::
 (
@@ -722,7 +736,17 @@ code::
 ~tdesign.visualize;
 ::
 
-The use pattern for decomposition looks like this:
+We can directly associate the minimum emphasis::number of beams:: for a given Ambisonic order with a kind of angular spatial sampling rate. For instance, we get an error if we ask for too few beams:
+
+code::
+(
+~order = 3;
+~numChans = 16;
+~tdesignFAIL = TDesign.newHoa(~numChans, order: ~order);
+)
+::
+
+The ATK's use pattern for decomposition looks like this:
 code::
 // design a matrix _decoder_
 ~beamShape = \basic;
@@ -752,73 +776,17 @@ code::
 ~decodeEncode.shape == [ ~numCoeffs, ~numCoeffs ];
 ::
 
-
 TBD: SPHERICAL DESIGN EXAMPLES
-
-
-________________
-
-1. strong::A::: capture
-
-In the context of recording a natural soundfield, we'll describe this step as emphasis::spatial sampling::. We are in the emphasis::angular domain::. The collection of signals each have an associated emphasis::look direction::. The directions are the those the microphones (sensors) are facing.
-
---> link::https://intothesoundfield.music.ox.ac.uk/sites/default/files/intothesoundfield/images/page/3_calrec-4-plus-ric-good-gray_web.jpg##Follow this link:: to see OUTRS member Richard Cowderoy with an array of microphones arranged in a link::https://en.wikipedia.org/wiki/Tetrahedron##tetrahedron::. As a link::https://en.wikipedia.org/wiki/Platonic_solid##platonic solid::, a link::https://en.wikipedia.org/wiki/Tetrahedron##tetrahedron:: offers a uniform sampling of space.
-
-You'll notice there are four microphones in use. Four is the minimum number of look directions we need to completely sample a natural soundfield in first order resolution.
-
-2. strong::B::: store or transmit
-
-In this step we move from the emphasis::angular domain:: of the colleciton of microphone signals to the emphasis::spherical domain:: of the target Ambisonic link::#Encoding formats#encoding format::.
-
---> link::https://intothesoundfield.music.ox.ac.uk/sites/default/files/intothesoundfield/images/media/8_7-crowng-web_cr.jpg##Notice the use:: of a four channel reel-to-reel tape machine.
-
-In this link::https://intothesoundfield.music.ox.ac.uk/tetrahedral-recording-session-images##OUTRS example::, the returned signals are in
-
-
-
-link::https://tunearch.org/wiki/Annotation:If_All_the_World_Were_Paper::
-
-link::https://rpo.library.utoronto.ca/poems/if-all-world-were-paper::
-
-link::https://en.wikipedia.org/wiki/File:Spherical_Harmonics_deg5.png::
-
-link::https://ambisonic.info/ambisonics/channels.html::
-
-see formats here: link::http://www.ironbridge-elt.com/downloads/FrancescaOrtolani-IntroductionToAmbisonics.pdf::
-
-p-format: http://pcfarina.eng.unipr.it/SPS-conversion.htm
-https://secure.aes.org/forum/pubs/conferences/?elib=17362
-https://www.aes.org/e-lib/browse.cfm?elib=16913
-
-wiggins: https://www.brucewiggins.co.uk/wp-content/uploads/2017/07/01%20Wiggins%20-%20Ambisonic%20Convolution%20Reverbs.pdf
-
-list::
-## Near-coincident version called A-format
-##Coincident version known as P-format (Spatial PCM Sampling)
-::
-
-lots of pics: link::https://intothesoundfield.music.ox.ac.uk/:: a new version of: link::https://www.michaelgerzonphotos.org.uk/::
-
-AES: https://www.google.com/search?q=ambisonic+site:aes.org
-
-Before diving in to this topic, it may help to briefly consider emphasis::If all the world were paper:::
-
-code::
-(
-"https://rpo.library.utoronto.ca/poems/if-all-world-were-paper".openOS;
-"https://tunearch.org/wiki/Annotation:If_All_the_World_Were_Paper".openOS;
-)
-::
 
 
 section:: Library architecture
 
-The help browsing hierarchy is formatted to illustrate the structure of the ATK from a user point of view.
+The help browsing hierarchy is formatted to illustrate the structure of the ATK from a user perspective.
 
 
 subsection:: Getting Help
 
-Let's briefly explore the presented categories. Following the links below will navigate the browser to places to find relevent documentation on the given topic. Some of these links land on splash page overviews which include a brief description of help to be found in that section.
+Let's briefly explore the presented categories. Following the links below will navigate the browser to places to find relevent documentation on the listed topic. Some of these links land on splash page overviews which include a brief description of help to be found in that section.
 
 Casually explore the structure of the ATK by taking some time to navigate these links. (Use the browser back button to return to this page.)
 
@@ -826,8 +794,8 @@ definitionlist::
 ## link::Browse#Libraries>Ambisonic Toolkit#Ambisonic Toolkit:: ||
 definitionlist::
 ## link::Browse#Libraries>Ambisonic Toolkit>ATK Platform & Configuration#ATK Platform & Configuration:: || various ATK system settings and configurations
-## link::Overviews/ABCs-ATK-Coeffs##Coefficients & Theory:: || low level ambisonic coefficients and other theory
-## link::Overviews/ABCs-Guides-Toots##Guides & Tutorials:: || documents explaining how to use the ATK
+## link::Overviews/ABCs-ATK-Coeffs##Coefficients & Theory:: || foundational ambisonic coefficients &c
+## link::Overviews/ABCs-Guides-Toots##Guides & Tutorials:: || documents exploring how to use the ATK
 ## link::Browse#Libraries>Ambisonic Toolkit>Licensing#Licensing:: || licensing documents and notices
 ## Matrix & Kernel || classes returning matrices and kernels for use with
 corresponding link::Guides/WritingUGens#Pseudo-UGens#pseudo-UGens::
@@ -873,7 +841,9 @@ Try this: link::Search#abcs::
 
 subsection:: Ambisonic UGen types
 
-The ATK uses the keyword strong::type:: to designate Ambisonic emphasis::soundfield operations::. UGens are classified:
+The ATK uses the keyword strong::type:: to designate Ambisonic emphasis::soundfield operations::.
+
+UGens are classified:
 
 definitionlist::
 ## Encoder ||
@@ -968,11 +938,11 @@ HoaMatrixDecoder.postln;  // answer HoaMatrixDecoder instance required for the a
 ::
 code::
 // 2) assets
-HoaMatrixDecoder.newPanto(4).matrix.postln;  // answer the matrix
+HoaMatrixDecoder.newPanto(4).matrix.postln;  // return the matrix
 ::
 code::
 // 3) operation
-HoaMatrixDecoder.newPanto(4).op.postln;  // the -op message answers...
+HoaMatrixDecoder.newPanto(4).op.postln;  // the -op message returns...
 ::
 
 
@@ -1021,7 +991,7 @@ code::
 )
 ::
 
-Of course, if we'd like to review the strong::kinds:: of design methods available, we can also just visit the help page: link::Classes/HoaMatrixDecoder::
+Of course, if we'd like to review the strong::kinds:: of design methods available, we can also just visit the help page: link::Classes/HoaMatrixDecoder::.
 
 
 subsection:: Static & dynamic operations
@@ -1066,7 +1036,7 @@ hoaMatrix = HoaMatrixDecoder.newDirection(theta, phi, beamShape, order);
 HoaDecodeMatrix.ar(in, hoaMatrix)
 ::
 
-This differs from the dynamic beamformer, link::Classes/HoaDecodeDirection::, in that strong::theta:: and strong::phi:: are static and fixed at design time, and we're missing strong::radius::.
+and differs from the dynamic beamformer, link::Classes/HoaDecodeDirection::, in that strong::theta:: and strong::phi:: are static and fixed at design time, and we're missing strong::radius::.
 
 ________________
 
@@ -1105,7 +1075,7 @@ code::
 Hoa
 ::
 
-Rather than navigating the Help browsing structure, this is the way regular users often find classes of interest.
+Rather than navigating the Help browsing structure, this is the way experienced users often find classes of interest.
 
 Typing code::Foa:: quickly brings up classes in the FOA toolset whle code::Hoa:: returns parallel HOA classes. The code::Atk:: namespace organizes library level environment settings and base classes that serve both code::Foa:: and code::Hoa:: namespaces.
 
@@ -1161,27 +1131,16 @@ list::
 ## link::Classes/HoaMatrixDecoder::
 ::
 
-This difference exists to more easily faciliting the design of matrices for HOA. When we're designing an HOA matrix, we can think in natural language word order and the link::Guides/SCIde##IDE:: will quickly answer.
+This difference exists to more easily facilite the design of matrices for HOA. When we're designing an HOA matrix, we can think in natural language word order and the link::Guides/SCIde##IDE:: will quickly answer.
 
 
 section:: What next?
 
-link::Guides/ATK-FAQs::
+Try:
 
-link::Guides/ATK-Glossary::
-
-link::Overviews/ABCs-Guides-Toots::
-
-
-
-section:: Further reading
-
-TBD
-
-https://ambisonic.net/articles.html
-
-https://wiki.xiph.org/Ambisonics#G-Format
-
-https://ambisonic.info/index.html
-
-https://www.researchgate.net/publication/280010078_Introduction_to_Ambisonics
+list::
+## link::Guides/ATK-FAQs::
+## link::Guides/ATK-Glossary::
+## link::Overviews/ABCs-Guides-Toots::
+## Have fun!
+::

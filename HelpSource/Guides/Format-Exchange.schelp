@@ -142,7 +142,7 @@ A common workflow task is to return an FOA deliverable from a higher order signa
 
 As part of this exchange, we'll emphasis::truncate:: the harmonics of the HOA set, which is emphasis::lowpass filtering:: in the spatial domain. Doing so reduces the emphasis::spatial sampling rate:: and is equivalant applying the emphasis::Nyquist anti-aliasing filters:: required in time domain downsampling.
 
-From the beginning, the Ambisonic framework has been designed to be emphasis::hiearchical:: in terms of spatial emphasis::resolution:: and emphasis::distribution::. That is to say, spatial downsampling is part of the underlying theory and architecture.
+From the beginning, the Ambisonic framework has been designed to be emphasis::hierarchical:: in terms of spatial emphasis::resolution:: and emphasis::distribution::. That is to say, spatial downsampling is part of the underlying theory and architecture.
 
 Let's see how to express moving from the ATK's default higher order set, HOA3, and the ATK's default first order set.
 

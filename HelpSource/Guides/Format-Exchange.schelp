@@ -1,0 +1,468 @@
+title:: Ambisonic Format Exchange
+summary:: Ambisonic format exchange examples
+categories:: Libraries>Ambisonic Toolkit>Guides & Tutorials
+keyword::Atk
+
+To manage workflows within the ATK, and facilitate the integration of third party toolsets and exchange of Ambisonic signals, it is critical to understand Ambisonic link::Tutorials/ABCs-of-the-ATK#Encoding%20formats#encoding formats::.
+
+On this page we'll present a few examples of exchanging between signal sets, beginning with the two equivalent forms link::Tutorials/ABCs-of-the-ATK#Exchanging%20formats#described earlier::.
+
+list::
+## emphasis::decode:: strong::FOA:: to strong::HOA1::
+## emphasis::encode:: strong::HOA1:: from strong::FOA::
+::
+
+What we'll see is that the chosen practical implementation depends upon how we imagine the format exchange. Exchange can be seen as strong::decoding to:: one signal set from another, or strong::encoding from:: one to the other. How we view this exchange informs what tools we will choose to use.
+
+For successful exchange, we need to match Ambisonic:
+list::
+## strong::order::
+## strong::component ordering::
+## strong::component normalisation::
+## strong::reference radius::
+::
+
+section:: FOA source, HOA target
+
+An FOA signal set can be directly exchanged to become an HOA set. Here we'll review FOA and HOA1.
+
+Two different, but equivalent forms are expressed here. In choosing which form to use, the idiom is to be clear as to what we view the primary signal set to be.
+
+note::The question to ask: emphasis::Are we working in FOA or HOA1?::::
+
+subsection:: decoding FOA to HOA1
+
+FOA and HOA1 are both first order signal sets, so we know this aspect is already matched.
+
+We can check the others:
+code::
+(
+~namespaces = [ AtkFoa, AtkHoa ];
+~messages = [ \ordering, \normalisation, \refRadius ];
+
+~messages.do({ |selector|
+	"match: ".post;
+	(
+		Message.new(~namespaces.first, selector).value ==
+		Message.new(~namespaces.last, selector).value
+	).postln;
+});
+)
+::
+
+Or, lump ordering and normalisation into the strong::format:: keyword:
+code::
+(
+~namespaces = [ AtkFoa, AtkHoa ];
+~messages = [ \format, \refRadius ];
+
+~messages.do({ |selector|
+	"match: ".post;
+	(
+		Message.new(~namespaces.first, selector).value ==
+		Message.new(~namespaces.last, selector).value
+	).postln;
+});
+)
+::
+
+Viewed as strong::decoding FOA:: emphasis::to HOA1::, we'll use the FOA toolset to target HOA1.
+
+The tools for the task are:
+list::
+## strong::ordering & normalisation::: link::Classes/FoaDecoderMatrix#*newHoa1::
+## strong::reference radius::: link::Classes/FoaNFC::
+::
+
+The steps are:
+
+numberedlist::
+## reset FOA reference radius from inf to 1.5 meters
+## decode FOA to HOA1
+::
+
+code::
+// format exchange: FOA >> HOA1
+
+// design decoder to exchange (ordering, normalisation)
+~decoder = FoaDecoderMatrix.newHoa1;
+
+// network
+~myHoa1 = FoaDecode.ar(  // exchange (ordering, normalisation)
+	FoaNFC.ar(  // exchange (reference radius)
+		~myFoa,
+		AtkHoa.refRadius
+	)
+	~decoder
+);
+::
+
+
+subsection:: encoding HOA1 from FOA
+
+Viewed as strong::encoding HOA1:: emphasis::from FOA::, we'll use the HOA toolset.
+
+Framed in this way, the tools for the task are:
+list::
+## strong::ordering & normalisation::: link::Classes/HoaMatrixEncoder#*newFormat::
+## strong::reference radius::: link::Classes/HoaNFDist::
+::
+
+The steps are:
+
+numberedlist::
+## encode HOA1 from FOA
+## reset HOA1 reference radius from inf to 1.5 meters
+::
+
+
+code::
+// format exchange: FOA >> HOA1
+
+// design encoder to exchange (ordering, normalisation)
+~encoder = HoaMatrixEncoder.newFormat(
+	AtkFoa.format,
+	AtkFoa.defaultOrder  // FOA order = HOA1 order
+);
+
+// network
+~myHoa1 = HoaNFDist.ar(  // exchange (reference radius)
+	HoaEncodeMatrix.ar(  // exchange (ordering, normalisation)
+		~myFoa,
+		~encoder
+	),
+	AtkFoa.defaultOrder  // FOA order = HOA1 order
+);
+::
+
+
+section:: HOA source, FOA target
+
+A common workflow task is to return an FOA deliverable from a higher order signal set.
+
+As part of this exchange, we'll emphasis::truncate:: the harmonics of the HOA set, which is emphasis::lowpass filtering:: in the spatial domain. Doing so reduces the emphasis::spatial sampling rate:: and is equivalant applying the emphasis::Nyquist anti-aliasing filters:: required in time domain downsampling.
+
+From the beginning, the Ambisonic framework has been designed to be emphasis::hiearchical:: in terms of spatial emphasis::resolution:: and emphasis::distribution::. That is to say, spatial downsampling is part of the underlying theory and architecture.
+
+Let's see how to express moving from the ATK's default higher order set, HOA3, and the ATK's default first order set.
+
+note::The question to ask: emphasis::Are we working in FOA or HOA3?::::
+
+subsection:: decoding HOA3 to FOA
+
+Viewed as strong::decoding HOA3:: emphasis::to FOA::, we'll use the HOA3 toolset to target FOA.
+
+The tools for the task are:
+list::
+## strong::ordering & normalisation::: link::Classes/HoaMatrixDecoder#*newFormat::
+## strong::reference radius::: link::Classes/HoaNFCtrl::
+::
+
+And the steps:
+numberedlist::
+## truncate HOA3 to HOA1
+## reset HOA1 reference radius from 1.5 to 10.0 meters footnote::
+link::Classes/HoaNFProx:: is theoretically the correct tool to use to reset the reference radius to inf. In the above illustrated algorithm we've substituted 10.0, instead. This is often regarded as "near enough", and can help avoid overflow.
+
+note::See the link::Classes/HoaNFProx#*ar#WARNING here::.::
+
+If we do wish to use link::Classes/HoaNFProx#*ar::, the HOA1 signal should be pre-conditioned with a highpass filter to prevent overflow and excessive bass boost.
+
+Here's an example:
+
+code::
+~freq = 30.0;  // highpass freq
+
+// network
+~myFoa = HoaDecodeMatrix.ar(  // exchange (ordering, normalisation)
+	HoaNFProx.ar(  // exchange (reference radius)
+		HPF.ar(  // pre-condition HOA1
+			~myHoa3.keep(AtkFoa.defaultOrder.asHoaOrder.size),  // truncate to HOA1
+			~freq
+		),
+		AtkFoa.defaultOrder  // FOA order = HOA1 order
+	),
+	~decoder
+);
+::
+::
+## decode HOA1 to FOA
+::
+
+code::
+// format exchange: HOA3 >> FOA
+
+// safe approx for inf - for use with HoaNFCtrl
+// this could be set to another value
+// --> if overflow, reduce radius
+~foaRefRadius = 10.0;
+
+// design decoder to exchange (ordering, normalisation)
+~decoder = HoaMatrixDecoder.newFormat(
+	AtkFoa.format,
+	AtkFoa.defaultOrder  // FOA order = HOA1 order
+);
+
+// network
+~myFoa = HoaDecodeMatrix.ar(  // exchange (ordering, normalisation)
+	HoaNFCtrl.ar(  // exchange (reference radius)
+		~myHoa3.keep(AtkFoa.defaultOrder.asHoaOrder.size),  // truncate to HOA1
+		AtkHoa.refRadius,
+		~foaRefRadius,
+		AtkFoa.defaultOrder  // FOA order = HOA1 order
+	),
+	~decoder
+);
+::
+
+
+subsection:: encoding FOA from HOA3
+
+Viewed as strong::encoding FOA:: emphasis::from HOA3::, we'll use the FOA toolset to target HOA3.
+
+The tools for the task are:
+
+list::
+## strong::ordering & normalisation::: link::Classes/FoaEncoderMatrix#*newHoa1::
+## strong::reference radius::: link::Classes/FoaProximity::
+::
+
+And the steps:
+numberedlist::
+## truncate HOA3 to HOA1
+## encode FOA from HOA1
+## reset FOA reference radius from 1.5 to inf footnote::
+If we wish to avoid using link::Classes/HPF:: to precondition the FOA formatted signal, we can use link::Classes/FoaNFC:: to precondition instead. link::Classes/FoaNFC:: followed by link::Classes/FoaProximity:: is equivalent to the use of link::Classes/HoaNFProx#*ar:: in the HOA toolset.
+
+Here's an example:
+code::
+// safe approx for inf - for idiom equivalent HoaNFCtrl
+// this could be set to another value
+// --> if overflow, reduce radius
+~foaRefRadius = 10.0;
+
+// network
+~myFoa = FoaProximity.ar(  // exchange (reference radius)
+	FoaNFC.ar(  // pre-condition FOA
+		FoaEncode.ar(  // exchange (ordering, normalisation)
+			~myHoa3.keep(AtkFoa.defaultOrder.asHoaOrder.size),  // truncate to HOA1
+			~encoder
+		),
+		~foaRefRadius
+	),
+	AtkHoa.refRadius
+)
+::
+::
+::
+
+note::
+The use of link::Classes/FoaProximity:: requires signal pre-conditioning. See the link::Classes/HoaNFProx#*ar#WARNING here::.
+::
+
+code::
+// format exchange: HOA3 >> FOA
+
+~freq = 30.0;  // highpass freq
+
+// design encoder to exchange (ordering, normalisation)
+~encoder = FoaEncoderMatrix.newHoa1;
+
+// network
+~myFoa = FoaProximity.ar(  // exchange (reference radius)
+	HPF.ar(  // pre-condition FOA
+		FoaEncode.ar(  // exchange (ordering, normalisation)
+			~myHoa3.keep(AtkFoa.defaultOrder.asHoaOrder.size),  // truncate to HOA1
+			~encoder
+		),
+		~freq
+	),
+	AtkHoa.refRadius
+)
+::
+
+section:: SC-HOA
+
+Given a matched strong::order::, when we review the link::Tutorials/ABCs-of-the-ATK#SC-HOAEncodingFormat#encoding format:: of the link::Tutorials/ABCs-of-the-ATK#SC-HOA#SC-HOA library::, we see that the only aspect requiring exchange is the strong::reference radius::.
+
+
+The tool for the task is:
+list::
+## strong::reference radius::: link::Classes/HoaNFCtrl::
+::
+
+
+subsection:: decoding HOA7 to SC-HOA5
+
+We will strong::decode to:: the link::Tutorials/ABCs-of-the-ATK#SC-HOA#SC-HOA library:: signal set if we'd like to use the tools found there.
+
+Let's consider an HOA7 signal. At the time of this writing, the link::Tutorials/ABCs-of-the-ATK#SC-HOAEncodingFormat#highest Ambisonic order:: supported by the link::Tutorials/ABCs-of-the-ATK#SC-HOA#SC-HOA library:: is fifth order, so for successful exchange, an HOA7 signal will requiare spatial downsampling.
+
+If you haven't already, see the discussion on link::#HOA source, FOA target#truncation, above::.
+
+
+The steps are:
+
+numberedlist::
+## truncate HOA7 to HOA5
+## reset HOA5 reference radius from 1.5 to 1.07 meters
+::
+
+Here's an example:
+
+code::
+// format exchange: HOA7 >> SC-HOA5
+
+~scHoaOrder = 5;  // maximum supported order for SC-HOA library
+~scHoaRefRadius = 1.07;
+
+// network
+~myScHoa5 = HoaNFCtrl.ar(  // exchange (reference radius)
+	~myHoa7.keep(~scHoaOrder.asHoaOrder.size),  // truncate to HOA5
+	AtkHoa.refRadius,
+	~scHoaRefRadius,
+	~scHoaOrder
+);
+::
+
+
+subsection:: encoding HOA5 from SC-HOA5
+
+strong::Encoding from:: the link::Tutorials/ABCs-of-the-ATK#SC-HOA#SC-HOA library:: signal set is even more simple.
+
+All we need to do is:
+
+numberedlist::
+## reset SC-HOA5 reference radius from 1.07 to 1.5 meters
+::
+
+code::
+// format exchange: SC-HOA5 >> HOA5
+
+~scHoaOrder = AtkHoa.detectOrder(~myScHoa5.size);  // detect SC-HOA order
+~scHoaRefRadius = 1.07;
+
+// network
+~myHoa5 = HoaNFCtrl.ar(  // exchange (reference radius)
+	~myScHoa5
+	~scHoaRefRadius,
+	AtkHoa.refRadius,
+	~scHoaOrder
+);
+::
+
+
+section:: AmbiX
+
+In the modern age of Ambisonics, link::https://iem.kug.ac.at/fileadmin/media/iem/projects/2011/ambisonics11_nachbar_zotter_sontacchi_deleflie.pdf##AmbiX:: is the encoding format most commonly found.
+
+To successfully exchange Ambisonic signals we'll need to match Ambisonic strong::order::, along with:
+list::
+## strong::ordering & normalisation::
+## strong::reference radius:: footnote::Because of the use of AmbiX encoded soundfield microphones, we can assume the reference radius in use matches that of classic Ambisonics, i.e., inf.::
+::
+
+subsection:: decoding HOA3 to AmbiX3
+
+If we're planning to use an AmbiX toolset for further processing, we'll need to strong::decode to:: AmbiX.
+
+Let's consider an HOA3 signal, with is the ATK's default for HOA:
+
+code::
+AtkHoa.defaultOrder;
+::
+
+
+The tools for the task are:
+list::
+## strong::ordering & normalisation::: link::Classes/HoaMatrixDecoder#*newFormat::
+## strong::reference radius::: link::Classes/HoaNFCtrl::
+::
+
+
+The steps are:
+
+numberedlist::
+## reset HOA3 reference radius from 1.5 to 10.0 meters footnote::See link::#decoding HOA3 to FOA#earlier discussion::.::
+## decode HOA3 to AmbiX3
+::
+
+note::You'll see we're able to omit the strong::order:: argument, as HOA3 is the ATK's default order for HOA encoding.::
+
+Here's an example:
+
+code::
+// format exchange: HOA3 >> AmbiX3
+
+// safe approx for inf - for use with HoaNFCtrl
+// this could be set to another value
+// --> if overflow, reduce radius
+~ambixRefRadius = 10.0;
+
+// design decoder to exchange (ordering, normalisation)
+~decoder = HoaMatrixDecoder.newFormat(
+	\ambix
+);
+
+// network
+~myAmbiX3 = HoaDecodeMatrix.ar(  // exchange (ordering, normalisation)
+	HoaNFCtrl.ar(  // exchange (reference radius)
+		~myHoa3,
+		AtkHoa.refRadius,
+		~ambixRefRadius
+		),
+	~decoder
+);
+::
+
+
+
+subsection:: encoding HOA3 from Ambix3
+
+If given an Ambix encoded signal, we'll need to strong::encode from:: AmbiX to HOA.
+
+Let's consider a third order AmbiX signal, which corresponds with the ATK's default HOA strong::order:::
+
+code::
+AtkHoa.defaultOrder;
+::
+
+
+The tools for the task are:
+list::
+## strong::ordering & normalisation::: link::Classes/HoaMatrixEncoder#*newFormat::
+## strong::reference radius::: link::Classes/HoaNFCtrl::
+::
+
+
+The steps are:
+
+numberedlist::
+## encode AmbiX3 to HOA3
+## reset HOA3 reference radius from 10.0 to 1.5 meters footnote::We could use link::Classes/HoaNFDist:: to set the reference radius to inf. However, if we're planning to go back and forth between the ATK and other AmbiX toolsets, using link::Classes/HoaNFCtrl:: is a better choice.::
+::
+
+note::As with link::#decoding HOA3 to AmbiX3::, you'll see we're able to omit the strong::order:: argument.::
+
+Here's an example:
+
+code::
+// format exchange: AmbiX3 >> HOA3
+
+// safe approx for inf - for use with HoaNFCtrl
+// this could be set to another value
+~ambixRefRadius = 10.0;
+
+// design encoder to exchange (ordering, normalisation)
+~encoder = HoaMatrixEncoder.newFormat(\ambix);
+
+// network
+~myHoa3 = HoaNFCtrl.ar(  // exchange (reference radius)
+	HoaEncodeMatrix.ar(  // exchange (ordering, normalisation)
+		~myAmbiX3,
+		~encoder
+	),
+	~ambixRefRadius,
+	AtkHoa.refRadius
+);
+::

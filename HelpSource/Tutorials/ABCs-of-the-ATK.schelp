@@ -996,7 +996,8 @@ Of course, if we'd like to review the strong::kinds:: of design methods availabl
 
 subsection:: Static & dynamic operations
 
-In finishing up our review of the structure of the ATK, we'll note that numerous soundfield operations are available in both emphasis::static:: and emphasis::dynamic:: forms.
+In finishing up our review of the structure of the ATK, we'll note that numerous soundfield operations are available in both emphasis::static:: and emphasis::dynamic:: forms. This is a direct result of link::Reference/ServerPluginAPI#Input%20rates
+#SuperCollider's implementation as a Music V language::, and the requirement to provide direct access to operation coefficients for inspection.
 
 Let's review a specific case: HOA beam decoding. A emphasis::beam decoder::, or link::https://en.wikipedia.org/wiki/Beamforming##beamformer::, extracts a single emphasis::beam:: from a soundfield. This soundfield operation is equivalant to sampling a soundfield with a single virtual microphone and returning the result.
 
@@ -1007,7 +1008,7 @@ definitionlist::
 ## link::Classes/HoaDecodeMatrix:: || Matrix renderer from the Ambisonic Toolkit (ATK)
 ::
 
-The first of these, link::Classes/HoaDecodeDirection::, is the ATK's dynamic HOA emphasis::beamformer:: :
+The first of these, link::Classes/HoaDecodeDirection::, is the ATK's dynamic continuous rate HOA emphasis::beamformer:: :
 
 code::
 HoaDecodeDirection.ar(in, theta, phi, radius, beamShape: 'basic', order)
@@ -1036,7 +1037,7 @@ hoaMatrix = HoaMatrixDecoder.newDirection(theta, phi, beamShape, order);
 HoaDecodeMatrix.ar(in, hoaMatrix)
 ::
 
-and differs from the dynamic beamformer, link::Classes/HoaDecodeDirection::, in that strong::theta:: and strong::phi:: are static and fixed at design time, and we're missing strong::radius::.
+and differs from the dynamic beamformer, link::Classes/HoaDecodeDirection::, in that strong::theta:: and strong::phi:: are static and fixed at initial design time, and we're missing strong::radius::.
 
 ________________
 

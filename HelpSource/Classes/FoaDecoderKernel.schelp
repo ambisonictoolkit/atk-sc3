@@ -6,6 +6,8 @@ related:: Classes/FoaDecoderMatrix, Classes/FoaDecode
 DESCRIPTION::
 Generates decoding kernels required by the Ambisonic Toolkit's first order decoder, link::Classes/FoaDecode::.
 
+You can review the overall design specifications of the ATK's kernels sets, link::https://github.com/ambisonictoolkit/atk-kernels#ambisonic-toolkit-kernels#here::, and details on the individual decoder kernels, link::https://github.com/ambisonictoolkit/atk-kernels#decoders#here::.
+
 note:: The ATK kernels are required for kernel decoding. Please see link::Classes/Atk#Installation of ATK dependencies:: for instructions.::
 
 CLASSMETHODS::

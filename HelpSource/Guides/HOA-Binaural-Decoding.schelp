@@ -82,7 +82,7 @@ list::
 ## http://audiogroup.web.th-koeln.de/ku100hrir.html
 ::
 ::
-and supports up to fifth order. For this task 3.25 is the reference radius.
+and supports up to seventh order. For this task 3.25 is the reference radius.
 
 As with the ATK's internal FOA binaural support, this is a strong::kernel:: operation, and therefore requires greater resources and introduces a small delay.
 

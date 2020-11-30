@@ -260,7 +260,7 @@ Instead, the currently live link to this dependency, code::full.tar.Z::, appears
 
 subsection:: SC-HOA
 
-Like the ATK and JoshUGens, the SC-HOA library, aka HOA for SuperCollider, has components distributed via link::https://github.com/supercollider/sc3-plugins/tree/master/source/HOAUGens##sc3-plugins::. Additionally, for a full installation, the link::https://github.com/florian-grond/SC-HOA##SC-HOA quark::, which includes kernel assets, must also be installed. This library provides support for first through fifth order Ambisonics.
+Like the ATK and JoshUGens, the SC-HOA library, aka HOA for SuperCollider, has components distributed via link::https://github.com/supercollider/sc3-plugins/tree/master/source/HOAUGens##sc3-plugins::. Additionally, for a full installation, the link::https://github.com/florian-grond/SC-HOA##SC-HOA quark::, which includes kernel assets, must also be installed. This library provides comprehensive support for first through fifth footnote::HOABinaural supports up to seventh order.:: order Ambisonics.
 
 If you've installed this quark you can search for the link::search#HOA%20Guide#HOA Guide:: overview page, or navigate to the library's distributed link::Browse#Libraries>HOA#Help::. SC-HOA includes tutorials, too, which will be link::search#HOA Tutorial#found here:: if installed.
 

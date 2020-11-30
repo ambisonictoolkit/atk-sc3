@@ -55,7 +55,7 @@ list::
 ## Integrated support for classic emphasis::First Order Ambisonics (FOA):: and modern emphasis::Higher Order Ambisonics (HOA)::.
 ## Implements the emphasis::Nearfield Controlled::, aka emphasis::Nearfield Compensated::, form of higher order Ambisonics (NFC-HOA).
 ## Ambisonic order is merely limited by system speed, channel capacity and numerical precision rather than by design. footnote::Caveat: link::Tutorials/ATK-FAQs#What%20is%20the%20highest%20order%20supported%20for%20spherical%20decomposition?#What is the highest order supported for spherical decomposition?:: ::
-## Control and synthesis of the nearfield effect of finite distance sources in both FOA and HOA.
+## Control and synthesis of the nearfield effect (NFE) of finite distance sources in both FOA and HOA, including radial beamforming.
 ## Comprehensive FOA soundfield analysis in instantaneous and time averaged forms.
 ## Ambisonic coefficients and matrices are available for inspection and manipulation in the interperter.
 ## Angular domain soundfield decomposition and recomposition.
@@ -467,9 +467,9 @@ list::
 ## emphasis::encode:: strong::HOA1:: from strong::FOA::
 ::
 
-This operation is known as emphasis::format exchange::. Review the practical examples found here:
+This operation is known as emphasis::format exchange::.
 
-TBD: FORMAT EXCHANGE EXAMPLES
+Review the practical examples found here: link::Guides/Format-Exchange::
 
 
 subsection:: Domain formats
@@ -713,7 +713,7 @@ Reviewing link::#Spatial Domains#the above::, beams of the same shape, but with 
 
 We're representing the same information, but just in another way. This different emphasis::way of expression:: is the difference between these two spatial domains: two different sets of emphasis::spatial basis functions::.
 
-So, to specify a collection of emphasis::angular basis functions::, we need to choose:
+So, to specify a collection of emphasis::angular basis functions::, we need to choose: footnote::Beams are formed at the reference radius. By including link::Classes/HoaNFCtrl:: in the graph, beams may be formed at emphasis::any:: radius.::
 
 numberedlist::
 ## strong::number of beams::

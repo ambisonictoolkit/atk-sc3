@@ -1,0 +1,117 @@
+title:: Binaural Monitoring of HOA
+summary:: Higher Order Ambisonic (HOA) binaural decoding examples
+categories:: Libraries>Ambisonic Toolkit>Guides & Tutorials
+keyword::Atk
+
+Binaural decoding is viewed as an important way to both distribute and listen critically to an Ambisonic soundfield.
+
+
+section:: HOA source, FOA toolset
+
+The FOA toolset includes optimized tools for decoding FOA for critical binaural monitoring. footnote::Review technical details link::https://github.com/ambisonictoolkit/atk-kernels#ambisonic-toolkit-kernels#here::.::
+
+To use these, we'll need to link::Guides/Format-Exchange##exchange Ambisonic formats::. We'll choose to use the idiom link::Guides/Format-Exchange#encoding%20FOA%20from%20HOA3#illustrated here::. (We can also use link::Guides/Format-Exchange#decoding%20HOA3%20to%20FOA%20HOA3#the other::)
+
+As a strong::kernel:: operation, synthesis takes more time and a delay is introduced. This delay time depends on the link::Classes/FoaDecoderKernel#-kernelSize#size of the kernel:: and the link::Classes/ServerOptions#-blockSize#blockSize:: of the link::Classes/Server:: in use. footnote::See link::Classes/FoaDecoderKernel#-kernelSize#this link:: to review calculation of the delay introduced.::
+
+You'll want to review:
+list::
+## link::Guides/Decoding-FOA#CIPIC binaural decoder::
+## link::Guides/Decoding-FOA#Synthetic binaural decoder::
+## link::Guides/ATK-SynthDef-Examples::, especially link::Guides/ATK-SynthDef-Examples#Kernel Decoders and Encoders#this:: and link::Guides/ATK-SynthDef-Examples#ATK in Non-Realtime#this::
+::
+
+As we're assuming a signal in the ATK's default HOA form, HOA3, we'll view the task as:
+
+numberedlist::
+## format exchange HOA3 to FOA
+## decode FOA to binaural
+::
+
+We'll use link::Classes/FoaDecoderKernel#*newCIPIC:: for step 2:
+
+code::
+// decode: HOA3 >> binaural (FOA)
+
+~freq = 30.0;  // highpass freq
+
+// design encoder to exchange (ordering, normalisation)
+~encoder = FoaEncoderMatrix.newHoa1;
+~decoder = FoaDecoderKernel.newCIPIC;
+
+// network
+~myBinaural = FoaDecode.ar(  // decode to binaural
+	FoaProximity.ar(  // exchange (reference radius)
+		HPF.ar(  // pre-condition FOA
+			FoaEncode.ar(  // exchange (ordering, normalisation)
+				~myHoa3.keep(AtkFoa.defaultOrder.asHoaOrder.size),  // truncate to HOA1
+				~encoder
+			),
+			~freq
+		),
+		AtkHoa.refRadius
+	),
+	~decoder
+)
+::
+After we're done, we should free the decoder kernel:
+code::
+// free kernel
+~decoder.free
+::
+
+note::
+The use of link::Classes/FoaProximity:: requires signal pre-conditioning. See the link::Classes/HoaNFProx#*ar#WARNING here::.
+::
+
+
+section:: SC-HOA library
+
+The link::Tutorials/ABCs-of-the-ATK#SC-HOA#SC-HOA library:: includes a number of binaural decoders we can use with the ATK's HOA signal set.
+
+We should approach the task of exchanging signals with the link::Tutorials/ABCs-of-the-ATK#SC-HOA#SC-HOA library:: as the link::Guides/Format-Exchange#decoding HOA7 to SC-HOA5#problem described here::. In particular, we need to make sure that we're matching the expected encoding format reference radius.
+
+
+subsection:: HOABinaural
+
+The HOABinaural decoder uses HRIR measurements made at 3.25 meters, footnote::
+See:
+list::
+## ambitools link::http://www.sekisushai.net/ambitools/binaural-rendering-with-jconvolver/##manual page::.
+## Bernschütz, Benjamin. "A Spherical Far Field HRIR/HRTF Compilation of the Neumann KU 100", Proceedings of the 40th Italian (AIA) Annual Conference on Acoustics and the 39th German Annual Conference on Acoustics (DAGA) Conference on Acoustics. 2013.
+## http://audiogroup.web.th-koeln.de/ku100hrir.html
+::
+::
+and supports up to fifth order. For this task 3.25 is the reference radius.
+
+As with the ATK's internal FOA binaural support, this is a strong::kernel:: operation, and therefore requires greater resources and introduces a small delay.
+
+If we've installed the link::Tutorials/ABCs-of-the-ATK#SC-HOA#SC-HOA library::, this link::search#Exercise_03_HOA_decoding_for_monitoring#search:: will return an example illustrating the use of HOABinaural.
+
+
+We'll use the ATK's default HOA form, HOA3. The steps will be:
+
+numberedlist::
+## format exchange HOA3 to SC-HOA3 (reference radius = 3.25)
+## decode SC-HOA3 (reference radius = 3.25) to binaural
+::
+
+note::
+You'll need to review the examples found link::search#Exercise_03_HOA_decoding_for_monitoring#here:: to successfully use HOABinaural. In particular, you'll need to correctly load and free the required filter strong::kernels::.
+::
+
+code::
+// decode: HOA3 >> binaural (HOA)
+
+~scHoaRefRadius = 3.25;  // radius of HRIR measurement array
+
+// network
+~myBinaural = HOABinaural.ar(  // decode to binaural
+	AtkHoa.defaultOrder,
+	HoaNFCtrl.ar(  // exchange (reference radius)
+		~myHoa3,
+		AtkHoa.refRadius,
+		~scHoaRefRadius
+	)
+);
+::

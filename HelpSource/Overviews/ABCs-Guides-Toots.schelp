@@ -35,5 +35,7 @@ definitionlist::
 
 ## link::Guides/HOA-Stereo-Decoding:: || Higher Order Ambisonic (HOA) stereo decoding examples
 
+## link::Guides/HOA-Binaural-Decoding:: || Higher Order Ambisonic (HOA) binaural decoding examples
+
 ## link::Guides/Guide-to-ATK-Matrix-Files:: || A guide to reading, writing, and storing ATK matrices
 ::

@@ -33,5 +33,7 @@ section:: Going Deeper
 definitionlist::
 ## link::Guides/Format-Exchange:: || Ambisonic format exchange examples
 
+## link::Guides/HOA-Stereo-Decoding:: || Higher Order Ambisonic (HOA) stereo decoding examples
+
 ## link::Guides/Guide-to-ATK-Matrix-Files:: || A guide to reading, writing, and storing ATK matrices
 ::

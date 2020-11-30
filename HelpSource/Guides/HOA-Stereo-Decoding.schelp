@@ -1,0 +1,123 @@
+title:: Stereo Monitoring of HOA
+summary:: Higher Order Ambisonic (HOA) stereo decoding examples
+categories:: Libraries>Ambisonic Toolkit>Guides & Tutorials
+keyword::Atk
+
+The original architects of the Ambisonic framework designed the system to be emphasis::hierarchical:: in terms of emphasis::workflow:: and emphasis::distribution::. In other words when creating a work encoded as an Ambisonic soundfield, the creator is making a work for multiple target monitoring arrays, which are to be determined at a later date.
+
+This is one of the most convenient aspects of the Ambisonic technique.
+
+When we are making a work emphasis::for HOA::, we are also making a work for two channel emphasis::stereo::. We do have some different choices as to emphasis::what kind:: of stereo that will be. The page reviews two for now.
+
+
+section:: HOA source, FOA toolset
+
+The FOA toolset includes the classic tools we need to synthesize signals for stereo loudspeaker playback.
+
+To use these, we'll need to link::Guides/Format-Exchange##exchange Ambisonic formats::. We'll choose to use the idiom link::Guides/Format-Exchange#encoding%20FOA%20from%20HOA3#illustrated here::. (We can also use link::Guides/Format-Exchange#decoding%20HOA3%20to%20FOA%20HOA3#the other::)
+
+
+subsection:: Virtual stereo microphones
+
+Synthesizing first order stereo microphones is a strong::matrix:: operation, and is therefore quick and inexpensive. We also have many virtual microphone array choices.
+
+You'll want to review:
+list::
+## link::Guides/Decoding-FOA#Virtual microphone stereo decoder::
+::
+
+This example assumes a signal in the ATK's default HOA form, HOA3. We'll view the task as:
+
+numberedlist::
+## format exchange HOA3 to FOA
+## decode FOA to stereo
+::
+
+We'll use link::Classes/FoaDecoderMatrix#*newStereo:: for step 2:
+
+code::
+// decode: HOA3 >> stereo
+
+// first order cardioids at 131 deg
+~angle = (131/2).degrad;
+~pattern = 0.5;
+
+~freq = 30.0;  // highpass freq
+
+// design encoder to exchange (ordering, normalisation)
+~encoder = FoaEncoderMatrix.newHoa1;
+~decoder = FoaDecoderMatrix.newStereo(~angle, ~pattern);
+
+// network
+~myFoa = FoaDecode.ar(	  // decode to stereo
+	FoaProximity.ar(  // exchange (reference radius)
+		HPF.ar(  // pre-condition FOA
+			FoaEncode.ar(  // exchange (ordering, normalisation)
+				~myHoa3.keep(AtkFoa.defaultOrder.asHoaOrder.size),  // truncate to HOA1
+				~encoder
+			),
+			~freq
+		),
+		AtkHoa.refRadius
+	),
+	~decoder
+)
+::
+note::
+The use of link::Classes/FoaProximity:: requires signal pre-conditioning. See the link::Classes/HoaNFProx#*ar#WARNING here::.
+::
+
+subsection:: Ambisonic UHJ stereo
+
+link::http://en.wikipedia.org/wiki/Ambisonic_UHJ_format##Ambisonic UHJ:: is the Ambisonic framework's native choice for stereo mastering and monitoring.
+
+As a strong::kernel:: operation, synthesis takes more time and a delay is introduced. This delay time depends on the link::Classes/FoaDecoderKernel#-kernelSize#size of the kernel:: and the link::Classes/ServerOptions#-blockSize#blockSize:: of the link::Classes/Server:: in use. footnote::See link::Classes/FoaDecoderKernel#-kernelSize#this link:: to review calculation of the delay introduced.::
+
+You'll want to review:
+list::
+## link::Guides/Decoding-FOA#Ambisonic UHJ stereo decoder::
+## link::Guides/ATK-SynthDef-Examples::, especially link::Guides/ATK-SynthDef-Examples#Kernel Decoders and Encoders#this:: and link::Guides/ATK-SynthDef-Examples#ATK in Non-Realtime#this::
+::
+
+As we're assuming a signal in the ATK's default HOA form, HOA3, we'll view the task as:
+
+numberedlist::
+## format exchange HOA3 to FOA
+## decode FOA to UHJ stereo
+::
+
+We'll use link::Classes/FoaDecoderKernel#*newUHJ:: for step 2:
+
+code::
+// decode: HOA3 >> stereo
+
+~freq = 30.0;  // highpass freq
+
+// design encoder to exchange (ordering, normalisation)
+~encoder = FoaEncoderMatrix.newHoa1;
+~decoder = FoaDecoderKernel.newUHJ;
+
+// network
+~myFoa = FoaDecode.ar(	  // decode to stereo
+	FoaProximity.ar(  // exchange (reference radius)
+		HPF.ar(  // pre-condition FOA
+			FoaEncode.ar(  // exchange (ordering, normalisation)
+				~myHoa3.keep(AtkFoa.defaultOrder.asHoaOrder.size),  // truncate to HOA1
+				~encoder
+			),
+			~freq
+		),
+		AtkHoa.refRadius
+	),
+	~decoder
+)
+::
+After we're done, we should free the decoder kernel:
+code::
+// free kernel
+~decoder.free
+::
+
+note::
+The use of link::Classes/FoaProximity:: requires signal pre-conditioning. See the link::Classes/HoaNFProx#*ar#WARNING here::.
+::

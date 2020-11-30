@@ -4,7 +4,7 @@ categories:: Libraries>Ambisonic Toolkit>UGens>FOA>Transformer, UGens>Multichann
 related:: Classes/FoaXformerMatrix, Classes/FoaTransform
 
 DESCRIPTION::
-Transforms (spatial domain filter) a first order ambisonic signal (B-format). link::Classes/FoaXform:: applies static transforms, for dynamic transforms see link::Classes/FoaTransform::.
+Transforms (spatial domain filter) a first order ambisonic signal (B-format). link::Classes/FoaXform:: provides static initial rate transforms, for continuously varying dynamic transforms transforms see link::Classes/FoaTransform::.
 
 
 

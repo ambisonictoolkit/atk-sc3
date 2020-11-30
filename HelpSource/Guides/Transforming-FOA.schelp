@@ -22,7 +22,7 @@ note:: If you choose a kernel decoder, link::Classes/FoaDecoderKernel::, be sure
 
 section:: Dynamic examples
 
-Dynamic transforms are rendered via UGens accepting time varying arguments. The below examples use the link::Classes/FoaTransform:: wrapper as a convenience. Users may choose to employ the underlying wrapped UGen, as desired. These are noted for each example below.
+Dynamic transforms are rendered via UGens accepting continuously varying arguments. The below examples use the link::Classes/FoaTransform:: wrapper as a convenience. Users may choose to employ the underlying wrapped UGen, as desired. These are noted for each example below.
 
 
 subsection:: Rotate (soundfile)

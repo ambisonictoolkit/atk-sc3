@@ -28,7 +28,7 @@ Azimuth angle, in radians: pi to -pi
 argument:: phi
 Elevation anglein radians: pi/2 to -pi/2
 
-discussion:: This is the classic Ambisonic encoding (panning) function. SuperCollider's inbuilt link::Classes/PanB:: and the Ambisonic Toolkit's link::Classes/FoaPanB:: implement this encoder as a UGen, and allow dynamically changing strong::theta:: and strong::phi::.
+discussion:: This is the classic Ambisonic encoding (panning) function. SuperCollider's inbuilt link::Classes/PanB:: and the Ambisonic Toolkit's link::Classes/FoaPanB:: implement this encoder as a UGen, and provide dynamically changing strong::theta:: and strong::phi:: at the audio and control rates.
 
 
 

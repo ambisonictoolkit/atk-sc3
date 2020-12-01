@@ -56,7 +56,7 @@ list::
 ## Implements the emphasis::Nearfield Controlled::, aka emphasis::Nearfield Compensated::, form of higher order Ambisonics (NFC-HOA).
 ## Ambisonic order is merely limited by system speed, channel capacity and numerical precision rather than by design. footnote::Caveat: link::Tutorials/ATK-FAQs#What%20is%20the%20highest%20order%20supported%20for%20spherical%20decomposition?#What is the highest order supported for spherical decomposition?:: ::
 ## Control and synthesis of the nearfield effect (NFE) of finite distance sources in both FOA and HOA, including radial beamforming.
-## Comprehensive FOA soundfield analysis in instantaneous and time averaged forms.
+## Soundfield feature sensing & analysis in instantaneous and time averaged forms.
 ## Ambisonic coefficients and matrices are available for inspection and manipulation in the interperter.
 ## Angular domain soundfield decomposition and recomposition.
 ## Analysis of transformer and decoder matrices.

@@ -314,7 +314,8 @@ code::
 // format exchange: HOA7 >> SC-HOA5
 
 ~scHoaOrder = 5;  // maximum supported order for SC-HOA library
-~scHoaRefRadius = 1.07;
+~scHoaRefRadius = 1.07;  // exact (see SC-HOA HOAEncoder default)
+// ~scHoaRefRadius = 1.0;  // ambitoos manual
 
 // network
 ~myScHoa5 = HoaNFCtrl.ar(  // exchange (reference radius)
@@ -340,7 +341,8 @@ code::
 // format exchange: SC-HOA5 >> HOA5
 
 ~scHoaOrder = AtkHoa.detectOrder(~myScHoa5.size);  // detect SC-HOA order
-~scHoaRefRadius = 1.07;
+~scHoaRefRadius = 1.07;  // exact (see SC-HOA HOAEncoder default)
+// ~scHoaRefRadius = 1.0;  // ambitoos manual
 
 // network
 ~myHoa5 = HoaNFCtrl.ar(  // exchange (reference radius)

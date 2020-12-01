@@ -437,7 +437,25 @@ list::
 ## strong::order:: : 1, 2, 3, 4, 5
 ## strong::ordering:: : link::https://en.wikipedia.org/wiki/Ambisonic_data_exchange_formats#ACN#ACN::
 ## strong::normalisation:: : link::https://en.wikipedia.org/wiki/Ambisonic_data_exchange_formats#N3D#N3D::
-## strong::reference radius:: : 1.07 meters footnote::This value is listed as the default value for the argument named strong::speaker_radius:: for the UGen HOAEncoder. If the SC-HOA quark is installed installed, see Help document. Or, link::https://github.com/florian-grond/SC-HOA/blob/master/classes/HOAEncoder.sc#L2#source code::. ::
+## strong::reference radius:: : 1.0 meters footnote::
+SC-HOA is a SuperCollider wrapper for link::http://www.sekisushai.net/ambitools/##ambitools::.
+
+From the documentation for ambitools (link: TBD):
+
+"In the current implementation, these [encoding] filters are stabilized with near field compensation filter at radius r_spk = 1 m."
+
+The value listed as the default strong::speaker_radius:: for the UGen HOAEncoder is 1.07 meters, however. (If the SC-HOA quark is installed installed, see Help document. Or, link::https://github.com/florian-grond/SC-HOA/blob/master/classes/HOAEncoder.sc#L2#source code::.)
+
+In a personal communication to Joseph Anderson (cc: Florian Grond), dated Tuesday, 1 December 2020, Pierre Lecomte writes:
+
+"I confirm that the near field and near field compensation filters are implemented in ambitools. The default near field compensation distance was set to r_spk=1.07 m, as it was the radius of the Lebedev spherical loudspeaker array I've built during my PhD."
+
+note::
+For our purposes, using either 1.0 or 1.07 meters will be fine for a one-way link::Guides/Format-Exchange#SC-HOA#format exchange::.::
+warning::
+If, however, we are planning to pass signals back and forth between SC-HOA (ambitools), it is best to use 1.07 meters. Otherwise there is the possibility of continually adding (or subtracting) proximity, which could easilty result in overflow. (That would be bad!)
+::
+::
 ::
 ::
 

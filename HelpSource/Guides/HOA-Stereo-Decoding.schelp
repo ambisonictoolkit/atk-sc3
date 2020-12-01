@@ -14,7 +14,7 @@ section:: HOA source, FOA toolset
 
 The FOA toolset includes the classic tools we need to synthesize signals for stereo loudspeaker playback.
 
-To use these, we'll need to link::Guides/Format-Exchange##exchange Ambisonic formats::. We'll choose to use the idiom link::Guides/Format-Exchange#encoding%20FOA%20from%20HOA3#illustrated here::. (We can also use link::Guides/Format-Exchange#decoding%20HOA3%20to%20FOA%20HOA3#the other::)
+To use these, we'll need to link::Guides/Format-Exchange##exchange Ambisonic formats::. We'll choose to use the idiom link::Guides/Format-Exchange#encode%20FOA%20from%20HOA3#illustrated here::. (We can also use link::Guides/Format-Exchange#decode%20HOA3%20to%20FOA%20HOA3#the other::)
 
 
 subsection:: Virtual stereo microphones

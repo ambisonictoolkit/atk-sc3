@@ -10,7 +10,7 @@ section:: HOA source, FOA toolset
 
 The FOA toolset includes optimized tools for decoding FOA for critical binaural monitoring. footnote::Review technical details link::https://github.com/ambisonictoolkit/atk-kernels#ambisonic-toolkit-kernels#here::.::
 
-To use these, we'll need to link::Guides/Format-Exchange##exchange Ambisonic formats::. We'll choose to use the idiom link::Guides/Format-Exchange#encoding%20FOA%20from%20HOA3#illustrated here::. (We can also use link::Guides/Format-Exchange#decoding%20HOA3%20to%20FOA%20HOA3#the other::)
+To use these, we'll need to link::Guides/Format-Exchange##exchange Ambisonic formats::. We'll choose to use the idiom link::Guides/Format-Exchange#encode%20FOA%20from%20HOA3#illustrated here::. (We can also use link::Guides/Format-Exchange#decode%20HOA3%20to%20FOA%20HOA3#the other::)
 
 As a strong::kernel:: operation, synthesis takes more time and a delay is introduced. This delay time depends on the link::Classes/FoaDecoderKernel#-kernelSize#size of the kernel:: and the link::Classes/ServerOptions#-blockSize#blockSize:: of the link::Classes/Server:: in use. footnote::See link::Classes/FoaDecoderKernel#-kernelSize#this link:: to review calculation of the delay introduced.::
 
@@ -69,7 +69,7 @@ section:: SC-HOA library
 
 The link::Tutorials/ABCs-of-the-ATK#SC-HOA#SC-HOA library:: includes a number of binaural decoders we can use with the ATK's HOA signal set.
 
-We should approach the task of exchanging signals with the link::Tutorials/ABCs-of-the-ATK#SC-HOA#SC-HOA library:: as the link::Guides/Format-Exchange#decoding HOA7 to SC-HOA5#problem described here::. In particular, we need to make sure that we're matching the expected encoding format reference radius.
+We should approach the task of exchanging signals with the link::Tutorials/ABCs-of-the-ATK#SC-HOA#SC-HOA library:: as the link::Guides/Format-Exchange#decode HOA7 to SC-HOA5#problem described here::. In particular, we need to make sure that we're matching the expected encoding format reference radius.
 
 
 subsection:: HOABinaural

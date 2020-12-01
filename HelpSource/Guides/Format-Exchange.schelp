@@ -30,7 +30,7 @@ Two different, but equivalent forms are expressed here. In choosing which form t
 
 note::The question to ask: emphasis::Are we working in FOA or HOA1?::::
 
-subsection:: decoding FOA to HOA1
+subsection:: decode FOA to HOA1
 
 FOA and HOA1 are both first order signal sets, so we know this aspect is already matched.
 
@@ -98,7 +98,7 @@ code::
 ::
 
 
-subsection:: encoding HOA1 from FOA
+subsection:: encode HOA1 from FOA
 
 Viewed as strong::encoding HOA1:: emphasis::from FOA::, we'll use the HOA toolset.
 
@@ -148,7 +148,7 @@ Let's see how to express moving from the ATK's default higher order set, HOA3, a
 
 note::The question to ask: emphasis::Are we working in FOA or HOA3?::::
 
-subsection:: decoding HOA3 to FOA
+subsection:: decode HOA3 to FOA
 
 Viewed as strong::decoding HOA3:: emphasis::to FOA::, we'll use the HOA3 toolset to target FOA.
 
@@ -216,7 +216,7 @@ code::
 ::
 
 
-subsection:: encoding FOA from HOA3
+subsection:: encode FOA from HOA3
 
 Viewed as strong::encoding FOA:: emphasis::from HOA3::, we'll use the FOA toolset to target HOA3.
 
@@ -292,7 +292,7 @@ list::
 ::
 
 
-subsection:: decoding HOA7 to SC-HOA5
+subsection:: decode HOA7 to SC-HOA5
 
 We will strong::decode to:: the link::Tutorials/ABCs-of-the-ATK#SC-HOA#SC-HOA library:: signal set if we'd like to use the tools found there.
 
@@ -326,7 +326,7 @@ code::
 ::
 
 
-subsection:: encoding HOA5 from SC-HOA5
+subsection:: encode HOA5 from SC-HOA5
 
 strong::Encoding from:: the link::Tutorials/ABCs-of-the-ATK#SC-HOA#SC-HOA library:: signal set is even more simple.
 
@@ -362,7 +362,7 @@ list::
 ## strong::reference radius:: footnote::Because of the use of AmbiX encoded soundfield microphones, we can assume the reference radius in use matches that of classic Ambisonics, i.e., inf.::
 ::
 
-subsection:: decoding HOA3 to AmbiX3
+subsection:: decode HOA3 to AmbiX3
 
 If we're planning to use an AmbiX toolset for further processing, we'll need to strong::decode to:: AmbiX.
 
@@ -417,7 +417,7 @@ code::
 
 
 
-subsection:: encoding HOA3 from Ambix3
+subsection:: encode HOA3 from Ambix3
 
 If given an Ambix encoded signal, we'll need to strong::encode from:: AmbiX to HOA.
 

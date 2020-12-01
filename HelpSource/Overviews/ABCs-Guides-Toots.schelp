@@ -9,6 +9,8 @@ Use this overview to find your way around the ATK's Guides and Tutorials.
 section:: Theory
 
 definitionlist::
+## link::Tutorials/ATK-Enlightenment:: || On ways to think Ambisonic, a Novice's guide
+
 ## link::Guides/ATK-Glossary:: || Glossary of some relevant Ambisonic and Ambisonic Toolkit words
 ::
 
@@ -36,6 +38,8 @@ definitionlist::
 ## link::Guides/HOA-Stereo-Decoding:: || Higher Order Ambisonic (HOA) stereo decoding examples
 
 ## link::Guides/HOA-Binaural-Decoding:: || Higher Order Ambisonic (HOA) binaural decoding examples
+
+## link::Guides/HOA-Radial:: || Higher Order Ambisonic (HOA) radial nearfield effect examples
 
 ## link::Guides/Guide-to-ATK-Matrix-Files:: || A guide to reading, writing, and storing ATK matrices
 ::

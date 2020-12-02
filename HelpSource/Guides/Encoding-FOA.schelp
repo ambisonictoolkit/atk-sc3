@@ -17,10 +17,14 @@ Choose a decoder suitable for your system, as illustrated link::Guides/Intro-FOA
 note:: If you choose a kernel decoder, link::Classes/FoaDecoderKernel::, be sure to free the kernel after use. ::
 
 
-section:: Omnidirectional encoder
+section:: Mono source
+
+subsection:: Omnidirectional encoder
 
 
-Encoded as an omnidirectional soundfield, link::Classes/PinkNoise:: is used as the example sound source. In a well aligned, dampend studio environment, this usually sounds "in the head". link::Classes/FoaPush:: is used to "push" the omnidirectional soundfield so that it becomes a planewave (infinite distance, in an anechoic environment) arriving from some direction.
+Encoded as an omnidirectional soundfield, link::Classes/PinkNoise:: is used as the example sound source.
+
+In a well aligned, dampend studio environment, this usually sounds "in the head". link::Classes/FoaPush:: is used to "push" the omnidirectional soundfield so that it becomes a planewave (infinite distance, in an anechoic environment) arriving from some direction.
 
 The soundfield is controlled by link::Classes/MouseX:: and link::Classes/MouseY::, where link::Classes/MouseX:: specifies the incident azimuth angle (pi to -pi; left to right of display) and link::Classes/MouseY:: the link::Classes/FoaPush:: angle (0 to pi/2; bottom to top of display). With the mouse at the bottom of the display, the soundfield remains omnidirectional. Placed at the top of the display, the soundfield becomes directional, and varying left/right position will vary the incident azimuth of the resulting planewave.
 
@@ -87,7 +91,7 @@ code::
 
 
 
-section:: Frequency spreading encoder
+subsection:: Frequency spreading encoder
 
 
 Encoded as a frequency spread soundfield, link::Classes/PinkNoise:: is used as the example sound source. This sounds as spread across the soundfield, with the various frequency components appearing in various places. link::Classes/FoaPush:: is used to "push" the omnidirectional soundfield so that it becomes a planewave (infinite distance, in an anechoic environment) arriving from some direction.
@@ -161,7 +165,7 @@ code::
 ::
 
 
-section:: Frequency diffusion encoder
+subsection:: Frequency diffusion encoder
 
 
 Encoded as a frequency diffused soundfield, link::Classes/PinkNoise:: is used as the example sound source. This sounds as diffused across the soundfield, with the various frequency components appearing in various places, with various phases. link::Classes/FoaPush:: is used to "push" the omnidirectional soundfield so that it becomes a planewave (infinite distance, in an anechoic environment) arriving from some direction.
@@ -235,150 +239,9 @@ code::
 ::
 
 
-section:: A to B encoder
+section:: Stereo source
 
-
-Here we encode four channels of decorrelated link::Classes/PinkNoise:: as a decorrelated soundfield, resulting in a maximally diffuse soundfield. link::Classes/FoaPush:: is used to "push" the soundfield so that it becomes a planewave (infinite distance, in an anechoic environment) arriving from some direction. This technique gives the opportunity to continuously modulate between a directional and a diffuse soundfield.
-
-The soundfield is controlled by link::Classes/MouseX:: and link::Classes/MouseY::, where link::Classes/MouseX:: specifies the incident azimuth angle (pi to -pi; left to right of display) and link::Classes/MouseY:: the link::Classes/FoaPush:: angle (0 to pi/2; bottom to top of display). With the mouse at the bottom of the display, the soundfield remains omnidirectional. Placed at the top of the display, the soundfield becomes directional, and varying left/right position will vary the incident azimuth of the resulting planewave.
-
-If you haven't already choosen a code:: ~decoder:: and defined code:: ~renderDecode ::, do so link::#Choose a decoder#now::.
-
-note:: A matrix type encoder, see link::Classes/FoaEncoderMatrix#*newAtoB:: for further details.::
-
-
-code::
-// ------------------------------------------------------------
-// A to B encoder
-// decorrelated pink noise source
-
-
-// define encoder matrix
-~encoder = FoaEncoderMatrix.newAtoB
-
-// inspect
-~encoder.kind
-~encoder.numChannels
-~encoder.dirChannels
-
-(
-{
-	var sig;				// audio signal
-	var angle, azim;			// angle and azimuth control
-
-
-	// display encoder and decoder
-	"Ambisonic encoding via % encoder".format(~encoder.kind).postln;
-	"Ambisonic decoding via % decoder".format(~decoder.kind).postln;
-
-	// angle ---> top 		= push to plane wave
-	//		  bottom	= omni-directional
-	angle = MouseY.kr(pi/2, 0);
-
-	// azimuth -> hard left 	= back
-	//		  centre 	= centre
-	//		  hard right 	= back
-	azim = MouseX.kr(pi, -pi);
-
-	// ------------------------------------------------------------
-	// test sig
-	sig = -3.dbamp * PinkNoise.ar([1, 1, 1, 1]); // 4 channels decorrelated pink noise
-
-
-	// ------------------------------------------------------------
-	// encode
-	sig = FoaEncode.ar(sig, ~encoder);
-
-	// ------------------------------------------------------------
-	// transform
-	sig = FoaTransform.ar(sig, 'push', angle, azim);
-
-
-
-	// ------------------------------------------------------------
-	// decode (via ~renderDecode)
-	~renderDecode.value(sig, ~decoder)
-
-}.scope;
-)
-// ------------------------------------------------------------
-::
-
-section:: A to B encoder (soundfile)
-
-This example is somewhat unconvential as regards the literature. Four microphones (omnis) are place around the performer in a tetrahedron. This is then matrixed into B-format.
-
-As the performer rotates and moves about, the image shifts through the sound-scene. In a compositional context, link::Classes/FoaPush:: could be used to control the soundfield.
-
-If you haven't already choosen a code:: ~decoder:: and defined code:: ~renderDecode ::, do so link::#Choose a decoder#now::.
-
-note:: A matrix type encoder, see link::Classes/FoaEncoderMatrix#*newAtoB:: for further details.::
-
-
-code::
-// ------------------------------------------------------------
-// A to B encoder
-// A-format soundfile read from disk
-
-// define encoder matrix
-~encoder = FoaEncoderMatrix.newAtoB('flrd')   // for Thomas
-~encoder = FoaEncoderMatrix.newAtoB('flr')    // for Cross
-
-
-// inspect
-~encoder.kind
-~encoder.numChannels
-~encoder.dirChannels.raddeg
-
-
-// read a whole sound into memory
-// remember to free the buffer later!
-// (boot the server, if you haven't!)
-~sndbuf = Buffer.read(s, Atk.userSoundsDir ++ "/a-format/Thomas_Mackay.wav")
-~sndbuf = Buffer.read(s, Atk.userSoundsDir ++ "/a-format/Cross_Tenor_Sax.wav")
-
-
-(
-{
-	var sig;                            // audio signal
-
-
-	// display encoder and decoder
-	"Ambisonic encoding via % encoder".format(~encoder.kind).postln;
-	"Ambisonic decoding via % decoder".format(~decoder.kind).postln;
-
-	// ------------------------------------------------------------
-	// test sig
-	sig = PlayBuf.ar(~sndbuf.numChannels, ~sndbuf, BufRateScale.kr(~sndbuf), doneAction:2);   // soundfile
-
-	// ------------------------------------------------------------
-	// encode
-	sig = FoaEncode.ar(sig, ~encoder);
-
-
-	// ------------------------------------------------------------
-	// decode (via ~renderDecode)
-	~renderDecode.value(sig, ~decoder)
-
-}.scope;
-)
-
-// free buffer
-~sndbuf.free
-// ------------------------------------------------------------
-::
-
-note:: strong::Soundfile Credits::
-
-list::
-## Niall Thomas, "Rob Mackay: flute improvisations," [unpublished recording]
-## David Cross, "Tenor saxophone improvisations," [unpublished recording]
-::
-
-::
-
-
-section:: Stereophonic encoder
+subsection:: Stereophonic encoder
 
 In this example we first encode a single channel of link::Classes/PinkNoise:: into a stereophonic signal with link::Classes/Pan2::. link::Classes/FoaZoom:: is then used to balance the soundfield across the x-axis (front/back).
 
@@ -454,7 +317,7 @@ code::
 // ------------------------------------------------------------
 ::
 
-section:: Stereophonic encoder (soundfile)
+subsection:: Stereophonic encoder (soundfile)
 
 For this example we'll look at encoding stereo soundfiles.
 
@@ -535,7 +398,7 @@ list::
 ::
 
 
-section:: Super Stereo encoder (soundfile)
+subsection:: Super Stereo encoder (soundfile)
 
 Super Stereo footnote:: See: http://en.wikipedia.org/wiki/Ambisonics#Super_stereo :: is the classic Ambisonic method to encode stereophonic files, and is considered to be optimal for frontal stereo encoding.
 
@@ -615,7 +478,7 @@ list::
 ::
 
 
-section:: Ambisonic UHJ stereo encoder (soundfile)
+subsection:: Ambisonic UHJ stereo encoder (soundfile)
 
 link::http://en.wikipedia.org/wiki/Ambisonic_UHJ_format##Ambisonic UHJ:: is the stereo format for Ambisonics.
 
@@ -695,7 +558,302 @@ list::
 ::
 
 
-section:: ZoomH2 encoder (soundfile)
+section:: Tetrahedral source
+
+subsection:: A to B encoder
+
+
+Here we encode four channels of decorrelated link::Classes/PinkNoise:: as a decorrelated soundfield, resulting in a maximally diffuse soundfield. link::Classes/FoaPush:: is used to "push" the soundfield so that it becomes a planewave (infinite distance, in an anechoic environment) arriving from some direction. This technique gives the opportunity to continuously modulate between a directional and a diffuse soundfield.
+
+The soundfield is controlled by link::Classes/MouseX:: and link::Classes/MouseY::, where link::Classes/MouseX:: specifies the incident azimuth angle (pi to -pi; left to right of display) and link::Classes/MouseY:: the link::Classes/FoaPush:: angle (0 to pi/2; bottom to top of display). With the mouse at the bottom of the display, the soundfield remains omnidirectional. Placed at the top of the display, the soundfield becomes directional, and varying left/right position will vary the incident azimuth of the resulting planewave.
+
+If you haven't already choosen a code:: ~decoder:: and defined code:: ~renderDecode ::, do so link::#Choose a decoder#now::.
+
+note:: A matrix type encoder, see link::Classes/FoaEncoderMatrix#*newAtoB:: for further details.::
+
+
+code::
+// ------------------------------------------------------------
+// A to B encoder
+// decorrelated pink noise source
+
+
+// define encoder matrix
+~encoder = FoaEncoderMatrix.newAtoB
+
+// inspect
+~encoder.kind
+~encoder.numChannels
+~encoder.dirChannels
+
+(
+{
+	var sig;				// audio signal
+	var angle, azim;			// angle and azimuth control
+
+
+	// display encoder and decoder
+	"Ambisonic encoding via % encoder".format(~encoder.kind).postln;
+	"Ambisonic decoding via % decoder".format(~decoder.kind).postln;
+
+	// angle ---> top 		= push to plane wave
+	//		  bottom	= omni-directional
+	angle = MouseY.kr(pi/2, 0);
+
+	// azimuth -> hard left 	= back
+	//		  centre 	= centre
+	//		  hard right 	= back
+	azim = MouseX.kr(pi, -pi);
+
+	// ------------------------------------------------------------
+	// test sig
+	sig = -3.dbamp * PinkNoise.ar([1, 1, 1, 1]); // 4 channels decorrelated pink noise
+
+
+	// ------------------------------------------------------------
+	// encode
+	sig = FoaEncode.ar(sig, ~encoder);
+
+	// ------------------------------------------------------------
+	// transform
+	sig = FoaTransform.ar(sig, 'push', angle, azim);
+
+
+
+	// ------------------------------------------------------------
+	// decode (via ~renderDecode)
+	~renderDecode.value(sig, ~decoder)
+
+}.scope;
+)
+// ------------------------------------------------------------
+::
+
+subsection:: A to B encoder (soundfile)
+
+This example is somewhat unconvential as regards the literature. Four microphones (omnis) are place around the performer in a tetrahedron. This is then matrixed into B-format.
+
+As the performer rotates and moves about, the image shifts through the sound-scene. In a compositional context, link::Classes/FoaPush:: could be used to control the soundfield.
+
+If you haven't already choosen a code:: ~decoder:: and defined code:: ~renderDecode ::, do so link::#Choose a decoder#now::.
+
+note:: A matrix type encoder, see link::Classes/FoaEncoderMatrix#*newAtoB:: for further details.::
+
+
+code::
+// ------------------------------------------------------------
+// A to B encoder
+// A-format soundfile read from disk
+
+// define encoder matrix
+~encoder = FoaEncoderMatrix.newAtoB('flrd')   // for Thomas
+~encoder = FoaEncoderMatrix.newAtoB('flr')    // for Cross
+
+
+// inspect
+~encoder.kind
+~encoder.numChannels
+~encoder.dirChannels.raddeg
+
+
+// read a whole sound into memory
+// remember to free the buffer later!
+// (boot the server, if you haven't!)
+~sndbuf = Buffer.read(s, Atk.userSoundsDir ++ "/a-format/Thomas_Mackay.wav")
+~sndbuf = Buffer.read(s, Atk.userSoundsDir ++ "/a-format/Cross_Tenor_Sax.wav")
+
+
+(
+{
+	var sig;                            // audio signal
+
+
+	// display encoder and decoder
+	"Ambisonic encoding via % encoder".format(~encoder.kind).postln;
+	"Ambisonic decoding via % decoder".format(~decoder.kind).postln;
+
+	// ------------------------------------------------------------
+	// test sig
+	sig = PlayBuf.ar(~sndbuf.numChannels, ~sndbuf, BufRateScale.kr(~sndbuf), doneAction:2);   // soundfile
+
+	// ------------------------------------------------------------
+	// encode
+	sig = FoaEncode.ar(sig, ~encoder);
+
+
+	// ------------------------------------------------------------
+	// decode (via ~renderDecode)
+	~renderDecode.value(sig, ~decoder)
+
+}.scope;
+)
+
+// free buffer
+~sndbuf.free
+// ------------------------------------------------------------
+::
+
+note:: strong::Soundfile Credits::
+
+list::
+## Niall Thomas, "Rob Mackay: flute improvisations," [unpublished recording]
+## David Cross, "Tenor saxophone improvisations," [unpublished recording]
+::
+
+::
+
+
+section:: 2D & 3D surround source
+
+subsection:: Pantophonic encoder (soundfile)
+
+The pantophonic encoder may be used to transcode from one format to another. This example transcodes an octophonic recording to the decoder you've chosen.
+
+If you haven't already choosen a code:: ~decoder:: and defined code:: ~renderDecode ::, do so link::#Choose a decoder#now::.
+
+note:: A matrix type encoder, see link::Classes/FoaEncoderMatrix#*newPanto:: for further details.::
+
+
+code::
+// ------------------------------------------------------------
+// pantophonic (8-channel) encoder
+// pantophonic (8-channel) soundfile read from disk
+
+
+// define encoder matrix
+~encoder = FoaEncoderMatrix.newPanto(8, 'flat')   // choose for Mackay
+~encoder = FoaEncoderMatrix.newPanto(8, 'point')  // choose for Young
+
+
+// inspect
+~encoder.kind
+~encoder.numChannels
+~encoder.dirChannels.raddeg
+
+
+// read a whole sound into memory
+// remember to free the buffer later!
+// (boot the server, if you haven't!)
+~sndbuf = Buffer.read(s, Atk.userSoundsDir ++ "/multichannel/Mackay-Augustines_Message.wav")
+~sndbuf = Buffer.read(s, Atk.userSoundsDir ++ "/multichannel/Young-Allting_Runt.wav")
+
+
+(
+{
+	var sig;                            // audio signal
+
+
+	// display encoder and decoder
+	"Ambisonic encoding via % encoder".format(~encoder.kind).postln;
+	"Ambisonic decoding via % decoder".format(~decoder.kind).postln;
+
+	// ------------------------------------------------------------
+	// test sig
+	sig = PlayBuf.ar(~sndbuf.numChannels, ~sndbuf, BufRateScale.kr(~sndbuf), doneAction:2);   // soundfile
+
+	// ------------------------------------------------------------
+	// encode
+	sig = FoaEncode.ar(sig, ~encoder);
+
+
+	// ------------------------------------------------------------
+	// decode (via ~renderDecode)
+	~renderDecode.value(sig, ~decoder)
+
+}.scope;
+)
+
+// free buffer
+~sndbuf.free
+// ------------------------------------------------------------
+::
+
+note::
+strong::Soundfile Credits::
+list::
+## Robert Mackay, "Augustine's Message," [unpublished recording]
+## John Young, "Allting Runt Omkring," [unpublished recording]
+::
+::
+
+subsection:: Directions encoder (soundfile)
+
+The directions encoder may be used to transcode from one format to another. This example transcodes a periphonic 12-channel recording to the decoder you've chosen.
+
+If you haven't already choosen a code:: ~decoder:: and defined code:: ~renderDecode ::, do so link::#Choose a decoder#now::.
+
+note:: A matrix type encoder, see link::Classes/FoaEncoderMatrix#*newPanto:: for further details.::
+
+
+code::
+// ------------------------------------------------------------
+// periphonic (12-channel) encoder
+
+
+// define encoder matrix
+~directions = [ [ 22.5, 0 ], [ -22.5, 0 ], [ 67.5, 0 ], [ -67.5, 0 ], [ 112.5, 0 ], [ -112.5, 0 ], [ 157.5, 0 ], [ -157.5, 0 ], [ 45, 45 ], [ -45, 45 ], [ -135, 45 ], [ 135, 45 ] ].degrad
+~encoder = FoaEncoderMatrix.newDirections(~directions)
+
+
+// inspect
+~encoder.kind
+~encoder.numChannels
+~encoder.dirChannels.raddeg
+
+
+// read a whole sound into memory
+// remember to free the buffer later!
+// (boot the server, if you haven't!)
+~sndbuf = Buffer.read(s, Atk.userSoundsDir ++ "/multichannel/Wilson-Bose.wav")
+
+
+(
+{
+	var sig;                            // audio signal
+
+
+	// display encoder and decoder
+	"Ambisonic encoding via % encoder".format(~encoder.kind).postln;
+	"Ambisonic decoding via % decoder".format(~decoder.kind).postln;
+
+	// ------------------------------------------------------------
+	// test sig
+	sig = PlayBuf.ar(~sndbuf.numChannels, ~sndbuf, BufRateScale.kr(~sndbuf) doneAction:2);   // soundfile
+
+	// ------------------------------------------------------------
+	// encode
+	sig = FoaEncode.ar(sig, ~encoder);
+
+
+	// ------------------------------------------------------------
+	// decode (via ~renderDecode)
+	~renderDecode.value(sig, ~decoder)
+
+}.scope;
+)
+
+// free buffer
+~sndbuf.free
+// ------------------------------------------------------------
+::
+
+note:: strong::Soundfile Credits::
+list::
+## Scott Wilson, "Böse," [unpublished recording]
+::
+::
+
+
+section:: 2D ZoomH2
+
+
+While no longer manufactured, the ATK includes an encoder for the link::https://en.wikipedia.org/wiki/Zoom_H2_Handy_Recorder##ZoomH2:: handheld digital audio recorder.
+
+note::
+As a simple matrix encoder, no frequency dependent spatial domain correction is applied.
+::
+
+subsection:: ZoomH2 encoder (soundfile)
 
 The link::http://www.zoom.co.jp/english/products/h2/##ZoomH2:: is a convenient, portable handheld recorder. The device only records horizontal surround (pantophonic), so we don't get height.
 
@@ -779,7 +937,7 @@ list::
 
 
 
-section:: ZoomH2 encoder, reversed (soundfile)
+subsection:: ZoomH2 encoder, reversed (soundfile)
 
 As described link::Classes/FoaEncoderMatrix#*newZoomH2#here::, the link::http://www.zoom.co.jp/english/products/h2/##ZoomH2:: encoder reverses the labels for front and back of the link::http://www.zoom.co.jp/english/products/h2/##ZoomH2::. This is done to favour the use of the decoder as a roving, hand-held device, with the display facing the operator.
 
@@ -849,144 +1007,4 @@ list::
 ## D. Courville, "Comparative Surround Recording," Ambisonic Studio | Comparative Surround Recording, 2007. [Online]. Available: http://www.radio.uqam.ca/ambisonic/comparative_recording.html [Accessed: 26-Jul-2011].
 ::
 
-::
-
-
-
-section:: Pantophonic encoder (soundfile)
-
-The pantophonic encoder may be used to transcode from one format to another. This example transcodes an octophonic recording to the decoder you've chosen.
-
-If you haven't already choosen a code:: ~decoder:: and defined code:: ~renderDecode ::, do so link::#Choose a decoder#now::.
-
-note:: A matrix type encoder, see link::Classes/FoaEncoderMatrix#*newPanto:: for further details.::
-
-
-code::
-// ------------------------------------------------------------
-// pantophonic (8-channel) encoder
-// pantophonic (8-channel) soundfile read from disk
-
-
-// define encoder matrix
-~encoder = FoaEncoderMatrix.newPanto(8, 'flat')   // choose for Mackay
-~encoder = FoaEncoderMatrix.newPanto(8, 'point')  // choose for Young
-
-
-// inspect
-~encoder.kind
-~encoder.numChannels
-~encoder.dirChannels.raddeg
-
-
-// read a whole sound into memory
-// remember to free the buffer later!
-// (boot the server, if you haven't!)
-~sndbuf = Buffer.read(s, Atk.userSoundsDir ++ "/multichannel/Mackay-Augustines_Message.wav")
-~sndbuf = Buffer.read(s, Atk.userSoundsDir ++ "/multichannel/Young-Allting_Runt.wav")
-
-
-(
-{
-	var sig;                            // audio signal
-
-
-	// display encoder and decoder
-	"Ambisonic encoding via % encoder".format(~encoder.kind).postln;
-	"Ambisonic decoding via % decoder".format(~decoder.kind).postln;
-
-	// ------------------------------------------------------------
-	// test sig
-	sig = PlayBuf.ar(~sndbuf.numChannels, ~sndbuf, BufRateScale.kr(~sndbuf), doneAction:2);   // soundfile
-
-	// ------------------------------------------------------------
-	// encode
-	sig = FoaEncode.ar(sig, ~encoder);
-
-
-	// ------------------------------------------------------------
-	// decode (via ~renderDecode)
-	~renderDecode.value(sig, ~decoder)
-
-}.scope;
-)
-
-// free buffer
-~sndbuf.free
-// ------------------------------------------------------------
-::
-
-note::
-strong::Soundfile Credits::
-list::
-## Robert Mackay, "Augustine's Message," [unpublished recording]
-## John Young, "Allting Runt Omkring," [unpublished recording]
-::
-::
-
-section:: Directions encoder (soundfile)
-
-The directions encoder may be used to transcode from one format to another. This example transcodes a periphonic 12-channel recording to the decoder you've chosen.
-
-If you haven't already choosen a code:: ~decoder:: and defined code:: ~renderDecode ::, do so link::#Choose a decoder#now::.
-
-note:: A matrix type encoder, see link::Classes/FoaEncoderMatrix#*newPanto:: for further details.::
-
-
-code::
-// ------------------------------------------------------------
-// periphonic (12-channel) encoder
-
-
-// define encoder matrix
-~directions = [ [ 22.5, 0 ], [ -22.5, 0 ], [ 67.5, 0 ], [ -67.5, 0 ], [ 112.5, 0 ], [ -112.5, 0 ], [ 157.5, 0 ], [ -157.5, 0 ], [ 45, 45 ], [ -45, 45 ], [ -135, 45 ], [ 135, 45 ] ].degrad
-~encoder = FoaEncoderMatrix.newDirections(~directions)
-
-
-// inspect
-~encoder.kind
-~encoder.numChannels
-~encoder.dirChannels.raddeg
-
-
-// read a whole sound into memory
-// remember to free the buffer later!
-// (boot the server, if you haven't!)
-~sndbuf = Buffer.read(s, Atk.userSoundsDir ++ "/multichannel/Wilson-Bose.wav")
-
-
-(
-{
-	var sig;                            // audio signal
-
-
-	// display encoder and decoder
-	"Ambisonic encoding via % encoder".format(~encoder.kind).postln;
-	"Ambisonic decoding via % decoder".format(~decoder.kind).postln;
-
-	// ------------------------------------------------------------
-	// test sig
-	sig = PlayBuf.ar(~sndbuf.numChannels, ~sndbuf, BufRateScale.kr(~sndbuf) doneAction:2);   // soundfile
-
-	// ------------------------------------------------------------
-	// encode
-	sig = FoaEncode.ar(sig, ~encoder);
-
-
-	// ------------------------------------------------------------
-	// decode (via ~renderDecode)
-	~renderDecode.value(sig, ~decoder)
-
-}.scope;
-)
-
-// free buffer
-~sndbuf.free
-// ------------------------------------------------------------
-::
-
-note:: strong::Soundfile Credits::
-list::
-## Scott Wilson, "Böse," [unpublished recording]
-::
 ::

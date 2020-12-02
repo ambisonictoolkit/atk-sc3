@@ -104,9 +104,9 @@ keyword:: radius
 keyword:: rE
 || Vector quantity offering an estimate of the perceived localisation of a phantom source in terms of energy, expected to predict imaging between 500 and 5000 Hz.
 
-## farfield
-keyword:: farfield
-|| Characterized by a minimally emphasis::reactive:: emphasis::travelling wave::. I.e., a wave with minimal quadrature components. A emphasis::planewave:: is in the emphasis::farfield::. See also emphasis::nearfield::.
+## far-field
+keyword:: far-field
+|| Characterized by a minimally emphasis::reactive:: emphasis::travelling wave::. I.e., a wave with minimal quadrature components. A emphasis::planewave:: is in the emphasis::far-field::. See also emphasis::near-field::.
 
 ## first order Ambisonics
 keyword:: FOA
@@ -156,21 +156,21 @@ keyword:: look
 keyword:: makita
 || See emphasis::velocity localisation vector::.
 
-## nearfield
-keyword:: nearfield
-|| Characterized by a highly emphasis::reactive:: emphasis::travelling wave::, where emphasis::active:: and emphasis::reactive intensity:: vectors are aligned. A emphasis::spherical wave:: is in the emphasis::nearfield::. See also emphasis::farfield::.
+## near-field
+keyword:: near-field
+|| Characterized by a highly emphasis::reactive:: emphasis::travelling wave::, where emphasis::active:: and emphasis::reactive intensity:: vectors are aligned. A emphasis::spherical wave:: is in the emphasis::near-field::. See also emphasis::far-field::.
 
-## nearfield compensated (NFC)
+## near-field compensated (NFC)
 keyword:: NFC
-|| In classic Gerzonic emphasis::first order Ambisonics::, emphasis::nearfield compensation:: describes the emphasis::nearfield control:: applied to accommodate for decoding loudspeakers placed at finite radii. I.e., emphasis::nearfield compensation:: compensates for the fact real loudspeakers cannot be placed at the infinite emphasis::reference radius:: of Gerzonic emphasis::Ambisonics::. note::The Ambisonic Toolkit's code::\FOA:: set observes this convention.::
+|| In classic Gerzonic emphasis::first order Ambisonics::, emphasis::near-field compensation:: describes the emphasis::near-field control:: applied to accommodate for decoding loudspeakers placed at finite radii. I.e., emphasis::near-field compensation:: compensates for the fact real loudspeakers cannot be placed at the infinite emphasis::reference radius:: of Gerzonic emphasis::Ambisonics::. note::The Ambisonic Toolkit's code::\FOA:: set observes this convention.::
 
-## nearfield controlled (NFC or NFCtrl)
+## near-field controlled (NFC or NFCtrl)
 keyword:: NFC
-|| Characterizing the synthesis or control of a soundfield with nearfield properties. Implemnted via emphasis::radial filtering::. The explicit use of the term emphasis::control:: is preferred to avoid confusion with the classic Gerzonic use of the term emphasis::nearfield compensated::. note::The Ambisonic Toolkit's code::\HOA:: sets observes this convention. ::
+|| Characterizing the synthesis or control of a soundfield with near-field properties. Implemnted via emphasis::radial filtering::. The explicit use of the term emphasis::control:: is preferred to avoid confusion with the classic Gerzonic use of the term emphasis::near-field compensated::. note::The Ambisonic Toolkit's code::\HOA:: sets observes this convention. ::
 
-## nearfield effect (NFE)
+## near-field effect (NFE)
 keyword:: NFE
-|| See emphasis::nearfield:: and emphasis::nearfield controlled::.
+|| See emphasis::near-field:: and emphasis::near-field controlled::.
 
 ## operation (op)
 keyword:: operation, op
@@ -190,7 +190,7 @@ keyword:: wave
 
 ## radial filter
 keyword:: radial
-|| Transform modifying the radial encoding of an Ambisonic signal. emphasis::Radial filtering:: is required to implement the emphasis::nearfield effect::.
+|| Transform modifying the radial encoding of an Ambisonic signal. emphasis::Radial filtering:: is required to implement the emphasis::near-field effect::.
 
 ## reactive
 keyword:: reactive

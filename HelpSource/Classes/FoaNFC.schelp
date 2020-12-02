@@ -1,10 +1,10 @@
 CLASS:: FoaNFC
-summary:: First Order Ambisonic (FOA) nearfield compensation filter
+summary:: First Order Ambisonic (FOA) near-field compensation filter
 categories:: Libraries>Ambisonic Toolkit>UGens>FOA>Transformer, UGens>Multichannel>Ambisonics
 related:: Classes/FoaProximity, Classes/FoaTransform, Classes/FoaDecode
 
 DESCRIPTION::
-Apply nearfield compensation filtering to a first order ambisonic signal (B-format).
+Apply near-field compensation filtering to a first order ambisonic signal (B-format).
 
 note::
 link::Classes/FoaNFC:: is usually called via the convenience wrapper link::Classes/FoaTransform::.
@@ -35,7 +35,7 @@ discussion::
 
 link::Classes/FoaNFC:: facilitates the reduction or removal of the link::http://en.wikipedia.org/wiki/Proximity_effect_(audio)##proximity effect:: from encoded signals. The link::http://en.wikipedia.org/wiki/Proximity_effect_(audio)##proximity effect:: can be an important contributor to perceptions of nearness.
 
-Nearfield compensation footnote::Usually called distance compensation in the classic Ambisonics literature.:: is usually used in conjunction with link::Classes/FoaDecode:: to compensate for the distance of loudspeakers on playback. Additionally, link::Classes/FoaNFC:: can also be used to reduce the link::http://en.wikipedia.org/wiki/Proximity_effect_(audio)##proximity effect:: found in nearfield recordings.
+Near-field compensation footnote::Usually called distance compensation in the classic Ambisonics literature.:: is usually used in conjunction with link::Classes/FoaDecode:: to compensate for the distance of loudspeakers on playback. Additionally, link::Classes/FoaNFC:: can also be used to reduce the link::http://en.wikipedia.org/wiki/Proximity_effect_(audio)##proximity effect:: found in near-field recordings.
 
 
 The Ambisonic Toolkit's proximity filter, link::Classes/FoaProximity::, undoes link::Classes/FoaNFC:: given the same strong::distance:: argument.

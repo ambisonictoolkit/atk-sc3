@@ -34,7 +34,7 @@ discussion::
 
 link::Classes/FoaProximity:: facilitates the introduction of the link::http://en.wikipedia.org/wiki/Proximity_effect_(audio)##proximity effect:: to encoded signals. At extremes, the proximity effect introduces a strong bass boost, as well as phase differences. The link::http://en.wikipedia.org/wiki/Proximity_effect_(audio)##proximity effect:: can be an important contributor to perceptions of nearness.
 
-The Ambisonic Toolkit's nearfield compensation filter, link::Classes/FoaNFC::, undoes link::Classes/FoaProximity:: given the same strong::distance:: argument.
+The Ambisonic Toolkit's near-field compensation filter, link::Classes/FoaNFC::, undoes link::Classes/FoaProximity:: given the same strong::distance:: argument.
 
 
 warning:: As link::Classes/FoaProximity:: includes a 1st-order integration, signals must be highpass filtered before application. link::Classes/HPF:: is usually a suitable choice to control low frequency boost.::

@@ -11,7 +11,7 @@ subsection:: Two toolsets in one
 
 These tools are organized into two sets.
 
-The first of these is modelled after the hardware footnote::See: link::https://en.wikipedia.org/wiki/List_of_Ambisonic_hardware##List of Ambisonic hardware:: :: and software tools offered in the world of classic, aka Gerzonic, emphasis::First Order Ambisonics:: (FOA), footnote::Some authors use the acronym POA, for emphasis::plain old Ambisonics::.:: while the second is framed as a modern emphasis::Nearfield Controlled Higher Order Ambisonic:: (NFC-HOA) solution.
+The first of these is modelled after the hardware footnote::See: link::https://en.wikipedia.org/wiki/List_of_Ambisonic_hardware##List of Ambisonic hardware:: :: and software tools offered in the world of classic, aka Gerzonic, emphasis::First Order Ambisonics:: (FOA), footnote::Some authors use the acronym POA, for emphasis::plain old Ambisonics::.:: while the second is framed as a modern emphasis::Near-Field Controlled Higher Order Ambisonic:: (NFC-HOA) solution.
 
 Moving between these sets is facilited through parallel tools for both FOA and HOA, and documentation on link::#Exchanging formats#exchanging Ambisonic signals:: between these two link::#Encoding formats#Ambisonic encoding conventions::.
 
@@ -53,9 +53,9 @@ Some notable features of the ATK include:
 
 list::
 ## Integrated support for classic emphasis::First Order Ambisonics (FOA):: and modern emphasis::Higher Order Ambisonics (HOA)::.
-## Implements the emphasis::Nearfield Controlled::, aka emphasis::Nearfield Compensated::, form of higher order Ambisonics (NFC-HOA).
+## Implements the emphasis::Near-Field Controlled::, aka emphasis::Near-Field Compensated::, form of higher order Ambisonics (NFC-HOA).
 ## Ambisonic order is merely limited by system speed, channel capacity and numerical precision rather than by design. footnote::Caveat: link::Tutorials/ATK-FAQs#What%20is%20the%20highest%20order%20supported%20for%20spherical%20decomposition?#What is the highest order supported for spherical decomposition?:: ::
-## Control and synthesis of the nearfield effect (NFE) of finite distance sources in both FOA and HOA, including radial beamforming.
+## Control and synthesis of the near-field effect (NFE) of finite distance sources in both FOA and HOA, including radial beamforming.
 ## Soundfield feature sensing & analysis in instantaneous and time averaged forms.
 ## Ambisonic coefficients and matrices are available for inspection and manipulation in the interperter.
 ## Angular domain soundfield decomposition and recomposition.
@@ -305,7 +305,7 @@ definitionlist::
 ::
 
 note::
-Of these four quantities, many user facing Ambisonic software packages omit specifying a reference radius. If we would like to successfully synthesize soundfields with controlled nearfield effects (NFE), this value must be specified and known.
+Of these four quantities, many user facing Ambisonic software packages omit specifying a reference radius. If we would like to successfully synthesize soundfields with controlled near-field effects (NFE), this value must be specified and known.
 
 The ATK measures this parameter in meters.
 ::

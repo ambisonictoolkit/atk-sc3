@@ -1,0 +1,955 @@
+title:: Near-Field Effect (NFE)
+summary:: Higher Order Ambisonic (HOA) near-field effect examples
+categories:: Libraries>Ambisonic Toolkit>Guides & Tutorials
+keyword::Atk
+
+This document provides a very short overview of the near-field effect (NFE). A variety of simple HOA example implementations follow.
+
+
+section:: The Near-Field Effect
+
+We'll by briefly reviewing the near-field effect (NFE) in the context of FOA and HOA.
+
+subsection:: FOA
+
+The near-field effect (NFE) has been formally included within the Ambisonic framework since its initial design. In the classic days of Ambisonic hardware, users emphasis::usually:: only directly interfaced this aspect of Ambisonics through the use of:
+
+list::
+## the soundfiled microphone on the emphasis::encoding:: side
+## Near-Field Compensation (NFC) loudspeaker distance correction filtering on the emphasis::decoding:: side
+::
+
+The ATK's FOA toolset includes NFE radial filters in their classic Ambisonic form. In the FOA context a emphasis::travelling wave:: encoded with all real, aka emphasis::basic::, coefficients represents a emphasis::planewave::. The ATK also names this travelling wave as a emphasis::basic wave::, because of the use of basic, real coefficient encoding. SuperCollider's link::Classes/PanB:: is a basic, planewave encoder.
+
+An Ambisonic system's emphasis::reference radius:: is the radius at which a basic wave is encoded. So the emphasis::reference radius:: locates the radius at which the system's encoding uses real numbers only.
+
+For FOA, the reference radius is infinity. A wave arriving from infinity is a emphasis::planewave::, which is why FOA's emphasis::basic wave:: is a emphasis::planewave::.
+
+On receiving a basic wave, the FOA link::Classes/FoaProximity##proximity filter:: add curvature to the wavefront, converting it from a planewave to a emphasis::spherical wave:: footnote::Many users will refer to this as an encoded emphasis::point source::.:: at a defined radius. footnote::link::Classes/FoaProximity:: argument strong::distance::.::
+
+The FOA link::Classes/FoaNFC##near-field compensation filter:: returns the inverse of the FOA proximity filter, and given the same radial argument undoes the curvature to the wavefront that had been applied. In the context of loudspeaker decoding, the near-field compensation filter is intended to remove the wavefront add by the nearness of the loudspeakers. I.e., near-field compensation filter removes the curve added by the physical nearness of real monitors in the real world.
+
+When link::Classes/FoaNFC:: and link::Classes/FoaProximity:: are used together, we can reach inside a soundfield and emphasis::apply processing at a specified radius::. The one possible network looks like this:
+
+image::sourceextraction.png#Source extraction::
+
+Parameters strong::theta:: and strong::phi:: supply the look direction. The strong::angle:: argument continuously transforms the image between:
+
+list::
+## 0 : original unchanged soundfield
+## pi/2 : spherical wave sampled at strong::distance::
+::
+
+The term emphasis::radial beamforming:: is used to describe this soundfield operation. With radial beamforming the soundfield can be decomposed and recomposed as spherical waves, at whatever radius we choose.
+
+
+subsection:: HOA
+
+It could be argued that the greatest innovation in Daniel's reframing of Ambisonics in a higher order context is the translation of the emphasis::basic wave:: to a radius other than infinity.
+
+If we'd like to think in a real world way, this is equivalent to emphasis::pre-filtering:: a soundfield with the near-field compensation filter in anticipation of decoding to loudspeakers located at a emphasis::pre-determined:: radius. This radius is the emphasis::reference radius::. We can view this as the anticipated loudspeakers finishing off the synthesis of the curve of the encoded waves by physically adding the remaining curve.
+
+This is all good, but the true genius is the inclusion of a the emphasis::near-field effect control:: filter, which combines the near-field compensation and proximity filter into a single block. The arrangement is as illustrated above, but without the inclusion of focus. Also, instead of having a single emphasis::distance:: argument, there are two, one for each filter. Doing so makes it very easy to translate the reference radius. In other words, we can move where basic waves are encoded, which easily facilitates radial beamforming.
+
+If we prefer thinking in terms of virtual loudspeakers, changing the reference radius corresponds to moving the virtual loudspeakers. This then corresponds to moving the soundfield sampling radius when it comes to decomposition and recomposition.
+
+________________
+
+As part of the ATK's HOA toolset we have three principal filters tasked with the near-field effect.
+
+Each of these has a distinct role:
+
+definitionlist::
+## Near-Field Effect Distance filter (NFE-D) ||
+link::Classes/HoaNFDist:: transforms a emphasis::basic wave:: into a emphasis::planewave::.
+
+link::Classes/Signal#*hoaDist:: is the associated FIR kernel designer.
+
+## Near-Field Effect Proximity filter (NFE-P) ||
+link::Classes/HoaNFProx:: transforms a emphasis::planewave:: into a emphasis::basic wave::.
+
+Note, an associated FIR kernel designer is not provided. footnote::Too many big numbers!::
+
+## Near-Field Effect Control filter (NFE-C) ||
+link::Classes/HoaNFCtrl:: transforms a emphasis::basic wave:: into a emphasis::spherical wave:: at another radius. footnote::A spherical wave with complex coefficients.::
+
+link::Classes/Signal#*hoaCtrl:: is the associated FIR kernel designer.
+::
+
+note::
+In NFC-HOA encoding, emphasis::planewaves:: and emphasis::spherical waves:: are referenced to a real number valued reference radius.
+
+E.g., a emphasis::planewave:: in NFC-HOA is not a emphasis::basic wave::. Conversly, complex coefficients are required to encode and synthesize a emphasis::planewave::.
+::
+
+Unlike their FOA equivalents, link::Classes/HoaNFDist:: and link::Classes/HoaNFProx:: emphasis::do not:: have an exposed strong::distance:: argument. By default, the strong::distance:: argument is set internally to the ATK's reference radius for HOA, 1.5 meters. footnote::If desired, the system reference radius may be changed: link::Classes/AtkHoa#*setRefRadius::.:: Doing so enforces the ATK's NFE encoding convention.
+
+link::Classes/HoaNFCtrl:: has two arguments, strong::encoding radius:: and strong::decoding radius::, which allows comprehensive control of the near-field effect in HOA.
+
+We'll review some examples, below.
+
+section:: Encoding & decoding
+
+Two examples intended to offer insight into what encoded emphasis::spherical waves:: look like with respect to signal phase and gain.
+
+subsection:: Encode a spherical wave
+
+For this first example we'll encode a emphasis::travelling wave::. The three example radii all return emphasis::spherical waves::. One of these, encoded at 1.5 meters, is a emphasis::basic wave::.
+
+note::
+A decoder hasn't been provided, the intention of this example is to inspect the returned HOA encoded signals for a collection of spherical waves. You'll see that for an encoding at the reference radius, when all emphasis::coefficients are real::, all harmonics are emphasis::aligned in phase::.
+
+Observe this in the scope.
+::
+
+code::
+// Inspect the ATK's reference radius
+"Reference radius: % m".format(AtkHoa.refRadius);
+
+// simple test...
+
+// boot rt server
+s.boot;
+
+// choose Ambisonic order
+~order = 1
+~order = 2
+~order = 3
+
+// choose an outbus, if need be
+~outbus = 0
+
+// open scope
+s.scope(~order.asHoaOrder.size, ~outbus);
+
+// encoding angles
+// azimuth & elevation
+~theta = 0.0;
+~phi = 0.0;
+
+// explicitly set encoding radius
+// i.e., radius != AtkHoa.refRadius
+~encRadius = 2.0;  // > AtkHoa.refRadius
+~encRadius = 1.5;  // = AtkHoa.refRadius <-- basic wave
+~encRadius = 1.0;  // < AtkHoa.refRadius
+
+
+// audition
+(
+{
+	// saw params
+	var freq = 110.0;
+	var gain = -12;
+
+	var sig;
+
+	sig = Saw.ar(freq, gain.dbamp);
+
+	HoaEncodeDirection.ar(sig, ~theta, ~phi, ~encRadius, ~order);
+
+}.play(outbus: ~outbus)
+)
+
+// quit rt server
+s.quit
+::
+
+
+subsection:: Sample a spherical wave
+
+By sampling a soundfield at the radius a emphasis::spherical wave:: was originally encoded, we can recover the original source.
+
+This is called emphasis::radial soundfield sampling::. We look into the soundfield at a specific radius.
+
+The look direction of the beamformer, link::Classes/HoaDecodeDirection::, is slowly moving back and forth. This movement is what is responsible for the varing gain of the returned beam.
+
+note::
+The three beamshape choice offer different shaped spatial sampling windows.
+::
+
+code::
+// Inspect the ATK's reference radius
+"Reference radius: % m".format(AtkHoa.refRadius);
+
+// simple test...
+
+// boot rt server
+s.boot;
+
+// choose Ambisonic order
+~order = 1
+~order = 2
+~order = 3
+
+// choose an outbus, if need be
+~outbus = 0
+
+// open scope
+s.scope(2, ~outbus);  // view original signal & mono decode
+
+// encoding angles
+// azimuth & elevation
+~theta = 0.0;
+~phi = 0.0;
+
+// explicitly set encoding radius
+// i.e., radius != AtkHoa.refRadius
+~encRadius = 2.0;  // > AtkHoa.refRadius
+~encRadius = 1.5;  // = AtkHoa.refRadius
+~encRadius = 1.0;  // < AtkHoa.refRadius
+
+
+// beaming
+~thetaRate = 0.125;  // modulation rate for beam look direction
+~beamShape = \basic;
+~beamShape = \energy;
+~beamShape = \controlled;
+~decRadius = ~encRadius; // explicitly set to match encoding radius
+
+
+// audition
+(
+{
+	// saw params
+	var freq = 110.0;
+	var gain = -12;
+
+	var sig;
+	var hoa;
+	var dec;
+
+	sig = Saw.ar(freq, gain.dbamp);
+
+	hoa = HoaEncodeDirection.ar(sig, ~theta, ~phi, ~encRadius, ~order);
+
+	dec = HoaDecodeDirection.ar(
+		hoa,
+		LFTri.kr(~thetaRate, mul: pi),
+		~phi,
+		~encRadius,
+		~beamShape,
+		~order
+	);
+
+	[ sig,  dec];
+
+}.play(outbus: ~outbus)
+)
+
+// quit rt server
+s.quit
+::
+
+
+section:: Beaming & nulling
+
+Beaming and nulling transforms are spatial bandpass and bandreject filters. Instead of operating in the frequency domain, we're operating in the spatial domain.
+
+Given the same beamshape, the beam summed with a corresponding null will return the original soundfield.
+
+Used in this way, these two transforms allow us to easily process different parts of the soundfield in different ways. E.g., the null could be lowpass filtered and then remixed with the beam.
+
+note::
+As with the soundfield sampler link::Classes/HoaDecodeDirection:: example link::#Sample%20a%20spherical%20wave#above::, the beam is formed at a sampling radius.
+::
+
+subsection:: Beamform with HoaBeam
+
+Encode six sinusoids on the axes, then sample the soundfield with a single beam.
+
+The beam is reencoded, so we're auditioning a virtual speaker at the beam sampling radius, which can be varied. We'll need a decoder to audition.
+
+This is like spatially bandpass filtering the soundfield.
+
+code::
+// simple test...
+
+// boot rt server
+s.boot;
+
+// choose Ambisonic order
+~order = 1
+~order = 2
+~order = 3
+
+// choose an outbus, if need be
+~outbus = 0
+
+// open scope
+s.scope(~order.asHoaOrder.size, ~outbus);
+
+// design encoding matrix
+~directions = [ [0.0, 0.0], [90.0, 0.0], [180.0, 0.0], [-90.0, 0.0], [0.0, 90.0], [0.0, -90.0], ].degrad;
+~matrixEncoder = HoaMatrixEncoder.newDirections(~directions, order: ~order);
+
+// explicitly set encoding radius
+// i.e., radius != AtkHoa.refRadius
+~encRadius = 2.0;  // > AtkHoa.refRadius
+~encRadius = 1.5;  // = AtkHoa.refRadius
+~encRadius = 1.0;  // < AtkHoa.refRadius
+
+
+// beaming
+~thetaRate = 0.125;  // modulation rate for beam look direction
+~phi = 0.0;
+~beamShape = \basic;
+~beamShape = \energy;
+~beamShape = \controlled;
+
+
+// freqs
+~freqs = Array.series(~directions.size, 110.0, 110.0);
+~amps = Array.series(~directions.size, 1, 1).reciprocal;
+
+// audition
+(
+{
+	var gain = -12;
+
+	var sig, hoa;
+
+	sig = SinOsc.ar(~freqs, mul: gain.dbamp * ~amps);
+
+	hoa = HoaNFCtrl.ar(
+		HoaEncodeMatrix.ar(sig, ~matrixEncoder),
+		~encRadius,  // encoding radius
+		AtkHoa.refRadius,  // reference radius
+		~order
+	);
+
+	HoaBeam.ar(hoa, LFTri.kr(~thetaRate, mul: pi), ~phi, ~encRadius, ~beamShape, ~order);
+
+}.play(outbus: ~outbus)
+)
+
+// quit rt server
+s.quit
+::
+
+
+subsection:: Beamform with HoaXformMatrix
+
+Similar to link::#Beamform with HoaBeam::, but this time beaming with a static matrix.
+
+note::
+Because the beaming transform matrix is a real number matrix, the beam is formed at the reference radius.
+
+To beam at another radius, we'd have to use the technique illustrated link::#Modulate at radius#below::.
+::
+
+code::
+// simple test...
+
+// boot rt server
+s.boot;
+
+// choose Ambisonic order
+~order = 1
+~order = 2
+~order = 3
+
+// choose an outbus, if need be
+~outbus = 0
+
+// open scope
+s.scope(~order.asHoaOrder.size, ~outbus);
+
+// design encoding matrix
+~directions = [ [0.0, 0.0], [90.0, 0.0], [180.0, 0.0], [-90.0, 0.0], [0.0, 90.0], [0.0, -90.0], ].degrad;
+~matrixEncoder = HoaMatrixEncoder.newDirections(~directions, order: ~order);
+
+// design beaming matrix
+~theta = 0.0;
+~phi = 0.0;
+~matrixXformer = HoaMatrixXformer.newBeam(~theta, ~phi, order: ~order);
+
+
+// freqs
+~freqs = Array.series(~directions.size, 110.0, 110.0);
+~amps = Array.series(~directions.size, 1, 1).reciprocal;
+
+// audition
+(
+{
+	var gain = -12;
+
+	var sig, hoa;
+
+	sig = SinOsc.ar(~freqs, mul: gain.dbamp * ~amps);
+
+	hoa = HoaEncodeMatrix.ar(sig, ~matrixEncoder);
+
+	HoaXformMatrix.ar(hoa, ~matrixXformer);
+
+}.play(outbus: ~outbus)
+)
+
+// quit rt server
+s.quit
+::
+
+
+subsection:: Nullform with HoaNull
+
+link::#Beamform with HoaBeam#Same test as above::, but we form a null, instead. We are spatially rejecting part of the soundfield.
+
+code::
+// simple test...
+
+// boot rt server
+s.boot;
+
+// choose Ambisonic order
+~order = 1
+~order = 2
+~order = 3
+
+// choose an outbus, if need be
+~outbus = 0
+
+// open scope
+s.scope(~order.asHoaOrder.size, ~outbus);
+
+// design encoding matrix
+~directions = [ [0.0, 0.0], [90.0, 0.0], [180.0, 0.0], [-90.0, 0.0], [0.0, 90.0], [0.0, -90.0], ].degrad;
+~matrixEncoder = HoaMatrixEncoder.newDirections(~directions, order: ~order);
+
+// explicitly set encoding radius
+// i.e., radius != AtkHoa.refRadius
+~encRadius = 2.0;  // > AtkHoa.refRadius
+~encRadius = 1.5;  // = AtkHoa.refRadius
+~encRadius = 1.0;  // < AtkHoa.refRadius
+
+
+// nulling
+~thetaRate = 0.125;  // modulation rate for null look direction
+~phi = 0.0;
+~beamShape = \basic;
+~beamShape = \energy;
+~beamShape = \controlled;
+
+
+// freqs
+~freqs = Array.series(~directions.size, 110.0, 110.0);
+~amps = Array.series(~directions.size, 1, 1).reciprocal;
+
+// audition
+(
+{
+    var gain = -12;
+
+    var sig, hoa;
+
+    sig = SinOsc.ar(~freqs, mul: gain.dbamp * ~amps);
+
+    hoa = HoaNFCtrl.ar(
+        HoaEncodeMatrix.ar(sig, ~matrixEncoder),
+        ~encRadius,  // encoding radius
+        AtkHoa.refRadius,  // reference radius
+        ~order
+    );
+
+    HoaNull.ar(hoa, LFTri.kr(~thetaRate, mul: pi), ~phi, ~encRadius, ~beamShape, ~order);
+
+}.play(outbus: ~outbus)
+)
+
+// quit rt server
+s.quit
+::
+
+
+section:: Techniques
+
+The Near-Field Effect Control filter (NFE-C), link::Classes/HoaNFCtrl:: has a wide number of uses in HOA. Here are a few important examples.
+
+subsection:: Decode to a 2D array
+
+Radial encoding followed by decoding with loudspeaker near-field compensation.
+
+When the real loudspeaker radius doesn't match the reference radius, we need to use link::Classes/HoaNFCtrl:: to reset the radial encoding.
+
+We can view this as link::Classes/HoaNFCtrl:: finishing the radial part of the panning law, to match our actual loudspeaker array.
+
+note::This is required if we would like the NFE to properly resolve.::
+
+code::
+// Inspect the ATK's reference radius
+"Reference radius: % m".format(AtkHoa.refRadius);
+
+// simple test...
+
+// boot rt server
+s.boot;
+
+// choose Ambisonic order
+~order = 1
+~order = 2
+~order = 3
+
+// choose an outbus, if need be
+~outbus = 0
+
+// encoding angles
+// azimuth & elevation
+~theta = 0.0;
+~phi = 0.0;
+
+// explicitly set encoding radius
+// i.e., radius != AtkHoa.refRadius
+~encRadius = 2.0;  // > AtkHoa.refRadius
+~encRadius = 1.5;  // = AtkHoa.refRadius
+~encRadius = 1.0;  // < AtkHoa.refRadius
+
+
+// decoding - panto decoder
+~numChans = 8;
+~orientation = \flat;
+~beamShape = \basic;
+~beamShape = \energy;  // <-- good choice!
+~beamShape = \controlled;
+~match = \amp;
+~match = \rms;
+~match = \energy;  // <-- good choice!
+~decRadius = 2.0;  // decoding / (actual) loudspeaker radius
+
+
+// open scope
+s.scope(~numChans, ~outbus);
+
+
+// audition
+(
+{
+	// saw params
+	var freq = 110.0;
+	var gain = -12;
+
+	var sig;
+	var hoa;
+
+	sig = Saw.ar(freq, gain.dbamp);
+
+	// encode with NFE
+	hoa = HoaEncodeDirection.ar(sig, ~theta, ~phi, ~encRadius, ~order);
+
+	// decode with NFE / loudspeaker near-field compensation
+	HoaDecodeMatrix.ar(
+		HoaNFCtrl.ar(  // NFE control
+			hoa,
+			AtkHoa.refRadius,
+			~decRadius,
+			~order
+		),
+		HoaMatrixDecoder.newPanto(  // panto decoder
+			~numChans,
+			~orientation,
+			~beamShape,
+			~match,
+			~order
+		)
+	);
+
+}.play(outbus: ~outbus)
+)
+
+// quit rt server
+s.quit
+::
+
+
+subsection:: Synthesize a diffuse field
+
+Here we synthesize a soundfield that is diffuse at a specified encoding radius. footnote::Arguably, one might consider a soundfield to be considered diffuse only if it is composed of emphasis::planewaves::. If that is your preference, then link::Classes/HoaNFDist:: is the tool for the job.::
+
+code::
+// Inspect the ATK's reference radius
+"Reference radius: % m".format(AtkHoa.refRadius);
+
+// simple test...
+
+// boot rt server
+s.boot;
+
+// choose Ambisonic order
+~order = 1
+~order = 2
+~order = 3
+
+// choose an outbus, if need be
+~outbus = 0
+
+// open scope
+s.scope(~order.asHoaOrder.size, ~outbus);
+
+
+// explicitly set encoding radius
+// i.e., radius != AtkHoa.refRadius
+~encRadius = 10.0;  // >> AtkHoa.refRadius
+~encRadius = 5.0;  // > AtkHoa.refRadius
+~encRadius = 2.0;  // > AtkHoa.refRadius
+~encRadius = 1.5;  // = AtkHoa.refRadius
+~encRadius = 1.0;  // < AtkHoa.refRadius
+
+
+// audition
+(
+{
+	// params
+	var gain = -12;
+
+	var hoa;
+
+	// diffuse field (synthesized at AtkHoa.refRadius)
+	hoa = ~order.asHoaOrder.size.collect({ BrownNoise.ar(gain.dbamp) });
+
+	// encode with NFE
+	HoaNFCtrl.ar(  // NFE control
+		hoa,
+		~encRadius,
+		AtkHoa.refRadius,
+		~order
+	);
+
+}.play(outbus: ~outbus)
+)
+
+// quit rt server
+s.quit
+::
+
+
+subsection:: Translate to a new radius
+
+Translate from source radius to target radius. A very useful trick!
+
+code::
+// Inspect the ATK's reference radius
+"Reference radius: % m".format(AtkHoa.refRadius);
+
+// simple test...
+
+// boot rt server
+s.boot;
+
+// choose Ambisonic order
+~order = 1
+~order = 2
+~order = 3
+
+// choose an outbus, if need be
+~outbus = 0
+
+// open scope
+s.scope(~order.asHoaOrder.size, ~outbus);
+
+
+// encoding angles
+// azimuth & elevation
+~theta = 0.0;
+~phi = 0.0;
+
+// explicitly set (source) encoding radius
+// i.e., radius != AtkHoa.refRadius
+~encRadius = 2.0;  // > AtkHoa.refRadius
+~encRadius = 1.5;  // = AtkHoa.refRadius
+~encRadius = 1.0;  // < AtkHoa.refRadius
+
+// target (translation) radius
+~reEncRadius = 3.0;  // re-encoding radius > AtkHoa.refRadius
+~reEncRadius = 1.5;  // re-encoding radius = AtkHoa.refRadius
+~reEncRadius = 1.0;  // re-encoding radius < AtkHoa.refRadius
+
+
+// audition
+(
+{
+	// saw params
+	var freq = 110.0;
+	var gain = -12;
+
+	var sig;
+	var hoa;
+
+	sig = Saw.ar(freq, gain.dbamp);
+
+	// encode with NFE
+	hoa = HoaEncodeDirection.ar(sig, ~theta, ~phi, ~encRadius, ~order);
+
+	// re-encode NFE
+	HoaNFCtrl.ar(
+		hoa,
+		~reEncRadius,
+		~encRadius,
+		~order
+	);
+
+}.play(outbus: ~outbus)
+)
+
+// quit rt server
+s.quit
+::
+
+
+subsection:: Modulate at radius
+
+The use of two link::Classes/HoaNFCtrl:: transformers offers the possibility of modulation at a given radius.
+
+The soundfield is decomposed into a collection of samples at a certain radius. These are then modulated. The soundfield is re-encoded, and samples are returned to their original radius.
+
+If we wish to granulate at a radius other than the reference radius, for instance, this example illustrates how to do so.
+
+code::
+// Inspect the ATK's reference radius
+"Reference radius: % m".format(AtkHoa.refRadius);
+
+
+// simple test...
+
+// boot rt server
+s.boot;
+
+// choose Ambisonic order
+~order = 1
+~order = 2
+~order = 3
+
+// choose an outbus, if need be
+~outbus = 0
+
+// encoding angles
+// azimuth & elevation
+~theta = 0.0;
+~phi = 0.0;
+
+// explicitly set encoding radius
+// i.e., radius != AtkHoa.refRadius
+~encRadius = 2.0;  // > AtkHoa.refRadius
+~encRadius = 1.5;  // = AtkHoa.refRadius
+~encRadius = 1.0;  // < AtkHoa.refRadius
+
+
+// decoding / re-encoding - spherical design (A/B-format)
+~numChans = 24;
+~beamShape = \basic;
+~beamShape = \energy;
+~beamShape = \controlled;
+~sphDesign = TDesign.newHoa(~numChans, order: ~order);
+
+
+// modulation
+~modRate = 20.0;
+~modRate = 10.0;
+~modRate = 5.0;
+
+
+// open scope
+s.scope(~order.asHoaOrder.size, ~outbus);
+
+
+// audition
+(
+{
+	// saw params
+	var freq = 110.0;
+	var gain = -12;
+
+	var sig;
+	var hoa;
+	var aformat;
+
+	sig = Saw.ar(freq, gain.dbamp);
+
+	// encode with NFE
+	hoa = HoaEncodeDirection.ar(sig, ~theta, ~phi, ~encRadius, ~order);
+
+	// decode with NFE
+	aformat = HoaDecodeMatrix.ar(
+		HoaNFCtrl.ar(  // NFE control - decode at encoding radius, the "look" radius
+			hoa,
+			AtkHoa.refRadius,
+			~encRadius,
+			~order
+		),
+		HoaMatrixDecoder.newSphericalDesign(  // a-format decoder
+			~sphDesign,
+			~beamShape,
+			~order
+		)
+	);
+
+	// modulate amplitude of "virtual loudspeakers" - in a-format
+	aformat = aformat * ~numChans.collect({ LFNoise2.ar(~modRate).range });
+	// aformat = aformat * ~numChans.collect({ LFNoise2.ar(~modRate) });
+
+	// re-encode with NFE
+	HoaNFCtrl.ar(  // NFE control - re-encode at encoding radius, the "look" radius
+		HoaEncodeMatrix.ar(
+			aformat,
+			HoaMatrixEncoder.newSphericalDesign(  // a-format encoder
+				~sphDesign,
+				~beamShape,
+				~order
+			)
+		),
+		~encRadius,
+		AtkHoa.refRadius,
+		~order
+	);
+
+}.play(outbus: ~outbus)
+)
+
+// quit rt server
+s.quit
+::
+
+
+section::Format Exchange
+
+If you haven't already, do review link::Guides/Format-Exchange::.
+
+subsection:: Encode from FOA
+
+The example using link::Classes/HoaNFDist:: is equivalent to the one found link::Guides/Format-Exchange#encode HOA1 from FOA#here::.
+
+code::
+// Inspect the ATK's reference radius
+"Reference radius: % m".format(AtkHoa.refRadius);
+
+// simple test...
+
+// boot rt server
+s.boot;
+
+// choose Ambisonic order
+~order = 1  // match FOA, first order!
+
+// choose an outbus, if need be
+~outbus = 0
+
+// open scope
+s.scope(~order.asHoaOrder.size, ~outbus);
+
+// encoding angles
+// azimuth & elevation
+~theta = 0.0;
+~phi = 0.0;
+
+// explicitly set encoding radius
+// i.e., radius != AtkHoa.refRadius
+~encRadius = 2.0;  // > AtkHoa.refRadius
+~encRadius = 1.5;  // = AtkHoa.refRadius
+~encRadius = 1.0;  // < AtkHoa.refRadius
+
+
+// audition
+(
+{
+	// saw params
+	var freq = 110.0;
+	var gain = -12;
+
+	var sig;
+	var foa;
+
+	sig = Saw.ar(freq, gain.dbamp);  // saw
+	// sig = SinOsc.ar(freq, mul: gain.dbamp);  // sine
+
+	// FOA encoding, refRadius = inf
+	foa = FoaProximity.ar(  // FOA radial encoding
+		FoaPanB.ar(  // FOA angular encoding
+			HPF.ar(sig, freq/3),  // precondition sig, i.e., "make safe" for proximity
+			~theta,
+			~phi
+		),
+		~encRadius
+	);
+
+	// HOA re-encoding, refRadius = AtkHoa.refRadius (= 1.5)
+	HoaNFDist.ar(
+		HoaEncodeMatrix.ar(
+			foa,
+			HoaMatrixEncoder.newFormat(\fuma, ~order)  // from fuma to atk
+		),
+		~order
+	);
+
+	// // compare to direct HOA1 encoding
+	// HoaEncodeDirection.ar(sig, ~theta, ~phi, ~encRadius, ~order);  // no need to precondition sig!
+
+}.play(outbus: ~outbus)
+)
+
+// quit rt server
+s.quit
+::
+
+
+subsection::Decode to FOA
+
+The example using link::Classes/HoaNFProx:: is equivalent to the one found link::Guides/Format-Exchange#decode HOA3 to FOA#here::.
+
+
+code::
+// Inspect the ATK's reference radius
+"Reference radius: % m".format(AtkHoa.refRadius);
+
+// simple test...
+
+// boot rt server
+s.boot;
+
+// choose Ambisonic order
+~order = 1  // match FOA, first order!
+
+// choose an outbus, if need be
+~outbus = 0
+
+// open scope
+s.scope(~order.asHoaOrder.size, ~outbus);
+
+// encoding angles
+// azimuth & elevation
+~theta = 0.0;
+~phi = 0.0;
+
+// explicitly set encoding radius
+// i.e., radius != AtkHoa.refRadius
+~encRadius = 2.0;  // > AtkHoa.refRadius
+~encRadius = 1.5;  // = AtkHoa.refRadius
+~encRadius = 1.0;  // < AtkHoa.refRadius
+
+
+// audition
+(
+{
+	// saw params
+	var freq = 110.0;
+	var gain = -12;
+
+	var sig;
+	var hoa;
+
+	sig = Saw.ar(freq, gain.dbamp);  // saw
+	// sig = SinOsc.ar(freq, mul: gain.dbamp);  // sine
+
+	// HOA encoding, refRadius = AtkHoa.refRadius (= 1.5)
+	hoa = HoaEncodeDirection.ar(sig, ~theta, ~phi, ~encRadius, ~order);  // no need to precondition sig!
+
+	// FOA decoding, refRadius = inf
+	HoaDecodeMatrix.ar(
+		HoaNFProx.ar(
+			HPF.ar(hoa, freq/3),  // precondition sig, i.e., "make safe" for proximity (HOA1)
+			~order
+		),
+		HoaMatrixDecoder.newFormat(\fuma, ~order)  // from atk to fuma
+	);
+
+}.play(outbus: ~outbus)
+)
+
+// quit rt server
+s.quit
+::

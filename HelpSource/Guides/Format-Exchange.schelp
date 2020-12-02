@@ -134,6 +134,7 @@ code::
 	AtkFoa.defaultOrder  // FOA order = HOA1 order
 );
 ::
+note::A more verbose equivalent can be found link::Guides/HOA-NFE#Encode%20from%20FOA#here::.::
 
 
 section:: HOA source, FOA target
@@ -214,6 +215,7 @@ code::
 	~decoder
 );
 ::
+note::A more verbose equivalent can be found link::Guides/HOA-NFE#Decode%20to%20FOA#here::.::
 
 
 subsection:: encode FOA from HOA3

@@ -3,7 +3,7 @@ summary:: Ambisonic Toolkit Frequently Asked Questions
 categories:: Libraries>Ambisonic Toolkit
 keyword::Atk
 
-section:: General questions
+section:: Ambisonics
 
 General questions about Ambisonics.
 
@@ -12,7 +12,12 @@ subsection:: What is the difference between FOA and HOA?
 Some answers here...
 
 
-section:: Platform questions
+section:: Techniques
+
+Guestions about specific techniques.
+
+
+section:: Ambisonic Toolkit
 
 Specific questions about the ATK.
 
@@ -65,7 +70,7 @@ Rendering higher orders is possible via the inclusion of larger designs and/or c
 If you've installed the link::https://gitlab.com/dxarts/projects/adt.quark##ADT quark::, larger designs are available in the link::https://bitbucket.org/ambidecodertoolbox/adt/src/master/##Ambisonic Decoder Toolbox::.
 
 
-section:: ATK development & maintence
+section:: Development & maintence
 
 subsection:: How do I report a bug?
 

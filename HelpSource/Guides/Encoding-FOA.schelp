@@ -17,12 +17,13 @@ Choose a decoder suitable for your system, as illustrated link::Guides/Intro-FOA
 note:: If you choose a kernel decoder, link::Classes/FoaDecoderKernel::, be sure to free the kernel after use. ::
 
 
-section:: Mono source
+section:: Mono
 
-subsection:: Omnidirectional encoder
+We have many choices to make when encoding a mono source. These examples include following an encoder with a transformer.
 
+subsection:: Omni & Push
 
-Encoded as an omnidirectional soundfield, link::Classes/PinkNoise:: is used as the example sound source.
+Encoded as an omnidirectional soundfield (no space!), link::Classes/PinkNoise:: is used as the example sound source.
 
 In a well aligned, dampend studio environment, this usually sounds "in the head". link::Classes/FoaPush:: is used to "push" the omnidirectional soundfield so that it becomes a planewave (infinite distance, in an anechoic environment) arriving from some direction.
 
@@ -91,7 +92,7 @@ code::
 
 
 
-subsection:: Frequency spreading encoder
+subsection:: Frequency spreading & Push
 
 
 Encoded as a frequency spread soundfield, link::Classes/PinkNoise:: is used as the example sound source. This sounds as spread across the soundfield, with the various frequency components appearing in various places. link::Classes/FoaPush:: is used to "push" the omnidirectional soundfield so that it becomes a planewave (infinite distance, in an anechoic environment) arriving from some direction.
@@ -165,7 +166,7 @@ code::
 ::
 
 
-subsection:: Frequency diffusion encoder
+subsection:: Frequency diffusion & Push
 
 
 Encoded as a frequency diffused soundfield, link::Classes/PinkNoise:: is used as the example sound source. This sounds as diffused across the soundfield, with the various frequency components appearing in various places, with various phases. link::Classes/FoaPush:: is used to "push" the omnidirectional soundfield so that it becomes a planewave (infinite distance, in an anechoic environment) arriving from some direction.
@@ -239,9 +240,11 @@ code::
 ::
 
 
-section:: Stereo source
+section:: Stereo
 
-subsection:: Stereophonic encoder
+As with link::#Mono#mono:: sources, we have numerous options when encoding stereo sources. Here are a few.
+
+subsection:: Pan2, Stereo matrix & Zoom
 
 In this example we first encode a single channel of link::Classes/PinkNoise:: into a stereophonic signal with link::Classes/Pan2::. link::Classes/FoaZoom:: is then used to balance the soundfield across the x-axis (front/back).
 
@@ -317,7 +320,7 @@ code::
 // ------------------------------------------------------------
 ::
 
-subsection:: Stereophonic encoder (soundfile)
+subsection:: Stereo matrix
 
 For this example we'll look at encoding stereo soundfiles.
 
@@ -398,7 +401,7 @@ list::
 ::
 
 
-subsection:: Super Stereo encoder (soundfile)
+subsection:: Super Stereo
 
 Super Stereo footnote:: See: http://en.wikipedia.org/wiki/Ambisonics#Super_stereo :: is the classic Ambisonic method to encode stereophonic files, and is considered to be optimal for frontal stereo encoding.
 
@@ -478,7 +481,7 @@ list::
 ::
 
 
-subsection:: Ambisonic UHJ stereo encoder (soundfile)
+subsection:: Ambisonic UHJ stereo
 
 link::http://en.wikipedia.org/wiki/Ambisonic_UHJ_format##Ambisonic UHJ:: is the stereo format for Ambisonics.
 
@@ -558,10 +561,14 @@ list::
 ::
 
 
-section:: Tetrahedral source
+section:: Tetrahedral, aka A-format
 
-subsection:: A to B encoder
+You may like to review the discussion on Gerzon's experimental link::Tutorials/ABCs-of-the-ATK#Tetrahedral%20Recording#tetrahedral recording::, along with the discussion of the link::Tutorials/ABCs-of-the-ATK#Spatial%20Domains#spatial domains::.
 
+note::The ATK views A-format as a uniform spherical soundfield decomposition, rather than as raw, uncorrected microphone feeds.::
+
+
+subsection:: Diffuse field & Push
 
 Here we encode four channels of decorrelated link::Classes/PinkNoise:: as a decorrelated soundfield, resulting in a maximally diffuse soundfield. link::Classes/FoaPush:: is used to "push" the soundfield so that it becomes a planewave (infinite distance, in an anechoic environment) arriving from some direction. This technique gives the opportunity to continuously modulate between a directional and a diffuse soundfield.
 
@@ -629,7 +636,7 @@ code::
 // ------------------------------------------------------------
 ::
 
-subsection:: A to B encoder (soundfile)
+subsection:: Spaced microphones
 
 This example is somewhat unconvential as regards the literature. Four microphones (omnis) are place around the performer in a tetrahedron. This is then matrixed into B-format.
 
@@ -703,9 +710,9 @@ list::
 ::
 
 
-section:: 2D & 3D surround source
+section:: 2D & 3D surround
 
-subsection:: Pantophonic encoder (soundfile)
+subsection:: Octophonic
 
 The pantophonic encoder may be used to transcode from one format to another. This example transcodes an octophonic recording to the decoder you've chosen.
 
@@ -776,7 +783,7 @@ list::
 ::
 ::
 
-subsection:: Directions encoder (soundfile)
+subsection:: Dome
 
 The directions encoder may be used to transcode from one format to another. This example transcodes a periphonic 12-channel recording to the decoder you've chosen.
 
@@ -799,6 +806,9 @@ code::
 ~encoder.kind
 ~encoder.numChannels
 ~encoder.dirChannels.raddeg
+
+// and see!
+~pv = PointView().directions_(~directions).front
 
 
 // read a whole sound into memory
@@ -853,7 +863,7 @@ note::
 As a simple matrix encoder, no frequency dependent spatial domain correction is applied.
 ::
 
-subsection:: ZoomH2 encoder (soundfile)
+subsection:: ZoomH2, forward
 
 The link::http://www.zoom.co.jp/english/products/h2/##ZoomH2:: is a convenient, portable handheld recorder. The device only records horizontal surround (pantophonic), so we don't get height.
 
@@ -937,7 +947,7 @@ list::
 
 
 
-subsection:: ZoomH2 encoder, reversed (soundfile)
+subsection:: ZoomH2, reversed
 
 As described link::Classes/FoaEncoderMatrix#*newZoomH2#here::, the link::http://www.zoom.co.jp/english/products/h2/##ZoomH2:: encoder reverses the labels for front and back of the link::http://www.zoom.co.jp/english/products/h2/##ZoomH2::. This is done to favour the use of the decoder as a roving, hand-held device, with the display facing the operator.
 

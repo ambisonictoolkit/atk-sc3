@@ -4,10 +4,30 @@ categories:: Libraries>Ambisonic Toolkit>Guides & Tutorials
 keyword::Atk
 
 
-The examples below are intended to briefly illustrate some of the first order decoding options made available in the Ambisonic Toolkit. The user is encouraged to carefully review the features of link::Classes/FoaDecoderMatrix:: and link::Classes/FoaDecoderKernel:: to gain a deeper understanding of the flexibility of these tools.
+section:: Monitoring
 
-As the Ambisonic technique is a hierarchal system, numerous options for playback are possible. These include two channel stereo, two channel binaural, 2D horizontal only surround (pantophonic) and full 3D with height surround (periphonic). A brief introduction is explored below.
+Perhaps one of the most celebrated aspects of the Ambisonic sound technique has been its design as a hierarchal reproduction system, able to target a number of varying loudspeaker arrays. Users may be familiar with SuperCollider's inbuilt regular polygon decoder, link::Classes/DecodeB2::.
 
+The ATK provides a much wider palate of optimised monitoring tools via link::Classes/FoaDecode::. These include:
+
+list::
+## emphasis::stereo UHJ: :: classic Ambisonic stereo decoding
+## emphasis::binaural: :: measured and synthetic HRTFs
+## emphasis::regular 2D & 3D: :: single and dual polygons
+## emphasis::diametric 2D & 3D: :: flexible semi-regular arrays
+## emphasis::5.0: :: link::http://www.brucewiggins.co.uk/##Wiggins:: optimised decoders
+::
+
+While the emphasis::regular:: decoders will be suitable for many users, emphasis::diametric:: decoding enables the greatest flexibility, and allows the user to design substantially varying semi-regular arrays suitable for a wide variety of playback situations.
+
+The examples below are intended to briefly illustrate some of the first order decoding options made available in the Ambisonic Toolkit.
+
+note:: All decoders presume loudspeakers are placed at equal radii from the origin of the array, and gain is normalised. Loudspeaker arrays with unequal radii may be realised if the resulting wavefront arrival times are compensated through the use of delay lines.::
+
+note::See link::Classes/FoaDecode::, link::Classes/FoaDecoderMatrix:: and link::Classes/FoaDecoderKernel:: for more details about decoding.::
+
+
+subsection:: Testing notes
 
 Encoded as an omnidirectional soundfield, link::Classes/PinkNoise:: is used as the example sound source. In a well aligned, dampend studio environment, this usually sounds "in the head". link::Classes/FoaPush:: is used to "push" the omnidirectional soundfield so that it becomes a planewave (infinite distance, in an anechoic environment) arriving from some direction.
 

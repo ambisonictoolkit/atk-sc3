@@ -9,3 +9,480 @@ section:: Introduction
 code::
 ("https://en.wikipedia.org/wiki/Novice".openOS)
 ::
+
+section:: Panorama Laws
+
+A emphasis::panorama law::, aka emphasis::panning law::, is a rule detailing how a loudspeaker array synthesizes a spatial sound image. This rule may act by creating emphasis::magnitude::, emphasis::phase:: and emphasis::time:: differences between loudspeakers to synthesize the target image. In practice, not all of these aspects are always touched, and different panning laws may emphasize one aspect over another.
+
+In the discussion found here we'll compare emphasis::pair-wise panning:: laws with those returned by Ambisonics. Also, we'll restrict the Ambisonic laws to emphasis::basic:: panning. I.e., encoded sources and loudspeakers are at the emphasis::reference radius::.
+
+subsection:: Stereo with Pan2
+
+Let's begin with the two channel stereophonic emphasis::sine-cosine panning law::, footnote::link::https://www.researchgate.net/publication/228381059_Classic_stereo_imaging_transforms-a_review##See Classic Stereo Imaging Transforms—A Review::.:: as this is the panning law used by SuperCollider's link::Classes/Pan2:: UGen. From the help, we see this is described as a "Two channel equal power panner". In other words, the panorama effect is a result of acting on the amplitude scaling of an input signal, scaling in an emphasis::equal power:: distribution between two loudspeakers.
+
+If we look at the link::https://github.com/supercollider/supercollider/blob/3.11/server/plugins/PanUGens.cpp#L792-L816#source code::, we can see the function used is emphasis::sine::.
+
+Let's make a plot to visualize...
+
+code::
+~size = 4096;  // SC's Pan2 size
+
+~pos = Array.interpolation(~size, -1.0, 1.0);  // pan position
+
+// sine-cosine panning law
+(
+~sinCosLaw = (pi / 4 * Array.with(
+	(~pos.neg + 1),  // left
+	(~pos + 1)  // right
+)
+).sin;
+);
+
+// plot!
+~sinCosLaw.at(0).plot("sin-cos: left");
+~sinCosLaw.at(1).plot("sin-cos: right");
+::
+
+What we see is that we have a rule to govern how much signal is passed to the left and right to synthesize a emphasis::phantom image::.
+
+
+subsection:: Quad with PanAz
+
+Reviewing the help for link::Classes/PanAz::, we see it described as a "Multichannel equal power panner." When we peek at the link::https://github.com/supercollider/supercollider/blob/3.11/server/plugins/PanUGens.cpp#L1304-L1346#source code::, we can see that sine appears.
+
+With the settings listed just below, link::Classes/PanAz:: will return the exact same rule as link::Classes/Pan2:::
+
+code::
+PanAz.ar(2, in, pos: (0.5 * ~myPos), level: 1.0, width: 2.0, orientation: 0.5)  // Pan2
+::
+
+________________
+
+Given the default arguments, and setting strong::numChans:: to four:
+
+code::
+PanAz.ar(4, in, pos: 0.0, level: 1.0, width: 2.0, orientation: 0.5)
+::
+
+will return a emphasis::pair-wise equal power:: quadraphonic panning rule.
+
+Let's go ahead and test this panner with link::Classes/DC:: and plot the results. We're starting at the left speaker and panning clockwise all the way around:
+
+code::
+s.boot;  // wait for the server to boot...
+
+// Quad w/ PanAz: FL, FR, BR, BL
+(
+var dur = 0.1;
+{
+	PanAz.ar(4, DC.ar(1), Line.ar(0.25.neg, 1.75, 0.1), orientation: 0.5)
+}.plot(dur)
+)
+::
+
+What we see here is the amplitude scaling rule for all four speakers in order to pan a sound in a clockwise rotation around the array. We can see that no more than two loudspeakers are active at once.
+
+Also, note that the rule can be described as a collection of emphasis::windows in space:: or emphasis::spatial windows::.
+
+Keep this plot open, as we're going to compare this rule with Ambisonics.
+
+
+subsection:: Quad with PanB2 & DecodeB2
+
+Here we'll start with two of SuperCollider's FOA built ins link::Classes/PanB2:: and link::Classes/DecodeB2:: to build a quadraphonic panner. footnote::Building a panner by directly connecting an encoder and a decoder is known as emphasis::Ambisonic equivalent panning::, aka emphasis::AEP::.:: This first is a emphasis::basic:: 2D encoder, and the second is a emphasis::controlled opposites::, aka cardioid, 2D decoder:
+
+code::
+// Quad w/ PanB2 -> DecodeB2: FL, FR, BR, BL
+(
+var dur = 0.1;
+var numChans = 4;
+{
+	var foa;
+	foa = PanB2.ar(DC.ar(1), Line.ar(0.25.neg, 1.75, 0.1));  // start the law
+	DecodeB2.ar(numChans, foa.at(0), foa.at(1), foa.at(2))  // finish the law
+}.plot(dur)
+)
+::
+
+In comparing the laws for link::#Quad with PanAz:: and link::#Quad with PanB2 & DecodeB2:: we'll notice two things immediately. The spatial windows for :
+
+numberedlist::
+## strong::Quad with PanAz:: are sharply clipped
+## strong::Quad with PanB2 & DecodeB2:: are very smooth
+::
+
+link::Classes/PanAz:: offers a parameter to adjust the amount of clipping by changing its strong::width:: argument. We can modify the law, so it looks a bit more like what we see with link::Classes/PanB2:: and link::Classes/DecodeB2:::
+
+code::
+// Quad w/ PanAz: FL, FR, BR, BL
+// width = 4
+(
+var dur = 0.1;
+{
+	PanAz.ar(4, DC.ar(1), Line.ar(0.25.neg, 1.75, 0.1), width: 4, orientation: 0.5)
+}.plot(dur)
+)
+::
+
+note::
+While reduced, there is are still sharp edges in the windows!
+::
+
+In emphasis::time domain:: signal processing, sharp window shapes are associated with emphasis::frequency domain aliasing:: footnote::See link::https://en.wikipedia.org/wiki/Window_function##Window function::::.
+
+In the emphasis::spatial domain::, sharp windows are associated with emphasis::spatial domain aliasing::.
+
+
+subsection:: Optimized Quad with HOA1
+
+The original architects of classic first order Ambisonics were emphasis::deeply concerned:: about the emphasis::spatial domain aliasing:: found in the quad recordings of the link::https://en.wikipedia.org/wiki/Quadraphonic_sound##Age of Quadraphonic Sound::. One of their goals was to reduce or remove the spatial distortions found in these recordings.
+
+Their solution was to offer three different panning optimization choices on decoding. These choices offer an equivalence to link::Classes/PanAz::'s strong::width:: parameter, but instead of being an ad hoc choice, the choices for Ambisonics are defined against optimization criteria.
+
+The ATK uses the parameter name strong::beam shape:: within the HOA toolset. footnote::The FOA toolset uses the name strong::k::.::
+
+Three standard emphasis::spatial windows:: are offered:
+
+table::
+## strong::keyword:: || strong::beam shape:: || strong::localisation vector:: || strong::virtual microphone::
+## code::\basic:: || strict soundfield || maximum velocity rV || Hyper-cardioid
+## code::\energy:: || energy optimised || maximum energy rE || Super-cardioid
+## code::\controlled:: || controlled opposites || minimum diametric energy || Cardioid
+::
+
+In the codeblock immediately below you'll notice that the equivalent HOA toolset code for making an emphasis::Ambisonic equivalent panner:: for quad is much more verbose. As a result, we have much greater control.
+
+We'll use the ATK's emphasis::project decoder::, link::Classes/HoaMatrixDecoder#*newProjection::, to create the quad decoder. link::Classes/HoaMatrixDecoder#*newProjection#newProjection:: is a very simple, but powerful decoder. It quickly calculates the matrices required for decoders where the space has been sampled equally. To design a 2D decoder, we just supply the vertices of a regular polygon. footnote::This is what SuperCollider's link::Classes/DecodeB2:: is doing under the hood.::
+
+Go ahead and try each of the three window choices.
+
+code::
+// Quad w/ HOA1: FL, FR, BR, BL
+(
+var dur = 0.1;
+var numChans = 4;
+var order = 1;  // ambisonic order
+var decoder = HoaMatrixDecoder.newProjection( // design
+	Array.regularPolygon(numChans, \side, pi).rotate(1).neg,  // quad
+	// \basic,  // strict soundfield
+	// \energy,  // energy optimised
+	\controlled,  // controlled opposites <- same as DecodeB2
+	\amp,
+	order
+);
+{
+	var hoa;
+	hoa = HoaEncodeDirection.ar(  // start the law
+		DC.ar(1),  // DC
+		Line.ar(0, 2pi.neg, 0.1, add: pi/4),
+		0,
+		AtkHoa.refRadius,
+		order
+	);
+
+	HoaDecodeMatrix.ar(hoa, decoder)  // finish the law
+}.plot(dur)
+)
+::
+
+With emphasis::basic:: and emphasis::energy::, we see the scaling function drops below zero in places. If plotted in a polar form, we'd see the familiar tails of first order hyper-cardiod and super-cardioid microphones.
+
+Look closely to find where these tails appear in the windows. Of particular interest, by dropping below zero they are inverted in polarity. They appear at their peaks when there are a peaks in the loudspeaker opposite. We can say, where one loudspeaker pushes, the opposite pulls.
+
+In Ambisonics, the loudspeakers all work together to create the panorama.
+
+
+subsection:: Octa with PanAz
+
+Let's try a pair-wise link::https://en.wikipedia.org/wiki/Octophonic_sound##octaphanic rule:: with link::Classes/PanAz::.
+
+For convenience, we'll use an array where the first loudspeaker is in at front center, and we'll start the test from directly behind, so that the plot returns the first window centered.
+
+code::
+// Octa w/ PanAz: FC, ...
+(
+var dur = 0.1;
+{
+	PanAz.ar(8, DC.ar(1), Line.ar(1.neg, 1, 0.1), orientation: 0)
+}.plot(dur)
+)
+::
+
+This plot really gives a clear sense that emphasis::panning laws:: are emphasis::spatial windows::. We see each window offset in space. (Keep this plot open.)
+
+Now let's do the same analysis, but just keep the window for the first loudspeaker:
+
+code::
+// Octa w/ PanAz: FC only!
+(
+var dur = 0.1;
+{
+	PanAz.ar(8, DC.ar(1), Line.ar(1.neg, 1, 0.1), orientation: 0).first
+}.plot(dur, minval: -1, maxval: 1)
+)
+::
+(And, keep this plot open, too!)
+
+subsection:: Optimized Octa with HOA3
+
+
+Go ahead and try each of the three window choices.
+
+code::
+// Octa w/ HOA3: FC...
+(
+var dur = 0.1;
+var numChans = 8;
+var order = 3;  // ambisonic order
+var decoder = HoaMatrixDecoder.newProjection( // design
+	Array.regularPolygon(numChans, \vertex, pi).neg,  // octa
+	// \basic,  // strict soundfield
+	// \energy,  // energy optimised
+	\controlled,  // controlled opposites
+	\amp,
+	order
+);
+{
+	var hoa;
+	hoa = HoaEncodeDirection.ar(  // start the law
+		DC.ar(1),  // DC
+		Line.ar(pi, pi.neg, 0.1),
+		0,
+		AtkHoa.refRadius,
+		order
+	);
+
+	HoaDecodeMatrix.ar(hoa, decoder)  // finish the law
+}.plot(dur)
+)
+::
+(After inspection, feel free to close these.)
+
+And, another plot, keeping just the center loudspeaker:
+
+code::
+// Octa w/ HOA3: FC only!
+(
+var dur = 0.1;
+var numChans = 8;
+var order = 3;  // ambisonic order
+var decoder = HoaMatrixDecoder.newProjection( // design
+	Array.regularPolygon(numChans, \vertex, pi).neg,  // octa
+	// \basic,  // strict soundfield
+	// \energy,  // energy optimised
+	\controlled,  // controlled opposites
+	\amp,
+	order
+);
+{
+	var hoa;
+	hoa = HoaEncodeDirection.ar(  // start the law
+		DC.ar(1),  // DC
+		Line.ar(pi, pi.neg, 0.1),
+		0,
+		AtkHoa.refRadius,
+		order
+	);
+
+	HoaDecodeMatrix.ar(hoa, decoder).first  // finish the law
+}.plot(dur, minval: -1, maxval: 1)
+)
+::
+(After inspection, feel free to close these.)
+
+Let's do one more plot, where we compare the window shape of pair-wise octaphonic with HOA3 emphasis::strict soundfield:::
+
+code::
+// Octa w/ PanAz vs HOA3: FC only!
+(
+var dur = 0.1;
+var numChans = 8;
+var order = 3;  // ambisonic order
+var decoder = HoaMatrixDecoder.newProjection( // design
+	Array.regularPolygon(numChans, \vertex, pi).neg,  // octa
+	\basic,  // strict soundfield
+	\energy,
+	order
+);
+{
+	var hoa;
+	hoa = HoaEncodeDirection.ar(  // start the law
+		DC.ar(1),  // DC
+		Line.ar(pi, pi.neg, 0.1),
+		0,
+		AtkHoa.refRadius,
+		order
+	);
+
+	Array.with(
+		PanAz.ar(8, DC.ar(1), Line.ar(1.neg, 1, 0.1), orientation: 0).first,
+		HoaDecodeMatrix.ar(hoa, decoder).first  // finish the law
+	)
+}.plot(dur, minval: -1, maxval: 1)
+)
+::
+
+What we're seeing here is that in the main lobe of the two windows, the octaphonic pair-wise law is similar to the HOA3 strict soundfield law. That's interesting, in that it indicates that pair-wise octaphonic panning gives something in the neighborhood of Ambisonics! footnote::Maybe that's why people like octaphonic sound?::
+
+(go ahead and quit the server)
+code::
+s.quit
+::
+
+
+subsection:: Spatial Nyquist filters
+
+This isn't completely obvious, and seems counter intuitive, but a DSP expert in windows for filtering will see the two plots as related. The HOA3 law emphasis::looks like:: a smoothed version of the pair-wise law.
+
+Let's do a little experiment.
+
+The pair-wise window for the sine-cosine panning law is actually a zero padded link::https://en.wikipedia.org/wiki/Window_function#Sine_window#Sine window::. footnote::Surprised?::
+
+When we compare the sine window with a windowed sinc, we see some remarkable similarities with our previous plot:
+
+code::
+(
+~size = 4096;
+~numChans = 8;
+
+// pair-wise law
+~pairWise8 = Signal.zeroFill(~size).overDub(
+	Signal.zeroFill(2 * ~size / ~numChans).addSine(0.5, 1.0, 0.0),
+	((~size / 2) - (~size / ~numChans)).asInteger
+);
+
+// windowed sinc
+~lowpass = Signal.windowedSinc(~size, 0.00085, 1).normalize;  // not far off...
+
+[ ~pairWise8.as(Array), ~lowpass.as(Array) ].lace.plot("Octa: Sine Window & Windowed Sinc", minval: -1, maxval: 1, numChannels: 2)
+)
+::
+
+And, just to be sure, let's review the frequency response of these two:
+
+code::
+(
+[
+	(~pairWise8.rdftZoom(30, 0, 29).magnitude.normalize + -90.dbamp).ampdb,
+	(~lowpass.rdftZoom(30, 0, 29).magnitude.normalize + -90.dbamp).ampdb
+].lace.plot("Octa: Sine Window & Windowed Sinc Magnitude (dB)", numChannels: 2)
+)
+::
+
+What we are seeing here is that the windowed sinc is a fairly well behaved lowpass filter with a flat top and a smooth roll off. This isn't the case with the sine window.
+
+Because we can, let's directly view the frequency response of the HOA3 strict soundfield panning law.
+
+code::
+~numChans = 8;
+~order = 3;  // ambisonic order
+
+// design decoder
+~decoder = HoaMatrixDecoder.newProjection( // design
+	Array.regularPolygon(~numChans, \vertex, pi).neg,  // octa
+	\basic,  // strict soundfield
+	\energy,
+	~order
+);
+
+// make a new decoder - just the first (front) channel
+~frontChanDecoder = HoaMatrixDecoder.newFromMatrix(
+	~decoder.getSub(0, 0, ~order.asHoaOrder.size, 1),
+	~decoder.directions.keep(1),  // first channel only
+	~order
+);
+
+// analyze directional response - return basic pan law for HOA3
+~testDirections = Array.interpolation(~size, pi, pi.neg);
+~basicWindow8 = ~frontChanDecoder.analyzeDirections(~testDirections).amp.as(Signal);
+
+
+// view pairwise and actual HOA3 law
+[ ~pairWise8.as(Array), ~basicWindow8.as(Array) ].lace.plot("Octa: Sine Window & HOA3 Basic", minval: -1, maxval: 1, numChannels: 2);
+
+// frequency response of the two
+[
+	(~pairWise8.rdftZoom(30, 0, 29).magnitude.normalize + -90.dbamp).ampdb,
+	(~basicWindow8.rdftZoom(30, 0, 29).magnitude.normalize + -90.dbamp).ampdb
+].lace.plot("Octa: Sine Window & HOA3 Basic Magnitude (dB)", numChannels: 2)
+::
+
+What we're seeing is that the HOA3 basic (strict) panning law has a well behaved lowpass response in the frequency domain when viewed as a time domain window.
+
+________________
+
+In the spatial domain, it acts as a emphasis::spatial lowpass filter::. And its role is as a emphasis::spatial anti-aliasing filter::, aka a emphasis::spatial Nyquist fiter::.
+
+Let's see how this works in practice by going back to quad comparing a pair-wise quad law with an HOA3 quad law:
+
+code::
+~numChans = 4;
+~order = 3;  // ambisonic order
+
+// pair-wise law
+~pairWise4 = Signal.zeroFill(~size).overDub(
+	Signal.zeroFill(2 * ~size / ~numChans).addSine(0.5, 1.0, 0.0),
+	((~size / 2) - (~size / ~numChans)).asInteger
+);
+
+// design decoder
+~decoder = HoaMatrixDecoder.newProjection( // design
+	Array.regularPolygon(~numChans, \vertex, pi).neg,  // quad
+	\basic,  // strict soundfield
+	\energy,
+	~order
+);
+
+// make a new decoder - just the first (front) channel
+~frontChanDecoder = HoaMatrixDecoder.newFromMatrix(
+	~decoder.getSub(0, 0, ~order.asHoaOrder.size, 1),
+	~decoder.directions.keep(1),  // first channel only
+	~order
+);
+
+// analyze directional response - return basic pan law for HOA3
+~testDirections = Array.interpolation(~size, pi, pi.neg);
+~basicWindow4 = ~frontChanDecoder.analyzeDirections(~testDirections).amp.as(Signal);
+
+
+// view pairwise and actual HOA3 law
+[ ~pairWise4.as(Array), ~basicWindow4.as(Array) ].lace.plot("Quad: Sine Window & HOA3 Basic", minval: -1, maxval: 1, numChannels: 2);
+
+// frequency response of the two
+[
+	(~pairWise4.rdftZoom(30, 0, 29).magnitude.normalize + -90.dbamp).ampdb,
+	(~basicWindow4.rdftZoom(30, 0, 29).magnitude.normalize + -90.dbamp).ampdb
+].lace.plot("Quad: Sine Window & HOA3 Basic Magnitude (dB)", numChannels: 2)
+::
+
+Remarkably, when we go back to quad from HOA3, we see that the panning law window has opened up again!
+
+This opening up is emphasis::spatial smoothing::, aka emphasis::lowpass filtering:: in the emphasis::spatial domain::.
+
+If we bother to do a check, we'll find that the quad law for HOA3 (when using the emphasis::projection decoder::) is the same as the one for HOA1.
+
+This is a result of the Ambisonic laws applying a emphasis::spatial anti-aliasing filter::.
+
+Also, we can see by inspecting the window frequency response, the spatial cutoff is higher for the octaphonic array. The octaphonic array has a higher emphasis::spatial sampling rate::. For HOA3 with the quadraphonic array, the emphasis::spatial anti-aliasing filter:: rejects spatial detail that would otherwise alias.
+
+In contrast, the pair-wise laws are very leaky. They have higher cutoffs, but significantly more emphasis::spatial aliasing::.
+
+________________
+
+anchor::nyquistTakeways::
+strong::Important takeaways::
+
+list::
+## emphasis::panning laws:: are emphasis::spatial filters::
+## emphasis::spatial smoothing:: is emphasis::spatial lowpass filtering::
+## loudspeaker arrays have a emphasis::spatial sampling rate::
+## we use emphasis::anti-aliasing filters:: to emphasis::avoid spatial aliasing::
+::
+
+
+section:: Ambisonic Order
+
+
+section:: Soundfield Model
+
+Near-Field Controlled Ambsionic Soundfield Model

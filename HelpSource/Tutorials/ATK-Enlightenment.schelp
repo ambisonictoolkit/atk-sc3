@@ -167,6 +167,10 @@ In the codeblock immediately below you'll notice that the HOA toolset code for m
 
 We'll use the ATK's emphasis::projection decoder::, link::Classes/HoaMatrixDecoder#*newProjection::, to create the quad decoder. link::Classes/HoaMatrixDecoder#*newProjection#newProjection:: is a very simple, but powerful decoder. It quickly calculates the matrices required for decoders where space has been sampled equally. To design a 2D decoder, we just supply the vertices of a regular polygon. footnote::This is what SuperCollider's link::Classes/DecodeB2:: is doing under the hood.::
 
+note::
+In practice, we'd usually use link::Classes/HoaMatrixDecoder#*newPanto:: to return a quadraphonic, or other regular polygon, decoder, as it designs the required polygon internally. For ease of comparison we've used link::Classes/HoaMatrixDecoder#*newProjection#newProjection:: for the following examples, so as to directly map to the output ordering link::Classes/PanAz:: returns.
+::
+
 Go ahead and try each of the three window choices.
 
 code::

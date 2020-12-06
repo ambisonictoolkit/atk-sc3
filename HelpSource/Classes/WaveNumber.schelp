@@ -168,4 +168,59 @@ Ambisonic order.
 
 EXAMPLES::
 
-TBD
+subsection:: Effective radius
+
+code::
+// --------------------------------------
+// find effective radius with respect to freq & order
+~effFreq = 1000;  // duplex theory of hearing
+~effFreq = 700;  // approx center of hearing
+
+~order = 7;
+~order = 5;
+~order = 3;
+~order = 1;
+
+~wavNum = WaveNumber.newFreq(~effFreq);
+
+~effRadius = ~wavNum.radius(~order);
+~effDiameter = 2 * ~effRadius;
+::
+
+subsection:: Effective order
+
+code::
+// --------------------------------------
+// find effective order with respect to freq & radius
+~effFreq = 1000;  // duplex theory of hearing
+~effFreq = 700;  // approx center of hearing
+
+~effRadius = 1.5;  // @ refRadius
+~effRadius = 0.5;  // 4 peeps
+~effRadius = 0.25;  // 2 peeps
+~effRadius =  (0.18 / 2);  // head (or 0.215)
+
+~wavNum = WaveNumber.newFreq(~effFreq);
+
+~effOrder = ~wavNum.orderAtRadius(~effRadius);
+::
+
+subsection:: Effective frequency
+
+code::
+// --------------------------------------
+// find effective freq with respect to radius & order
+~effRadius = 1.5;  // @ refRadius
+~effRadius = 0.5;  // 4 peeps
+~effRadius = 0.25;  // 2 peeps
+~effRadius =  (0.18 / 2);  // head (or 0.215)
+
+~order = 7;
+~order = 5;
+~order = 3;
+~order = 1;
+
+~wavNum = WaveNumber.newRadius(~effRadius, ~order);
+
+~effFreq = ~wavNum.freq;
+::

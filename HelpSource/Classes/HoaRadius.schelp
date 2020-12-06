@@ -152,4 +152,57 @@ Ambisonic order.
 
 EXAMPLES::
 
-TBD
+subsection:: Effective radius
+
+code::
+// --------------------------------------
+// find effective radius with respect to freq & order
+~effFreq = 1000;  // duplex theory of hearing
+~effFreq = 700;  // approx center of hearing
+
+~order = 7;
+~order = 5;
+~order = 3;
+~order = 1;
+
+~hoaRadius = HoaRadius.newFreq(~effFreq, ~order);
+
+~effRadius = ~hoaRadius.radius;
+~effDiameter = 2 * ~effRadius;
+::
+
+subsection:: Effective order
+
+code::
+// --------------------------------------
+// find effective order with respect to radius & freq
+~hoaRadius = HoaRadius.new(1.5);  // @ refRadius
+~hoaRadius = HoaRadius.new(0.5);  // 4 peeps
+~hoaRadius = HoaRadius.new(0.25);  // 2 peeps
+~hoaRadius = HoaRadius.new(0.18 / 2);  // head (or 0.215)
+~hoaRadius.radius
+
+~effFreq = 1000;  // duplex theory of hearing
+~effFreq = 700;  // approx center of hearing
+
+~effOrder = ~hoaRadius.orderAtFreq(~effFreq);
+::
+
+subsection:: Effective frequency
+
+code::
+// --------------------------------------
+// find effective freq with respect to radius & order
+~hoaRadius = HoaRadius.new(1.5);  // @ refRadius
+~hoaRadius = HoaRadius.new(0.5);  // 4 peeps
+~hoaRadius = HoaRadius.new(0.25);  // 2 peeps
+~hoaRadius = HoaRadius.new(0.18 / 2);  // head (or 0.215)
+~hoaRadius.radius;
+
+~order = 7;
+~order = 5;
+~order = 3;
+~order = 1;
+
+~effFreq = ~hoaRadius.freq(~order);
+::

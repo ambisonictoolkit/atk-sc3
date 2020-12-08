@@ -778,12 +778,12 @@ code::
 
 We see that as order increases, so does the number of SH in the spherical domain. We can think of emphasis::Ambisonic order:: as directly indicating a emphasis::spatial sampling rate:: in the emphasis::spherical domain::.
 
-For translations of soundfields to the emphasis::angular domain::, the ATK uses emphasis::spherical t-designs::. We can find the mimimum size design required for each order by observing the returned error message:
+For translations of soundfields to the emphasis::angular domain::, the ATK uses emphasis::spherical t-designs::. We can find the mimimum size design required for each order by observing the returned value:
 
 code::
-TDesign.newHoa(1, order: ~hoaOrder1.order);  // 4
-TDesign.newHoa(1, order: ~hoaOrder3.order);  // 24
-TDesign.newHoa(1, order: ~hoaOrder5.order);  // 60
+TDesignLib.getHoaDesigns(order: ~hoaOrder1.order).first[\numPoints];
+TDesignLib.getHoaDesigns(order: ~hoaOrder3.order).first[\numPoints];
+TDesignLib.getHoaDesigns(order: ~hoaOrder5.order).first[\numPoints];
 ::
 
 strong::3D Soundfield Spatial Sampling Rates::

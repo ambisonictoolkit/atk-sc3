@@ -594,15 +594,325 @@ For this review, we've made these measures of the HOA law in a brute force manne
 ::
 
 
-section:: Ambisonic Order
+section:: Order & harmonics
 
-spatial sampling rate: angular & spherical
+From the link::Guides/ATK-Glossary:::
 
-projection vs sampling, smoothing required
+definitionlist::
+## Ambisonic order
+keyword:: order
+|| Specifies the maximum emphasis::Associated Legendre degree::, ℓ, of a given signal set.
+::
 
-decoder analysis plots
+emphasis::Ambisonic order:: indicates the emphasis::Associated Legendre degree:: to which the detail of an Ambisonic soundfield is known.
+
+________________
+
+The ATK class tasked with returning SH coefficients is link::Classes/HoaOrder::. This class also returns a variety of performance measures which are useful to consider when seeking to understand the emphasis::meaning of Ambisonic order::.
 
 
+subsection:: Effective radius & frequency
+
+When we recall the link::Tutorials/ABCs-of-the-ATK#Tetrahedral%20Recording#OUTRS tetrahedral recording experiment::, the origins of Ambisonics as a soundfield sampling technique become clear. The soundfield is sampled at a single point with a measurement array. We emphasis::exactly know the soundfield:: at this point. footnote::Neglecting measurement errors having to do with the actual spatio-frequency response of the microphone. E.g, the spatial aliasing limit of the microphone, and other factors.::
+
+Surprisingly, we also know the soundfield further away from the sampling point, in a frequency dependent way. This is the emphasis::effective radius:::
+
+definitionlist::
+## effective radius
+|| Radius of the volume (or area) of exact soundfield reconstruction.
+::
+
+Let's plot the emphasis::effective radius:: against emphasis::Ambisonic order:::
+
+code::
+/*
+plot effective radius against effective order
+_fixed_ freq
+*/
+(
+~effFreq = 700.0;  // hearing half band
+/* ~effFreq = 1000.0;  // hearing duplex theory */
+
+~effOrders = Array.series(10, 0);  // orders to test
+
+~radii = ~effOrders.collect({ |order| HoaOrder.new(order).radiusAtFreq(~effFreq) });
+~radii.plot("Effective radius (m) @ % Hz".format(~effFreq), maxval: ~radii.last.ceil);
+)
+::
+
+Ambisonic order is on the x-axis and effective radius in meters is on the y-axis. We're measuring at 700 Hz (or 1000 Hz, if you choose). This plot illustrates: as Ambisonic order increases, the region of exact soundfield reproduction also increases.
+
+In particular, at 5th order, we can expect a region of nearly radius = 0.4 meter to be emphasis::exactly:: reconstructed for frequencies at and below 700 Hz.
+
+Let's try another plot:
+
+code::
+/*
+plot effective bandwidth against effective order
+_fixed_ radius
+*/
+(
+// choose a radius to test..
+// ~effRadius = 1.5;  // @ refRadius
+// ~effRadius = 0.5;  // 4 peeps
+~effRadius = 0.25;  // 2 peeps
+// ~effRadius =  (0.18 / 2);  // head
+
+~effFreq = 700.0;  // hearing half band
+/* ~effFreq = 1000.0;  // hearing duplex theory */
+
+~effOrders = Array.series(10, 0);
+
+~effFreqs = ~effOrders.collect({ |order| HoaOrder.new(order).freqAtRadius(~effRadius) });
+
+// log bandwidth
+~effFreqs.cpsoct.put(0, 0).plot("Effective octave @ radius % (m)".format(~effRadius), maxval: ~effFreq.cpsoct);
+)
+::
+
+As with our previous plot, Ambisonic order is on the x-axis. The y-axis is frequency, but on a log scale of decimal octaves. For instance:
+
+code::
+5.octcps
+::
+
+This plot illustrates: as Ambisonic order increases, the cutoff frequency of exact soundfield reproduction also increases.
+
+In particular, at 3rd order, we can expect a region radius = 0.25 meter to be emphasis::exactly:: reconstructed below 5.3333 decimal octaves:
+
+code::
+5.3333.octcps
+::
+
+Knowing the effective radius and effective frequency helps us decide which Ambisonic panning law to use. If the target for playback is a large audience, choosing the emphasis::strict soundfield:: law is not necessarily ideal. The emphasis::energy optimised:: or emphasis::controlled opposites:: laws are better choices.
+
+________________
+
+strong::Frequency dependent laws::
+
+Classic FOA employs the emphasis::psycho-acoustic shelf filter:: footnote::link::Classes/FoaPsychoShelf:::: to select the strict law at low frequencies and the energy law at highs. The ATK's HOA toolset includes a fiter kernel designer to do the job. footnote::link::Classes/Signal#*hoaMultiBandFocl:::: Frequency dependent laws have traditionally been advised for studio and nearfield listening. For example:
+
+code::
+// --------------------------------------
+// find effective freq with respect to radius & order
+(
+~effRadius = 0.18 / 2;   // head: single listener
+~order = 3;
+
+~effFreq = HoaOrder.new(~order).freqAtRadius(~effRadius);
+)
+::
+
+A single listener can expect a 3rd order soundfield to be reproduced exactly, up to 1820 Hz. Above this point, the energy optimised law is the better choice, as the soundfield isn't exactly reconstructed.
+
+
+subsection:: Spherical basis functions
+
+From the link::Guides/ATK-Glossary:::
+
+definitionlist::
+## spherical harmonics (SH)
+keyword:: spherical, harmonic
+|| A complete set of orthogonal, Fourier emphasis::basis functions:: on the sphere. For Ambisonics, a set of real form harmonics truncated to a highest emphasis::Associated Legendre:: degree, i.e., a given emphasis::Ambisonic order::, encodes a soundfield. See link::https://en.wikipedia.org/wiki/Spherical_harmonics##Spherical harmonics::.
+::
+
+
+Open the following pages:
+code::
+(
+"https://en.wikipedia.org/wiki/File:Spherical_Harmonics_deg5.png#/media/File:Spherical_Harmonics_deg5.png".openOS;
+"https://en.wikipedia.org/wiki/File:Rotating_spherical_harmonics.gif#/media/File:Rotating_spherical_harmonics.gif".openOS;
+)
+::
+
+The first of these illustrates Spherical Harmonics (SH) up to degree 5; these are the SH for fifth order. We can understand these bubble shapes as illustrating the 3D polar response patterns of each SH. If we like, we can think of these as virtual microphones.
+
+The second illustrates up to degree 4, so these are for fourth order. (We convert a fifth order soundfield to fourth by discarding the SH of degree 5.) These are illustrated as heat maps. Only one side of the "tree" is shown. The symmetries of the sectoral and tesseral SH are shown via the rotating SH.
+
+
+More from the link::Guides/ATK-Glossary:::
+
+definitionlist::
+
+## sectoral modes
+keyword:: sectoral, modes
+|| Spherical modes where emphasis::AL degree:: and emphasis::AL index:: are related ℓ = |m|. These modes encode azimuth. See link::https://en.wikipedia.org/wiki/Spherical_harmonics#Visualization_of_the_spherical_harmonics#Visualization of the spherical harmonics:: and link::http://mathworld.wolfram.com/SectorialHarmonic.html##Sectorial Harmonic::.
+
+## tesseral modes
+keyword:: tesseral, modes
+|| Spherical modes not included as emphasis::sectoral:: or emphasis::zonal::, encoding both azimuth and elevation. See link::https://en.wikipedia.org/wiki/Spherical_harmonics#Visualization_of_the_spherical_harmonics#Visualization of the spherical harmonics:: and link::http://mathworld.wolfram.com/TesseralHarmonic.html##Tesseral Harmonic::.
+
+## zonal modes
+keyword:: zonal, modes
+|| Spherical modes where emphasis::AL index:: m = 0. These modes encode elevation. See link::https://en.wikipedia.org/wiki/Spherical_harmonics#Visualization_of_the_spherical_harmonics#Visualization of the spherical harmonics:: and link::http://mathworld.wolfram.com/ZonalHarmonic.html##Zonal Harmonic::.
+::
+
+
+The spherical harmonics are the basis functions against which we measure the shape of a soundfield.
+
+A zero-th order soundfield is a soundield without any shape; it has energy only in degree zero.
+
+
+subsection:: Spherical & angular SSR
+
+It becomes immediately clear that Ambisonic order can be directly understood as a kind of emphasis::spherical domain spatial sampling rate::. The higher the order, the more spherical harmonics.
+
+Let's explore some details. We'll begin by considering:
+
+code::
+// three different orders
+~hoaOrder1 = 1.asHoaOrder;
+~hoaOrder3 = 3.asHoaOrder;
+~hoaOrder5 = 5.asHoaOrder;
+::
+
+strong::In 3D, aka Periphonic::
+
+How resolved, in terms of numbers of harmonics, are each of these?
+
+code::
+~hoaOrder1.size;  // -> 4
+~hoaOrder3.size;  // -> 16
+~hoaOrder5.size;  // -> 36
+::
+
+We see that as order increases, so does the number of SH in the spherical domain. We can think of emphasis::Ambisonic order:: as directly indicating a emphasis::spatial sampling rate:: in the emphasis::spherical domain::.
+
+For translations of soundfields to the emphasis::angular domain::, the ATK uses emphasis::spherical t-designs::. We can find the mimimum size design required for each order by observing the returned error message:
+
+code::
+TDesign.newHoa(1, order: ~hoaOrder1.order);  // 4
+TDesign.newHoa(1, order: ~hoaOrder3.order);  // 24
+TDesign.newHoa(1, order: ~hoaOrder5.order);  // 60
+::
+
+strong::3D Soundfield Spatial Sampling Rates::
+
+The table below compares the number of coefficients required for the spherical and angular domains: footnote::Using the energy criteria for t-designs as described by Zotter, et al.
+
+Zotter, F., Frank, M., & Sontacchi, A. (2010). The Virtual T-Design Ambisonics-Rig Using VBAP. EAA Euroregio Ljubljana 2010.
+::
+
+table::
+## strong::order:: || strong::spherical SR:: || strong::angular SR::
+## 1 || 4 || 4
+## 3 || 16 || 24
+## 5 || 36 || 60
+::
+
+One way we can read the table immediately above is to understand that spherical harmonics are a fairly efficient way to represent a soundfield. For fifth order, we need only 36 harmonics, but in the angular domain, emphasis::24 more:: are required for the job.
+
+
+strong::In 2D, aka Pantophonic::
+
+How resolved, in terms of numbers of harmonics, are each of these?
+
+code::
+~hoaOrder1.indices(subset: \sectoral).size;  // -> 3
+~hoaOrder3.indices(subset: \sectoral).size;  // -> 7
+~hoaOrder5.indices(subset: \sectoral).size;  // -> 11
+::
+
+The sectoral harmonics, aka modes, encode the 2D soundfield. You can see we need significantly less harmonics here.
+
+strong::2D Soundfield Spatial Sampling Rates::
+
+The usual practice is to consider the angular sampling rate for 2D to be +1 that of the spherical, as doing so returns more stable image synthesis.
+
+table::
+## strong::order:: || strong::spherical SR:: || strong::angular SR::
+## 1 || 3 || 4
+## 3 || 7 || 8
+## 5 || 11 || 12
+::
+
+The rule of thumb for 2D arrays is:
+
+code::
+~numSpkrs = (~order * 2) + 2
+::
+
+
+subsection::Array resolution
+
+As we saw above with link::#Spatial Nyquist filters::, an actual loudspeaker array has spatial Nyquist frequency. For instance, a quad decoder will only be able to synthesize a first order Ambisonic soundfield. This becomes apparent when we evaluate the rule of thumb immediately above.
+
+For a regular polygon, 2D, we can re-write the rule as: footnote::This will return the number of sectoral harmonics required.::
+
+code::
+~order = ((~numSpkrs / 2) - 1).ceil.asInteger
+::
+
+
+The same principle is true for 3D loudspeaker arrays. footnote::There are some specific caveats if we're willing to accept a design that is not isotropic.:: If we are designing an isotropic (equal in space) decoder, the degree of resolution is limited by the number of loudspeakers available. For instance, a cube can emphasis::only:: be first order:
+
+code::
+~order = 1;  // yes!
+// ~order = 3;  // no!!
+~numChans = 8;  // cube
+
+// find t-design
+TDesign.newHoa(~numChans, order: ~order);
+::
+
+
+subsection::Localisation measures
+
+Another way we can understand Ambisonic order, and panning law choices (beam shapes) is to consider the localisation measures Ambisonics is designed to optimize:
+
+definitionlist::
+## velocity localisation vector (rV)
+|| Vector quantity offering an estimate of the perceived localisation of a phantom source at low frequency, predicting imaging up to around 1.5 kHz. Can be found as the real part of emphasis::acoustic admittance::, the emphasis::active acoustic admittance::.
+
+## energy localisation vector (rE)
+|| Vector quantity offering an estimate of the perceived localisation of a phantom source in terms of energy, expected to predict imaging between 500 and 5000 Hz.
+::
+
+The emphasis::strict soundfield:: option maximizes strong::rV::, where strong::rE:: is emphasis::energy optimised::. For off center listeners, strong::rE:: is usually preferred.
+
+Let's try a plot:
+
+code::
+/*
+plot rE against order order
+beam: energy
+*/
+(
+~beamShape = \energy;  // energy optimised
+
+// ~dim = 3;  // 3D
+~dim = 2;  // 2D
+
+~orders = Array.series(10, 0);  // orders to test
+
+~rEs = ~orders.collect({ |order| HoaOrder.new(order).rE(~beamShape, ~dim) });
+~rEs.plot("%D: rE for % law".format(~dim, ~beamShape), maxval: ~rEs.last.ceil);
+)
+::
+
+What we see here is that for a third order 2D array, the energy localisation measure is more that 90% that of a real sound. We expect this energy optimized 2D array to be well defined in terms of energy.
+
+Try:
+
+code::
+/*
+plot rE against order order
+beam: cardioid
+*/
+(
+~beamShape = \controlled;  // controlled opposites
+
+// ~dim = 3;  // 3D
+~dim = 2;  // 2D
+
+~orders = Array.series(10, 0);  // orders to test
+
+~rEs = ~orders.collect({ |order| HoaOrder.new(order).rE(~beamShape, ~dim) });
+~rEs.plot("%D: rE for % law".format(~dim, ~beamShape), maxval: ~rEs.last.ceil);
+)
+::
+
+For the emphasis::controlled opposites:: law, we require fifth order to get above the 90% threshold.
 
 
 section:: Soundfield Model

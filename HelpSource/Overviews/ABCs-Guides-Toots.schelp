@@ -6,9 +6,13 @@ keyword::Atk
 Use this overview to find your way around the ATK's Guides and Tutorials.
 
 
-section:: Theory
+section:: Framework & Theory
 
 definitionlist::
+## link::Tutorials/ABCs-of-the-ATK:: || A library for soundfield research, analysis, synthesis and composition
+
+## link::Guides/ATK-FAQs:: || Frequently Asked Questions
+
 ## link::Tutorials/ATK-Enlightenment:: || On ways to think Ambisonic, a Novice's guide
 
 ## link::Guides/ATK-Glossary:: || Glossary of some relevant Ambisonic and Ambisonic Toolkit words

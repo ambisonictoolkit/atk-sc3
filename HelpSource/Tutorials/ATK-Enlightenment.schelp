@@ -833,7 +833,7 @@ code::
 ::
 
 
-subsection::Array resolution
+subsection:: Array resolution
 
 As we saw above with link::#Spatial Nyquist filters::, an actual loudspeaker array has spatial Nyquist frequency. For instance, a quad decoder will only be able to synthesize a first order Ambisonic soundfield. This becomes apparent when we evaluate the rule of thumb immediately above.
 
@@ -856,7 +856,7 @@ TDesign.newHoa(~numChans, order: ~order);
 ::
 
 
-subsection::Localisation measures
+subsection:: Localisation measures
 
 Another way we can understand Ambisonic order, and panning law choices (beam shapes) is to consider the localisation measures Ambisonics is designed to optimize:
 
@@ -915,6 +915,372 @@ beam: cardioid
 For the emphasis::controlled opposites:: law, we require fifth order to get above the 90% threshold.
 
 
-section:: Soundfield Model
+section:: Ambisonic Soundfield Model
 
-Near-Field Controlled Ambsionic Soundfield Model
+Near-Field Controlled Ambsionic Soundfield Model (NFC-ASM)
+
+
+subsection:: Virtual loudspeakers & microphone
+
+We'll start building our model by evenly distributing a number of points evenly over the surface of a sphere. As discussed link::#Spherical & Angular SSR#above::, we'll find a emphasis::spherical t-design:: which has an angular spatial sampling rate high enough to meet the spherical sampling rate of a selected order:
+
+code::
+~order = AtkHoa.defaultOrder;  // HOA3
+~hoaOrder = HoaOrder.new(~order);  // HoaOrder instance
+
+// find smallest t-design
+~numChans = TDesignLib.getHoaDesigns(order: ~order).first[\numPoints];
+
+// get t-design
+~tdesign = TDesign.newHoa(~numChans, order: ~order);  // t-design suitable for HOA3
+::
+
+Given this spherical design, we'll now explicitly collect link::Classes/Spherical:: coordinate instances, setting the radius of these to the emphasis::reference radius::.
+
+code::
+(
+~tdirs = ~tdesign.directions;  // t-design direcitons (rho = 1)
+~vspkrDirs = ~tdirs.collect({ |dir|  // include reference radius
+	Spherical.new(
+		AtkHoa.refRadius,
+		dir.first,
+		dir.last
+		)
+})
+)
+::
+
+Let's now use link::Classes/PointView:: to view this array of virtual loudspeakers at the reference radius:
+
+code::
+// let's view with PointView: t-design first
+(
+~pv = PointView.new;
+~pv.directions_(~vspkrDirs);  // set directions
+~pv.pointColors_(Color.yellow);  // yellow
+~pv.connections_(\triangulation);  // set triang mesh
+~pv.axisScale_(1.0);
+~pv.front;  // move to front
+)
+::
+
+Go ahead and touch the GUI with your mouse or pointer to re-orient the display.
+
+Now, let's add a virtual soundfield microphone:
+
+code::
+// --
+// add a virtual microphone!!
+~vmicDir = Spherical.new(0.0, 0.0, 0.0);  // origin
+
+~pv.directions_(~vspkrDirs ++ [ ~vmicDir ], false);  // don't reset connections!
+~pv.highlightPoints([ ~vspkrDirs.size ]);  // highight the microphone
+
+~pv.front;  // move to front
+::
+
+This is it!
+
+We can imagine the emphasis::Near-Field Controlled Ambsionic Soundfield Model:: to be a collection of virtual loudspeakers evenly distributed across the surface of a sphere. The radius of the sphere is the emphasis::reference radius::. At the origin of the sphere is a virtual soundfield microphone.
+
+Easy, peasy!!
+
+When we're done inspecting:
+
+code::
+~pv.removeHighlight
+::
+
+
+subsection:: Near-field travelling wave
+
+The radial part of Ambisonic encoding (the start of the panning law) is frequency dependent, so for this demonstration we'll need to specify a frequency:
+
+code::
+// radial encoding is frequency dependent!
+// ~freq = 2.75.octcps  // A2
+~freq = 1.75.octcps  // A1
+::
+
+note::
+Usually we'd use link::Classes/HoaEncodeDirection:: to encode a travelling wave when building a UGen graph. When using this UGen we don't need to specify a frequency. The included frequency dependent radial filter link::Classes/DegreeCtrl:: does the job for us.
+::
+
+Let's now specify a emphasis::near-field:: source, encoded at half the reference radius. We'll  use a shorthand of naming a travelling wave within the reference radius as a emphasis::near-field source::.
+
+code::
+// add a virtual source (near)
+~nearRadius = 0.5 * AtkHoa.refRadius;
+~nearDir = Spherical.new(~nearRadius, pi/6, pi/12);
+
+// update PointView directions
+~pv.directions_(~vspkrDirs ++ [ ~vmicDir, ~nearDir ], false);  // don't reset connections!
+~pv.highlightPoints([ ~vspkrDirs.size + 1 ]);  // highight the new point
+~pv.front;  // move to front
+::
+
+We can see this source is within the virtual loudspeaker array.
+
+Now let's design the encoding coefficients. You'll see we design the angular and radial coefficients separately, and then bring them together for the final encoding law:
+
+code::
+(
+// coefficients for this near source (focused)
+~nearAngular = ~hoaOrder.sph(  // angular coeffs
+	~nearDir.theta,
+	~nearDir.phi
+);
+~nearRadial = ~hoaOrder.ctrlWeights(  // radial coeffs
+	~freq,  // freq
+	~nearDir.rho,  // encoding radius
+	AtkHoa.refRadius  // reference radius
+)[~hoaOrder.l];
+
+// combine angular and radial
+~nearCoeffs = ~nearAngular * ~nearRadial;  // all together!
+)
+::
+
+The designed coefficients are link::Classes/Complex::. We have both real and imaginary parts for each coefficient!
+
+When we inspect the magnitude and phase of the encoding coefficients, we're reviewing the magnitude and phase changes that are required to synthesize Ambisonic encoding of a sinusoid at the frequency we specified above:
+
+code::
+// inspect & plot magnitude & phase
+~nearMag = ~nearCoeffs.magnitude;
+~nearPha = ~nearCoeffs.phase;
+
+// human readable
+~nearMag.ampdb.round(0.01);  // dB
+~nearPha.raddeg.round(0.01);  // degrees
+::
+
+Let's plot these values:
+
+code::
+[ (~nearMag + 180.neg.dbamp).ampdb.clip(-20, 20), ~nearPha.raddeg ].lace.plot("Near source: Magnitude (dB) & Phase (deg)", discrete: true, numChannels: 2)
+::
+
+note::Leave this plot window open. We'll compare with other travelling wave encodings, below.::
+
+subsection:: Far-field travelling wave
+
+Let's now specify a emphasis::far-field:: source. Like above, we'll  use a shorthand of naming a travelling wave beyond the reference radius as a emphasis::far-field source::.
+
+This source is at one and a half times the reference radius (more like, emphasis::far-ish::, actually. footnote::10 meters is a better choice, as the encoding approaches that of a planewave.::):
+
+code::
+// add a virtual source (far-ish)
+~farRadius = 1.5 * AtkHoa.refRadius;
+~farDir = Spherical.new(~farRadius, pi/6, pi/12);
+
+// update PointView directions
+~pv.removeHighlight;
+~pv.directions_(~vspkrDirs ++ [ ~vmicDir, ~nearDir, ~farDir ], false);  // don't reset connections!
+~pv.highlightPoints([ ~vspkrDirs.size + 1, ~vspkrDirs.size + 2 ]);  // highight the source points
+~pv.front;  // move to front
+::
+
+Now we can see both the near-field and the far-field source.
+
+And, the far-field encoding coefficients:
+
+code::
+(
+// coefficients for this far source
+~farAngular = ~hoaOrder.sph(  // angular coeffs
+	~farDir.theta,
+	~farDir.phi
+);
+~farRadial = ~hoaOrder.ctrlWeights(  // radial coeffs
+	~freq,  // freq
+	~farDir.rho,  // encoding radius
+	AtkHoa.refRadius  // reference radius
+)[~hoaOrder.l];
+
+// combine angular and radial
+~farCoeffs = ~farAngular * ~farRadial;  // all together!
+)
+::
+
+We can inspect:
+
+code::
+// inspect & plot magnitude & phase
+~farMag = ~farCoeffs.magnitude;
+~farPha = ~farCoeffs.phase;
+
+~farMag.ampdb.round(0.01);  // dB
+~farPha.raddeg.round(0.01);  // degrees
+::
+
+And plot:
+
+code::
+[ (~farMag + 180.neg.dbamp).ampdb.clip(-20, 20), ~farPha.raddeg ].lace.plot("Far source: Magnitude (dB) & Phase (deg)", discrete: true, numChannels: 2)
+::
+
+note::Leave this plot window open. We'll continue to compare with other travelling wave encodings.::
+
+When we compare the magnitude plots of the near and far-field travelling waves, we notice the two are substantially different. In particular, we see the near-field source has high gains in high harmonics, while in the far-field source we see the gains rolling off.
+
+We can also notice that the phases are shifted in opposite rotations on camparison. E.g., positive phases for near-field are negative for far-field.
+
+Let's compare the angular and radial coefficients for this pair:
+
+code::
+// compare
+~farAngular == ~nearAngular;  // yes!
+~farRadial == ~nearRadial;  // no!!
+::
+
+So, yes, this test confirms that our two travelling waves have the same angular encoding. They have the same emphasis::look direction::.
+
+
+subsection:: Basic travelling wave
+
+Recall from our discussion of link::#Panorama Laws:: above: emphasis::basic:: panning, aka emphasis::basic:: encoding encodes a source at the emphasis::reference radius::.
+
+Let's specify this:
+
+code::
+// add a virtual source (basic)
+~basicRadius = AtkHoa.refRadius;
+~basicDir = Spherical.new(~basicRadius, pi/6, pi/12);
+
+// update PointView directions
+~pv.removeHighlight;
+~pv.directions_(~vspkrDirs ++ [ ~vmicDir, ~nearDir, ~farDir, ~basicDir ], false);  // don't reset connections!
+~pv.highlightPoints([ ~vspkrDirs.size + 1, ~vspkrDirs.size + 2, ~vspkrDirs.size + 3 ]);  // highight the source points
+~pv.front;  // move to front
+::
+
+Now we can see near-field, far-field and basic sources.
+
+The thing to remember: These are all emphasis::spherical travelling waves::!
+
+Now let's synthesize the coefficients of the basic source:
+
+code::
+// coefficients for basic source
+~basicAngular = ~hoaOrder.sph(  // angular coeffs
+	~basicDir.theta,
+	~basicDir.phi
+);
+~basicRadial = ~hoaOrder.ctrlWeights(  // radial coeffs (notice anything?)
+	~freq,  // freq
+	~basicDir.rho,  // encoding radius
+	AtkHoa.refRadius  // reference radius
+)[~hoaOrder.l];
+
+// combine angular and radial
+~basicCoeffs = ~basicAngular * ~basicRadial  // all together!
+::
+
+Inspect:
+
+code::
+// inspect & plot magnitude & phase
+~basicMag = ~basicCoeffs.magnitude;
+~basicPha = ~basicCoeffs.phase;
+
+~basicMag.ampdb.round(0.01);  // dB
+~basicPha.raddeg.round(0.01);  // degrees
+::
+
+Notice, for the basic travelling wave, the phase of the encoding coefficients is either 0 or 180 degrees.
+
+This corresponds to, the coefficients for basic encoding having no imaginary components:
+
+code::
+~basicCoeffs == ~basicCoeffs.real;  // test!
+
+~basicCoeffs.imag == Array.fill(~basicCoeffs.size, { 0.0 });  // all zeros!!
+::
+
+Plot, and compare with our other plots:
+
+code::
+[ (~basicMag + 180.neg.dbamp).ampdb.clip(-20, 20), ~basicPha.raddeg ].lace.plot("Basic source: Magnitude (dB) & Phase (deg)", discrete: true, numChannels: 2)
+::
+
+One thing we can see is that as a source moves away from the reference radius, this change is encoded in both magnitude and phase changes.
+
+Let's directly test the encoding coefficients:
+
+code::
+// compare
+(~basicAngular == ~nearAngular) && (~basicAngular == ~farAngular);  // yes!
+(~basicRadial == ~nearRadial) && (~basicRadial == ~farRadial);  // no!!
+::
+
+So, yes, the angular coefficients are the same. The differences are in the radial coefficients.
+
+note::When you're ready, feel free to close the travelling wave coefficient plots.::
+
+
+subsection:: Travelling waveforms
+
+As we work with Ambisonic signals, we'll become accustomed to reviewing encoded waveforms. Let's now take the opportunity to synthesize and review a single cycle of our three sources.
+
+code::
+// waveform synthesis parameters
+(
+~size = 4096;
+~gain = 0.0;  // dB
+~phase = 0;  // radians
+)
+::
+
+For ease of viewing, we'll truncate our coefficients from HOA3 to HOA1:
+
+code::
+// collect HOA1 magnitudes and phases for plotting
+(
+~hoaOrder1 = HoaOrder.new(1);
+
+~nearMagPha = [ ~nearMag, ~nearPha].flop.keep(~hoaOrder1.size);
+~basicMagPha = [ ~basicMag, ~basicPha].flop.keep(~hoaOrder1.size);
+~farMagPha = [ ~farMag, ~farPha].flop.keep(~hoaOrder1.size);
+)
+::
+
+Synthesize and plot:
+
+code::
+(
+[ \near, \basic, \far ].do({ |wave|
+	var dir = currentEnvironment[(wave ++ \Dir).asSymbol];
+	var plotMagPha = currentEnvironment[(wave ++ \MagPha).asSymbol];
+	var scale = plotMagPha.flop.first.maxItem.dbamp;  // rescale plot, for no clipping
+
+	var sig = plotMagPha.collect({ |magPhas|
+		var mag = magPhas.at(0);
+		var phas = magPhas.at(1);
+		mag * Array.newFrom(
+			Signal.cosineFill(
+				~size,
+				[ ~gain.dbamp ],
+				[ ~phase + phas ]
+			)
+		)
+	});
+
+	sig.plot(
+		"% % Hz: [ %, %, % ]".format(
+			wave.asString,
+			~freq,
+			dir.rho,
+			dir.theta.raddeg,
+			dir.phi.raddeg
+		),
+		minval: -1 * scale,
+		maxval: scale
+	)
+})
+)
+::
+
+When we cycle through these three plots, it becomes apparent that the first channel, degree zero, remains the same for all three travelling waves.
+
+We see that the space of the sound is to be found in the higher digrees, and is encoded in both magnitude and phase.

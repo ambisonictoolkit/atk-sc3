@@ -3,16 +3,48 @@ summary:: On ways to think Ambisonic, a Novice's guide
 categories:: Libraries>Ambisonic Toolkit>Guides & Tutorials
 keyword::Atk
 
+
+Ambisonics is a emphasis::holophonic:: soundfield sampling and synthesis technique.
+
 section:: Introduction
 
-
-code::
-("https://en.wikipedia.org/wiki/Novice".openOS)
+Jérôme Daniel in his landmark paper introducing NFC-HOA, describes Ambisonics as "a very versatile approach for the spatial encoding and rendering of sound fields," and lists the following advantages of the technique:
+footnote::
+J.  Daniel, "Spatial Sound Encoding Including Near Field Effect: Introducing Distance Coding Filters and a Viable, New Ambisonic Format," Paper 16, 23rd International Conference: Signal Processing in Audio Recording and Reproduction (2003 May.).
+Permalink: http://www.aes.org/e-lib/browse.cfm?elib=12321
 ::
+
+list::
+## A emphasis::rational:: encoding of spatial acoustic information, and moreover independent from the reproduction layout.
+
+## A emphasis::flexible:: and emphasis::scalable:: spatial sound representation: one can transform the sound field, and also adapt it to transmission constraints or reproduction capabilities by keeping only a subset of signals (variable spatial resolution).
+
+## A emphasis::variable geometry:: rendering: a decoder can be suitably designed according to the loudspeaker array geometry, and also for binaural rendering over headphones.
+
+## A quite emphasis::optimal way to achieve "holophonic" sound field reconstruction:: by means of a given number of loudspeakers, which makes Higher Order Ambisonics (HOA) comparable and even preferable to Wave Field Synthesis (WFS) in some conditions.
+::
+
+________________
+
+Stepping onto our path towards enlightenment we'll begin by considering Ambisonics in the context of pair-wise strong::panorama laws::. We'll observe how the emphasis::angular:: component of Ambisonics is similar to, but an optimized form of a panning technique with which we're familiar.
+
+We'll then consider the meaning of strong::Ambisonic order::, the spatial resolution of the technique. We'll see how order relates to:
+
+list::
+## emphasis::radial:: and emphasis::frequency domain:: resolution
+## emphasis::spherical:: and emphasis::angular:: resolution
+## physical loudspeaker resolution
+## localisation measures
+::
+
+Our discussion then closes with a brief review of the strong::Near-Field Controlled Ambsionic Soundfield Model::. This is perhaps Daniel's most important contribution to the art, and moves the radius of the emphasis::basic wave:: from infinity (classic, Gerzonic Ambisonics), to the mid-field.
+
+We build a visualisation using a collection of emphasis::virtual loudspeakers:: (secondary sources) and a emphasis::virtual microphone:: (soundfield sampler). We then review three different emphasis::travelling waves::, observing the resulting encoding coefficients and returned encoded signals.
+
 
 section:: Panorama Laws
 
-A emphasis::panorama law::, aka emphasis::panning law::, is a rule detailing how a loudspeaker array synthesizes a spatial sound image. This rule may act by creating emphasis::amplitude::, emphasis::phase:: and emphasis::time:: differences between loudspeakers to synthesize the target image. In practice, not all of these aspects are always touched, and different panning laws may emphasize one aspect over another.
+A emphasis::panorama law::, aka emphasis::panning law::, is a rule detailing how a loudspeaker array synthesizes a spatial sound image. This rule may act by creating emphasis::amplitude::, emphasis::phase:: and emphasis::time:: differences between loudspeakers to synthesize the desired emphasis::phantom image::. In practice, not all of these aspects are always touched, and different panning laws may emphasize one aspect over another.
 
 In the discussion here we'll compare emphasis::pair-wise panning:: laws with those returned by Ambisonics. Also, we'll restrict the Ambisonic laws to emphasis::basic:: panning. I.e., sources to be panned and target loudspeakers are at the emphasis::reference radius::.
 
@@ -95,7 +127,7 @@ Keep this plot open, as we're going to compare this rule with Ambisonics.
 
 subsection:: Quad with PanB2 & DecodeB2
 
-Here we'll start with two of SuperCollider's FOA built ins link::Classes/PanB2:: and link::Classes/DecodeB2:: to build a quadraphonic panner. footnote::Building a panner by directly connecting an encoder and a decoder is known as emphasis::Ambisonic equivalent panning::, aka emphasis::AEP::.:: This first is a emphasis::basic:: 2D encoder, and the second is a emphasis::controlled opposites::, aka cardioid, 2D decoder:
+Here we'll start with two of SuperCollider's FOA built ins link::Classes/PanB2:: and link::Classes/DecodeB2:: to build a quadraphonic panner. footnote::Building a panner by directly connecting an encoder and a decoder is known as emphasis::Ambisonic equivalent panning::, aka emphasis::AEP::.:: This first UGen is a emphasis::basic:: 2D encoder, and the second is a emphasis::controlled opposites::, aka cardioid, 2D decoder. Following an Ambisonic encoder with an Ambisonic decoder returns a panning law:
 
 code::
 // Quad w/ PanB2 -> DecodeB2: FL, FR, BR, BL
@@ -433,7 +465,7 @@ What we're seeing is that the HOA3 basic (strict) panning law has a well behaved
 
 ________________
 
-In the spatial domain, it acts as a emphasis::spatial lowpass filter::. And its role is as a emphasis::spatial anti-aliasing filter::, aka a emphasis::spatial Nyquist fiter::.
+In the spatial domain, the Ambisonic panning law acts as a emphasis::spatial lowpass filter::. Its role is as a emphasis::spatial anti-aliasing filter::, aka a emphasis::spatial Nyquist fiter::.
 
 Let's see how this works in practice by going back to quad comparing a pair-wise quad law with an HOA3 quad law:
 
@@ -594,7 +626,7 @@ For this review, we've made these measures of the HOA law in a brute force manne
 ::
 
 
-section:: Order & harmonics
+section:: Ambisonic Order
 
 From the link::Guides/ATK-Glossary:::
 
@@ -606,9 +638,9 @@ keyword:: order
 
 emphasis::Ambisonic order:: indicates the emphasis::Associated Legendre degree:: to which the detail of an Ambisonic soundfield is known.
 
-________________
+There are a number of ways to consider the emphasis::meaning of Ambisonic order::. As Ambisonics is a emphasis::holophonic:: technique, we'll begin by considering the strong::effictive radius:: of soundfield resynthesis. We'll consider practical aspects of strong::spatial sampling:: in the spherical and angular domains. And, then end with a brief discussion of strong::localisation measures::.
 
-The ATK class tasked with returning SH coefficients is link::Classes/HoaOrder::. This class also returns a variety of performance measures which are useful to consider when seeking to understand the emphasis::meaning of Ambisonic order::.
+The ATK includes a class, link::Classes/HoaOrder::, which can offer formalized understandings of these various aspects of an Ambisonic soundfield. We'll use this lens in much of the discussion that follows.
 
 
 subsection:: Effective radius & frequency
@@ -642,7 +674,7 @@ _fixed_ freq
 
 Ambisonic order is on the x-axis and effective radius in meters is on the y-axis. We're measuring at 700 Hz (or 1000 Hz, if you choose). This plot illustrates: as Ambisonic order increases, the region of exact soundfield reproduction also increases.
 
-In particular, at 5th order, we can expect a region of nearly radius = 0.4 meter to be emphasis::exactly:: reconstructed for frequencies at and below 700 Hz.
+In particular, at fifth order, we can expect a region of nearly radius = 0.4 meter to be emphasis::exactly:: reconstructed for frequencies at and below 700 Hz.
 
 Let's try another plot:
 
@@ -678,7 +710,7 @@ code::
 
 This plot illustrates: as Ambisonic order increases, the cutoff frequency of exact soundfield reproduction also increases.
 
-In particular, at 3rd order, we can expect a region radius = 0.25 meter to be emphasis::exactly:: reconstructed below 5.3333 decimal octaves:
+In particular, at third order, we can expect a region radius = 0.25 meter to be emphasis::exactly:: reconstructed below 5.3333 decimal octaves:
 
 code::
 5.3333.octcps
@@ -703,7 +735,7 @@ code::
 )
 ::
 
-A single listener can expect a 3rd order soundfield to be reproduced exactly, up to 1820 Hz. Above this point, the energy optimised law is the better choice, as the soundfield isn't exactly reconstructed.
+A single listener can expect a third order soundfield to be reproduced exactly, up to 1820 Hz. Above this point, the energy optimised law is the better choice, as the soundfield isn't exactly reconstructed.
 
 
 subsection:: Spherical basis functions
@@ -800,7 +832,7 @@ table::
 ## 5 || 36 || 60
 ::
 
-One way we can read the table immediately above is to understand that spherical harmonics are a fairly efficient way to represent a soundfield. For fifth order, we need only 36 harmonics, but in the angular domain, emphasis::24 more:: are required for the job.
+One way we can read the table immediately above is to understand that spherical harmonics are a fairly efficient way to represent a soundfield. For fifth order, we need only 36 harmonics, but in the angular domain, 24 more emphasis::spatial samples:: are required for the job.
 
 
 strong::In 2D, aka Pantophonic::
@@ -890,7 +922,7 @@ beam: energy
 )
 ::
 
-What we see here is that for a third order 2D array, the energy localisation measure is more that 90% that of a real sound. We expect this energy optimized 2D array to be well defined in terms of energy.
+What we see here is that for a third order 2D array, the energy localisation measure for a synthesized Ambisonic image is more that 90% that of a real sound. We expect this energy optimized 2D array to be well defined in terms of energy.
 
 Try:
 
@@ -917,12 +949,30 @@ For the emphasis::controlled opposites:: law, we require fifth order to get abov
 
 section:: Ambisonic Soundfield Model
 
-Near-Field Controlled Ambsionic Soundfield Model (NFC-ASM)
+Classic, aka Gerzonic, Ambisonics has always included the link::Guides/HOA-NFE##Near-Field Effect (NFE):: within its theoretical framework. This inclusion, however, hasn't tended to be especially visible to users on the encoding side of the panning laws. As a result many users are only familiar with emphasis::basic encoding::, where the encoding coefficients are real.
+
+In classic Ambisonics, emphasis::basic encoding:: is emphasis::planewave encoding::.
+
+________________
+
+Daniel's emphasis::Near-Field Compensated Higher Order Ambisonics (NFC-HOA):: footnote::I prefer to name the technique as emphasis::Near-Field Controlled::, so as not to confuse with the usage of the term emphasis::Near-Field Compensated:: in classic Ambisonics.:: introduces the emphasis::Near-Field Effect (NFE):: strong::reference radius:: into the Ambisonic framework to formalize what we might call the emphasis::Near-Field Controlled Ambsionic Soundfield Model (NFC-ASM)::.
+
+In practice, we can view this model as a collection of virtual loudspeakers at the emphasis::reference radius:: with a virtual microphone at the center.
+
+In theory, this isn't quite the whole story. Recall from our discussion of link::#Panorama Laws:: that we should view the loudspeakers as a collection of spatial window functions, or basis functions, with emphasis::look directions::. Similarly we should view the microphone as another collection of spatial basis functions, the spherical harmonics. The number of each of these is governed by the principles link::#Spherical & angular SSR#outlined above::.
+
+The soundfield can be represented in both angular and spherical forms.
+
+________________
+
+We'll start with constructing a visualisation of the model. Then we'll consider encoding three different emphasis::travelling waves::. We'll finish up with synthesizing the associated waveforms, directly from the calculated encoding coefficients.
+
+In designing the encoding coefficients for these different travelling waves, you'll see that the encoding law is split between emphasis::angular:: and emphasis::radial:: encoding. Radial encoding what allows us to move either side of the emphasis::reference radius::, and is where our emphasis::near-field control:: is found.
 
 
 subsection:: Virtual loudspeakers & microphone
 
-We'll start building our model by evenly distributing a number of points evenly over the surface of a sphere. As discussed link::#Spherical & Angular SSR#above::, we'll find a emphasis::spherical t-design:: which has an angular spatial sampling rate high enough to meet the spherical sampling rate of a selected order:
+We'll start building our model by evenly distributing a number of points evenly over the surface of a sphere. As discussed link::#Spherical & angular SSR#above::, we'll find a emphasis::spherical t-design:: which has an angular spatial sampling rate high enough to meet the spherical sampling rate of a selected order:
 
 code::
 ~order = AtkHoa.defaultOrder;  // HOA3
@@ -981,7 +1031,7 @@ code::
 
 This is it!
 
-We can imagine the emphasis::Near-Field Controlled Ambsionic Soundfield Model:: to be a collection of virtual loudspeakers evenly distributed across the surface of a sphere. The radius of the sphere is the emphasis::reference radius::. At the origin of the sphere is a virtual soundfield microphone.
+We can imagine the emphasis::NFC-ASM:: to be a collection of virtual loudspeakers evenly distributed across the surface of a sphere. The radius of the sphere is the emphasis::reference radius::. At the origin of the sphere is a virtual soundfield microphone.
 
 Easy, peasy!!
 
@@ -1139,7 +1189,7 @@ So, yes, this test confirms that our two travelling waves have the same angular 
 
 subsection:: Basic travelling wave
 
-Recall from our discussion of link::#Panorama Laws:: above: emphasis::basic:: panning, aka emphasis::basic:: encoding encodes a source at the emphasis::reference radius::.
+Recall from our discussion link::#Ambisonic Soundfield Model#above::: emphasis::basic:: panning, aka emphasis::basic:: encoding encodes a source at the emphasis::reference radius::.
 
 Let's specify this:
 
@@ -1157,7 +1207,7 @@ code::
 
 Now we can see near-field, far-field and basic sources.
 
-The thing to remember: These are all emphasis::spherical travelling waves::!
+note:: These are all emphasis::spherical travelling waves::! ::
 
 Now let's synthesize the coefficients of the basic source:
 
@@ -1283,4 +1333,4 @@ code::
 
 When we cycle through these three plots, it becomes apparent that the first channel, degree zero, remains the same for all three travelling waves.
 
-We see that the space of the sound is to be found in the higher digrees, and is encoded in both magnitude and phase.
+We see that the space of the sound is to be found in the higher degrees, and is encoded in both magnitude and phase.

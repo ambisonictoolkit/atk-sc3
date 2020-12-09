@@ -18,7 +18,7 @@ Moving between these sets is facilited through parallel tools for both FOA and H
 The tools are provided as open building blocks for Ambisonic workflows, signal synthesis and processing. The HOA toolset, in particular, is weighted towards providing emphasis::resources:: for implementations and emphasis::design patterns:: rather than multiple, closed black box solutions. footnote::For example, given a design for a stereo reverb, the ATK provides the pieces necessary to emphasis::Ambisonic-ize:: that design.::
 
 
-subsection:: Theory and practice
+subsection:: Theory & practice
 
 The ATK is solidly built upon a firm foundation of direct calculation of Ambisonic encoding coefficients. Since the inclusion footnote::https://github.com/supercollider/supercollider/releases/tag/Version-3.10.0:: of link::Guides/Tour-of-Special-Functions##Special Functions:: from the link::https://www.boost.org/##Boost library::, fast coefficient calucations are available in both sclang and on the sound synthesis server.
 

@@ -808,9 +808,7 @@ code::
 ~decodeEncode.shape == [ ~numCoeffs, ~numCoeffs ];
 ::
 
-TBD: SPHERICAL DESIGN EXAMPLES
-
-link::Guides/HOA-Spherical::
+You'll find further discission here: link::Guides/HOA-Spherical::.
 
 
 section:: Library architecture

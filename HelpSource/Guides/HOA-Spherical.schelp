@@ -1,0 +1,308 @@
+title:: Spherical Decomposition
+summary:: Ambisonic angular domain decomposition and recomposition
+categories:: Libraries>Ambisonic Toolkit>Guides & Tutorials
+keyword::Atk
+
+This document offers an overview of angular domain Ambisonic soundfield decomposition and recomposition for NFC-HOA.
+
+section:: Introduction
+
+Before continuing, you'll find it useful to review:
+
+numberedlist::
+## link::Tutorials/ABCs-of-the-ATK#Domain formats#Domain formats::
+## link::Tutorials/ABCs-of-the-ATK#Spatial Domains#Spatial domains::
+## link::Tutorials/ABCs-of-the-ATK#sphericalDecomp#Spherical decompostion::
+## link::Tutorials/ATK-Enlightenment#Ambisonic Soundfield Model#Ambisonic Soundfield Model::
+## link::Guides/HOA-NFE::
+::
+
+subsection:: Compare FOA and HOA?
+
+subsection:: Why?
+
+
+section:: FOA
+
+subsection:: Planewaves
+
+The ATK's FOA toolset includes support for emphasis::basic:: first order angular decomposition and recomposition in the form of link::Classes/FoaDecoderMatrix#*newBtoA:: and link::Classes/FoaEncoderMatrix#*newAtoB:::
+
+code::
+// decompose!
+~decoder = FoaDecoderMatrix.newBtoA;
+
+// recompose!
+~encoder = FoaEncoderMatrix.newAtoB;
+::
+
+The matrices of these are matched, so that reencoding will return the original soundfield:
+
+code::
+// identity matrix
+~decoder.matrix.mul(~encoder.matrix)
+::
+
+As the emphasis::reference radius:: of FOA is infinity, a decomposition with link::Classes/FoaDecoderMatrix#*newBtoA:: will return a emphasis::planewave decomposition:::
+
+code::
+~decoder.numChannels;  // 4 planewaves!
+::
+
+Let's view with link::Classes/PointView:::
+
+code::
+// let's view with PointView!
+(
+~pv = PointView.new;
+~pv.directions_(~decoder.directions);  // set directions
+~pv.pointColors_(Color.yellow);  // yellow
+~pv.connections_(\triangulation);  // set triang mesh
+~pv.axisScale_(1.0);
+~pv.front;  // move to front
+)
+::
+
+Go ahead and touch the GUI with your mouse or pointer to re-orient the display.
+
+This should appear familiar: link::Tutorials/ABCs-of-the-ATK#Tetrahedral Recording::
+
+And example use pattern looks like this:
+
+code::
+// spherical to angular domain
+~myAfmt = FoaDecode.ar(~myFoa, ~decoder);
+
+/*
+DO SOMETHING HERE
+
+~myNewAfmt
+*/
+
+// angular to spherical domain
+~myNewFoa = FoaEncode.ar(~myNewAfmt, ~encoder);
+::
+
+
+subsection:: Spherical waves
+
+By employing the procedure illustrated link::Guides/HOA-NFE#FOA#here::, we can decompose the soundfield into emphasis::spherical waves::, rather than emphasis::planewaves::. We'll specify a emphasis::look radius::, which is the radius at which the soundfield will be decomposed and resynthesized:
+
+code::
+// decompose!
+~decoder = FoaDecoderMatrix.newBtoA;
+
+// recompose!
+~encoder = FoaEncoderMatrix.newAtoB;
+
+// radius of spherical waves
+~radius = 1.0;  // meters
+~freq = 30.0;  // required to prevent overflow!
+
+// spherical to angular domain w/ NFE
+~myAfmt = FoaDecode.ar(
+	FoaNFC.ar(  // target radius: basic
+		~myFoa,
+		~radius
+	),
+	~decoder
+);
+
+/*
+DO SOMETHING HERE
+
+~myNewAfmt
+*/
+
+// angular to spherical domain w/ NFE
+~myNewFoa = FoaProximity.ar(
+	HPF.ar(
+		FoaEncode.ar(
+			~myNewAfmt,
+			~encoder
+		),
+		~freq
+	),
+	~radius
+);
+::
+
+What we're really doing is converting the spherical waves at radius to basic waves (no imaginary encoding coefficients) by using link::Classes/FoaNFC::.
+
+The soundfield is then being decomposed.
+
+After recomposition, the imaginary components are resynthesized via link::Classes/FoaProximity::.
+
+
+section:: HOA
+
+By leveraging the link::Classes/SphericalDesign:: class, the ATK's HOA toolset offers significant flexibility when designing matrices for higher order angular decomposition and recomposition.
+
+subsection:: Angular SR
+
+While there is a link::Tutorials/ATK-Enlightenment#Spherical & angular SSR#minimum angular spatial sampling rate:: that must be met for successful decomposition and recomposition, we may easily choose a higher number of beams to form:
+
+code::
+(
+// HOA order
+// ~order = 1;
+~order = 3;
+// ~order = 5;
+
+// beam (window) overlap optimization criteria
+~optimize = \energy;
+// ~optimize = \spreadE;
+
+~numPoints = TDesignLib.getHoaDesigns(~optimize, ~order).collect({ |des| des[\numPoints] });
+)
+::
+
+We can see that we have a large number of choices for third order, optimized for preserving emphasis::total energy::. The minimum number of beams we can choose is 24.
+
+Here's some code illustrating how to directly instantiate a desired minimum sized spherical design:
+
+code::
+// t-design
+~tdesign = TDesign.newHoa(
+	TDesignLib.getHoaDesigns(
+		~optimize,
+		~order
+	).first[\numPoints],
+	~optimize,
+	~order
+);
+
+~tdesign.numPoints;
+::
+
+If we choose fifth order, we see that the minimum number of spatial windows required is 60. If we want to ensure that energy is emphasis::smoothed evenely:: across the sphere, the minimum is 70.
+
+How should we think about this?
+
+As the order increases, the window size decreases. To cover the sphere, we need more windows:
+
+code::
+// compare energy spread
+HoaOrder.new(3).spreadE.cos.raddeg;
+HoaOrder.new(5).spreadE.cos.raddeg;
+::
+
+
+subsection::Orientation
+
+We may wish to alter the orientation of spherical design so that an encoded sound of interest appears centered in a specific window.
+
+Let's make a minimum sized t-design for third order:
+
+code::
+~order = AtkHoa.defaultOrder;
+~optimize = \energy;
+
+// t-design
+~tdesign = TDesign.newHoa(
+	TDesignLib.getHoaDesigns(
+		~optimize,
+		~order
+	).first[\numPoints],
+	~optimize,
+	~order
+);
+
+~tdesign.numPoints;
+::
+
+We can request the design look directions:
+
+code::
+~tdesign.directions
+::
+
+And:
+
+code::
+// let's view with PointView!
+(
+~pv = PointView.new;
+~pv.directions_(~tdesign.directions);  // set directions
+~pv.pointColors_(Color.yellow);  // yellow
+~pv.connections_(\triangulation);  // set triang mesh
+~pv.axisScale_(1.0);
+~pv.front;  // move to front
+)
+::
+
+If our sound of interest is located on the x-axis, directly in front, we can see that on decomposition, this sound would be distributed among four beams.
+
+We can re-orient the t-design so that a single beam is directed at the position of interest:
+
+code::
+// find first point
+~firstDir = ~tdesign.directions.first;
+
+// rotate to [ 0, 0 ]
+~tdesign.rotate(~firstDir.at(0).neg).tumble(~firstDir.at(1).neg);
+~tdesign.directions;  // first is now at [ 0, 0 ]
+::
+
+Have a look:
+
+code::
+~pv.close;  // close the previous view
+
+// .. and view
+(
+~pv = PointView.new;
+~pv.directions_(~tdesign.directions);  // set directions
+~pv.pointColors_(Color.yellow);  // yellow
+~pv.connections_(\triangulation);  // set triang mesh
+~pv.axisScale_(1.0);
+~pv.front;  // move to front
+)
+::
+
+For this design, the new orientation no longer appears to be symmetric across the axes. If that's an issue, we can easily explore other available designs.
+
+
+subsection:: Beam shape
+
+Traditionally, Ambisonics offers three standard link::Classes/HoaMatrixDecoder#Beam shape#beam shapes:::
+
+list::
+## emphasis::strict soundfield::
+## emphasis::energy optimised::
+## emphasis::controlled opposites::
+::
+
+In most cases, emphasis::strict soundfield:: will usually be the appropriate choice, and for NFC-HOA corresponds to decomposing (or recomposing) a soundfield as a collection of emphasis::spherical waves::.
+
+If we wish to reconstruct a soundfield after decomposition, the beam shapes of the decoder and encoder should match.
+
+________________
+
+One interesting possibility where beam shapes are intentionally not matched is the use of a DSP process to synthesize spatial artifacts as a kind of lower to higher order "upsampling".
+
+These two beams have a similar size:
+
+code::
+HoaOrder.new(3).spreadE(\energy).cos.raddeg;
+HoaOrder.new(5).spreadE(\basic).cos.raddeg;
+::
+
+A use pattern could be:
+
+code::
+// orders!
+~lowerOrder = 3;
+~higherOrder = 5;
+
+// t-design
+~tdesign = TDesign.newHoa(60, order: ~higherOrder);
+
+// design decoder & (re-)encoder
+~decoder = HoaMatrixDecoder.newSphericalDesign(~tdesign, \energy, ~lowerOrder);  // hoa3
+~encoder = HoaMatrixEncoder.newSphericalDesign(~tdesign, \basic, ~higherOrder);  // hoa5
+::
+
+Processing in A-format must involve differences in amplitude and/or phase between the individual A-format channels to synthesize any additional spatial information.
+
+Think of this as "roughing up" some feature of the sound in order to create more detail.

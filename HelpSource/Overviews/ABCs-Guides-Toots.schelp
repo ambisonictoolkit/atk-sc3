@@ -45,5 +45,7 @@ definitionlist::
 
 ## link::Guides/HOA-NFE:: || Higher Order Ambisonic (HOA) radial near-field effect examples
 
+## link::Guides/HOA-Spherical:: || Ambisonic angular domain decomposition and recomposition
+
 ## link::Guides/Guide-to-ATK-Matrix-Files:: || A guide to reading, writing, and storing ATK matrices
 ::

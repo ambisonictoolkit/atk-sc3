@@ -8,7 +8,7 @@ Generate matrix decoders required by the Ambisonic Toolkit's higher order ambiso
 
 Matrix decoding is offered via four different methods:
 
-LIST::
+numberedlist::
 ## emphasis::projection::
 ## emphasis::mode matching::
 ## emphasis::beamforming::
@@ -657,6 +657,144 @@ code::
 ~analysis.rE.warp.raddeg.round(0.1)
 ::
 
+
 EXAMPLES::
+
+section:: Analysis & plotting
+
+A few functions useful for visualizing decoder performance.
+
+subsection:: Equatorial rV & rE
+
+A function to plot the velocity and energy localisation vectors in the equatorial plane:
+
+code::
+(
+~rVrEequator = { |decoder, size = 100, rVcolor = (Color.blue), rEcolor = (Color.red), bounds = (Rect.new(0.0, 0.0, 1000.0, 715.0))|
+	// analysis
+	var analysis = decoder.analyzeDirections(
+		Array.regularPolygon(size)
+	);
+
+	// directions - as spherical
+	var lsDirs = decoder.directions.collect({ |angles|
+		Spherical.new(1.0, angles.first, angles.last)
+	});
+	var rVdirs = analysis.rV.xyz.collect({ |xyz|  // rV
+		xyz.asCartesian.asSpherical;
+	});
+	var rEdirs = analysis.rE.xyz.collect({ |xyz|  // rE
+		xyz.asCartesian.asSpherical;
+	});
+
+	// indices - for indexing & grouping
+	var lsIndices = Array.series(lsDirs.size);
+	var rVindices = Array.series(rVdirs.size, lsDirs.size);
+	var rEindices = Array.series(rEdirs.size, lsDirs.size + rVindices.size);
+
+	// Window & PointView
+	var window = Window.new(
+		"% (%D) %: rV & rE".format(decoder.set, decoder.dim, decoder.kind),
+		bounds: bounds,
+		resizable: false
+	);
+	var pv = PointView.new(window, bounds: bounds);
+
+	// set up / decorate
+	pv.showIndices_(false);
+	pv.setOrtho('-Z');  // orthographic projection down the Z axis
+	pv.axisScale_(1.0);
+
+	// loudspeakers
+	pv.directions_(lsDirs);  // set directions
+	pv.pointColors_(pv.connectionColor);
+	pv.connections_(\sequential, true);
+
+	// update / add localisation dirs
+	pv.directions_(lsDirs ++ rVdirs ++ rEdirs, false);  // don't reset connections!
+
+	// group points by color
+	pv.colorGroups_([ lsIndices, rVindices, rEindices ]);
+	pv.groupColors_([ pv.connectionColor, rVcolor, rEcolor ]);
+
+	window.front  // move to front
+}
+)
+::
+
+subsection:: Equatorial rV & rE error
+
+A function to plot velocity and energy localisation vector error in the equatorial plane:
+
+note::Center of table is front center of the array.::
+
+code::
+(
+~rVrEdistortEquator = { |decoder, size = 360, maxval = 20.0|
+	var analysis = decoder.analyzeDirections(
+		Array.regularPolygon(size)
+	);
+	var mindb = -180.0;
+
+	Array.with(
+		analysis.rV.warp.rotate((size / 2).asInteger).raddeg,
+		analysis.rE.warp.rotate((size / 2).asInteger).raddeg,
+	).plot(
+		"% (%D) %: rV & rE distortion (deg)".format(decoder.set, decoder.dim, decoder.kind),
+		maxval: maxval
+	)
+}
+)
+::
+
+
+subsection:: Equatorial energy spread
+
+A function to plot energy spread in the equatorial plane:
+
+note::Center of table is front center of the array.::
+
+code::
+(
+~spreadEquator = { |decoder, size = 360, rolloff = \cos |
+	var analysis = decoder.analyzeDirections(
+		Array.regularPolygon(size)
+	);
+
+	analysis.spreadE[rolloff].rotate((size / 2).asInteger).raddeg.plot(
+		"% (%D) %: % energy spread (deg)".format(decoder.set, decoder.dim, decoder.kind, rolloff),
+	)
+}
+)
+::
+
+subsection:: Equatorial amplitude and energy
+
+A function to plot amplitude and energy in the equatorial plane:
+
+note::Center of table is front center of the array.::
+
+code::
+(
+~ampEnergyEquator = { |decoder, size = 360, minval = -5.0, maxval = 5.0|
+	var analysis = decoder.analyzeDirections(
+		Array.regularPolygon(size)
+	);
+	var mindb = -180.0;
+
+	Array.with(
+		(analysis.amp + mindb.dbamp).rotate((size / 2).asInteger).ampdb,
+		(analysis.energy + mindb.dbamp).rotate((size / 2).asInteger).ampdb
+	).plot(
+		"% (%D) %: amp & energy (dB)".format(decoder.set, decoder.dim, decoder.kind),
+		minval: minval,
+		maxval: maxval
+	)
+}
+)
+::
+
+
+section:: Design examples
 
 TBD

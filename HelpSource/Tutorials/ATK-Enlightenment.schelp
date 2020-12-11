@@ -406,7 +406,7 @@ code::
 // windowed sinc
 ~lowpass = Signal.windowedSinc(~size, 0.00085, 1).normalize;  // not far off...
 
-[ ~pairWise8.as(Array), ~lowpass.as(Array) ].lace.plot("Octa: Sine Window & Windowed Sinc", minval: -1, maxval: 1, numChannels: 2)
+[ ~pairWise8.as(Array), ~lowpass.as(Array) ].plot("Octa: Sine Window & Windowed Sinc", minval: -1, maxval: 1)
 )
 ::
 
@@ -419,7 +419,7 @@ code::
 [
 	(~pairWise8.rdftZoom(30, 0, 29).magnitude.normalize + -90.dbamp).ampdb,
 	(~lowpass.rdftZoom(30, 0, 29).magnitude.normalize + -90.dbamp).ampdb
-].lace.plot("Octa: Sine Window & Windowed Sinc Magnitude (dB)", numChannels: 2)
+].plot("Octa: Sine Window & Windowed Sinc Magnitude (dB)")
 )
 ::
 
@@ -452,13 +452,13 @@ code::
 
 
 // view pairwise and actual HOA3 law
-[ ~pairWise8.as(Array), ~basicWindow8.as(Array) ].lace.plot("Octa: Sine Window & HOA3 Basic", minval: -1, maxval: 1, numChannels: 2);
+[ ~pairWise8.as(Array), ~basicWindow8.as(Array) ].plot("Octa: Sine Window & HOA3 Basic", minval: -1, maxval: 1);
 
 // frequency response of the two
 [
 	(~pairWise8.rdftZoom(30, 0, 29).magnitude.normalize + -90.dbamp).ampdb,
 	(~basicWindow8.rdftZoom(30, 0, 29).magnitude.normalize + -90.dbamp).ampdb
-].lace.plot("Octa: Sine Window & HOA3 Basic Magnitude (dB)", numChannels: 2)
+].plot("Octa: Sine Window & HOA3 Basic Magnitude (dB)")
 ::
 
 What we're seeing is that the HOA3 basic (strict) panning law has a well behaved lowpass response in the frequency domain when viewed as a time domain window.
@@ -500,13 +500,13 @@ code::
 
 
 // view pairwise and actual HOA3 law
-[ ~pairWise4.as(Array), ~basicWindow4.as(Array) ].lace.plot("Quad: Sine Window & HOA3 Basic", minval: -1, maxval: 1, numChannels: 2);
+[ ~pairWise4.as(Array), ~basicWindow4.as(Array) ].plot("Quad: Sine Window & HOA3 Basic", minval: -1, maxval: 1);
 
 // frequency response of the two
 [
 	(~pairWise4.rdftZoom(30, 0, 29).magnitude.normalize + -90.dbamp).ampdb,
 	(~basicWindow4.rdftZoom(30, 0, 29).magnitude.normalize + -90.dbamp).ampdb
-].lace.plot("Quad: Sine Window & HOA3 Basic Magnitude (dB)", numChannels: 2)
+].plot("Quad: Sine Window & HOA3 Basic Magnitude (dB)")
 ::
 
 Remarkably, when we go back to quad from HOA3, we see that the panning law window has opened up again!
@@ -603,13 +603,13 @@ code::
 });
 
 // view pairwise and HOA3 law
-[ ~pairWise4.as(Array), ~basicWindow4.as(Array) ].lace.plot("Quad Window: Sine & HOA3 Basic", minval: -1, maxval: 1, numChannels: 2);
+[ ~pairWise4.as(Array), ~basicWindow4.as(Array) ].plot("Quad Window: Sine & HOA3 Basic", minval: -1, maxval: 1);
 
 // view pairwise and HOA3 amp
-([ ~pairWise4Amp.normalize.as(Array), ~basicWindow4Amp.normalize.as(Array) ].lace + (-90.dbamp)).ampdb.plot("Quad Amp: Sine & HOA3 Basic (dB)", minval: -5, maxval: 5, numChannels: 2);
+([ ~pairWise4Amp.normalize.as(Array), ~basicWindow4Amp.normalize.as(Array) ] + (-90.dbamp)).ampdb.plot("Quad Amp: Sine & HOA3 Basic (dB)", minval: -5, maxval: 5);
 
 // view pairwise and HOA3 pow
-([ ~basicWindow4Amp.normalize.as(Array), ~basicWindow4Pow.normalize.as(Array) ].lace + (-90.dbamp)).ampdb.plot("Quad Pow: Sine & HOA3 Basic (dB)", minval: -5, maxval: 5, numChannels: 2);
+([ ~basicWindow4Amp.normalize.as(Array), ~basicWindow4Pow.normalize.as(Array) ] + (-90.dbamp)).ampdb.plot("Quad Pow: Sine & HOA3 Basic (dB)", minval: -5, maxval: 5);
 ::
 
 Here's what we see when we inspect these plots:
@@ -1108,7 +1108,7 @@ code::
 Let's plot these values:
 
 code::
-[ (~nearMag + 180.neg.dbamp).ampdb.clip(-20, 20), ~nearPha.raddeg ].lace.plot("Near source: Magnitude (dB) & Phase (deg)", discrete: true, numChannels: 2)
+[ (~nearMag + 180.neg.dbamp).ampdb.clip(-20, 20), ~nearPha.raddeg ].plot("Near source: Magnitude (dB) & Phase (deg)", discrete: true)
 ::
 
 note::Leave this plot window open. We'll compare with other travelling wave encodings, below.::
@@ -1167,7 +1167,7 @@ code::
 And plot:
 
 code::
-[ (~farMag + 180.neg.dbamp).ampdb.clip(-20, 20), ~farPha.raddeg ].lace.plot("Far source: Magnitude (dB) & Phase (deg)", discrete: true, numChannels: 2)
+[ (~farMag + 180.neg.dbamp).ampdb.clip(-20, 20), ~farPha.raddeg ].plot("Far source: Magnitude (dB) & Phase (deg)", discrete: true)
 ::
 
 note::Leave this plot window open. We'll continue to compare with other travelling wave encodings.::
@@ -1251,7 +1251,7 @@ code::
 Plot, and compare with our other plots:
 
 code::
-[ (~basicMag + 180.neg.dbamp).ampdb.clip(-20, 20), ~basicPha.raddeg ].lace.plot("Basic source: Magnitude (dB) & Phase (deg)", discrete: true, numChannels: 2)
+[ (~basicMag + 180.neg.dbamp).ampdb.clip(-20, 20), ~basicPha.raddeg ].plot("Basic source: Magnitude (dB) & Phase (deg)", discrete: true)
 ::
 
 One thing we can see is that as a source moves away from the reference radius, this change is encoded in both magnitude and phase changes.

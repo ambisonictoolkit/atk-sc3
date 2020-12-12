@@ -823,6 +823,8 @@ strong::3D Soundfield Spatial Sampling Rates::
 The table below compares the number of coefficients required for the spherical and angular domains: footnote::Using the energy criteria for t-designs as described by Zotter, et al.
 
 Zotter, F., Frank, M., & Sontacchi, A. (2010). The Virtual T-Design Ambisonics-Rig Using VBAP. EAA Euroregio Ljubljana 2010.
+
+Zotter, Franz, and Frank, Matthias. Ambisonics. Springer, 2019.
 ::
 
 table::
@@ -849,7 +851,15 @@ The sectoral harmonics, aka modes, encode the 2D soundfield. You can see we need
 
 strong::2D Soundfield Spatial Sampling Rates::
 
-The usual practice is to consider the angular sampling rate for 2D to be +1 that of the spherical, as doing so returns more stable image synthesis.
+The usual practice is to consider the angular sampling rate for 2D to be +1 that of the spherical, as doing so returns more stable image synthesis. footnote::
+"In playback, to get a perfectly panning-invariant loudness measure E of the
+continuous panning function and also the perfectly oriented rE vector of constant
+spread arccos(|rE|), the parameter t must be t ≥ 2N + 1. In 2D, all regular polygons are t-designs with L = t + 1 points.
+
+We can use the smallest set of 2N + 2... as optimal 2D layout."
+
+Zotter, Franz, and Frank, Matthias. Ambisonics. Springer, 2019. (p. 60)
+::
 
 table::
 ## strong::order:: || strong::spherical SR:: || strong::angular SR::
@@ -858,7 +868,7 @@ table::
 ## 5 || 11 || 12
 ::
 
-The rule of thumb for 2D arrays is:
+The rule for 2D arrays is:
 
 code::
 ~numSpkrs = (~order * 2) + 2

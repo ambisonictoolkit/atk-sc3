@@ -43,6 +43,8 @@ definitionlist::
 
 ## link::Guides/HOA-Binaural-Decoding:: || Higher Order Ambisonic (HOA) binaural decoding examples
 
+## link::Guides/HOA-2D-Decoding:: || Higher Order Ambisonic (HOA) 2D array decoding examples
+
 ## link::Guides/HOA-NFE:: || Higher Order Ambisonic (HOA) radial near-field effect examples
 
 ## link::Guides/HOA-Spherical:: || Ambisonic angular domain decomposition and recomposition

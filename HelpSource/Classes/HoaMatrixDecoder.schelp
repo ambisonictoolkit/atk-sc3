@@ -660,6 +660,14 @@ code::
 
 EXAMPLES::
 
+section:: Designs
+
+list::
+## link::Guides/HOA-2D-Decoding::
+## link::Guides/HOA-NFE#Decode to a 2D array::
+::
+
+
 section:: Analysis & plotting
 
 A few functions useful for visualizing decoder performance.
@@ -763,6 +771,8 @@ code::
 
 	analysis.spreadE[rolloff].rotate((size / 2).asInteger).raddeg.plot(
 		"% (%D) %: % energy spread (deg)".format(decoder.set, decoder.dim, decoder.kind, rolloff),
+		minval: 0.0,
+		maxval: 90.0
 	)
 }
 )
@@ -793,8 +803,3 @@ code::
 }
 )
 ::
-
-
-section:: Design examples
-
-TBD

@@ -1,0 +1,450 @@
+title:: Pantophonic Monitoring of HOA (2D)
+summary:: Higher Order Ambisonic (HOA) 2D array decoding examples
+categories:: Libraries>Ambisonic Toolkit>Guides & Tutorials
+keyword::Atk
+
+
+The ATK offers HOA loudspeaker decoding via two methods:
+
+definitionlist::
+## projection || emphasis::Projection:: decoders require equally distributed loudspeakers. This is easy for 2D decoding, as all we need to do is to arrange loudspeakers in a polygon.
+
+The ATK's HOA 2D emphasis::projection decoder:: is link::Classes/HoaMatrixDecoder#*newPanto::.
+
+## mode matching || The loudspeakers for emphasis::mode matching:: decoders are not required to be equally distributed, however, the more evenly sampled an array is, the better the result.
+
+The ATK includes two emphasis::mode matching decoders::: link::Classes/HoaMatrixDecoder#*newModeMatch:: & link::Classes/HoaMatrixDecoder#*newDiametric::.
+::
+
+note::
+If the link::Tutorials/ABCs-of-the-ATK#ADT#ADT quark:: has been installed, the  link::https://bitbucket.org/ambidecodertoolbox/adt/src/master/##Ambisonic Decoder Toolbox:: can be used to return decoders designed via other methods.
+::
+
+________________
+
+In the examples to follow, we'll restrict ourselves to designing matrices with the assumption that all loudspeakers are equally distant from the array origin.
+
+
+section:: Analysis
+
+Before we start, evaluate the plotting functions found here:
+
+list::
+## link::Classes/HoaMatrixDecoder#Equatorial rV & rE#rV & rE::: code::~rVrEequator::
+## link::Classes/HoaMatrixDecoder#Equatorial rV & rE error#rV & rE error::: code::~rVrEdistortEquator::
+## link::Classes/HoaMatrixDecoder#Equatorial energy spread#energy spread::: code::~spreadEquator::
+## link::Classes/HoaMatrixDecoder#Equatorial amplitude and energy#amplitude and energy::: code::~ampEnergyEquator::
+::
+
+We'll use these to evaluate the performance of the designed decoders.
+
+
+section:: Quad
+
+Our most simple system for 2D decoding. If you haven't reviewed the discussion of quadraphonic panning in the context of pairwise link::Tutorials/ATK-Enlightenment#Panorama Laws#panning laws::, this would be a good time to do so.
+
+
+subsection:: Quad (HOA1)
+
+Here will use link::Classes/HoaMatrixDecoder#*newPanto:: to design a suitable matrix decoder for HOA1:
+
+code::
+(
+// decode: HOA1 >> quad
+
+// ---------
+// Pantophonic (2D) decoder with four channels arranged in a regular polygon
+//
+// single band
+
+// order
+~order = 1;
+
+// specify parameters & design
+~numChans = 4;
+
+// beam shape (panning law)
+// ~beamShape = \basic;
+~beamShape = \energy;
+// ~beamShape = \controlled;
+
+// gain match
+// ~match = \amp;
+// ~match = \rms;
+~match = \energy;
+
+~decoder = HoaMatrixDecoder.newPanto(~numChans, beamShape: ~beamShape, match: ~match, order: ~order);
+)
+::
+
+strong::Performance plots::
+
+Let's view the performance by inspecting a few analysis plots.
+
+Start with:
+
+code::
+~rVrEequator.value(~decoder)
+::
+
+When we choose the emphasis::energy optimised:: beam shape, the emphasis::rV:: and emphasis::rE:: vectors are the same length.
+
+For an equally sampled array, we can predict the length of these vectors, which are measures of how localized a portion of the soundfield will appear in terms of emphasis::velocity:: and emphasis::energy::.
+
+You'll notice that we're seeing circles plotted. The soundfield is equally resolved in all directions.
+
+
+Theoretical average values can be found:
+
+code::
+~hoaOrder = ~decoder.order.asHoaOrder;
+~hoaOrder.rV(~beamShape, ~decoder.dim).round(0.01);
+~hoaOrder.rE(~beamShape, ~decoder.dim).round(0.01);
+::
+
+Read these as a fraction of what we would expect for a real sound. As the values approach one, the phantom image matches the measure for a sound in the real world.
+
+Try some of the other beam shapes and observe the plots and measures.
+
+Let's try some other plots:
+
+code::
+~rVrEdistortEquator.value(~decoder);  // angular distortion: rV & rE
+~spreadEquator.value(~decoder);  // image spread
+~ampEnergyEquator.value(~decoder);  // amplitude and energy
+::
+
+These plots illustrate the preformance of the decoder in terms of:
+
+numberedlist::
+## localisation vector angular distortion
+## phantom image spread
+## amplitude and energy across the array
+::
+
+Front center is located at the center of the plots.
+
+The first thing we're looking for in these plots is equal values in all directions. That's what we're seeing!
+
+In particular, we see:
+
+numberedlist::
+## emphasis::No angular distortion::. Phantom images will appear where they were intended. (That's panning!)
+## emphasis::Even image energy spread::, which is associate with image resolution.
+## emphasis::Amplitude and energy remain constant:: across the array. No direction appears louder than another.
+::
+
+strong::Network::
+
+We should finish the radial part of the panning law with link::Classes/HoaNFCtrl::. And to generate loudspeaker feeds, we'll need link::Classes/HoaDecodeMatrix:: to render:
+
+code::
+~decRadius = 2.0;  // decoding / (actual) loudspeaker radius
+
+// decode with NFE / loudspeaker near-field compensation
+~myQuad = HoaDecodeMatrix.ar(
+	HoaNFCtrl.ar(  // NFE control
+		~myHoa1,
+		AtkHoa.refRadius,
+		~decRadius,
+		~decoder.order  // ~order
+	),
+	~decoder
+);
+::
+
+
+subsection:: Quad (HOA3)
+
+When we design a decoder a quadraphonic decoder for HOA3, surprisingly we'll see that the performance is the same as that seen for HOA1. The reasons for this are discussed in link::Tutorials/ATK-Enlightenment::.
+
+We can review the rule for link::Tutorials/ATK-Enlightenment#Array resolution#2D array resolution::, to be clear.
+
+Or... we can just use link::Classes/HoaMatrixDecoder#*newPanto:: to design a matrix decoder for HOA3. What we'll see is that the returned HOA3 quad decoder has the same performance at the previous link::#Quad (HOA1)#HOA1 quad decoder:::
+
+
+code::
+(
+// decode: HOA3 >> quad
+
+// ---------
+// Pantophonic (2D) decoder with four channels arranged in a regular polygon
+//
+// single band
+
+// order
+~order = 3;
+
+// specify parameters & design
+~numChans = 4;
+
+// beam shape (panning law)
+// ~beamShape = \basic;
+~beamShape = \energy;
+// ~beamShape = \controlled;
+
+// gain match
+// ~match = \amp;
+// ~match = \rms;
+~match = \energy;
+
+~decoder = HoaMatrixDecoder.newPanto(~numChans, beamShape: ~beamShape, match: ~match, order: ~order);
+)
+::
+
+strong::Performance plots::
+
+Feel free to run the test plots:
+
+code::
+~rVrEequator.value(~decoder);
+
+~rVrEdistortEquator.value(~decoder);  // angular distortion: rV & rE
+~spreadEquator.value(~decoder);  // image spread
+~ampEnergyEquator.value(~decoder);  // amplitude and energy
+::
+
+We'll return the same results as earlier.
+
+We can also compare measured results to theory:
+
+code::
+// angular sampling rate
+~angularOrder = ((~decoder.numChannels / 2) - 1).ceil.asInteger;  // 1st order
+~angularHoaOrder = ~angularOrder.asHoaOrder;
+
+// analysis (100 test directions)
+~analysis = ~decoder.analyzeDirections(Array.regularPolygon(100));
+
+// compare
+~angularHoaOrder.rV(~beamShape, ~decoder.dim).equalWithPrecision(
+	~analysis.rV.magnitudes.mean,  // analyzed rV.mean
+	0.00001
+);
+
+~angularHoaOrder.rE(~beamShape, ~decoder.dim).equalWithPrecision(
+	~analysis.rE.magnitudes.mean,  // analyzed rE.mean
+	0.00001
+);
+::
+
+
+strong::Network::
+
+In practice, we can recognize that truncating an HOA3 by hand will be more efficient for an undersample array:
+
+code::
+~decRadius = 2.0;  // decoding / (actual) loudspeaker radius
+
+~angularOrder = ((~numChans / 2) - 1).ceil.asInteger;  // 1st order <- array order
+~angularHoaOrder = ~angularOrder.asHoaOrder;
+
+// decode with NFE / loudspeaker near-field compensation
+~myQuad = HoaDecodeMatrix.ar(
+	HoaNFCtrl.ar(  // NFE control
+		~myHoa3.keep(~angularHoaOrder.size),  // truncate to HOA1
+		AtkHoa.refRadius,
+		~decRadius,
+		~angularOrder  // <- array order
+	),
+	~decoder  // THIS SHOULD BE QUAD for HOA1 -- see above!
+);
+::
+
+note::
+We don't have to truncate by hand if we don't want to. An HOA3 quad decoder will truncate inside the returned matrix.
+
+If we truncate by hand we can save render time by using a lower order link::Classes/HoaNFCtrl::.
+::
+
+
+section:: Octa
+
+For eight equally distributed loudspeakers, we'll also use link::Classes/HoaMatrixDecoder#*newPanto::.
+
+For this example we'll see that an octaphonic decoder for HOA3 performs much better than the equivalent for HOA1. The physical array is sampled high enough to return more resolved performance.
+
+
+subsection:: Octa (HOA1)
+
+code::
+(
+// decode: HOA1 >> octa
+
+// ---------
+// Pantophonic (2D) decoder with four channels arranged in a regular polygon
+//
+// single band
+
+// order
+~order = 1;
+
+// specify parameters & design
+~numChans = 8;
+~orientation = \vertex;
+
+// beam shape (panning law)
+// ~beamShape = \basic;
+~beamShape = \energy;
+// ~beamShape = \controlled;
+
+// gain match
+// ~match = \amp;
+// ~match = \rms;
+~match = \energy;
+
+~decoder = HoaMatrixDecoder.newPanto(~numChans, ~orientation, ~beamShape, ~match, ~order);
+)
+::
+
+strong::Performance plots::
+
+Feel free to run the test plots:
+
+code::
+~rVrEequator.value(~decoder);
+
+~rVrEdistortEquator.value(~decoder);  // angular distortion: rV & rE
+~spreadEquator.value(~decoder);  // image spread
+~ampEnergyEquator.value(~decoder, 360, -5.0, 10.0);  // amplitude and energy
+::
+
+Here we see all the performance measures are the same as for the HOA1 quad example, except for the amplitude measure. This is uniform, but it differs from the quad measurement. The reason for this is that we've matched the gain performance for emphasis::energy:::
+
+code::
+~decoder.analyzeAverage.energy.ampdb;
+::
+
+As earlier, we see:
+
+numberedlist::
+## emphasis::No angular distortion::
+## emphasis::Even image energy spread::
+## emphasis::Constant amplitude and energy::
+::
+
+strong::Network::
+
+The completed render network... same as for HOA1 quad, but for the octa decoder:
+
+code::
+~decRadius = 2.0;  // decoding / (actual) loudspeaker radius
+
+// decode with NFE / loudspeaker near-field compensation
+~myOcta = HoaDecodeMatrix.ar(
+	HoaNFCtrl.ar(  // NFE control
+		~myHoa1,
+		AtkHoa.refRadius,
+		~decRadius,
+		~decoder.order  // ~order
+	),
+	~decoder
+);
+::
+
+
+subsection:: Octa (HOA3)
+
+An octaphonic array meets the link::Tutorials/ATK-Enlightenment#Array resolution#array resolution:: required to reproduce 2D HOA3. (Hurrah!)
+
+code::
+~order = 3;
+~numChans = 8;
+
+// loudspeaker array order
+~angularOrder = ((~numChans / 2) - 1).ceil.asInteger;  // 3rd order
+
+// does it match?
+~order == ~angularOrder;
+::
+
+Here's the design code:
+
+code::
+(
+// decode: HOA3 >> octa
+
+// ---------
+// Pantophonic (2D) decoder with four channels arranged in a regular polygon
+//
+// single band
+
+// order
+~order = 3;
+
+// specify parameters & design
+~numChans = 8;
+
+// beam shape (panning law)
+// ~beamShape = \basic;
+~beamShape = \energy;
+// ~beamShape = \controlled;
+
+// gain match
+// ~match = \amp;
+// ~match = \rms;
+~match = \energy;
+
+~decoder = HoaMatrixDecoder.newPanto(~numChans, beamShape: ~beamShape, match: ~match, order: ~order);
+)
+::
+
+Feel free to run the test plots:
+
+code::
+~rVrEequator.value(~decoder);
+
+~rVrEdistortEquator.value(~decoder);  // angular distortion: rV & rE
+~spreadEquator.value(~decoder);  // image spread
+~ampEnergyEquator.value(~decoder);  // amplitude and energy
+::
+
+With all beam shapes (panning laws!) we see very good performance. As earlier, measures are even across the array. Also, the localisation vectors are long.
+
+Compare measured results to theory:
+
+code::
+// angular sampling rate
+~angularOrder = ((~decoder.numChannels / 2) - 1).ceil.asInteger;  // 3rd order
+~angularHoaOrder = ~angularOrder.asHoaOrder;
+
+// analysis (100 test directions)
+~analysis = ~decoder.analyzeDirections(Array.regularPolygon(100));
+
+// compare
+~angularHoaOrder.rV(~beamShape, ~decoder.dim).equalWithPrecision(
+	~analysis.rV.magnitudes.mean,  // analyzed rV.mean
+	0.00001
+);
+
+~angularHoaOrder.rE(~beamShape, ~decoder.dim).equalWithPrecision(
+	~analysis.rE.magnitudes.mean,  // analyzed rE.mean
+	0.00001
+);
+
+// and rV & rE magnitudes - measured
+~analysis.rV.magnitudes.mean;
+~analysis.rE.magnitudes.mean;
+::
+
+
+strong::Network::
+
+Since the spatial sampling of the octa array meets HOA3, we won't truncate to save CPU:
+
+note::The earlier quad code wouldn't end up truncating, anyway, because we were doing a test.::
+
+code::
+~decRadius = 2.0;  // decoding / (actual) loudspeaker radius
+
+// decode with NFE / loudspeaker near-field compensation
+~myOcta = HoaDecodeMatrix.ar(
+	HoaNFCtrl.ar(  // NFE control
+		~myHoa3,
+		AtkHoa.refRadius,
+		~decRadius,
+		~decoder.order  // or, as this is Atk.defaultOrder, we can skip this arg
+	),
+	~decoder
+);
+::

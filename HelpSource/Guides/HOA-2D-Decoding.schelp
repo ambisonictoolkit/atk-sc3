@@ -44,7 +44,7 @@ section:: Quad
 Our most simple system for 2D decoding. If you haven't reviewed the discussion of quadraphonic panning in the context of pairwise link::Tutorials/ATK-Enlightenment#Panorama Laws#panning laws::, this would be a good time to do so.
 
 
-subsection:: Quad (HOA1)
+subsection:: Quad *newPanto (HOA1)
 
 Here will use link::Classes/HoaMatrixDecoder#*newPanto:: to design a suitable matrix decoder for HOA1:
 
@@ -154,7 +154,7 @@ code::
 ::
 
 
-subsection:: Quad (HOA3)
+subsection:: Quad *newPanto (HOA3)
 
 When we design a decoder a quadraphonic decoder for HOA3, surprisingly we'll see that the performance is the same as that seen for HOA1. The reasons for this are discussed in link::Tutorials/ATK-Enlightenment::.
 
@@ -265,7 +265,7 @@ For eight equally distributed loudspeakers, we'll also use link::Classes/HoaMatr
 For this example we'll see that an octaphonic decoder for HOA3 performs much better than the equivalent for HOA1. The physical array is sampled high enough to return more resolved performance.
 
 
-subsection:: Octa (HOA1)
+subsection:: Octa *newPanto (HOA1)
 
 code::
 (
@@ -343,7 +343,7 @@ code::
 ::
 
 
-subsection:: Octa (HOA3)
+subsection:: Octa *newPanto (HOA3)
 
 An octaphonic array meets the link::Tutorials/ATK-Enlightenment#Array resolution#array resolution:: required to reproduce 2D HOA3. (Hurrah!)
 
@@ -448,3 +448,414 @@ code::
 	~decoder
 );
 ::
+
+
+section:: 7_0 Surround
+
+Given an array of unevenly distributed loudspeakers, link::Classes/HoaMatrixDecoder#*newModeMatch:: is the decoder to choose.
+
+What we'll see is the uneven array sampling leads to uneven performance measures.
+
+For this example we'll see what happens with a less ideal array.
+
+
+subsection:: 7_0 *newModeMatch (HOA3)
+
+The ATK's mode matcher is not especially sophisticated when it comes to mode or degree truncation. The simple test we've seen before for link::Tutorials/ATK-Enlightenment#Array resolution#2D :: or 3D array resolution is made. For reasonably distributed arrays, we can get a good result.
+
+We'll always want to review the returned performance to see if an acceptable decoder is returned.
+
+Design:
+
+code::
+(
+// decode: HOA3 >> 7_0
+
+// ---------
+// Pantophonic (2D) decoder with seven channels arranged in a consumer orientation
+//
+// single band
+
+// order
+~order = 3;
+
+// specify parameters & design
+~directions = [ 0.0, 30.0, 110.0, 135.0, -135.0, -110.0, -30.0 ].degrad;  // 7.0 array
+// ~directions = [ 30.0, 110.0, 135.0, -135.0, -110.0, -30.0 ].degrad;  // 7.0 array - discard center!
+
+// beam shape (panning law)
+// ~beamShape = \basic;
+~beamShape = \energy;
+// ~beamShape = \controlled;
+
+// gain match
+// ~match = \amp;
+// ~match = \rms;
+~match = \energy;
+
+~decoder = HoaMatrixDecoder.newModeMatch(~directions, ~beamShape, ~match, ~order);
+)
+::
+
+Go ahead and run the test plots:
+
+code::
+~rVrEequator.value(~decoder);
+
+~rVrEdistortEquator.value(~decoder, 360, 30);  // angular distortion: rV & rE
+~spreadEquator.value(~decoder);  // image spread
+~ampEnergyEquator.value(~decoder, 360, -5, 20);  // amplitude and energy
+::
+
+If you've kept the plot open for octa HOA3 with emphasis::energy optimised:: beam, you'll see that the emphasis::energy optimised:: 7_0 design returns fairly comparable performance within the front sixty degrees of the array.
+
+However, as we move away from the front, the performance degrades.
+
+note::
+If we discard the center loudspeaker, we get a bit of a more even performance.
+
+(Keep the plots up and design a new decoder w/out the center.)
+
+Part of what is happening here is that the mode matcher is truncating from HOA3 to HOA2, as we have six loudspeakers rather then seven when the center is discarded.
+::
+
+If we try different orders and different beam shapes, we'll see that the performance varies significantly!
+
+We can seek to quantify the performance of this designed decoder by inspecting:
+
+code::
+// analysis
+(
+~numTestDirections = 100;
+
+~analysis = ~decoder.analyzeDirections(
+	Array.regularPolygon(~numTestDirections)
+);
+
+~hoaOrder = HoaOrder.new(~order);  // required for ideal measures
+)
+
+// amp
+(
+"---".postln;
+"Amplitude range: % ~ % dB".format(
+	~analysis.amp.minItem.ampdb.round(0.01),
+	~analysis.amp.maxItem.ampdb.round(0.01)
+).postln;
+"Amplitude mean: % dB".format(
+	~analysis.amp.mean.ampdb.round(0.01)
+).postln;
+"Amplitude median: % dB".format(
+	~analysis.amp.median.ampdb.round(0.01)
+).postln;
+)
+
+// energy
+(
+"---".postln;
+"Energy range: % ~ % dB".format(
+	~analysis.energy.minItem.ampdb.round(0.01),
+	~analysis.energy.maxItem.ampdb.round(0.01)
+).postln;
+"Energy mean: % dB".format(
+	~analysis.energy.mean.ampdb.round(0.01)
+).postln;
+"Energy median: % dB".format(
+	~analysis.energy.median.ampdb.round(0.01)
+).postln;
+)
+
+// rV error (warping)
+(
+"---".postln;
+"rV error range: % ~ % deg".format(
+	~analysis.rV.warp.minItem.raddeg.round(0.01),
+	~analysis.rV.warp.maxItem.raddeg.round(0.01)
+).postln;
+"rV error mean: % deg".format(
+	~analysis.rV.warp.mean.raddeg.round(0.01)
+).postln;
+"rV median: % deg".format(
+	~analysis.rV.warp.median.raddeg.round(0.01)
+).postln;
+)
+
+// rE error (warping)
+(
+"---".postln;
+"rE error range: % ~ % deg".format(
+	~analysis.rE.warp.minItem.raddeg.round(0.01),
+	~analysis.rE.warp.maxItem.raddeg.round(0.01)
+).postln;
+"rE error mean: % deg".format(
+	~analysis.rE.warp.mean.raddeg.round(0.01)
+).postln;
+"rE median: % deg".format(
+	~analysis.rE.warp.median.raddeg.round(0.01)
+).postln;
+)
+
+// rV & rE alignment
+(
+"---".postln;
+"rV & rE alignment range: % ~ % deg".format(
+	~analysis.rV.rEwarp.minItem.raddeg.round(0.01),
+	~analysis.rV.rEwarp.maxItem.raddeg.round(0.01)
+).postln;
+"rV & rE alignment mean: % deg".format(
+	~analysis.rV.rEwarp.mean.raddeg.round(0.01)
+).postln;
+"rV & rE alignment median: % deg".format(
+	~analysis.rV.rEwarp.median.raddeg.round(0.01)
+).postln;
+)
+
+// rV magnitude
+(
+"---".postln;
+"|rV| ideal: %".format(
+	~hoaOrder.rV(~beamShape, ~decoder.dim).round(0.01)
+).postln;
+"---".postln;
+"|rV| range: % ~ %".format(
+	~analysis.rV.magnitudes.minItem.round(0.01),
+	~analysis.rV.magnitudes.maxItem.round(0.01)
+).postln;
+"|rV| mean: % deg".format(
+	~analysis.rV.magnitudes.mean.round(0.01)
+).postln;
+"|rV| median: % deg".format(
+	~analysis.rV.magnitudes.median.round(0.01)
+).postln;
+)
+
+// rE magnitude
+(
+"---".postln;
+"|rE| ideal: %".format(
+	~hoaOrder.rE(~beamShape, ~decoder.dim).round(0.01)
+).postln;
+"---".postln;
+"|rE| range: % ~ %".format(
+	~analysis.rE.magnitudes.minItem.round(0.01),
+	~analysis.rE.magnitudes.maxItem.round(0.01)
+).postln;
+"|rE| mean: % deg".format(
+	~analysis.rE.magnitudes.mean.round(0.01)
+).postln;
+"|rE| median: % deg".format(
+	~analysis.rE.magnitudes.median.round(0.01)
+).postln;
+)
+
+// energy spread (cos)
+(
+"---".postln;
+"Energy spread ideal: % deg".format(
+	~hoaOrder.rE(~beamShape, ~decoder.dim).cos.raddeg.round(0.01)
+).postln;
+"---".postln;
+"Energy spread range: % ~ % deg".format(
+	~analysis.spreadE.cos.minItem.raddeg.round(0.01),
+	~analysis.spreadE.cos.maxItem.raddeg.round(0.01)
+).postln;
+"Energy spread mean: % deg".format(
+	~analysis.spreadE.cos.mean.raddeg.round(0.01)
+).postln;
+"Energy spread median: % deg".format(
+	~analysis.spreadE.cos.median.raddeg.round(0.01)
+).postln;
+)
+::
+
+What we see is that the energy performance varies!
+
+This isn't surprising, as the mode matcher is trying to make up for the missing loudspeakers that are not found in the array.
+
+
+strong::Network::
+
+Truncation happens inside the matrix, so we can just do the usual:
+
+code::
+~decRadius = 2.0;  // decoding / (actual) loudspeaker radius
+
+// decode with NFE / loudspeaker near-field compensation
+~my7_0 = HoaDecodeMatrix.ar(
+	HoaNFCtrl.ar(  // NFE control
+		~myHoa3,
+		AtkHoa.refRadius,
+		~decRadius,
+		~decoder.order  // or, as this is Atk.defaultOrder, we can skip this arg
+	),
+	~decoder
+);
+::
+
+
+subsection:: 7_0 *ADT (HOA3)
+
+For highly irregular loudspeaker arrays, other decoder design methods beyond simple mode matching are more likely to return more results. If we've installed the link::Tutorials/ABCs-of-the-ATK#ADT#Ambisonic Decoder Toolbox::, we'll have access to some of these.
+
+Let's review an example for a 2D design.
+
+First, we need to be sure to set local paths for ADT:
+
+code::
+(
+ADT.userADTDir_("~/Documents/Developer/adt/".standardizePath);
+ADT.userOctaveCmd_("/Applications/Octave-4.4.1.app/Contents/Resources/usr/bin/octave");
+)
+::
+
+note::
+We might want to consider adding these lines to the link::Reference/StartupFile##sclang startup file::
+::
+
+We will start by specifying our decoder features and creating an ADT instance. In order to correctly manage the target gain normalisation, we'll treat the decoder returned by the ADT as a prototype. We'll then normalise the returned matrix later.
+
+code::
+(
+// decode: HOA3 >> 7_0
+
+// ---------
+// Pantophonic (2D) decoder with seven channels arranged in a consumer orientation
+//
+// single band
+
+// order
+~order = 3;
+
+// specify parameters & design
+~directions = [ 0.0, 30.0, 110.0, 135.0, -135.0, -110.0, -30.0 ].degrad;  // 7.0 array
+// ~directions = [ 30.0, 110.0, 135.0, -135.0, -110.0, -30.0 ].degrad;  // 7.0 array - discard center!
+
+// beam shape (panning law)
+// ~beamShape = \basic;
+~beamShape = \energy;
+// ~beamShape = \controlled;
+
+// gain match
+// ~match = \amp;
+// ~match = \rms;
+~match = \energy;
+
+// name
+~name = "new7_0";  // final decoder name
+~adtName = "%ADT".format(~name);  // ADT prototype name
+
+// create instance of ADT
+~adt = ADT.new(
+	folderPath: nil,  // writes to ATK extensions
+	directions: ~directions,
+	match: \amp,  // reset match later
+	order: ~order,
+	format: AtkHoa.format,
+	filename: ~adtName,
+	ymlOnly: true // write only yml to the folderPath, the rest is written to the ADT repo folder
+)
+)
+::
+
+For a 2D design we have two design method choices: mode matching and AllRAD. footnote::
+The ADT doesn't appear to discard tesseral and zonal harmonics when designing mode matching or AllRad matrices, as would be expected for 2D designs.
+::
+
+If the ADT has been successfully started, we'll see this message in the post window: teletype::ADT initialized.::
+
+numberedlist::
+## Mode matching, aka pseudoinverse
+
+code::
+// pinv decoder
+(
+~kind = "pinv";
+
+// ~alpha = 0.0; // mode matching
+~alpha = 0.5; // half & half
+// ~alpha = 1.0; // even energy - often better performance!
+
+~adt.pinv(~alpha);
+)
+::
+note::
+The ADT's mode matcher includes an strong::alpha:: parameter, which adjusts between directional accuracy and uniform loudness.
+::
+
+## AllRAD
+code::
+(
+~kind = "allrad";
+
+~imagSpeakers = [[ 0, -0.5pi, 1.5 ], [ 0, 0.5pi, 1.5 ]]; // use 2 imaginary for 2D
+
+~adt.allrad(~imagSpeakers)
+)
+::
+note::
+AllRAD takes time!
+::
+::
+
+If design of the prototype is successful, ADT will return: teletype::Result = 0::.
+
+To finish off the design, we'll do the following:
+
+numberedlist::
+## load the prototype decoder created by the ADT
+## create a new decoder and normalize to our chosen matching gain
+## write out this new decoder, for later use
+::
+
+code::
+(
+// -----------
+// 1) load prototype decoder
+~adtFileName = "%-%-beam-%-match-%".format(
+	~adtName,
+	~kind,
+	~beamShape,
+	\amp  // reset match later
+);
+~adtDecoder = HoaMatrixDecoder.newFromFile(~adtFileName, order: ~order);
+
+// -----------
+// 2) create new decoder, normalized against match
+~decoder = HoaMatrixDecoder.newFromMatrix(
+	~adtDecoder.matrix * ~adtDecoder.analyzeAverage.matchWeight[~beamShape],
+	~adtDecoder.directions,
+	~adtDecoder.order
+);
+
+// -----------
+// 3) prepare to write...
+~adtProperties = ~adtDecoder.fileParse;  // adt properties
+
+// .. with these properties (metadata)
+~properties = ~adtProperties.deepCopy;
+
+~properties.removeAt(\beam);  // discard ..
+~properties.put(\beamShape, ~adtProperties[\beam]);  // .. to rename
+~properties.put(\match, ~match);  // reset
+~properties.put(\adtKind, ~adtDecoder.kind.asString.drop(3).asSymbol);
+
+~properties = ~properties ++ (
+	author: "ADT",
+	dateCreated: Date.getDate.stamp,
+);
+
+// A 'note': a description or note about the matrix.
+~note = "This is a 7.0 surround decoder made as part of Pantophonic Monitoring of HOA (2D) - ADT example.";
+
+// ... now write
+~decoder.writeToFile( "%.yml".format(~name),
+	note: ~note,
+	attributeDictionary: ~properties,
+	overwrite: true
+)
+)
+::
+
+Hurrah!
+
+Given a successful design, we can run the same tests illustrated above: link::#7_0 *newModeMatch (HOA3)::.

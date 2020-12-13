@@ -663,6 +663,9 @@ EXAMPLES::
 section:: Designs
 
 list::
+## link::Guides/Format-Exchange::
+## link::Guides/HOA-Stereo-Decoding::
+## link::Guides/HOA-Binaural-Decoding::
 ## link::Guides/HOA-2D-Decoding::
 ## link::Guides/HOA-NFE#Decode to a 2D array::
 ::

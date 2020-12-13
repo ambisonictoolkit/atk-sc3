@@ -214,11 +214,11 @@ subsection:: JoshUGens
 
 As with the ATK, the link::https://github.com/supercollider/sc3-plugins/tree/master/source/JoshUGens##JoshUGens:: collection is also distributed via link::https://github.com/supercollider/sc3-plugins/releases##sc3-plugins::, and offers further implementations in first and second order Ambisonic forms.
 
-The following unit generators are supplied: footnote::Supplied reverbs are listed as strong::transformers::, with the intention of bringing them to the reader's attention. Strictly speaking, the ATK's link::#Ambisonic UGen types#classification convention:: regards Ambisonic in Ambisonic out reverb and other effects as beyond the scope of the ATK.::
+The following unit generators are supplied:
 
 definitionlist::
 ## Encoder || link::Classes/BFEncode::, link::Classes/BFEncode1::, link::Classes/BFEncode2::, link::Classes/BFEncodeSter::, link::Classes/FMHEncode0::, link::Classes/FMHEncode1::, link::Classes/FMHEncode2::, link::Classes/A2B::, link::Classes/UHJ2B::, link::Classes/UHJtoB::
-## Transformer || link::Classes/BFManipulate::, link::Classes/Rotate::, link::Classes/Tilt::, link::Classes/Tumble::, link::Classes/BFFreeVerb::, link::Classes/BFGVerb::
+## Transformer || link::Classes/BFManipulate::, link::Classes/Rotate::, link::Classes/Tilt::, link::Classes/Tumble::, link::Classes/BFFreeVerb::, link::Classes/BFGVerb:: footnote::Supplied reverbs are listed as strong::transformers::, with the intention of bringing them to the reader's attention. Strictly speaking, the ATK's link::#Ambisonic UGen types#classification convention:: regards Ambisonic in Ambisonic out reverb and other effects as beyond the scope of the ATK.::
 ## Decoder || link::Classes/BFDecode::, link::Classes/BFDecode1::, link::Classes/FMHDecode1::, link::Classes/B2Ster::, link::Classes/B2A::, link::Classes/B2UHJ::, link::Classes/BtoUHJ::
 ::
 
@@ -258,6 +258,21 @@ Instead, the currently live link to this dependency, code::full.tar.Z::, appears
 ::
 
 
+subsection:: 3Dj
+
+Developed in collaboration with link::http://www.barcelonamedia.org/##Barcelona Media::, the 3Dj library is distributed via the link::https://github.com/supercollider-quarks/3Dj##3Dj quark::. footnote::See also: https://github.com/andresperezlopez/rt-spatialization:: Support is offered for first, second and third order Ambisonics.
+
+If you've installed this quark you can search for the link::search#Introducing 3Dj#3Dj:: overview page, or navigate to the library's distributed link::Browse#Libraries>3Dj#Help::.
+
+3Dj supplies the following unit generators:
+
+definitionlist::
+## Encoder || AmbEnc1, AmbEnc2, AmbEnc3, AmbMEnc1, AmbMEnc2, AmbMEnc3, AmbMrEnc1, AmbMrEnc2, AmbMrEnc3, AmbREnc1, AmbREnc2, AmbREnc3, AmbSMEnc1, AmbSMEnc2, AmbSMEnc3, AmbSMrEnc1, AmbSMrEnc2, AmbSMrEnc3, AmbXEnc1, AmbXEnc2, AmbXEnc3
+::
+
+(Follow link::#3DjEncodingFormat#this link:: to review 3Dj's encoding format.)
+
+
 subsection:: SC-HOA
 
 Like the ATK and JoshUGens, the SC-HOA library, aka HOA for SuperCollider, has components distributed via link::https://github.com/supercollider/sc3-plugins/tree/master/source/HOAUGens##sc3-plugins::. Additionally, for a full installation, the link::https://github.com/florian-grond/SC-HOA##SC-HOA quark::, which includes kernel assets, must also be installed. This library, built on link::http://www.sekisushai.net/ambitools/##ambitools::, provides comprehensive support for first through fifth footnote::HOABinaural supports up to seventh order.:: order Ambisonics.
@@ -273,6 +288,7 @@ definitionlist::
 ::
 
 (Follow link::#SC-HOAEncodingFormat#this link:: to review SC-HOA's encoding format.)
+
 
 section:: Ambisonic formats
 
@@ -430,6 +446,19 @@ list::
 ## strong::reference radius:: : inf footnote::Unspecified, presume emphasis::basic encoding:: is emphasis::planewave encoding::. This would mean the reference radius is infinity. On the other hand, the reference radius for the MIT KEMAR HRTF measurements this library uses for binaural decoding is 1.4 meters. Review link::https://sound.media.mit.edu/resources/KEMAR.html##this discussion::. ::
 ::
 ::
+anchor::3DjEncodingFormat::
+definitionlist::
+## link::#3Dj:: ||
+list::
+## strong::order:: : 1, 2, 3
+## strong::ordering:: : link::https://en.wikipedia.org/wiki/Ambisonic_data_exchange_formats#ACN#ACN::
+## strong::normalisation:: : link::https://en.wikipedia.org/wiki/Ambisonic_data_exchange_formats#N3D#N3D::
+## strong::reference radius:: : inf footnote::
+Unspecified, presume emphasis::basic encoding:: is emphasis::planewave encoding::. This would mean the reference radius is infinity.
+note::3Dj's use of the ATK's FOA binaural decoders supports this view.::
+::
+::
+::
 anchor::SC-HOAEncodingFormat::
 definitionlist::
 ## link::#SC-HOA:: ||
@@ -467,6 +496,7 @@ definitionlist::
 ## SuperCollider || Encodes in the ATK's FOA encoding format, aka classic Gerzonic Ambisonics
 ## JoshUGens || Encodes first order in the ATK's FOA encoding format, but does not encode in the ATK's HOA encoding format
 ## AmbIEM || Does not encode in the ATK's HOA encoding format
+## 3Dj || Nearly encodes in the ATK's HOA encoding format
 ## SC-HOA || Nearly encodes in the ATK's HOA encoding format
 ::
 

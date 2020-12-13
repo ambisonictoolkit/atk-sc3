@@ -6,7 +6,7 @@ related:: Classes/FoaZoomX, Classes/FoaZoomY, Classes/FoaZoomZ, Classes/FoaZoom,
 DESCRIPTION::
 Soundfield balance. A synonym for link::Classes/FoaZoomY::
 
-Apply zoom to a first order ambisonic signal (B-format) along the y-axis.
+Apply zoom to a First Order Ambisonic signal (B-format) along the y-axis.
 
 
 NOTE::

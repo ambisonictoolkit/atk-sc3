@@ -9,11 +9,11 @@ Use this overview to find your way around the ATK's Coefficients & Theory.
 section:: Component indexing, coefficients, &c
 
 definitionlist::
-## link::Classes/HoaOrder:: || Higher order ambisonic (HOA) indexing & coefficients, emphasis::by order::
+## link::Classes/HoaOrder:: || Higher Order Ambisonic (HOA) indexing & coefficients, emphasis::by order::
 
-## link::Classes/HoaDegree:: || Higher order ambisonic (HOA) indexing & coefficients, emphasis::by Associated Legendre degree::
+## link::Classes/HoaDegree:: || Higher Order Ambisonic (HOA) indexing & coefficients, emphasis::by Associated Legendre degree::
 
-## link::Classes/HoaLm:: || Higher order ambisonic (HOA) indexing & coefficients, emphasis::by Associated Legendre degree (ℓ) and Associated Legendre index (m)::
+## link::Classes/HoaLm:: || Higher Order Ambisonic (HOA) indexing & coefficients, emphasis::by Associated Legendre degree (ℓ) and Associated Legendre index (m)::
 ::
 
 section:: Radial filtering spectra & coefficients
@@ -29,9 +29,9 @@ definitionlist::
 section:: Radial utilities
 
 definitionlist::
-## link::Classes/HoaRadius:: || Higher order ambisonic (HOA) radial utilities
+## link::Classes/HoaRadius:: || Higher Order Ambisonic (HOA) radial utilities
 
-## link::Classes/WaveNumber:: || Higher order ambisonic (HOA) radial utilities
+## link::Classes/WaveNumber:: || Higher Order Ambisonic (HOA) radial utilities
 ::
 
 section:: Matrix utilities

@@ -1,10 +1,10 @@
 TITLE:: HoaLm
-summary:: Higher order ambisonic (HOA) indexing & coefficients
+summary:: Higher Order Ambisonic (HOA) indexing & coefficients
 categories:: Libraries>Ambisonic Toolkit>Coefficients & Theory
 related:: Classes/HoaDegree, Classes/HoaOrder
 
 DESCRIPTION::
-Higher order ambisonic (HOA) emphasis::component:: indexing & coefficients, by Associated Legendre degree (ℓ) and Associated Legendre index (m).
+Higher Order Ambisonic (HOA) emphasis::component:: indexing & coefficients, by Associated Legendre degree (ℓ) and Associated Legendre index (m).
 
 See Associated Legendre degree and Associated Legendre index in link::Guides/ATK-Glossary::.
 
@@ -19,7 +19,7 @@ An two slot Array of integers: code::[l, m]::
 
 
 METHOD:: newIndex
-Create a new instance by higher order ambisonic (HOA) index.
+Create a new instance by Higher Order Ambisonic (HOA) index.
 
 ARGUMENT:: index
 An integer.
@@ -49,7 +49,7 @@ Return Associated Legendre index (m).
 
 
 METHOD:: index
-Return higher order ambisonic (HOA) index.
+Return Higher Order Ambisonic (HOA) index.
 
 ARGUMENT:: ordering
 emphasis::Component:: strong::ordering:: scheme:

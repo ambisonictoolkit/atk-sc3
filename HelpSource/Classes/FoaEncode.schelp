@@ -5,7 +5,7 @@ related:: Classes/FoaEncoderMatrix, Classes/FoaEncoderKernel
 
 
 DESCRIPTION::
-Encodes signals in a variety of configurations to a first order ambisonic signal (B-format). link::Classes/PanB:: is a SuperCollider inbuilt equivalent.
+Encodes signals in a variety of configurations to a First Order Ambisonic signal (B-format). link::Classes/PanB:: is a SuperCollider inbuilt equivalent.
 
 
 

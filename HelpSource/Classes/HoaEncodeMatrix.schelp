@@ -5,7 +5,7 @@ related:: Classes/Mix, Classes/AtkMatrixMix, Classes/HoaRenderMatrix, Classes/Ho
 
 DESCRIPTION::
 
-Encode an link::Classes/Array:: input of channels to a higher order ambisonic signal (HOA) via an link::Classes/HoaMatrixEncoder::.
+Encode an link::Classes/Array:: input of channels to a Higher Order Ambisonic signal (HOA) via an link::Classes/HoaMatrixEncoder::.
 
 
 CLASSMETHODS::

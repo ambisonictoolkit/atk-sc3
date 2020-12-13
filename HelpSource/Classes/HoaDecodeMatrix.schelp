@@ -5,7 +5,7 @@ related:: Classes/Mix, Classes/AtkMatrixMix, Classes/HoaRenderMatrix, Classes/Ho
 
 DESCRIPTION::
 
-Decode (render) a higher order ambisonic signal (HOA) via an link::Classes/HoaMatrixDecoder::.
+Decode (render) a Higher Order Ambisonic signal (HOA) via an link::Classes/HoaMatrixDecoder::.
 
 
 CLASSMETHODS::

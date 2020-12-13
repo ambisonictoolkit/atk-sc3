@@ -4,7 +4,7 @@ categories:: Libraries>Ambisonic Toolkit>UGens>FOA>Encoder, UGens>Multichannel>A
 related:: Classes/FoaEncode
 
 DESCRIPTION::
-Generate a monofrequent first order ambisonic signal (B-format), synthesized from a cosine basis wave. Uses link::Classes/SinOsc:: internally, a wavetable lookup oscillator with linear interpolation.
+Generate a monofrequent First Order Ambisonic signal (B-format), synthesized from a cosine basis wave. Uses link::Classes/SinOsc:: internally, a wavetable lookup oscillator with linear interpolation.
 
 
 CLASSMETHODS::

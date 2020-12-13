@@ -1,10 +1,10 @@
 TITLE:: HoaRadius
-summary:: Higher order ambisonic (HOA) radial utilities
+summary:: Higher Order Ambisonic (HOA) radial utilities
 categories:: Libraries>Ambisonic Toolkit>Coefficients & Theory
 related:: Classes/WaveNumber, Classes/HoaOrder
 
 DESCRIPTION::
-Higher order ambisonic (HOA) radial utilities. Useful for finding ambisonic decoder emphasis::effective radius::, emphasis::effective order:: and emphasis::effective frequency::.
+Higher Order Ambisonic (HOA) radial utilities. Useful for finding ambisonic decoder emphasis::effective radius::, emphasis::effective order:: and emphasis::effective frequency::.
 
 
 CLASSMETHODS::

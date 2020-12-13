@@ -722,7 +722,7 @@ ________________
 
 strong::Frequency dependent laws::
 
-Classic FOA employs the emphasis::psycho-acoustic shelf filter:: footnote::link::Classes/FoaPsychoShelf:::: to select the strict law at low frequencies and the energy law at highs. The ATK's HOA toolset includes a fiter kernel designer to do the job. footnote::link::Classes/Signal#*hoaMultiBandFocl:::: Frequency dependent laws have traditionally been advised for studio and nearfield listening. For example:
+Classic FOA employs the emphasis::psycho-acoustic shelf filter:: footnote::link::Classes/FoaPsychoShelf:::: to select the strict law at low frequencies and the energy law at highs. The ATK's HOA toolset includes a fiter kernel designer to do the job. footnote::link::Classes/Signal#*hoaMultiBandFocl:::: Frequency dependent laws have traditionally been advised for studio and near-field listening. For example:
 
 code::
 // --------------------------------------

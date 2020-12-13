@@ -196,7 +196,7 @@ If at some point you find a collision with the below packages (or any other), pl
 
 subsection:: SuperCollider
 
-The original author of SuperCollider has provided basic support for first order Ambisonics (FOA) via the following unit generators:
+The original author of SuperCollider has provided basic support for First Order Ambisonics (FOA) via the following unit generators:
 
 definitionlist::
 ## Encoder || link::Classes/PanB::, link::Classes/PanB2::, link::Classes/BiPanB2:: footnote::link::Classes/BiPanB2:: doesn't synthesize the z-axis component.::

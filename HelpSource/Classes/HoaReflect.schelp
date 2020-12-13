@@ -4,7 +4,7 @@ categories:: Libraries>Ambisonic Toolkit>UGens>HOA>Transformer, UGens>Multichann
 related:: Classes/HoaXformMatrix
 
 DESCRIPTION::
-Mirror a higher order ambisonic signal (HOA).
+Mirror a Higher Order Ambisonic signal (HOA).
 
 
 CLASSMETHODS::

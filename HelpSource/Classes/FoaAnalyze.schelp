@@ -3,7 +3,7 @@ summary:: First Order Ambisonic (FOA) analyzer
 categories:: Libraries>Ambisonic Toolkit>UGens>FOA>Analyzer, UGens>Multichannel>Ambisonics, UGens>Analysis>Ambisonics
 
 DESCRIPTION::
-Analyzes a first order ambisonic signal (B-format).
+Analyzes a First Order Ambisonic signal (B-format).
 
 NOTE::
 link::Classes/FoaAnalyze:: is a convenience wrapper around the various analyzer UGens.

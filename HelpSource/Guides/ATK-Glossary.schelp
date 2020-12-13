@@ -108,7 +108,7 @@ keyword:: rE
 keyword:: far-field
 || Characterized by a minimally emphasis::reactive:: emphasis::travelling wave::. I.e., a wave with minimal quadrature components. A emphasis::planewave:: is in the emphasis::far-field::. See also emphasis::near-field::.
 
-## first order Ambisonics
+## First Order Ambisonics (FOA)
 keyword:: FOA
 || Ambisonics employing components up to emphasis::AL degrees:: ℓ <= 1.
 
@@ -124,7 +124,7 @@ keyword:: format
 keyword:: energy
 || See emphasis::energy localisation vector::.
 
-## higher order Ambisonics (HOA)
+## Higher Order Ambisonics (HOA)
 keyword:: HOA
 || Ambisonics employing components up to emphasis::AL degrees:: ℓ <= emphasis::Ambisonic order:: n.
 

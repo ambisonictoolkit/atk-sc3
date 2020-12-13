@@ -4,7 +4,7 @@ categories:: Libraries>Ambisonic Toolkit>Matrix & Kernel>HOA
 related:: Classes/HoaDecodeMatrix
 
 DESCRIPTION::
-Generate matrix decoders required by the Ambisonic Toolkit's higher order ambisonic (HOA) decoder, link::Classes/HoaDecodeMatrix::.
+Generate matrix decoders required by the Ambisonic Toolkit's Higher Order Ambisonic (HOA) decoder, link::Classes/HoaDecodeMatrix::.
 
 Matrix decoding is offered via four different methods:
 
@@ -25,7 +25,7 @@ link::https://en.wikipedia.org/wiki/Ambisonic_data_exchange_formats##Format exch
 CLASSMETHODS::
 
 METHOD:: newProjection
-Decode a higher order ambisonic signal (HOA) via the emphasis::projection:: method.
+Decode a Higher Order Ambisonic signal (HOA) via the emphasis::projection:: method.
 
 ARGUMENT:: directions
 An array of directions. Specify in radians.
@@ -57,7 +57,7 @@ note::In order to return a valid reconstruction decoder, strong::directions:: sh
 
 
 METHOD:: newModeMatch
-Decode a higher order ambisonic signal (HOA) via the emphasis::mode matching:: method.
+Decode a Higher Order Ambisonic signal (HOA) via the emphasis::mode matching:: method.
 
 ARGUMENT:: directions
 An array of directions. Specify in radians.
@@ -89,7 +89,7 @@ note::Comprehensive modal discarding is not applied. More evely distributed stro
 
 
 METHOD:: newDiametric
-Decode a higher order ambisonic signal (HOA) via the emphasis::mode matching:: method, given diametrically matched loudspeaker pairs. Gerzon's classic emphasis::diametric:: decoder. footnote::See: M. A. Gerzon, "Practical Periphony: The Reproduction of Full-Sphere Sound," in Proceedings of the 65th Audio Engineering Engineering Society Convention, London, 1980, p. 10.::
+Decode a Higher Order Ambisonic signal (HOA) via the emphasis::mode matching:: method, given diametrically matched loudspeaker pairs. Gerzon's classic emphasis::diametric:: decoder. footnote::See: M. A. Gerzon, "Practical Periphony: The Reproduction of Full-Sphere Sound," in Proceedings of the 65th Audio Engineering Engineering Society Convention, London, 1980, p. 10.::
 
 ARGUMENT:: directions
 An array of directions for half of the loudspeaker feeds for the desired decoder. Specify in radians.
@@ -146,7 +146,7 @@ code::
 
 
 METHOD:: newPanto
-Decode a higher order ambisonic signal (HOA) via the emphasis::projection:: method to a Pantophonic (2D) regular polygon array.
+Decode a Higher Order Ambisonic signal (HOA) via the emphasis::projection:: method to a Pantophonic (2D) regular polygon array.
 
 ARGUMENT:: numChans
 number of outputs
@@ -184,7 +184,7 @@ code::
 
 
 METHOD:: newSphericalDesign
-emphasis::Beamform:: into a higher order ambisonic signal (HOA), returning multiple beams evenly distributed in a link::Classes/SphericalDesign::.
+emphasis::Beamform:: into a Higher Order Ambisonic signal (HOA), returning multiple beams evenly distributed in a link::Classes/SphericalDesign::.
 
 ARGUMENT:: design
 link::Classes/SphericalDesign:: instance
@@ -223,7 +223,7 @@ Matching emphasis::spherical (re-)composition:: is provided by link::Classes/Hoa
 
 
 METHOD:: newDirection
-emphasis::Beamform:: into a higher order ambisonic signal (HOA), returning a single beam.
+emphasis::Beamform:: into a Higher Order Ambisonic signal (HOA), returning a single beam.
 
 ARGUMENT:: theta
 Azimuth, in radians.
@@ -241,7 +241,7 @@ discussion:: Returns a single beam, and can be used to "listen in" to the soundf
 
 
 METHOD:: newDirections
-emphasis::Beamform:: into a higher order ambisonic signal (HOA), returning multiple beams.
+emphasis::Beamform:: into a Higher Order Ambisonic signal (HOA), returning multiple beams.
 
 ARGUMENT:: directions
 An array of directions. Specify in radians.

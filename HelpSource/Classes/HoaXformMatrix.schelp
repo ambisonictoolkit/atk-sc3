@@ -5,7 +5,7 @@ related:: Classes/Mix, Classes/AtkMatrixMix, Classes/HoaRenderMatrix, Classes/Ho
 
 DESCRIPTION::
 
-Transform a higher order ambisonic signal (HOA) via an link::Classes/HoaMatrixXformer::.
+Transform a Higher Order Ambisonic signal (HOA) via an link::Classes/HoaMatrixXformer::.
 
 
 CLASSMETHODS::

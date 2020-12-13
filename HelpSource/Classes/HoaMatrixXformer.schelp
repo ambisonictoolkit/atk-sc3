@@ -4,13 +4,13 @@ categories:: Libraries>Ambisonic Toolkit>Matrix & Kernel>HOA
 related:: Classes/HoaXformMatrix
 
 DESCRIPTION::
-Generate matrix transformers required by the Ambisonic Toolkit's higher order ambisonic (HOA) transformer, link::Classes/HoaXformMatrix::.
+Generate matrix transformers required by the Ambisonic Toolkit's Higher Order Ambisonic (HOA) transformer, link::Classes/HoaXformMatrix::.
 
 
 CLASSMETHODS::
 
 METHOD:: newBeam
-Beamform into a higher order ambisonic signal (HOA).
+Beamform into a Higher Order Ambisonic signal (HOA).
 
 ARGUMENT:: theta
 Azimuth, in radians.
@@ -27,7 +27,7 @@ Ambisonic order.
 
 
 METHOD:: newNull
-Nullform into a higher order ambisonic signal (HOA).
+Nullform into a Higher Order Ambisonic signal (HOA).
 
 ARGUMENT:: theta
 Azimuth, in radians.
@@ -43,7 +43,7 @@ Ambisonic order.
 
 
 METHOD:: newReflect
-Mirror a higher order ambisonic signal (HOA).
+Mirror a Higher Order Ambisonic signal (HOA).
 
 ARGUMENT:: mirror
 Keyword argument for reflection. See discussion below.
@@ -70,7 +70,7 @@ table::
 
 
 METHOD:: newRotateAxis
-Rotate a higher order ambisonic signal (HOA) around an axis.
+Rotate a Higher Order Ambisonic signal (HOA) around an axis.
 
 ARGUMENT:: axis
 Keyword argument for axis of rotation. See discussion below.
@@ -166,7 +166,7 @@ Ambisonic order.
 
 
 METHOD:: newSwapAxes
-Swap two axes of a higher order ambisonic signal (HOA).
+Swap two axes of a Higher Order Ambisonic signal (HOA).
 
 ARGUMENT:: axes
 Individual axes are specified via the axial keywords for link::#*newRotateAxis::.
@@ -179,7 +179,7 @@ Ambisonic order.
 SUBSECTION:: Matrix & File
 
 METHOD:: newFromMatrix
-Transform a higher order ambisonic signal (HOA) via a directly designed spatial filter.
+Transform a Higher Order Ambisonic signal (HOA) via a directly designed spatial filter.
 
 ARGUMENT:: matrix
 A link::Classes/Matrix:: instance.

@@ -4,7 +4,7 @@ categories:: Libraries>Ambisonic Toolkit>UGens>FOA>Transformer, UGens>Multichann
 related:: Classes/FoaDominateX, Classes/FoaDominateZ, Classes/FoaDominate, Classes/FoaTransform, Classes/FoaXform
 
 DESCRIPTION::
-Apply dominance to a first order ambisonic signal (B-format) along the y-axis.
+Apply dominance to a First Order Ambisonic signal (B-format) along the y-axis.
 
 
 NOTE::

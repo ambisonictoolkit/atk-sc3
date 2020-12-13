@@ -4,7 +4,7 @@ categories:: Libraries>Ambisonic Toolkit>UGens>FOA>Transformer, UGens>Multichann
 related:: Classes/FoaDirectX, Classes/FoaDirectY, Classes/FoaDirectZ, Classes/FoaDirect, Classes/FoaTransform, Classes/FoaXform
 
 DESCRIPTION::
-Adjust the soundfield directivity of a first order ambisonic signal (B-format) across the origin.
+Adjust the soundfield directivity of a First Order Ambisonic signal (B-format) across the origin.
 
 
 NOTE::

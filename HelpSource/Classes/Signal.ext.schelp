@@ -5,7 +5,7 @@ subsection:: Ambisonic Toolkit
 
 METHOD:: hoaDist
 
-Return an Array of higher order ambisonic signal (HOA) near-field effect (NFE), distance radial filters collected by emphasis::Associated Legendre:: degree (ℓ).
+Return an Array of Higher Order Ambisonic signal (HOA) near-field effect (NFE), distance radial filters collected by emphasis::Associated Legendre:: degree (ℓ).
 
 
 ARGUMENT:: size
@@ -35,7 +35,7 @@ NOTE:: In most cases, users will use the high level near-field effect (NFE) pseu
 
 METHOD:: hoaCtrl
 
-Return an Array of higher order ambisonic signal (HOA) near-field effect (NFE), control radial filters collected by emphasis::Associated Legendre:: degree (ℓ).
+Return an Array of Higher Order Ambisonic signal (HOA) near-field effect (NFE), control radial filters collected by emphasis::Associated Legendre:: degree (ℓ).
 
 
 ARGUMENT:: size
@@ -91,7 +91,7 @@ NOTE:: In most cases, users will use the high level near-field effect (NFE) pseu
 
 METHOD:: hoaFocl
 
-Return an Array of higher order ambisonic signal (HOA) near-field effect (NFE), focalisation radial filters collected by emphasis::Associated Legendre:: degree (ℓ).
+Return an Array of Higher Order Ambisonic signal (HOA) near-field effect (NFE), focalisation radial filters collected by emphasis::Associated Legendre:: degree (ℓ).
 
 
 ARGUMENT:: size
@@ -127,7 +127,7 @@ Offers FIR coefficients; implemented as a linear phase frequency sampling design
 
 METHOD:: hoaMultiBandFocl
 
-Return an Array of higher order ambisonic signal (HOA) filters combining multi-band beamforming and near-field effect (NFE) focalisation, collected by emphasis::Associated Legendre:: degree (ℓ).
+Return an Array of Higher Order Ambisonic signal (HOA) filters combining multi-band beamforming and near-field effect (NFE) focalisation, collected by emphasis::Associated Legendre:: degree (ℓ).
 
 
 ARGUMENT:: size

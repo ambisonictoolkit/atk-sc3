@@ -4,7 +4,7 @@ categories:: Libraries>Ambisonic Toolkit>UGens>HOA>Transformer, UGens>Multichann
 related:: Classes/HoaRotate, Classes/HoaTilt, Classes/HoaTumble, Classes/HoaRTT, Classes/HoaYaw, Classes/HoaPitch, Classes/HoaYPR
 
 DESCRIPTION::
-Rotate a higher order ambisonic signal (HOA) around the x-axis.
+Rotate a Higher Order Ambisonic signal (HOA) around the x-axis.
 
 note::
 link::Classes/HoaRoll:: is a synonym for link::Classes/HoaTilt::

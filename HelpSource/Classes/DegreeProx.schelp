@@ -4,7 +4,7 @@ categories:: Libraries>Ambisonic Toolkit>UGens>Internals>HOA, UGens>Multichannel
 related:: Classes/HoaNFProx, Classes/DegreeDist, Classes/DegreeCtrl
 
 DESCRIPTION::
-Higher order ambisonic signal (HOA) near-field effect (NFE), proximity radial filter by emphasis::Associated Legendre:: degree (ℓ).
+Higher Order Ambisonic signal (HOA) near-field effect (NFE), proximity radial filter by emphasis::Associated Legendre:: degree (ℓ).
 
 
 NOTE::As a utility, link::Classes/DegreeProx:: supports NFE radial filtering and transformation. In most cases users will not directly use this filter. Instead, link::Classes/HoaNFProx:: profides the near-field effect distance transform operation on input HOA signals.::

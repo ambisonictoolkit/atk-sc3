@@ -9,7 +9,7 @@ The FOA examples found here show a limited set of the ATK's functionality, but i
 
 subsection:: Mono Encoder using FoaPanB
 
-link::Classes/FoaPanB:: encodes a monophonic input to a first order ambisonic signal (B-format), as a planewave. link::Classes/PanB:: is the SuperCollider inbuilt equivalent.
+link::Classes/FoaPanB:: encodes a monophonic input to a First Order Ambisonic signal (B-format), as a planewave. link::Classes/PanB:: is the SuperCollider inbuilt equivalent.
 
 This first example encodes a link::Classes/PinkNoise:: source as a planewave and decodes to stereo.
 

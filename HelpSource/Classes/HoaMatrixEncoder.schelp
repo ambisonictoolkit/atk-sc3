@@ -4,7 +4,7 @@ categories:: Libraries>Ambisonic Toolkit>Matrix & Kernel>HOA
 related:: Classes/HoaEncodeMatrix
 
 DESCRIPTION::
-Generate matrix encoders required by the Ambisonic Toolkit's higher order ambisonic (HOA) encoder, link::Classes/HoaEncodeMatrix::.
+Generate matrix encoders required by the Ambisonic Toolkit's Higher Order Ambisonic (HOA) encoder, link::Classes/HoaEncodeMatrix::.
 
 Matrix encoding is offered via three different methods:
 
@@ -26,7 +26,7 @@ PRIVATE:: newPanto
 
 METHOD:: newDirection
 
-Encode a single emphasis::beam:: into a higher order ambisonic signal (HOA).
+Encode a single emphasis::beam:: into a Higher Order Ambisonic signal (HOA).
 
 ARGUMENT:: theta
 Azimuth, in radians.
@@ -48,7 +48,7 @@ discussion:: Gain is emphasis::matched:: to pressure. See link::Classes/HoaMatri
 
 
 METHOD:: newDirections
-Encode multipe emphasis::beams:: into a higher order ambisonic signal (HOA).
+Encode multipe emphasis::beams:: into a Higher Order Ambisonic signal (HOA).
 
 ARGUMENT:: directions
 An array of directions. Specify in radians.
@@ -78,7 +78,7 @@ Ambisonic order.
 
 
 METHOD:: newModeMatch
-Encode a higher order ambisonic signal (HOA) via the emphasis::mode matching:: method.
+Encode a Higher Order Ambisonic signal (HOA) via the emphasis::mode matching:: method.
 
 ARGUMENT:: directions
 An array of directions. Specify in radians.
@@ -110,7 +110,7 @@ note::Comprehensive modal discarding is not applied. More evely distributed stro
 
 
 METHOD:: newSphericalDesign
-Encode multiple emphasis::beams:: evenly distributed in a link::Classes/SphericalDesign:: as a higher order ambisonic signal (HOA).
+Encode multiple emphasis::beams:: evenly distributed in a link::Classes/SphericalDesign:: as a Higher Order Ambisonic signal (HOA).
 
 
 ARGUMENT:: design

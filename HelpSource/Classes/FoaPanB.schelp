@@ -4,7 +4,7 @@ categories:: Libraries>Ambisonic Toolkit>UGens>FOA>Encoder, UGens>Multichannel>A
 related:: Classes/FoaEncode
 
 DESCRIPTION::
-Encode a monophonic input to a first order ambisonic signal (B-format), as a planewave. link::Classes/PanB:: is the SuperCollider inbuilt equivalent.
+Encode a monophonic input to a First Order Ambisonic signal (B-format), as a planewave. link::Classes/PanB:: is the SuperCollider inbuilt equivalent.
 
 
 

@@ -4,7 +4,7 @@ categories:: Libraries>Ambisonic Toolkit>UGens>HOA>Decoder, UGens>Multichannel>A
 related:: Classes/HoaDecodeMatrix, Classes/HoaEncodeDirection
 
 DESCRIPTION::
-Decode a monophonic output from a higher order ambisonic signal (HOA), with near-field effect (NFE).
+Decode a monophonic output from a Higher Order Ambisonic signal (HOA), with near-field effect (NFE).
 
 
 CLASSMETHODS::

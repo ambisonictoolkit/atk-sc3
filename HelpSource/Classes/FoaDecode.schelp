@@ -4,7 +4,7 @@ categories:: Libraries>Ambisonic Toolkit>UGens>FOA>Decoder, UGens>Multichannel>A
 related:: Classes/FoaDecoderMatrix, Classes/FoaDecoderKernel
 
 DESCRIPTION::
-Renders (decodes) a first order ambisonic signal (B-format) to speaker feeds in a variety of configurations. link::Classes/DecodeB2:: is the SuperCollider inbuilt equivalent.
+Renders (decodes) a First Order Ambisonic signal (B-format) to speaker feeds in a variety of configurations. link::Classes/DecodeB2:: is the SuperCollider inbuilt equivalent.
 
 
 CLASSMETHODS::

@@ -4,7 +4,7 @@ categories:: Libraries>Ambisonic Toolkit>UGens>HOA>Transformer, UGens>Multichann
 related:: Classes/HoaBeam, Classes/HoaXformMatrix
 
 DESCRIPTION::
-Nullform into a higher order ambisonic signal (HOA), with near-field effect (NFE).
+Nullform into a Higher Order Ambisonic signal (HOA), with near-field effect (NFE).
 
 
 CLASSMETHODS::

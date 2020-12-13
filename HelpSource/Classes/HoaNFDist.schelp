@@ -4,7 +4,7 @@ categories:: Libraries>Ambisonic Toolkit>UGens>HOA>Transformer, UGens>Multichann
 related:: Classes/HoaNFProx, Classes/HoaNFCtrl, Classes/DegreeDist, Classes/DegreeProx, Classes/DegreeCtrl
 
 DESCRIPTION::
-Higher order ambisonic signal (HOA) near-field effect (NFE) distance transformer.
+Higher Order Ambisonic signal (HOA) near-field effect (NFE) distance transformer.
 
 
 CLASSMETHODS::

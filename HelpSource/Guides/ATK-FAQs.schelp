@@ -13,9 +13,23 @@ Try link::Guides/ATK-Glossary::.
 
 subsection:: What books on Ambisonics do you suggest?
 
-Some books
+list::
+## Zotter, Franz, and Frank, Matthias. Ambisonics. Springer, 2019.
+## Ahrens, Jens. Analytic Methods of Sound Field Synthesis. Springer Berlin / Heidelberg, 2012.
+## Williams, Earl G. Fourier Acoustics. Elsevier Science & Technology, 1999.
+::
 
-subsection:: What other Ambisonic libraries?
+subsection:: What HOA research libraries do you suggest?
+
+In addition to the link::https://bitbucket.org/ambidecodertoolbox/adt/src/master/##Ambisonic Decoder Toolbox::, try:
+
+list::
+## link::http://research.spa.aalto.fi/projects/ambi-lib/ambi.html##COMPACT HIGHER-ORDER AMBISONIC LIBRARY::
+## link::http://research.spa.aalto.fi/projects/sht-lib/sht.html##SPHERICAL HARMONIC TRANSFORM LIBRARY::
+## link::http://audiogroup.web.th-koeln.de/SOFiA_wiki/WELCOME.html##SOFiA sound field analysis toolbox::
+## link::https://sfs.readthedocs.io/##Sound Field Synthesis Toolbox::
+## link::https://leomccormack.github.io/Spatial_Audio_Framework/index.html##Spatial_Audio_Framework::
+::
 
 
 section:: Ambisonic Toolkit
@@ -67,6 +81,12 @@ numberedlist::
 ## For HOA, see: link::Classes/HoaMatrixDecoder::
 ##Example implementations can be found here: link::Overviews/ABCs-Guides-Toots::
 ::
+
+subsection:: Can I analyze decoders with the ATK?
+
+Yes!
+
+Review link::Guides/HOA-2D-Decoding#Analysis:: for examples.
 
 subsection:: Where is the HOA version of FoaMyFavoriteThing?
 
@@ -194,11 +214,11 @@ subsection:: Can FOA recordings and HOA soundfields be used together?
 
 This is both a technical and aesthetic question!
 
-emphasis::Technical:: answers:
+strong::Technical answers:::
 
-strong::If we wish to use the HOA toolset tools with FOA recordings,:: the FOA signal should be link::Guides/Format-Exchange##exchanged:: to HOA1. Obviously, we can go the other way too. Review link::Guides/Format-Exchange#FOA source, HOA target#this:: & link::Guides/Format-Exchange#HOA source, FOA target#this::.
+emphasis::If we wish to use the HOA toolset tools with FOA recordings,:: the FOA signal should be link::Guides/Format-Exchange##exchanged:: to HOA1. Obviously, we can go the other way too. Review link::Guides/Format-Exchange#FOA source, HOA target#this:: & link::Guides/Format-Exchange#HOA source, FOA target#this::.
 
-strong::If we wish to mix FOA recordings into an HOA bus,:: we need to first match the FOA signal to the target link::Tutorials/ABCs-of-the-ATK#Encoding formats#HOA signal set::. This means matching:
+emphasis::If we wish to mix FOA recordings into an HOA bus,:: we need to first match the FOA signal to the target link::Tutorials/ABCs-of-the-ATK#Encoding formats#HOA signal set::. This means matching:
 
 list::
 ## strong::Ambisonic order::
@@ -211,7 +231,7 @@ Matching the last three is link::Guides/Format-Exchange::. To match Ambisonic or
 
 note::If we don't upsample the FOA signal to meet the HOA target, we are mixing a spatially truncated signal (lower spatial sampling rate) into a higher rate bus. As a result, transforms won't behave as expected, and significant energy and imaging mismatches may be heard on decoding.::
 
-emphasis::Aesthetic:: answer:
+strong::Aesthetic answer:::
 
 Composers working in the acousmatic tradition have long composed works using emphasis::mixed spatial stems::. That is, one layer of the piece may have been composed in two channel stereo, while another layer is in six or eight channels positioned around an audience.
 

@@ -96,6 +96,12 @@ Yes!
 
 Review link::Guides/HOA-2D-Decoding#Analysis:: for examples.
 
+subsection:: Can I analyze soundfields with the ATK:
+
+Yes!
+
+Try link::Classes/FoaAnalyze::.
+
 subsection:: Where is the HOA version of FoaMyFavoriteThing?
 
 Some possible answers:
@@ -328,6 +334,27 @@ Questions on the ATK as a project.
 subsection:: Who made the ATK?
 
 Who are the architects?
+
+Top row, the “Three Js”:
+ATK, what I say it is. Started with my composition projects. (1997)
+JP, “On Space” (1999/2000)... JPar, bring to SC3
+New Kids:
+MMcC, “In house” infrastructure
+TL, Reaper
+DP, dev & support
+
+
+Various incarnations
+1997 as library of Csound orcs
+Substantial use as VSTs, particularly w/ production (never distributed)
+SC3: mature, full featured, (ver 3.5 2011)
+JSFX: subset, fairly large user base (ver 1.0.b1 2014)
+Python/Scipy: the “secret” dev version!
+HOA
+Considering a new HOA version for Csound!
+
+Csound, SC2, SC3, clm, VST, JSFX, Python/Scipy
+
 
 subsection:: How do I report a bug?
 

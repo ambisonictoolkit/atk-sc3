@@ -159,7 +159,14 @@ code::
 AtkFoa.refRadius
 ::
 
-As a result, in FOA a emphasis::basic wave:: is a emphasis::planewave::. Therefore a decomposition with link::Classes/FoaDecoderMatrix#*newBtoA::, a real matrix operation, will return a emphasis::planewave decomposition:::
+As a result, in FOA a emphasis::basic wave:: is a emphasis::planewave::. Therefore a decomposition with link::Classes/FoaDecoderMatrix#*newBtoA::, a real matrix operation, will return a emphasis::planewave decomposition::.
+
+Here's an illustration of the network:
+
+image::dafx.png#DAFX in FOA::
+
+
+Here's some code:
 
 code::
 // spherical to angular domain

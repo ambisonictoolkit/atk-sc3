@@ -5,21 +5,220 @@ keyword::Atk
 
 section:: Ambisonics
 
-General questions about Ambisonics.
+General questions about Ambisonics & Theory.
 
-subsection:: What is the difference between FOA and HOA?
+subsection:: What do all these big Ambisonic words mean?
 
-Some answers here...
+Try link::Guides/ATK-Glossary::.
 
+subsection:: What books on Ambisonics do you suggest?
 
-section:: Techniques
+Some books
 
-Guestions about specific techniques.
+subsection:: What other Ambisonic libraries?
 
 
 section:: Ambisonic Toolkit
 
 Specific questions about the ATK.
+
+subsection:: Where should I start?
+
+Try link::Tutorials/ABCs-of-the-ATK::, followed by link::Tutorials/ATK-Enlightenment::.
+
+subsection:: How is the ATK structured?
+
+Try link::Tutorials/ABCs-of-the-ATK#Library architecture::.
+
+subsection:: Where are Guides & Tutorials found?
+
+Try link::Overviews/ABCs-Guides-Toots::.
+
+subsection:: What are the differences between the ATK's FOA and HOA toolsets?
+
+Try this first, link::Tutorials/ABCs-of-the-ATK#Two toolsets in one::. We also suggest browsing the ATK's link::Browse#Libraries>Ambisonic Toolkit>UGens#UGens:: and link::Browse#Libraries>Ambisonic Toolkit>Matrix & Kernel#Matrix & Kernel:: links.
+
+The two toolsets are intended to be used together. See link::Guides/Format-Exchange:: for examples.
+
+note::
+The HOA toolset is intended to provide a broad foundation upon which specific designs may be built. In time, our intention is to illustrate example designs via tutorials.
+::
+
+subsection:: What's with the ATK's kernels and matrices?
+
+Try link::Tutorials/ABCs-of-the-ATK#Matrix & Kernel operations::.
+
+subsection:: Where are the HOA kernels?
+
+As the HOA toolset includes low level Ambisonic coefficient return, the long term plan is to implement the kernel functionality found on the FOA side with a emphasis::design on demand:: pattern.
+
+note::We intend to provide a binaural decoder design example in the near term.::
+
+subsection:: Where are the the ATK's HOA binaural decoders?
+
+For the short term, try the solutions suggested in link::Guides/HOA-Binaural-Decoding::.
+
+For the long term, see link::#Where are the HOA kernels?::
+
+subsection:: What decoders are available?
+
+numberedlist::
+## For FOA, you'll want to review: link::Classes/FoaDecoderMatrix:: & link::Classes/FoaDecoderKernel::.
+## For HOA, see: link::Classes/HoaMatrixDecoder::
+##Example implementations can be found here: link::Overviews/ABCs-Guides-Toots::
+::
+
+subsection:: Where is the HOA version of FoaMyFavoriteThing?
+
+Some possible answers:
+
+numberedlist::
+## There is not an analytic HOA equivalent.
+## FoaMyFavoriteThing has a slightly different name for HOA.
+## We haven't gotten around to it yet.
+::
+
+strong::1.:: Chapman an Cotterell note, "a second-order emphasis::dominance operation:: corresponding to Gerzon and Barton’s emphasis::Lorentz transformation:: is impossible." footnote::Michael Chapman and Philip Cotterell, “Towards a com-prehensive acount of valid Ambisonic Transformations,”in Ambisonics Symposium, Graz, 2009.:: In response, Kronlachner and Zotter instead propose numeric solutions for HOA. footnote::Kronlachner, M., Zotter, F. Spatial transformations for the enhancement of Ambisonic recordings. ( Theile, G. ). Proceedings of the International Conference on Spatial Audio 2014 (International Conference on Spatial Audio 2014) . 2014.::
+
+The emphasis::dominance family:: FOA transforms, like link::Classes/FoaFocus::, are based on the Lorentz transformation. At some point we may provide a numerical HOA solution. However, the link::Guides/HOA-NFE#Beaming & nulling#NFE beamforming solutions:: available in the HOA toolset can conveniently address many of the dominance operation use cases.
+
+strong::2.:: Yes, we gave it a different name. Maybe we did so because we think about the problem slightly differently now. Maybe we needed to be very clear given the different context of HOA. Maybe we just found we prefered to change the name to make SC's link::Guides/SCIde#Automatic completion#autocompletion:: more convenient.
+
+Anyway, the ATK is our thing... so we get to do what we like! ;-)
+
+strong::3.:: If you haven't noticed, the ATK is a very big project! Our intention is to  conveniently provide the tools and platform necessary to solve most imaginable Ambisonic problems. Sometimes these problems require resources that aren't currently available within the SuperCollider ecosystem, e.g. numerical resources found in scientific computing libraries. Sometimes we just haven't gotten around to it, or decided the best way to provide a convenient interface within the ATK.
+
+You might like to jump down to link::#Development & maintenance::.
+
+
+subsection:: What can I use instead of FoaFocus, &c.?
+
+Try link::Guides/HOA-NFE#Beaming & nulling#NFE beamforming solutions::.
+
+note::
+There are some interesting modal transforms that are kinda like link::Classes/FoaPush::. Stay tuned!!
+::
+
+subsection:: Where is the HOA near-field shelf filter?
+
+I.e., where is link::Classes/FoaPsychoShelf::?
+
+As link::Classes/FoaDecode:: handles its use behind the scenes, most FOA toolset users never notice the use of link::Classes/FoaPsychoShelf::.
+
+Our intention with the HOA framework it to be much more open. If you'd like to do multiband decoding (multiple panning laws!), psychoacoustic optimization is explicit. At the moment multi-band beam forming is provided by link::Classes/Signal#*hoaMultiBandFocl::.
+
+note::
+We intend to add a more explicit use case example at a later date.
+
+We're also considering adding an IIR option, too.
+::
+
+subsection:: Does the ATK include near-field focalisation filters?
+
+Yes!
+
+Try link::Classes/Signal#*hoaFocl:: and link::Classes/Signal#*hoaMultiBandFocl::.
+
+subsection:: How do I do reverb in Ambisonics?
+
+Didn't we suggest trying link::Tutorials/ABCs-of-the-ATK#AmbiVerbSC#AmbiVerbSC::? link::Classes/BFFreeVerb:: and link::Classes/BFGVerb:: are also automagically installed as part of link::Tutorials/ABCs-of-the-ATK#JoshUGens#JoshUGens::.
+
+But wait, you say! These are FOA reverbs, so I can't do HOA reverb?
+
+Well, these can be adapted for HOA given understanding a few principals. We plan to add a tutorial on HOA reverb at some point.
+
+definitionlist::
+## The short answer is: || Design the reverb in the emphasis::angular domain::.
+::
+
+The slightly longer answer: you'll need to go back and forth between the emphasis::spherical:: and emphasis::angular:: domains. See link::Guides/HOA-Spherical::.
+
+note::
+If you're up for designing your own, here are a few papers to review:
+list::
+## link::https://ambisonics.iem.at/symposium2009/proceedings/ambisym09-josephandersonseancostello-ambireverbarch.pdf##Anderson, J., Costello, S. (2009) Adapting Artificial Reverberation Architectures for B-Format Signal
+Processing. Ambisonic Symposium 2009, June 25-27, Graz.::
+## link::https://derby.openrepository.com/handle/10545/618606##Wiggins, B. and Dring, M. 'AmbiFreeVerb 2—Development of a 3D ambisonic reverb with spatial warping and variable scattering' 2016 AES International Conference on Sound Field Control, 18-20 July 2016, Guildford, UK::
+## link::https://ccrma.stanford.edu/~nando/publications/an_architecture_for_reverberation_in_hoa.pdf##Lopez-Lezcano, F. "An Architecture for Reverberation in High Order Ambisonics" (October 2014), 137th International AES Convention (137th AES), Los Angeles, USA::
+::
+::
+
+
+subsection:: How do I do DAFX in Ambisonics?
+
+An easy way would be to use a 3rd party plugin that does everything for us. (See link::#Can I use 3rd party Ambisonic VST plugins with the ATK?::)
+
+Depending on the effect, we'll either apply it directly in the emphasis::sphercial domain:: (B-format), or do so in the emphasis::angular domain:: (A-format).
+
+The way we decide:
+
+list::
+## strong::B-format::: All channels processed the same.
+## strong::A-format::: Any or all channels processed differently.
+::
+
+With Ambisonic encoding, the space of a sound is encoded as amplitude (angular & radial) and phase (radial) differences between channels. If our effect will change the relationships between channels, process in the emphasis::angular domain:: (A-format). footnote::One exception could be dynamic range compresion. This effect can be managed in the spherical domain, "by degree".:: If the relations will stay the same, it is fine to do the processing in the emphasis::spherical domain:: (B-format).
+
+If you have no idea, you can stay safe by processing in A-format. footnote::It won't hurt, but you may end up using just a bit more CPU time than needed.::
+
+See link::Guides/HOA-Spherical::.
+
+note::We plan to include a moderately verbose tutorial at some point.::
+
+subsection:: Does the ATK support mixed order encoding?
+
+strong::Short answer::: no.
+
+strong::Longer answer::: For an HOA signal of a given order, all components are required. If you have a signal from mixed order microphone, you'll need to supply zeros in place of the missing channel. link::Classes/Silent:: will do the job.
+
+strong::Even longer answer::: We think the best solution is to use an upsampling technique to fill in the missing component. Doing so means the various spatial filters and transforms act as expected.
+
+note::We intend to include a short tutorial on the topic.::
+
+subsection:: What HOA microphones does the ATK support?
+
+Given the manufacturer's own HOA encoding software, requirements are:
+
+numberedlist::
+## correct link::Guides/Format-Exchange::
+## link::#Does the ATK support mixed order encoding?#complete HOA signal set::
+::
+
+note::
+We intend to include tutorials on desiging encoding filters for direct ATK encoding at some point.
+
+The link::https://cm-gitlab.stanford.edu/ambisonics/SpHEAR##SpHEAR Project:: is an interesting candidate.
+::
+
+subsection:: Can FOA recordings and HOA soundfields be used together?
+
+This is both a technical and aesthetic question!
+
+emphasis::Technical:: answers:
+
+strong::If we wish to use the HOA toolset tools with FOA recordings,:: the FOA signal should be link::Guides/Format-Exchange##exchanged:: to HOA1. Obviously, we can go the other way too. Review link::Guides/Format-Exchange#FOA source, HOA target#this:: & link::Guides/Format-Exchange#HOA source, FOA target#this::.
+
+strong::If we wish to mix FOA recordings into an HOA bus,:: we need to first match the FOA signal to the target link::Tutorials/ABCs-of-the-ATK#Encoding formats#HOA signal set::. This means matching:
+
+list::
+## strong::Ambisonic order::
+## strong:: Ambisonic component ordering::
+## strong::Ambisonic component normalisation::
+## strong::Ambisonic reference radius::
+::
+
+Matching the last three is link::Guides/Format-Exchange::. To match Ambisonic order, we'll need to spatially upsample the FOA signal to meet the HOA target.
+
+note::If we don't upsample the FOA signal to meet the HOA target, we are mixing a spatially truncated signal (lower spatial sampling rate) into a higher rate bus. As a result, transforms won't behave as expected, and significant energy and imaging mismatches may be heard on decoding.::
+
+emphasis::Aesthetic:: answer:
+
+Composers working in the acousmatic tradition have long composed works using emphasis::mixed spatial stems::. That is, one layer of the piece may have been composed in two channel stereo, while another layer is in six or eight channels positioned around an audience.
+
+We can take the exact same approach with Ambisonics. A mix of several layers of different orders can offer a very interesting and convincing result.
+
+note::In performance practice, we often decode an HOA piece to different layers of highly sampled and lower order arrays.::
+
 
 subsection:: What is the highest order supported for spherical decomposition?
 
@@ -69,8 +268,38 @@ Rendering higher orders is possible via the inclusion of larger designs and/or c
 
 If you've installed the link::https://gitlab.com/dxarts/projects/adt.quark##ADT quark::, larger designs are available in the link::https://bitbucket.org/ambidecodertoolbox/adt/src/master/##Ambisonic Decoder Toolbox::.
 
+subsection:: How do I do NRT?
 
-section:: Development & maintence
+Try link::Guides/ATK-SynthDef-Examples::.
+
+subsection:: Any 3rd party spatializers built on the ATK?
+
+We know of:
+numberedlist::
+## link::http://escuta.org/mosca##Mosca:: footnote::Quark here: link::https://github.com/escuta/mosca::::
+## link::https://github.com/andresperezlopez/rt-spatialization#3dj#3Dj:: footnote::Quark here: link::https://github.com/supercollider-quarks/3Dj::::
+::
+
+If you're aware of any others, do let us know.
+
+subsection:: Can I use 3rd party Ambisonic VST plugins with the ATK?
+
+Yes!
+
+See the link::https://git.iem.at/pd/vstplugin##VSTPlugin project::. footnote::
+The compiled SuperCollider release is found here: link::https://git.iem.at/pd/vstplugin/-/releases#vstplugin-supercollider-extension::
+::
+If you've installed VSTPlugin, the documentation can be found link::Browse#UGens>FX#here::. You'll note there's a discussion on using HOA VST plugins!
+
+As you'd expect, you'll need to correctly link::Guides/Format-Exchange::.
+
+section:: Development & maintenance
+
+Questions on the ATK as a project.
+
+subsection:: Who made the ATK?
+
+Who are the architects?
 
 subsection:: How do I report a bug?
 
@@ -84,8 +313,20 @@ SuperCollider offers specific link::https://supercollider.github.io/development/
 
 subsection:: How do I request a guide or tutorial?
 
-HELP
+Follow the advice link::#How do I report a bug?#immediately above::, and label the issue as emphasis::documentation::.
 
 subsection:: How do I submit a guide or tutorial?
 
-HELP
+Great idea! First submit an issue as link::#How do I report a bug?#described above:: so we know what you're thinking about. It is also possible to begin with an informal conversation with us by contacting us through the channels listed at link::https://github.com/ambisonictoolkit/atk-sc3/tree/master#feedback-and-bug-reports#Feedback and Bug Reports::.
+
+subsection:: How can I support further development of the ATK?
+
+list::
+## Use it!
+
+## Have you found a bug? link::#How do I report a bug?#Please report!:: If you can fix it by submitting a pull request, that would be great!
+
+## The ATK could really use some robust link::Classes/UnitTest##UnitTesting::. If you can contribute here, doing so will really help us keep the ATK in shape.
+
+## Are you up for writing a quark able to read link::https://www.sofaconventions.org/mediawiki/index.php/SOFA_(Spatially_Oriented_Format_for_Acoustics)##SOFA files::? Yes? Doing so could help us implement binaural decoder designers sooner rather than later.
+::

@@ -48,6 +48,14 @@ subsection:: Where are Guides & Tutorials found?
 
 Try link::Overviews/ABCs-Guides-Toots::.
 
+subsection:: What do you mean by think Ambisonic?
+
+Think of designing the spatial spectrum of the sound (or sound scene).
+
+Though we talk a lot about Ambisonic panning laws, forget about panning sounds. Doing so restricts us to considering a soundworld primarily in terms of emphasis::travelling waves::.
+
+Think instead about emphasis::shaping the space:: of sounds. The ATK's tools are emphasis::spatial domain filters::; think in these terms.
+
 subsection:: What are the differences between the ATK's FOA and HOA toolsets?
 
 Try this first, link::Tutorials/ABCs-of-the-ATK#Two toolsets in one::. We also suggest browsing the ATK's link::Browse#Libraries>Ambisonic Toolkit>UGens#UGens:: and link::Browse#Libraries>Ambisonic Toolkit>Matrix & Kernel#Matrix & Kernel:: links.

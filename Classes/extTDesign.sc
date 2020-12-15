@@ -48,13 +48,21 @@
 
 + TDesign {
 
-	*newHoa { |numChans = (2 * AtkHoa.defaultOrder.asHoaOrder.size), optimize = \energy, order = (AtkHoa.defaultOrder)|
+	*newHoa { |numChans, optimize = \energy, order = (AtkHoa.defaultOrder)|
 		var designs, hoaDesign;
+		var numPoints;
 
 		// matched design
 		designs = TDesignLib.getHoaDesigns(optimize, order);
+
+		// nil??
+		numPoints = numChans.isNil.if({
+			designs.first[\numPoints]
+		}, {
+			numChans
+		});
 		hoaDesign = designs.select({ |item|
-			item[\numPoints] == numChans
+			item[\numPoints] == numPoints
 		}).last;
 
 		// catch no designs

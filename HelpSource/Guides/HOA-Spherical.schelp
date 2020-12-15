@@ -284,15 +284,12 @@ code::
 
 We can see that we have a large number of choices for third order, optimized for preserving emphasis::total energy::. The minimum number of beams we can choose is 24.
 
-Here's some code illustrating how to directly instantiate a desired minimum sized spherical design:
+Conveniently, link::Classes/TDesign#*newHoa:: will return a minimum sized spherical design for a given optimization:
 
 code::
 // t-design
 ~tdesign = TDesign.newHoa(
-	TDesignLib.getHoaDesigns(
-		~optimize,
-		~order
-	).first[\numPoints],
+	nil,  // return minimum number of points
 	~optimize,
 	~order
 );
@@ -348,7 +345,7 @@ code::
 ~higherOrder = 5;
 
 // t-design
-~tdesign = TDesign.newHoa(60, order: ~higherOrder);
+~tdesign = TDesign.newHoa(order: ~higherOrder);
 
 // design decoder & (re-)encoder
 ~decoder = HoaMatrixDecoder.newSphericalDesign(~tdesign, \energy, ~lowerOrder);  // hoa3
@@ -372,10 +369,7 @@ code::
 
 // t-design
 ~tdesign = TDesign.newHoa(
-	TDesignLib.getHoaDesigns(
-		~optimize,
-		~order
-	).first[\numPoints],
+	nil,  // return minimum number of points
 	~optimize,
 	~order
 );
@@ -453,10 +447,7 @@ code::
 
 // t-design
 ~tdesign = TDesign.newHoa(
-	TDesignLib.getHoaDesigns(
-		~optimize,
-		~order
-	).first[\numPoints],
+	nil,  // return minimum number of points
 	~optimize,
 	~order
 );
@@ -507,10 +498,7 @@ code::
 
 // t-design
 ~tdesign = TDesign.newHoa(
-	TDesignLib.getHoaDesigns(
-		~optimize,
-		~order
-	).first[\numPoints],
+	nil,  // return minimum number of points
 	~optimize,
 	~order
 );
@@ -589,10 +577,7 @@ code::
 
 // t-design
 ~tdesign = TDesign.newHoa(
-	TDesignLib.getHoaDesigns(
-		~optimize,
-		~order
-	).first[\numPoints],
+	nil,  // return minimum number of points
 	~optimize,
 	~order
 );

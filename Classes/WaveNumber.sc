@@ -68,12 +68,12 @@ WaveNumber {
 	}
 
 	// Set wavenumber from delay and effective order.
-	*newDelay { |delay, order, speedOfSound = (AtkHoa.speedOfSound)|
+	*newDelay { |delay, order = (AtkHoa.defaultOrder), speedOfSound = (AtkHoa.speedOfSound)|
 		^this.new(order / (delay * speedOfSound))
 	}
 
 	// Set wavenumber from radius and effective order.
-	*newRadius { |radius, order|
+	*newRadius { |radius = (AtkHoa.refRadius), order = (AtkHoa.defaultOrder)|
 		^this.new(order / radius)
 	}
 
@@ -91,17 +91,17 @@ WaveNumber {
 	// Radius Utilities
 
 	// Return effective radius.
-	radius { |order|
+	radius { |order = (AtkHoa.defaultOrder)|
 		^order / this.waveNumber
 	}
 
 	// Return effective delay.
-	delay { |order, speedOfSound = (AtkHoa.speedOfSound)|
+	delay { |order = (AtkHoa.defaultOrder), speedOfSound = (AtkHoa.speedOfSound)|
 		^order / (speedOfSound * this.waveNumber)
 	}
 
 	// Return effective order.
-	orderAtRadius { |radius|
+	orderAtRadius { |radius = (AtkHoa.refRadius)|
 		^radius * this.waveNumber
 	}
 
@@ -114,7 +114,7 @@ WaveNumber {
 	// NFE Utilities
 
 	// Return complex degree weights
-	proxWeights { |radius, order|
+	proxWeights { |radius = (AtkHoa.refRadius), order = (AtkHoa.defaultOrder)|
 		var m = order;
 		var r0 = radius;
 		var thresh = 1e-08;
@@ -136,7 +136,7 @@ WaveNumber {
 	}
 
 	// Return complex degree weights
-	distWeights { |radius, order|
+	distWeights { |radius = (AtkHoa.refRadius), order = (AtkHoa.defaultOrder)|
 		var m = order;
 		var r1 = radius;
 		var thresh = 1e-08;
@@ -156,7 +156,7 @@ WaveNumber {
 	}
 
 	// Return complex degree weights
-	ctrlWeights { |encRadius, decRadius, order|
+	ctrlWeights { |encRadius = (AtkHoa.refRadius), decRadius = (AtkHoa.refRadius), order = (AtkHoa.defaultOrder)|
 		var m = order;
 		var r0 = encRadius;
 		var r1 = decRadius;

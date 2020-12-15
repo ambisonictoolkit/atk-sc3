@@ -53,7 +53,7 @@
 HoaRadius {
 	var <radius;
 
-	*new { |radius|
+	*new { |radius = (AtkHoa.refRadius)|
 		^super.newCopyArgs(radius)
 	}
 
@@ -63,17 +63,17 @@ HoaRadius {
 	}
 
 	// Set radius from wavenumber and order
-	*newWaveNumber { |waveNumber, order|
+	*newWaveNumber { |waveNumber, order = (AtkHoa.defaultOrder)|
 		^this.new(order / waveNumber)
 	}
 
 	// Set radius from frequency and order
-	*newFreq { |freq, order, speedOfSound = (AtkHoa.speedOfSound)|
+	*newFreq { |freq, order = (AtkHoa.defaultOrder), speedOfSound = (AtkHoa.speedOfSound)|
 		^this.new((order * speedOfSound) / (2 * pi * freq))
 	}
 
 	// Set radius from normalised frequency and order
-	*newWn { |wn, sampleRate, order, speedOfSound = (AtkHoa.speedOfSound)|
+	*newWn { |wn, sampleRate, order = (AtkHoa.defaultOrder), speedOfSound = (AtkHoa.speedOfSound)|
 		^this.new((order * speedOfSound) / (pi * wn * sampleRate))
 	}
 
@@ -105,17 +105,17 @@ HoaRadius {
 	// Wavenumber / frequency
 
 	// Return effective wavenumber.
-	waveNumber { |order|
+	waveNumber { |order = (AtkHoa.defaultOrder)|
 		^(order / this.radius)
 	}
 
 	// Return effective frequency.
-	freq { |order, speedOfSound = (AtkHoa.speedOfSound)|
+	freq { |order = (AtkHoa.defaultOrder), speedOfSound = (AtkHoa.speedOfSound)|
 		^(order * speedOfSound) / (2 * pi * this.radius)
 	}
 
 	// Return effective normalized frequency.
-	wn { |sampleRate, order, speedOfSound = (AtkHoa.speedOfSound)|
+	wn { |sampleRate, order = (AtkHoa.defaultOrder), speedOfSound = (AtkHoa.speedOfSound)|
 		^(order * speedOfSound) / (pi * this.radius * sampleRate)
 	}
 

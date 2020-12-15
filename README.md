@@ -13,6 +13,13 @@ is for the toolset to be both ergonomic and comprehensive, providing both
 classic and novel algorithms to creatively manipulate and synthesise
 complex Ambisonic soundfields.
 
+Tools are offered in two sets:
+* The first of these is modeled after the hardware and software
+tools offered in the world of classic, aka Gerzonic, First Order
+Ambisonics (FOA).
+* The second is framed as a modern Near-Field Controlled Higher Order
+Ambisonic (NFC-HOA) solution.
+
 The tools are framed for the user to think in terms of the soundfield
 kernel. By this, it is meant the ATK addresses the holistic problem of
 creatively controlling a complete soundfield, allowing and encouraging
@@ -27,7 +34,7 @@ We hope you enjoy the ATK!
 For more information please visit the [Ambisonic Toolkit
 website](http:www.ambisonictoolkit.net/) or send us an
 [e-mail](mailto:info[at]ambisonictoolkit.net). See also
-[Introducing the Ambisonic Toolkit](http://doc.sccode.org/Tutorials/ABCs-of-the-ATK.html)
+[ABCs of the ATK](http://doc.sccode.org/Tutorials/ABCs-of-the-ATK.html)
 for an overview on working with the ATK for SuperCollider.
 
 
@@ -160,10 +167,9 @@ You can find a collection of sound files here. (Download as part of installation
 
 Additional sound files can be grabbed from these fine sources:
 
-* [http://ambisonia.com/](http://ambisonia.com/).
-* [http://www.freesound.org/browse/tags/B-format/](http://www.freesound.org/browse/tags/B-format/).
-* [http://www.surround-library.com/](http://www.surround-library.com/) (commercial library ambisonic sound effects).
-* [http://www.spheric-collection.com/](http://www.spheric-collection.com/) (commercial library ambisonic sound effects).
+* [Ambisonic Sound Library](https://library.soundfield.com/).
+* [Ambisonia](http://ambisonia.com/).
+* [Freesound](http://www.freesound.org/browse/tags/B-format/).
 
 &nbsp;
 
@@ -200,6 +206,25 @@ If need be, the developers can be contacted directly via
 
 List of Changes
 ---------------
+
+Version 5.0.0
+
+*  New features (highlights):
+    * Integrated support for classic First Order Ambisonics (FOA) and modern Higher Order Ambisonics (HOA).
+    * Implements the Near-Field Controlled, aka Near-Field Compensated, form of higher order Ambisonics (NFC-HOA).
+    * Ambisonic order is merely limited by system speed, channel capacity and numerical precision rather than by design.
+    * Control and synthesis of the near-field effect (NFE) of finite distance sources in both FOA and HOA, including radial beamforming.
+    * Ambisonic coefficients and matrices are available for inspection and manipulation in the interperter.
+    * Angular domain soundfield decomposition and recomposition.
+    * Analysis of transformer and decoder matrices.
+    * Automatic installation of Kernels, Matrices and Soundfiles
+
+* Documentation Updates:
+    * Substantial refactor to document and explore new HOA framework!
+
+* Issue fixes:
+    * Fix nans on directional analysis
+
 
 Version 4.0.3
 
@@ -354,9 +379,10 @@ Credits
 &nbsp;
 
 Copyright the ATK Community, Joseph Anderson, Joshua Parmenter, and
-Michael McCrea 2011, 2016-18.
+Michael McCrea 2011, 2016-20.
 
 * J Anderson : [[e-mail]](mailto:j.anderson[at]ambisonictoolkit.net)
+* M McCrea : [[e-mail]](mailto:mtm5[at]uw.edu)
 * J Parmenter : [[e-mail]](mailto:j.parmenter[at]ambisonictoolkit.net)
 
 &nbsp;
@@ -371,6 +397,13 @@ are copyright the Ambisonic Toolkit Community and Joseph Anderson,
 
 Contributors
 ------------
+
+Version 5.0.0
+*  Joseph Anderson (@joslloand)
+*  Michael McCrea (@mtmccrea)
+*  Marcin Pączkowski (@dyfer)
+*  Eirik Arthur Blekesaune (@blacksound)
+
 Version 4.0.3
 *  Michael McCrea (@mtmccrea)
 *  Eirik Arthur Blekesaune (@blacksound)
@@ -418,6 +451,63 @@ Third Party Notices
 ===================
 
 &nbsp;
+
+Higher Order Matrix Rotation
+----------------------------
+
+The algorithm found in HoaMatrixRotation is largely a port of spherical harmonic
+rotations from Archontis Politis's Spherical-Harmonic-Transform Library for
+Matlab/Octave.
+
+https://github.com/polarch/Spherical-Harmonic-Transform
+
+Specifically: euler2rotationMatrix.m; getSHrotMtx.m; complex2realSHMtx.m
+
+Politis's code for real SH rotations is a port of Bing Jian's
+implementations, found here:
+http://www.mathworks.com/matlabcentral/fileexchange/15377-real-valued-spherical-harmonics
+
+Copyright (c) 2016, Bing Jian
+Copyright (c) 2015, Archontis Politis
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+* Redistributions of source code must retain the above copyright notice, this
+  list of conditions and the following disclaimer.
+
+* Redistributions in binary form must reproduce the above copyright notice,
+  this list of conditions and the following disclaimer in the documentation
+  and/or other materials provided with the distribution.
+
+* Neither the name of Spherical-Harmonic-Transform nor the names of its
+  contributors may be used to endorse or promote products derived from
+  this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
+The technique was originally authored here:
+Ivanic, J., Ruedenberg, K. (1996). Rotation Matrices for Real
+Spherical Harmonics. Direct Determination by Recursion. The Journal
+of Physical Chemistry, 100(15), 6342?6347.
+
+...with corrections:
+
+Ivanic, J., Ruedenberg, K. (1998). Rotation Matrices for Real
+Spherical Harmonics. Direct Determination by Recursion Page: Additions
+and Corrections. Journal of Physical Chemistry A, 102(45), 9099-9100.
+
 
 Diametric Decoder Theorem (DDT) decoding
 ----------------------------------------

@@ -53,7 +53,7 @@
 NFECoeffs {
 	var <degree, <reX, <absX, <numSOS, <numFOS;
 
-	*new { |degree|
+	*new { |degree = 0|
 		^super.newCopyArgs(degree).init
 	}
 
@@ -88,7 +88,7 @@ NFECoeffs {
 		numFOS = reX.size - numSOS;
 	}
 
-	prox { |radius, sampleRate, speedOfSound = (AtkHoa.speedOfSound)|
+	prox { |radius = (AtkHoa.refRadius), sampleRate, speedOfSound = (AtkHoa.speedOfSound)|
 		var r0 = radius;
 		var mOdd;
 		var alpha;
@@ -162,7 +162,7 @@ NFECoeffs {
 		^IdentityDictionary.with(*[\sos->coeffsSOS, \fos->coeffsFOS, \g->g]).know_(true)
 	}
 
-	dist { |radius, sampleRate, speedOfSound = (AtkHoa.speedOfSound)|
+	dist { |radius = (AtkHoa.refRadius), sampleRate, speedOfSound = (AtkHoa.speedOfSound)|
 		var r1 = radius;
 		var mOdd;
 		var alpha;
@@ -236,7 +236,7 @@ NFECoeffs {
 		^IdentityDictionary.with(*[\sos->coeffsSOS, \fos->coeffsFOS, \g->g]).know_(true)
 	}
 
-	ctrl { |encRadius, decRadius, sampleRate, speedOfSound = (AtkHoa.speedOfSound)|
+	ctrl { |encRadius = (AtkHoa.refRadius), decRadius = (AtkHoa.refRadius), sampleRate, speedOfSound = (AtkHoa.speedOfSound)|
 		var r0 = encRadius;
 		var r1 = decRadius;
 		var mOdd;

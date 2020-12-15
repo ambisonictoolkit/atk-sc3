@@ -219,7 +219,7 @@ or separate implementation details for the named type matched classes.
 // Basic & holophonic encoding.
 HoaEncodeDirection : HoaUGen {
 
-	*ar { |in, theta, phi, radius, order = (AtkHoa.defaultOrder)|
+	*ar { |in, theta = 0, phi = 0, radius = (AtkHoa.refRadius), order = (AtkHoa.defaultOrder)|
 		var toPhi, n, hoaOrder, coeffs;
 		var zenith, tumbleRotate;
 
@@ -280,7 +280,7 @@ HoaEncodeDirection : HoaUGen {
 // Rotation about Z axis.
 HoaRotate : HoaUGen {
 
-	*ar { |in, angle, order = (AtkHoa.defaultOrder)|
+	*ar { |in, angle = 0, order = (AtkHoa.defaultOrder)|
 		var n;
 		var i = 0;
 		var out, cos, sin;
@@ -341,7 +341,7 @@ HoaRotate : HoaUGen {
 
 // Rotation about X axis.
 HoaTilt : HoaUGen {
-	*ar { |in, angle, order = (AtkHoa.defaultOrder)|
+	*ar { |in, angle = 0, order = (AtkHoa.defaultOrder)|
 		var n, mK, hoa;
 
 		n = HoaUGen.confirmOrder(in, order);
@@ -363,7 +363,7 @@ HoaTilt : HoaUGen {
 
 // Rotation about Y axis.
 HoaTumble : HoaUGen {
-	*ar { |in, angle, order = (AtkHoa.defaultOrder)|
+	*ar { |in, angle = 0, order = (AtkHoa.defaultOrder)|
 		var n, mJ, hoa;
 
 		n = HoaUGen.confirmOrder(in, order);
@@ -389,7 +389,7 @@ HoaRoll : HoaTilt { }
 // Rotate > Tilt > Tumble.
 // Extrinsic, "laboratory-fixed" axes.
 HoaRTT : HoaUGen {
-	*ar { |in, rotate, tilt, tumble, order = (AtkHoa.defaultOrder)|
+	*ar { |in, rotate = 0, tilt = 0, tumble = 0, order = (AtkHoa.defaultOrder)|
 		var n, mJ, mK, mJK;
 		var hoa;
 
@@ -420,7 +420,7 @@ HoaRTT : HoaUGen {
 // This rotation differs from HoaRTT, which is extrinsic.
 HoaYPR : HoaUGen {
 
-	*ar { |in, yaw, pitch, roll, order = (AtkHoa.defaultOrder)|
+	*ar { |in, yaw = 0, pitch = 0, roll = 0, order = (AtkHoa.defaultOrder)|
 		var n, mK, mJ, mJK, hoa;
 
 		n = HoaUGen.confirmOrder(in, order);
@@ -509,7 +509,7 @@ HoaNFDist : HoaUGen {
 //            decRadius = source encoding radius
 HoaNFCtrl : HoaUGen {
 
-	*ar { |in, encRadius, decRadius, order = (AtkHoa.defaultOrder)|
+	*ar { |in, encRadius = (AtkHoa.refRadius), decRadius = (AtkHoa.refRadius), order = (AtkHoa.defaultOrder)|
 		var n, nfcByDegree;
 
 		n = HoaUGen.confirmOrder(in, order);
@@ -530,7 +530,7 @@ HoaNFCtrl : HoaUGen {
 // Gain matched to beam.
 HoaBeam : HoaUGen {
 
-	*ar { |in, theta, phi, radius, beamShape = \basic, order = (AtkHoa.defaultOrder)|
+	*ar { |in, theta = 0, phi = 0, radius = (AtkHoa.refRadius), beamShape = \basic, order = (AtkHoa.defaultOrder)|
 		var n, basicCoeffs, beamCoeffs, toPhi;
 		var hoaOrder, degreeSeries, beamWeights;
 		var rotateTumble, weighted, mono, zenith, tumbleRotate;
@@ -636,7 +636,7 @@ HoaBeam : HoaUGen {
 // Gain matched to beam.
 HoaNull : HoaUGen {
 
-	*ar { |in, theta, phi, radius, beamShape = \basic, order = (AtkHoa.defaultOrder)|
+	*ar { |in, theta = 0, phi = 0, radius = (AtkHoa.refRadius), beamShape = \basic, order = (AtkHoa.defaultOrder)|
 		var null;
 
 		// form null
@@ -654,7 +654,7 @@ HoaNull : HoaUGen {
 // Gain matched to beam.
 HoaDecodeDirection : HoaUGen {
 
-	*ar { |in, theta, phi, radius, beamShape = \basic, order = (AtkHoa.defaultOrder)|
+	*ar { |in, theta = 0, phi = 0, radius = (AtkHoa.refRadius), beamShape = \basic, order = (AtkHoa.defaultOrder)|
 		var n, coeffs, toPhi;
 		var hoaOrder, degreeSeries, beamWeights;
 		var rotateTumble, weighted;
@@ -727,7 +727,7 @@ HoaDecodeDirection : HoaUGen {
 // Near-field Effect by Degree utilities
 
 DegreeProx {
-	*ar { |in, radius, degree = 0|
+	*ar { |in, radius = (AtkHoa.refRadius), degree = 0|
 		var out;
 
 		// degree 0
@@ -758,7 +758,7 @@ DegreeProx {
 }
 
 DegreeDist {
-	*ar { |in, radius, degree = 0|
+	*ar { |in, radius = (AtkHoa.refRadius), degree = 0|
 		var out;
 
 		// degree 0
@@ -789,7 +789,7 @@ DegreeDist {
 }
 
 DegreeCtrl {
-	*ar { |in, encRadius, decRadius, degree = 0|
+	*ar { |in, encRadius = (AtkHoa.refRadius), decRadius = (AtkHoa.refRadius), degree = 0|
 		var out;
 
 		// degree 0

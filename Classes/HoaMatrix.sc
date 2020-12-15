@@ -1277,19 +1277,6 @@ HoaMatrixDecoder : HoaMatrix {
 		matrix = decodingMatrix.thresh2(AtkHoa.thresh)
 	}
 
-	// initDecoderVarsForFiles {
-	//     if (fileParse.notNil) {
-	//         dirOutputs = if (fileParse.dirOutputs.notNil) {
-	//             fileParse.dirOutputs.asFloat
-	//         } { // output directions are unspecified in the provided matrix
-	//             matrix.rows.collect({ \unspecified })
-	//         };
-	//         shelfK = fileParse.shelfK !? { fileParse.shelfK.asFloat };
-	//         shelfFreq = fileParse.shelfFreq !? { fileParse.shelfFreq.asFloat };
-	//     } { // txt file provided, no fileParse
-	//         dirOutputs = matrix.rows.collect({ \unspecified });
-	//     };
-	// }
 
 	// ------------
 	// Analysis

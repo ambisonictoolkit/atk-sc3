@@ -268,7 +268,7 @@ HoaLm {
 	// Return encoding coefficients
 
 	// N3D normalized coefficient
-	sph { |theta = 0.0, phi = 0.0|
+	sph { |theta = 0, phi = 0|
 		var l, m, mabs;
 		var res;
 

@@ -126,7 +126,7 @@ HoaDegree {
 	// Return encoding coefficients
 
 	// N3D normalized coefficients
-	sph { |theta = 0.0, phi = 0.0|
+	sph { |theta = 0, phi = 0|
 		^(this.lm).collect({ |lm|
 			HoaLm.new(lm).sph(theta, phi)
 		})

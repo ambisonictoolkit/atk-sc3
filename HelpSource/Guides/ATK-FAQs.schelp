@@ -331,30 +331,40 @@ section:: Development & maintenance
 
 Questions on the ATK as a project.
 
+subsection:: The ATK is availabe in what distributions?
+
+At this time there are two public distributions of the ATK:
+
+numberedlist::
+## ATK for SuperCollider footnote::Repository here: link::https://github.com/ambisonictoolkit/atk-sc3::.::
+## ATK for Reaper footnote::Repository here: link::https://github.com/ambisonictoolkit/atk-reaper::.::
+::
+
+Both may be accessed via the link::http://www.ambisonictoolkit.net/##Ambisonic Toolkit:: web page.
+
+Since 1997, the ATK has existed in various incarnations; first as library of Csound orcs:
+
+list::
+## MusicN: link::https://en.wikipedia.org/wiki/Csound##Csound:: footnote::link::https://csound.com/::::, link::https://en.wikipedia.org/wiki/Common_Lisp_Music##Common Lisp Music:: footnote::link::https://ccrma.stanford.edu/software/clm/::::, link::https://en.wikipedia.org/wiki/SuperCollider##SuperCollider:: footnote::v2: link::https://www.audiosynth.com/::; v3: link::https://supercollider.github.io/::
+::
+## Numerical: link::https://en.wikipedia.org/wiki/Python_(programming_language)##Python:: / link::https://en.wikipedia.org/wiki/SciPy##SciPy:: footnote::link::https://www.scipy.org::::
+## Plugins: link::https://en.wikipedia.org/wiki/Virtual_Studio_Technology##VST::, link::https://en.wikipedia.org/wiki/REAPER#Customization#JSFX:: footnote::link::https://www.reaper.fm/sdk/js/js.php::::
+::
+
+
 subsection:: Who made the ATK?
 
-Who are the architects?
+And when?
 
-Top row, the “Three Js”:
-ATK, what I say it is. Started with my composition projects. (1997)
-JP, “On Space” (1999/2000)... JPar, bring to SC3
-New Kids:
-MMcC, “In house” infrastructure
-TL, Reaper
-DP, dev & support
+Vague timeline:
 
-
-Various incarnations
-1997 as library of Csound orcs
-Substantial use as VSTs, particularly w/ production (never distributed)
-SC3: mature, full featured, (ver 3.5 2011)
-JSFX: subset, fairly large user base (ver 1.0.b1 2014)
-Python/Scipy: the “secret” dev version!
-HOA
-Considering a new HOA version for Csound!
-
-Csound, SC2, SC3, clm, VST, JSFX, Python/Scipy
-
+definitionlist::
+## 1997 || Private: Joseph Anderson
+## 1999 || Private: Juan Pampin, Anderson
+## 2011 || strong::SuperCollider (FOA)::: Anderson, Pampin, Josh Parmenter. footnote::Aka, "The three Js."::
+## 2013 || strong::JSFX / Reaper::: Trond Lossius, Anderson
+## 2020 || strong::SuperCollider (FOA / NFC-HOA)::: Anderson & Michael McCrea, w/ Daniel Peterson & Marcin Pączkowski
+::
 
 subsection:: How do I report a bug?
 

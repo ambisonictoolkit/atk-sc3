@@ -728,14 +728,14 @@ HoaDecodeDirection : HoaUGen {
 
 DegreeProx {
 	*ar { |in, radius = (AtkHoa.refRadius), degree = 0|
-		var out;
+		var out, coeffDict;
 
 		// degree 0
 		out = in;
 
 		// degree >= 1
 		if(degree > 0, {
-			var coeffDict = NFECoeffs.new(degree).prox(radius, SampleRate.ir);
+			coeffDict = NFECoeffs.new(degree).prox(radius, SampleRate.ir);
 
 			// FOS
 			if(coeffDict.keys.includes(\fos), {
@@ -759,14 +759,14 @@ DegreeProx {
 
 DegreeDist {
 	*ar { |in, radius = (AtkHoa.refRadius), degree = 0|
-		var out;
+		var out, coeffDict;
 
 		// degree 0
 		out = in;
 
 		// degree >= 1
 		if(degree > 0, {
-			var coeffDict = NFECoeffs.new(degree).dist(radius, SampleRate.ir);
+			coeffDict = NFECoeffs.new(degree).dist(radius, SampleRate.ir);
 
 			// FOS
 			if(coeffDict.keys.includes(\fos), {
@@ -790,14 +790,14 @@ DegreeDist {
 
 DegreeCtrl {
 	*ar { |in, encRadius = (AtkHoa.refRadius), decRadius = (AtkHoa.refRadius), degree = 0|
-		var out;
+		var out, coeffDict;
 
 		// degree 0
 		out = in;
 
 		// degree >= 1
 		if(degree > 0, {
-			var coeffDict = NFECoeffs.new(degree).ctrl(encRadius, decRadius, SampleRate.ir);
+			coeffDict = NFECoeffs.new(degree).ctrl(encRadius, decRadius, SampleRate.ir);
 
 			// FOS
 			if(coeffDict.keys.includes(\fos), {

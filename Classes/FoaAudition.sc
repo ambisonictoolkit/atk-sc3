@@ -1157,7 +1157,7 @@ FoaAuditionView {
 
 	update {
 		| who, what ... args |
-
+		var db;
 		if(who == audition, {
 			switch(what,
 				\buffer, {
@@ -1176,8 +1176,7 @@ FoaAuditionView {
 					diffPlayBut.stringColor = args[0].if({ playColor }, { stopColor })
 				},
 				\mul, {
-					var db = args[0].ampdb;
-
+					db = args[0].ampdb;
 					ampSl.value_(ampSpec.unmap(db));
 					ampBx.value_(db)
 				},

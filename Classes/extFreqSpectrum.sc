@@ -51,9 +51,10 @@
 	*hoaProx { |size, radius = (AtkHoa.refRadius), order = (AtkHoa.defaultOrder), sampleRate = nil, speedOfSound = (AtkHoa.speedOfSound)|
 		var hoaOrder = order.asHoaOrder;
 		var freqs, complexCoeffs, magnitudes, phases;
+		var rfftsize;
 
 		if(size.isPowerOfTwo, {  // rfft
-			var rfftsize = (size / 2 + 1).asInteger;
+			rfftsize = (size / 2 + 1).asInteger;
 
 			freqs = rfftsize.rfftFreqs(sampleRate);
 			freqs = freqs.collect({ |freq|  // blt frequency warp
@@ -114,9 +115,10 @@
 	*hoaDist { |size, radius = (AtkHoa.refRadius), order = (AtkHoa.defaultOrder), sampleRate = nil, speedOfSound = (AtkHoa.speedOfSound)|
 		var hoaOrder = order.asHoaOrder;
 		var freqs, complexCoeffs, magnitudes, phases;
+		var rfftsize;
 
 		if(size.isPowerOfTwo, {  // rfft
-			var rfftsize = (size / 2 + 1).asInteger;
+			rfftsize = (size / 2 + 1).asInteger;
 
 			freqs = rfftsize.rfftFreqs(sampleRate);
 			freqs = freqs.collect({ |freq|  // blt frequency warp
@@ -177,9 +179,10 @@
 	*hoaCtrl { |size, encRadius = (AtkHoa.refRadius), decRadius = (AtkHoa.refRadius), order = (AtkHoa.defaultOrder), sampleRate = nil, speedOfSound = (AtkHoa.speedOfSound)|
 		var hoaOrder = order.asHoaOrder;
 		var freqs, complexCoeffs, magnitudes, phases;
+		var rfftsize;
 
 		if(size.isPowerOfTwo, {  // rfft
-			var rfftsize = (size / 2 + 1).asInteger;
+			rfftsize = (size / 2 + 1).asInteger;
 
 			freqs = rfftsize.rfftFreqs(sampleRate);
 			freqs = freqs.collect({ |freq|  // blt frequency warp
@@ -240,9 +243,10 @@
 	*hoaFocl { |size, radius = (AtkHoa.refRadius / 2), order = (AtkHoa.defaultOrder), window = \reg, sampleRate = nil, speedOfSound = (AtkHoa.speedOfSound)|
 		var hoaOrder = order.asHoaOrder;
 		var freqs, magnitudes;
+		var rfftsize;
 
 		if(size.isPowerOfTwo, {  // rfft
-			var rfftsize = (size / 2 + 1).asInteger;
+			rfftsize = (size / 2 + 1).asInteger;
 
 			freqs = rfftsize.rfftFreqs(sampleRate);
 

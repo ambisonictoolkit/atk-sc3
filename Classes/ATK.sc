@@ -280,7 +280,7 @@ Atk {
 	}
 
 	*downloadSounds { |useSystemLocation = false, action|
-		var tmpPath, url;
+		var tmpPath, url, cmd;
 		var oldFolders, newFolders, diffFolders, pathBeforeRenaiming, pathAfterRenaiming;
 		tmpPath = Platform.defaultTempDir ++ this.hash.asString ++ "sounds.zip";
 		url = this.soundsDownloadUrl;
@@ -311,7 +311,6 @@ Atk {
 			diffFolders = diffFolders.select({|pathSymbol| pathSymbol.asString.contains("sounds")});
 			//continue only if we have a single folder
 			if(diffFolders.size == 1, {
-				var cmd;
 				pathBeforeRenaiming = PathName(diffFolders.first.asString);
 				pathAfterRenaiming = PathName(pathBeforeRenaiming.fullPath.dirname +/+ "sounds");
 				postf("renaming % to %\n", pathBeforeRenaiming.fullPath.withoutTrailingSlash, pathAfterRenaiming.fullPath.withoutTrailingSlash);

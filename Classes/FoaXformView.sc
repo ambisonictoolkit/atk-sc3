@@ -172,6 +172,8 @@ FoaXformView {
 	// called when selecting a new control from the dropdown menu
 	// rebuild the view with the new controls
 	rebuildControls {
+		var controls;
+
 		// nil this var, it's reset as needed when rebuilt
 		inputMenu = nil;
 
@@ -188,7 +190,6 @@ FoaXformView {
 
 		// don't rebuild controls if muted
 		if(name != \mute, {
-			var controls;
 
 			controls = chain.xFormDict[name].controls.clump(2);
 

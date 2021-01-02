@@ -1157,7 +1157,7 @@ FoaAuditionView {
 
 	update {
 		| who, what ... args |
-		var db;
+		var db, deg;
 		if(who == audition, {
 			switch(what,
 				\buffer, {
@@ -1187,7 +1187,7 @@ FoaAuditionView {
 					diffRttChk.value_(args[0].asBoolean)
 				},
 				\pwAzim, {
-					var deg = args[0].raddeg;
+					deg = args[0].raddeg;
 
 					defer({
 						azimBx.hasFocus !? { // sometimes .hasFocus can return nil (race condition?)

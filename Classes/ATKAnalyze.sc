@@ -194,6 +194,7 @@ FoaWs : FoaEval {
 FoaWd : FoaEval {
 	*ar { |in, size = 2048, method = \instant|
 		var p, u;
+		var wp, wu;
 
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
@@ -201,7 +202,6 @@ FoaWd : FoaEval {
 
 		case(
 			{ method == \instant }, {
-				var wp, wu;
 
 				wp = HilbertW.ar(p, size).squared.sum;
 				wu = HilbertW.ar(u, size).sum({ |item|
@@ -230,6 +230,8 @@ FoaWd : FoaEval {
 FoaWh : FoaEval {
 	*ar { |in, size = 2048, method = \instant|
 		var p, u;
+		var pReIm, pImRe, uReIm, ir;
+		var wp, wu, ws, ia, magI_squared, magIa_squared;
 
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
@@ -237,7 +239,6 @@ FoaWh : FoaEval {
 
 		case(
 			{ method == \instant }, {
-				var pReIm, pImRe, uReIm, wp, wu, ws, ir, magIr;
 
 				pReIm = HilbertW.ar(p, size);
 				pImRe = [1, -1] * pReIm.reverse;
@@ -257,7 +258,7 @@ FoaWh : FoaEval {
 				^(ws - magIr)
 			},
 			{ method == \average }, {
-				var wp, wu, ws, ia, magI_squared, magIa_squared, magIr;
+
 				var normFac;
 
 				normFac = 2 * size.reciprocal;
@@ -569,6 +570,7 @@ FoaMagW : FoaEval {
 FoaMagWa : FoaEval {
 	*ar { |in, size = 2048, method = \instant|
 		var p, u;
+		var pReIm, uReIm, wp, wu, ws, ia, magIa;
 
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
@@ -576,7 +578,6 @@ FoaMagWa : FoaEval {
 
 		case(
 			{ method == \instant }, {
-				var pReIm, uReIm, wp, wu, ws, ia, magIa;
 
 				pReIm = HilbertW.ar(p, size);
 				uReIm = HilbertW.ar(u, size);
@@ -595,8 +596,6 @@ FoaMagWa : FoaEval {
 				^(magIa / (ws + DC.ar(FoaEval.reg)))
 			},
 			{ method == \average }, {
-				var wp, wu, ws, ia, magIa;
-				var normFac;
 
 				normFac = 2 * size.reciprocal;
 
@@ -618,6 +617,8 @@ FoaMagWa : FoaEval {
 FoaMagWr : FoaEval {
 	*ar { |in, size = 2048, method = \instant|
 		var p, u;
+		var pReIm, pImRe, uReIm, wp, wu, ws, ir, magIr;
+		var normFac;
 
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
@@ -625,7 +626,6 @@ FoaMagWr : FoaEval {
 
 		case(
 			{ method == \instant }, {
-				var pReIm, pImRe, uReIm, wp, wu, ws, ir, magIr;
 
 				pReIm = HilbertW.ar(p, size);
 				pImRe = [1, -1] * pReIm.reverse;
@@ -645,8 +645,6 @@ FoaMagWr : FoaEval {
 				^(magIr / (ws + DC.ar(FoaEval.reg)))
 			},
 			{ method == \average }, {
-				var wp, wu, ws, ia, magI_squared, magIa_squared, magIr;
-				var normFac;
 
 				normFac = 2 * size.reciprocal;
 
@@ -670,6 +668,8 @@ FoaMagWr : FoaEval {
 FoaMagNa : FoaEval {
 	*ar { |in, size = 2048, method = \instant|
 		var p, u;
+		var pReIm, uReIm, wp, wu, magI, ia, magIa;
+		var normFac;
 
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
@@ -677,7 +677,6 @@ FoaMagNa : FoaEval {
 
 		case(
 			{ method == \instant }, {
-				var pReIm, uReIm, wp, wu, magI, ia, magIa;
 
 				pReIm = HilbertW.ar(p, size);
 				uReIm = HilbertW.ar(u, size);
@@ -696,8 +695,6 @@ FoaMagNa : FoaEval {
 				^(magIa / (magI + DC.ar(FoaEval.reg)))
 			},
 			{ method == \average }, {
-				var wp, wu, magI, ia, magIa;
-				var normFac;
 
 				normFac = 2 * size.reciprocal;
 
@@ -719,6 +716,9 @@ FoaMagNa : FoaEval {
 FoaMagNr : FoaEval {
 	*ar { |in, size = 2048, method = \instant|
 		var p, u;
+		var pReIm, pImRe, uReIm, wp, wu, magI, ir, magIr;
+		var ia, magI_squared, magIa_squared;
+		var normFac;
 
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
@@ -726,7 +726,6 @@ FoaMagNr : FoaEval {
 
 		case(
 			{ method == \instant }, {
-				var pReIm, pImRe, uReIm, wp, wu, magI, ir, magIr;
 
 				pReIm = HilbertW.ar(p, size);
 				pImRe = [1, -1] * pReIm.reverse;
@@ -746,8 +745,6 @@ FoaMagNr : FoaEval {
 				^(magIr / (magI + DC.ar(FoaEval.reg)))
 			},
 			{ method == \average }, {
-				var wp, wu, magI, ia, magI_squared, magIa_squared, magIr;
-				var normFac;
 
 				normFac = 2 * size.reciprocal;
 
@@ -839,6 +836,9 @@ FoaSFIL : FoaEval {
 FoaAlpha : FoaEval {
 	*ar { |in, size = 2048, method = \instant|
 		var p, u;
+		var pReIm, pImRe, uReIm, ia, magIa, ir, magIr;
+		var wp, wu, ia, magI_squared, magIa_squared;
+		var normFac;
 
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
@@ -846,7 +846,7 @@ FoaAlpha : FoaEval {
 
 		case(
 			{ method == \instant }, {
-				var pReIm, pImRe, uReIm, ia, magIa, ir, magIr;
+
 
 				pReIm = HilbertW.ar(p, size);
 				pImRe = [1, -1] * pReIm.reverse;
@@ -865,8 +865,7 @@ FoaAlpha : FoaEval {
 				^atan2(magIr, magIa + DC.ar(FoaEval.reg))
 			},
 			{ method == \average }, {
-				var wp, wu, ia, magI_squared, magIa_squared, magIa, magIr;
-				var normFac;
+
 
 				normFac = 2 * size.reciprocal;
 
@@ -891,6 +890,8 @@ FoaAlpha : FoaEval {
 FoaBeta : FoaEval {
 	*ar { |in, size = 2048, method = \instant|
 		var p, u;
+		var wp, wu, wd, magI;
+		var normFac;
 
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
@@ -898,7 +899,6 @@ FoaBeta : FoaEval {
 
 		case(
 			{ method == \instant }, {
-				var wp, wu, wd, magI;
 
 				wp = HilbertW.ar(p, size).squared.sum;
 				wu = HilbertW.ar(u, size).sum({ |item|
@@ -910,8 +910,7 @@ FoaBeta : FoaEval {
 				^atan2(wd, magI + DC.ar(FoaEval.reg))
 			},
 			{ method == \average }, {
-				var wp, wu, wd, magI;
-				var normFac;
+
 
 				normFac = 2 * size.reciprocal;
 
@@ -932,6 +931,8 @@ FoaBeta : FoaEval {
 FoaGamma : FoaEval {
 	*ar { |in, size = 2048, method = \instant|
 		var p, u;
+		var pReIm, pImRe, uReIm, ia, magIa, ir, magIr, cosFac, sinFac;
+		var reg, alpha, gateA, gateR;  // gate using -thresh
 
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
@@ -939,8 +940,7 @@ FoaGamma : FoaEval {
 
 		case(
 			{ method == \instant }, {
-				var pReIm, pImRe, uReIm, ia, magIa, ir, magIr, cosFac, sinFac;
-				var reg, alpha, gateA, gateR;  // gate using -thresh
+
 
 				pReIm = HilbertW.ar(p, size);
 				pImRe = [1, -1] * pReIm.reverse;
@@ -994,6 +994,11 @@ FoaGamma : FoaEval {
 FoaThetaPhiA : FoaEval {
 	*ar { |in, size = 2048, method = \instant|
 		var p, u;
+		var pReIm, pImRe, uReIm, ia, magIa, ir, magIr, theta, phi;
+		var reg, alpha, gateA;  // gate using -thresh
+
+		var wp, wu, ia, magI_squared, magIa_squared;
+		var normFac;
 
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
@@ -1001,8 +1006,6 @@ FoaThetaPhiA : FoaEval {
 
 		case(
 			{ method == \instant }, {
-				var pReIm, pImRe, uReIm, ia, magIa, ir, magIr, theta, phi;
-				var reg, alpha, gateA;  // gate using -thresh
 
 				pReIm = HilbertW.ar(p, size);
 				pImRe = [1, -1] * pReIm.reverse;
@@ -1032,9 +1035,7 @@ FoaThetaPhiA : FoaEval {
 				^Array.with(theta, phi)
 			},
 			{ method == \average }, {
-				var wp, wu, ia, magI_squared, magIa_squared, magIa, magIr, theta, phi;
-				var reg, alpha, gateA;  // gate using -thresh
-				var normFac;
+
 
 				normFac = 2 * size.reciprocal;
 
@@ -1070,6 +1071,8 @@ FoaThetaPhiA : FoaEval {
 FoaThetaPhiR : FoaEval {
 	*ar { |in, size = 2048, method = \instant|
 		var p, u;
+		var pReIm, pImRe, uReIm, ia, magIa, ir, magIr, theta, phi;
+		var reg, alpha, gateR;  // gate using -thresh
 
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
@@ -1077,8 +1080,7 @@ FoaThetaPhiR : FoaEval {
 
 		case(
 			{ method == \instant }, {
-				var pReIm, pImRe, uReIm, ia, magIa, ir, magIr, theta, phi;
-				var reg, alpha, gateR;  // gate using -thresh
+
 
 				pReIm = HilbertW.ar(p, size);
 				pImRe = [1, -1] * pReIm.reverse;
@@ -1123,6 +1125,8 @@ FoaThetaPhiR : FoaEval {
 FoaIa : FoaEval {
 	*ar { |in, size = 2048, method = \instant|
 		var p, u;
+		var pReIm, ia;
+		var normFac;
 
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
@@ -1130,7 +1134,6 @@ FoaIa : FoaEval {
 
 		case(
 			{ method == \instant }, {
-				var pReIm, ia;
 
 				pReIm = HilbertW.ar(p, size);
 
@@ -1141,8 +1144,6 @@ FoaIa : FoaEval {
 				^ia
 			},
 			{ method == \average }, {
-				var ia;
-				var normFac;
 
 				normFac = 2 * size.reciprocal;
 
@@ -1159,6 +1160,7 @@ FoaIa : FoaEval {
 FoaIr : FoaEval {
 	*ar { |in, size = 2048, method = \instant|
 		var p, u;
+		var pImRe, ir;
 
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
@@ -1166,7 +1168,6 @@ FoaIr : FoaEval {
 
 		case(
 			{ method == \instant }, {
-				var pImRe, ir;
 
 				pImRe = [1, -1] * HilbertW.ar(p, size).reverse;
 
@@ -1189,6 +1190,8 @@ FoaIr : FoaEval {
 FoaAa : FoaEval {
 	*ar { |in, size = 2048, method = \instant|
 		var p, u;
+		var pReIm, wp, ia, aa;
+		var normFac;
 
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
@@ -1196,7 +1199,6 @@ FoaAa : FoaEval {
 
 		case(
 			{ method == \instant }, {
-				var pReIm, wp, ia, aa;
 
 				pReIm = HilbertW.ar(p, size);
 				wp = pReIm.squared.sum;
@@ -1209,8 +1211,6 @@ FoaAa : FoaEval {
 				^aa
 			},
 			{ method == \average }, {
-				var wp, ia, aa;
-				var normFac;
 
 				normFac = 2 * size.reciprocal;
 
@@ -1229,6 +1229,7 @@ FoaAa : FoaEval {
 FoaAr : FoaEval {
 	*ar { |in, size = 2048, method = \instant|
 		var p, u;
+		var pReIm, pImRe, wp, ir, ar;
 
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
@@ -1236,7 +1237,6 @@ FoaAr : FoaEval {
 
 		case(
 			{ method == \instant }, {
-				var pReIm, pImRe, wp, ir, ar;
 
 				pReIm = HilbertW.ar(p, size);
 				pImRe = [1, -1] * pReIm.reverse;
@@ -1264,6 +1264,8 @@ FoaAr : FoaEval {
 FoaWa : FoaEval {
 	*ar { |in, size = 2048, method = \instant|
 		var p, u;
+		var pReIm, uReIm, wp, wu, ws, ia, wa;
+		var normFac;
 
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
@@ -1271,7 +1273,6 @@ FoaWa : FoaEval {
 
 		case(
 			{ method == \instant }, {
-				var pReIm, uReIm, wp, wu, ws, ia, wa;
 
 				pReIm = HilbertW.ar(p, size);
 				uReIm = HilbertW.ar(u, size);
@@ -1290,8 +1291,6 @@ FoaWa : FoaEval {
 				^wa
 			},
 			{ method == \average }, {
-				var wp, wu, ws, ia, wa;
-				var normFac;
 
 				normFac = 2 * size.reciprocal;
 
@@ -1313,6 +1312,7 @@ FoaWa : FoaEval {
 FoaWr : FoaEval {
 	*ar { |in, size = 2048, method = \instant|
 		var p, u;
+		var pReIm, pImRe, uReIm, wp, wu, ws, ir, wr;
 
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
@@ -1320,7 +1320,7 @@ FoaWr : FoaEval {
 
 		case(
 			{ method == \instant }, {
-				var pReIm, pImRe, uReIm, wp, wu, ws, ir, wr;
+
 
 				pReIm = HilbertW.ar(p, size);
 				pImRe = [1, -1] * pReIm.reverse;
@@ -1352,6 +1352,7 @@ FoaWr : FoaEval {
 FoaNa : FoaEval {
 	*ar { |in, size = 2048, method = \instant|
 		var p, u;
+		var pReIm, uReIm, wp, wu, magI, ia, na;
 
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
@@ -1359,7 +1360,6 @@ FoaNa : FoaEval {
 
 		case(
 			{ method == \instant }, {
-				var pReIm, uReIm, wp, wu, magI, ia, na;
 
 				pReIm = HilbertW.ar(p, size);
 				uReIm = HilbertW.ar(u, size);
@@ -1378,8 +1378,6 @@ FoaNa : FoaEval {
 				^na
 			},
 			{ method == \average }, {
-				var wp, wu, magI, ia, na;
-				var normFac;
 
 				normFac = 2 * size.reciprocal;
 
@@ -1401,6 +1399,7 @@ FoaNa : FoaEval {
 FoaNr : FoaEval {
 	*ar { |in, size = 2048, method = \instant|
 		var p, u;
+		var pReIm, pImRe, uReIm, wp, wu, magI, ir, nr;
 
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
@@ -1408,7 +1407,6 @@ FoaNr : FoaEval {
 
 		case(
 			{ method == \instant }, {
-				var pReIm, pImRe, uReIm, wp, wu, magI, ir, nr;
 
 				pReIm = HilbertW.ar(p, size);
 				pImRe = [1, -1] * pReIm.reverse;

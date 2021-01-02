@@ -59,6 +59,7 @@ HoaLm {
 
 	*newIndex { |index, ordering = \acn|
 		var l, m;
+		var m0, m1, bool;
 
 		switch(ordering,
 			\acn, {
@@ -67,7 +68,6 @@ HoaLm {
 				^this.new([l, m])
 			},
 			\sid, {
-				var m0, m1, bool;
 
 				l = index.sqrt.floor.asInteger;
 				m0 = (((l + 1).squared - (index + 1)) / 2).floor.asInteger;
@@ -82,7 +82,6 @@ HoaLm {
 				^if(l <= 1, {
 					this.newIndex(index, \sid)
 				}, {
-					var m, m0, m1, bool;
 
 					m0 = -1 * ((index - l.squared) / 2).floor.asInteger;
 					m1 = ((index +1 - l.squared) / 2).floor.asInteger;
@@ -201,6 +200,7 @@ HoaLm {
 
 	normalisation { |scheme = \n3d|
 		var l, m;
+		var dm, mabs;
 
 		#l, m = this.lm;
 
@@ -209,7 +209,7 @@ HoaLm {
 				^sqrt((2 * l) + 1) * this.normalisation(\sn3d)
 			},
 			\sn3d, {
-				var dm, mabs;
+
 
 				dm = (m == 0).asInteger;
 				mabs = m.abs;

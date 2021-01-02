@@ -52,14 +52,16 @@
 		var complexes = FreqSpectrum.hoaDist(size, radius, order, sampleRate, speedOfSound).collect({ |spectrum|
 			spectrum.asComplex
 		});
+		var rfftsize, cosTable;
+		var rcomplex;
 
 		^if(size.isPowerOfTwo, {  // rfft
-			var rfftsize = (size / 2 + 1).asInteger;
-			var cosTable = Signal.rfftCosTable(rfftsize);
+			rfftsize = (size / 2 + 1).asInteger;
+			cosTable = Signal.rfftCosTable(rfftsize);
 
 			// synthesize kernels
 			complexes.collect({ |complex|
-				var rcomplex = complex.real.fftToRfft(complex.imag);
+				rcomplex = complex.real.fftToRfft(complex.imag);
 
 				rcomplex.real.irfft(rcomplex.imag, cosTable)
 			})
@@ -75,14 +77,16 @@
 		var complexes = FreqSpectrum.hoaCtrl(size, encRadius, decRadius, order, sampleRate, speedOfSound).collect({ |spectrum|
 			spectrum.asComplex
 		});
+		var rfftsize, cosTable;
+		var rcomplex;
 
 		^if(size.isPowerOfTwo, {  // rfft
-			var rfftsize = (size / 2 + 1).asInteger;
-			var cosTable = Signal.rfftCosTable(rfftsize);
+			rfftsize = (size / 2 + 1).asInteger;
+			cosTable = Signal.rfftCosTable(rfftsize);
 
 			// synthesize kernels
 			complexes.collect({ |complex|
-				var rcomplex = complex.real.fftToRfft(complex.imag);
+				rcomplex = complex.real.fftToRfft(complex.imag);
 
 				rcomplex.real.irfft(rcomplex.imag, cosTable)
 			})
@@ -98,14 +102,16 @@
 		var complexes = FreqSpectrum.hoaFocl(size, radius, order, window, sampleRate, speedOfSound).collect({ |spectrum|
 			spectrum.linearPhase.asComplex  // linear phase
 		});
+		var rfftsize, cosTable;
+		var rcomplex;
 
 		^if(size.isPowerOfTwo, {  // rfft
-			var rfftsize = (size / 2 + 1).asInteger;
-			var cosTable = Signal.rfftCosTable(rfftsize);
+			rfftsize = (size / 2 + 1).asInteger;
+			cosTable = Signal.rfftCosTable(rfftsize);
 
 			// synthesize kernels
 			complexes.collect({ |complex|
-				var rcomplex = complex.real.fftToRfft(complex.imag);
+				rcomplex = complex.real.fftToRfft(complex.imag);
 
 				rcomplex.real.irfft(rcomplex.imag, cosTable)
 			})
@@ -121,14 +127,16 @@
 		var complexes = FreqSpectrum.hoaMultiBandFocl(size, radius, beamDict, dim, match, numChans, order, window, sampleRate, speedOfSound).collect({ |spectrum|
 			spectrum.linearPhase.asComplex  // linear phase
 		});
+		var rfftsize, cosTable;
+		var rcomplex;
 
 		^if(size.isPowerOfTwo, {  // rfft
-			var rfftsize = (size / 2 + 1).asInteger;
-			var cosTable = Signal.rfftCosTable(rfftsize);
+			rfftsize = (size / 2 + 1).asInteger;
+			cosTable = Signal.rfftCosTable(rfftsize);
 
 			// synthesize kernels
 			complexes.collect({ |complex|
-				var rcomplex = complex.real.fftToRfft(complex.imag);
+				rcomplex = complex.real.fftToRfft(complex.imag);
 
 				rcomplex.real.irfft(rcomplex.imag, cosTable)
 			})

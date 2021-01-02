@@ -92,15 +92,15 @@ NFECoeffs {
 		var r0 = radius;
 		var mOdd;
 		var alpha;
-		var coeffs, g;
+		var coeffs, g, g0;
 		var coeffsSOS, coeffsFOS;
+		var c1, c2;
 
 		mOdd = this.degree.odd;
 
 		alpha = 2 * sampleRate * r0 / speedOfSound;
 
 		coeffs = numSOS.collect({ |q|
-			var c1, c2;
 
 			c1 = this.reX[q] / alpha;
 			c2 = (this.absX[q] / alpha).squared;
@@ -117,7 +117,6 @@ NFECoeffs {
 
 		// odd degree? - add coeffs for FOS
 		if(mOdd, {
-			var c1;
 
 			c1 = this.reX.last / alpha;
 
@@ -137,7 +136,6 @@ NFECoeffs {
 		g = 1.0;
 
 		(this.numSOS + this.numFOS).do({ |q|
-			var g0;
 
 			g0 = coeffs[q][0];
 			coeffs.put(q,
@@ -168,13 +166,13 @@ NFECoeffs {
 		var alpha;
 		var coeffs, g;
 		var coeffsSOS, coeffsFOS;
+		var c1, c2;
 
 		mOdd = this.degree.odd;
 
 		alpha = 2 * sampleRate * r1 / speedOfSound;
 
 		coeffs = numSOS.collect({ |q|
-			var c1, c2;
 
 			c1 = this.reX[q] / alpha;
 			c2 = (this.absX[q] / alpha).squared;
@@ -191,7 +189,6 @@ NFECoeffs {
 
 		// odd degree? - add coeffs for FOS
 		if(mOdd, {
-			var c1;
 
 			c1 = this.reX.last / alpha;
 

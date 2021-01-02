@@ -50,7 +50,7 @@
 
 	*newHoa { |numChans, optimize = \energy, order = (AtkHoa.defaultOrder)|
 		var designs, hoaDesign;
-		var numPoints;
+		var numPoints, minT;
 
 		// matched design
 		designs = TDesignLib.getHoaDesigns(optimize, order);
@@ -67,7 +67,7 @@
 
 		// catch no designs
 		hoaDesign ?? {
-			var minT = switch(optimize,
+			minT = switch(optimize,
 				\energy, { 2 * order },      // energy
 				\spreadE, { 2 * order + 1 }  // energy spread
 			);

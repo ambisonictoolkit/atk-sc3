@@ -230,7 +230,7 @@ FoaWd : FoaEval {
 FoaWh : FoaEval {
 	*ar { |in, size = 2048, method = \instant|
 		var p, u;
-		var pReIm, pImRe, uReIm, ir;
+		var pReIm, pImRe, uReIm, ir, magIr;
 		var wp, wu, ws, ia, magI_squared, magIa_squared;
 
 		in = this.checkChans(in);
@@ -287,6 +287,8 @@ FoaWh : FoaEval {
 FoaMagI : FoaEval {
 	*ar { |in, size = 2048, method = \instant|
 		var p, u;
+		var wp, wu;
+		var normFac;
 
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
@@ -304,8 +306,7 @@ FoaMagI : FoaEval {
 				^(wp * wu).sqrt
 			},
 			{ method == \average }, {
-				var wp, wu;
-				var normFac;
+
 
 				normFac = 2 * size.reciprocal;
 
@@ -570,7 +571,7 @@ FoaMagW : FoaEval {
 FoaMagWa : FoaEval {
 	*ar { |in, size = 2048, method = \instant|
 		var p, u;
-		var pReIm, uReIm, wp, wu, ws, ia, magIa;
+		var pReIm, uReIm, wp, wu, ws, ia, magIa, normFac;
 
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
@@ -617,7 +618,7 @@ FoaMagWa : FoaEval {
 FoaMagWr : FoaEval {
 	*ar { |in, size = 2048, method = \instant|
 		var p, u;
-		var pReIm, pImRe, uReIm, wp, wu, ws, ir, magIr;
+		var pReIm, pImRe, uReIm, wp, wu, ws, ia, ir, magIr, magI_squared, magIa_squared;
 		var normFac;
 
 		in = this.checkChans(in);
@@ -837,7 +838,7 @@ FoaAlpha : FoaEval {
 	*ar { |in, size = 2048, method = \instant|
 		var p, u;
 		var pReIm, pImRe, uReIm, ia, magIa, ir, magIr;
-		var wp, wu, ia, magI_squared, magIa_squared;
+		var wp, wu, magI_squared, magIa_squared;
 		var normFac;
 
 		in = this.checkChans(in);
@@ -997,7 +998,7 @@ FoaThetaPhiA : FoaEval {
 		var pReIm, pImRe, uReIm, ia, magIa, ir, magIr, theta, phi;
 		var reg, alpha, gateA;  // gate using -thresh
 
-		var wp, wu, ia, magI_squared, magIa_squared;
+		var wp, wu, magI_squared, magIa_squared;
 		var normFac;
 
 		in = this.checkChans(in);
@@ -1353,6 +1354,7 @@ FoaNa : FoaEval {
 	*ar { |in, size = 2048, method = \instant|
 		var p, u;
 		var pReIm, uReIm, wp, wu, magI, ia, na;
+		var normFac;
 
 		in = this.checkChans(in);
 		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure

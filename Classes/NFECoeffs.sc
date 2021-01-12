@@ -240,6 +240,7 @@ NFECoeffs {
 		var alpha0, alpha1;
 		var coeffs, g;
 		var coeffsSOS, coeffsFOS;
+		var c10, c20, c11, c21;  // NOTE: pulled out to avoid inline warning
 
 		mOdd = this.degree.odd;
 
@@ -247,8 +248,6 @@ NFECoeffs {
 		alpha1 = 2 * sampleRate * r1 / speedOfSound;  // distance
 
 		coeffs = numSOS.collect({ |q|
-			var c10, c20, c11, c21;
-
 			// proximity
 			c10 = this.reX[q] / alpha0;
 			c20 = (this.absX[q] / alpha0).squared;
@@ -271,8 +270,6 @@ NFECoeffs {
 
 		// odd degree? - add coeffs for FOS
 		if(mOdd, {
-			var c10, c11;
-
 			c10 = this.reX.last / alpha0;  // proximity
 			c11 = this.reX.last / alpha1;  // distance
 

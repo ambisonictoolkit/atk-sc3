@@ -314,6 +314,7 @@
 		};
 		var hoaOrder = order.asHoaOrder;
 		var foclMags, beamMags, magnitudes;
+		var freqs, beamWeights;  // cases 2 & 3
 
 		// focalisation magnitudes?
 		if(radius != nil, {
@@ -335,8 +336,8 @@
 				if((beamDict.at(\edgeFreqs).size != 2), {
 					Error("Must supply two edge frequencies for a two band shelf. Supplied: % ".format(beamDict.at(\edgeFreqs).size)).throw
 				}, {
-					var freqs = beamDict.at(\edgeFreqs).sort;
-					var beamWeights = beamDict.at(\beamShapes).collect({ |beamShape|
+					freqs = beamDict.at(\edgeFreqs).sort;
+					beamWeights = beamDict.at(\beamShapes).collect({ |beamShape|
 						hoaOrder.beamWeights(beamShape, dim)
 					});
 
@@ -349,8 +350,8 @@
 				if((beamDict.at(\edgeFreqs).size != 4), {
 					Error("Must supply four edge frequencies for a two band shelf. Supplied: % ".format(beamDict.at(\edgeFreqs).size)).throw
 				}, {
-					var freqs = beamDict.at(\edgeFreqs).sort;
-					var beamWeights = beamDict.at(\beamShapes).collect({ |beamShape|
+					freqs = beamDict.at(\edgeFreqs).sort;
+					beamWeights = beamDict.at(\beamShapes).collect({ |beamShape|
 						hoaOrder.beamWeights(beamShape, dim)
 					});
 

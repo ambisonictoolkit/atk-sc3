@@ -148,11 +148,12 @@ HoaOrder {
 	// Focalisation (real) degree weights
 	foclWeights { |freq, radius = (AtkHoa.refRadius), window = \reg, speedOfSound = (AtkHoa.speedOfSound)|
 		var wavNum = WaveNumber.newFreq(freq, speedOfSound);
+		var effOrder;  //  hp, cos
+		var beta;  // hp
 
 		^switch(window,
 			\hp, {
-				var effOrder = wavNum.orderAtRadius(radius);
-				var beta;
+				effOrder = wavNum.orderAtRadius(radius);
 
 				(this.order + 1).collect({ |degree|
 					if(degree == 0, {
@@ -164,7 +165,7 @@ HoaOrder {
 				})
 			},
 			\cos, {
-				var effOrder = wavNum.orderAtRadius(radius).abs;
+				effOrder = wavNum.orderAtRadius(radius).abs;
 
 				(this.order + 1).collect({ |degree|
 					if(degree == 0, {
@@ -257,9 +258,7 @@ HoaOrder {
 	// 'l’énergie réduite E' for an Ambisonic decoder
 	meanE { |beamShape = \basic, dim = 3|
 		var m = this.order;
-		var beamWeights;
-
-		beamWeights = this.beamWeights(beamShape, dim);
+		var beamWeights = this.beamWeights(beamShape, dim);
 
 		^if(dim == 2, {
 			beamWeights.removeAt(0).squared + (2 * beamWeights.squared.sum) // 2D
@@ -293,7 +292,7 @@ HoaOrder {
 	// beamWeights, aka, "decoder order gains" or Gamma vector of per-degree (beam forming) scalars
 	beamWeights { |beamShape = \basic, dim = 3|
 		var m = this.order;
-		var max_rE;
+		var max_rE;  // energy
 
 		^switch(beamShape,
 			\basic, { 1.dup(m + 1) },

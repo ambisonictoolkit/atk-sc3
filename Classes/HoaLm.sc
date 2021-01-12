@@ -68,7 +68,6 @@ HoaLm {
 				^this.new([l, m])
 			},
 			\sid, {
-
 				l = index.sqrt.floor.asInteger;
 				m0 = (((l + 1).squared - (index + 1)) / 2).floor.asInteger;
 				m1 = -1 * (((l + 1).squared - index) / 2).floor.asInteger;
@@ -82,7 +81,6 @@ HoaLm {
 				^if(l <= 1, {
 					this.newIndex(index, \sid)
 				}, {
-
 					m0 = -1 * ((index - l.squared) / 2).floor.asInteger;
 					m1 = ((index +1 - l.squared) / 2).floor.asInteger;
 
@@ -200,7 +198,10 @@ HoaLm {
 
 	normalisation { |scheme = \n3d|
 		var l, m;
-		var dm, mabs;
+		var dm, mabs;  // sn3d
+		var lne0;  // sn2d
+		var twoDivSqrt3, sqrt45_32, threeDivSqrt5, sqrt8_5;  // maxN
+		var norms;  // maxN
 
 		#l, m = this.lm;
 
@@ -209,8 +210,6 @@ HoaLm {
 				^sqrt((2 * l) + 1) * this.normalisation(\sn3d)
 			},
 			\sn3d, {
-
-
 				dm = (m == 0).asInteger;
 				mabs = m.abs;
 				^sqrt(
@@ -225,15 +224,10 @@ HoaLm {
 				) * this.normalisation(\n3d)
 			},
 			\sn2d, {
-				var lne0;
-
 				lne0 = (l>0).asInteger;
 				^2.pow(-0.5 * lne0) * this.normalisation(\n2d)
 			},
 			\maxN, {
-				var twoDivSqrt3, sqrt45_32, threeDivSqrt5, sqrt8_5;
-				var norms;
-
 				twoDivSqrt3 = 2/3.sqrt;
 				sqrt45_32 = (45/32).sqrt;
 				threeDivSqrt5 = 3/5.sqrt;

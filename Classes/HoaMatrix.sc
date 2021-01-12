@@ -671,12 +671,14 @@ HoaMatrixXformer : HoaMatrix {
 	// NOTE: this contains near-zero values.
 	// You can optimize these out by calling Matrix:-thresh2
 	initSwapAxes { |axes|
+		var rx, my;  // first case
+		var ry, mx;  // second (& third) case
+		var rz;  // third case
+
 		case(
 
 			// swap Z<>Y axes, "J-matrix"
 			{ axes == \yz or: { axes == \zy } }, {
-				var rx, my;
-
 				rx = this.class.newRotateAxis(\x, 0.5pi, this.order).matrix;
 				my = this.class.newReflect(\y, this.order).matrix;
 
@@ -690,8 +692,6 @@ HoaMatrixXformer : HoaMatrix {
 
 			// swap Z<>X axes, "K-matrix"
 			{ axes == \xz or: { axes == \zx } }, {
-				var ry, mx;
-
 				ry = this.class.newRotateAxis(\y, 0.5pi, this.order).matrix;
 				mx = this.class.newReflect(\x, this.order).matrix;
 
@@ -705,8 +705,6 @@ HoaMatrixXformer : HoaMatrix {
 
 			// swap X<>Y axes
 			{ axes == \xy or: { axes == \yx } }, {
-				var rz, mx;
-
 				rz = this.class.newRotateAxis(\z, 0.5pi, this.order).matrix;
 				mx = this.class.newReflect(\x, this.order).matrix;
 

@@ -272,6 +272,7 @@ FoaMatrixChain {
 	// last transform in the last transform chain
 	chainXForms {
 		var mtx;
+		var ctlStates, ctlVals;  // note: here to avoid inline warning
 
 		block({ |break|
 			chains.do({ |chain, i|
@@ -287,8 +288,6 @@ FoaMatrixChain {
 						// 'mute' is a psuedo transform ('-'), like a pass-through,
 						// while .muted is a state
 						if((xf.name != \mute and: { xf.muted.not }), {
-							var ctlStates, ctlVals;
-
 							ctlStates = xf.controlStates;
 
 							ctlVals = (ctlStates.indices).collect({ |dex|

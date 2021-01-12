@@ -378,6 +378,7 @@ FoaXformDisplay {
 			var inspWidth, inspHeight, inspInset, inspRect;
 			var gainWidth, gainHeight, gainRect, minRect, maxRect;
 			var amps, rect, col;
+			var selStats;  // note: avoid inline warning (L563)
 
 			minDim = min(uv.bounds.width, uv.bounds.height);
 
@@ -559,7 +560,7 @@ FoaXformDisplay {
 				maxRect, Font("Helvetica", 12), Color.yellow);
 
 			selectedDex !? {
-				var selStats = prePostStats[selectedDex];
+				selStats = prePostStats[selectedDex];
 
 				// proto point inspection text window;
 				inspWidth = 85;
@@ -922,13 +923,13 @@ FoaXformDisplay {
 
 		xfViewChains.do({ |vchain, i|
 			vchain.do({ |xf, j|
-				var items, inMenu, newSelection;
+				var inMenu, items, newSelection;
+				var thisLink, inputLink;
 
 				inMenu = xf.inputMenu;
 
 				// check if the xform has an input parameter
 				if(inMenu.notNil, {
-					var items, thisLink, inputLink;
 
 					// regenerate possible menu items based on new chain
 					items = this.prGetInputList(i, j);
@@ -1066,29 +1067,33 @@ FoaXformDisplay {
 	}
 
 
-	update {
-		| who, what ... args |
+	update { | who, what ... args |
+		/*
+		note: avoid inline warnings
+		*/
+		// who == chain, who == displayChain
+		var index;
+		var xformName, whichChain;
+		var newXformName;
+		var bool;
+		var unmuting, chainDex;
+		// who == audition
+		var state;
 
 		if(who == chain, {
 			switch(what,
 				\chainAdded, {
-					var index;
-
 					index = args[0];
 					// postf("responding to \chainAdded: %\n", index);
 					this.addChainView(index)
 				},
 				\chainRemoved, {
-					var index;
-
 					index = args[0];
 					// postf("responding to \chainRemoved: %\n", index);
 					this.removeChainView(index);
 					this.prUpdateMatrix(\chain)
 				},
 				\transformAdded, {
-					var xformName, whichChain, index;
-
 					#xformName, whichChain, index = args[0..2];
 					this.createNewXForm(whichChain, index);
 					this.prUpdateInputMenus;
@@ -1096,8 +1101,6 @@ FoaXformDisplay {
 				},
 				\transformRemoved, {
 					{
-						var whichChain, index;
-
 						#whichChain, index = args[0..1];
 						this.prRemoveXForm(whichChain, index);
 						0.02.wait; // for some reason needs time to remove
@@ -1106,15 +1109,11 @@ FoaXformDisplay {
 					}.fork(clock: AppClock)
 				},
 				\transformReplaced, {
-					var whichChain, index, newXformName;
-
 					#newXformName, whichChain, index = args[0..2];
 					xfViewChains[whichChain][index].rebuildControls;
 					this.prUpdateMatrix(\chain)
 				},
 				\transformMuted, {
-					var whichChain, index, bool;
-
 					#whichChain, index, bool = args[0..2];
 					this.prUpdateMatrix(\chain);
 					xfViewChains[whichChain][index].muteState(bool); // update UI with muted state
@@ -1146,8 +1145,6 @@ FoaXformDisplay {
 					})
 				},
 				\transformSoloed, {
-					var whichChain, index, bool, unmuting, chainDex;
-
 					#whichChain, index, bool = args[0..2];
 					this.prUpdateMatrix(\chain);
 					unmuting = bool.not;
@@ -1190,8 +1187,6 @@ FoaXformDisplay {
 		if(who == displayChain, {
 			switch(what,
 				\transformReplaced, {
-					var whichChain, index, newXformName;
-
 					#newXformName, whichChain, index = args[0..2];
 					displayXFormView.rebuildControls;
 					this.prUpdateMatrix(\display)
@@ -1205,7 +1200,7 @@ FoaXformDisplay {
 		if(who == audition, {
 			switch(what,
 				\pwAzim, {
-					var state = args[0]; // can be a number of bool
+					state = args[0]; // can be a number of bool
 
 					(state == false).if({
 						pwPlaying = false

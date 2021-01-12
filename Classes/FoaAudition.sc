@@ -1197,7 +1197,7 @@ FoaAuditionView {
 					})
 				},
 				\pwElev, {
-					var deg = args[0].raddeg;
+					deg = args[0].raddeg;
 
 					defer({
 						elBx.hasFocus !? { // sometimes .hasFocus can return nil (race condition?)

@@ -207,6 +207,12 @@ If need be, the developers can be contacted directly via
 List of Changes
 ---------------
 
+Version 5.0.2
+
+* Issue fixes:
+    * Remove Inline Warnings
+
+
 Version 5.0.1
 
 * Issue fixes:
@@ -403,6 +409,10 @@ are copyright the Ambisonic Toolkit Community and Joseph Anderson,
 
 Contributors
 ------------
+
+Version 5.0.2
+*  Joseph Anderson (@joslloand)
+*  Julian Rohrhuber (@telephon)
 
 Version 5.0.1
 *  Julian Rohrhuber (@telephon)

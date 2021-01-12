@@ -4,7 +4,7 @@
         \author: "Joseph Anderson, Josh Parmenter, Michael McCrea, & the Ambisonic Toolkit Community",
      \copyright: "Ambisonic Toolkit Community, Joseph Anderson, Josh Parmenter, and Michael McCrea 2011, 2016-18",
        \license: "GPL",
-       \version: "5.0.1",
+       \version: "5.0.2",
         \schelp: "Intro-to-the-ATK",
            \url: "https://github.com/ambisonictoolkit/atk-sc3",
   \dependencies: [

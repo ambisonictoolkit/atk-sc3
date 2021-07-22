@@ -90,7 +90,7 @@ Radius, in meters.
 
 
 METHOD:: speedOfSound
-Ambisonic Toolkit speed of sound, in meters per second.
+Ambisonic Toolkit (HOA) speed of sound, in meters per second.
 
 code::
 AtkHoa.speedOfSound

@@ -54,9 +54,11 @@
 // 	Class: FoaAlpha
 // 	Class: FoaBeta
 // 	Class: FoaGamma
+// 	Class: FoaMu
 //
 // 	Class: FoaThetaPhiA
 // 	Class: FoaThetaPhiR
+// 	Class: FoaNF
 //
 // 	Class: FoaIa
 // 	Class: FoaIr
@@ -941,6 +943,47 @@ FoaGamma : FoaEval {
 }
 
 
+// FOA Active Admittance Balance Angle: Mu
+FoaMu : FoaEval {
+	*ar { |in, size = 2048, method = \instant|
+		var p, u;
+		var pReIm, wp, ia, magIa;
+		var wpSquared, magIaSquared;
+		var normFac;
+
+		in = this.checkChans(in);
+		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
+		u = in[1..3];  // [x, y, z] = velocity (vector)
+
+		case(
+			{ method == \instant }, {
+				pReIm = HilbertW.ar(p, size);
+				wp = pReIm.squared.sum;
+				wpSquared = wp.squared;
+
+				ia = HilbertW.ar(u, size).collect({ |item|
+					(pReIm * item).sum
+				});
+				magIaSquared = ia.squared.sum;
+				magIa = magIaSquared.sqrt;
+
+				^atan2(wpSquared - magIaSquared, (2 * wp * magIa) + DC.ar(FoaEval.reg))
+			},
+			{ method == \average }, {
+				normFac = 2 * size.reciprocal;
+
+				wp = normFac * RunningSum.ar(p.squared, size);
+				wpSquared = wp.squared;
+				ia = normFac * RunningSum.ar(p * u, size);
+				magIaSquared = ia.squared.sum;
+				magIa = magIaSquared.sqrt;
+
+				^atan2(wpSquared - magIaSquared, (2 * wp * magIa) + DC.ar(FoaEval.reg))
+			}
+		)
+	}
+}
+
 //--
 // "Third party" indicators go here....
 
@@ -1069,6 +1112,73 @@ FoaThetaPhiR : FoaEval {
 		)
 	}
 }
+
+
+//------------------------------------------------------------------------
+// FOA SOUNDFIELD RADIUS
+
+// FOA Nearfield (Spherical) Radius
+FoaNF : FoaEval {
+	*ar { |in, size = 2048, method = \instant|
+		var p, u;
+		var pInteg, uInteg;
+		var pReIm, wp, ia, aa;
+		var pReImInteg, wpInteg, iaInteg, aaInteg;
+		var normFac;
+		var radius;
+
+		var freq = AtkFoa.speedOfSound / 2pi;  // 2nd order HP, precondition
+		var a0 = 0.5;  // integrator
+		var a1 = 0.5;
+		var b1 = 1.0;
+
+
+		in = this.checkChans(in);
+		p = 2.sqrt * in[0];  // w * 2.sqrt = pressure
+		u = in[1..3];  // [x, y, z] = velocity (vector)
+
+		pInteg = FOS.ar(HPF.ar(p, freq), a0, a1, b1);  // precondition, integrate p
+		uInteg = HPF.ar(u, freq);  // precondition u
+
+		case(
+			{ method == \instant }, {
+				pReIm = HilbertW.ar(p, size);
+				wp = pReIm.squared.sum;
+				ia = HilbertW.ar(u, size).collect({ |item|
+					(pReIm * item).sum
+				});
+				aa = ia / (wp + DC.ar(FoaEval.reg));
+
+				pReImInteg = HilbertW.ar(pInteg, size);
+				wpInteg = pReImInteg.squared.sum;
+				iaInteg = HilbertW.ar(uInteg, size).collect({ |item|
+					(pReImInteg * item).sum
+				});
+				aaInteg = iaInteg / (wpInteg + DC.ar(FoaEval.reg));
+
+				radius = (AtkFoa.speedOfSound * SampleDur.ir) * (aa.squared.sum / ((aa * aaInteg).sum + DC.ar(FoaEval.reg)));
+
+				^radius
+			},
+			{ method == \average }, {
+				normFac = 2 * size.reciprocal;
+
+				wp = normFac * RunningSum.ar(p.squared, size);
+				ia = normFac * RunningSum.ar(p * u, size);
+				aa = ia / (wp + DC.ar(FoaEval.reg));
+
+				wpInteg = normFac * RunningSum.ar(pInteg.squared, size);
+				iaInteg = normFac * RunningSum.ar(pInteg * uInteg, size);
+				aaInteg = iaInteg / (wpInteg + DC.ar(FoaEval.reg));
+
+				radius = (AtkFoa.speedOfSound * SampleDur.ir) * (aa.squared.sum / ((aa * aaInteg).sum + DC.ar(FoaEval.reg)));
+
+				^radius
+			}
+		)
+	}
+}
+
 
 
 //------------------------------------------------------------------------
@@ -1720,6 +1830,19 @@ FoaAnalyze : FoaEval {
 				)
 			},
 
+			\mu, {
+
+				ugen = FoaMu;
+				argDefaults = [2048, \instant];
+
+				argDict = this.argDict(ugen, args, argDefaults);
+
+				^ugen.ar(
+					in,
+					argDict.at(\size), argDict.at(\method)
+				)
+			},
+
 			\thetaPhia, {
 
 				ugen = FoaThetaPhiA;
@@ -1736,6 +1859,19 @@ FoaAnalyze : FoaEval {
 			\thetaPhir, {
 
 				ugen = FoaThetaPhiR;
+				argDefaults = [2048, \instant];
+
+				argDict = this.argDict(ugen, args, argDefaults);
+
+				^ugen.ar(
+					in,
+					argDict.at(\size), argDict.at(\method)
+				)
+			},
+
+			\NF, {
+
+				ugen = FoaNF;
 				argDefaults = [2048, \instant];
 
 				argDict = this.argDict(ugen, args, argDefaults);

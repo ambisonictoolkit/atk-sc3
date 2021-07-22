@@ -60,6 +60,26 @@ AtkFoa.refRadius
 ::
 
 
+METHOD:: speedOfSound
+Ambisonic Toolkit (FOA) speed of sound, in meters per second.
+
+code::
+AtkFoa.speedOfSound
+::
+
+
+METHOD:: setSpeedOfSound
+Setter for link::#*speedOfSound::.
+
+note::
+Setting this value only effects the speed of sound for soundfield analysis via link::Classes/FoaNF::, and does NOT currently update the value used by link::Classes/FoaProximity:: & link::Classes/FoaNFC::.
+::
+
+
+ARGUMENT:: mps
+Speed of sound, in meters per second.
+
+
 
 EXAMPLES::
 

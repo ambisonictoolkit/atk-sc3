@@ -207,6 +207,20 @@ If need be, the developers can be contacted directly via
 List of Changes
 ---------------
 
+Version 5.0.3
+
+*  New features:
+    * FOA soundfield indicator: Active Energy Balance (Mu); indicates travelling wave.
+    * FOA soundfield indicator: Near-field distance estimate; travelling wave radius.
+
+* Documentation Updates:
+    * Fix typo: ATK FAQs
+    * Fix TOC links: HoaRadius
+
+* Issue fixes:
+    * Quark file schelp, redirected to ABCs-of-the-ATK
+
+
 Version 5.0.2
 
 * Issue fixes:
@@ -409,6 +423,9 @@ are copyright the Ambisonic Toolkit Community and Joseph Anderson,
 
 Contributors
 ------------
+
+Version 5.0.3
+*  Joseph Anderson (@joslloand)
 
 Version 5.0.2
 *  Joseph Anderson (@joslloand)

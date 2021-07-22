@@ -152,7 +152,7 @@ Ambisonic order.
 
 EXAMPLES::
 
-subsection:: Effective radius
+subsection:: Radius
 
 code::
 // --------------------------------------
@@ -171,7 +171,7 @@ code::
 ~effDiameter = 2 * ~effRadius;
 ::
 
-subsection:: Effective order
+subsection:: Order
 
 code::
 // --------------------------------------
@@ -188,7 +188,7 @@ code::
 ~effOrder = ~hoaRadius.orderAtFreq(~effFreq);
 ::
 
-subsection:: Effective frequency
+subsection:: Frequency
 
 code::
 // --------------------------------------

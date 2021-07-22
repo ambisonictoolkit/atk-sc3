@@ -1,14 +1,14 @@
-CLASS:: FoaBeta
-summary:: First Order Ambisonic (FOA) Soundfield Potential-Kinetic Energy Balance
+CLASS:: FoaMu
+summary:: First Order Ambisonic (FOA) Soundfield Active Admittance Balance
 categories:: Libraries>Ambisonic Toolkit>UGens>FOA>Analyzer, UGens>Multichannel>Ambisonics, UGens>Analysis>Ambisonics
-related:: Classes/FoaAlpha, Classes/FoaGamma, Classes/FoaMu, Classes/FoaWd, Classes/FoaMagI
+related:: Classes/FoaAlpha, Classes/FoaBeta, Classes/FoaGamma, Classes/FoaMagIa, Classes/FoaWp
 
 DESCRIPTION::
-Return the emphasis::Potential-Kinetic Energy Balance:: of a first order ambisonic (B-format) signal, in radians.
+Return the emphasis::Active Admittance Balance:: of a first order ambisonic (B-format) signal, in radians.
 
 
 NOTE::
-link::Classes/FoaBeta:: is usually called via the convenience wrapper link::Classes/FoaAnalyze::.
+link::Classes/FoaMu:: is usually called via the convenience wrapper link::Classes/FoaAnalyze::.
 ::
 
 

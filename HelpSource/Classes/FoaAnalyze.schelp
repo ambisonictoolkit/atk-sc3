@@ -35,6 +35,7 @@ definitionList::
 ## code:: 'alpha' :: || link::Classes/FoaAlpha::
 ## code:: 'beta' :: || link::Classes/FoaBeta::
 ## code:: 'gamma' :: || link::Classes/FoaGamma::
+## code:: 'mu' :: || link::Classes/FoaMu::
 
 ## Soundfield Energies
 ## code:: 'Wp' :: || link::Classes/FoaWp::
@@ -59,6 +60,9 @@ definitionList::
 ## Soundfield Incidences - vectors
 ## code:: 'thetaPhiA' :: || link::Classes/FoaThetaPhiA::
 ## code:: 'thetaPhiR' :: || link::Classes/FoaThetaPhiR::
+
+## Soundfield Radius
+## code:: 'NF' :: || link::Classes/FoaNF::
 
 ## Soundfield Intensities - vectors
 ## code:: 'Ia' :: || link::Classes/FoaIa::

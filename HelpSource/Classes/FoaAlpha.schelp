@@ -1,7 +1,7 @@
 CLASS:: FoaAlpha
 summary:: First Order Ambisonic (FOA) Soundfield Active-Reactive Intensity Balance
 categories:: Libraries>Ambisonic Toolkit>UGens>FOA>Analyzer, UGens>Multichannel>Ambisonics, UGens>Analysis>Ambisonics
-related:: Classes/FoaBeta, Classes/FoaGamma, Classes/FoaMagIa, Classes/FoaMagIr
+related:: Classes/FoaBeta, Classes/FoaGamma, Classes/FoaMu, Classes/FoaMagIa, Classes/FoaMagIr
 
 DESCRIPTION::
 Return the emphasis::Active-Reactive Intensity Balance:: of a first order ambisonic (B-format) signal, in radians.

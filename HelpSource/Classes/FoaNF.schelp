@@ -1,14 +1,14 @@
-CLASS:: FoaBeta
-summary:: First Order Ambisonic (FOA) Soundfield Potential-Kinetic Energy Balance
+CLASS:: FoaNF
+summary:: First Order Ambisonic (FOA) near-field distance estimate
 categories:: Libraries>Ambisonic Toolkit>UGens>FOA>Analyzer, UGens>Multichannel>Ambisonics, UGens>Analysis>Ambisonics
-related:: Classes/FoaAlpha, Classes/FoaGamma, Classes/FoaMu, Classes/FoaWd, Classes/FoaMagI
+related:: Classes/FoaThetaPhiA, Classes/FoaThetaPhiR, Classes/FoaIa, Classes/FoaMagIa
 
 DESCRIPTION::
-Return the emphasis::Potential-Kinetic Energy Balance:: of a first order ambisonic (B-format) signal, in radians.
+Return the emphasis::near-field distance estimate:: of a first order ambisonic (B-format) signal, in meters.
 
 
 NOTE::
-link::Classes/FoaBeta:: is usually called via the convenience wrapper link::Classes/FoaAnalyze::.
+link::Classes/FoaNF:: is usually called via the convenience wrapper link::Classes/FoaAnalyze::.
 ::
 
 

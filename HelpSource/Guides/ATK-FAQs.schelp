@@ -76,7 +76,7 @@ As the HOA toolset includes low level Ambisonic coefficient return, the long ter
 
 note::We intend to provide a binaural decoder design example in the near term.::
 
-subsection:: Where are the the ATK's HOA binaural decoders?
+subsection:: Where are the ATK's HOA binaural decoders?
 
 For the short term, try the solutions suggested in link::Guides/HOA-Binaural-Decoding::.
 

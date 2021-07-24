@@ -54,7 +54,7 @@ Some notable features of the ATK include:
 list::
 ## Integrated support for classic emphasis::First Order Ambisonics (FOA):: and modern emphasis::Higher Order Ambisonics (HOA)::.
 ## Implements the emphasis::Near-Field Controlled::, aka emphasis::Near-Field Compensated::, form of higher order Ambisonics (NFC-HOA).
-## Ambisonic order is merely limited by system speed, channel capacity and numerical precision rather than by design. footnote::Caveat: link::Tutorials/ATK-FAQs#What%20is%20the%20highest%20order%20supported%20for%20spherical%20decomposition?#What is the highest order supported for spherical decomposition?:: ::
+## Ambisonic order is merely limited by system speed, channel capacity and numerical precision rather than by design. footnote::Caveat: link::Guides/ATK-FAQs#What%20is%20the%20highest%20order%20supported%20for%20spherical%20decomposition?#What is the highest order supported for spherical decomposition?:: ::
 ## Control and synthesis of the near-field effect (NFE) of finite distance sources in both FOA and HOA, including radial beamforming.
 ## Soundfield feature sensing & analysis in instantaneous and time averaged forms.
 ## Ambisonic coefficients and matrices are available for inspection and manipulation in the interperter.
@@ -190,7 +190,7 @@ Any additional utitilities or functionality supplied by these packages are not d
 note::
 At the time of this writing, ATK namespace collisions with the four packages listed here emphasis::have not:: been observed. As a result, it emphasis::should:: be possible to configure a system with all the below installed.
 
-If at some point you find a collision with the below packages (or any other), please let us know: link::Tutorials/ATK-FAQs#How%20do%20I%20report%20a%20bug?#How do I report a bug?::
+If at some point you find a collision with the below packages (or any other), please let us know: link::Guides/ATK-FAQs#How%20do%20I%20report%20a%20bug?#How do I report a bug?::
 ::
 
 

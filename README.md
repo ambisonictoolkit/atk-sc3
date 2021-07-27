@@ -207,6 +207,11 @@ If need be, the developers can be contacted directly via
 List of Changes
 ---------------
 
+Version 5.0.4-pre
+
+* Issue fixes:
+    * fix: broken links ABCs-of-the-ATK
+
 Version 5.0.3
 
 *  New features:
@@ -423,6 +428,9 @@ are copyright the Ambisonic Toolkit Community and Joseph Anderson,
 
 Contributors
 ------------
+
+Version 5.0.4-pre
+*  Joseph Anderson (@joslloand)
 
 Version 5.0.3
 *  Joseph Anderson (@joslloand)

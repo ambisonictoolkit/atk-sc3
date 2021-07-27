@@ -953,10 +953,11 @@ FoaPress {
 FoaProximity : Foa {
 	*ar { |in, distance = 1, mul = 1, add = 0|
 		var w, x, y, z;
+		var speedOfSound = AtkFoa.speedOfSound;
 
 		in = this.checkChans(in);
 		#w, x, y, z = in;
-		^this.multiNew(\audio, w, x, y, z, distance).madd(mul, add);
+		^this.multiNew(\audio, w, x, y, z, distance, speedOfSound).madd(mul, add);
 	}
 
 }
@@ -964,10 +965,11 @@ FoaProximity : Foa {
 FoaNFC : Foa {
 	*ar { |in, distance = 1, mul = 1, add = 0|
 		var w, x, y, z;
+		var speedOfSound = AtkFoa.speedOfSound;
 
 		in = this.checkChans(in);
 		#w, x, y, z = in;
-		^this.multiNew(\audio, w, x, y, z, distance).madd(mul, add);
+		^this.multiNew(\audio, w, x, y, z, distance, speedOfSound).madd(mul, add);
 	}
 
 }

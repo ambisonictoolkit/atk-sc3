@@ -209,6 +209,10 @@ List of Changes
 
 Version 5.0.4-pre
 
+*  New features:
+    * FOA speed of sound now user settable
+        * affects: FoaProximity, FoaNFC, FoaNF
+
 * Issue fixes:
     * fix: broken links ABCs-of-the-ATK
 

@@ -651,6 +651,46 @@ HoaMatrixXformer : HoaMatrix {
 		^super.new(\null, order).initDirections(directions).initNull(beamShape);
 	}
 
+	// ------------
+	// Dominance, &c
+
+	*newDominate { |gain = 0, theta = 0, phi = 0, order = (AtkHoa.defaultOrder)|
+		var directions = [[theta, phi]];
+
+		^super.new(\dominate, order).initDirections(directions).initWarp(gain);
+	}
+
+	*newZoom { |angle = 0, theta = 0, phi = 0, order = (AtkHoa.defaultOrder)|
+		var directions = [[theta, phi]];
+
+		^super.new(\zoom, order).initDirections(directions).initWarp(angle);
+	}
+
+	*newFocus { |angle = 0, theta = 0, phi = 0, order = (AtkHoa.defaultOrder)|
+		var directions = [[theta, phi]];
+
+		^super.new(\focus, order).initDirections(directions).initWarp(angle);
+	}
+
+	*newWarp { |angle = 0, theta = 0, phi = 0, order = (AtkHoa.defaultOrder)|
+		var directions = [[theta, phi]];
+
+		^super.new(\warp, order).initDirections(directions).initWarp(angle);
+	}
+
+	*newBalance { |angle = 0, order = (AtkHoa.defaultOrder)|
+		var directions = [[pi/2, 0.0]];
+
+		^super.new(\balance, order).initDirections(directions).initWarp(angle);
+	}
+
+	*newAsymmetry { |angle = 0, order = (AtkHoa.defaultOrder)|
+		var directions = [[(pi/2).neg, 0.0]];
+
+		^super.new(\asymmetry, order).initDirections(directions).initWarp(angle);
+	}
+
+
 	initRotation { |r1, r2, r3, convention|
 		matrix = HoaMatrixRotation(r1, r2, r3, convention, this.order).matrix.thresh2(AtkHoa.thresh);
 	}
@@ -768,6 +808,120 @@ HoaMatrixXformer : HoaMatrix {
 
 		// null
 		matrix = (Matrix.newIdentity((this.order + 1).squared) - xformingMatrix).thresh2(AtkHoa.thresh)
+	}
+
+	// Dominance, &c
+	initWarp { |angle|
+		var theta, phi;
+		var alpha;
+		var k;
+		var warpFunc, weightFunc;
+		var sourceMus, targetMus;
+		var decodingMatrix, encodingMatrix, lookMatrix, unLookMatrix;
+		var design;
+		var sourceDirections, targetDirections, weights;
+
+
+		// warping & weighting functions
+		warpFunc = { |mu, alpha|
+			(mu + alpha) / (1 + (alpha * mu))
+		};
+		weightFunc = { |mu, alpha|  // pre-emphasis
+			var onePlusAlphaMu = 1 + (alpha * mu);
+			switch(this.kind,
+				\warp, { 1.0 },
+				\dominate, { onePlusAlphaMu / (1 - alpha.squared).sqrt },
+				// \focus, { onePlusAlphaMu / (1 + alpha) },  // norm: + look
+				\focus, { onePlusAlphaMu / (1 + alpha.abs) },  // norm: +/- look
+				{ onePlusAlphaMu }  // zoom, balance, asymmetry (default)
+			)
+		};
+
+		// look direction
+		#theta, phi = this.directions[0];
+		this.initDirections;  // reset directions to infs
+
+		// max size t-design (TBD: review)
+		TDesignLib.initLib;
+		design = TDesign.new(
+			TDesignLib.lib.collect({ |item| item[\numPoints] }).maxItem
+		);
+		sourceDirections = design.directions;
+
+		// warping: towards +Z
+		// ... angles
+		alpha = if(this.kind == \dominate, {
+			k = angle.dbamp;   // dominance arg: angle = gain
+			(1 - ((2 * k) / (k.squared + 1)).squared).sqrt * if(k > 1, { 1 }, { -1 })  // account for +/- gain
+		}, {
+			angle.sin
+		});
+
+		sourceMus = sourceDirections.collect({ |azEl|
+			azEl.last.sin
+		});
+		targetMus = sourceMus.collect({ |mu|
+			warpFunc.value(mu, alpha)
+		});
+		targetDirections = targetMus.collect({ |mu, i|
+			[ sourceDirections[i].first, mu.asin ]
+		});
+		// ... weights
+		weights = sourceMus.collect({ |mu|
+			weightFunc.value(mu, alpha)
+		});
+
+		// build decoder matrix
+		decodingMatrix = HoaMatrixDecoder.newDirections(
+			sourceDirections,
+			order: this.order
+		).matrix;
+
+		// build encoder matrix
+		encodingMatrix = HoaMatrixEncoder.newDirections(
+			targetDirections,
+			order: this.order
+		).matrix;
+
+		// build look matrix: rotate look to +Z
+		lookMatrix = switch(this.kind,
+			\balance, {
+				HoaMatrixXformer.newSwapAxes(\yz, this.order).matrix
+			},
+			\asymmetry, {
+				HoaMatrixXformer.newSwapAxes(\yz, this.order).matrix.mulMatrix(
+					HoaMatrixXformer.newReflect(\y, this.order).matrix
+				)
+			},
+			{  // default
+				HoaMatrixXformer.newRTT(
+					theta.neg,
+					tumble: phi.neg + (pi/2),
+					order: this.order
+				).matrix
+			}
+		);
+
+		// build unlook matrix
+		unLookMatrix = lookMatrix.flop;
+		if(this.kind == \asymmetry, {
+			unLookMatrix = HoaMatrixXformer.newRotateAxis(\z, angle, this.order).matrix.mulMatrix(
+				unLookMatrix
+			)
+		});
+
+		// look, decode, warp, re-encode, un-look
+		matrix = unLookMatrix.mulMatrix(  // look
+			(
+				encodingMatrix.mulMatrix(  // warp
+					Matrix.newDiagonal(weights).mulMatrix(
+						decodingMatrix
+					)
+				)
+			).thresh2(AtkHoa.thresh).mulMatrix(
+				lookMatrix
+			)
+		).thresh2(AtkHoa.thresh)
 	}
 
 

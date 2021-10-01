@@ -176,6 +176,127 @@ Specify swap via concatenation. E.g., swap y-axis with z-azis: code::\yz::
 ARGUMENT:: order
 Ambisonic order.
 
+
+METHOD:: newDominate
+Apply dominance along an arbitrary axis.
+
+ARGUMENT:: gain
+Dominance gain, in dB.
+
+ARGUMENT:: theta
+Azimuth, in radians.
+
+ARGUMENT:: phi
+Elevation, in radians.
+
+ARGUMENT:: order
+Ambisonic order.
+
+discussion:: Applies dominance along the axis defined by strong::theta:: and strong::phi::.
+
+Positive values of strong::gain:: increase the gain at code:: [theta, phi] :: to strong::+gain:: dB, while decreasing the gain at code:: [theta.neg, phi.neg] :: to strong::-gain::. This simultaneously results in a distortion of the image towards code:: [theta, phi] ::. Negative values of gain invert this distortion, distorting towards code:: [theta.neg, phi.neg] :: . The default, 0, results in no change.
+
+Imaging is illustrated link::Classes/FoaDominateX#figure#here::.
+
+
+METHOD:: newZoom
+Apply zoom along an arbitrary axis.
+
+ARGUMENT:: angle
+Distortion angle, in radians. -pi/2 to pi/2
+
+ARGUMENT:: theta
+Azimuth, in radians.
+
+ARGUMENT:: phi
+Elevation, in radians.
+
+ARGUMENT:: order
+Ambisonic order.
+
+discussion:: Applies zoom along the axis defined by strong::theta:: and strong::phi::.
+
+Zoom is a normailised dominance variant, specified in terms of a distortion angle. Positive values of strong::angle:: increase gain at code:: [theta, phi] ::, while reducing at code:: [theta.neg, phi.neg] ::. Negative values do the inverse. The default, 0, results in no change.
+
+Imaging is illustrated link::Classes/FoaZoomY#figure#here::.
+
+
+METHOD:: newFocus
+Apply focus along an arbitrary axis.
+
+ARGUMENT:: angle
+Distortion angle, in radians. -pi/2 to pi/2
+
+ARGUMENT:: theta
+Azimuth, in radians.
+
+ARGUMENT:: phi
+Elevation, in radians.
+
+ARGUMENT:: order
+Ambisonic order.
+
+discussion:: Applies focus along the axis defined by strong::theta:: and strong::phi::.
+
+Focus is a normalised dominance variant, specified in terms of a distortion angle. Positive values of strong::angle:: maintain gain at code:: [theta, phi] ::, while reducing at code:: [theta.neg, phi.neg] ::. Negative values do the inverse. The default, 0, results in no change.
+
+In contrast with link::#*newZoom#zoom::, gain is maintained at 0dB in the direction of distortion.
+
+Imaging is illustrated link::Classes/FoaFocusX#figure#here::.
+
+
+METHOD:: newWarp
+Apply warp along an arbitrary axis.
+
+ARGUMENT:: angle
+Distortion angle, in radians. -pi/2 to pi/2
+
+ARGUMENT:: theta
+Azimuth, in radians.
+
+ARGUMENT:: phi
+Elevation, in radians.
+
+ARGUMENT:: order
+Ambisonic order.
+
+discussion:: Applies warping along the axis defined by strong::theta:: and strong::phi::.
+
+Warp is a normalised dominance variant, specified in terms of a distortion angle. Positive values of strong::angle:: warp the image towards code:: [theta, phi] ::, while warping away from at code:: [theta.neg, phi.neg] ::. Negative values do the inverse. The default, 0, results in no change.
+
+In contrast with link::#*newDominate#dominate::, link::#*newZoom#zoom::, and link::#*newFocus#focus::, gain is maintained at 0dB in all directions.
+
+
+METHOD:: newAsymmetry
+Apply soundfield asymmetry
+
+ARGUMENT:: angle
+Distortion angle, in radians. -pi/2 to pi/2
+
+ARGUMENT:: order
+Ambisonic order.
+
+discussion:: Positive values of strong::angle:: rotate code:: [-pi/2, 0] :: towards code:: [0, 0] ::, and at pi/2 collapse the soundfield to a travelling wave. Negative values rotate code:: [pi/2, 0] :: towards code:: [0, 0] ::. The default, 0, results in no change.
+
+Imaging is illustrated link::Classes/FoaAsymmetry#figure#here::.
+
+
+METHOD:: newBalance
+Apply soundfield balance.
+
+ARGUMENT:: angle
+Distortion angle, in radians. -pi/2 to pi/2
+
+ARGUMENT:: order
+Ambisonic order.
+
+discussion:: A synonym for apply zoom along the y-axis.
+
+Balance is a normailised dominance variant, specified in terms of a distortion angle. Positive values of strong::angle:: increase gain at code:: [pi/2, 0] ::, while reducing at code:: [-pi/2, 0] ::. Negative values do the inverse. The default, 0, results in no change.
+
+Imaging is illustrated link::Classes/FoaBalance#figure#here::.
+
+
 SUBSECTION:: Matrix & File
 
 METHOD:: newFromMatrix
@@ -192,7 +313,7 @@ COPYMETHOD:: HoaMatrix, *newFromFile
 
 
 INSTANCEMETHODS::
-PRIVATE:: dim, initBeam, initNull, initReflect, initRotation, initSwapAxes
+PRIVATE:: dim, initBeam, initNull, initReflect, initRotation, initSwapAxes, initWarp
 
 SUBSECTION:: Information
 

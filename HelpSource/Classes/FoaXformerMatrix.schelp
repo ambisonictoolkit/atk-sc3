@@ -494,7 +494,7 @@ Apply soundfield asymmetry
 argument:: angle
 The distortion angle, in radians. -pi/2 to pi/2
 
-discussion:: Positive values of strong::angle:: rotate code:: [0, -pi/2] :: towards code:: [0, 0] ::, and at pi/2 collapse the soundfield to a planewave. Negative values rotate code:: [0, pi/2] :: toowards code:: [0, 0] ::. The default, 0, results in no change.
+discussion:: Positive values of strong::angle:: rotate code:: [-pi/2, 0] :: towards code:: [0, 0] ::, and at pi/2 collapse the soundfield to a planewave. Negative values rotate code:: [pi/2, 0] :: toowards code:: [0, 0] ::. The default, 0, results in no change.
 
 Imaging is illustrated link::Classes/FoaAsymmetry#figure#here::.
 
@@ -503,7 +503,7 @@ note:: Corresponding UGen: link::Classes/FoaAsymmetry:: ::
 
 
 METHOD:: newBalance
-Soundfield balance. A synonym for link::#*newZoomY#ZoomY::
+Apply soundfield balance. A synonym for link::#*newZoomY#ZoomY::
 
 argument:: angle
 The distortion angle, in radians. -pi/2 to pi/2

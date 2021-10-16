@@ -852,7 +852,7 @@ HoaMatrixXformer : HoaMatrix {
 		// ... angles
 		alpha = if(this.kind == \dominate, {
 			k = angle.dbamp;   // dominance arg: angle = gain
-			(1 - ((2 * k) / (k.squared + 1)).squared).sqrt * if(k > 1, { 1 }, { -1 })  // account for +/- gain
+			(k - k.reciprocal) / (k + k.reciprocal)
 		}, {
 			angle.sin
 		});

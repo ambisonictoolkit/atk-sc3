@@ -245,28 +245,6 @@ In contrast with link::#*newZoom#zoom::, gain is maintained at 0dB in the direct
 Imaging is illustrated link::Classes/FoaFocusX#figure#here::.
 
 
-METHOD:: newWarp
-Apply warp along an arbitrary axis.
-
-ARGUMENT:: angle
-Distortion angle, in radians. -pi/2 to pi/2
-
-ARGUMENT:: theta
-Azimuth, in radians.
-
-ARGUMENT:: phi
-Elevation, in radians.
-
-ARGUMENT:: order
-Ambisonic order.
-
-discussion:: Applies warping along the axis defined by strong::theta:: and strong::phi::.
-
-Warp is a normalised dominance variant, specified in terms of a distortion angle. Positive values of strong::angle:: warp the image towards code:: [theta, phi] ::, while warping away from at code:: [theta.neg, phi.neg] ::. Negative values do the inverse. The default, 0, results in no change.
-
-In contrast with link::#*newDominate#dominate::, link::#*newZoom#zoom::, and link::#*newFocus#focus::, gain is maintained at 0dB in all directions.
-
-
 METHOD:: newAsymmetry
 Apply soundfield asymmetry
 

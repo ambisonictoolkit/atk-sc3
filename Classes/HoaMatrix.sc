@@ -657,37 +657,37 @@ HoaMatrixXformer : HoaMatrix {
 	*newDominate { |gain = 0, theta = 0, phi = 0, order = (AtkHoa.defaultOrder)|
 		var directions = [[theta, phi]];
 
-		^super.new(\dominate, order).initDirections(directions).initWarp(gain);
+		^super.new(\dominate, order).initDirections(directions).initBLT(gain);
 	}
 
 	*newZoom { |angle = 0, theta = 0, phi = 0, order = (AtkHoa.defaultOrder)|
 		var directions = [[theta, phi]];
 
-		^super.new(\zoom, order).initDirections(directions).initWarp(angle);
+		^super.new(\zoom, order).initDirections(directions).initBLT(angle);
 	}
 
 	*newFocus { |angle = 0, theta = 0, phi = 0, order = (AtkHoa.defaultOrder)|
 		var directions = [[theta, phi]];
 
-		^super.new(\focus, order).initDirections(directions).initWarp(angle);
+		^super.new(\focus, order).initDirections(directions).initBLT(angle);
 	}
 
-	*newWarp { |angle = 0, theta = 0, phi = 0, order = (AtkHoa.defaultOrder)|
-		var directions = [[theta, phi]];
-
-		^super.new(\warp, order).initDirections(directions).initWarp(angle);
-	}
+	// *newWarp { |angle = 0, theta = 0, phi = 0, order = (AtkHoa.defaultOrder)|
+	// 	var directions = [[theta, phi]];
+	//
+	// 	^super.new(\warp, order).initDirections(directions).initBLT(angle);
+	// }
 
 	*newBalance { |angle = 0, order = (AtkHoa.defaultOrder)|
 		var directions = [[pi/2, 0.0]];
 
-		^super.new(\balance, order).initDirections(directions).initWarp(angle);
+		^super.new(\balance, order).initDirections(directions).initBLT(angle);
 	}
 
 	*newAsymmetry { |angle = 0, order = (AtkHoa.defaultOrder)|
 		var directions = [[(pi/2).neg, 0.0]];
 
-		^super.new(\asymmetry, order).initDirections(directions).initWarp(angle);
+		^super.new(\asymmetry, order).initDirections(directions).initBLT(angle);
 	}
 
 
@@ -811,7 +811,7 @@ HoaMatrixXformer : HoaMatrix {
 	}
 
 	// Dominance, &c
-	initWarp { |angle|
+	initBLT { |angle|
 		var theta, phi;
 		var alpha;
 		var k;
@@ -829,7 +829,7 @@ HoaMatrixXformer : HoaMatrix {
 		weightFunc = { |mu, alpha|  // pre-emphasis
 			var onePlusAlphaMu = 1 + (alpha * mu);
 			switch(this.kind,
-				\warp, { 1.0 },
+				// \warp, { 1.0 },  // not order preserving - do not implement
 				\dominate, { onePlusAlphaMu / (1 - alpha.squared).sqrt },
 				// \focus, { onePlusAlphaMu / (1 + alpha) },  // norm: + look
 				\focus, { onePlusAlphaMu / (1 + alpha.abs) },  // norm: +/- look

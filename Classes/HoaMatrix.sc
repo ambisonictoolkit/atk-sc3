@@ -814,7 +814,7 @@ HoaMatrixXformer : HoaMatrix {
 	initBLT { |angle|
 		var theta, phi;
 		var alpha;
-		var k;
+		var k2;
 		var warpFunc, weightFunc;
 		var sourceMus, targetMus;
 		var decodingMatrix, encodingMatrix, lookMatrix, unLookMatrix;
@@ -851,8 +851,8 @@ HoaMatrixXformer : HoaMatrix {
 		// warping: towards +Z
 		// ... angles
 		alpha = if(this.kind == \dominate, {
-			k = angle.dbamp;   // dominance arg: angle = gain
-			(k - k.reciprocal) / (k + k.reciprocal)
+			k2 = angle.dbamp.squared;   // dominance arg: angle = gain
+			(k2 - 1) / (k2 + 1)
 		}, {
 			angle.sin
 		});

@@ -812,7 +812,7 @@ HoaMatrixXformer : HoaMatrix {
 
 	// Dominance, &c
 	initBLT { |angle|
-		var theta, phi;
+		var theta, phi, toPhi;
 		var alpha;
 		var k2;
 		var warpFunc, weightFunc;
@@ -839,6 +839,7 @@ HoaMatrixXformer : HoaMatrix {
 
 		// look direction
 		#theta, phi = this.directions[0];
+		toPhi = phi - 0.5pi;  // angle to bring the zenith to phi
 		this.initDirections;  // reset directions to infs
 
 		// max size t-design (TBD: review)
@@ -896,7 +897,7 @@ HoaMatrixXformer : HoaMatrix {
 			{  // default
 				HoaMatrixXformer.newRTT(
 					theta.neg,
-					tumble: phi.neg + (pi/2),
+					tumble: toPhi.neg,
 					order: this.order
 				).matrix
 			}

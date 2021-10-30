@@ -170,6 +170,192 @@ HoaUGen {
 
 
 //-----------------------------------------------------------------------
+// subclass for bilinear transform
+/*
+NOTE: most of expense is in the spherical de/recomposition
+NOTE: decomposition density limited for network building & CPU performance
+NOTE: utility, users should not invoke directly!
+TBD: all private methods?
+*/
+HoaBLT : HoaUGen {
+
+	// blt in look direction
+	*bltLook { |in, alpha = 0, theta = 0, phi = 0, weightFunc, radius, n|
+		var toPhi;
+
+		// angle to bring the zenith to phi
+		toPhi = phi - 0.5pi;
+
+		^HoaBLT.unlook(
+			HoaBLT.blt(
+				HoaBLT.look(
+					in,
+					theta,
+					toPhi,
+					radius,
+					n
+				),
+				alpha,
+				weightFunc,
+				n
+			),
+			theta,
+			toPhi,
+			radius,
+			n
+		)
+	}
+
+	// just the blt: to +Z
+	/*
+	decode & re-encode & reference radius
+	*/
+	*blt { |in, alpha = 0, weightFunc, n|
+		var hoaOrder, coeffs;
+		var warpFunc;
+		var sourceMus, targetMus;
+		var design;
+		var decodingMatrix;
+		var sourceDirections, targetDirections, weights;
+		var angular;
+
+		hoaOrder = n.asHoaOrder;  // instance order
+
+		// warping & weighting functions
+		/*
+		TBD: could be passed as argument?
+		Reason not to: the BLT _is_ this
+		*/
+		warpFunc = { |mu, alpha|
+			(mu + alpha) / (1 + (alpha * mu))
+		};
+
+		// 1) generate basic (real) coefficients at zenith and optimize near-zeros out
+		coeffs = hoaOrder.sph(0, 0.5pi);
+		coeffs = coeffs.thresh2(AtkHoa.thresh);
+
+		// 2) t-design, source directions & decoding matrix
+		design = TDesign.newHoa(optimize: \spreadE, order: n);  // energy optimised
+		sourceDirections = design.directions;
+		decodingMatrix = HoaMatrixDecoder.newDirections(  // projection
+			sourceDirections,
+			order: n
+		).matrix;
+
+		// warping: towards +Z
+
+		// 3) intermediate mus
+		sourceMus = sourceDirections.collect({ |azEl|
+			azEl.last.sin
+		});
+		targetMus = sourceMus.collect({ |mu|
+			warpFunc.value(mu, alpha)
+		});
+
+		// 4) target directions
+		targetDirections = targetMus.collect({ |mu, i|
+			[ sourceDirections[i].first, mu.asin ]
+		});
+
+		// ... weights
+		// 5) target weights
+		weights = sourceMus.collect({ |mu|
+			weightFunc.value(mu, alpha)
+		});
+
+		// 6) decode / spherical decomposition & weight
+		angular = this.mixMatrix(  // decode & weight
+			in,
+			MatrixArray.with(decodingMatrix.asArray)
+		) * weights;
+
+		// 7) warp & reencode
+		^Mix.new(  // sum weighted & re-encoded beams
+			angular.collect({ |beam, i|
+				HoaRotate.ar(  // re-encode - coeffs @ zenith, tumble, rotate to target
+					HoaTumble.ar(
+						coeffs * beam,
+						targetDirections[i][1]  - 0.5pi,
+						n
+					),
+					targetDirections[i][0],
+					n
+				)
+			})
+		)
+	}
+
+	// look @ incidence & radius: to zenith & reference radius
+	*look { |in, theta = 0, toPhi = (0.5pi.neg), radius, n|
+		^HoaTumble.ar(  // look @ theta, phi
+			HoaRotate.ar(
+				if(((radius == nil) || (radius == AtkHoa.refRadius)), {  // look @ radius
+					// basic: spherical wave @ radius = AtkHoa.refRadius
+					in
+				}, {
+					// NFE
+					if(radius == inf, {
+						// planewave - unstable!
+						HoaNFProx.ar(
+							in,
+							n
+						)
+					}, {
+						// spherical wave
+						HoaNFCtrl.ar(
+							in,
+							AtkHoa.refRadius,
+							radius,
+							n
+						)
+					})
+				}),
+				theta.neg,
+				n
+			),
+			toPhi.neg,
+			n
+		)
+	}
+
+	// unlook @ incidence & radius: from zenith & reference radius
+	*unlook { |in, theta = 0, toPhi = (0.5pi.neg), radius, n|
+		^HoaRotate.ar(  // unlook @ theta, phi
+			HoaTumble.ar(
+				if(((radius == nil) || (radius == AtkHoa.refRadius)), {  // unlook @ radius
+					// basic: spherical wave @ radius = AtkHoa.refRadius
+					in
+				}, {
+					// NFE
+					if(radius == inf, {
+						// planewave
+						HoaNFDist.ar(
+							in,
+							n
+						)
+					}, {
+						// spherical wave
+						HoaNFCtrl.ar(
+							in,
+							radius,
+							AtkHoa.refRadius,
+							n
+						)
+					})
+				}),
+				toPhi,
+				n
+			),
+			theta,
+			n
+		)
+	}
+
+}
+
+
+
+//-----------------------------------------------------------------------
 // matrix rendering
 
 // Generic matrix renderer
@@ -644,6 +830,304 @@ HoaNull : HoaUGen {
 
 		^null
 	}
+}
+
+// Dominance, &c
+/*
+NOTE: most of expense is in the spherical de/recomposition
+NOTE: decomposition density limited for network building & CPU performance
+*/
+// HoaDominate : HoaUGen {
+//
+// 	*ar { |in, gain = 0, theta = 0, phi = 0, radius = (AtkHoa.refRadius), order = (AtkHoa.defaultOrder)|
+// 		var toPhi, n, hoaOrder, coeffs;
+// 		var alpha;
+// 		var k2;
+// 		var warpFunc, weightFunc;
+// 		var sourceMus, targetMus;
+// 		var design;
+// 		var decodingMatrix;
+// 		var sourceDirections, targetDirections, weights;
+// 		var look, angular, spherical;
+//
+// 		n = HoaUGen.confirmOrder(in, order);
+//
+// 		// angle to bring the zenith to phi
+// 		toPhi = phi - 0.5pi;
+//
+// 		hoaOrder = n.asHoaOrder;  // instance order
+//
+// 		// warping & weighting functions
+// 		// TBD: could be supplied by a utility?
+// 		warpFunc = { |mu, alpha|
+// 			(mu + alpha) / (1 + (alpha * mu))
+// 		};
+// 		weightFunc = { |mu, alpha|  // pre-emphasis: dominance
+// 			var onePlusAlphaMu = 1 + (alpha * mu);
+// 			onePlusAlphaMu / (1 - alpha.squared).sqrt
+// 		};
+//
+// 		// 1) generate basic (real) coefficients at zenith and optimize near-zeros out
+// 		coeffs = hoaOrder.sph(0, 0.5pi);
+// 		coeffs = coeffs.thresh2(AtkHoa.thresh);
+//
+// 		// 2) t-design, source directions & decoding matrix
+// 		design = TDesign.newHoa(optimize: \spreadE, order: n);  // energy optimised
+// 		sourceDirections = design.directions;
+// 		decodingMatrix = HoaMatrixDecoder.newDirections(  // projection
+// 			sourceDirections,
+// 			order: n
+// 		).matrix;
+//
+// 		// warping: towards +Z
+//
+// 		// ... angles
+// 		// 3) find alpha
+// 		k2 = gain.dbamp.squared;
+// 		alpha = (k2 - 1) / (k2 + 1);
+//
+// 		// 4) intermediate mus
+// 		sourceMus = sourceDirections.collect({ |azEl|
+// 			azEl.last.sin
+// 		});
+// 		targetMus = sourceMus.collect({ |mu|
+// 			warpFunc.value(mu, alpha)
+// 		});
+//
+// 		// 5) target directions
+// 		targetDirections = targetMus.collect({ |mu, i|
+// 			[ sourceDirections[i].first, mu.asin ]
+// 		});
+//
+// 		// ... weights
+// 		// 6) target weights
+// 		weights = sourceMus.collect({ |mu|
+// 			weightFunc.value(mu, alpha)
+// 		});
+//
+// 		// 6) look @ incidence & radius
+// 		look = HoaTumble.ar(  // look @ theta, phi
+// 			HoaRotate.ar(
+// 				if(((radius == nil) || (radius == AtkHoa.refRadius)), {  // look @ radius
+// 					// basic: spherical wave @ radius = AtkHoa.refRadius
+// 					in
+// 					}, {
+// 						// NFE
+// 						if(radius == inf, {
+// 							// planewave - unstable!
+// 							HoaNFProx.ar(
+// 								in,
+// 								n
+// 							)
+// 							}, {
+// 								// spherical wave
+// 								HoaNFCtrl.ar(
+// 									in,
+// 									AtkHoa.refRadius,
+// 									radius,
+// 									n
+// 								)
+// 						})
+// 				}),
+// 				theta.neg,
+// 				n
+// 			),
+// 			toPhi.neg,
+// 			n
+// 		);
+//
+// 		// 7) decode / spherical decomposition & weight
+// 		angular = this.mixMatrix(  // decode & weight
+// 			look,
+// 			MatrixArray.with(decodingMatrix.asArray)
+// 		) * weights;
+//
+// 		// 8) warp & reencode
+// 		spherical = Mix.new(  // sum weighted & re-encoded beams
+// 			angular.collect({ |beam, i|
+// 				HoaRotate.ar(  // re-encode - coeffs @ zenith, tumble, rotate to target
+// 					HoaTumble.ar(
+// 						coeffs * beam,
+// 						targetDirections[i][1]  - 0.5pi,
+// 						n
+// 					),
+// 					targetDirections[i][0],
+// 					n
+// 				)
+// 			})
+// 		);
+//
+// 		// 9) unlook @ incidence & radius
+// 		^HoaRotate.ar(  // unlook @ theta, phi
+// 			HoaTumble.ar(
+// 				if(((radius == nil) || (radius == AtkHoa.refRadius)), {  // unlook @ radius
+// 					// basic: spherical wave @ radius = AtkHoa.refRadius
+// 					spherical
+// 					}, {
+// 						// NFE
+// 						if(radius == inf, {
+// 							// planewave
+// 							HoaNFDist.ar(
+// 								spherical,
+// 								n
+// 							)
+// 							}, {
+// 								// spherical wave
+// 								HoaNFCtrl.ar(
+// 									spherical,
+// 									radius,
+// 									AtkHoa.refRadius,
+// 									n
+// 								)
+// 						})
+// 				}),
+// 				toPhi,
+// 				n
+// 			),
+// 			theta,
+// 			n
+// 		)
+// 	}
+//
+// }
+HoaDominate : HoaBLT {
+
+	*ar { |in, gain = 0, theta = 0, phi = 0, radius = (AtkHoa.refRadius), order = (AtkHoa.defaultOrder)|
+		var n;
+		var alpha;
+		var k2;
+		var weightFunc;
+
+		n = HoaUGen.confirmOrder(in, order);
+
+		// weighting
+		weightFunc = { |mu, alpha|  // pre-emphasis: dominance
+			(1 + (alpha * mu)) / (1 - alpha.squared).sqrt
+		};
+
+		// find alpha
+		k2 = gain.dbamp.squared;
+		alpha = (k2 - 1) / (k2 + 1);
+
+		// warp
+		^HoaBLT.bltLook(in, alpha, theta, phi, weightFunc, radius, n)
+	}
+
+}
+
+HoaZoom : HoaBLT {
+
+	*ar { |in, angle = 0, theta = 0, phi = 0, radius = (AtkHoa.refRadius), order = (AtkHoa.defaultOrder)|
+		var n;
+		var alpha;
+		var weightFunc;
+
+		n = HoaUGen.confirmOrder(in, order);
+
+		// weighting
+		weightFunc = { |mu, alpha|  // pre-emphasis: zoom
+			1 + (alpha * mu)
+		};
+
+		// find alpha
+		alpha = angle.sin;
+
+		// warp
+		^HoaBLT.bltLook(in, alpha, theta, phi, weightFunc, radius, n)
+	}
+
+}
+
+HoaFocus : HoaBLT {
+
+	*ar { |in, angle = 0, theta = 0, phi = 0, radius = (AtkHoa.refRadius), order = (AtkHoa.defaultOrder)|
+		var n;
+		var alpha;
+		var k2;
+		var weightFunc;
+
+		n = HoaUGen.confirmOrder(in, order);
+
+		// weighting
+		weightFunc = { |mu, alpha|  // pre-emphasis: focus (norm: +/- look)
+			(1 + (alpha * mu)) / (1 + alpha.abs)
+		};
+
+		// find alpha
+		alpha = angle.sin;
+
+		// warp
+		^HoaBLT.bltLook(in, alpha, theta, phi, weightFunc, radius, n)
+	}
+
+}
+
+HoaBalance : HoaBLT {
+
+	*ar { |in, angle = 0, radius = (AtkHoa.refRadius), order = (AtkHoa.defaultOrder)|
+		var n;
+		var alpha;
+		var weightFunc;
+		var theta = 0.5pi;
+		var phi = 0;
+
+		n = HoaUGen.confirmOrder(in, order);
+
+		// weighting
+		weightFunc = { |mu, alpha|  // pre-emphasis: zoom
+			1 + (alpha * mu)
+		};
+
+		// find alpha
+		alpha = angle.sin;
+
+		// warp
+		^HoaBLT.bltLook(in, alpha, theta, phi, weightFunc, radius, n)
+	}
+
+}
+
+HoaAsymmetry : HoaBLT {
+
+	*ar { |in, angle = 0, radius = (AtkHoa.refRadius), order = (AtkHoa.defaultOrder)|
+		var n;
+		var alpha;
+		var weightFunc;
+		var theta = 0.5pi.neg;
+		var toPhi = 0.5pi.neg;
+		var thetaUnlook = theta + angle;
+
+		n = HoaUGen.confirmOrder(in, order);
+
+		// weighting
+		weightFunc = { |mu, alpha|  // pre-emphasis: zoom
+			1 + (alpha * mu)
+		};
+
+		// find alpha
+		alpha = angle.sin;
+
+		// warp - via superclass methods
+		^HoaBLT.unlook(
+			HoaBLT.blt(
+				HoaBLT.look(
+					in,
+					theta,
+					toPhi,
+					radius,
+					n
+				),
+				alpha,
+				weightFunc,
+				n
+			),
+			thetaUnlook,  // unlook @ re-center
+			toPhi,
+			radius,
+			n
+		)
+	}
+
 }
 
 

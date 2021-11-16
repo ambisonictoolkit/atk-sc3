@@ -212,6 +212,7 @@ Version 5.0.4-pre
 *  New features:
     * FOA speed of sound now user settable
         * affects: FoaProximity, FoaNFC, FoaNF
+    * HOA Bilinear Transform, aka Dominance, soundfield warping
 
 * Issue fixes:
     * fix: broken links ABCs-of-the-ATK

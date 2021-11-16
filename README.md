@@ -207,7 +207,7 @@ If need be, the developers can be contacted directly via
 List of Changes
 ---------------
 
-Version 5.0.4-pre
+Version 5.0.4
 
 *  New features:
     * FOA speed of sound now user settable
@@ -434,10 +434,7 @@ are copyright the Ambisonic Toolkit Community and Joseph Anderson,
 Contributors
 ------------
 
-Version 5.0.4-pre
-*  Joseph Anderson (@joslloand)
-
-Version 5.0.3
+Version 5.0.3 - 5.0.4
 *  Joseph Anderson (@joslloand)
 
 Version 5.0.2

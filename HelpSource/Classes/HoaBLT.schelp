@@ -1,0 +1,108 @@
+TITLE:: HoaBLT
+summary:: Higher Order Ambisonic (HOA) Bilinear Transform UGen Superclass
+categories:: Libraries>Ambisonic Toolkit>UGens>Internals>HOA, UGens>Multichannel>Ambisonics
+
+
+DESCRIPTION::
+Utilities supporting Higher Order Ambisonic (HOA) Bilinear Transform UGens.
+
+NOTE::This class is designated for planned deprecation upon further optimization of related subclasses. In most cases users will not directly use this filter.::
+
+CLASSMETHODS::
+
+METHOD:: bltLook
+Bilinear transform along an arbitrary axis & radius.
+
+ARGUMENT:: in
+The input signal.
+
+ARGUMENT:: alpha
+Distortion coefficient.
+
+argument:: theta
+Azimuth, in radians.
+
+argument:: phi
+Elevation, in radians.
+
+ARGUMENT:: weightFunc
+Angular weighting function. (Supplied by subclasses.)
+
+ARGUMENT:: radius
+Radius, in meters.
+
+ARGUMENT:: n
+Validated Ambisonic order.
+
+returns:: The input signal, bilinear transform at theta, phi & radius.
+
+METHOD:: blt
+Bilinear transform at zenith & reference radius.
+
+ARGUMENT:: in
+The input signal.
+
+ARGUMENT:: alpha
+Distortion coefficient.
+
+ARGUMENT:: weightFunc
+Angular weighting function. (Supplied by subclasses.)
+
+ARGUMENT:: n
+Validated Ambisonic order.
+
+returns:: The input signal, bilinear transform at zenith & reference radius.
+
+METHOD:: look
+Look at incidence & radius.
+
+ARGUMENT:: in
+The input signal.
+
+argument:: theta
+Azimuth, in radians.
+
+ARGUMENT:: toPhi
+To elevation, in radians.
+
+ARGUMENT:: radius
+Radius, in meters.
+
+ARGUMENT:: n
+Validated Ambisonic order.
+
+returns:: The input signal, where look incidence & radius is translated to zenith & reference radius.
+
+METHOD:: unlook
+Unlook at incidence & radius.
+
+ARGUMENT:: in
+The input signal.
+
+argument:: theta
+Azimuth, in radians.
+
+ARGUMENT:: toPhi
+To elevation, in radians.
+
+ARGUMENT:: radius
+Radius, in meters.
+
+ARGUMENT:: n
+Validated Ambisonic order.
+
+returns:: The input signal, where zenith & reference radius is translated to look incidence & radius.
+
+SECTION:: Attribution
+
+The angular domain projection technique illustrated by Zotter, et al, FOOTNOTE::
+H. Pomberger & F. Zotter (2011). "Warping of 3D Ambisonic Recordings", in 3rd International Symposium on Ambisonics and Spherical Acoustics, Lexington, KY, USA.
+::
+FOOTNOTE::
+M. Kronlachner & F. Zotter (2014) "Spatial transformations for the enhancement of Ambisonic recordings, in 2nd International Conference on Spatial Audio,
+Erlangen, Germany.
+::
+is the algorithm implemented here,
+and is an extension of the analytic First Order Ambisonic (FOA) dominance effect first discussed by Gerzon & Barton. FOOTNOTE::
+M. A. Gerzon & G. J. Barton (1992). "Ambisonic Decoders for HDTV," in Audio Engineering Society Convention 92, Vienna, Austria.
+::

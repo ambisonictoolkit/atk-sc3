@@ -1,0 +1,43 @@
+CLASS:: HoaDominate
+summary:: Higher Order Ambisonic (HOA) dominance transformer
+categories:: Libraries>Ambisonic Toolkit>UGens>HOA>Transformer, UGens>Multichannel>Ambisonics
+related:: Classes/HoaXformMatrix
+
+DESCRIPTION::
+Apply dominance to a Higher Order Ambisonic signal (HOA) along an arbitrary axis & radius.
+
+
+CLASSMETHODS::
+
+METHOD:: ar
+
+argument:: in
+The input signal.
+
+argument:: gain
+Dominance gain, in dB.
+
+argument:: theta
+Azimuth, in radians.
+
+argument:: phi
+Elevation, in radians.
+
+ARGUMENT:: radius
+Radius, in meters.
+
+ARGUMENT:: order
+Ambisonic order.
+
+discussion:: Applies dominance along the axis defined by strong::theta:: and strong::phi:: at strong::radius::.
+
+Positive values of strong::gain:: increase the gain at code:: [theta, phi] :: to strong::+gain:: dB, while decreasing the gain at code:: [theta.neg, phi.neg] :: to strong::-gain::. This simultaneously results in a distortion of the image towards code:: [theta, phi] ::. Negative values of gain invert this distortion, distorting towards code:: [theta.neg, phi.neg] :: . The default, 0, results in no change.
+
+Imaging is illustrated link::Classes/FoaDominateX#figure#here::.
+
+note:: Corresponding matrix transformer: link::Classes/HoaMatrixXformer#*newDominate:: ::
+
+
+EXAMPLES::
+
+TBD

@@ -1,0 +1,39 @@
+CLASS:: HoaBalance
+summary:: Higher Order Ambisonic (HOA) balance transformer
+categories:: Libraries>Ambisonic Toolkit>UGens>HOA>Transformer, UGens>Multichannel>Ambisonics
+related:: Classes/HoaXformMatrix
+
+DESCRIPTION::
+Apply balance to a Higher Order Ambisonic signal (HOA).
+
+
+CLASSMETHODS::
+
+METHOD:: ar
+
+argument:: in
+The input signal.
+
+ARGUMENT:: angle
+Distortion angle, in radians. -pi/2 to pi/2
+
+ARGUMENT:: radius
+Radius, in meters.
+
+ARGUMENT:: order
+Ambisonic order.
+
+
+discussion:: A synonym for apply zoom along the y-axis.
+
+Balance is a normailised dominance variant, specified in terms of a distortion angle. Positive values of strong::angle:: increase gain at code:: [pi/2, 0] ::, while reducing at code:: [-pi/2, 0] ::. Negative values do the inverse. The default, 0, results in no change.
+
+Imaging is illustrated link::Classes/FoaBalance#figure#here::.
+
+
+note:: Corresponding matrix transformer: link::Classes/HoaMatrixXformer#*newBalance:: ::
+
+
+EXAMPLES::
+
+TBD

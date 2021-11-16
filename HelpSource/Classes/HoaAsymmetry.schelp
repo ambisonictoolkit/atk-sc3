@@ -1,0 +1,37 @@
+CLASS:: HoaAsymmetry
+summary:: Higher Order Ambisonic (HOA) asymmetry transformer
+categories:: Libraries>Ambisonic Toolkit>UGens>HOA>Transformer, UGens>Multichannel>Ambisonics
+related:: Classes/HoaXformMatrix
+
+DESCRIPTION::
+Apply asymmetry to a Higher Order Ambisonic signal (HOA).
+
+
+CLASSMETHODS::
+
+METHOD:: ar
+
+argument:: in
+The input signal.
+
+ARGUMENT:: angle
+Distortion angle, in radians. -pi/2 to pi/2
+
+ARGUMENT:: radius
+Radius, in meters.
+
+ARGUMENT:: order
+Ambisonic order.
+
+
+discussion:: Positive values of strong::angle:: rotate code:: [-pi/2, 0] :: towards code:: [0, 0] ::, and at pi/2 collapse the soundfield to a travelling wave. Negative values rotate code:: [pi/2, 0] :: towards code:: [0, 0] ::. The default, 0, results in no change.
+
+Imaging is illustrated link::Classes/FoaAsymmetry#figure#here::.
+
+
+note:: Corresponding matrix transformer: link::Classes/HoaMatrixXformer#*newAsymmetry:: ::
+
+
+EXAMPLES::
+
+TBD

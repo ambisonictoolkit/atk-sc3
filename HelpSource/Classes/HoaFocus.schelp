@@ -1,0 +1,47 @@
+CLASS:: HoaFocus
+summary:: Higher Order Ambisonic (HOA) focus transformer
+categories:: Libraries>Ambisonic Toolkit>UGens>HOA>Transformer, UGens>Multichannel>Ambisonics
+related:: Classes/HoaXformMatrix
+
+DESCRIPTION::
+Apply focus to a Higher Order Ambisonic signal (HOA) along an arbitrary axis & radius.
+
+
+CLASSMETHODS::
+
+METHOD:: ar
+
+argument:: in
+The input signal.
+
+ARGUMENT:: angle
+Distortion angle, in radians. -pi/2 to pi/2
+
+argument:: theta
+Azimuth, in radians.
+
+argument:: phi
+Elevation, in radians.
+
+ARGUMENT:: radius
+Radius, in meters.
+
+ARGUMENT:: order
+Ambisonic order.
+
+
+discussion:: Applies focus along the axis defined by strong::theta:: and strong::phi:: at strong::radius::.
+
+Focus is a normalised dominance variant, specified in terms of a distortion angle. Positive values of strong::angle:: maintain gain at code:: [theta, phi] ::, while reducing at code:: [theta.neg, phi.neg] ::. Negative values do the inverse. The default, 0, results in no change.
+
+In contrast with link::Classes/HoaZoom::, gain is maintained at 0dB in the direction of distortion.
+
+Imaging is illustrated link::Classes/FoaFocusX#figure#here::.
+
+
+note:: Corresponding matrix transformer: link::Classes/HoaMatrixXformer#*newFocus:: ::
+
+
+EXAMPLES::
+
+TBD

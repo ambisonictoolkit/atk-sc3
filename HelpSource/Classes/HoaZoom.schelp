@@ -1,0 +1,44 @@
+CLASS:: HoaZoom
+summary:: Higher Order Ambisonic (HOA) zoom transformer
+categories:: Libraries>Ambisonic Toolkit>UGens>HOA>Transformer, UGens>Multichannel>Ambisonics
+related:: Classes/HoaXformMatrix
+
+DESCRIPTION::
+Apply zoom to a Higher Order Ambisonic signal (HOA) along an arbitrary axis & radius.
+
+
+CLASSMETHODS::
+
+METHOD:: ar
+
+argument:: in
+The input signal.
+
+ARGUMENT:: angle
+Distortion angle, in radians. -pi/2 to pi/2
+
+argument:: theta
+Azimuth, in radians.
+
+argument:: phi
+Elevation, in radians.
+
+ARGUMENT:: radius
+Radius, in meters.
+
+ARGUMENT:: order
+Ambisonic order.
+
+
+discussion:: Applies zoom along the axis defined by strong::theta:: and strong::phi:: at strong::radius::.
+
+Zoom is a normailised dominance variant, specified in terms of a distortion angle. Positive values of strong::angle:: increase gain at code:: [theta, phi] ::, while reducing at code:: [theta.neg, phi.neg] ::. Negative values do the inverse. The default, 0, results in no change.
+
+Imaging is illustrated link::Classes/FoaZoomY#figure#here::.
+
+note:: Corresponding matrix transformer: link::Classes/HoaMatrixXformer#*newZoom:: ::
+
+
+EXAMPLES::
+
+TBD

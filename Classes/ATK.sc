@@ -438,8 +438,14 @@ Atk {
 		});
 
 		if(subPath.isFolder.not, {
-			format("\nNo folder found in\n\t%\nor\n\t%\n", *tested).warn;
-			Error("Atk: matrices don't appear to be installed\nRun 'Atk.downloadMatrices' to attempt automatic installation").throw;
+			if(isExtension, {
+				format("\nNo extensions folder found at\n\t%\n"
+					"You can create it with 'Atk.createExtensionsDir'.",
+					tested.join("\nor\n\t")).warn;
+				subPath = nil;
+			}, {
+				Error("Atk: matrices don't appear to be installed. Run 'Atk.downloadMatrices' to attempt automatic installation").throw;
+			});
 		});
 
 		^subPath

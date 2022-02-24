@@ -207,6 +207,11 @@ If need be, the developers can be contacted directly via
 List of Changes
 ---------------
 
+Version 5.0.5
+
+* Issue fixes:
+    * fix: refactor mosl.txt to use JSFX comment char #
+
 Version 5.0.4
 
 *  New features:
@@ -415,7 +420,7 @@ Credits
 &nbsp;
 
 Copyright the ATK Community, Joseph Anderson, Joshua Parmenter, and
-Michael McCrea 2011, 2016-20.
+Michael McCrea 2011, 2016-22.
 
 * J Anderson : [[e-mail]](mailto:j.anderson[at]ambisonictoolkit.net)
 * M McCrea : [[e-mail]](mailto:mtm5[at]uw.edu)
@@ -434,7 +439,7 @@ are copyright the Ambisonic Toolkit Community and Joseph Anderson,
 Contributors
 ------------
 
-Version 5.0.3 - 5.0.4
+Version 5.0.3 - 5.0.5
 *  Joseph Anderson (@joslloand)
 
 Version 5.0.2

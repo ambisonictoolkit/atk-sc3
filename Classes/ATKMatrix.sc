@@ -181,7 +181,12 @@ AtkMatrix {
 		wr = FileWriter(pn.fullPath);
 
 		// write num rows and cols to first 2 lines
-		wr.writeLine(["// Dimensions: rows, columns"]);
+		/*
+		JSFX:
+		# This is a comment
+		; This is a comment
+		*/
+		wr.writeLine(["# Dimensions: rows, columns"]);
 		wr.writeLine(this.matrix.rows.asArray);
 		wr.writeLine(this.matrix.cols.asArray);
 		// write the matrix into it by row, and close
@@ -189,7 +194,7 @@ AtkMatrix {
 			var row;
 
 			wr.writeLine([""]); // blank line
-			wr.writeLine([format("// Row %", i)]);
+			wr.writeLine([format("# Row %", i)]);
 
 			row = this.matrix.getRow(i);
 			row.do({ |j| wr.writeLine(j.asArray) })

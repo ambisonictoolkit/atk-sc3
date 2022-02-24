@@ -17,7 +17,7 @@ link::Classes/FoaEncoderMatrix::, link::Classes/FoaDecoderMatrix::, link::Classe
 
 INSTANCEMETHODS::
 
-PRIVATE:: set, type, kind, prWriteMatrixToMOSL, prWriteMatrixToYML, prWriteMatrixToTXT, prParseMOSL, initFromMatrix, initFromFile, loadFromLib, prWriteToFile
+PRIVATE:: set, type, kind, prWriteMatrixToMOSL, prWriteMatrixToTXT, prWriteToFile
 
 SUBSECTION:: Information
 

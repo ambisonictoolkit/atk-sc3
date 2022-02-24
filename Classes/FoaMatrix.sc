@@ -418,8 +418,10 @@ FoaMatrix : AtkMatrix {
 			var val = line[0];
 
 			switch(val,
-				"//",	{ }, // ignore comments
-				"",		{ },	// ignore blank line
+				"//",	{ }, // ignore comments: maintain backwards compatability
+				"#",	{ }, // ignore comments
+				";",	{ }, // ignore comments
+				"",		{ }, // ignore blank line
 				{	// found valid line
 					case(
 						{ numRows.isNil }, { numRows = val.asInteger },
@@ -533,7 +535,7 @@ FoaMatrix : AtkMatrix {
 FoaDecoderMatrix : FoaMatrix {
 	var <>shelfFreq, <shelfK;
 
-		*newDiametric { |directions = ([pi / 4, 3 * pi / 4]), k = \single|
+	*newDiametric { |directions = ([pi / 4, 3 * pi / 4]), k = \single|
 		^super.new(\diametric).initDiametric(directions, k);
 	}
 

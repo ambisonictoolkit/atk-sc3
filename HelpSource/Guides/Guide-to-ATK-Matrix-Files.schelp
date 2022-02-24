@@ -424,6 +424,7 @@ code::
 ~encoder.fileParse.keysValuesDo{|k,v| postf("% : %\n", k, v)};
 ::
 
+NOTE::The code::.yml:: format is the only emphasis::reading:: format supported by link::Classes/HoaMatrix:: and its subclasses.::
 
 SUBSECTION:: Test case: Creating a decoder from an FoaEncoderMatrix
 

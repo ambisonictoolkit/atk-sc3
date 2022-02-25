@@ -207,6 +207,12 @@ If need be, the developers can be contacted directly via
 List of Changes
 ---------------
 
+Version 5.0.6
+
+* Issue fixes:
+    * fix: Atk.downloadMatrices with wrong url issue (Issue #116)
+    * fix: AtkMatrix:*getAtkOpPath : Throw error only if requested path is not a user extension
+
 Version 5.0.5
 
 * Issue fixes:
@@ -438,6 +444,10 @@ are copyright the Ambisonic Toolkit Community and Joseph Anderson,
 
 Contributors
 ------------
+
+Version 5.0.6
+*  Michael McCrea (@mtmccrea)
+*  Marcin Pączkowski (@dyfer)
 
 Version 5.0.3 - 5.0.5
 *  Joseph Anderson (@joslloand)

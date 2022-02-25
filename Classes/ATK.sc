@@ -163,7 +163,7 @@ Atk {
 					"Please note, there is no download progress indication on Windows; you will be notified once the download finishes.".postln;
 				}, { //assuming linux/macOS
 					if("which curl".unixCmdGetStdOut.replace($\n).size.asBoolean, {
-						cmd = format("curl -L % --output % -# 2>&1", url, (path.asString).shellQuote);
+						cmd = format("curl -L % --output % -# --fail 2>&1", url, (path.asString).shellQuote);
 					}, {
 						if("which wget".unixCmdGetStdOut.replace($\n).size.asBoolean, {
 							cmd = format("wget % --output-document % 2>&1", url, (path.asString).shellQuote);

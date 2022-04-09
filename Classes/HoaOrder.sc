@@ -118,7 +118,7 @@ HoaOrder {
 	}
 
 	// ------------
-	// Return encoding coefficients
+	// Return angular encoding coefficients
 
 	// N3D normalized coefficients
 	sph { |theta = 0, phi = 0|
@@ -184,6 +184,168 @@ HoaOrder {
 			},
 			{  // \reg
 				2.0 / (1.0 + wavNum.proxWeights(radius, this.order).abs.squared)
+			}
+		)
+	}
+
+	// ------------
+	// Return prototype complex wave N3D normalized encoding coefficients
+	/*
+	TODO:
+
+	As _Array of Complex_ or _Complex of Arrays_ ?
+
+	The latter is more convenient for analysis.
+	*/
+
+	// Monofrequent travelling
+	/*
+	NOTE: normalized to Wp
+	*/
+	travelling { |freq, phase = 0, theta = 0, phi = 0, radius = (AtkHoa.refRadius), refRadius = (AtkHoa.refRadius), speedOfSound = (AtkHoa.speedOfSound)|
+		var angularWeights = this.sph(theta, phi);
+		var radialWeights;
+		var complex;
+
+		radialWeights = (refRadius == inf).if({
+			(freq == 0.0).if({  // force DC to planewave to avoid overflow (-inf)
+				Complex.new(1.0, 0.0).dup(this.order + 1)
+			}, {
+				this.proxWeights(freq, radius, speedOfSound)
+			})
+		}, {
+			this.ctrlWeights(freq, radius, refRadius, speedOfSound)
+		})[this.l];
+		radialWeights = Complex.new(radialWeights.real, radialWeights.imag);  // reshape
+
+		// multiply... seems to be quicker in sclang
+		complex = Complex.new(
+			angularWeights * radialWeights.real,
+			angularWeights * radialWeights.imag
+		) * Complex.new(phase.cos, phase.sin);
+
+		^complex
+	}
+
+	// Monofrequent standing: diametric planewaves
+	/*
+	NOTE: normalized to PU energy mean, Ws
+	NOTE: CCE algo scaled by 0.5 to normalize peak Wp, Wu
+	*/
+	diametric { |freq, phase = 0, theta = 0, phi = 0, beta = 0, refRadius = (AtkHoa.refRadius), speedOfSound = (AtkHoa.speedOfSound)|
+		var reflecWeights = this.reflection;
+		var halfPhaseDiff = 0.5 * (0.5pi - beta);
+		var betaPhaseWeight = Complex.new(halfPhaseDiff.cos, halfPhaseDiff.neg.sin);
+		var betaPhaseWeightConj = betaPhaseWeight.conjugate;
+		var radius = inf;
+		var travelling = this.travelling(freq, phase, theta, phi, radius, refRadius, speedOfSound);
+		var normFac = 0.5.sqrt;  // normalize Ws
+		// var normFac = 0.5;  // normalize max(Wp) || max(Wu)
+
+		// normFac * travelling * (betaPhaseWeight + (reflecWeights * betaPhaseWeight.conjugate))
+		^(
+			travelling * (
+				Complex.new(  // seems to be quicker in sclang
+					normFac * (betaPhaseWeight.real + (reflecWeights * betaPhaseWeightConj.real)),
+					normFac * (betaPhaseWeight.imag + (reflecWeights * betaPhaseWeightConj.imag))
+				)
+			)
+		)
+	}
+
+	// Monofrequent diffuse(-ish)
+	/*
+	NOTE: normalized Wp, Ws, Ws
+	*/
+	modalDiffuse { |freq, phase = 0, refRadius = (AtkHoa.refRadius), speedOfSound = (AtkHoa.speedOfSound)|
+		var radialWeights;
+		var modalPhase;
+		var complex;
+
+		radialWeights = (refRadius == inf).if({  // planewaves
+			Complex.new(1.0, 0.0).dup(this.order + 1)  // could use -proxWeights, but this is quicker
+		}, {
+			this.distWeights(freq, refRadius, speedOfSound)  // equivalent to: -ctrlWeights(freq, inf, refRadius)
+		})[this.l];
+		radialWeights = Complex.new(radialWeights.real, radialWeights.imag);  // reshape
+
+		modalPhase = this.size.collect({ pi.rand2 });
+		modalPhase = modalPhase - modalPhase[0] + phase;
+
+		// multiply...
+		complex = radialWeights * Complex.new(modalPhase.cos, modalPhase.sin);
+
+		^complex
+	}
+
+	/*
+	NOTE: normalized Ws
+	*/
+	angularDiffuse { |freq, phase = 0, design = nil, refRadius = (AtkHoa.refRadius), speedOfSound = (AtkHoa.speedOfSound)|
+		var zeros = Array.zeroFill(this.size);
+		var radialWeights, angularWeights;
+		var angularPhase;
+		var complex;
+		// Ws analysis vars
+		var wsSqrtReciprocal;
+		var degree0 = HoaDegree.new(0).indices;
+		var degree1 = HoaDegree.new(1).indices;
+
+		^switch(design.class,
+			TDesign, {    // TDesign only, for now
+
+				radialWeights = (refRadius == inf).if({  // planewaves
+					Complex.new(1.0, 0.0).dup(this.order + 1)  // could use -proxWeights, but this is quicker
+				}, {
+					this.distWeights(freq, refRadius, speedOfSound)  // equivalent to: -ctrlWeights(freq, inf, refRadius)
+				})[this.l];
+				radialWeights = Complex.new(radialWeights.real, radialWeights.imag);  // reshape
+
+				angularWeights = HoaMatrixEncoder.newSphericalDesign(design, \basic, this.order).matrix;
+				angularPhase = design.size.collect({ pi.rand2 });
+
+				// encode angular
+				complex = Complex.new(zeros, zeros);
+				design.size.do({ |i|
+					var angularCoeffs = angularWeights.getCol(i);
+					complex = complex + Complex.new(
+							angularCoeffs * angularPhase.cos[i],
+							angularCoeffs * angularPhase.sin[i],
+						)
+				});
+				// normalize phase
+				complex = complex.rotate(
+					Complex.new(complex.real[0], complex.imag[0]).phase.neg + phase
+				);
+				/*
+				TODO: Ws analysis via PUC
+				*/
+				// normalize Ws
+				wsSqrtReciprocal = [
+					Complex.new(
+						complex.real[degree0],
+						complex.imag[degree0]
+					).squared.magnitude.mean,
+					Complex.new(
+						complex.real[degree1],
+						complex.imag[degree1]
+					).squared.magnitude.mean
+				].mean.sqrt.reciprocal;
+				complex = Complex.new(
+					wsSqrtReciprocal * complex.real,
+					wsSqrtReciprocal * complex.imag
+				);
+
+				// encode radial, weight as planewaves
+				complex = radialWeights * complex;
+
+				complex
+			},
+			{  // ... or, catch un-supported
+				format(
+					"[HoaOrder *angularDiffuse] Design % is not supported!",
+					design.class
+				).throw
 			}
 		)
 	}

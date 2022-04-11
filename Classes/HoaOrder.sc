@@ -227,6 +227,29 @@ HoaOrder {
 		^complex
 	}
 
+	// Monofrequent standing: isotropic planewaves, pressure only!
+	/*
+	convenience method for synthesis
+
+	NOTE: normalized to Wp
+
+	TODO: consider different name (standing), re analysis?
+	*/
+	pressure { |phase = 0|
+		var lm = [ 0, 0 ];
+		var angularWeight = HoaLm.new(lm).sph;  // express explicitly
+		var complex;
+
+		// multiply and reshape... seems to be quicker in sclang
+		complex = Complex.new(angularWeight, 0.0) * Complex.new(phase.cos, phase.sin);
+		complex = Complex.new(
+			[ complex.real ] ++ Array.zeroFill(this.size - 1),
+			[ complex.imag ] ++ Array.zeroFill(this.size - 1),
+		);
+
+		^complex
+	}
+
 	// Monofrequent standing: diametric planewaves
 	/*
 	NOTE: normalized to PU energy mean, Ws

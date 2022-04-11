@@ -89,6 +89,35 @@ PUT[slot] : Array  {
 		})
 	}
 
+	*newCosinePressure { |size, freq, phase = 0, sampleRate = nil|
+		^this.newSinePressure(size, freq, phase + 0.5pi, sampleRate)
+	}
+
+	*newSinePressure { |size, freq, phase = 0, sampleRate = nil|
+		var lm = [ 0, 0 ];
+		var hoaLm = HoaLm.new(lm);
+		var hoaOrder = order.asHoaOrder;
+		var complex = hoaOrder.pressure(phase);
+		var mag = complex.magnitude;
+		var pha = complex.phase;
+		var k = size * freq / sampleRate;
+		var sourceNorm = \n3d;
+		var targetNorm = \sn3d;
+		var normFac = hoaLm.normalisation(targetNorm) / hoaLm.normalisation(sourceNorm);
+		var normMag = normFac * mag.first;  // just keep / normalize pressure
+		var normPha = pha.first;  // just keep pressure
+
+		^super.newFrom([
+			Signal.newClear(size).sineFill2([ [  // pressure
+				k,
+				normMag,
+				normPha
+			] ]) ] ++ Array.fill(hoaOrder.size - 1, {
+				Signal.newClear(size)  // velocity
+			})
+		)
+	}
+
 	*newCosineDiametric { |size, freq, phase = 0, theta = 0, phi = 0, beta = 0, sampleRate = nil, speedOfSound = (AtkHoa.speedOfSound)|
 		^this.newSineDiametric(size, freq, phase + 0.5pi, theta, phi, beta, sampleRate, speedOfSound)
 	}

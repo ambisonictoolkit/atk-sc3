@@ -204,15 +204,11 @@ PUT[slot] : Array  {
 	/*
 	TODO:
 
-	*newImpulseTravel
-
+	broadband impulse response
 	- implement in fequency domain
 
 	NOTE: inf scaling @ DC will need to be clipped - probably like Signal.periodicPLNoise
 	*/
-
-	// Monofrequent Diametric Standing
-
 
 
 	//------------------------------------------------------------------------
@@ -331,5 +327,100 @@ PUT[slot] : Array  {
 		var l = 1;  // degree 1
 		^this.degree(l)
 	}
+
+
+	//------------------------------------------------------------------------
+	//------------------------------------------------------------------------
+	// Total (sum) measures
+
+	//------------------------------------------------------------------------
+	// ENERGY - sums
+
+	// potential energy
+	totalWp {
+		var p = this.pressure;
+		var normFac = 2;
+		^(normFac * p.squared.sum)
+	}
+
+	// kinetic energy
+	totalWu {
+		var u = this.velocity;
+		var normFac = 2;
+		^(normFac * u.squared.sum.sum)
+	}
+
+	// potential & kinetic energy mean
+	totalWs {
+		^[ this.totalWp, this.totalWu ].mean
+	}
+
+	// potential & kinetic energy difference
+	totalWd {
+		^[ this.totalWp, this.totalWu.neg ].mean
+	}
+
+	// Heyser energy density
+	/*
+	TODO: requires active intensity
+	*/
+	// totalWh {
+	// 	^this.instantWh.sum
+	// }
+
+
+	//------------------------------------------------------------------------
+	// INTENSITY - sums
+
+	// Intensity
+	/*
+	TODO: is this useful??
+	*/
+	totalIa {
+		var p = this.pressure;
+		var u = this.velocity;
+		var normFac = 2;
+		^u.collect({ |item|
+			normFac * (p * item).sum
+		})
+	}
+
+	// // Magnitude of Magnitude of Complex Intensity
+	// /*
+	// TODO: returned result not matching complex!
+	// */
+	// // totalMagMagI {
+	// // 	var wp = this.totalWp;
+	// // 	var wu = this.totalWu;
+	// // 	^(wp * wu).sqrt
+	// // }
+	// totalMagMagI {
+	// 	var p = this.pressure;
+	// 	var u = this.velocity;
+	// 	var normFac = 2;
+	// 	var wp = normFac * p.squared;
+	// 	var wu = normFac * u.squared.sum;
+	// 	^(wp * wu).sqrt.sum
+	// }
+	//
+	// // Magnitude of Active Intensity
+	// totalMagIa {
+	// 	var p = this.pressure;
+	// 	var u = this.velocity;
+	// 	var normFac = 2;
+	// 	var i = u.collect({ |item|
+	// 		normFac * (p * item)
+	// 	});
+	// 	^i.flop.squared.sum.sqrt.sum
+	// }
+	//
+	// // // Magnitude of Complex Intensity
+	// // totalMagI {
+	// // 	var i = this.instantMagI;
+	// // 	^Complex.new(
+	// // 		i.real.sum,
+	// // 		i.imag.sum
+	// // 	)
+	// // }
 
 }

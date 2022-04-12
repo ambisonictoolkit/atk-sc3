@@ -278,7 +278,7 @@ HoaOrder {
 
 	// Monofrequent diffuse(-ish)
 	/*
-	NOTE: normalized Wp, Ws, Ws
+	NOTE: normalized Wp, Wu, Ws
 	*/
 	modalDiffuse { |freq, phase = 0, refRadius = (AtkHoa.refRadius), speedOfSound = (AtkHoa.speedOfSound)|
 		var radialWeights;

@@ -342,7 +342,7 @@ PUA[slot] : Array  {
 		^(p * p.conjugate).real.as(Array)
 	}
 
-	// FOA kinetic energy
+	// kinetic energy
 	instantWu {
 		var u = this.velocity;
 		^u.collect({ |item|
@@ -350,12 +350,12 @@ PUA[slot] : Array  {
 		}).sum
 	}
 
-	// FOA potential & kinetic energy mean
+	// potential & kinetic energy mean
 	instantWs {
 		^[ this.instantWp, this.instantWu ].mean
 	}
 
-	// FOA potential & kinetic energy difference
+	// potential & kinetic energy difference
 	instantWd {
 		^[ this.instantWp, this.instantWu.neg ].mean
 	}
@@ -373,29 +373,29 @@ PUA[slot] : Array  {
 	// Total (sum) measures
 
 	//------------------------------------------------------------------------
-	// FOA ENERGY - sums
+	// ENERGY - sums
 
-	// FOA potential energy
+	// potential energy
 	totalWp {
 		^this.instantWp.sum
 	}
 
-	// FOA kinetic energy
+	// kinetic energy
 	totalWu {
 		^this.instantWu.sum
 	}
 
-	// FOA potential & kinetic energy mean
+	// potential & kinetic energy mean
 	totalWs {
 		^this.instantWs.sum
 	}
 
-	// FOA potential & kinetic energy difference
+	// potential & kinetic energy difference
 	totalWd {
 		^this.instantWd.sum
 	}
 
-	// // FOA Heyser energy density
+	// // Heyser energy density
 	// totalWh {
 	// 	^this.instantWh.sum
 	// }

@@ -280,7 +280,7 @@ HoaOrder {
 	/*
 	NOTE: normalized Wp, Wu, Ws
 	*/
-	modalDiffuse { |freq, phase = 0, refRadius = (AtkHoa.refRadius), speedOfSound = (AtkHoa.speedOfSound)|
+	diffuseModal { |freq, phase = 0, refRadius = (AtkHoa.refRadius), speedOfSound = (AtkHoa.speedOfSound)|
 		var radialWeights;
 		var modalPhase;
 		var complex;
@@ -304,7 +304,7 @@ HoaOrder {
 	/*
 	NOTE: normalized Ws
 	*/
-	angularDiffuse { |freq, phase = 0, design = nil, refRadius = (AtkHoa.refRadius), speedOfSound = (AtkHoa.speedOfSound)|
+	diffuseAngular { |freq, phase = 0, design = nil, refRadius = (AtkHoa.refRadius), speedOfSound = (AtkHoa.speedOfSound)|
 		var zeros = Array.zeroFill(this.size);
 		var radialWeights, angularWeights;
 		var angularPhase;
@@ -366,7 +366,7 @@ HoaOrder {
 			},
 			{  // ... or, catch un-supported
 				format(
-					"[HoaOrder *angularDiffuse] Design % is not supported!",
+					"[HoaOrder *diffuseAngular] Design % is not supported!",
 					design.class
 				).throw
 			}

@@ -146,14 +146,14 @@ PUT[slot] : Array  {
 		})
 	}
 
-	*newCosineModalDiffuse { |size, freq, phase = 0, sampleRate = nil, speedOfSound = (AtkHoa.speedOfSound)|
-		^this.newSineModalDiffuse(size, freq, phase + 0.5pi, sampleRate, speedOfSound)
+	*newCosineDiffuseModal { |size, freq, phase = 0, sampleRate = nil, speedOfSound = (AtkHoa.speedOfSound)|
+		^this.newSineDiffuseModal(size, freq, phase + 0.5pi, sampleRate, speedOfSound)
 	}
 
-	*newSineModalDiffuse { |size, freq, phase = 0, sampleRate = nil, speedOfSound = (AtkHoa.speedOfSound)|
+	*newSineDiffuseModal { |size, freq, phase = 0, sampleRate = nil, speedOfSound = (AtkHoa.speedOfSound)|
 		var hoaOrder = order.asHoaOrder;
 		var refRadius = inf;
-		var complex = hoaOrder.modalDiffuse(freq, phase, refRadius, speedOfSound);
+		var complex = hoaOrder.diffuseModal(freq, phase, refRadius, speedOfSound);
 		var mag = complex.magnitude;
 		var pha = complex.phase;
 		var k = size * freq / sampleRate;
@@ -174,14 +174,14 @@ PUT[slot] : Array  {
 		})
 	}
 
-	*newCosineAngularDiffuse { |size, freq, phase = 0, design = nil, sampleRate = nil, speedOfSound = (AtkHoa.speedOfSound)|
-		^this.newSineAngularDiffuse(size, freq, phase + 0.5pi, design, sampleRate, speedOfSound)
+	*newCosineDiffuseAngular { |size, freq, phase = 0, design = nil, sampleRate = nil, speedOfSound = (AtkHoa.speedOfSound)|
+		^this.newSineDiffuseAngular(size, freq, phase + 0.5pi, design, sampleRate, speedOfSound)
 	}
 
-	*newSineAngularDiffuse { |size, freq, phase = 0, design = nil, sampleRate = nil, speedOfSound = (AtkHoa.speedOfSound)|
+	*newSineDiffuseAngular { |size, freq, phase = 0, design = nil, sampleRate = nil, speedOfSound = (AtkHoa.speedOfSound)|
 		var hoaOrder = order.asHoaOrder;
 		var refRadius = inf;
-		var complex = hoaOrder.angularDiffuse(freq, phase, design, refRadius, speedOfSound);
+		var complex = hoaOrder.diffuseAngular(freq, phase, design, refRadius, speedOfSound);
 		var mag = complex.magnitude;
 		var pha = complex.phase;
 		var k = size * freq / sampleRate;

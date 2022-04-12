@@ -172,10 +172,10 @@ PUA[slot] : Array  {
 		^this.newCosineDiametric(size, freq, phase - 0.5pi, theta, phi, beta, sampleRate, speedOfSound)
 	}
 
-	*newCosineModalDiffuse { |size, freq, phase = 0, sampleRate = nil, speedOfSound = (AtkHoa.speedOfSound)|
+	*newCosineDiffuseModal { |size, freq, phase = 0, sampleRate = nil, speedOfSound = (AtkHoa.speedOfSound)|
 		var hoaOrder = order.asHoaOrder;
 		var refRadius = inf;
-		var complex = hoaOrder.modalDiffuse(freq, phase, refRadius, speedOfSound);
+		var complex = hoaOrder.diffuseModal(freq, phase, refRadius, speedOfSound);
 		var mag = complex.magnitude;
 		var pha = complex.phase;
 		var k = size * freq / sampleRate;
@@ -203,14 +203,14 @@ PUA[slot] : Array  {
 		})
 	}
 
-	*newSineModalDiffuse { |size, freq, phase = 0, sampleRate = nil, speedOfSound = (AtkHoa.speedOfSound)|
-		^this.newCosineModalDiffuse(size, freq, phase - 0.5pi, sampleRate, speedOfSound)
+	*newSineDiffuseModal { |size, freq, phase = 0, sampleRate = nil, speedOfSound = (AtkHoa.speedOfSound)|
+		^this.newCosineDiffuseModal(size, freq, phase - 0.5pi, sampleRate, speedOfSound)
 	}
 
-	*newCosineAngularDiffuse { |size, freq, phase = 0, design = nil, sampleRate = nil, speedOfSound = (AtkHoa.speedOfSound)|
+	*newCosineDiffuseAngular { |size, freq, phase = 0, design = nil, sampleRate = nil, speedOfSound = (AtkHoa.speedOfSound)|
 		var hoaOrder = order.asHoaOrder;
 		var refRadius = inf;
-		var complex = hoaOrder.angularDiffuse(freq, phase, design, refRadius, speedOfSound);
+		var complex = hoaOrder.diffuseAngular(freq, phase, design, refRadius, speedOfSound);
 		var mag = complex.magnitude;
 		var pha = complex.phase;
 		var k = size * freq / sampleRate;
@@ -238,8 +238,8 @@ PUA[slot] : Array  {
 		})
 	}
 
-	*newSineAngularDiffuse { |size, freq, phase = 0, design = nil, sampleRate = nil, speedOfSound = (AtkHoa.speedOfSound)|
-		^this.newCosineAngularDiffuse(size, freq, phase - 0.5pi, design, sampleRate, speedOfSound)
+	*newSineDiffuseAngular { |size, freq, phase = 0, design = nil, sampleRate = nil, speedOfSound = (AtkHoa.speedOfSound)|
+		^this.newCosineDiffuseAngular(size, freq, phase - 0.5pi, design, sampleRate, speedOfSound)
 	}
 // 	/*
 // 	TODO:

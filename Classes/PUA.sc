@@ -372,201 +372,6 @@ PUA[slot] : Array  {
 		^(ws - magI.imag)
 	}
 
-
-	//------------------------------------------------------------------------
-	//------------------------------------------------------------------------
-	// Total (sum) measures
-
-	//------------------------------------------------------------------------
-	// ENERGY - sums
-
-	// potential energy
-	totalWp {
-		^this.instantWp.sum
-	}
-
-	// kinetic energy
-	totalWu {
-		^this.instantWu.sum
-	}
-
-	// potential & kinetic energy mean
-	totalWs {
-		^this.instantWs.sum
-	}
-
-	// potential & kinetic energy difference
-	totalWd {
-		^this.instantWd.sum
-	}
-
-	// Heyser energy density
-	totalWh {
-		^this.instantWh.sum
-	}
-
-
-	//------------------------------------------------------------------------
-	// INTENSITY - sums
-
-	// Intensity
-	totalI {
-		var i = this.instantI;
-		^Complex.new(
-			i.real.flop.sum,
-			i.imag.flop.sum
-		)
-	}
-
-	// Admittance
-	totalA {
-		var a = this.instantA;
-		^Complex.new(
-			a.real.flop.sum,
-			a.imag.flop.sum
-		)
-	}
-
-	// Energy
-	totalW {
-		var w = this.instantW;
-		^Complex.new(
-			w.real.flop.sum,
-			w.imag.flop.sum
-		)
-	}
-
-	// Unit Normalized Intensity
-	totalN {
-		var n = this.instantN;
-		^Complex.new(
-			n.real.flop.sum,
-			n.imag.flop.sum
-		)
-	}
-
-
-	//------------------------------------------------------------------------
-	// MAGNITUDE - sums
-
-	// Magnitude of Magnitude of Complex Intensity
-	totalMagMagI {
-		^this.instantMagMagI.sum
-	}
-
-	// Magnitude of Complex Intensity
-	totalMagI {
-		var magI = this.instantMagI;
-		^Complex.new(
-			magI.real.sum,
-			magI.imag.sum
-		)
-	}
-
-	// Magnitude of Magnitude of Complex Admittance
-	totalMagMagA {
-		^this.instantMagMagA.sum
-	}
-
-	// Magnitude of Complex Admittance
-	totalMagA {
-		var magA = this.instantMagA;
-		^Complex.new(
-			magA.real.sum,
-			magA.imag.sum
-		)
-	}
-
-	// Magnitude of Magnitude of Complex Energy
-	totalMagMagW {
-		^this.instantMagMagW.sum
-	}
-
-	// Magnitude of Complex Energy
-	totalMagW {
-		var magW = this.instantMagW;
-		^Complex.new(
-			magW.real.sum,
-			magW.imag.sum
-		)
-	}
-
-	// Magnitude of Magnitude Unit Normalized Complex Intensity - Convenience
-	totalMagMagN {
-		^this.numFrames.asFloat
-	}
-
-	// Magnitude of Unit Normalized Complex Intensity
-	totalMagN {
-		var magN = this.instantMagN;
-		^Complex.new(
-			magN.real.sum,
-			magN.imag.sum
-		)
-	}
-
-
-	//------------------------------------------------------------------------
-	// INTENSITY - complex vectors
-
-	/*
-	TODO: parallel to ATK analyze names?
-	TODO: defer / promote to superclass PUC??
-	*/
-
-	// Intensity
-	instantI {
-		var p = this.pressure;
-		var u = this.velocity;
-		^u.collect({ |item|
-			var i = (p * item.conjugate);
-			Complex.new(
-				i.real.as(Array),
-				i.imag.as(Array)
-			)
-		})
-	}
-
-	// Admittance
-	instantA {
-		var i = this.instantI;
-		var wp = this.instantWp;
-		var wpReciprocal = (wp + FoaEval.reg.squared).reciprocal;
-		^i.collect({ |item|
-			Complex.new(  // explicit... slow otherwise!!
-				item.real * wpReciprocal,
-				item.imag * wpReciprocal
-			)
-		})
-	}
-
-	// Energy
-	instantW {
-		var i = this.instantI;
-		var ws = this.instantWs;
-		var wsReciprocal = (ws + FoaEval.reg.squared).reciprocal;
-		^i.collect({ |item|
-			Complex.new(  // explicit... slow otherwise!!
-				item.real * wsReciprocal,
-				item.imag * wsReciprocal
-			)
-		})
-	}
-
-	// Unit Normalized Intensity
-	instantN {
-		var i = this.instantI;
-		var magMagI = this.instantMagMagI;
-		var magMagIReciprocal = (magMagI + FoaEval.reg.squared).reciprocal;
-		^i.collect({ |item|
-			Complex.new(  // explicit... slow otherwise!!
-				item.real * magMagIReciprocal,
-				item.imag * magMagIReciprocal
-			)
-		})
-	}
-
-
 	//------------------------------------------------------------------------
 	// INTENSITY - magnitudes
 
@@ -639,4 +444,196 @@ PUA[slot] : Array  {
 			magI.imag * magMagIReciprocal
 		)
 	}
+
+	//------------------------------------------------------------------------
+	// INTENSITY - complex vectors
+
+	/*
+	TODO: parallel to ATK analyze names?
+	TODO: defer / promote to superclass PUC??
+	*/
+
+	// Intensity
+	instantI {
+		var p = this.pressure;
+		var u = this.velocity;
+		^u.collect({ |item|
+			var i = (p * item.conjugate);
+			Complex.new(
+				i.real.as(Array),
+				i.imag.as(Array)
+			)
+		})
+	}
+
+	// Admittance
+	instantA {
+		var i = this.instantI;
+		var wp = this.instantWp;
+		var wpReciprocal = (wp + FoaEval.reg.squared).reciprocal;
+		^i.collect({ |item|
+			Complex.new(  // explicit... slow otherwise!!
+				item.real * wpReciprocal,
+				item.imag * wpReciprocal
+			)
+		})
+	}
+
+	// Energy
+	instantW {
+		var i = this.instantI;
+		var ws = this.instantWs;
+		var wsReciprocal = (ws + FoaEval.reg.squared).reciprocal;
+		^i.collect({ |item|
+			Complex.new(  // explicit... slow otherwise!!
+				item.real * wsReciprocal,
+				item.imag * wsReciprocal
+			)
+		})
+	}
+
+	// Unit Normalized Intensity
+	instantN {
+		var i = this.instantI;
+		var magMagI = this.instantMagMagI;
+		var magMagIReciprocal = (magMagI + FoaEval.reg.squared).reciprocal;
+		^i.collect({ |item|
+			Complex.new(  // explicit... slow otherwise!!
+				item.real * magMagIReciprocal,
+				item.imag * magMagIReciprocal
+			)
+		})
+	}
+
+
+	//------------------------------------------------------------------------
+	//------------------------------------------------------------------------
+	// Total (sum) measures
+
+	//------------------------------------------------------------------------
+	// ENERGY - sums
+
+	// potential energy
+	totalWp {
+		^this.instantWp.sum
+	}
+
+	// kinetic energy
+	totalWu {
+		^this.instantWu.sum
+	}
+
+	// potential & kinetic energy mean
+	totalWs {
+		^this.instantWs.sum
+	}
+
+	// potential & kinetic energy difference
+	totalWd {
+		^this.instantWd.sum
+	}
+
+	// Heyser energy density
+	totalWh {
+		^this.instantWh.sum
+	}
+
+	//------------------------------------------------------------------------
+	// MAGNITUDE - sums
+
+	// Magnitude of Magnitude of Complex Intensity
+	totalMagMagI {
+		^this.instantMagMagI.sum
+	}
+
+	// Magnitude of Complex Intensity
+	totalMagI {
+		var magI = this.instantMagI;
+		^Complex.new(
+			magI.real.sum,
+			magI.imag.sum
+		)
+	}
+
+	// Magnitude of Magnitude of Complex Admittance
+	totalMagMagA {
+		^this.instantMagMagA.sum
+	}
+
+	// Magnitude of Complex Admittance
+	totalMagA {
+		var magA = this.instantMagA;
+		^Complex.new(
+			magA.real.sum,
+			magA.imag.sum
+		)
+	}
+
+	// Magnitude of Magnitude of Complex Energy
+	totalMagMagW {
+		^this.instantMagMagW.sum
+	}
+
+	// Magnitude of Complex Energy
+	totalMagW {
+		var magW = this.instantMagW;
+		^Complex.new(
+			magW.real.sum,
+			magW.imag.sum
+		)
+	}
+
+	// Magnitude of Magnitude Unit Normalized Complex Intensity - Convenience
+	totalMagMagN {
+		^this.numFrames.asFloat
+	}
+
+	// Magnitude of Unit Normalized Complex Intensity
+	totalMagN {
+		var magN = this.instantMagN;
+		^Complex.new(
+			magN.real.sum,
+			magN.imag.sum
+		)
+	}
+
+	//------------------------------------------------------------------------
+	// INTENSITY - sums
+
+	// Intensity
+	totalI {
+		var i = this.instantI;
+		^Complex.new(
+			i.real.flop.sum,
+			i.imag.flop.sum
+		)
+	}
+
+	// Admittance
+	totalA {
+		var a = this.instantA;
+		^Complex.new(
+			a.real.flop.sum,
+			a.imag.flop.sum
+		)
+	}
+
+	// Energy
+	totalW {
+		var w = this.instantW;
+		^Complex.new(
+			w.real.flop.sum,
+			w.imag.flop.sum
+		)
+	}
+
+	// Unit Normalized Intensity
+	totalN {
+		var n = this.instantN;
+		^Complex.new(
+			n.real.flop.sum,
+			n.imag.flop.sum
+		)
+	}
+
 }

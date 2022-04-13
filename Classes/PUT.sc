@@ -482,39 +482,29 @@ PUT[slot] : Array  {
 
 	// Admittance
 	totalAa {
-		var p = this.pressure;
-		var u = this.velocity;
-		var wp = p.squared;
+		var i = this.totalIa;
+		var wp = this.totalWp;
 		var wpReciprocal = (wp + FoaEval.reg.squared).reciprocal;
-		^u.collect({ |item|
-			((p * item) * wpReciprocal).sum
-		})
+		var normFac = this.numFrames;
+		^(normFac * i * wpReciprocal)
 	}
 
 	// Energy
 	totalWa {
-		var p = this.pressure;
-		var u = this.velocity;
-		var wp = p.squared;
-		var wu = u.squared.sum;
-		var ws = [ wp, wu ].mean;
+		var i = this.totalIa;
+		var ws = this.totalWs;
 		var wsReciprocal = (ws + FoaEval.reg.squared).reciprocal;
-		^u.collect({ |item|
-			((p * item) * wsReciprocal).sum
-		})
+		var normFac = this.numFrames;
+		^(normFac * i * wsReciprocal)
 	}
 
 	// Unit Normalized Intensity
 	totalNa {
-		var p = this.pressure;
-		var u = this.velocity;
-		var wp = p.squared;
-		var wu = u.squared.sum;
-		var magMagI = (wp * wu).sqrt;
+		var i = this.totalIa;
+		var magMagI = this.totalMagMagI;
 		var magMagIReciprocal = (magMagI + FoaEval.reg.squared).reciprocal;
-		^u.collect({ |item|
-			((p * item) * magMagIReciprocal).sum
-		})
+		var normFac = this.numFrames;
+		^(normFac * i * magMagIReciprocal)
 	}
 
 }

@@ -34,6 +34,11 @@ TODO:
 - reshape from Array of Complex to Complex of Array?
 */
 
+/*
+- consider creating Hoa version of: FoaEval.reg
+-- could use AtkHoa.thresh
+*/
+
 
 PUA[slot] : Array  {
 
@@ -360,7 +365,7 @@ PUA[slot] : Array  {
 		^[ this.instantWp, this.instantWu.neg ].mean
 	}
 
-	// // FOA Heyser energy density
+	// // Heyser energy density
 	// instantWh {
 	// 	var ws = this.instantWs;
 	// 	var magI = this.instantMagI;
@@ -400,4 +405,190 @@ PUA[slot] : Array  {
 	// 	^this.instantWh.sum
 	// }
 
+
+	//------------------------------------------------------------------------
+	// INTENSITY - sums
+
+	// Intensity
+	totalI {
+		var i = this.instantI;
+		^Complex.new(
+			i.real.flop.sum,
+			i.imag.flop.sum
+		)
+	}
+
+	// Admittance
+	totalA {
+		var a = this.instantA;
+		^Complex.new(
+			a.real.flop.sum,
+			a.imag.flop.sum
+		)
+	}
+
+	// Energy
+	totalW {
+		var w = this.instantW;
+		^Complex.new(
+			w.real.flop.sum,
+			w.imag.flop.sum
+		)
+	}
+
+	// Unit Normalized Intensity
+	totalN {
+		var n = this.instantN;
+		^Complex.new(
+			n.real.flop.sum,
+			n.imag.flop.sum
+		)
+	}
+
+
+	//------------------------------------------------------------------------
+	// MAGNITUDE - sums
+
+	// Magnitude of Magnitude of Complex Intensity
+	totalMagMagI {
+		^this.instantMagMagI.sum
+	}
+
+	// Magnitude of Complex Intensity
+	totalMagI {
+		var magI = this.instantMagI;
+		^Complex.new(
+			magI.real.sum,
+			magI.imag.sum
+		)
+	}
+
+	//------------------------------------------------------------------------
+	// INTENSITY - complex vectors
+
+	/*
+	TODO: parallel to ATK analyze names?
+	TODO: defer / promote to superclass PUC??
+	*/
+
+	// Intensity
+	instantI {
+		var p = this.pressure;
+		var u = this.velocity;
+		^u.collect({ |item|
+			var i = (p * item.conjugate);
+			Complex.new(
+				i.real.as(Array),
+				i.imag.as(Array)
+			)
+		})
+	}
+
+	// Admittance
+	instantA {
+		var i = this.instantI;
+		var wp = this.instantWp;
+		var wpReciprocal = (wp + FoaEval.reg.squared).reciprocal;
+		^i.collect({ |item|
+			Complex.new(  // explicit... slow otherwise!!
+				item.real * wpReciprocal,
+				item.imag * wpReciprocal
+			)
+		})
+	}
+
+	// Energy
+	instantW {
+		var i = this.instantI;
+		var ws = this.instantWs;
+		var wsReciprocal = (ws + FoaEval.reg.squared).reciprocal;
+		^i.collect({ |item|
+			Complex.new(  // explicit... slow otherwise!!
+				item.real * wsReciprocal,
+				item.imag * wsReciprocal
+			)
+		})
+	}
+
+	// Unit Normalized Intensity
+	instantN {
+		var i = this.instantI;
+		var magMagI = this.instantMagMagI;
+		var magMagIReciprocal = (magMagI + FoaEval.reg.squared).reciprocal;
+		^i.collect({ |item|
+			Complex.new(  // explicit... slow otherwise!!
+				item.real * magMagIReciprocal,
+				item.imag * magMagIReciprocal
+			)
+		})
+	}
+
+
+	//------------------------------------------------------------------------
+	// INTENSITY - magnitudes
+
+	// Magnitude of Magnitude of Complex Intensity
+	instantMagMagI {
+		var wp = this.instantWp;
+		var wu = this.instantWu;
+		^(wp * wu).sqrt
+	}
+
+	// Magnitude of Complex Intensity
+	instantMagI {
+		var i = this.instantI;
+		^Complex.new(
+			i.real.squared.sum.sqrt,
+			i.imag.squared.sum.sqrt
+		)
+	}
+
+	// // Magnitude of Magnitude of Complex Admittance
+	// instantMagMagA {
+	// 	var magMagI = this.instantMagMagI;
+	// 	var wp = this.instantWp;
+	// 	var wpReciprocal = (wp + FoaEval.reg.squared).reciprocal;
+	// 	^(magMagI * wpReciprocal)
+	// }
+	//
+	// // Magnitude of Complex Admittance
+	// instantMagA {
+	// 	var magI = this.instantMagI;
+	// 	var wp = this.instantWp;
+	// 	var wpReciprocal = (wp + FoaEval.reg.squared).reciprocal;
+	// 	^Complex.new(  // explicit... slow otherwise!!
+	// 		magI.real * wpReciprocal,
+	// 		magI.imag * wpReciprocal
+	// 	)
+	// }
+	//
+	// // Magnitude of Magnitude of Complex Energy
+	// instantMagMagW {
+	// 	var magMagI = this.instantMagMagI;
+	// 	var ws = this.instantWs;
+	// 	var wsReciprocal = (ws + FoaEval.reg.squared).reciprocal;
+	// 	^(magMagI * wsReciprocal)
+	// }
+	//
+	// // Magnitude of Complex Energy
+	// instantMagW {
+	// 	var magI = this.instantMagI;
+	// 	var ws = this.instantWs;
+	// 	var wsReciprocal = (ws + FoaEval.reg.squared).reciprocal;
+	// 	^Complex.new(  // explicit... slow otherwise!!
+	// 		magI.real * wsReciprocal,
+	// 		magI.imag * wsReciprocal
+	// 	)
+	// }
+	//
+	// // Magnitude of Unit Normalized Complex Intensity
+	// instantMagN {
+	// 	var magI = this.instantMagI;
+	// 	var magMagI = this.instantMagMagI;
+	// 	var magMagIReciprocal = (magMagI + FoaEval.reg.squared.squared).reciprocal;
+	// 	^Complex.new(  // explicit... slow otherwise!!
+	// 		magI.real * magMagIReciprocal,
+	// 		magI.imag * magMagIReciprocal
+	// 	)
+	// }
 }

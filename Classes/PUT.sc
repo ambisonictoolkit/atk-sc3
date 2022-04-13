@@ -427,51 +427,29 @@ PUT[slot] : Array  {
 	totalMagMagI {
 		var p = this.pressure;
 		var u = this.velocity;
-		var wp = p.squared;
-		var wu = u.squared.sum;
+		var wp = p.squared.sum;
+		var wu = u.squared.sum.sum;
 		var normFac = 2;
-		^(normFac * (wp * wu).sqrt.sum)
+		^(normFac * (wp * wu).sqrt)
 	}
 
-	// // Magnitude of Complex Intensity
-	// totalMagI {
-	// 	var normFac = 2;
-	// 	var p = this.pressure;
-	// 	var u = this.velocity;
-	// 	var wp = p.squared;
-	// 	var wu = u.squared.sum;
-	// 	var magI_squared = wp * wu;
-	// 	var magIa_squared = u.collect({ |item|
-	// 		normFac * (p * item)
-	// 	}).squared.sum;
-	//
-	// 	// magI_squared.postln;
-	// 	// magIa_squared.postln;
-	// 	// (magI_squared - magIa_squared).postln;
-	//
-	// 	^Complex.new(
-	// 		magIa_squared.sum.sqrt,
-	// 		// normFac * (magI_squared - magIa_squared).sum.sqrt
-	// 		normFac * (magI_squared - magIa_squared).sum.abs.sqrt  // bound near ||Ia|| = 1
-	// 	)
+	// Magnitude of Complex Intensity
+	totalMagI {
+		var normFac = 2;
+		var p = this.pressure;
+		var u = this.velocity;
+		var wp = p.squared.sum;
+		var wu = u.squared.sum.sum;
+		var magI_squared = normFac.squared * wp * wu;
+		var ia = u.collect({ |item|
+			normFac * (p * item).sum
+		});
+		var magIa_squared = ia.squared.sum;
+
+		^Complex.new(
+			magIa_squared.sqrt,
+			(magI_squared - magIa_squared).sqrt
+		)
 	}
-/*
-
-// real
-ia = normFac * RunningSum.ar(p * u, size);
-^ia.squared.sum.sqrt
-
-// imag
-wp = normFac * RunningSum.ar(p.squared, size);
-wu = normFac * RunningSum.ar(u.squared, size).sum;
-ia = normFac * RunningSum.ar(p * u, size);
-
-magI_squared = wp * wu;
-magIa_squared = ia.squared.sum;
-
-^(magI_squared - magIa_squared).sqrt
-
-
-*/
 
 }

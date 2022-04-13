@@ -463,6 +463,49 @@ PUA[slot] : Array  {
 		)
 	}
 
+	// Magnitude of Magnitude of Complex Admittance
+	totalMagMagA {
+		^this.instantMagMagA.sum
+	}
+
+	// Magnitude of Complex Admittance
+	totalMagA {
+		var magA = this.instantMagA;
+		^Complex.new(
+			magA.real.sum,
+			magA.imag.sum
+		)
+	}
+
+	// Magnitude of Magnitude of Complex Energy
+	totalMagMagW {
+		^this.instantMagMagW.sum
+	}
+
+	// Magnitude of Complex Energy
+	totalMagW {
+		var magW = this.instantMagW;
+		^Complex.new(
+			magW.real.sum,
+			magW.imag.sum
+		)
+	}
+
+	// Magnitude of Magnitude Unit Normalized Complex Intensity - Convenience
+	totalMagMagN {
+		^this.numFrames.asFloat
+	}
+
+	// Magnitude of Unit Normalized Complex Intensity
+	totalMagN {
+		var magN = this.instantMagN;
+		^Complex.new(
+			magN.real.sum,
+			magN.imag.sum
+		)
+	}
+
+
 	//------------------------------------------------------------------------
 	// INTENSITY - complex vectors
 
@@ -543,52 +586,57 @@ PUA[slot] : Array  {
 		)
 	}
 
-	// // Magnitude of Magnitude of Complex Admittance
-	// instantMagMagA {
-	// 	var magMagI = this.instantMagMagI;
-	// 	var wp = this.instantWp;
-	// 	var wpReciprocal = (wp + FoaEval.reg.squared).reciprocal;
-	// 	^(magMagI * wpReciprocal)
-	// }
-	//
-	// // Magnitude of Complex Admittance
-	// instantMagA {
-	// 	var magI = this.instantMagI;
-	// 	var wp = this.instantWp;
-	// 	var wpReciprocal = (wp + FoaEval.reg.squared).reciprocal;
-	// 	^Complex.new(  // explicit... slow otherwise!!
-	// 		magI.real * wpReciprocal,
-	// 		magI.imag * wpReciprocal
-	// 	)
-	// }
-	//
-	// // Magnitude of Magnitude of Complex Energy
-	// instantMagMagW {
-	// 	var magMagI = this.instantMagMagI;
-	// 	var ws = this.instantWs;
-	// 	var wsReciprocal = (ws + FoaEval.reg.squared).reciprocal;
-	// 	^(magMagI * wsReciprocal)
-	// }
-	//
-	// // Magnitude of Complex Energy
-	// instantMagW {
-	// 	var magI = this.instantMagI;
-	// 	var ws = this.instantWs;
-	// 	var wsReciprocal = (ws + FoaEval.reg.squared).reciprocal;
-	// 	^Complex.new(  // explicit... slow otherwise!!
-	// 		magI.real * wsReciprocal,
-	// 		magI.imag * wsReciprocal
-	// 	)
-	// }
-	//
-	// // Magnitude of Unit Normalized Complex Intensity
-	// instantMagN {
-	// 	var magI = this.instantMagI;
-	// 	var magMagI = this.instantMagMagI;
-	// 	var magMagIReciprocal = (magMagI + FoaEval.reg.squared.squared).reciprocal;
-	// 	^Complex.new(  // explicit... slow otherwise!!
-	// 		magI.real * magMagIReciprocal,
-	// 		magI.imag * magMagIReciprocal
-	// 	)
-	// }
+	// Magnitude of Magnitude of Complex Admittance
+	instantMagMagA {
+		var magMagI = this.instantMagMagI;
+		var wp = this.instantWp;
+		var wpReciprocal = (wp + FoaEval.reg.squared).reciprocal;
+		^(magMagI * wpReciprocal)
+	}
+
+	// Magnitude of Complex Admittance
+	instantMagA {
+		var magI = this.instantMagI;
+		var wp = this.instantWp;
+		var wpReciprocal = (wp + FoaEval.reg.squared).reciprocal;
+		^Complex.new(  // explicit... slow otherwise!!
+			magI.real * wpReciprocal,
+			magI.imag * wpReciprocal
+		)
+	}
+
+	// Magnitude of Magnitude of Complex Energy
+	instantMagMagW {
+		var magMagI = this.instantMagMagI;
+		var ws = this.instantWs;
+		var wsReciprocal = (ws + FoaEval.reg.squared).reciprocal;
+		^(magMagI * wsReciprocal)
+	}
+
+	// Magnitude of Complex Energy
+	instantMagW {
+		var magI = this.instantMagI;
+		var ws = this.instantWs;
+		var wsReciprocal = (ws + FoaEval.reg.squared).reciprocal;
+		^Complex.new(  // explicit... slow otherwise!!
+			magI.real * wsReciprocal,
+			magI.imag * wsReciprocal
+		)
+	}
+
+	// Magnitude of Magnitude Unit Normalized Complex Intensity - Convenience
+	instantMagMagN {
+		^Array.fill(this.numFrames, { 1.0 })
+	}
+
+	// Magnitude of Unit Normalized Complex Intensity
+	instantMagN {
+		var magI = this.instantMagI;
+		var magMagI = this.instantMagMagI;
+		var magMagIReciprocal = (magMagI + FoaEval.reg.squared.squared).reciprocal;
+		^Complex.new(  // explicit... slow otherwise!!
+			magI.real * magMagIReciprocal,
+			magI.imag * magMagIReciprocal
+		)
+	}
 }

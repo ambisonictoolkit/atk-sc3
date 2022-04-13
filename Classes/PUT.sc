@@ -451,4 +451,72 @@ PUT[slot] : Array  {
 		)
 	}
 
+	// Magnitude of Magnitude of Complex Admittance
+	/*
+	TODO: refactor to avoid use of normFac?
+	*/
+	totalMagMagA {
+		var magMagI = this.totalMagMagI;
+		var wp = this.totalWp;
+		var wpReciprocal = (wp + FoaEval.reg.squared).reciprocal;
+		var normFac = this.numFrames;
+		^(normFac * magMagI * wpReciprocal)
+	}
+
+	// Magnitude of Complex Admittance
+	totalMagA {
+		var magI = this.totalMagI;
+		var wp = this.totalWp;
+		var wpReciprocal = (wp + FoaEval.reg.squared).reciprocal;
+		var normFac = this.numFrames;
+		^Complex.new(  // explicit... slow otherwise!!
+			normFac * magI.real * wpReciprocal,
+			normFac * magI.imag * wpReciprocal
+		)
+	}
+
+	// Magnitude of Magnitude of Complex Energy
+	/*
+	TODO: refactor to avoid use of normFac?
+	*/
+	totalMagMagW {
+		var magMagI = this.totalMagMagI;
+		var ws = this.totalWs;
+		var wsReciprocal = (ws + FoaEval.reg.squared).reciprocal;
+		var normFac = this.numFrames;
+		^(normFac * magMagI * wsReciprocal)
+	}
+
+	// Magnitude of Complex Energy
+	totalMagW {
+		var magI = this.totalMagI;
+		var ws = this.totalWs;
+		var wsReciprocal = (ws + FoaEval.reg.squared).reciprocal;
+		var normFac = this.numFrames;
+		^Complex.new(  // explicit... slow otherwise!!
+			normFac * magI.real * wsReciprocal,
+			normFac * magI.imag * wsReciprocal
+		)
+	}
+
+	// Magnitude of Magnitude Unit Normalized Complex Intensity - Convenience
+	totalMagMagN {
+		^this.numFrames.asFloat
+	}
+
+	// Magnitude of Unit Normalized Complex Intensity
+	/*
+	TODO: refactor to avoid use of normFac?
+	*/
+	totalMagN {
+		var magI = this.totalMagI;
+		var magMagI = this.totalMagMagI;
+		var magMagIReciprocal = (magMagI + FoaEval.reg.squared.squared).reciprocal;
+		var normFac = this.numFrames;
+		^Complex.new(  // explicit... slow otherwise!!
+			normFac * magI.real * magMagIReciprocal,
+			normFac * magI.imag * magMagIReciprocal
+		)
+	}
+
 }

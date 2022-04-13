@@ -373,9 +373,6 @@ PUT[slot] : Array  {
 	// INTENSITY - sums
 
 	// Intensity
-	/*
-	TODO: is this useful??
-	*/
 	totalIa {
 		var p = this.pressure;
 		var u = this.velocity;
@@ -385,42 +382,96 @@ PUT[slot] : Array  {
 		})
 	}
 
-	// // Magnitude of Magnitude of Complex Intensity
-	// /*
-	// TODO: returned result not matching complex!
-	// */
-	// // totalMagMagI {
-	// // 	var wp = this.totalWp;
-	// // 	var wu = this.totalWu;
-	// // 	^(wp * wu).sqrt
-	// // }
-	// totalMagMagI {
+	// Admittance
+	totalAa {
+		var p = this.pressure;
+		var u = this.velocity;
+		var wp = p.squared;
+		var wpReciprocal = (wp + FoaEval.reg.squared).reciprocal;
+		^u.collect({ |item|
+			((p * item) * wpReciprocal).sum
+		})
+	}
+
+	// Energy
+	totalWa {
+		var p = this.pressure;
+		var u = this.velocity;
+		var wp = p.squared;
+		var wu = u.squared.sum;
+		var ws = [ wp, wu ].mean;
+		var wsReciprocal = (ws + FoaEval.reg.squared).reciprocal;
+		^u.collect({ |item|
+			((p * item) * wsReciprocal).sum
+		})
+	}
+
+	// Unit Normalized Intensity
+	totalNa {
+		var p = this.pressure;
+		var u = this.velocity;
+		var wp = p.squared;
+		var wu = u.squared.sum;
+		var magMagI = (wp * wu).sqrt;
+		var magMagIReciprocal = (magMagI + FoaEval.reg.squared).reciprocal;
+		^u.collect({ |item|
+			((p * item) * magMagIReciprocal).sum
+		})
+	}
+
+
+	//------------------------------------------------------------------------
+	// MAGNITUDE - sums
+
+	// Magnitude of Magnitude of Complex Intensity
+	totalMagMagI {
+		var p = this.pressure;
+		var u = this.velocity;
+		var wp = p.squared;
+		var wu = u.squared.sum;
+		var normFac = 2;
+		^(normFac * (wp * wu).sqrt.sum)
+	}
+
+	// // Magnitude of Complex Intensity
+	// totalMagI {
+	// 	var normFac = 2;
 	// 	var p = this.pressure;
 	// 	var u = this.velocity;
-	// 	var normFac = 2;
-	// 	var wp = normFac * p.squared;
-	// 	var wu = normFac * u.squared.sum;
-	// 	^(wp * wu).sqrt.sum
-	// }
-	//
-	// // Magnitude of Active Intensity
-	// totalMagIa {
-	// 	var p = this.pressure;
-	// 	var u = this.velocity;
-	// 	var normFac = 2;
-	// 	var i = u.collect({ |item|
+	// 	var wp = p.squared;
+	// 	var wu = u.squared.sum;
+	// 	var magI_squared = wp * wu;
+	// 	var magIa_squared = u.collect({ |item|
 	// 		normFac * (p * item)
-	// 	});
-	// 	^i.flop.squared.sum.sqrt.sum
-	// }
+	// 	}).squared.sum;
 	//
-	// // // Magnitude of Complex Intensity
-	// // totalMagI {
-	// // 	var i = this.instantMagI;
-	// // 	^Complex.new(
-	// // 		i.real.sum,
-	// // 		i.imag.sum
-	// // 	)
-	// // }
+	// 	// magI_squared.postln;
+	// 	// magIa_squared.postln;
+	// 	// (magI_squared - magIa_squared).postln;
+	//
+	// 	^Complex.new(
+	// 		magIa_squared.sum.sqrt,
+	// 		// normFac * (magI_squared - magIa_squared).sum.sqrt
+	// 		normFac * (magI_squared - magIa_squared).sum.abs.sqrt  // bound near ||Ia|| = 1
+	// 	)
+	}
+/*
+
+// real
+ia = normFac * RunningSum.ar(p * u, size);
+^ia.squared.sum.sqrt
+
+// imag
+wp = normFac * RunningSum.ar(p.squared, size);
+wu = normFac * RunningSum.ar(u.squared, size).sum;
+ia = normFac * RunningSum.ar(p * u, size);
+
+magI_squared = wp * wu;
+magIa_squared = ia.squared.sum;
+
+^(magI_squared - magIa_squared).sqrt
+
+
+*/
 
 }

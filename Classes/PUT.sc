@@ -361,12 +361,11 @@ PUT[slot] : Array  {
 	}
 
 	// Heyser energy density
-	/*
-	TODO: requires active intensity
-	*/
-	// totalWh {
-	// 	^this.instantWh.sum
-	// }
+	totalWh {
+		var ws = this.totalWs;
+		var magI = this.totalMagI;
+		^(ws - magI.imag)
+	}
 
 
 	//------------------------------------------------------------------------

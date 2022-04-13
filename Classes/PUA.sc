@@ -365,12 +365,12 @@ PUA[slot] : Array  {
 		^[ this.instantWp, this.instantWu.neg ].mean
 	}
 
-	// // Heyser energy density
-	// instantWh {
-	// 	var ws = this.instantWs;
-	// 	var magI = this.instantMagI;
-	// 	^(ws - magI.imag)
-	// }
+	// Heyser energy density
+	instantWh {
+		var ws = this.instantWs;
+		var magI = this.instantMagI;
+		^(ws - magI.imag)
+	}
 
 
 	//------------------------------------------------------------------------
@@ -400,10 +400,10 @@ PUA[slot] : Array  {
 		^this.instantWd.sum
 	}
 
-	// // Heyser energy density
-	// totalWh {
-	// 	^this.instantWh.sum
-	// }
+	// Heyser energy density
+	totalWh {
+		^this.instantWh.sum
+	}
 
 
 	//------------------------------------------------------------------------

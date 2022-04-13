@@ -367,58 +367,6 @@ PUT[slot] : Array  {
 		^(ws - magI.imag)
 	}
 
-
-	//------------------------------------------------------------------------
-	// INTENSITY - sums
-
-	// Intensity
-	totalIa {
-		var p = this.pressure;
-		var u = this.velocity;
-		var normFac = 2;
-		^u.collect({ |item|
-			normFac * (p * item).sum
-		})
-	}
-
-	// Admittance
-	totalAa {
-		var p = this.pressure;
-		var u = this.velocity;
-		var wp = p.squared;
-		var wpReciprocal = (wp + FoaEval.reg.squared).reciprocal;
-		^u.collect({ |item|
-			((p * item) * wpReciprocal).sum
-		})
-	}
-
-	// Energy
-	totalWa {
-		var p = this.pressure;
-		var u = this.velocity;
-		var wp = p.squared;
-		var wu = u.squared.sum;
-		var ws = [ wp, wu ].mean;
-		var wsReciprocal = (ws + FoaEval.reg.squared).reciprocal;
-		^u.collect({ |item|
-			((p * item) * wsReciprocal).sum
-		})
-	}
-
-	// Unit Normalized Intensity
-	totalNa {
-		var p = this.pressure;
-		var u = this.velocity;
-		var wp = p.squared;
-		var wu = u.squared.sum;
-		var magMagI = (wp * wu).sqrt;
-		var magMagIReciprocal = (magMagI + FoaEval.reg.squared).reciprocal;
-		^u.collect({ |item|
-			((p * item) * magMagIReciprocal).sum
-		})
-	}
-
-
 	//------------------------------------------------------------------------
 	// MAGNITUDE - sums
 
@@ -517,6 +465,56 @@ PUT[slot] : Array  {
 			normFac * magI.real * magMagIReciprocal,
 			normFac * magI.imag * magMagIReciprocal
 		)
+	}
+
+	//------------------------------------------------------------------------
+	// INTENSITY (ACTIVE) - sums
+
+	// Intensity
+	totalIa {
+		var p = this.pressure;
+		var u = this.velocity;
+		var normFac = 2;
+		^u.collect({ |item|
+			normFac * (p * item).sum
+		})
+	}
+
+	// Admittance
+	totalAa {
+		var p = this.pressure;
+		var u = this.velocity;
+		var wp = p.squared;
+		var wpReciprocal = (wp + FoaEval.reg.squared).reciprocal;
+		^u.collect({ |item|
+			((p * item) * wpReciprocal).sum
+		})
+	}
+
+	// Energy
+	totalWa {
+		var p = this.pressure;
+		var u = this.velocity;
+		var wp = p.squared;
+		var wu = u.squared.sum;
+		var ws = [ wp, wu ].mean;
+		var wsReciprocal = (ws + FoaEval.reg.squared).reciprocal;
+		^u.collect({ |item|
+			((p * item) * wsReciprocal).sum
+		})
+	}
+
+	// Unit Normalized Intensity
+	totalNa {
+		var p = this.pressure;
+		var u = this.velocity;
+		var wp = p.squared;
+		var wu = u.squared.sum;
+		var magMagI = (wp * wu).sqrt;
+		var magMagIReciprocal = (magMagI + FoaEval.reg.squared).reciprocal;
+		^u.collect({ |item|
+			((p * item) * magMagIReciprocal).sum
+		})
 	}
 
 }

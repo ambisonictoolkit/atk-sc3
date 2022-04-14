@@ -507,6 +507,41 @@ PUA[slot] : Array  {
 
 
 	//------------------------------------------------------------------------
+	// SOUNDFIELD INDICATORS
+
+	// FOA Active-Reactive Soundfield Balance Angle: Alpha
+	instantAlpha {
+		var magI = this.instantMagI;
+		^atan2(magI.imag, magI.real)
+	}
+
+	// FOA Potential-Kinetic Soundfield Balance Angle: Beta
+	instantBeta {
+		var wd = this.instantWd;
+		var magMagI = this.instantMagMagI;
+		^atan2(wd, magMagI)
+	}
+
+	// FOA Active-Reactive Vector Alignment Angle: Gamma
+	instantGamma {
+		var i = this.instantI;
+		var magI = Complex.new(i.real.squared.sum.sqrt, i.imag.squared.sum.sqrt);
+		var cosFac, sinFac;
+		cosFac = (i.real * i.imag).sum;
+		sinFac = ((magI.real * magI.imag).squared - cosFac.squared).abs.sqrt;  // -abs for numerical precision errors
+		^atan2(sinFac, cosFac)
+	}
+
+	// FOA Active Admittance Balance Angle: Mu
+	instantMu {
+		var magAa = this.instantMagA.real;
+		// ^(2 * magAa.atan).tan.reciprocal.atan  // the double angle form
+		// ^atan2((1 - magAa.squared) / 2, magAa)
+		^atan2(1 - magAa.squared, 2 * magAa)
+	}
+
+
+	//------------------------------------------------------------------------
 	//------------------------------------------------------------------------
 	// Total (sum) measures
 

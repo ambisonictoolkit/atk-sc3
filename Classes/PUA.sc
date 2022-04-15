@@ -542,6 +542,49 @@ PUA[slot] : Array  {
 
 
 	//------------------------------------------------------------------------
+	// SOUNDFIELD INCIDENCE - complex vector: Complex([ thetaA, phiA ], [ thetaR, phiR ])
+
+	// Complex Incidence Angle
+	instantThetaPhi {
+		var i = this.instantI;
+		var thetaA = atan2(i.real[1], i.real[0]);
+		var phiA = atan2(i.real[2], (i.real[0].squared + i.real[1].squared).sqrt);
+		var thetaR = atan2(i.imag[1], i.imag[0]);
+		var phiR = atan2(i.imag[2], (i.imag[0].squared + i.imag[1].squared).sqrt);
+		^Complex.new(
+			[ thetaA, phiA ],
+			[ thetaR, phiR ]
+		)
+	}
+
+	//------------------------------------------------------------------------
+	// SOUNDFIELD RADIUS
+
+	// Nearfield (Spherical) Radius
+	/*
+	TODO: frequency domain implementation?
+
+	NOTE:
+	 - biased towards LF performance
+	 - biased towards steady state monotones
+	*/
+	instantRadius { |sampleRate|
+		var aA = this.instantA.real;
+		var thisIntegP = this.deepCopy;
+		var integPaA;
+		thisIntegP.put(
+			0,
+			Complex.new(  // (one pole, one zero) integrate pressure
+				0.5 * (this[0].real + (Signal.zeroFill(1) ++ this[0].real.drop(-1))).integrate.discardDC,
+				0.5 * (this[0].imag + (Signal.zeroFill(1) ++ this[0].imag.drop(-1))).integrate.discardDC
+			)
+		);
+		integPaA = thisIntegP.instantA.real;
+		^((AtkFoa.speedOfSound / sampleRate) * (aA.squared.sum / ((aA * integPaA).sum + FoaEval.reg.squared)))
+	}
+
+
+	//------------------------------------------------------------------------
 	//------------------------------------------------------------------------
 	// Total (sum) measures
 

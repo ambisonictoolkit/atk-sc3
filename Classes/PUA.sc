@@ -714,4 +714,272 @@ PUA[slot] : Array  {
 		)
 	}
 
+
+	//------------------------------------------------------------------------
+	//------------------------------------------------------------------------
+	// Average measures
+
+	//------------------------------------------------------------------------
+	// ENERGY - average
+
+	// potential energy
+	averageWp { |weights = nil|
+		^(weights == nil).if({
+			var normFac = this.numFrames.reciprocal;
+			normFac * this.totalWp
+		}, {
+			this.instantWp.wmean(weights)
+		})
+	}
+
+	// kinetic energy
+	averageWu { |weights = nil|
+		^(weights == nil).if({
+			var normFac = this.numFrames.reciprocal;
+			normFac * this.totalWu
+		}, {
+			this.instantWu.wmean(weights)
+		})
+	}
+
+	// potential & kinetic energy mean
+	averageWs { |weights = nil|
+		^(weights == nil).if({
+			var normFac = this.numFrames.reciprocal;
+			normFac * this.totalWs
+		}, {
+			this.instantWs.wmean(weights)
+		})
+	}
+
+	// potential & kinetic energy difference
+	averageWd { |weights = nil|
+		^(weights == nil).if({
+			var normFac = this.numFrames.reciprocal;
+			normFac * this.totalWd
+		}, {
+			this.instantWd.wmean(weights)
+		})
+	}
+
+	// Heyser energy density
+	averageWh { |weights = nil|
+		^(weights == nil).if({
+			var normFac = this.numFrames.reciprocal;
+			normFac * this.totalWh
+		}, {
+			this.instantWh.wmean(weights)
+		})
+	}
+
+
+	//------------------------------------------------------------------------
+	// MAGNITUDE - average
+
+	// Magnitude of Magnitude of Complex Intensity
+	averageMagMagI { |weights = nil|
+		^(weights == nil).if({
+			var normFac = this.numFrames.reciprocal;
+			normFac * this.totalMagMagI
+		}, {
+			this.instantMagMagI.wmean(weights)
+		})
+	}
+
+	// Magnitude of Complex Intensity
+	averageMagI { |weights = nil|
+		^(weights == nil).if({
+			var normFac = this.numFrames.reciprocal;
+			normFac * this.totalMagI
+		}, {
+			var magI = this.instantMagI;
+			var weightsReciprocal = weights.sum.reciprocal;
+			Complex.new(  // explicit...
+				weightsReciprocal * (magI.real * weights).sum,
+				weightsReciprocal * (magI.imag * weights).sum
+			)
+		})
+	}
+
+	// Magnitude of Magnitude of Complex Admittance
+	averageMagMagA { |weights = nil|
+		^(weights == nil).if({
+			var normFac = this.numFrames.reciprocal;
+			normFac * this.totalMagMagA
+		}, {
+			this.instantMagMagA.wmean(weights)
+		})
+	}
+
+	// Magnitude of Complex Admittance
+	averageMagA { |weights = nil|
+		^(weights == nil).if({
+			var normFac = this.numFrames.reciprocal;
+			normFac * this.totalMagA
+		}, {
+			var magA = this.instantMagA;
+			var weightsReciprocal = weights.sum.reciprocal;
+			Complex.new(  // explicit...
+				weightsReciprocal * (magA.real * weights).sum,
+				weightsReciprocal * (magA.imag * weights).sum
+			)
+		})
+	}
+
+	// Magnitude of Magnitude of Complex Energy
+	averageMagMagW { |weights = nil|
+		^(weights == nil).if({
+			var normFac = this.numFrames.reciprocal;
+			normFac * this.totalMagMagW
+		}, {
+			this.instantMagMagW.wmean(weights)
+		})
+	}
+
+	// Magnitude of Complex Energy
+	averageMagW { |weights = nil|
+		^(weights == nil).if({
+			var normFac = this.numFrames.reciprocal;
+			normFac * this.totalMagW
+		}, {
+			var magW = this.instantMagW;
+			var weightsReciprocal = weights.sum.reciprocal;
+			Complex.new(  // explicit...
+				weightsReciprocal * (magW.real * weights).sum,
+				weightsReciprocal * (magW.imag * weights).sum
+			)
+		})
+	}
+
+	// Magnitude of Magnitude Unit Normalized Complex Intensity - Convenience
+	averageMagMagN { |weights = nil|
+		^(weights == nil).if({
+			1.0
+		}, {
+			this.instantMagMagN.wmean(weights)
+		})
+	}
+
+	// Magnitude of Unit Normalized Complex Intensity
+	averageMagN { |weights = nil|
+		^(weights == nil).if({
+			var normFac = this.numFrames.reciprocal;
+			normFac * this.totalMagN
+		}, {
+			var magN = this.instantMagN;
+			var weightsReciprocal = weights.sum.reciprocal;
+			Complex.new(  // explicit...
+				weightsReciprocal * (magN.real * weights).sum,
+				weightsReciprocal * (magN.imag * weights).sum
+			)
+		})
+	}
+
+	//------------------------------------------------------------------------
+	// INTENSITY - average
+
+	// Intensity
+	averageI { |weights = nil|
+		^(weights == nil).if({
+			var normFac = this.numFrames.reciprocal;
+			normFac * this.totalI
+		}, {
+			var i = this.instantI;
+			var weightsReciprocal = weights.sum.reciprocal;
+			Complex.new(  // explicit...
+				weightsReciprocal * i.real.collect({ |item| (item * weights).sum }),
+				weightsReciprocal * i.imag.collect({ |item| (item * weights).sum }),
+			)
+		})
+	}
+
+	// Admittance
+	averageA { |weights = nil|
+		^(weights == nil).if({
+			var normFac = this.numFrames.reciprocal;
+			normFac * this.totalA
+		}, {
+			var a = this.instantA;
+			var weightsReciprocal = weights.sum.reciprocal;
+			Complex.new(  // explicit...
+				weightsReciprocal * a.real.collect({ |item| (item * weights).sum }),
+				weightsReciprocal * a.imag.collect({ |item| (item * weights).sum }),
+			)
+		})
+	}
+
+	// Energy
+	averageW { |weights = nil|
+		^(weights == nil).if({
+			var normFac = this.numFrames.reciprocal;
+			normFac * this.totalW
+		}, {
+			var w = this.instantW;
+			var weightsReciprocal = weights.sum.reciprocal;
+			Complex.new(  // explicit...
+				weightsReciprocal * w.real.collect({ |item| (item * weights).sum }),
+				weightsReciprocal * w.imag.collect({ |item| (item * weights).sum }),
+			)
+		})
+	}
+
+	// Unit Normalized Intensity
+	averageN { |weights = nil|
+		^(weights == nil).if({
+			var normFac = this.numFrames.reciprocal;
+			normFac * this.totalN
+		}, {
+			var n = this.instantN;
+			var weightsReciprocal = weights.sum.reciprocal;
+			Complex.new(  // explicit...
+				weightsReciprocal * n.real.collect({ |item| (item * weights).sum }),
+				weightsReciprocal * n.imag.collect({ |item| (item * weights).sum }),
+			)
+		})
+	}
+
+
+	//------------------------------------------------------------------------
+	// SOUNDFIELD INDICATORS
+
+	/*
+	TODO: can these be optimized / simplified?
+	*/
+
+	// FOA Active-Reactive Soundfield Balance Angle: Alpha
+	averageAlpha { |weights|
+		var magI = this.averageMagI(weights);
+		^atan2(magI.imag, magI.real)
+	}
+
+	// FOA Potential-Kinetic Soundfield Balance Angle: Beta
+	averageBeta { |weights|
+		var wd = this.averageWd(weights);
+		var magMagI = this.averageMagMagI(weights);
+		^atan2(wd, magMagI)
+	}
+
+	// FOA Active-Reactive Vector Alignment Angle: Gamma
+	averageGamma { |weights|
+		var gamma = this.instantGamma;
+		var sinFac = gamma.sin;
+		var cosFac = gamma.cos;
+		(weights == nil).if({
+			sinFac = sinFac.sum;
+			cosFac = cosFac.sum;
+		}, {
+			sinFac = (sinFac * weights).sum;
+			cosFac = (cosFac * weights).sum;
+		});
+		^atan2(sinFac, cosFac)
+	}
+
+	// FOA Active Admittance Balance Angle: Mu
+	averageMu { |weights|
+		var magAa = this.averageMagA(weights).real;
+		// ^(2 * magAa.atan).tan.reciprocal.atan  // the double angle form
+		// ^atan2((1 - magAa.squared) / 2, magAa)
+		^atan2(1 - magAa.squared, 2 * magAa)
+	}
+
 }

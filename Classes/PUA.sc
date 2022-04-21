@@ -724,7 +724,7 @@ PUA[slot] : Array  {
 
 	// potential energy
 	averageWp { |weights = nil|
-		^(weights == nil).if({
+		^weights.isNil.if({
 			var normFac = this.numFrames.reciprocal;
 			normFac * this.totalWp
 		}, {
@@ -734,7 +734,7 @@ PUA[slot] : Array  {
 
 	// kinetic energy
 	averageWu { |weights = nil|
-		^(weights == nil).if({
+		^weights.isNil.if({
 			var normFac = this.numFrames.reciprocal;
 			normFac * this.totalWu
 		}, {
@@ -744,7 +744,7 @@ PUA[slot] : Array  {
 
 	// potential & kinetic energy mean
 	averageWs { |weights = nil|
-		^(weights == nil).if({
+		^weights.isNil.if({
 			var normFac = this.numFrames.reciprocal;
 			normFac * this.totalWs
 		}, {
@@ -754,7 +754,7 @@ PUA[slot] : Array  {
 
 	// potential & kinetic energy difference
 	averageWd { |weights = nil|
-		^(weights == nil).if({
+		^weights.isNil.if({
 			var normFac = this.numFrames.reciprocal;
 			normFac * this.totalWd
 		}, {
@@ -764,7 +764,7 @@ PUA[slot] : Array  {
 
 	// Heyser energy density
 	averageWh { |weights = nil|
-		^(weights == nil).if({
+		^weights.isNil.if({
 			var normFac = this.numFrames.reciprocal;
 			normFac * this.totalWh
 		}, {
@@ -778,7 +778,7 @@ PUA[slot] : Array  {
 
 	// Magnitude of Magnitude of Complex Intensity
 	averageMagMagI { |weights = nil|
-		^(weights == nil).if({
+		^weights.isNil.if({
 			var normFac = this.numFrames.reciprocal;
 			normFac * this.totalMagMagI
 		}, {
@@ -788,7 +788,7 @@ PUA[slot] : Array  {
 
 	// Magnitude of Complex Intensity
 	averageMagI { |weights = nil|
-		^(weights == nil).if({
+		^weights.isNil.if({
 			var normFac = this.numFrames.reciprocal;
 			normFac * this.totalMagI
 		}, {
@@ -803,7 +803,7 @@ PUA[slot] : Array  {
 
 	// Magnitude of Magnitude of Complex Admittance
 	averageMagMagA { |weights = nil|
-		^(weights == nil).if({
+		^weights.isNil.if({
 			var normFac = this.numFrames.reciprocal;
 			normFac * this.totalMagMagA
 		}, {
@@ -813,7 +813,7 @@ PUA[slot] : Array  {
 
 	// Magnitude of Complex Admittance
 	averageMagA { |weights = nil|
-		^(weights == nil).if({
+		^weights.isNil.if({
 			var normFac = this.numFrames.reciprocal;
 			normFac * this.totalMagA
 		}, {
@@ -828,7 +828,7 @@ PUA[slot] : Array  {
 
 	// Magnitude of Magnitude of Complex Energy
 	averageMagMagW { |weights = nil|
-		^(weights == nil).if({
+		^weights.isNil.if({
 			var normFac = this.numFrames.reciprocal;
 			normFac * this.totalMagMagW
 		}, {
@@ -838,7 +838,7 @@ PUA[slot] : Array  {
 
 	// Magnitude of Complex Energy
 	averageMagW { |weights = nil|
-		^(weights == nil).if({
+		^weights.isNil.if({
 			var normFac = this.numFrames.reciprocal;
 			normFac * this.totalMagW
 		}, {
@@ -853,7 +853,7 @@ PUA[slot] : Array  {
 
 	// Magnitude of Magnitude Unit Normalized Complex Intensity - Convenience
 	averageMagMagN { |weights = nil|
-		^(weights == nil).if({
+		^weights.isNil.if({
 			1.0
 		}, {
 			this.instantMagMagN.wmean(weights)
@@ -862,7 +862,7 @@ PUA[slot] : Array  {
 
 	// Magnitude of Unit Normalized Complex Intensity
 	averageMagN { |weights = nil|
-		^(weights == nil).if({
+		^weights.isNil.if({
 			var normFac = this.numFrames.reciprocal;
 			normFac * this.totalMagN
 		}, {
@@ -880,7 +880,7 @@ PUA[slot] : Array  {
 
 	// Intensity
 	averageI { |weights = nil|
-		^(weights == nil).if({
+		^weights.isNil.if({
 			var normFac = this.numFrames.reciprocal;
 			normFac * this.totalI
 		}, {
@@ -895,7 +895,7 @@ PUA[slot] : Array  {
 
 	// Admittance
 	averageA { |weights = nil|
-		^(weights == nil).if({
+		^weights.isNil.if({
 			var normFac = this.numFrames.reciprocal;
 			normFac * this.totalA
 		}, {
@@ -910,7 +910,7 @@ PUA[slot] : Array  {
 
 	// Energy
 	averageW { |weights = nil|
-		^(weights == nil).if({
+		^weights.isNil.if({
 			var normFac = this.numFrames.reciprocal;
 			normFac * this.totalW
 		}, {
@@ -925,7 +925,7 @@ PUA[slot] : Array  {
 
 	// Unit Normalized Intensity
 	averageN { |weights = nil|
-		^(weights == nil).if({
+		^weights.isNil.if({
 			var normFac = this.numFrames.reciprocal;
 			normFac * this.totalN
 		}, {
@@ -964,7 +964,7 @@ PUA[slot] : Array  {
 		var gamma = this.instantGamma;
 		var sinFac = gamma.sin;
 		var cosFac = gamma.cos;
-		(weights == nil).if({
+		weights.isNil.if({
 			sinFac = sinFac.sum;
 			cosFac = cosFac.sum;
 		}, {

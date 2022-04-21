@@ -982,4 +982,76 @@ PUA[slot] : Array  {
 		^atan2(1 - magAa.squared, 2 * magAa)
 	}
 
+
+	//------------------------------------------------------------------------
+	// SOUNDFIELD INCIDENCE - complex vector: Complex([ thetaA, phiA ], [ thetaR, phiR ])
+
+	// Complex Incidence Angle
+	averageThetaPhi { |weights|
+		var thetaPhi = this.instantThetaPhi;
+		var cosThetaA = thetaPhi.real[0].cos;
+		var sinThetaA = thetaPhi.real[0].sin;
+		var cosPhiA = thetaPhi.real[1].cos;
+		var sinPhiA = thetaPhi.real[1].sin;
+		var cosThetaR = thetaPhi.imag[0].cos;
+		var sinThetaR = thetaPhi.imag[0].sin;
+		var cosPhiR = thetaPhi.imag[1].cos;
+		var sinPhiR = thetaPhi.imag[1].sin;
+		var nA, nR;
+		var thetaA, phiA, thetaR, phiR;
+
+		weights.isNil.if({
+			nA = [
+				(cosThetaA * cosPhiA).sum,
+				(sinThetaA * cosPhiA).sum,
+				sinPhiA.sum
+			];
+			nR = [
+				(cosThetaR * cosPhiR).sum,
+				(sinThetaR * cosPhiR).sum,
+				sinPhiR.sum
+			]
+		}, {
+			nA = [
+				(cosThetaA * cosPhiA * weights).sum,
+				(sinThetaA * cosPhiA * weights).sum,
+				(sinPhiA * weights).sum
+			];
+			nR = [
+				(cosThetaR * cosPhiR * weights).sum,
+				(sinThetaR * cosPhiR * weights).sum,
+				(sinPhiR * weights).sum
+			]
+		});
+		thetaA = atan2(nA[1], nA[0]);
+		phiA = atan2(nA[2], (nA[0].squared + nA[1].squared).sqrt);
+		thetaR = atan2(nR[1], nR[0]);
+		phiR = atan2(nR[2], (nR[0].squared + nR[1].squared).sqrt);
+
+		^Complex.new(
+			[ thetaA, phiA ],
+			[ thetaR, phiR ]
+		)
+	}
+
+	//------------------------------------------------------------------------
+	// SOUNDFIELD RADIUS
+
+	// Nearfield (Spherical) Radius
+	/*
+	TODO: frequency domain implementation?
+
+	NOTE:
+	 - biased towards LF performance
+	 - biased towards steady state monotones
+	*/
+	averageRadius { |weights, sampleRate|
+		var radius = this.instantRadius(sampleRate);
+		^weights.isNil.if({
+			radius.mean
+		}, {
+			radius.wmean(weights)
+		})
+	}
+
 }

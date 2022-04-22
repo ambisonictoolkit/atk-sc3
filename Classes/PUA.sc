@@ -260,6 +260,17 @@ PUA[slot] : Array  {
 	//------------------------------------------------------------------------
 	// Encoding
 
+	*newPUT { |put|
+		var hoaOrder = order.asHoaOrder;
+		(put.class == PUT).if({
+			^super.fill(hoaOrder.size, { |i|
+				put[i].analytic
+			})
+		}, {
+			Error.new("Input class % != PUT!".format(put.class)).throw
+		})
+	}
+
 	/*
 	TODO:
 

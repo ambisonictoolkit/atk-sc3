@@ -464,11 +464,144 @@ PUF[slot] : Array  {
 		^[ this.stationaryWp, this.stationaryWu.neg ].mean
 	}
 
-	// // Heyser energy density
-	// stationaryWh {
-	// 	var ws = this.instantWs;
-	// 	var magI = this.instantMagI;
-	// 	^(ws - magI.imag)
-	// }
+	// Heyser energy density
+	stationaryWh {
+		var ws = this.stationaryWs;
+		var magI = this.stationaryMagI;
+		^(ws - magI.imag)
+	}
+
+	//------------------------------------------------------------------------
+	// INTENSITY - magnitudes
+
+	// Magnitude of Magnitude of Complex Intensity
+	stationaryMagMagI {
+		var wp = this.stationaryWp;
+		var wu = this.stationaryWu;
+		^(wp * wu).sqrt
+	}
+
+	// Magnitude of Complex Intensity
+	stationaryMagI {
+		var i = this.stationaryI;
+		^Complex.new(
+			i.real.squared.sum.sqrt,
+			i.imag.squared.sum.sqrt
+		)
+	}
+
+	// Magnitude of Magnitude of Complex Admittance
+	stationaryMagMagA {
+		var magMagI = this.stationaryMagMagI;
+		var wp = this.stationaryWp;
+		var wpReciprocal = (wp + FoaEval.reg.squared).reciprocal;
+		^(magMagI * wpReciprocal)
+	}
+
+	// Magnitude of Complex Admittance
+	stationaryMagA {
+		var magI = this.stationaryMagI;
+		var wp = this.stationaryWp;
+		var wpReciprocal = (wp + FoaEval.reg.squared).reciprocal;
+		^Complex.new(  // explicit... slow otherwise!!
+			magI.real * wpReciprocal,
+			magI.imag * wpReciprocal
+		)
+	}
+
+	// Magnitude of Magnitude of Complex Energy
+	stationaryMagMagW {
+		var magMagI = this.stationaryMagMagI;
+		var ws = this.stationaryWs;
+		var wsReciprocal = (ws + FoaEval.reg.squared).reciprocal;
+		^(magMagI * wsReciprocal)
+	}
+
+	// Magnitude of Complex Energy
+	stationaryMagW {
+		var magI = this.stationaryMagI;
+		var ws = this.stationaryWs;
+		var wsReciprocal = (ws + FoaEval.reg.squared).reciprocal;
+		^Complex.new(  // explicit... slow otherwise!!
+			magI.real * wsReciprocal,
+			magI.imag * wsReciprocal
+		)
+	}
+
+	// Magnitude of Magnitude Unit Normalized Complex Intensity - Convenience
+	stationaryMagMagN {
+		^Array.fill(this.numFrames, { 1.0 })
+	}
+
+	// Magnitude of Unit Normalized Complex Intensity
+	stationaryMagN {
+		var magI = this.stationaryMagI;
+		var magMagI = this.stationaryMagMagI;
+		var magMagIReciprocal = (magMagI + FoaEval.reg.squared.squared).reciprocal;
+		^Complex.new(  // explicit... slow otherwise!!
+			magI.real * magMagIReciprocal,
+			magI.imag * magMagIReciprocal
+		)
+	}
+
+	//------------------------------------------------------------------------
+	// INTENSITY - complex vectors
+
+	/*
+	TODO: parallel to ATK analyze names?
+	TODO: defer / promote to superclass PUC??
+	*/
+
+	// Intensity
+	stationaryI {
+		var p = this.pressure;
+		var u = this.velocity;
+		^u.collect({ |item|
+			var i = (p * item.conjugate);
+			Complex.new(
+				i.real.as(Array),
+				i.imag.as(Array)
+			)
+		})
+	}
+
+	// Admittance
+	stationaryA {
+		var i = this.stationaryI;
+		var wp = this.stationaryWp;
+		var wpReciprocal = (wp + FoaEval.reg.squared).reciprocal;
+		^i.collect({ |item|
+			Complex.new(  // explicit... slow otherwise!!
+				item.real * wpReciprocal,
+				item.imag * wpReciprocal
+			)
+		})
+	}
+
+	// Energy
+	stationaryW {
+		var i = this.stationaryI;
+		var ws = this.stationaryWs;
+		var wsReciprocal = (ws + FoaEval.reg.squared).reciprocal;
+		^i.collect({ |item|
+			Complex.new(  // explicit... slow otherwise!!
+				item.real * wsReciprocal,
+				item.imag * wsReciprocal
+			)
+		})
+	}
+
+	// Unit Normalized Intensity
+	stationaryN {
+		var i = this.stationaryI;
+		var magMagI = this.stationaryMagMagI;
+		var magMagIReciprocal = (magMagI + FoaEval.reg.squared).reciprocal;
+		^i.collect({ |item|
+			Complex.new(  // explicit... slow otherwise!!
+				item.real * magMagIReciprocal,
+				item.imag * magMagIReciprocal
+			)
+		})
+	}
 
 }

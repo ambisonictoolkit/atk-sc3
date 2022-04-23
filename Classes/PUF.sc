@@ -604,4 +604,58 @@ PUF[slot] : Array  {
 		})
 	}
 
+	//------------------------------------------------------------------------
+	// SOUNDFIELD INDICATORS
+
+	// Active-Reactive Soundfield Balance Angle: Alpha
+	stationaryAlpha {
+		var magI = this.stationaryMagI;
+		^atan2(magI.imag, magI.real)
+	}
+
+	// Potential-Kinetic Soundfield Balance Angle: Beta
+	stationaryBeta {
+		var wd = this.stationaryWd;
+		var magMagI = this.stationaryMagMagI;
+		^atan2(wd, magMagI)
+	}
+
+	// Active-Reactive Vector Alignment Angle: Gamma
+	stationaryGamma {
+		var i = this.stationaryI;
+		var magI = Complex.new(i.real.squared.sum.sqrt, i.imag.squared.sum.sqrt);
+		var cosFac, sinFac;
+		cosFac = (i.real * i.imag).sum;
+		sinFac = ((magI.real * magI.imag).squared - cosFac.squared).abs.sqrt;  // -abs for numerical precision errors
+		^atan2(sinFac, cosFac)
+	}
+
+	// Active Admittance Balance Angle: Mu
+	stationaryMu {
+		var magAa = this.stationaryMagA.real;
+		// ^(2 * magAa.atan).tan.reciprocal.atan  // the double angle form
+		// ^atan2((1 - magAa.squared) / 2, magAa)
+		^atan2(1 - magAa.squared, 2 * magAa)
+	}
+
+	//------------------------------------------------------------------------
+	// SOUNDFIELD INCIDENCE - complex vector: Complex([ thetaA, phiA ], [ thetaR, phiR ])
+
+	// Complex Incidence Angle
+	stationaryThetaPhi {
+		var i = this.stationaryI;
+		var thetaA = atan2(i.real[1], i.real[0]);
+		var phiA = atan2(i.real[2], (i.real[0].squared + i.real[1].squared).sqrt);
+		var thetaR = atan2(i.imag[1], i.imag[0]);
+		var phiR = atan2(i.imag[2], (i.imag[0].squared + i.imag[1].squared).sqrt);
+		^Complex.new(
+			[ thetaA, phiA ],
+			[ thetaR, phiR ]
+		)
+	}
+
+	//------------------------------------------------------------------------
+	// SOUNDFIELD RADIUS
+
+
 }

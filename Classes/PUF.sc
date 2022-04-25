@@ -658,5 +658,41 @@ PUF[slot] : Array  {
 	//------------------------------------------------------------------------
 	// SOUNDFIELD RADIUS
 
+	// Nearfield (Spherical) Radius
+	stationaryRadius { |negRadius = false, sampleRate = nil, speedOfSound = (AtkHoa.speedOfSound)|
+		var rfftSize = (this.size / 2).asInteger + 1;
+		var halfPi = 0.5pi;
+		var freqs = rfftSize.rfftFreqs(sampleRate);
+		var gamma = this.stationaryGamma.keep(rfftSize);  // real signal - just keep + freqs
+		var a = this.stationaryA.keep(rfftSize);  // admittance
+		var magAsquared = a.real.squared.sum;  // squared magnitude of active admittance
+		var magAsquaredReciprocal = (magAsquared + FoaEval.reg.squared).reciprocal;
+		var magAR = (a.real * a.imag).sum * magAsquaredReciprocal;  // (scaled) magnitude of parallel reactive admittance
+		var radius;
+
+		// assume power of two
+		/*
+		TODO: enforce power of two
+		*/
+		/*
+		TODO: consider single frequency implementation
+		*/
+
+		// +freqs only
+		radius = freqs.collect({ |freq, i|
+			((gamma[i] < halfPi) || negRadius).if({
+				(magAsquared[i] != 0.0).if({
+					(magAR[i] * WaveNumber.newFreq(freq, speedOfSound).waveNumber).reciprocal
+				}, {
+					inf
+				})
+			}, {  // negative radius --> planewave
+				inf
+			})
+		});
+
+		// mirror
+		^(radius ++ (radius.deepCopy.drop(1).drop(-1).reverse))
+	}
 
 }

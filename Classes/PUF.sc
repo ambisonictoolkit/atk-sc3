@@ -400,10 +400,11 @@ PUF[slot] : Array  {
 		stream << " ]" ;
 	}
 
-	/*
-	TODO: rename to -size??
-	*/
 	numFrames {
+		^this.size
+	}
+
+	size {
 		^this.pressure.real.size
 	}
 

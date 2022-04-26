@@ -729,17 +729,24 @@ PUT[slot] : Array  {
 	 - biased towards LF performance
 	 - biased towards steady state monotones
 	*/
-	averageRadius { |sampleRate|
+	averageRadius { |negRadius = false, sampleRate = nil, speedOfSound = (AtkHoa.speedOfSound)|
 		var aA = this.averageAa;
 		var thisIntegP = this.deepCopy;
 		var integPaA;
+		var radius;
 		thisIntegP.put(
 			0,
 			// (one pole, one zero) integrate pressure
 			0.5 * (this[0] + (Signal.zeroFill(1) ++ this[0].drop(-1))).integrate.discardDC,
 		);
 		integPaA = thisIntegP.averageAa;
-		^((AtkFoa.speedOfSound / sampleRate) * (aA.squared.sum / ((aA * integPaA).sum + FoaEval.reg.squared)))
+		radius = ((speedOfSound / sampleRate) * (aA.squared.sum / ((aA * integPaA).sum + FoaEval.reg.squared)))
+
+		^negRadius.if({
+			radius
+		}, {  // negative radius --> planewave
+			radius.isNegative.if({ inf }, { radius })
+		})
 	}
 
 }

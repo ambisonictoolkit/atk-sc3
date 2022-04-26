@@ -579,10 +579,11 @@ PUA[slot] : Array  {
 	 - biased towards LF performance
 	 - biased towards steady state monotones
 	*/
-	instantRadius { |sampleRate|
+	instantRadius { |negRadius = false, sampleRate = nil, speedOfSound = (AtkHoa.speedOfSound)|
 		var aA = this.instantA.real;
 		var thisIntegP = this.deepCopy;
 		var integPaA;
+		var radius;
 		thisIntegP.put(
 			0,
 			Complex.new(  // (one pole, one zero) integrate pressure
@@ -591,7 +592,15 @@ PUA[slot] : Array  {
 			)
 		);
 		integPaA = thisIntegP.instantA.real;
-		^((AtkFoa.speedOfSound / sampleRate) * (aA.squared.sum / ((aA * integPaA).sum + FoaEval.reg.squared)))
+		radius = ((speedOfSound / sampleRate) * (aA.squared.sum / ((aA * integPaA).sum + FoaEval.reg.squared)));
+
+		^negRadius.if({
+			radius
+		}, {  // negative radius --> planewave
+			radius.collect({ |item|
+				item.isNegative.if({ inf }, { item })
+			})
+		})
 	}
 
 
@@ -1051,13 +1060,14 @@ PUA[slot] : Array  {
 	// Nearfield (Spherical) Radius
 	/*
 	TODO: frequency domain implementation?
+	TODO: manage infs?
 
 	NOTE:
 	 - biased towards LF performance
 	 - biased towards steady state monotones
 	*/
-	averageRadius { |weights, sampleRate|
-		var radius = this.instantRadius(sampleRate);
+	averageRadius { |weights, negRadius = false, sampleRate = nil, speedOfSound = (AtkHoa.speedOfSound)|
+		var radius = this.instantRadius(negRadius, sampleRate, speedOfSound);
 		^weights.isNil.if({
 			radius.mean
 		}, {

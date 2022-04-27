@@ -436,6 +436,8 @@ PUF[slot] : Array  {
 	// Stationary measures
 	/*
 	TODO: use another name?
+	TODO: refactor to only return coefficients for +freqs
+			OR recognize I.imag is neg for -freqs
 	*/
 
 	//------------------------------------------------------------------------
@@ -551,6 +553,8 @@ PUF[slot] : Array  {
 	/*
 	TODO: parallel to ATK analyze names?
 	TODO: defer / promote to superclass PUC??
+
+	TODO: are negative freqs correct?? - yes - what we experience numerical noise w/ normalisation
 	*/
 
 	// Intensity
@@ -608,6 +612,10 @@ PUF[slot] : Array  {
 	//------------------------------------------------------------------------
 	// SOUNDFIELD INDICATORS
 
+	/*
+	TODO: check negative freqs --> gamma??
+	*/
+
 	// Active-Reactive Soundfield Balance Angle: Alpha
 	stationaryAlpha {
 		var magI = this.stationaryMagI;
@@ -642,6 +650,10 @@ PUF[slot] : Array  {
 	//------------------------------------------------------------------------
 	// SOUNDFIELD INCIDENCE - complex vector: Complex([ thetaA, phiA ], [ thetaR, phiR ])
 
+	/*
+	TODO: check negative freqs
+	*/
+
 	// Complex Incidence Angle
 	stationaryThetaPhi {
 		var i = this.stationaryI;
@@ -657,6 +669,10 @@ PUF[slot] : Array  {
 
 	//------------------------------------------------------------------------
 	// SOUNDFIELD RADIUS
+
+	/*
+	TODO: check negative freqs
+	*/
 
 	// Nearfield (Spherical) Radius
 	stationaryRadius { |negRadius = false, sampleRate = nil, speedOfSound = (AtkHoa.speedOfSound)|
@@ -694,5 +710,188 @@ PUF[slot] : Array  {
 		// mirror
 		^(radius ++ (radius.deepCopy.drop(1).drop(-1).reverse))
 	}
+
+
+	//------------------------------------------------------------------------
+	//------------------------------------------------------------------------
+	// Total (scaled sum) measures
+
+	/*
+	NOTE: scaled to match PUA
+	*/
+
+	// potential energy
+	totalWp {
+		var normFac = 2 / this.size;
+		^(normFac * this.stationaryWp.sum)
+	}
+
+	// kinetic energy
+	totalWu {
+		var normFac = 2 / this.size;
+		^(normFac * this.stationaryWu.sum)
+	}
+
+	// potential & kinetic energy mean
+	totalWs {
+		var normFac = 2 / this.size;
+		^(normFac * this.stationaryWs.sum)
+	}
+
+	// potential & kinetic energy difference
+	totalWd {
+		var normFac = 2 / this.size;
+		^(normFac * this.stationaryWd.sum)
+	}
+
+	// Heyser energy density
+	totalWh {
+		var normFac = 2 / this.size;
+		^(normFac * this.stationaryWh.sum)
+	}
+
+	//------------------------------------------------------------------------
+	// MAGNITUDE - (scaled) sums
+
+	/*
+	NOTE: only matches w/ stationary signals!
+	TODO: why? - is this because we should do +freqs only and then double?
+	*/
+
+	// Magnitude of Magnitude of Complex Intensity
+	totalMagMagI {
+		var normFac = 2 / this.size;
+		^(normFac * this.stationaryMagMagI.sum)
+	}
+
+	// Magnitude of Complex Intensity
+	totalMagI {
+		var magI = this.stationaryMagI;
+		var normFac = 2 / this.size;
+		^Complex.new(
+			normFac * magI.real.sum,
+			normFac * magI.imag.sum
+		)
+	}
+
+	/*
+	TODO: refactor to use average measures here, a la PUT??
+	*/
+	// Magnitude of Magnitude of Complex Admittance
+	totalMagMagA {
+		var magMagI = this.totalMagMagI;
+		var wp = this.totalWp;
+		var wpReciprocal = (wp + FoaEval.reg.squared).reciprocal;
+		var normFac = this.numFrames;
+		^(normFac * magMagI * wpReciprocal)
+	}
+
+	/*
+	TODO: refactor to use average measures here, a la PUT??
+	*/
+	// Magnitude of Complex Admittance
+	totalMagA {
+		var magI = this.totalMagI;
+		var wp = this.totalWp;
+		var wpReciprocal = (wp + FoaEval.reg.squared).reciprocal;
+		var normFac = this.numFrames;
+		^(normFac * magI * wpReciprocal)
+	}
+
+	/*
+	TODO: refactor to use average measures here, a la PUT??
+	*/
+	// Magnitude of Magnitude of Complex Energy
+	totalMagMagW {
+		var magMagI = this.totalMagMagI;
+		var ws = this.totalWs;
+		var wsReciprocal = (ws + FoaEval.reg.squared).reciprocal;
+		var normFac = this.numFrames;
+		^(normFac * magMagI * wsReciprocal)
+	}
+
+	/*
+	TODO: refactor to use average measures here, a la PUT??
+	*/
+	// Magnitude of Complex Energy
+	totalMagW {
+		var magI = this.totalMagI;
+		var ws = this.totalWs;
+		var wsReciprocal = (ws + FoaEval.reg.squared).reciprocal;
+		var normFac = this.numFrames;
+		^(normFac * magI * wsReciprocal)
+	}
+
+	// Magnitude of Magnitude Unit Normalized Complex Intensity - Convenience
+	totalMagMagN {
+		^this.numFrames.asFloat
+	}
+
+	/*
+	TODO: refactor to use average measures here, a la PUT??
+	*/
+	// Magnitude of Unit Normalized Complex Intensity
+	totalMagN {
+		var magI = this.totalMagI;
+		var magMagI = this.totalMagMagI;
+		var magMagIReciprocal = (magMagI + FoaEval.reg.squared).reciprocal;
+		var normFac = this.numFrames;
+		^Complex.new(  // explicit... slow otherwise!!
+			normFac * magI.real * magMagIReciprocal,
+			normFac * magI.imag * magMagIReciprocal
+		)
+	}
+
+	//------------------------------------------------------------------------
+	// INTENSITY - sums
+
+
+	/*
+	TODO: neg freqs cancelling on imag vector sum, for some reason
+
+	- sum +freqs only? --> yes, because imag cancels (or, invert negs)
+	- does this relate to total magnitudes (above)?
+	- numerical issues w/ normalisation...
+
+	~puf.stationaryI.imag.flop.keep((~puf.numFrames / 2).asInteger + 1).sum / ~puf.numFrames * 4
+
+	?? use same approach for above measures??
+	*/
+	// Intensity
+	totalI {
+		var i = this.stationaryI;
+		var normFac = 2 / this.numFrames;
+		^Complex.new(
+			normFac * i.real.flop.sum,
+			normFac * i.imag.flop.sum
+		)
+	}
+
+	// // Admittance
+	// totalA {
+	// 	var a = this.instantA;
+	// 	^Complex.new(
+	// 		a.real.flop.sum,
+	// 		a.imag.flop.sum
+	// 	)
+	// }
+	//
+	// // Energy
+	// totalW {
+	// 	var w = this.instantW;
+	// 	^Complex.new(
+	// 		w.real.flop.sum,
+	// 		w.imag.flop.sum
+	// 	)
+	// }
+	//
+	// // Unit Normalized Intensity
+	// totalN {
+	// 	var n = this.instantN;
+	// 	^Complex.new(
+	// 		n.real.flop.sum,
+	// 		n.imag.flop.sum
+	// 	)
+	// }
 
 }

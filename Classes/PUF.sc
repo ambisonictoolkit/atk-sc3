@@ -554,7 +554,8 @@ PUF[slot] : Array  {
 	TODO: parallel to ATK analyze names?
 	TODO: defer / promote to superclass PUC??
 
-	TODO: are negative freqs correct?? - yes - what we experience numerical noise w/ normalisation
+	TODO: are negative freqs correct??
+	TODO: do these align w/ HoaOrder coefficients??
 	*/
 
 	// Intensity
@@ -774,52 +775,32 @@ PUF[slot] : Array  {
 		)
 	}
 
-	/*
-	TODO: refactor to use average measures here, a la PUT??
-	*/
 	// Magnitude of Magnitude of Complex Admittance
 	totalMagMagA {
-		var magMagI = this.totalMagMagI;
-		var wp = this.totalWp;
-		var wpReciprocal = (wp + FoaEval.reg.squared).reciprocal;
+		var magMagA = this.averageMagMagA;
 		var normFac = this.numFrames;
-		^(normFac * magMagI * wpReciprocal)
+		^(normFac * magMagA)
 	}
 
-	/*
-	TODO: refactor to use average measures here, a la PUT??
-	*/
 	// Magnitude of Complex Admittance
 	totalMagA {
-		var magI = this.totalMagI;
-		var wp = this.totalWp;
-		var wpReciprocal = (wp + FoaEval.reg.squared).reciprocal;
+		var magA = this.averageMagA;
 		var normFac = this.numFrames;
-		^(normFac * magI * wpReciprocal)
+		^(normFac * magA)
 	}
 
-	/*
-	TODO: refactor to use average measures here, a la PUT??
-	*/
 	// Magnitude of Magnitude of Complex Energy
 	totalMagMagW {
-		var magMagI = this.totalMagMagI;
-		var ws = this.totalWs;
-		var wsReciprocal = (ws + FoaEval.reg.squared).reciprocal;
+		var magMagW = this.averageMagMagW;
 		var normFac = this.numFrames;
-		^(normFac * magMagI * wsReciprocal)
+		^(normFac * magMagW)
 	}
 
-	/*
-	TODO: refactor to use average measures here, a la PUT??
-	*/
 	// Magnitude of Complex Energy
 	totalMagW {
-		var magI = this.totalMagI;
-		var ws = this.totalWs;
-		var wsReciprocal = (ws + FoaEval.reg.squared).reciprocal;
+		var magW = this.averageMagW;
 		var normFac = this.numFrames;
-		^(normFac * magI * wsReciprocal)
+		^(normFac * magW)
 	}
 
 	// Magnitude of Magnitude Unit Normalized Complex Intensity - Convenience
@@ -827,71 +808,282 @@ PUF[slot] : Array  {
 		^this.numFrames.asFloat
 	}
 
-	/*
-	TODO: refactor to use average measures here, a la PUT??
-	*/
 	// Magnitude of Unit Normalized Complex Intensity
 	totalMagN {
-		var magI = this.totalMagI;
-		var magMagI = this.totalMagMagI;
-		var magMagIReciprocal = (magMagI + FoaEval.reg.squared).reciprocal;
+		var magN = this.averageMagN;
 		var normFac = this.numFrames;
-		^Complex.new(  // explicit... slow otherwise!!
-			normFac * magI.real * magMagIReciprocal,
-			normFac * magI.imag * magMagIReciprocal
-		)
+		^(normFac * magN)
 	}
 
 	//------------------------------------------------------------------------
 	// INTENSITY - sums
 
-
-	/*
-	TODO: neg freqs cancelling on imag vector sum, for some reason
-
-	- sum +freqs only? --> yes, because imag cancels (or, invert negs)
-	- does this relate to total magnitudes (above)?
-	- numerical issues w/ normalisation...
-
-	~puf.stationaryI.imag.flop.keep((~puf.numFrames / 2).asInteger + 1).sum / ~puf.numFrames * 4
-
-	?? use same approach for above measures??
-	*/
 	// Intensity
 	totalI {
+		var halfSize = (this.size / 2).asInteger;
 		var i = this.stationaryI;
+		var ia = i.real;
+		var ir = i.imag;
+		var irMirror = ir.collect({ |item|
+			item.keep(halfSize) ++ item.drop(halfSize).neg
+		});  // mirror negative freqs across origin
 		var normFac = 2 / this.numFrames;
 		^Complex.new(
-			normFac * i.real.flop.sum,
-			normFac * i.imag.flop.sum
+			normFac * ia.flop.sum,
+			normFac * irMirror.flop.sum
 		)
 	}
 
-	// // Admittance
-	// totalA {
-	// 	var a = this.instantA;
-	// 	^Complex.new(
-	// 		a.real.flop.sum,
-	// 		a.imag.flop.sum
-	// 	)
+	// Admittance
+	totalA {
+		var i = this.totalI;
+		var wp = this.totalWp;
+		var normFac = this.numFrames;
+		^(normFac * i / wp)
+	}
+
+	// Energy
+	totalW {
+		var i = this.totalI;
+		var ws = this.totalWs;
+		var normFac = this.numFrames;
+		^(normFac * i / ws)
+	}
+
+	// Unit Normalized Intensity
+	totalN {
+		var i = this.totalI;
+		var magMagI = this.totalMagMagI;
+		var normFac = this.numFrames;
+		^(normFac * i / magMagI)
+	}
+
+	//------------------------------------------------------------------------
+	//------------------------------------------------------------------------
+	// Average measures
+	/*
+	TODO: confirm weighted averages match PUA
+	*/
+
+	//------------------------------------------------------------------------
+	// ENERGY - average
+
+	// potential energy
+	averageWp { |weights = nil|
+		^weights.isNil.if({
+			var normFac = this.numFrames.reciprocal;
+			normFac * this.totalWp
+		}, {
+			this.stationaryWp.wmean(weights)
+		})
+	}
+
+	// kinetic energy
+	averageWu { |weights = nil|
+		^weights.isNil.if({
+			var normFac = this.numFrames.reciprocal;
+			normFac * this.totalWu
+		}, {
+			this.stationaryWu.wmean(weights)
+		})
+	}
+
+	// potential & kinetic energy mean
+	averageWs { |weights = nil|
+		^weights.isNil.if({
+			var normFac = this.numFrames.reciprocal;
+			normFac * this.totalWs
+		}, {
+			this.stationaryWs.wmean(weights)
+		})
+	}
+
+	// potential & kinetic energy difference
+	averageWd { |weights = nil|
+		^weights.isNil.if({
+			var normFac = this.numFrames.reciprocal;
+			normFac * this.totalWd
+		}, {
+			this.stationaryWd.wmean(weights)
+		})
+	}
+
+	// // Heyser energy density
+	// averageWh { |weights = nil|
+	// 	^weights.isNil.if({
+	// 		var normFac = this.numFrames.reciprocal;
+	// 		normFac * this.totalWh
+	// 	}, {
+	// 		this.instantWh.wmean(weights)
+	// 	})
 	// }
-	//
-	// // Energy
-	// totalW {
-	// 	var w = this.instantW;
-	// 	^Complex.new(
-	// 		w.real.flop.sum,
-	// 		w.imag.flop.sum
-	// 	)
-	// }
-	//
-	// // Unit Normalized Intensity
-	// totalN {
-	// 	var n = this.instantN;
-	// 	^Complex.new(
-	// 		n.real.flop.sum,
-	// 		n.imag.flop.sum
-	// 	)
-	// }
+
+	//------------------------------------------------------------------------
+	// MAGNITUDE - average
+
+	// Magnitude of Magnitude of Complex Intensity
+	averageMagMagI { |weights = nil|
+		^weights.isNil.if({
+			var normFac = this.numFrames.reciprocal;
+			normFac * this.totalMagMagI
+		}, {
+			this.stationaryMagMagI.wmean(weights)
+		})
+	}
+
+	// Magnitude of Complex Intensity
+	averageMagI { |weights = nil|
+		^weights.isNil.if({
+			var normFac = this.numFrames.reciprocal;
+			normFac * this.totalMagI
+		}, {
+			var magI = this.stationaryMagI;
+			Complex.new(
+				magI.real.wmean(weights),
+				magI.imag.wmean(weights)
+			)
+		})
+	}
+
+	// Magnitude of Magnitude of Complex Admittance
+	averageMagMagA { |weights = nil|
+		^weights.isNil.if({
+			var magMagI = this.totalMagMagI;
+			var wp = this.totalWp;
+			var wpReciprocal = (wp + FoaEval.reg.squared).reciprocal;
+			magMagI * wpReciprocal
+		}, {
+			this.stationaryMagMagA.wmean(weights)
+		})
+	}
+
+	// Magnitude of Complex Admittance
+	averageMagA { |weights = nil|
+		^weights.isNil.if({
+			var magI = this.totalMagI;
+			var wp = this.totalWp;
+			var wpReciprocal = (wp + FoaEval.reg.squared).reciprocal;
+			magI * wpReciprocal
+		}, {
+			var magA = this.stationaryMagA;
+			Complex.new(
+				magA.real.wmean(weights),
+				magA.imag.wmean(weights)
+			)
+		})
+	}
+
+	// Magnitude of Magnitude of Complex Energy
+	averageMagMagW { |weights = nil|
+		^weights.isNil.if({
+			var magMagI = this.totalMagMagI;
+			var ws = this.totalWs;
+			var wsReciprocal = (ws + FoaEval.reg.squared).reciprocal;
+			magMagI * wsReciprocal
+		}, {
+			this.stationaryMagMagW.wmean(weights)
+		})
+	}
+
+	// Magnitude of Complex Energy
+	averageMagW { |weights = nil|
+		^weights.isNil.if({
+			var magI = this.totalMagI;
+			var ws = this.totalWs;
+			var wsReciprocal = (ws + FoaEval.reg.squared).reciprocal;
+			magI * wsReciprocal
+		}, {
+			var magW = this.stationaryMagW;
+			Complex.new(
+				magW.real.wmean(weights),
+				magW.imag.wmean(weights)
+			)
+		})
+	}
+
+	// Magnitude of Magnitude Unit Normalized Complex Intensity - Convenience
+	averageMagMagN { |weights|
+		^1.0
+	}
+
+	// Magnitude of Unit Normalized Complex Intensity
+	averageMagN { |weights = nil|
+		^weights.isNil.if({
+			var magI = this.totalMagI;
+			var magMagI = this.totalMagMagI;
+			var magMagIReciprocal = (magMagI + FoaEval.reg.squared).reciprocal;
+			magI * magMagIReciprocal
+		}, {
+			var magN = this.stationaryMagN;
+			Complex.new(
+				magN.real.wmean(weights),
+				magN.imag.wmean(weights)
+			)
+		})
+	}
+
+
+	//------------------------------------------------------------------------
+	// INTENSITY - average
+
+	// Intensity
+	averageI { |weights = nil|
+		^weights.isNil.if({
+			var normFac = this.numFrames.reciprocal;
+			normFac * this.totalI
+		}, {
+			var i = this.stationaryI;
+			var weightsReciprocal = weights.sum.reciprocal;
+			Complex.new(  // explicit...
+				weightsReciprocal * i.real.collect({ |item| (item * weights).sum }),
+				weightsReciprocal * i.imag.collect({ |item| (item * weights).sum }),
+			)
+		})
+	}
+
+	// Admittance
+	averageA { |weights = nil|
+		^weights.isNil.if({
+			var normFac = this.numFrames.reciprocal;
+			normFac * this.totalA
+		}, {
+			var a = this.stationaryA;
+			var weightsReciprocal = weights.sum.reciprocal;
+			Complex.new(  // explicit...
+				weightsReciprocal * a.real.collect({ |item| (item * weights).sum }),
+				weightsReciprocal * a.imag.collect({ |item| (item * weights).sum }),
+			)
+		})
+	}
+
+	// Energy
+	averageW { |weights = nil|
+		^weights.isNil.if({
+			var normFac = this.numFrames.reciprocal;
+			normFac * this.totalW
+		}, {
+			var w = this.stationaryW;
+			var weightsReciprocal = weights.sum.reciprocal;
+			Complex.new(  // explicit...
+				weightsReciprocal * w.real.collect({ |item| (item * weights).sum }),
+				weightsReciprocal * w.imag.collect({ |item| (item * weights).sum }),
+			)
+		})
+	}
+
+	// Unit Normalized Intensity
+	averageN { |weights = nil|
+		^weights.isNil.if({
+			var normFac = this.numFrames.reciprocal;
+			normFac * this.totalN
+		}, {
+			var n = this.stationaryN;
+			var weightsReciprocal = weights.sum.reciprocal;
+			Complex.new(  // explicit...
+				weightsReciprocal * n.real.collect({ |item| (item * weights).sum }),
+				weightsReciprocal * n.imag.collect({ |item| (item * weights).sum }),
+			)
+		})
+	}
 
 }

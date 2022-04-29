@@ -983,20 +983,20 @@ PUA[slot] : Array  {
 	TODO: can these be optimized / simplified?
 	*/
 
-	// FOA Active-Reactive Soundfield Balance Angle: Alpha
+	// Active-Reactive Soundfield Balance Angle: Alpha
 	averageAlpha { |weights|
 		var magI = this.averageMagI(weights);
 		^atan2(magI.imag, magI.real)
 	}
 
-	// FOA Potential-Kinetic Soundfield Balance Angle: Beta
+	// Potential-Kinetic Soundfield Balance Angle: Beta
 	averageBeta { |weights|
 		var wd = this.averageWd(weights);
 		var magMagI = this.averageMagMagI(weights);
 		^atan2(wd, magMagI)
 	}
 
-	// FOA Active-Reactive Vector Alignment Angle: Gamma
+	// Active-Reactive Vector Alignment Angle: Gamma
 	averageGamma { |weights|
 		var gamma = this.instantGamma;
 		var sinFac = gamma.sin;
@@ -1011,7 +1011,7 @@ PUA[slot] : Array  {
 		^atan2(sinFac, cosFac)
 	}
 
-	// FOA Active Admittance Balance Angle: Mu
+	// Active Admittance Balance Angle: Mu
 	averageMu { |weights|
 		var magAa = this.averageMagA(weights).real;
 		// ^(2 * magAa.atan).tan.reciprocal.atan  // the double angle form

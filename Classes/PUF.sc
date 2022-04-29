@@ -848,17 +848,11 @@ PUF[slot] : Array  {
 
 	// Intensity
 	totalI {
-		var halfSize = (this.size / 2).asInteger;
 		var i = this.stationaryI;
-		var ia = i.real;
-		var ir = i.imag;
-		var irMirror = ir.collect({ |item|
-			item.keep(halfSize) ++ item.drop(halfSize).neg
-		});  // mirror negative freqs across origin
-		var normFac = 2 / this.numFrames;
+			var normFac = 2 / this.numFrames;
 		^Complex.new(
-			normFac * ia.flop.sum,
-			normFac * irMirror.flop.sum
+			normFac * i.real.flop.sum,
+			normFac * i.imag.flop.sum
 		)
 	}
 

@@ -559,16 +559,44 @@ PUF[slot] : Array  {
 	*/
 
 	// Intensity
+	// stationaryI {
+	// 	var p = this.pressure;
+	// 	var u = this.velocity;
+	// 	^u.collect({ |item|
+	// 		var i = (p * item.conjugate);
+	// 		Complex.new(
+	// 			i.real.as(Array),
+	// 			i.imag.as(Array)
+	// 		)
+	// 	})
+	// }
+	/*
+	NOTE: Negative frequencies are mirrored across origin. Doing so facilitates
+	calulation of averages, negative freq radii and indicators
+	*/
+	/*
+	TODO: add a boolean for mirror or not?
+	*/
 	stationaryI {
+		var halfSize = (this.size / 2).asInteger;
 		var p = this.pressure;
 		var u = this.velocity;
-		^u.collect({ |item|
-			var i = (p * item.conjugate);
+		var i, ic, icm;
+		ic = u.collect({ |item|
+			i = (p * item.conjugate);
 			Complex.new(
 				i.real.as(Array),
 				i.imag.as(Array)
 			)
-		})
+		});
+		// mirror reactive negative freqs across the origin
+		icm = ic.collect({ |item|
+			Complex.new(
+				item.real,
+				item.imag.keep(halfSize) ++ item.imag.drop(halfSize).neg
+			)
+		});
+		^icm
 	}
 
 	// Admittance

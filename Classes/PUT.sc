@@ -529,6 +529,24 @@ PUT[slot] : Array  {
 
 
 	//------------------------------------------------------------------------
+	// SOUNDFIELD RADIUS
+
+	// Nearfield (Spherical) Radius
+	/*
+	TODO: frequency domain implementation?
+
+	NOTE:
+	 - biased towards LF performance
+	 - biased towards steady state monotones
+	*/
+	totalRadius { |negRadius = false, sampleRate = nil, speedOfSound = (AtkHoa.speedOfSound)|
+		var radius = this.averageRadius(negRadius, sampleRate, speedOfSound);
+		var normFac = this.numFrames;
+		^(normFac * radius)
+	}
+
+
+	//------------------------------------------------------------------------
 	//------------------------------------------------------------------------
 	// Average (time) measures
 

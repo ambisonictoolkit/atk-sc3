@@ -880,6 +880,40 @@ PUF[slot] : Array  {
 		^(normFac * i / magMagI)
 	}
 
+	// //------------------------------------------------------------------------
+	// // SOUNDFIELD INCIDENCE - complex vector: Complex([ thetaA, phiA ], [ thetaR, phiR ])
+	//
+	// // Complex Incidence Angle
+	// totalThetaPhi {
+	// 	var i = this.totalI;
+	// 	var thetaA = atan2(i.real[1], i.real[0]);
+	// 	var phiA = atan2(i.real[2], (i.real[0].squared + i.real[1].squared).sqrt);
+	// 	var thetaR = atan2(i.imag[1], i.imag[0]);
+	// 	var phiR = atan2(i.imag[2], (i.imag[0].squared + i.imag[1].squared).sqrt);
+	// 	^Complex.new(
+	// 		[ thetaA, phiA ],
+	// 		[ thetaR, phiR ]
+	// 	)
+	// }
+
+	//------------------------------------------------------------------------
+	// SOUNDFIELD RADIUS
+
+	/*
+	TODO: valid?
+
+	valid for (pure) monotonic
+
+	or.. use time domain?? - if so, refactor -averageRadius
+	*/
+	// Nearfield (Spherical) Radius
+	totalRadius { |negRadius = false, sampleRate = nil, speedOfSound = (AtkHoa.speedOfSound)|
+		var radius = this.averageRadius(nil, negRadius, sampleRate, speedOfSound);
+		var normFac = this.numFrames;
+		^(normFac * radius)
+	}
+
+
 	//------------------------------------------------------------------------
 	//------------------------------------------------------------------------
 	// Average measures
@@ -930,15 +964,15 @@ PUF[slot] : Array  {
 		})
 	}
 
-	// // Heyser energy density
-	// averageWh { |weights = nil|
-	// 	^weights.isNil.if({
-	// 		var normFac = this.numFrames.reciprocal;
-	// 		normFac * this.totalWh
-	// 	}, {
-	// 		this.instantWh.wmean(weights)
-	// 	})
-	// }
+	// Heyser energy density
+	averageWh { |weights = nil|
+		^weights.isNil.if({
+			var normFac = this.numFrames.reciprocal;
+			normFac * this.totalWh
+		}, {
+			this.instantWh.wmean(weights)
+		})
+	}
 
 	//------------------------------------------------------------------------
 	// MAGNITUDE - average
@@ -1105,6 +1139,76 @@ PUF[slot] : Array  {
 				weightsReciprocal * n.real.collect({ |item| (item * weights).sum }),
 				weightsReciprocal * n.imag.collect({ |item| (item * weights).sum }),
 			)
+		})
+	}
+
+	//------------------------------------------------------------------------
+	// SOUNDFIELD INDICATORS
+
+	// Active-Reactive Soundfield Balance Angle: Alpha
+	averageAlpha { |weights|
+		var magI = this.averageMagI(weights);
+		^atan2(magI.imag, magI.real)
+	}
+
+	// Potential-Kinetic Soundfield Balance Angle: Beta
+	averageBeta { |weights|
+		var wd = this.averageWd(weights);
+		var magMagI = this.averageMagMagI(weights);
+		^atan2(wd, magMagI)
+	}
+
+	// Active-Reactive Vector Alignment Angle: Gamma
+	averageGamma { |weights|
+		var gamma = this.stationaryGamma;
+		var sinFac = gamma.sin;
+		var cosFac = gamma.cos;
+		weights.isNil.if({
+			sinFac = sinFac.sum;
+			cosFac = cosFac.sum;
+		}, {
+			sinFac = (sinFac * weights).sum;
+			cosFac = (cosFac * weights).sum;
+		});
+		^atan2(sinFac, cosFac)
+	}
+
+	// Active Admittance Balance Angle: Mu
+	averageMu { |weights|
+		var magAa = this.averageMagA(weights).real;
+		// ^(2 * magAa.atan).tan.reciprocal.atan  // the double angle form
+		// ^atan2((1 - magAa.squared) / 2, magAa)
+		^atan2(1 - magAa.squared, 2 * magAa)
+	}
+
+
+	//------------------------------------------------------------------------
+	// SOUNDFIELD INCIDENCE - complex vector: Complex([ thetaA, phiA ], [ thetaR, phiR ])
+
+	// Complex Incidence Angle
+	averageThetaPhi { |weights = nil|
+		var i = this.averageI(weights);
+		var thetaA = atan2(i.real[1], i.real[0]);
+		var phiA = atan2(i.real[2], (i.real[0].squared + i.real[1].squared).sqrt);
+		var thetaR = atan2(i.imag[1], i.imag[0]);
+		var phiR = atan2(i.imag[2], (i.imag[0].squared + i.imag[1].squared).sqrt);
+		^Complex.new(
+			[ thetaA, phiA ],
+			[ thetaR, phiR ]
+		)
+	}
+
+	//------------------------------------------------------------------------
+	// SOUNDFIELD RADIUS
+
+	// Nearfield (Spherical) Radius
+	averageRadius { |weights, negRadius = false, sampleRate = nil, speedOfSound = (AtkHoa.speedOfSound)|
+		var radius = this.stationaryRadius(negRadius, sampleRate, speedOfSound);
+		^weights.isNil.if({
+			var normFac = 2;
+			normFac * radius.reciprocal.sum.reciprocal
+		}, {
+			radius.reciprocal.wmean(weights).reciprocal
 		})
 	}
 

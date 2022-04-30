@@ -342,14 +342,6 @@ PUF[slot] : Array  {
 	// Encoding
 
 	/*
-	TODO:
-
-	*newPUA
-	*newFOA
-	*newAmbix
-	*/
-
-	/*
 	TODO: check for power of two
 	*/
 	*newPUT { |put|
@@ -679,10 +671,6 @@ PUF[slot] : Array  {
 	//------------------------------------------------------------------------
 	// SOUNDFIELD INCIDENCE - complex vector: Complex([ thetaA, phiA ], [ thetaR, phiR ])
 
-	/*
-	TODO: check negative freqs
-	*/
-
 	// Complex Incidence Angle
 	stationaryThetaPhi {
 		var i = this.stationaryI;
@@ -698,10 +686,6 @@ PUF[slot] : Array  {
 
 	//------------------------------------------------------------------------
 	// SOUNDFIELD RADIUS
-
-	/*
-	TODO: check negative freqs
-	*/
 
 	// Nearfield (Spherical) Radius
 	stationaryRadius { |negRadius = false, sampleRate = nil, speedOfSound = (AtkHoa.speedOfSound)|

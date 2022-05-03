@@ -860,11 +860,9 @@ PUF[slot] : Array  {
 
 	// Unit Normalized Intensity
 	totalN {
-		var i = this.totalI;
-		var magMagI = this.totalMagMagI;
-		var magMagIReciprocal = (magMagI + FoaEval.reg.squared).reciprocal;
+		var n = this.averageN;
 		var normFac = this.numFrames;
-		^(normFac * i * magMagIReciprocal)
+		^(normFac * n)
 	}
 
 
@@ -1102,8 +1100,14 @@ PUF[slot] : Array  {
 	// Unit Normalized Intensity
 	averageN { |weights = nil|
 		^weights.isNil.if({
-			var normFac = this.numFrames.reciprocal;
-			normFac * this.totalN
+			var i = this.totalI;
+			// var magMagI = this.totalMagMagI;
+			var magMagI = Complex.new(
+				i.real.squared.sum.sqrt,
+				i.imag.squared.sum.sqrt,
+			).magnitude;
+			var magMagIReciprocal = (magMagI + FoaEval.reg.squared).reciprocal;
+			i * magMagIReciprocal
 		}, {
 			var n = this.stationaryN;
 			var weightsReciprocal = weights.sum.reciprocal;

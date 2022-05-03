@@ -864,21 +864,6 @@ PUF[slot] : Array  {
 		^(normFac * i / magMagI)
 	}
 
-	// //------------------------------------------------------------------------
-	// // SOUNDFIELD INCIDENCE - complex vector: Complex([ thetaA, phiA ], [ thetaR, phiR ])
-	//
-	// // Complex Incidence Angle
-	// totalThetaPhi {
-	// 	var i = this.totalI;
-	// 	var thetaA = atan2(i.real[1], i.real[0]);
-	// 	var phiA = atan2(i.real[2], (i.real[0].squared + i.real[1].squared).sqrt);
-	// 	var thetaR = atan2(i.imag[1], i.imag[0]);
-	// 	var phiR = atan2(i.imag[2], (i.imag[0].squared + i.imag[1].squared).sqrt);
-	// 	^Complex.new(
-	// 		[ thetaA, phiA ],
-	// 		[ thetaR, phiR ]
-	// 	)
-	// }
 
 	//------------------------------------------------------------------------
 	// SOUNDFIELD RADIUS

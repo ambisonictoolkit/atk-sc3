@@ -833,7 +833,7 @@ PUF[slot] : Array  {
 	// Intensity
 	totalI {
 		var i = this.stationaryI;
-			var normFac = 2 / this.numFrames;
+		var normFac = 2 / this.numFrames;
 		^Complex.new(
 			normFac * i.real.flop.sum,
 			normFac * i.imag.flop.sum

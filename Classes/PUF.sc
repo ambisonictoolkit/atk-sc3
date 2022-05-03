@@ -844,24 +844,27 @@ PUF[slot] : Array  {
 	totalA {
 		var i = this.totalI;
 		var wp = this.totalWp;
+		var wpReciprocal = (wp + FoaEval.reg.squared).reciprocal;
 		var normFac = this.numFrames;
-		^(normFac * i / wp)
+		^(normFac * i * wpReciprocal)
 	}
 
 	// Energy
 	totalW {
 		var i = this.totalI;
 		var ws = this.totalWs;
+		var wsReciprocal = (ws + FoaEval.reg.squared).reciprocal;
 		var normFac = this.numFrames;
-		^(normFac * i / ws)
+		^(normFac * i * wsReciprocal)
 	}
 
 	// Unit Normalized Intensity
 	totalN {
 		var i = this.totalI;
 		var magMagI = this.totalMagMagI;
+		var magMagIReciprocal = (magMagI + FoaEval.reg.squared).reciprocal;
 		var normFac = this.numFrames;
-		^(normFac * i / magMagI)
+		^(normFac * i * magMagIReciprocal)
 	}
 
 

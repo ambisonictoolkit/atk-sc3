@@ -707,31 +707,28 @@ PUA[slot] : Array  {
 		)
 	}
 
+	/*
+	TODO: document implementation of A, W, N in terms of unweighted averages
+	*/
 	// Admittance
 	totalA {
-		var a = this.instantA;
-		^Complex.new(
-			a.real.flop.sum,
-			a.imag.flop.sum
-		)
+		var a = this.averageA;
+		var normFac = this.numFrames;
+		^(normFac * a)
 	}
 
 	// Energy
 	totalW {
-		var w = this.instantW;
-		^Complex.new(
-			w.real.flop.sum,
-			w.imag.flop.sum
-		)
+		var w = this.averageW;
+		var normFac = this.numFrames;
+		^(normFac * w)
 	}
 
 	// Unit Normalized Intensity
 	totalN {
-		var n = this.instantN;
-		^Complex.new(
-			n.real.flop.sum,
-			n.imag.flop.sum
-		)
+		var n = this.averageN;
+		var normFac = this.numFrames;
+		^(normFac * n)
 	}
 
 	//------------------------------------------------------------------------
@@ -933,8 +930,10 @@ PUA[slot] : Array  {
 	// Admittance
 	averageA { |weights = nil|
 		^weights.isNil.if({
-			var normFac = this.numFrames.reciprocal;
-			normFac * this.totalA
+			var i = this.totalI;
+			var wp = this.totalWp;
+			var wpReciprocal = (wp + FoaEval.reg.squared).reciprocal;
+			i * wpReciprocal
 		}, {
 			var a = this.instantA;
 			var weightsReciprocal = weights.sum.reciprocal;
@@ -948,8 +947,10 @@ PUA[slot] : Array  {
 	// Energy
 	averageW { |weights = nil|
 		^weights.isNil.if({
-			var normFac = this.numFrames.reciprocal;
-			normFac * this.totalW
+			var i = this.totalI;
+			var ws = this.totalWs;
+			var wsReciprocal = (ws + FoaEval.reg.squared).reciprocal;
+			i * wsReciprocal
 		}, {
 			var w = this.instantW;
 			var weightsReciprocal = weights.sum.reciprocal;
@@ -963,8 +964,14 @@ PUA[slot] : Array  {
 	// Unit Normalized Intensity
 	averageN { |weights = nil|
 		^weights.isNil.if({
-			var normFac = this.numFrames.reciprocal;
-			normFac * this.totalN
+			var i = this.totalI;
+			// var magMagI = this.totalMagMagI;
+			var magMagI = Complex.new(
+				i.real.squared.sum.sqrt,
+				i.imag.squared.sum.sqrt,
+			).magnitude;
+			var magMagIReciprocal = (magMagI + FoaEval.reg.squared).reciprocal;
+			i * magMagIReciprocal
 		}, {
 			var n = this.instantN;
 			var weightsReciprocal = weights.sum.reciprocal;

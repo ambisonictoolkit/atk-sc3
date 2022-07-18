@@ -90,6 +90,7 @@ TestWaveNumber : UnitTest {
 		this.calcProxWeights.do{ |prox, i|
 			wr.writeLine(prox);
 		};
+		wr.close;
 	}
 
 	test_proxWeights {
@@ -105,7 +106,7 @@ TestWaveNumber : UnitTest {
 			pass.not.if{ failCnt = failCnt + 1};
 
 			(failCnt > numFailuresToExit).if{
-				"Exiting test_proxWeights after % failures".format(exitAfterFailures).warn;
+				"Exiting test_proxWeights after % failures".format(numFailuresToExit).warn;
 				^nil
 			}
 		};

@@ -119,11 +119,7 @@ WaveNumber {
 		var r0 = radius;
 		var thresh = 1e-08;
 
-		^if(this.waveNumber.abs <= thresh, {
-			Array.with(Complex.new(1, 0)) ++ m.collect({ |k|
-				Complex.new(-inf.pow(((k + 1) / 2).floor), -inf.pow(((k + 2) / 2).floor))
-			})
-		}, {
+		^if(this.waveNumber.abs > thresh, {
 			(m + 1).collect({ |j|
 				(j + 1).collect({ |k|
 					var fact;
@@ -131,6 +127,10 @@ WaveNumber {
 					fact = (j + k).asFloat.factorial / ((j - k).asFloat.factorial * k.asFloat.factorial);
 					fact * Complex.new(0, -1 / (2 * this.waveNumber * r0)).pow(k)
 				}).sum
+			})
+		}, {
+			Array.with(Complex.new(1, 0)) ++ m.collect({ |k|
+				Complex.new(-inf.pow(((k + 1) / 2).floor), -inf.pow(((k + 2) / 2).floor))
 			})
 		})
 	}
@@ -141,17 +141,10 @@ WaveNumber {
 		var r1 = radius;
 		var thresh = 1e-08;
 
-		^if(this.waveNumber.abs <= thresh, {
-			Array.with(Complex.new(1, 0)) ++ m.collect({ Complex.new(0, 0) })
+		^if(this.waveNumber.abs > thresh, {
+			this.proxWeights(radius, order).reciprocal
 		}, {
-			(m + 1).collect({ |j|
-				(j + 1).collect({ |k|
-					var fact;
-
-					fact = (j + k).asFloat.factorial / ((j - k).asFloat.factorial * k.asFloat.factorial);
-					fact * Complex.new(0, -1 / (2 * this.waveNumber * r1)).pow(k)
-				}).sum.reciprocal
-			})
+			Array.with(Complex.new(1, 0)) ++ m.collect({ Complex.new(0, 0) })
 		})
 	}
 
@@ -162,24 +155,10 @@ WaveNumber {
 		var r1 = decRadius;
 		var thresh = 1e-08;
 
-		^if(this.waveNumber.abs <= thresh, {
-			(m + 1).collect({ |k|
-				Complex.new((r1 / r0).pow(k), 0)
-			})
+		^if(this.waveNumber.abs > thresh, {
+			this.proxWeights(r0, order) / this.proxWeights(r1, order)
 		}, {
-			(m + 1).collect({ |j|
-				((j + 1).collect({ |k|
-					var fact;
-
-					fact = (j + k).asFloat.factorial / ((j - k).asFloat.factorial * k.asFloat.factorial);
-					fact * Complex.new(0, -1 / (2 * this.waveNumber * r0)).pow(k)
-				}).sum) / ((j + 1).collect({ |k|
-					var fact;
-
-					fact = (j + k).asFloat.factorial / ((j - k).asFloat.factorial * k.asFloat.factorial);
-					fact * Complex.new(0, -1 / (2 * this.waveNumber * r1)).pow(k)
-				}).sum)
-			})
+			(m + 1).collect({ |k| Complex.new((r1 / r0).pow(k), 0) })
 		})
 	}
 

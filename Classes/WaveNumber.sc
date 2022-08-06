@@ -84,7 +84,7 @@ WaveNumber {
 
 	// Return normalised frequency from wavenumber.
 	wn { |sampleRate, speedOfSound = (AtkHoa.speedOfSound)|
-		^this.num * speedOfSound / (pi * sampleRate)
+		^this.waveNumber * speedOfSound / (pi * sampleRate)
 	}
 
 	// ------------
@@ -138,7 +138,6 @@ WaveNumber {
 	// Return complex degree weights
 	distWeights { |radius = (AtkHoa.refRadius), order = (AtkHoa.defaultOrder)|
 		var m = order;
-		var r1 = radius;
 		var thresh = 1e-08;
 
 		^if(this.waveNumber.abs > thresh, {

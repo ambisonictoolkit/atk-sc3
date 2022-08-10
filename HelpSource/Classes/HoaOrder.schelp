@@ -152,6 +152,12 @@ ARGUMENT:: speedOfSound
 Speed of sound, in meters per second.
 Def: code::AtkHoa.speedOfSound::
 
+DISCUSSION:: These complex weights represent the magnitude and phase change
+of each degree when encoding an otherwise far-field source at a distance
+of strong::radius::.
+
+See further discussion on link::Guides/HOA-NFE##The Near-Field Effect (NFE)::.
+
 
 METHOD:: distWeights
 Return complex near-field effect distance radial filtering coefficients,
@@ -167,6 +173,10 @@ Def: code::AtkHoa.refRadius::
 ARGUMENT:: speedOfSound
 Speed of sound, in meters per second.
 Def: code::AtkHoa.speedOfSound::
+
+DISCUSSION:: These complex weights are the reciprocal of link::#-proxWeights::.
+
+See further discussion on link::Guides/HOA-NFE##The Near-Field Effect (NFE)::.
 
 
 METHOD:: ctrlWeights
@@ -187,6 +197,12 @@ Def: code::AtkHoa.refRadius::
 ARGUMENT:: speedOfSound
 Speed of sound, in meters per second.
 Def: code::AtkHoa.speedOfSound::
+
+DISCUSSION:: These complex weights represent a ratio of the
+link::#-proxWeights:: of the encoding radius to the decoding radius,
+i.e. code::proxWeights(encRadius) / proxWeights(decRadius)::.
+
+See further discussion on link::Guides/HOA-NFE##The Near-Field Effect (NFE)::.
 
 
 METHOD:: foclWeights

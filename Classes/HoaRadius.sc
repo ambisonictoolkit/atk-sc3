@@ -62,7 +62,7 @@ HoaRadius {
 		^this.new(delay * speedOfSound)
 	}
 
-	// Set radius from wavenumber and order
+	// Set radius from angular wavenumber (radians/m) and order
 	*newWaveNumber { |waveNumber, order = (AtkHoa.defaultOrder)|
 		^this.new(order / waveNumber)
 	}
@@ -86,17 +86,17 @@ HoaRadius {
 	// ----------
 	// Order
 
-	// Return effective order.
+	// Return effective order at angular wavenumber (radians/m).
 	orderAtWaveNumber { |waveNumber|
 		^(this.radius * waveNumber)
 	}
 
-	// Return effective order.
+	// Return effective order at frequency (Hz).
 	orderAtFreq { |freq, speedOfSound = (AtkHoa.speedOfSound)|
 		^(2 * pi * this.radius * freq) / speedOfSound
 	}
 
-	// Return effective order.
+	// Return effective order at normalized frequency.
 	orderAtWn { |wn, sampleRate, speedOfSound = (AtkHoa.speedOfSound)|
 		^(pi * this.radius * wn * sampleRate) / speedOfSound
 	}
@@ -104,7 +104,7 @@ HoaRadius {
 	// ----------
 	// Wavenumber / frequency
 
-	// Return effective wavenumber.
+	// Return effective angular wavenumber (radians/m).
 	waveNumber { |order = (AtkHoa.defaultOrder)|
 		^(order / this.radius)
 	}

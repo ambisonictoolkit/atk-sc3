@@ -53,6 +53,7 @@
 WaveNumber {
 	var <waveNumber;
 
+	// Set wavenumber as angular wavenumber (radians/m).
 	*new { |waveNumber|
 		^super.newCopyArgs(waveNumber)
 	}

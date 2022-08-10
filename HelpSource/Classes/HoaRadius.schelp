@@ -55,7 +55,8 @@ Def. code::AtkHoa.speedOfSound::
 
 
 METHOD:: newWaveNumber
-Create a new instance, in terms of spatial frequency by the relationship:
+Create a new instance, in terms of a spatial frequency defined by the
+angular wavenumber, by the relationship:
 
 code::order / waveNumber::.
 
@@ -128,7 +129,8 @@ Def. code::AtkHoa.speedOfSound::
 
 
 METHOD:: orderAtWaveNumber
-Return effective ambisonic order, given spatial frequency.
+Return effective ambisonic order, given spatial frequency defined by the
+angular wavenumber.
 
 ARGUMENT:: waveNumber
 Angular link::https://en.wikipedia.org/wiki/Wavenumber##wavenumber::, in radians per meter.

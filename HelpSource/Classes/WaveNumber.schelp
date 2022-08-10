@@ -4,7 +4,9 @@ categories:: Libraries>Ambisonic Toolkit>Coefficients & Theory
 related:: Classes/HoaRadius, Classes/HoaOrder
 
 DESCRIPTION::
-Higher Order Ambisonic (HOA) radial utilities. Useful for finding ambisonic decoder emphasis::effective radius::, emphasis::effective order:: and emphasis::effective frequency::.
+Higher Order Ambisonic (HOA) radial utilities. Useful for finding ambisonic
+decoder emphasis::effective radius::, emphasis::effective order:: and
+emphasis::effective frequency::.
 
 
 CLASSMETHODS::
@@ -13,7 +15,8 @@ METHOD:: new
 Create a new instance, in terms of spatial frequency.
 
 ARGUMENT:: waveNumber
-Angular link::https://en.wikipedia.org/wiki/Wavenumber##wavenumber::, in radians per meter.
+Angular link::https://en.wikipedia.org/wiki/Wavenumber##wavenumber::, in
+radians per meter.
 
 
 
@@ -31,7 +34,8 @@ Def: code::AtkHoa.speedOfSound::
 
 
 METHOD:: newWn
-Create a new instance, in terms of normalized frequency code::wn:: by the relationship:
+Create a new instance, in terms of normalized frequency code::wn:: by the
+relationship:
 
 code::pi * wn * sampleRate / speedOfSound::.
 
@@ -47,7 +51,8 @@ Def: code::AtkHoa.speedOfSound::
 
 
 METHOD:: newRadius
-Create a new instance, in terms of distance and effective order by the relationship:
+Create a new instance, in terms of distance and effective order by the
+relationship:
 
 code::order / radius::.
 
@@ -148,14 +153,16 @@ Def: code::AtkHoa.speedOfSound::
 
 
 METHOD:: waveNumber
-Angular link::https://en.wikipedia.org/wiki/Wavenumber##wavenumber::, in radians per meter.
+Angular link::https://en.wikipedia.org/wiki/Wavenumber##wavenumber::, in
+radians per meter.
 
 
 SUBSECTION:: NFE
 
 
 METHOD:: proxWeights
-Return complex near-field effect proximity radial filtering coefficients, collected by Associated Legendre degree (ℓ).
+Return complex near-field effect proximity radial filtering coefficients,
+collected by Associated Legendre degree (ℓ).
 
 ARGUMENT:: radius
 Radius, in meters.
@@ -167,7 +174,8 @@ Def: code::AtkHoa.defaultOrder::
 
 
 METHOD:: distWeights
-Return complex near-field effect distance radial filtering coefficients, collected by Associated Legendre degree (ℓ).
+Return complex near-field effect distance radial filtering coefficients,
+collected by Associated Legendre degree (ℓ).
 
 ARGUMENT:: radius
 Radius, in meters.
@@ -179,7 +187,8 @@ Def: code::AtkHoa.defaultOrder::
 
 
 METHOD:: ctrlWeights
-Return complex near-field effect control radial filtering coefficients, collected by Associated Legendre degree (ℓ).
+Return complex near-field effect control radial filtering coefficients,
+collected by Associated Legendre degree (ℓ).
 
 ARGUMENT:: encRadius
 Encoding radius, in meters.

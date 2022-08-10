@@ -1,10 +1,11 @@
 TITLE:: HoaOrder
 summary:: Higher Order Ambisonic (HOA) indexing & coefficients
 categories:: Libraries>Ambisonic Toolkit>Coefficients & Theory
-related:: Classes/HoaLm, Classes/HoaDegree
+related:: Classes/HoaLm, Classes/HoaDegree, Classes/HoaRadius, Classes/WaveNumber
 
 DESCRIPTION::
-Higher Order Ambisonic (HOA) emphasis::component:: indexing, coefficients and performance, by order.
+Higher Order Ambisonic (HOA) emphasis::component:: indexing, coefficients and
+performance, by order.
 
 
 CLASSMETHODS::
@@ -93,11 +94,15 @@ Return emphasis::component:: reflection coefficients.
 
 ARGUMENT:: mirror
 table::
-## code::\reflect:: || Mirror across the origin. Equivalent to: code::\flip * \flop * \flap::.
+## code::\reflect:: || Mirror across the origin.
+
+  Equivalent to: code::\flip * \flop * \flap::.
 ## code::\flip:: || Mirror in the y-axis.
 ## code::\flop:: || Mirror in the x-axis.
 ## code::\flap:: || Mirror in the z-axis.
-## code::\CondonShortleyPhase:: || Condon-Shortley Phase. Equivalent to: code::\flip * \flop::.
+## code::\CondonShortleyPhase:: || Condon-Shortley Phase.
+
+  Equivalent to: code::\flip * \flop::.
 ## code::\origin:: || Synonym for code::\reflect::.
 ## code::\x:: || Synonym for code::\flop::.
 ## code::\y:: || Synonym for code::\flip::.
@@ -133,7 +138,8 @@ Def: code::AtkHoa.speedOfSound::
 
 
 METHOD:: proxWeights
-Return complex near-field effect proximity radial filtering coefficients, collected by Associated Legendre degree (ℓ).
+Return complex near-field effect proximity radial filtering coefficients,
+collected by Associated Legendre degree (ℓ).
 
 ARGUMENT:: freq
 Frequency, in Hz.
@@ -148,7 +154,8 @@ Def: code::AtkHoa.speedOfSound::
 
 
 METHOD:: distWeights
-Return complex near-field effect distance radial filtering coefficients, collected by Associated Legendre degree (ℓ).
+Return complex near-field effect distance radial filtering coefficients,
+collected by Associated Legendre degree (ℓ).
 
 ARGUMENT:: freq
 Frequency, in Hz.
@@ -163,7 +170,8 @@ Def: code::AtkHoa.speedOfSound::
 
 
 METHOD:: ctrlWeights
-Return complex near-field effect control radial filtering coefficients, collected by Associated Legendre degree (ℓ).
+Return complex near-field effect control radial filtering coefficients,
+collected by Associated Legendre degree (ℓ).
 
 ARGUMENT:: freq
 Frequency, in Hz.
@@ -182,7 +190,8 @@ Def: code::AtkHoa.speedOfSound::
 
 
 METHOD:: foclWeights
-Return real near-field effect focalisation radial filtering coefficients, collected by Associated Legendre degree (ℓ).
+Return real near-field effect focalisation radial filtering coefficients,
+collected by Associated Legendre degree (ℓ).
 
 ARGUMENT:: freq
 Frequency, in Hz.
@@ -256,7 +265,8 @@ SUBSECTION:: Decoder performance
 
 
 METHOD:: spreadE
-Return the half angle of the maximum average energy spread for an ambisonic decoder.
+Return the half angle of the maximum average energy spread for an ambisonic
+decoder.
 
 ARGUMENT:: beamShape
 Keyword argument for beam shape. See link::#Beaming & Decoder matching#above::.
@@ -284,7 +294,8 @@ The number of dimensions: 2D or 3D.
 
 
 METHOD:: rV
-Return maximum average magnitude of the velocity localisation vector (rV) for an ambisonic decoder.
+Return maximum average magnitude of the velocity localisation vector (rV) for
+an ambisonic decoder.
 
 ARGUMENT:: beamShape
 Keyword argument for beam shape. See link::#Beaming & Decoder matching#above::.
@@ -294,7 +305,8 @@ The number of dimensions: 2D or 3D.
 
 
 METHOD:: rE
-Return maximum average magnitude of the energy localisation vector (rE) for an ambisonic decoder.
+Return maximum average magnitude of the energy localisation vector (rE) for an
+ambisonic decoder.
 
 ARGUMENT:: beamShape
 Keyword argument for beam shape. See link::#Beaming & Decoder matching#above::.

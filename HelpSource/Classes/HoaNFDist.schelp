@@ -4,7 +4,8 @@ categories:: Libraries>Ambisonic Toolkit>UGens>HOA>Transformer, UGens>Multichann
 related:: Classes/HoaNFProx, Classes/HoaNFCtrl, Classes/DegreeDist, Classes/DegreeProx, Classes/DegreeCtrl
 
 DESCRIPTION::
-Higher Order Ambisonic signal (HOA) near-field effect (NFE) distance transformer.
+Higher Order Ambisonic signal (HOA) near-field effect (NFE) distance
+transformer.
 
 
 CLASSMETHODS::
@@ -19,13 +20,14 @@ Ambisonic order.
 
 DISCUSSION::
 
-link::Classes/HoaNFDist:: translates an input HOA signal where code::refRadius = inf:: to code::refRadius = AtkHoa.refRadius::.
+link::Classes/HoaNFDist:: translates an input HOA signal where
+code::refRadius = inf:: to code::refRadius = AtkHoa.refRadius::.
 
-This transform offers an HOA equivalent to link::Classes/FoaNFC:: where code::distance = AtkHoa.refRadius::, in the first order case.
+This transform offers an HOA equivalent to link::Classes/FoaNFC:: where
+code::distance = AtkHoa.refRadius::, in the first order case.
 
-
-NOTE::This operation is required to import FOA or third party signals into the ATK's HOA with NFE signal set format.::
-
+NOTE:: This operation is required to import FOA or third party signals into the
+ATK's HOA with NFE signal set format.::
 
 
 EXAMPLES::
@@ -104,7 +106,7 @@ s.scope(~order.asHoaOrder.size, ~outbus);
 		~order
 	);
 
-	// // compare to direct HOA1 encoding
+	// compare to direct HOA1 encoding
 	// HoaEncodeDirection.ar(sig, ~theta, ~phi, ~encRadius, ~order);  // no need to precondition sig!
 
 }.play(outbus: ~outbus)

@@ -34,9 +34,12 @@ table::
 ## NFE imaging || translate source to target || target encoding radius || source encoding radius
 ::
 
-link::Classes/HoaNFCtrl:: offers comprehensive control of the near-field effect (NFE) by combining link::Classes/HoaNFDist:: and link::Classes/HoaNFProx:: into a single, stable transform.
+link::Classes/HoaNFCtrl:: offers comprehensive control of the near-field effect
+(NFE) by combining link::Classes/HoaNFDist:: and link::Classes/HoaNFProx:: into
+a single, stable transform.
 
-This transform offers an HOA equivalent to link::Classes/FoaNFC:: followed by link::Classes/FoaProximity::, in the first order case.
+This transform offers an HOA equivalent to link::Classes/FoaNFC:: followed by
+link::Classes/FoaProximity::, in the first order case.
 
 
 EXAMPLES::
@@ -296,7 +299,8 @@ s.quit
 
 subsection:: Radial modulation
 
-The use of two link::Classes/HoaNFCtrl:: transformers offers the possibility of modulation at a given radius.
+The use of two link::Classes/HoaNFCtrl:: transformers offers the possibility of
+modulation at a given radius.
 
 code::
 // Inspect the ATK's speed of sound reference

@@ -4,7 +4,8 @@ categories:: Libraries>Ambisonic Toolkit>UGens>HOA>Transformer, UGens>Multichann
 related:: Classes/HoaNFDist, Classes/HoaNFCtrl, Classes/DegreeDist, Classes/DegreeProx, Classes/DegreeCtrl
 
 DESCRIPTION::
-Higher Order Ambisonic signal (HOA) near-field effect (NFE) proximity transformer.
+Higher Order Ambisonic signal (HOA) near-field effect (NFE) proximity
+transformer.
 
 
 CLASSMETHODS::
@@ -19,15 +20,19 @@ Ambisonic order.
 
 DISCUSSION::
 
-link::Classes/HoaNFProx:: translates an input HOA signal where code::refRadius = AtkHoa.refRadius:: to code::refRadius = inf::.
+link::Classes/HoaNFProx:: translates an input HOA signal where
+code::refRadius = AtkHoa.refRadius:: to code::refRadius = inf::.
 
-This transform offers an HOA equivalent to link::Classes/FoaProximity:: where code::distance = AtkHoa.refRadius::, in the first order case.
+This transform offers an HOA equivalent to link::Classes/FoaProximity:: where
+code::distance = AtkHoa.refRadius::, in the first order case.
 
 
-NOTE::This operation emphasis::may be used:: to decode signals encoded as HOA with NFE to FOA or third party Ambisonic signal sets.::
+NOTE::This operation emphasis::may be used:: to decode signals encoded as HOA
+with NFE to FOA or third party Ambisonic signal sets.::
 
-WARNING::The near-field effect proximity transformer is inherently numerically unstable and requires the use of signal pre-conditioned input to avoid overflow. In many cases, the use of link::Classes/HoaNFCtrl:: is advised, instead.::
-
+WARNING::The near-field effect proximity transformer is inherently numerically
+unstable and requires the use of signal pre-conditioned input to avoid overflow.
+In many cases, the use of link::Classes/HoaNFCtrl:: is advised, instead.::
 
 
 EXAMPLES::

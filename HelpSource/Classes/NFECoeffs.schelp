@@ -4,9 +4,12 @@ categories:: Libraries>Ambisonic Toolkit>Coefficients & Theory
 related:: Classes/DegreeProx, Classes/DegreeDist, Classes/DegreeCtrl
 
 DESCRIPTION::
-Higher Order Ambisonic (HOA) "by degree" radial filtering coefficients, returned for realization by link::Classes/FOS:: and link::Classes/SOS:: cascade.
+Higher Order Ambisonic (HOA) "by degree" radial filtering coefficients,
+returned for realization by link::Classes/FOS:: and link::Classes/SOS:: cascade.
 
-NOTE:: In most cases, users will use the high level near-field effect (NFE) pseudo-UGens: link::Classes/HoaNFProx::, link::Classes/HoaNFDist::, link::Classes/HoaNFCtrl::.::
+NOTE:: In most cases, users will use the high level near-field effect (NFE)
+pseudo-UGens: link::Classes/HoaNFProx::, link::Classes/HoaNFDist::,
+link::Classes/HoaNFCtrl::.::
 
 
 CLASSMETHODS::
@@ -16,7 +19,6 @@ Create a new instance.
 
 ARGUMENT:: degree
 Associated Legendre degree (ℓ).
-
 
 
 INSTANCEMETHODS::
@@ -38,7 +40,9 @@ Return number of link::Classes/SOS:: required for cascade.
 SUBSECTION:: Coefficients
 
 METHOD:: prox
-Return a dictionary of near-field effect proximity radial filtering coefficients. See link::#Coefficient%20Dictionary#Coefficient Dictionary:: below.
+Return a dictionary of near-field effect proximity radial filtering
+coefficients.
+See link::#Coefficient%20Dictionary#Coefficient Dictionary:: below.
 
 ARGUMENT:: radius
 Radius, in meters.
@@ -51,7 +55,8 @@ Speed of sound, in meters per second.
 
 
 METHOD:: dist
-Return a dictionary of near-field effect distance radial filtering coefficients. See link::#Coefficient%20Dictionary#Coefficient Dictionary:: below.
+Return a dictionary of near-field effect distance radial filtering coefficients.
+See link::#Coefficient%20Dictionary#Coefficient Dictionary:: below.
 
 ARGUMENT:: radius
 Radius, in meters.
@@ -64,7 +69,8 @@ Speed of sound, in meters per second.
 
 
 METHOD:: ctrl
-Return a dictionary of near-field effect control radial filtering coefficients. See link::#Coefficient%20Dictionary#Coefficient Dictionary:: below.
+Return a dictionary of near-field effect control radial filtering coefficients.
+See link::#Coefficient%20Dictionary#Coefficient Dictionary:: below.
 
 ARGUMENT:: encRadius
 Encoding radius, in meters.
@@ -81,7 +87,11 @@ Speed of sound, in meters per second.
 
 SUBSECTION:: Coefficient Dictionary
 
-link::Classes/FOS:: and link::Classes/SOS:: coefficients are returned as link::Classes/ArrayedCollection#-rank#rank:: two arrays of coefficients, available via the link::Classes/IdentityDictionary:: code::\sos:: and code::\fos:: keys. Additionally, a a normalizing scalar is also returned via the code::\g:: key.
+link::Classes/FOS:: and link::Classes/SOS:: coefficients are returned as
+link::Classes/ArrayedCollection#-rank#rank:: two arrays of coefficients,
+available via the link::Classes/IdentityDictionary:: code::\sos:: and
+code::\fos:: keys. Additionally, a a normalizing scalar is also returned via
+the code::\g:: key.
 
 code::
 ~degree = 3;

@@ -4,7 +4,9 @@ categories:: Libraries>Ambisonic Toolkit>Coefficients & Theory
 related:: Classes/WaveNumber, Classes/HoaOrder
 
 DESCRIPTION::
-Higher Order Ambisonic (HOA) radial utilities. Useful for finding ambisonic decoder emphasis::effective radius::, emphasis::effective order:: and emphasis::effective frequency::.
+Higher Order Ambisonic (HOA) radial utilities. Useful for finding ambisonic
+decoder emphasis::effective radius::, emphasis::effective order:: and
+emphasis::effective frequency::.
 
 
 CLASSMETHODS::
@@ -35,7 +37,8 @@ Def. code::AtkHoa.speedOfSound::
 
 
 METHOD:: newWn
-Create a new instance, in terms of normalized frequency code::wn:: by the relationship:
+Create a new instance, in terms of normalized frequency code::wn:: by the
+relationship:
 
 code::(order * speedOfSound) / (pi * wn * sampleRate)::.
 
@@ -61,7 +64,8 @@ angular wavenumber, by the relationship:
 code::order / waveNumber::.
 
 ARGUMENT:: waveNumber
-Angular link::https://en.wikipedia.org/wiki/Wavenumber##wavenumber::, in radians per meter.
+Angular link::https://en.wikipedia.org/wiki/Wavenumber##wavenumber::, in
+radians per meter.
 
 ARGUMENT:: order
 Ambisonic order.
@@ -133,8 +137,8 @@ Return effective ambisonic order, given spatial frequency defined by the
 angular wavenumber.
 
 ARGUMENT:: waveNumber
-Angular link::https://en.wikipedia.org/wiki/Wavenumber##wavenumber::, in radians per meter.
-
+Angular link::https://en.wikipedia.org/wiki/Wavenumber##wavenumber::, in
+radians per meter.
 
 
 SUBSECTION:: Effective frequency
@@ -168,7 +172,8 @@ Def. code::AtkHoa.speedOfSound::
 
 
 METHOD:: waveNumber
-Return effective angular link::https://en.wikipedia.org/wiki/Wavenumber##wavenumber::.
+Return effective angular
+link::https://en.wikipedia.org/wiki/Wavenumber##wavenumber::.
 
 ARGUMENT:: order
 Ambisonic order.

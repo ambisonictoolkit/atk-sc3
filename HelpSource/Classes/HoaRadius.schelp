@@ -14,23 +14,30 @@ Create a new instance, in terms of distance.
 
 ARGUMENT:: radius
 Radius, in meters.
+Def. code::AtkHoa.refRadius::
 
 
 METHOD:: newFreq
-Create a new instance, in terms of frequency.
+Create a new instance, in terms of frequency by the relationship:
+
+code::(order * speedOfSound) / (2 * pi * freq)::.
 
 ARGUMENT:: freq
 Frequency, in Hz.
 
 ARGUMENT:: order
 Ambisonic order.
+Def. code::AtkHoa.defaultOrder::
 
 ARGUMENT:: speedOfSound
 Speed of sound, in meters per second.
+Def. code::AtkHoa.speedOfSound::
 
 
 METHOD:: newWn
-Create a new instance, in terms of normalized frequency.
+Create a new instance, in terms of normalized frequency code::wn:: by the relationship:
+
+code::(order * speedOfSound) / (pi * wn * sampleRate)::.
 
 ARGUMENT:: wn
 Normalized frequency. DC = 0.0, Nyquist = 1.0;
@@ -40,36 +47,45 @@ Sample rate, in Hz.
 
 ARGUMENT:: order
 Ambisonic order.
+Def. code::AtkHoa.defaultOrder::
 
 ARGUMENT:: speedOfSound
 Speed of sound, in meters per second.
+Def. code::AtkHoa.speedOfSound::
 
 
 METHOD:: newWaveNumber
-Create a new instance, in terms of spatial frequency.
+Create a new instance, in terms of spatial frequency by the relationship:
+
+code::order / waveNumber::.
 
 ARGUMENT:: waveNumber
 Angular link::https://en.wikipedia.org/wiki/Wavenumber##wavenumber::, in radians per meter.
 
 ARGUMENT:: order
 Ambisonic order.
+Def. code::AtkHoa.defaultOrder::
 
 
 METHOD:: newDelay
-Create a new instance, in terms of time.
+Create a new instance, in terms of time by the relationship:
+
+code::delay * speedOfSound::.
 
 ARGUMENT:: delay
 Radial delay, in seconds.
 
 ARGUMENT:: speedOfSound
 Speed of sound, in meters per second.
-
+Def. code::AtkHoa.speedOfSound::
 
 
 
 INSTANCEMETHODS::
 
+
 SUBSECTION:: Radius & delay
+
 
 METHOD:: radius
 Return radius, in meters.
@@ -80,6 +96,7 @@ Return reference delay, in seconds.
 
 ARGUMENT:: speedOfSound
 Speed of sound, in meters per second.
+Def. code::AtkHoa.speedOfSound::
 
 
 SUBSECTION:: Effective order
@@ -93,6 +110,7 @@ Frequency, in Hz.
 
 ARGUMENT:: speedOfSound
 Speed of sound, in meters per second.
+Def. code::AtkHoa.speedOfSound::
 
 
 METHOD:: orderAtWn
@@ -106,6 +124,7 @@ Sample rate, in Hz.
 
 ARGUMENT:: speedOfSound
 Speed of sound, in meters per second.
+Def. code::AtkHoa.speedOfSound::
 
 
 METHOD:: orderAtWaveNumber
@@ -124,22 +143,26 @@ Return effective frequency.
 
 ARGUMENT:: order
 Ambisonic order.
+Def. code::AtkHoa.defaultOrder::
 
 ARGUMENT:: speedOfSound
 Speed of sound, in meters per second.
+Def. code::AtkHoa.speedOfSound::
 
 
 METHOD:: wn
-Return effective normalized frequency.
+Return effective normalized frequency where DC = 0.0, Nyquist = 1.0.
 
 ARGUMENT:: sampleRate
 Sample rate, in Hz.
 
 ARGUMENT:: order
 Ambisonic order.
+Def. code::AtkHoa.defaultOrder::
 
 ARGUMENT:: speedOfSound
 Speed of sound, in meters per second.
+Def. code::AtkHoa.speedOfSound::
 
 
 METHOD:: waveNumber
@@ -147,7 +170,7 @@ Return effective angular link::https://en.wikipedia.org/wiki/Wavenumber##wavenum
 
 ARGUMENT:: order
 Ambisonic order.
-
+Def. code::AtkHoa.defaultOrder::
 
 
 EXAMPLES::

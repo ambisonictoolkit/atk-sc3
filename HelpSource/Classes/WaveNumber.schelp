@@ -18,17 +18,22 @@ Angular link::https://en.wikipedia.org/wiki/Wavenumber##wavenumber::, in radians
 
 
 METHOD:: newFreq
-Create a new instance, in terms of frequency.
+Create a new instance, in terms of frequency by the relationship:
+
+code::2pi * freq / speedOfSound::.
 
 ARGUMENT:: freq
 Frequency, in Hz.
 
 ARGUMENT:: speedOfSound
 Speed of sound, in meters per second.
+Def: code::AtkHoa.speedOfSound::
 
 
 METHOD:: newWn
-Create a new instance, in terms of normalized frequency.
+Create a new instance, in terms of normalized frequency code::wn:: by the relationship:
+
+code::pi * wn * sampleRate / speedOfSound::.
 
 ARGUMENT:: wn
 Normalized frequency. DC = 0.0, Nyquist = 1.0;
@@ -38,29 +43,38 @@ Sample rate, in Hz.
 
 ARGUMENT:: speedOfSound
 Speed of sound, in meters per second.
+Def: code::AtkHoa.speedOfSound::
 
 
 METHOD:: newRadius
-Create a new instance, in terms of distance.
+Create a new instance, in terms of distance and effective order by the relationship:
+
+code::order / radius::.
 
 ARGUMENT:: radius
 Radius, in meters.
+Def: code::AtkHoa.refRadius::
 
 ARGUMENT:: order
 Ambisonic order.
+Def: code::AtkHoa.defaultOrder::
 
 
 METHOD:: newDelay
-Create a new instance, in terms of time.
+Create a new instance, in terms of time and effective order by the relationship:
+
+code::order / (delay * speedOfSound)::.
 
 ARGUMENT:: delay
 Radial delay, in seconds.
 
 ARGUMENT:: order
 Ambisonic order.
+Def: code::AtkHoa.defaultOrder::
 
 ARGUMENT:: speedOfSound
 Speed of sound, in meters per second.
+Def: code::AtkHoa.speedOfSound::
 
 
 
@@ -73,6 +87,7 @@ Return effective radius, in meters.
 
 ARGUMENT:: order
 Ambisonic order.
+Def: code::AtkHoa.defaultOrder::
 
 
 METHOD:: delay
@@ -80,9 +95,11 @@ Return effective delay, in seconds.
 
 ARGUMENT:: order
 Ambisonic order.
+Def: code::AtkHoa.defaultOrder::
 
 ARGUMENT:: speedOfSound
-Speed of sound, in meters per seconds.
+Speed of sound, in meters per second.
+Def: code::AtkHoa.speedOfSound::
 
 
 
@@ -93,6 +110,7 @@ Return effective ambisonic order, given radius.
 
 ARGUMENT:: radius
 Radius, in meters.
+Def: code::AtkHoa.refRadius::
 
 
 METHOD:: orderAtDelay
@@ -103,6 +121,7 @@ Delay, in seconds.
 
 ARGUMENT:: speedOfSound
 Speed of sound, in meters per second.
+Def: code::AtkHoa.speedOfSound::
 
 
 
@@ -114,6 +133,7 @@ Return frequency, in Hz.
 
 ARGUMENT:: speedOfSound
 Speed of sound, in meters per second.
+Def: code::AtkHoa.speedOfSound::
 
 
 METHOD:: wn
@@ -124,6 +144,7 @@ Sample rate, in Hz.
 
 ARGUMENT:: speedOfSound
 Speed of sound, in meters per second.
+Def: code::AtkHoa.speedOfSound::
 
 
 METHOD:: waveNumber
@@ -138,9 +159,11 @@ Return complex near-field effect proximity radial filtering coefficients, collec
 
 ARGUMENT:: radius
 Radius, in meters.
+Def: code::AtkHoa.refRadius::
 
 ARGUMENT:: order
 Ambisonic order.
+Def: code::AtkHoa.defaultOrder::
 
 
 METHOD:: distWeights
@@ -148,9 +171,11 @@ Return complex near-field effect distance radial filtering coefficients, collect
 
 ARGUMENT:: radius
 Radius, in meters.
+Def: code::AtkHoa.refRadius::
 
 ARGUMENT:: order
 Ambisonic order.
+Def: code::AtkHoa.defaultOrder::
 
 
 METHOD:: ctrlWeights
@@ -158,12 +183,15 @@ Return complex near-field effect control radial filtering coefficients, collecte
 
 ARGUMENT:: encRadius
 Encoding radius, in meters.
+Def: code::AtkHoa.refRadius::
 
 ARGUMENT:: decRadius
 Decoding radius, in meters.
+Def: code::AtkHoa.refRadius::
 
 ARGUMENT:: order
 Ambisonic order.
+Def: code::AtkHoa.defaultOrder::
 
 
 EXAMPLES::

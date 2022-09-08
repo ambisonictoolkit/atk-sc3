@@ -21,7 +21,9 @@ code::
 
 ARGUMENT:: numChans
 
-The number of input or output channels, i.e., the number of emphasis::t::-design points .
+The number of input or output channels, i.e., the number of emphasis::t::-design points.
+
+If code::nil::, the number of channels/points will be determined by the strong::order:: and strong::optimize:: arguments.
 
 ARGUMENT:: optimize
 

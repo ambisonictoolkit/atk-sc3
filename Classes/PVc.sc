@@ -745,9 +745,13 @@ PVc[slot] : Array {
 
 	// Active-Reactive Vector Alignment Angle: Gamma
 	averageGamma { |weights|
-		var gamma = this.gamma;
-		var sinFac = gamma.sin;
-		var cosFac = gamma.cos;
+		// var gamma = this.gamma;
+		// var sinFac = gamma.sin;
+		// var cosFac = gamma.cos;
+		var i = this.intensity;
+		var magI = this.magI;
+		var cosFac = (i.real * i.imag).sum;
+		var sinFac = ((magI.real * magI.imag).squared - cosFac.squared).abs.sqrt;  // -abs for numerical precision errors
 
 		weights.isNil.if({
 			sinFac = sinFac.sum;

@@ -386,30 +386,44 @@ PVc[slot] : Array {
 
 	// Magnitude of Magnitude of Complex Admittance
 	totalMagMagA {
-		^this.magMagA.sum
+		// ^this.magMagA.sum
+		var magMagI_tot = this.magMagI.sum;
+		var wp_avg = this.wp.sum / this.numFrames;
+
+		^magMagI_tot / (wp_avg + FoaEval.reg.squared)
 	}
 
 	// Magnitude of Complex Admittance
 	totalMagA {
-		var magA = this.magA;
-		^Complex.new(
-			magA.real.sum,
-			magA.imag.sum
-		)
+		// var magA = this.magA;
+		// ^Complex.new(
+		// 	magA.real.sum,
+		// 	magA.imag.sum
+		// )
+		var magI = this.magI;
+		var magI_total = Complex(magI.real.sum, magI.imag.sum);
+		var wp_avg = this.wp.sum / this.numFrames;
+
+		^magI_total / (wp_avg + FoaEval.reg.squared)
 	}
 
 	// Magnitude of Magnitude of Complex Energy
 	totalMagMagW {
-		^this.magMagW.sum
+		//^this.magMagW.sum
+		^this.magMagI.sum / ((this.ws.sum / this.numFrames) + FoaEval.reg.squared)
 	}
 
 	// Magnitude of Complex Energy
 	totalMagW {
-		var magA = this.magW;
-		^Complex.new(
-			magA.real.sum,
-			magA.imag.sum
-		)
+		// var magA = this.magW;
+		// ^Complex.new(
+		// 	magA.real.sum,
+		// 	magA.imag.sum
+		// )
+		var magI = this.magI;
+		var magI_tot = Complex(magI.real.sum, magI.imag.sum);
+
+		^magI_tot / ((this.ws.sum / this.numFrames) + FoaEval.reg.squared);
 	}
 
 	// Magnitude of Magnitude Unit Normalized Complex Intensity - Convenience

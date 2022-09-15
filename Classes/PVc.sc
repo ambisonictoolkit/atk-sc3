@@ -433,11 +433,16 @@ PVc[slot] : Array {
 
 	// Magnitude of Unit Normalized Complex Intensity
 	totalMagN {
-		var magN = this.magN;
-		^Complex.new(
-			magN.real.sum,
-			magN.imag.sum
-		)
+		// var magN = this.magN;
+		// ^Complex.new(
+		// 	magN.real.sum,
+		// 	magN.imag.sum
+		// )
+		var magI = this.magI;
+		var magI_tot = Complex(magI.real.sum, magI.imag.sum);
+		var magMagI_avg = (this.magMagI.sum / this.numFrames);
+		^magI_tot / (magMagI_avg + FoaEval.reg.squared)
+
 	}
 
 	//------------------------------------------------------------------------
@@ -596,8 +601,12 @@ PVc[slot] : Array {
 	// Magnitude of Magnitude of Complex Admittance
 	averageMagMagA { |weights = nil|
 		^weights.isNil.if({
-			var normFac = this.numFrames.reciprocal;
-			normFac * this.totalMagMagA
+			// var normFac = this.numFrames.reciprocal;
+			// normFac * this.totalMagMagA
+			var magMagI_tot = this.magMagI.sum;
+			var wp_tot 		= this.wp.sum;
+
+			^magMagI_tot / (wp_tot + FoaEval.reg.squared)
 		}, {
 			this.magMagA.wmean(weights)
 		})
@@ -606,8 +615,13 @@ PVc[slot] : Array {
 	// Magnitude of Complex Admittance
 	averageMagA { |weights = nil|
 		^weights.isNil.if({
-			var normFac = this.numFrames.reciprocal;
-			normFac * this.totalMagA
+			// var normFac = this.numFrames.reciprocal;
+			// normFac * this.totalMagA
+			var magI     = this.magI;
+			var magI_tot = Complex(magI.real.sum, magI.imag.sum);
+			var wp_tot   = this.wp.sum;
+
+			^magI_tot / (wp_tot + FoaEval.reg.squared)
 		}, {
 			var magA = this.magA;
 			Complex.new(

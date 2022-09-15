@@ -331,6 +331,9 @@ PVa[slot] : PVc  {
 		var thisIntegP = this.deepCopy;
 		var integPaA;
 		var radius;
+
+		sampleRate ?? { "[PVa:radius] No sampleRate specified.".error; this.halt };
+
 		thisIntegP.put(
 			0,
 			Complex.new(  // (one pole, one zero) integrate pressure

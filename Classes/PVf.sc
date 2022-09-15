@@ -450,19 +450,22 @@ PVf[slot] : PVc  {
 	radius { |negRadius = false, sampleRate = nil, speedOfSound = (AtkHoa.speedOfSound)|
 		var rfftSize = (this.numFrames / 2).asInteger + 1;
 		var halfPi = 0.5pi;
-		var freqs = rfftSize.rfftFreqs(sampleRate);
 		var gamma = this.gamma.keep(rfftSize);  // real signal - just keep + freqs
 		var a = this.admittance.keep(rfftSize);
 		var magAsquared = a.real.squared.sum;  // squared magnitude of active admittance
 		var magAsquaredReciprocal = (magAsquared + FoaEval.reg.squared).reciprocal;
 		var magAR = (a.real * a.imag).sum * magAsquaredReciprocal;  // (scaled) magnitude of parallel reactive admittance
-		var radius;
+		var freqs, radius;
 
 		// assume power of two
 		/*
 		TODO: enforce power of two
 		TODO: consider single frequency implementation
 		*/
+
+		sampleRate ?? { "[PVc:radius] No sampleRate specified.".error; this.halt };
+
+		freqs = rfftSize.rfftFreqs(sampleRate);
 
 		// +freqs only
 		radius = freqs.collect({ |freq, i|

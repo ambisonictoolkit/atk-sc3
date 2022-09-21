@@ -23,20 +23,14 @@ PUA: pressure-velocity analytic time domain
 
 /*
 TODO:
-
-- refactor PUC as superclass
-
 - include as HOA (and FOA)??
 -- e.g., Signal: *hoaCosineTravel
---- if yes, refactor relevant PUT class methods
+--- if yes, refactor relevant PVt class methods
 --- e.g., new classes: FoaT, HoaT?
-
 - reshape from Array of Complex to Complex of Array?
-*/
-
-/*
 - consider creating Hoa version of: FoaEval.reg
 -- could use AtkHoa.thresh
+-- add a squared version?
 */
 
 
@@ -44,16 +38,14 @@ PVa[slot] : PVc  {
 
 	blockNorm { ^1 }
 
-	//------------------------------------------------------------------------
-	//------------------------------------------------------------------------
-	// Synthesis
-
-	// Monofrequent
 	/*
-	travelling
-	diametric
-	pressure
+	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	Synthesis (monofrequent):
+	Traveling, Standing, Diffuse
+	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	*/
+
+	/*  Traveling  */
 
 	// Monofrequent Travelling
 	/*
@@ -93,6 +85,8 @@ PVa[slot] : PVc  {
 	*newSineTravelling { |size, freq, phase = 0, theta = 0, phi = 0, radius = inf, sampleRate = nil, speedOfSound = (AtkHoa.speedOfSound)|
 		^this.newCosineTravelling(size, freq, phase - 0.5pi, theta, phi, radius, sampleRate, speedOfSound)
 	}
+
+	/*  Standing: pressure, diametric  */
 
 	*newCosinePressure { |size, freq, phase = 0, sampleRate = nil|
 		var lm = [ 0, 0 ];
@@ -166,6 +160,9 @@ PVa[slot] : PVc  {
 		^this.newCosineDiametric(size, freq, phase - 0.5pi, theta, phi, beta, sampleRate, speedOfSound)
 	}
 
+
+	/*  Diffuse: modal, angular (plane-wave)  */
+
 	*newCosineDiffuseModal { |size, freq, phase = 0, sampleRate = nil, speedOfSound = (AtkHoa.speedOfSound)|
 		var hoaOrder = order.asHoaOrder;
 		var refRadius = inf;
@@ -235,71 +232,74 @@ PVa[slot] : PVc  {
 	*newSineDiffuseAngular { |size, freq, phase = 0, design = nil, sampleRate = nil, speedOfSound = (AtkHoa.speedOfSound)|
 		^this.newCosineDiffuseAngular(size, freq, phase - 0.5pi, design, sampleRate, speedOfSound)
 	}
-// 	/*
-// 	TODO:
-//
-// 	broadband impulse response
-// 	- implement in fequency domain
-//
-// 	NOTE: inf scaling @ DC will need to be clipped - probably like Signal.periodicPLNoise
-// 	*/
+	/*
+	TODO:
+	- broadband impulse response
+	- implement in fequency domain
 
+	NOTE: inf scaling @ DC will need to be clipped - probably like Signal.periodicPLNoise
+	*/
 
-	//------------------------------------------------------------------------
-	//------------------------------------------------------------------------
-	// Encoding
 
 	/*
-	TODO: PUT -> PVt
+	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	Encoding: from other PVx or ambisonic formats:
+	PVt, Foa, Ambix
+	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	*/
-	*newPUT { |put|
-		(put.class == PUT).if({
+
+	*newFromPVt { |pvt|
+		(pvt.class == PVt).if({
 			^super.fill(4, { |i|
-				put[i].analytic
+				pvt[i].analytic
 			})
 		}, {
-			Error.new("Input class % != PUT!".format(put.class)).throw
+			Error.new("Input class % != PVt!".format(pvt.class)).throw
 		})
 	}
 
 	/*
-	TODO: PUT -> PVt
 	rename: *newFoaT?
 	*/
-	*newFoa { |array|
-		var put = PUT.newFoa(array);
+	*newFromFoa { |array|
+		var pvt = PVt.newFoa(array);
 		^super.fill(4, { |i|
-			put[i].analytic
+			pvt[i].analytic
 		})
 	}
 
 	/*
-	TODO: PUT -> PVt
 	rename: *newAmbixT?
 	*/
-	*newAmbix { |array|
-		var put = PUT.newAmbix(array);
+	*newFromAmbix { |array|
+		var pvt = PVt.newAmbix(array);
 		^super.fill(4, { |i|
-			put[i].analytic
+			pvt[i].analytic
 		})
 	}
 
 	/*
 	TODO:
 
-	*newHoa
+	*newFromHoa
 
 	include radial filter
 	- circular convolution?
 	- frequency domain mul?  <--
 	*/
 
-	//------------------------------------------------------------------------
-	// INTENSITY - complex vectors
-
 	/*
-	TODO: parallel to ATK analyze names?
-	TODO: defer / promote to superclass PUC??
+	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	Analysis:
+	Intensity, Radius
+	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	*/
+
+	/*  Intensity  */
+	/*
+	TODO:
+	- parallel to ATK analyze names?
+	- defer / promote to superclass PUC??
 	*/
 
 	intensity {
@@ -315,10 +315,8 @@ PVa[slot] : PVc  {
 	}
 
 
-	//------------------------------------------------------------------------
-	// SOUNDFIELD RADIUS
+	/*  Nearfield (Spherical) Radius  */
 
-	// Nearfield (Spherical) Radius
 	/*
 	TODO: frequency domain implementation?
 
@@ -353,76 +351,10 @@ PVa[slot] : PVc  {
 		})
 	}
 
-
-	//------------------------------------------------------------------------
-	// MAGNITUDE - sums
-
-	// inherited:
-	// totalMagMagI
-	// totalMagMagN
-	// totalMagI
-	// totalMagMagA
-	// totalMagA
-	// totalMagMagW
-	// totalMagW
-	// totalMagN
-
-	//------------------------------------------------------------------------
-	// INTENSITY - sums
-
-	// inherited:
-	// totalI
-	// totalN
-	// totalA
-	// totalW
-
-	//------------------------------------------------------------------------
-	// MAGNITUDE - average
-
-	// inherited:
-	// averageMagMagI
-	// averageMagI
-	// averageMagMagA
-	// averageMagA
-	// averageMagMagW
-	// averageMagW
-	// averageMagMagN
-	// averageMagN
-
-	//------------------------------------------------------------------------
-	// INTENSITY - average
-
-	// inherited:
-	// averageI
-	// averageA
-	// averageW
-	// averageN
-
-
-	//------------------------------------------------------------------------
-	// SOUNDFIELD INDICATORS
-
-	// inherited:
-	// averageAlpha
-	// averageBeta
-	// averageGamma
-	// averageMu
-
-
-	//------------------------------------------------------------------------
-	// SOUNDFIELD INCIDENCE - complex vector: Complex([ thetaA, phiA ], [ thetaR, phiR ])
-
-	// inherited:
-	// averageThetaPhi
-
-
-	//------------------------------------------------------------------------
-	// SOUNDFIELD RADIUS
-
-	// Nearfield (Spherical) Radius
 	/*
-	TODO: frequency domain implementation?
-	TODO: manage infs?
+	TODO:
+	- frequency domain implementation?
+	- manage infs?
 
 	NOTE:
 	 - biased towards LF performance

@@ -23,15 +23,12 @@ PUF: pressure-velocity frequency domain
 
 /*
 TODO:
-
 - refactor PUC as superclass
-
 - refactor synthesis --> Signal class?
-*/
-
-/*
 - consider creating Hoa version of: FoaEval.reg
 -- could use AtkHoa.thresh
+- Stationary measures: refactor to only return coefficients for +freqs
+OR recognize I.imag is neg for -freqs
 */
 
 
@@ -39,32 +36,32 @@ PVf[slot] : PVc  {
 
 	blockNorm { ^2 / this.numFrames }
 
-	//------------------------------------------------------------------------
-	//------------------------------------------------------------------------
-	// Synthesis
 
-	// Monofrequent
 	/*
-	travelling
-	diametric
-	pressure
+	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	Synthesis (monofrequent):
+	Traveling, Standing, Diffuse
+	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	*/
 
-	// Travelling
-	/*
-	NOTE: pressure is scaled --> magnitude
-	NOTE: only supports powerOfTwo
-	NOTE: supply (size / 2) + 1 args: real
-	NOTE: catch arg size mismatch errors
+	/*  Travelling  */
 
-	TODO: integrate more closely w/ FreqSpectrum --> magnitude, phase args
-	TODO: default args if nil
+	/*
+	NOTE:
+	- pressure is scaled --> magnitude
+	- only supports powerOfTwo
+	- supply (size / 2) + 1 args: real
+	- catch arg size mismatch errors
+
+	TODO:
+	- integrate more closely w/ FreqSpectrum --> magnitude, phase args
+	- default args if nil
 	*/
 	*newTravelling { |size, magnitude, phase, theta, phi, radius, sampleRate = nil, speedOfSound = (AtkHoa.speedOfSound)|
 		var hoaOrder = order.asHoaOrder;
 		var refRadius = inf;
 		var freqs, complex;
-		var puf;
+		var pvf;
 		var rfftsize;
 		var sourceNorm = \n3d;
 		var targetNorm = \sn3d;
@@ -75,7 +72,7 @@ PVf[slot] : PVc  {
 		if(size.isPowerOfTwo, {  // rfft
 			rfftsize = (size / 2 + 1).asInteger;
 
-			puf = Array.fill(hoaOrder.size, {  // empty
+			pvf = Array.fill(hoaOrder.size, {  // empty
 				Complex.new(Signal.newClear(rfftsize), Signal.newClear(rfftsize))
 			});
 
@@ -87,41 +84,44 @@ PVf[slot] : PVc  {
 			rfftsize.do({ |i|  // complex coefficients
 				complex = magnitude[i] * hoaOrder.travelling(freqs[i], phase[i], theta[i], phi[i], radius[i], refRadius, speedOfSound);
 				hoaOrder.size.do({ |j|
-					puf[j].real.put(i, complex.real[j]);
-					puf[j].imag.put(i, complex.imag[j])
+					pvf[j].real.put(i, complex.real[j]);
+					pvf[j].imag.put(i, complex.imag[j])
 				})
 			});
 
 			// convert from rfft to fft
-			puf = puf.collect({ |item| item.real.rfftToFft(item.imag) })
+			pvf = pvf.collect({ |item| item.real.rfftToFft(item.imag) })
 		}, {
 			Error.new("Size = % is not supported. Use a power of two.".format(size)).throw
 		});
 
 		// normalize & reorder
-		puf = (normFac * puf)[indicesFromACN];
+		pvf = (normFac * pvf)[indicesFromACN];
 
 		^super.fill(hoaOrder.size, { |i|
-			puf[i]
+			pvf[i]
 		})
 	}
 
-	// Standing
+
+	/*  Standing: pressure, diametric  */
+
 	/*
-	NOTE: only supports powerOfTwo
-	NOTE: supply (size / 2) + 1 args: real
-	NOTE: catch arg size mismatch errors
+	NOTE:
+	- only supports powerOfTwo
+	- supply (size / 2) + 1 args: real
+	- catch arg size mismatch errors
 
-	TODO: integrate more closely w/ FreqSpectrum --> magnitude, phase args
-	TODO: default args if nil
+	TODO:
+	- integrate more closely w/ FreqSpectrum --> magnitude, phase args
+	- default args if nil
 	*/
-
 	*newPressure { |size, magnitude, phase|
 		var lm = [ 0, 0 ];
 		var hoaLm = HoaLm.new(lm);
 		var hoaOrder = order.asHoaOrder;
 		var angularWeight = hoaLm.sph;  // express explicitly
-		var puf;
+		var pvf;
 		var rfftsize;
 		var sourceNorm = \n3d;
 		var targetNorm = \sn3d;
@@ -130,46 +130,47 @@ PVf[slot] : PVc  {
 		if(size.isPowerOfTwo, {  // rfft
 			rfftsize = (size / 2 + 1).asInteger;
 
-			puf = Array.fill(hoaOrder.size - 1, {  // empty
+			pvf = Array.fill(hoaOrder.size - 1, {  // empty
 				Complex.new(Signal.newClear(rfftsize), Signal.newClear(rfftsize))
 			});
 
 			// set pressure (concatenate)
-			puf = [
+			pvf = [
 				Complex.new(
 					(magnitude * phase.cos).as(Signal),
 					(magnitude * phase.sin).as(Signal)
 				)
-			] ++ puf;
+			] ++ pvf;
 
 			// convert from rfft to fft
-			puf = puf.collect({ |item| item.real.rfftToFft(item.imag) })
+			pvf = pvf.collect({ |item| item.real.rfftToFft(item.imag) })
 		}, {
 			Error.new("Size = % is not supported. Use a power of two.".format(size)).throw
 		});
 
 		// normalize - just pressure
-		puf.put(0, normFac * puf[0]);
+		pvf.put(0, normFac * pvf[0]);
 
 		^super.fill(hoaOrder.size, { |i|
-			puf[i]
+			pvf[i]
 		})
 	}
 
-	// Standing
 	/*
-	NOTE: only supports powerOfTwo
-	NOTE: supply (size / 2) + 1 args: real
-	NOTE: catch arg size mismatch errors
+	NOTE:
+	- only supports powerOfTwo
+	- supply (size / 2) + 1 args: real
+	- catch arg size mismatch errors
 
-	TODO: integrate more closely w/ FreqSpectrum --> magnitude, phase args
-	TODO: default args if nil
+	TODO:
+	- integrate more closely w/ FreqSpectrum --> magnitude, phase args
+	- default args if nil
 	*/
 	*newDiametric { |size, magnitude, phase, theta, phi, beta, sampleRate = nil, speedOfSound = (AtkHoa.speedOfSound)|
 		var hoaOrder = order.asHoaOrder;
 		var refRadius = inf;
 		var freqs, complex;
-		var puf;
+		var pvf;
 		var rfftsize;
 		var sourceNorm = \n3d;
 		var targetNorm = \sn3d;
@@ -180,7 +181,7 @@ PVf[slot] : PVc  {
 		if(size.isPowerOfTwo, {  // rfft
 			rfftsize = (size / 2 + 1).asInteger;
 
-			puf = Array.fill(hoaOrder.size, {  // empty
+			pvf = Array.fill(hoaOrder.size, {  // empty
 				Complex.new(Signal.newClear(rfftsize), Signal.newClear(rfftsize))
 			});
 
@@ -192,41 +193,45 @@ PVf[slot] : PVc  {
 			rfftsize.do({ |i|  // complex coefficients
 				complex = magnitude[i] * hoaOrder.diametric(freqs[i], phase[i], theta[i], phi[i], beta[i], refRadius, speedOfSound);
 				hoaOrder.size.do({ |j|
-					puf[j].real.put(i, complex.real[j]);
-					puf[j].imag.put(i, complex.imag[j])
+					pvf[j].real.put(i, complex.real[j]);
+					pvf[j].imag.put(i, complex.imag[j])
 				})
 			});
 
 			// convert from rfft to fft
-			puf = puf.collect({ |item| item.real.rfftToFft(item.imag) })
+			pvf = pvf.collect({ |item| item.real.rfftToFft(item.imag) })
 		}, {
 			Error.new("Size = % is not supported. Use a power of two.".format(size)).throw
 		});
 
 		// normalize & reorder
-		puf = (normFac * puf)[indicesFromACN];
+		pvf = (normFac * pvf)[indicesFromACN];
 
 		^super.fill(hoaOrder.size, { |i|
-			puf[i]
+			pvf[i]
 		})
 	}
 
-	/*
-	NOTE: only supports powerOfTwo
-	NOTE: supply (size / 2) + 1 args: real
-	NOTE: catch arg size mismatch errors
+	/*  Diffuse: modal, angular (plane-wave)  */
 
-	TODO: integrate more closely w/ FreqSpectrum --> magnitude, phase args
-	TODO: default args if nil
-	*/
 	/*
-	NOTE: normalized Wp, Wu, Ws
+	NOTE:
+	- only supports powerOfTwo
+	- supply (size / 2) + 1 args: real
+	- catch arg size mismatch errors
+
+	TODO:
+	- integrate more closely w/ FreqSpectrum --> magnitude, phase args
+	- default args if nil
+
+	NOTE:
+	- normalized Wp, Wu, Ws
 	*/
 	*newDiffuseModal { |size, magnitude, phase, sampleRate = nil, speedOfSound = (AtkHoa.speedOfSound)|
 		var hoaOrder = order.asHoaOrder;
 		var refRadius = inf;
 		var freqs, complex;
-		var puf;
+		var pvf;
 		var rfftsize;
 		var sourceNorm = \n3d;
 		var targetNorm = \sn3d;
@@ -237,7 +242,7 @@ PVf[slot] : PVc  {
 		if(size.isPowerOfTwo, {  // rfft
 			rfftsize = (size / 2 + 1).asInteger;
 
-			puf = Array.fill(hoaOrder.size, {  // empty
+			pvf = Array.fill(hoaOrder.size, {  // empty
 				Complex.new(Signal.newClear(rfftsize), Signal.newClear(rfftsize))
 			});
 
@@ -249,32 +254,34 @@ PVf[slot] : PVc  {
 			rfftsize.do({ |i|  // complex coefficients
 				complex = magnitude[i] * hoaOrder.diffuseModal(freqs[i], phase[i], refRadius, speedOfSound);
 				hoaOrder.size.do({ |j|
-					puf[j].real.put(i, complex.real[j]);
-					puf[j].imag.put(i, complex.imag[j])
+					pvf[j].real.put(i, complex.real[j]);
+					pvf[j].imag.put(i, complex.imag[j])
 				})
 			});
 
 			// convert from rfft to fft
-			puf = puf.collect({ |item| item.real.rfftToFft(item.imag) })
+			pvf = pvf.collect({ |item| item.real.rfftToFft(item.imag) })
 		}, {
 			Error.new("Size = % is not supported. Use a power of two.".format(size)).throw
 		});
 
 		// normalize & reorder
-		puf = (normFac * puf)[indicesFromACN];
+		pvf = (normFac * pvf)[indicesFromACN];
 
 		^super.fill(hoaOrder.size, { |i|
-			puf[i]
+			pvf[i]
 		})
 	}
 
 	/*
-	NOTE: only supports powerOfTwo
-	NOTE: supply (size / 2) + 1 args: real
-	NOTE: catch arg size mismatch errors
+	NOTE:
+	- only supports powerOfTwo
+	- supply (size / 2) + 1 args: real
+	- catch arg size mismatch errors
 
-	TODO: integrate more closely w/ FreqSpectrum --> magnitude, phase args
-	TODO: default args if nil
+	TODO:
+	- integrate more closely w/ FreqSpectrum --> magnitude, phase args
+	- default args if nil
 	*/
 	/*
 	NOTE: normalized Ws
@@ -283,7 +290,7 @@ PVf[slot] : PVc  {
 		var hoaOrder = order.asHoaOrder;
 		var refRadius = inf;
 		var freqs, complex;
-		var puf;
+		var pvf;
 		var rfftsize;
 		var sourceNorm = \n3d;
 		var targetNorm = \sn3d;
@@ -294,7 +301,7 @@ PVf[slot] : PVc  {
 		if(size.isPowerOfTwo, {  // rfft
 			rfftsize = (size / 2 + 1).asInteger;
 
-			puf = Array.fill(hoaOrder.size, {  // empty
+			pvf = Array.fill(hoaOrder.size, {  // empty
 				Complex.new(Signal.newClear(rfftsize), Signal.newClear(rfftsize))
 			});
 
@@ -306,54 +313,55 @@ PVf[slot] : PVc  {
 			rfftsize.do({ |i|  // complex coefficients
 				complex = magnitude[i] * hoaOrder.diffuseModal(freqs[i], phase[i], design, refRadius, speedOfSound);
 				hoaOrder.size.do({ |j|
-					puf[j].real.put(i, complex.real[j]);
-					puf[j].imag.put(i, complex.imag[j])
+					pvf[j].real.put(i, complex.real[j]);
+					pvf[j].imag.put(i, complex.imag[j])
 				})
 			});
 
 			// convert from rfft to fft
-			puf = puf.collect({ |item| item.real.rfftToFft(item.imag) })
+			pvf = pvf.collect({ |item| item.real.rfftToFft(item.imag) })
 		}, {
 			Error.new("Size = % is not supported. Use a power of two.".format(size)).throw
 		});
 
 		// normalize & reorder
-		puf = (normFac * puf)[indicesFromACN];
+		pvf = (normFac * pvf)[indicesFromACN];
 
 		^super.fill(hoaOrder.size, { |i|
-			puf[i]
+			pvf[i]
 		})
 	}
 
 
-	//------------------------------------------------------------------------
-	//------------------------------------------------------------------------
-	// Encoding
+	/*
+	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	Encoding: from other PVx or ambisonic formats:
+	PVt, PVa, Foa, Ambix
+	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	*/
 
 	/*
 	TODO: check for power of two
-	TODO: update PUT -> PVt
 	*/
-	*newPUT { |put|
-		var cosTable = Signal.fftCosTable(put.numFrames);
-		var imag = Signal.zeroFill(put.numFrames);
+	*newFromPVt { |pvt|
+		var cosTable = Signal.fftCosTable(pvt.numFrames);
+		var imag = Signal.zeroFill(pvt.numFrames);
 
-		(put.class == PUT).if({
+		(pvt.class == PVt).if({
 			^super.fill(4, { |i|
-				put[i].fft(imag, cosTable)
+				pvt[i].fft(imag, cosTable)
 			})
 		}, {
-			Error.new("Input class % != PUT!".format(put.class)).throw
+			Error.new("Input class % != PVt!".format(pvt.class)).throw
 		})
 	}
 
 	/*
 	TODO: check for power of two
-	TODO: update PUT -> PVt
 	*/
-	*newPVa { |pua|
+	*newFromPVa { |pua|
 		(pua.class == PVa).if({
-			^this.newPUT(PUT.newPUA(pua))
+			^this.newFromPVt(PVt.newPUA(pua))
 		}, {
 			Error.new("Input class % != PUA!".format(pua.class)).throw
 		})
@@ -361,47 +369,37 @@ PVf[slot] : PVc  {
 
 	/*
 	TODO: check for power of two
-	TODO: PUT -> PVt
 	*/
-	*newFoa { |array|
-		^this.newPUT(PUT.newFoa(array))
+	*newFromFoa { |array|
+		^this.newFromPVt(PVt.newFoa(array))
 	}
 
 	/*
-	TODO: check for power of two
-	TODO: update PUT -> PVt
+	TODO:
+	- check for power of two
+	- update PVt -> PVt
 	*/
-	*newAmbix { |array|
-		^this.newPUT(PUT.newAmbix(array))
+	*newFromAmbix { |array|
+		^this.newFromPVt(PVt.newAmbix(array))
 	}
 
 
-	//------------------------------------------------------------------------
-	//------------------------------------------------------------------------
-	// Stationary measures
-	//
 	/*
-	TODO: use another name?
-	TODO: refactor to only return coefficients for +freqs
-			OR recognize I.imag is neg for -freqs
+	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	Analysis:
+	Intensity, Radius
+	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	*/
 
-	//------------------------------------------------------------------------
-	// INTENSITY - magnitudes
-
-
-
-	//------------------------------------------------------------------------
-	// INTENSITY - complex vectors
+	/*  Intensity  */
 
 	/*
-	TODO: parallel to ATK analyze names?
-	TODO: defer / promote to superclass PUC??
-
-	TODO: are negative freqs correct??
-	TODO: do these align w/ HoaOrder coefficients??
+	TODO:
+	- parallel to ATK analyze names?
+	- defer / promote to superclass PUC??
+	- are negative freqs correct??
+	- do these align w/ HoaOrder coefficients??
 	*/
-
 	// Intensity
 	// stationaryI {
 	// 	var p = this.pressure;
@@ -443,9 +441,14 @@ PVf[slot] : PVc  {
 		^icm
 	}
 
-	//------------------------------------------------------------------------
-	// SOUNDFIELD RADIUS
 
+	/*  Radius  */
+
+	/*
+	TODO:
+	- enforce power of two
+	- consider single frequency implementation
+	*/
 	// Nearfield (Spherical) Radius
 	radius { |negRadius = false, sampleRate = nil, speedOfSound = (AtkHoa.speedOfSound)|
 		var rfftSize = (this.numFrames / 2).asInteger + 1;
@@ -456,12 +459,6 @@ PVf[slot] : PVc  {
 		var magAsquaredReciprocal = (magAsquared + FoaEval.reg.squared).reciprocal;
 		var magAR = (a.real * a.imag).sum * magAsquaredReciprocal;  // (scaled) magnitude of parallel reactive admittance
 		var freqs, radius;
-
-		// assume power of two
-		/*
-		TODO: enforce power of two
-		TODO: consider single frequency implementation
-		*/
 
 		sampleRate ?? { "[PVc:radius] No sampleRate specified.".error; this.halt };
 
@@ -483,68 +480,6 @@ PVf[slot] : PVc  {
 		// mirror
 		^(radius ++ (radius.deepCopy.drop(1).drop(-1).reverse))
 	}
-
-	//------------------------------------------------------------------------
-	// MAGNITUDE - sums
-
-	// inherited:
-	//  totalMagMagI
-	//  totalMagMagN
-	//  totalMagI
-	//  totalMagMagA
-	//  totalMagA
-	//  totalMagMagW
-	//  totalMagW
-	//  totalMagN
-
-	//------------------------------------------------------------------------
-	// INTENSITY - sums
-
-	// inherited:
-	//  totalI
-	//  totalN
-	//  totalA
-	//  totalW
-
-	//------------------------------------------------------------------------
-	// MAGNITUDE - average
-
-	// inherited:
-	//  averageMagMagI
-	//  averageMagI
-	//  averageMagMagA
-	//  averageMagA
-	//  averageMagMagW
-	//  averageMagW
-	//  averageMagMagN
-	//  averageMagN
-
-	//------------------------------------------------------------------------
-	// INTENSITY - average
-
-	// inherited:
-	//  averageI
-	//  averageW
-	//  averageN
-
-	//------------------------------------------------------------------------
-	// SOUNDFIELD INDICATORS
-
-	// inherited:
-	//  averageAlpha
-	//  averageBeta
-	//  averageGamma
-	//  averageMu
-
-
-	//------------------------------------------------------------------------
-	// SOUNDFIELD INCIDENCE - complex vector: Complex([ thetaA, phiA ], [ thetaR, phiR ])
-
-	// inherited:
-	// averageThetaPhi
-
-	//------------------------------------------------------------------------
-	// SOUNDFIELD RADIUS
 
 	// Nearfield (Spherical) Radius
 	averageRadius { |weights, negRadius = false, sampleRate = nil, speedOfSound = (AtkHoa.speedOfSound)|

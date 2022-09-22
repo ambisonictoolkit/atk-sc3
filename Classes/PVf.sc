@@ -340,6 +340,19 @@ PVf[slot] : PVc  {
 	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	*/
 
+	*newFromPUT { |put|  				/* TEMP for testing diffuse fields with former reference implementation */
+		var cosTable = Signal.fftCosTable(put.numFrames);
+		var imag = Signal.zeroFill(put.numFrames);
+
+		(put.class == PUT).if({
+			^super.fill(4, { |i|
+				put[i].fft(imag, cosTable)
+			})
+		}, {
+			Error.new("Input class % != PUT!".format(put.class)).throw
+		})
+	}
+
 	/*
 	TODO: check for power of two
 	*/

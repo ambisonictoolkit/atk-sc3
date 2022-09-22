@@ -248,6 +248,16 @@ PVa[slot] : PVc  {
 	~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	*/
 
+	*newFromPUT { |put| 				/* TEMP for testing diffuse fields with former reference implementation */
+		(put.class == PUT).if({
+			^super.fill(4, { |i|
+				put[i].analytic
+			})
+		}, {
+			Error.new("Input class % != PUT!".format(put.class)).throw
+		})
+	}
+
 	*newFromPVt { |pvt|
 		(pvt.class == PVt).if({
 			^super.fill(4, { |i|

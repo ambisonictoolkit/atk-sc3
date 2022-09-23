@@ -27,7 +27,7 @@ Users use subclasses PVF, PVA.
 */
 
 /*
-PVC dimensions:
+PVc dimensions:
 n = numFrames;
 [
 	Complex(Signal[n], Signal[n]), // p
@@ -167,20 +167,19 @@ PVc[slot] : Array {
 	magMagA {
 		var magMagI = this.magMagI;
 		var wp = this.wp;
-		var wpReciprocal = (wp + FoaEval.reg.squared).reciprocal;
 
-		^(magMagI * wpReciprocal)
+		^ magMagI / (wp + FoaEval.reg.squared)
 	}
 
 	// Magnitude of Complex Admittance
 	magA {
 		var magI = this.magI;
 		var wp = this.wp;
-		var wpReciprocal = (wp + FoaEval.reg.squared).reciprocal;
+		var wpReg = wp + FoaEval.reg.squared;
 
 		^Complex.new(  // explicit... slow otherwise!!
-			magI.real * wpReciprocal,
-			magI.imag * wpReciprocal
+			magI.real / wpReg,
+			magI.imag / wpReg
 		)
 	}
 
@@ -188,20 +187,19 @@ PVc[slot] : Array {
 	magMagW {
 		var magMagI = this.magMagI;
 		var ws = this.ws;
-		var wsReciprocal = (ws + FoaEval.reg.squared).reciprocal;
 
-		^(magMagI * wsReciprocal)
+		^ magMagI / (ws + FoaEval.reg.squared)
 	}
 
 	// Magnitude of Complex Energy
 	magW {
 		var magI = this.magI;
 		var ws = this.ws;
-		var wsReciprocal = (ws + FoaEval.reg.squared).reciprocal;
+		var wsDenom = ws + FoaEval.reg.squared;
 
 		^Complex.new(  // explicit... slow otherwise!!
-			magI.real * wsReciprocal,
-			magI.imag * wsReciprocal
+			magI.real / wsDenom,
+			magI.imag / wsDenom
 		)
 	}
 
@@ -214,11 +212,11 @@ PVc[slot] : Array {
 	magN {
 		var magI = this.magI;
 		var magMagI = this.magMagI;
-		var magMagIReciprocal = (magMagI + FoaEval.reg.squared.squared).reciprocal;
+		var magMagIDenom = magMagI + FoaEval.reg.squared.squared;
 
 		^Complex.new(  // explicit... slow otherwise!!
-			magI.real * magMagIReciprocal,
-			magI.imag * magMagIReciprocal
+			magI.real / magMagIDenom,
+			magI.imag / magMagIDenom
 		)
 	}
 
@@ -232,12 +230,12 @@ PVc[slot] : Array {
 	admittance {
 		var i = this.intensity;
 		var wp = this.wp;
-		var wpReciprocal = (wp + FoaEval.reg.squared).reciprocal;
+		var wpDenom = wp + FoaEval.reg.squared;
 
 		^i.collect({ |item|
 			Complex.new(  // explicit... slow otherwise!!
-				item.real * wpReciprocal,
-				item.imag * wpReciprocal
+				item.real / wpDenom,
+				item.imag / wpDenom
 			)
 		})
 	}
@@ -245,12 +243,12 @@ PVc[slot] : Array {
 	energy {
 		var i = this.intensity;
 		var ws = this.ws;
-		var wsReciprocal = (ws + FoaEval.reg.squared).reciprocal;
+		var wsDenom = ws + FoaEval.reg.squared;
 
 		^i.collect({ |item|
 			Complex.new(  // explicit... slow otherwise!!
-				item.real * wsReciprocal,
-				item.imag * wsReciprocal
+				item.real / wsDenom,
+				item.imag / wsDenom
 			)
 		})
 	}
@@ -259,12 +257,12 @@ PVc[slot] : Array {
 	intensityN {
 		var i = this.intensity;
 		var magMagI = this.magMagI;
-		var magMagIReciprocal = (magMagI + FoaEval.reg.squared).reciprocal;
+		var magMagIDenom = magMagI + FoaEval.reg.squared;
 
 		^i.collect({ |item|
 			Complex.new(  // explicit... slow otherwise!!
-				item.real * magMagIReciprocal,
-				item.imag * magMagIReciprocal
+				item.real / magMagIDenom,
+				item.imag / magMagIDenom
 			)
 		})
 	}
@@ -377,7 +375,8 @@ PVc[slot] : Array {
 		^Complex.new(
 			magI.real.sum,
 			magI.imag.sum
-		) * this.blockNorm
+		)
+		* this.blockNorm
 	}
 
 	/*
@@ -386,15 +385,16 @@ PVc[slot] : Array {
 
 	// Magnitude of Magnitude of Complex Admittance
 	totalMagMagA {
-		// ^this.magMagA.sum
+		// was: ^this.magMagA.sum
 		var magMagI_tot = this.magMagI.sum;
 		var wp_avg = this.wp.sum / this.numFrames;
 
-		^magMagI_tot / (wp_avg + FoaEval.reg.squared)
+		^(magMagI_tot / (wp_avg + FoaEval.reg.squared))
 	}
 
 	// Magnitude of Complex Admittance
 	totalMagA {
+		// was:
 		// var magA = this.magA;
 		// ^Complex.new(
 		// 	magA.real.sum,
@@ -404,17 +404,18 @@ PVc[slot] : Array {
 		var magI_total = Complex(magI.real.sum, magI.imag.sum);
 		var wp_avg = this.wp.sum / this.numFrames;
 
-		^magI_total / (wp_avg + FoaEval.reg.squared)
+		^(magI_total / (wp_avg + FoaEval.reg.squared))
 	}
 
 	// Magnitude of Magnitude of Complex Energy
 	totalMagMagW {
-		//^this.magMagW.sum
-		^this.magMagI.sum / ((this.ws.sum / this.numFrames) + FoaEval.reg.squared)
+		//was: ^this.magMagW.sum
+		^(this.magMagI.sum / ((this.ws.sum / this.numFrames) + FoaEval.reg.squared))
 	}
 
 	// Magnitude of Complex Energy
 	totalMagW {
+		// was:
 		// var magA = this.magW;
 		// ^Complex.new(
 		// 	magA.real.sum,
@@ -423,16 +424,18 @@ PVc[slot] : Array {
 		var magI = this.magI;
 		var magI_tot = Complex(magI.real.sum, magI.imag.sum);
 
-		^magI_tot / ((this.ws.sum / this.numFrames) + FoaEval.reg.squared);
+		^(magI_tot / ((this.ws.sum / this.numFrames) + FoaEval.reg.squared));
 	}
 
 	// Magnitude of Magnitude Unit Normalized Complex Intensity - Convenience
+	// TODO: should calculate, not assume this normalized mag?
 	totalMagMagN {
 		^this.numFrames.asFloat
 	}
 
 	// Magnitude of Unit Normalized Complex Intensity
 	totalMagN {
+		// was:
 		// var magN = this.magN;
 		// ^Complex.new(
 		// 	magN.real.sum,
@@ -441,7 +444,8 @@ PVc[slot] : Array {
 		var magI = this.magI;
 		var magI_tot = Complex(magI.real.sum, magI.imag.sum);
 		var magMagI_avg = (this.magMagI.sum / this.numFrames);
-		^magI_tot / (magMagI_avg + FoaEval.reg.squared)
+
+		^(magI_tot / (magMagI_avg + FoaEval.reg.squared))
 
 	}
 
@@ -473,20 +477,18 @@ PVc[slot] : Array {
 	totalA {
 		var i = this.totalI;
 		var wp = this.totalWp;
-		var wpReciprocal = (wp + FoaEval.reg.squared).reciprocal;
 		var normFac = this.numFrames;
 
-		^(normFac * i * wpReciprocal)
+		^(normFac * i / (wp + FoaEval.reg.squared))
 	}
 
 	// Total Energy
 	totalW {
 		var i = this.totalI;
 		var ws = this.totalWs;
-		var wsReciprocal = (ws + FoaEval.reg.squared).reciprocal;
 		var normFac = this.numFrames;
 
-		^(normFac * i * wsReciprocal)
+		^(normFac * i / (ws + FoaEval.reg.squared))
 	}
 
 
@@ -522,9 +524,9 @@ PVc[slot] : Array {
 
 	// potential energy
 	averageWp { |weights = nil|
+
 		^weights.isNil.if({
-			var normFac = this.numFrames.reciprocal;
-			normFac * this.totalWp
+			this.totalWp / this.numFrames
 		}, {
 			this.wp.wmean(weights)
 		})
@@ -532,9 +534,9 @@ PVc[slot] : Array {
 
 	// kinetic energy
 	averageWu { |weights = nil|
+
 		^weights.isNil.if({
-			var normFac = this.numFrames.reciprocal;
-			normFac * this.totalWu
+			this.totalWu / this.numFrames
 		}, {
 			this.wu.wmean(weights)
 		})
@@ -542,9 +544,9 @@ PVc[slot] : Array {
 
 	// potential & kinetic energy mean
 	averageWs { |weights = nil|
+
 		^weights.isNil.if({
-			var normFac = this.numFrames.reciprocal;
-			normFac * this.totalWs
+			this.totalWs / this.numFrames
 		}, {
 			this.ws.wmean(weights)
 		})
@@ -552,9 +554,9 @@ PVc[slot] : Array {
 
 	// potential & kinetic energy difference
 	averageWd { |weights = nil|
+
 		^weights.isNil.if({
-			var normFac = this.numFrames.reciprocal;
-			normFac * this.totalWd
+			this.totalWd / this.numFrames
 		}, {
 			this.wd.wmean(weights)
 		})
@@ -562,9 +564,9 @@ PVc[slot] : Array {
 
 	// Heyser energy density
 	averageWh { |weights = nil|
+
 		^weights.isNil.if({
-			var normFac = this.numFrames.reciprocal;
-			normFac * this.totalWh
+			this.totalWh / this.numFrames
 		}, {
 			this.wh.wmean(weights)
 		})
@@ -576,9 +578,9 @@ PVc[slot] : Array {
 
 	// Magnitude of Magnitude of Complex Intensity
 	averageMagMagI { |weights = nil|
+
 		^weights.isNil.if({
-			var normFac = this.numFrames.reciprocal;
-			normFac * this.totalMagMagI
+			this.totalMagMagI / this.numFrames
 		}, {
 			this.magMagI.wmean(weights)
 		})
@@ -586,9 +588,9 @@ PVc[slot] : Array {
 
 	// Magnitude of Complex Intensity
 	averageMagI { |weights = nil|
+
 		^weights.isNil.if({
-			var normFac = this.numFrames.reciprocal;
-			normFac * this.totalMagI
+			this.totalMagI / this.numFrames
 		}, {
 			var magI = this.magI;
 			Complex.new(
@@ -600,9 +602,9 @@ PVc[slot] : Array {
 
 	// Magnitude of Magnitude of Complex Admittance
 	averageMagMagA { |weights = nil|
+
 		^weights.isNil.if({
-			// var normFac = this.numFrames.reciprocal;
-			// normFac * this.totalMagMagA
+			// was: this.totalMagMagA / this.numFrames
 			var magMagI_tot = this.magMagI.sum;
 			var wp_tot 		= this.wp.sum;
 
@@ -614,9 +616,9 @@ PVc[slot] : Array {
 
 	// Magnitude of Complex Admittance
 	averageMagA { |weights = nil|
+
 		^weights.isNil.if({
-			// var normFac = this.numFrames.reciprocal;
-			// normFac * this.totalMagA
+			// was: this.totalMagA / this.numFrames
 			var magI     = this.magI;
 			var magI_tot = Complex(magI.real.sum, magI.imag.sum);
 			var wp_tot   = this.wp.sum;
@@ -633,9 +635,9 @@ PVc[slot] : Array {
 
 	// Magnitude of Magnitude of Complex Energy
 	averageMagMagW { |weights = nil|
+
 		^weights.isNil.if({
-			var normFac = this.numFrames.reciprocal;
-			normFac * this.totalMagMagW
+			this.totalMagMagW / this.numFrames
 		}, {
 			this.magMagW.wmean(weights)
 		})
@@ -643,9 +645,9 @@ PVc[slot] : Array {
 
 	// Magnitude of Complex Energy
 	averageMagW { |weights = nil|
+
 		^weights.isNil.if({
-			var normFac = this.numFrames.reciprocal;
-			normFac * this.totalMagW
+			this.totalMagW / this.numFrames
 		}, {
 			var magW = this.magW;
 			Complex.new(
@@ -657,8 +659,9 @@ PVc[slot] : Array {
 
 	// Magnitude of Magnitude Unit Normalized Complex Intensity - Convenience
 	averageMagMagN { |weights = nil|
+
 		^weights.isNil.if({
-			1.0
+			1.0 				// TODO: don't assume?
 		}, {
 			this.magMagN.wmean(weights)
 		})
@@ -666,9 +669,9 @@ PVc[slot] : Array {
 
 	// Magnitude of Unit Normalized Complex Intensity
 	averageMagN { |weights = nil|
+
 		^weights.isNil.if({
-			var normFac = this.numFrames.reciprocal;
-			normFac * this.totalMagN
+			this.totalMagN / this.numFrames
 		}, {
 			var magN = this.magN;
 			Complex.new(
@@ -684,51 +687,52 @@ PVc[slot] : Array {
 
 	// Intensity
 	averageI { |weights = nil|
+
 		^weights.isNil.if({
-			var normFac = this.numFrames.reciprocal;
-			normFac * this.totalI
+			this.totalI / this.numFrames
 		}, {
 			var i = this.intensity;
-			var weightsReciprocal = weights.sum.reciprocal;
+			var weightsDenom = weights.sum;
 			Complex.new(  // explicit...
-				weightsReciprocal * i.real.collect({ |item| (item * weights).sum }),
-				weightsReciprocal * i.imag.collect({ |item| (item * weights).sum }),
+				i.real.collect({ |item| (item * weights).sum }) / weightsDenom,
+				i.imag.collect({ |item| (item * weights).sum }) / weightsDenom,
 			)
 		})
 	}
 
 	// Admittance
 	averageA { |weights = nil|
+
 		^weights.isNil.if({
-			var normFac = this.numFrames.reciprocal;
-			normFac * this.totalA
+			this.totalA / this.numFrames
 		}, {
 			var a = this.admittance;
-			var weightsReciprocal = weights.sum.reciprocal;
+			var weightsDenom = weights.sum;
 			Complex.new(  // explicit...
-				weightsReciprocal * a.real.collect({ |item| (item * weights).sum }),
-				weightsReciprocal * a.imag.collect({ |item| (item * weights).sum }),
+				a.real.collect({ |item| (item * weights).sum }) / weightsDenom,
+				a.imag.collect({ |item| (item * weights).sum }) / weightsDenom,
 			)
 		})
 	}
 
 	// Energy
 	averageW { |weights = nil|
+
 		^weights.isNil.if({
-			var normFac = this.numFrames.reciprocal;
-			normFac * this.totalW
+			this.totalW / this.numFrames
 		}, {
 			var w = this.energy;
-			var weightsReciprocal = weights.sum.reciprocal;
+			var weightsDenom = weights.sum;
 			Complex.new(  // explicit...
-				weightsReciprocal * w.real.collect({ |item| (item * weights).sum }),
-				weightsReciprocal * w.imag.collect({ |item| (item * weights).sum }),
+				w.real.collect({ |item| (item * weights).sum }) / weightsDenom,
+				w.imag.collect({ |item| (item * weights).sum }) / weightsDenom,
 			)
 		})
 	}
 
 	// Unit Normalized Intensity
 	averageN { |weights = nil|
+
 		^weights.isNil.if({
 			var i = this.totalI;
 			// var magMagI = this.totalMagMagI;
@@ -736,16 +740,15 @@ PVc[slot] : Array {
 				i.real.squared.sum.sqrt,
 				i.imag.squared.sum.sqrt,
 			).magnitude;
-			var magMagIReciprocal = (magMagI + FoaEval.reg.squared).reciprocal;
 
-			i * magMagIReciprocal
+			i / (magMagI + FoaEval.reg.squared)
 		}, {
 			var n = this.intensityN;
-			var weightsReciprocal = weights.sum.reciprocal;
+			var weightsDenom = weights.sum;
 
 			Complex.new(  // explicit...
-				weightsReciprocal * n.real.collect({ |item| (item * weights).sum }),
-				weightsReciprocal * n.imag.collect({ |item| (item * weights).sum }),
+				n.real.collect({ |item| (item * weights).sum }) / weightsDenom,
+				n.imag.collect({ |item| (item * weights).sum }) / weightsDenom,
 			)
 		})
 	}

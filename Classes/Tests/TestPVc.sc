@@ -157,6 +157,7 @@ TestPVc : UnitTest {
 
 
 		/* Test sinusoidal (monotonic) diffuse field signal */
+		// TODO: every so often these will fail, even with quite high tolerance
 
 		// generate time-domain signal
 		pvt = PVt.newSineDiffuseAngular(

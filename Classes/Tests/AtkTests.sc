@@ -67,6 +67,7 @@ AtkTests {
 			TestHoaMatrixXformer,
 			TestNumberForHoa,      // tests sphericalHarmonic method
 			TestFoaMatrix,         // includes matrix encoders, decoders, xformers
+			TestPVc
 		].do(_.run)
 
 	}

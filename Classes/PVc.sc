@@ -390,7 +390,7 @@ PVc[slot] : Array {
 	totalMagMagA {
 		// was: ^this.magMagA.sum
 		var magMagI_tot = this.magMagI.sum;
-		var wp_avg = this.wp.sum / this.numFrames;
+		var wp_avg = this.wp.mean;
 
 		^magMagI_tot / (wp_avg + FoaEval.reg.squared)
 	}
@@ -405,7 +405,7 @@ PVc[slot] : Array {
 		// )
 		var magI = this.magI;
 		var magI_total = Complex(magI.real.sum, magI.imag.sum);
-		var wp_avg = this.wp.sum / this.numFrames;
+		var wp_avg = this.wp.mean;
 
 		^magI_total / (wp_avg + FoaEval.reg.squared)
 	}
@@ -413,7 +413,7 @@ PVc[slot] : Array {
 	// Magnitude of Magnitude of Complex Energy
 	totalMagMagW {
 		//was: ^this.magMagW.sum
-		^this.magMagI.sum / ((this.ws.sum / this.numFrames) + FoaEval.reg.squared)
+		^this.magMagI.sum / ((this.ws.mean) + FoaEval.reg.squared)
 	}
 
 	// Magnitude of Complex Energy
@@ -427,7 +427,7 @@ PVc[slot] : Array {
 		var magI = this.magI;
 		var magI_tot = Complex(magI.real.sum, magI.imag.sum);
 
-		^magI_tot / ((this.ws.sum / this.numFrames) + FoaEval.reg.squared);
+		^magI_tot / ((this.ws.mean) + FoaEval.reg.squared);
 	}
 
 	// Magnitude of Magnitude Unit Normalized Complex Intensity - Convenience
@@ -446,7 +446,7 @@ PVc[slot] : Array {
 		// )
 		var magI = this.magI;
 		var magI_tot = Complex(magI.real.sum, magI.imag.sum);
-		var magMagI_avg = (this.magMagI.sum / this.numFrames);
+		var magMagI_avg = (this.magMagI.mean);
 
 		^magI_tot / (magMagI_avg + FoaEval.reg.squared)
 

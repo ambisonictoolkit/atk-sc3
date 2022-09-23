@@ -233,10 +233,10 @@ PVc[slot] : Array {
 		var wp = this.wp;
 		var wpDenom = wp + FoaEval.reg.squared;
 
-		^i.collect({ |item|
+		^i.collect({ |i_n|
 			Complex.new(  // explicit... slow otherwise!!
-				item.real / wpDenom,
-				item.imag / wpDenom
+				i_n.real / wpDenom,
+				i_n.imag / wpDenom
 			)
 		})
 	}
@@ -246,10 +246,10 @@ PVc[slot] : Array {
 		var ws = this.ws;
 		var wsDenom = ws + FoaEval.reg.squared;
 
-		^i.collect({ |item|
+		^i.collect({ |i_n|
 			Complex.new(  // explicit... slow otherwise!!
-				item.real / wsDenom,
-				item.imag / wsDenom
+				i_n.real / wsDenom,
+				i_n.imag / wsDenom
 			)
 		})
 	}
@@ -260,10 +260,10 @@ PVc[slot] : Array {
 		var magMagI = this.magMagI;
 		var magMagIDenom = magMagI + FoaEval.reg.squared;
 
-		^i.collect({ |item|
+		^i.collect({ |i_n|
 			Complex.new(  // explicit... slow otherwise!!
-				item.real / magMagIDenom,
-				item.imag / magMagIDenom
+				i_n.real / magMagIDenom,
+				i_n.imag / magMagIDenom
 			)
 		})
 	}
@@ -696,9 +696,10 @@ PVc[slot] : Array {
 		}, {
 			var i = this.intensity;
 			var weightsDenom = weights.sum;
+
 			Complex.new(  // explicit...
-				i.real.collect({ |item| (item * weights).sum }) / weightsDenom,
-				i.imag.collect({ |item| (item * weights).sum }) / weightsDenom,
+				i.real.collect({ |ir_n| (ir_n * weights).sum }) / weightsDenom,
+				i.imag.collect({ |ii_n| (ii_n * weights).sum }) / weightsDenom,
 			)
 		})
 	}
@@ -711,9 +712,10 @@ PVc[slot] : Array {
 		}, {
 			var a = this.admittance;
 			var weightsDenom = weights.sum;
+
 			Complex.new(  // explicit...
-				a.real.collect({ |item| (item * weights).sum }) / weightsDenom,
-				a.imag.collect({ |item| (item * weights).sum }) / weightsDenom,
+				a.real.collect({ |ir_n| (ir_n * weights).sum }) / weightsDenom,
+				a.imag.collect({ |ii_n| (ii_n * weights).sum }) / weightsDenom,
 			)
 		})
 	}
@@ -727,8 +729,8 @@ PVc[slot] : Array {
 			var w = this.energy;
 			var weightsDenom = weights.sum;
 			Complex.new(  // explicit...
-				w.real.collect({ |item| (item * weights).sum }) / weightsDenom,
-				w.imag.collect({ |item| (item * weights).sum }) / weightsDenom,
+				w.real.collect({ |er_n| (er_n * weights).sum }) / weightsDenom,
+				w.imag.collect({ |ei_n| (ei_n * weights).sum }) / weightsDenom,
 			)
 		})
 	}
@@ -750,8 +752,8 @@ PVc[slot] : Array {
 			var weightsDenom = weights.sum;
 
 			Complex.new(  // explicit...
-				n.real.collect({ |item| (item * weights).sum }) / weightsDenom,
-				n.imag.collect({ |item| (item * weights).sum }) / weightsDenom,
+				n.real.collect({ |ir_n| (ir_n * weights).sum }) / weightsDenom,
+				n.imag.collect({ |ii_n| (ii_n * weights).sum }) / weightsDenom,
 			)
 		})
 	}

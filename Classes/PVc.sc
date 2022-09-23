@@ -138,7 +138,7 @@ PVc[slot] : Array {
 		var ws = this.ws;
 		var magI = this.magI;
 
-		^(ws - magI.imag)
+		^ws - magI.imag
 	}
 
 
@@ -168,7 +168,7 @@ PVc[slot] : Array {
 		var magMagI = this.magMagI;
 		var wp = this.wp;
 
-		^ magMagI / (wp + FoaEval.reg.squared)
+		^magMagI / (wp + FoaEval.reg.squared)
 	}
 
 	// Magnitude of Complex Admittance
@@ -188,7 +188,7 @@ PVc[slot] : Array {
 		var magMagI = this.magMagI;
 		var ws = this.ws;
 
-		^ magMagI / (ws + FoaEval.reg.squared)
+		^magMagI / (ws + FoaEval.reg.squared)
 	}
 
 	// Magnitude of Complex Energy
@@ -297,6 +297,7 @@ PVc[slot] : Array {
 
 		cosFac = (i.real * i.imag).sum;
 		sinFac = ((magI.real * magI.imag).squared - cosFac.squared).abs.sqrt;  // -abs for numerical precision errors
+
 		^atan2(sinFac, cosFac)
 	}
 
@@ -389,7 +390,7 @@ PVc[slot] : Array {
 		var magMagI_tot = this.magMagI.sum;
 		var wp_avg = this.wp.sum / this.numFrames;
 
-		^(magMagI_tot / (wp_avg + FoaEval.reg.squared))
+		^magMagI_tot / (wp_avg + FoaEval.reg.squared)
 	}
 
 	// Magnitude of Complex Admittance
@@ -404,13 +405,13 @@ PVc[slot] : Array {
 		var magI_total = Complex(magI.real.sum, magI.imag.sum);
 		var wp_avg = this.wp.sum / this.numFrames;
 
-		^(magI_total / (wp_avg + FoaEval.reg.squared))
+		^magI_total / (wp_avg + FoaEval.reg.squared)
 	}
 
 	// Magnitude of Magnitude of Complex Energy
 	totalMagMagW {
 		//was: ^this.magMagW.sum
-		^(this.magMagI.sum / ((this.ws.sum / this.numFrames) + FoaEval.reg.squared))
+		^this.magMagI.sum / ((this.ws.sum / this.numFrames) + FoaEval.reg.squared)
 	}
 
 	// Magnitude of Complex Energy
@@ -424,7 +425,7 @@ PVc[slot] : Array {
 		var magI = this.magI;
 		var magI_tot = Complex(magI.real.sum, magI.imag.sum);
 
-		^(magI_tot / ((this.ws.sum / this.numFrames) + FoaEval.reg.squared));
+		^magI_tot / ((this.ws.sum / this.numFrames) + FoaEval.reg.squared);
 	}
 
 	// Magnitude of Magnitude Unit Normalized Complex Intensity - Convenience
@@ -445,7 +446,7 @@ PVc[slot] : Array {
 		var magI_tot = Complex(magI.real.sum, magI.imag.sum);
 		var magMagI_avg = (this.magMagI.sum / this.numFrames);
 
-		^(magI_tot / (magMagI_avg + FoaEval.reg.squared))
+		^magI_tot / (magMagI_avg + FoaEval.reg.squared)
 
 	}
 
@@ -470,7 +471,7 @@ PVc[slot] : Array {
 		var n = this.averageN;
 		var normFac = this.numFrames;
 
-		^(normFac * n)
+		^normFac * n
 	}
 
 	// Total Admittance
@@ -479,7 +480,7 @@ PVc[slot] : Array {
 		var wp = this.totalWp;
 		var normFac = this.numFrames;
 
-		^(normFac * i / (wp + FoaEval.reg.squared))
+		^normFac * i / (wp + FoaEval.reg.squared)
 	}
 
 	// Total Energy
@@ -488,7 +489,7 @@ PVc[slot] : Array {
 		var ws = this.totalWs;
 		var normFac = this.numFrames;
 
-		^(normFac * i / (ws + FoaEval.reg.squared))
+		^normFac * i / (ws + FoaEval.reg.squared)
 	}
 
 
@@ -508,7 +509,8 @@ PVc[slot] : Array {
 	totalRadius { |negRadius = false, sampleRate = nil, speedOfSound = (AtkHoa.speedOfSound)|
 		var radius = this.averageRadius(nil, negRadius, sampleRate, speedOfSound);
 		var normFac = this.numFrames;
-		^(normFac * radius)
+
+		^normFac * radius
 	}
 
 
@@ -608,7 +610,7 @@ PVc[slot] : Array {
 			var magMagI_tot = this.magMagI.sum;
 			var wp_tot 		= this.wp.sum;
 
-			^magMagI_tot / (wp_tot + FoaEval.reg.squared)
+			magMagI_tot / (wp_tot + FoaEval.reg.squared)
 		}, {
 			this.magMagA.wmean(weights)
 		})
@@ -763,6 +765,7 @@ PVc[slot] : Array {
 	// Active-Reactive Soundfield Balance Angle: Alpha
 	averageAlpha { |weights|
 		var magI = this.averageMagI(weights);
+
 		^atan2(magI.imag, magI.real)
 	}
 

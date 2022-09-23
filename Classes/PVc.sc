@@ -111,15 +111,16 @@ PVc[slot] : Array {
 	// potential energy
 	wp {
 		var p = this.pressure;
-		^(p * p.conjugate).real.as(Array)
+
+		^(p.real.squared + p.imag.squared).as(Array) // == p * p.conjugate
 	}
 
 	// kinetic energy
 	wu {
-		var u = this.velocity;
+		var v = this.velocity;
 
-		^u.collect({ |item|
-			(item * item.conjugate).real.as(Array)
+		^v.collect({ |v_i|
+			(v_i.real.squared + v_i.imag.squared).as(Array) // == v_i * v_i.conjugate
 		}).sum
 	}
 

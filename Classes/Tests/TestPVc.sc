@@ -57,7 +57,7 @@ TestPVc : UnitTest {
 	test_PVf_PVa_equivalence {
 		// test signal:
 		var fs = 48e3;
-		var sigSize = 128;
+		var sigSize = 128*2;
 		var freq = rrand(fs/sigSize, fs/4.0);
 		var phase = rrand(pi/8, pi/2.1);
 		var azEl = 2.collect{ pi.bilinrand };

@@ -81,6 +81,7 @@ PVc[slot] : Array {
 	}
 	postln { this.post; "".postln; }
 
+
 	//------------------------------------------------------------------------
 	// COMPONENTS - pressure, velocity [ X, Y, Z ]
 
@@ -105,6 +106,7 @@ PVc[slot] : Array {
 	// Note: Interpretation of these methods depend on the subclass:
 	//       PVa: instantaneous
 	//       PVf: stationary
+
 
 	//--------------------
 	// ENERGY - magnitudes
@@ -147,8 +149,8 @@ PVc[slot] : Array {
 	//-----------------------
 	// INTENSITY - magnitudes
 
-	// Magnitude of Magnitude of Complex Intensity
-	magMagI {
+	// Magnitude of Complex Intensity Component Magnitudes
+	magIMag {
 		var wp = this.wp;
 		var wu = this.wu;
 
@@ -419,10 +421,10 @@ PVc[slot] : Array {
 	// Magnitude of Complex Energy
 	totalMagW {
 		// was:
-		// var magA = this.magW;
+		// var magW = this.magW;
 		// ^Complex.new(
-		// 	magA.real.sum,
-		// 	magA.imag.sum
+		// 	magW.real.sum,
+		// 	magW.imag.sum
 		// )
 		var magI = this.magI;
 		var magI_tot = Complex(magI.real.sum, magI.imag.sum);

@@ -315,6 +315,7 @@ PVa[slot] : PVc  {
 	intensity {
 		var p = this.pressure;
 		var u = this.velocity;
+
 		^u.collect({ |item|
 			var i = (p * item.conjugate);
 			Complex.new(

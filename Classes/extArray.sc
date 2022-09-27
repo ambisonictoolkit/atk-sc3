@@ -70,4 +70,5 @@
 		^theta
 	}
 
+	vmag { ^this.squared.sum.sqrt }
 }

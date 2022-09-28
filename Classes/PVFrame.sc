@@ -1,90 +1,135 @@
-PVBlock[slot] : Array {
+PVFrame[slot] : Array {
 
-	*newClear { |blockSize|
-		^super.fill(blockSize, {
-			4.collect{ Complex(0, 0) }
-		})
+	*newClear {
+		^super.fill(4, { Complex(0, 0) })
 	}
 
-	pressure { ^this.collect(_[0]) }
-	velocity { ^this.collect(_[1..3]) }
+	*newFromArray { |array|
+		^super.fill(array.size, { |i| array[i] })
+	}
 
-	totalWp {
+	/* Component access */
+
+	pressure { ^this[0] }
+	p 		 { ^this[0] }
+	velocity { ^this[1..3] }
+	v		 { ^this[1..3] }
+
+	/* Quantities */
+
+	// potential energy
+	wp {
 		var p = this.pressure;
-		// var p_conj = p.collect(_.conjugate);
-		// var wp = (p * p_conj).real
-		var wp = p.real.squared + p.imag.squared; // == (p * p_conj).real
-
-		^wp.sum
+		// TODO: may not be needed with complex primitive
+		^p.real.squared + p.imag.squared // = (p * p.conj), returns real
 	}
+
+	// kinetic energy
+	wu {
+		var v = this.velocity;
+		// TODO: may not be needed with complex primitive
+		^(
+			v.real.squared + v.imag.squared // = (v * v.conj), returns real
+		).sum
+	}
+
+	// potential & kinetic energy mean
+	ws {
+		^[this.wp, this.wu].mean
+	}
+
+	// potential & kinetic energy difference
+	wd {
+		^[this.wp, this.wu.neg].mean
+	}
+
+	// // Heyser energy density
+	// wh {
+	// 	var ws = this.ws;
+	// 	var magI = this.magI;
+	//
+	// 	^ws - magI.imag
+	// }
+
+
+	/* Utils */
 
 	// posting: standard return
 	printOn { |stream|
 		if (stream.atLimit) { ^this };
+		stream << this.class.name << "[ " ;
+		this.printItemsOn(stream);
+		stream << " ]" ;
 
+	}
+}
+
+
+PVBlock[slot] : Array {
+
+	*newClear { |blockSize|
+		^super.fill(blockSize, {
+			PVFrame.newClear
+			// 4.collect{ Complex(0, 0) } // TODO: update with PVFrame
+		})
+	}
+
+	*withFrames { |pvFrames|
+		^super.fill(pvFrames.size, { |i| pvFrames[i] })
+	}
+
+
+	/* Component access */
+
+	// NOTE: Collecting is faster than, e.g., `.performUnaryOp('p')`
+
+	pressure { ^this.collect(_[0]) }
+	p 		 { ^this.collect(_[0]) }
+	velocity { ^this.collect(_[1..3]) }
+	v		 { ^this.collect(_[1..3]) }
+
+
+	/* Frame-wise quantities */
+
+	// NOTE: Dispatching with with `performUnaryOp` seems to speed
+	//       up calculation of aggregate quantities.
+
+	wp { ^this.performUnaryOp('wp') }
+	wu { ^this.performUnaryOp('wu') }
+	ws { ^this.performUnaryOp('ws') }
+	wd { ^this.performUnaryOp('wd') }
+
+	/* Aggregate quantities */
+
+	totalWp {
+		^this.wp.sum
+	}
+
+
+	/* Utils */
+
+	numFrames { ^this.size }
+
+	// posting: standard return
+	printOn { |stream|
+		if (stream.atLimit) { ^this };
 		stream << this.class.name << "[ " ;
 		this.printItemsOn(stream);
 		stream << " ]" ;
 	}
+
+	// TODO:
+	// // posting: nicer format for on-demand posting
+	// post {
+	// 	"%[\n".postf(this.class.name);
+	// 	this.do{ |chan, i|
+	// 		"\t%( ".postf(chan.class.name);
+	// 		chan.real.post; ",".postln;
+	// 		"\t\t\t ".post;
+	// 		chan.imag.post;
+	// 		if (i < 3, { " ),\n" }, { " ) ]" }).post;
+	// 	};
+	// }
+	// postln { this.post; "".postln; }
 }
 
-PVFrame[slot] : Array {
-	var frame;
-
-	*with { |pvArray|
-		^super.newCopyArgs(pvArray);
-	}
-}
-
-ComplexArray[] {
-	var <arr;
-
-	// *new { |me, i|
-	// 	"new".postln;
-	// 	[me, i].postln;
-	// ^super.new(me.real, me.imag) }
-
-	add { |item, i|
-		"add".postln;
-		[item, i].postln;
-
-        arr = arr.add(item)
-    }
-}
-
-MyClass[] {
-    var <allOfThem; // the collection being aggregated
-
-	// A Slotted Class will call *new and this.add(obj)
-	// for every object in the collection.
-    add { |item|
-        allOfThem = allOfThem.add(item)
-    }
-}
-
-// PVFrame[slot] : Complex {
-// ComplexArray[slot] : Complex {
-//
-// 	// *newClear { |size|
-// 	// 	^Array.newClear(size)
-// 	// }
-// 	/*	*newClear { |size|
-// 	var cArray = Array.fill(4, { Complex.new(0, 0) });
-// 	^cArray
-// 	}
-//
-// 	*rand {
-// 	var cArray = 4.collect({
-// 	Complex.new(1.0.bilinrand, 1.0.bilinrand)
-// 	}) * [sqrt(3)/3, 1, 1, 1];
-// 	^cArray
-// 	}
-// 	*/
-// 	*with { |... args|
-// 		if (args.collect(_.isKindOf(Complex)).every({|bool| bool}).not) {
-// 			"A ComplexArray must be filled with Complex objects.".error
-// 		};
-//
-// 		^args
-// 	}
-// }

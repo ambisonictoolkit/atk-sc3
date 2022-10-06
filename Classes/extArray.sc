@@ -70,4 +70,8 @@
 		^theta
 	}
 
+	x { ^this[0] }
+	y { ^this[1] }
+	z { ^this[2] }
+
 }

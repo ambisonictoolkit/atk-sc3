@@ -2,7 +2,7 @@
 
 	/* Vector support *
 	/  Note behavior with multidimensional arrays!
-	/  E.g., summation happens across sub-arrays.
+	/  E.g., summation happens across dimension 2 ("columns").
 	*/
 
 	// Vector manitude, L2-norm, Euclidean distatnce
@@ -16,10 +16,10 @@
 
 	/* Complex support */
 
-	// Complex magnitude, hypot(real, imag)
-	// Synonyms of -magnitude, -abs, -rho
+	// Complex magnitude: synonyms of -magnitude, -abs, -rho, hypot(real, imag)
 	cmag    { ^this.performUnaryOp('cmag') }
 	modulus { ^this.performUnaryOp('modulus') }
 
+	// Complex conjugate: synonym of -conjugate
 	conj 	{ ^this.performUnaryOp('conj') }
 }

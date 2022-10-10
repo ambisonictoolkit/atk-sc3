@@ -609,7 +609,7 @@ PUT[slot] : Array  {
 	averageMagMagA {
 		var magMagI = this.totalMagMagI;
 		var wp = this.totalWp;
-		var wpReciprocal = (wp + FoaEval.reg.squared).reciprocal;
+		var wpReciprocal = (wp + Atk.regSq).reciprocal;
 		^(magMagI * wpReciprocal)
 	}
 
@@ -617,7 +617,7 @@ PUT[slot] : Array  {
 	averageMagA {
 		var magI = this.totalMagI;
 		var wp = this.totalWp;
-		var wpReciprocal = (wp + FoaEval.reg.squared).reciprocal;
+		var wpReciprocal = (wp + Atk.regSq).reciprocal;
 		^Complex.new(  // explicit... slow otherwise!!
 			magI.real * wpReciprocal,
 			magI.imag * wpReciprocal
@@ -628,7 +628,7 @@ PUT[slot] : Array  {
 	averageMagMagW {
 		var magMagI = this.totalMagMagI;
 		var ws = this.totalWs;
-		var wsReciprocal = (ws + FoaEval.reg.squared).reciprocal;
+		var wsReciprocal = (ws + Atk.regSq).reciprocal;
 		^(magMagI * wsReciprocal)
 	}
 
@@ -636,7 +636,7 @@ PUT[slot] : Array  {
 	averageMagW {
 		var magI = this.totalMagI;
 		var ws = this.totalWs;
-		var wsReciprocal = (ws + FoaEval.reg.squared).reciprocal;
+		var wsReciprocal = (ws + Atk.regSq).reciprocal;
 		^Complex.new(  // explicit... slow otherwise!!
 			magI.real * wsReciprocal,
 			magI.imag * wsReciprocal
@@ -652,7 +652,7 @@ PUT[slot] : Array  {
 	averageMagN {
 		var magI = this.totalMagI;
 		var magMagI = this.totalMagMagI;
-		var magMagIReciprocal = (magMagI + FoaEval.reg.squared).reciprocal;
+		var magMagIReciprocal = (magMagI + Atk.regSq).reciprocal;
 		^Complex.new(  // explicit... slow otherwise!!
 			magI.real * magMagIReciprocal,
 			magI.imag * magMagIReciprocal
@@ -674,7 +674,7 @@ PUT[slot] : Array  {
 	averageAa {
 		var ia = this.totalIa;
 		var wp = this.totalWp;
-		var wpReciprocal = (wp + FoaEval.reg.squared).reciprocal;
+		var wpReciprocal = (wp + Atk.regSq).reciprocal;
 		^(ia * wpReciprocal)
 	}
 
@@ -682,7 +682,7 @@ PUT[slot] : Array  {
 	averageWa {
 		var ia = this.totalIa;
 		var ws = this.totalWs;
-		var wsReciprocal = (ws + FoaEval.reg.squared).reciprocal;
+		var wsReciprocal = (ws + Atk.regSq).reciprocal;
 		^(ia * wsReciprocal)
 	}
 
@@ -690,7 +690,7 @@ PUT[slot] : Array  {
 	averageNa {
 		var ia = this.totalIa;
 		var magMagI = this.totalMagMagI;
-		var magMagIReciprocal = (magMagI + FoaEval.reg.squared).reciprocal;
+		var magMagIReciprocal = (magMagI + Atk.regSq).reciprocal;
 		^(ia * magMagIReciprocal)
 	}
 
@@ -758,7 +758,7 @@ PUT[slot] : Array  {
 			0.5 * (this[0] + (Signal.zeroFill(1) ++ this[0].drop(-1))).integrate.discardDC,
 		);
 		integPaA = thisIntegP.averageAa;
-		radius = ((speedOfSound / sampleRate) * (aA.squared.sum / ((aA * integPaA).sum + FoaEval.reg.squared)))
+		radius = ((speedOfSound / sampleRate) * (aA.squared.sum / ((aA * integPaA).sum + Atk.regSq)))
 
 		^negRadius.if({
 			radius

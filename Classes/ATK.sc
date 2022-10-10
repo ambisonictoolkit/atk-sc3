@@ -102,6 +102,7 @@ Atk {
 	classvar <matricesDownloadUrl = "https://github.com/ambisonictoolkit/atk-matrices/releases/latest/download/matrices.zip";
 	classvar <kernelsDownloadUrl = "https://github.com/ambisonictoolkit/atk-kernels/releases/latest/download/kernels.zip";
 	classvar <soundsDownloadUrl = "https://github.com/ambisonictoolkit/atk-sounds/archive/v1.0.0.zip";
+	classvar <reg, <regSq, <>gamAlpA, <>gamAlpR;
 
 	*initClass {
 		userSupportDir = Platform.userAppSupportDir.dirname ++ "/ATK";
@@ -125,6 +126,17 @@ Atk {
 		];
 
 		this.checkSupportDirsExist;
+
+		// Atk "namespace" constants, e.g. for analysis
+		reg = -192.dbamp;				// regularization factor
+		regSq = reg.squared;
+		gamAlpA = 0.01.degrad;  		// Active Alpha threshold, for Gamma calc
+		gamAlpR = (90.0 - 5.5).degrad;  // Reactive Alpha threshold, for Gamma calc
+	}
+
+	*reg_ { |regularizationFactor = (-192.dbamp)|
+		reg = regularizationFactor;
+		regSq = reg.squared;
 	}
 
 	*userSupportDir_ { |userSupportDirIn|

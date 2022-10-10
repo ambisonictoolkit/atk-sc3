@@ -172,14 +172,14 @@ PVc[slot] : Array {
 		var magMagI = this.magMagI;
 		var wp = this.wp;
 
-		^magMagI / (wp + FoaEval.reg.squared)
+		^magMagI / (wp + Atk.regSq)
 	}
 
 	// Magnitude of Complex Admittance
 	magA {
 		var magI = this.magI;
 		var wp = this.wp;
-		var wpReg = wp + FoaEval.reg.squared;
+		var wpReg = wp + Atk.regSq;
 
 		^Complex.new(  // explicit... slow otherwise!!
 			magI.real / wpReg,
@@ -192,14 +192,14 @@ PVc[slot] : Array {
 		var magMagI = this.magMagI;
 		var ws = this.ws;
 
-		^magMagI / (ws + FoaEval.reg.squared)
+		^magMagI / (ws + Atk.regSq)
 	}
 
 	// Magnitude of Complex Energy
 	magW {
 		var magI = this.magI;
 		var ws = this.ws;
-		var wsDenom = ws + FoaEval.reg.squared;
+		var wsDenom = ws + Atk.regSq;
 
 		^Complex.new(  // explicit... slow otherwise!!
 			magI.real / wsDenom,
@@ -216,7 +216,7 @@ PVc[slot] : Array {
 	magN {
 		var magI = this.magI;
 		var magMagI = this.magMagI;
-		var magMagIDenom = magMagI + FoaEval.reg.squared.squared;
+		var magMagIDenom = magMagI + Atk.regSq.squared;
 
 		^Complex.new(  // explicit... slow otherwise!!
 			magI.real / magMagIDenom,
@@ -234,7 +234,7 @@ PVc[slot] : Array {
 	admittance {
 		var i = this.intensity;
 		var wp = this.wp;
-		var wpDenom = wp + FoaEval.reg.squared;
+		var wpDenom = wp + Atk.regSq;
 
 		^i.collect({ |i_n|
 			Complex.new(  // explicit... slow otherwise!!
@@ -247,7 +247,7 @@ PVc[slot] : Array {
 	energy {
 		var i = this.intensity;
 		var ws = this.ws;
-		var wsDenom = ws + FoaEval.reg.squared;
+		var wsDenom = ws + Atk.regSq;
 
 		^i.collect({ |i_n|
 			Complex.new(  // explicit... slow otherwise!!
@@ -261,7 +261,7 @@ PVc[slot] : Array {
 	intensityN {
 		var i = this.intensity;
 		var magMagI = this.magMagI;
-		var magMagIDenom = magMagI + FoaEval.reg.squared;
+		var magMagIDenom = magMagI + Atk.regSq;
 
 		^i.collect({ |i_n|
 			Complex.new(  // explicit... slow otherwise!!
@@ -394,7 +394,7 @@ PVc[slot] : Array {
 		var magMagI_tot = this.magMagI.sum;
 		var wp_avg = this.wp.mean;
 
-		^magMagI_tot / (wp_avg + FoaEval.reg.squared)
+		^magMagI_tot / (wp_avg + Atk.regSq)
 	}
 
 	// Magnitude of Complex Admittance
@@ -409,13 +409,13 @@ PVc[slot] : Array {
 		var magI_total = Complex(magI.real.sum, magI.imag.sum);
 		var wp_avg = this.wp.mean;
 
-		^magI_total / (wp_avg + FoaEval.reg.squared)
+		^magI_total / (wp_avg + Atk.regSq)
 	}
 
 	// Magnitude of Magnitude of Complex Energy
 	totalMagMagW {
 		//was: ^this.magMagW.sum
-		^this.magMagI.sum / ((this.ws.mean) + FoaEval.reg.squared)
+		^this.magMagI.sum / ((this.ws.mean) + Atk.regSq)
 	}
 
 	// Magnitude of Complex Energy
@@ -429,7 +429,7 @@ PVc[slot] : Array {
 		var magI = this.magI;
 		var magI_tot = Complex(magI.real.sum, magI.imag.sum);
 
-		^magI_tot / ((this.ws.mean) + FoaEval.reg.squared);
+		^magI_tot / ((this.ws.mean) + Atk.regSq);
 	}
 
 	// Magnitude of Magnitude Unit Normalized Complex Intensity - Convenience
@@ -450,7 +450,7 @@ PVc[slot] : Array {
 		var magI_tot = Complex(magI.real.sum, magI.imag.sum);
 		var magMagI_avg = (this.magMagI.mean);
 
-		^magI_tot / (magMagI_avg + FoaEval.reg.squared)
+		^magI_tot / (magMagI_avg + Atk.regSq)
 
 	}
 
@@ -484,7 +484,7 @@ PVc[slot] : Array {
 		var wp = this.totalWp;
 		var normFac = this.numFrames;
 
-		^normFac * i / (wp + FoaEval.reg.squared)
+		^normFac * i / (wp + Atk.regSq)
 	}
 
 	// Total Energy
@@ -493,7 +493,7 @@ PVc[slot] : Array {
 		var ws = this.totalWs;
 		var normFac = this.numFrames;
 
-		^normFac * i / (ws + FoaEval.reg.squared)
+		^normFac * i / (ws + Atk.regSq)
 	}
 
 
@@ -616,7 +616,7 @@ PVc[slot] : Array {
 			magMagI_tot = this.magMagI.sum;
 			wp_tot 		= this.wp.sum;
 
-			magMagI_tot / (wp_tot + FoaEval.reg.squared)
+			magMagI_tot / (wp_tot + Atk.regSq)
 		}, {
 			this.magMagA.wmean(weights)
 		})
@@ -632,7 +632,7 @@ PVc[slot] : Array {
 			magI_tot = Complex(magI.real.sum, magI.imag.sum);
 			wp_tot   = this.wp.sum;
 
-			^magI_tot / (wp_tot + FoaEval.reg.squared)
+			^magI_tot / (wp_tot + Atk.regSq)
 		}, {
 			magA = this.magA;
 
@@ -758,7 +758,7 @@ PVc[slot] : Array {
 				i.imag.squared.sum.sqrt,
 			).magnitude;
 
-			i / (magMagI + FoaEval.reg.squared)
+			i / (magMagI + Atk.regSq)
 		}, {
 			n = this.intensityN;
 			weightsDenom = weights.sum;

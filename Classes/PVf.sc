@@ -469,7 +469,7 @@ PVf[slot] : PVc  {
 		var gamma = this.gamma.keep(rfftSize);  // real signal - just keep + freqs
 		var a = this.admittance.keep(rfftSize);
 		var magAsquared = a.real.squared.sum;  // squared magnitude of active admittance
-		var magAsquaredReciprocal = (magAsquared + FoaEval.reg.squared).reciprocal;
+		var magAsquaredReciprocal = (magAsquared + Atk.regSq).reciprocal;
 		var magAR = (a.real * a.imag).sum * magAsquaredReciprocal;  // (scaled) magnitude of parallel reactive admittance
 		var freqs, radius;
 

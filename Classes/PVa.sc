@@ -351,7 +351,7 @@ PVa[slot] : PVc  {
 			)
 		);
 		integPaA = thisIntegP.admittance.real;
-		radius = ((speedOfSound / sampleRate) * (aA.squared.sum / ((aA * integPaA).sum + FoaEval.reg.squared)));
+		radius = ((speedOfSound / sampleRate) * (aA.squared.sum / ((aA * integPaA).sum + Atk.regSq)));
 
 		^negRadius.if({
 			radius

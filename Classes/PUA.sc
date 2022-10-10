@@ -406,7 +406,7 @@ PUA[slot] : Array  {
 	instantMagMagA {
 		var magMagI = this.instantMagMagI;
 		var wp = this.instantWp;
-		var wpReciprocal = (wp + FoaEval.reg.squared).reciprocal;
+		var wpReciprocal = (wp + Atk.regSq).reciprocal;
 		^(magMagI * wpReciprocal)
 	}
 
@@ -414,7 +414,7 @@ PUA[slot] : Array  {
 	instantMagA {
 		var magI = this.instantMagI;
 		var wp = this.instantWp;
-		var wpReciprocal = (wp + FoaEval.reg.squared).reciprocal;
+		var wpReciprocal = (wp + Atk.regSq).reciprocal;
 		^Complex.new(  // explicit... slow otherwise!!
 			magI.real * wpReciprocal,
 			magI.imag * wpReciprocal
@@ -425,7 +425,7 @@ PUA[slot] : Array  {
 	instantMagMagW {
 		var magMagI = this.instantMagMagI;
 		var ws = this.instantWs;
-		var wsReciprocal = (ws + FoaEval.reg.squared).reciprocal;
+		var wsReciprocal = (ws + Atk.regSq).reciprocal;
 		^(magMagI * wsReciprocal)
 	}
 
@@ -433,7 +433,7 @@ PUA[slot] : Array  {
 	instantMagW {
 		var magI = this.instantMagI;
 		var ws = this.instantWs;
-		var wsReciprocal = (ws + FoaEval.reg.squared).reciprocal;
+		var wsReciprocal = (ws + Atk.regSq).reciprocal;
 		^Complex.new(  // explicit... slow otherwise!!
 			magI.real * wsReciprocal,
 			magI.imag * wsReciprocal
@@ -449,7 +449,7 @@ PUA[slot] : Array  {
 	instantMagN {
 		var magI = this.instantMagI;
 		var magMagI = this.instantMagMagI;
-		var magMagIReciprocal = (magMagI + FoaEval.reg.squared.squared).reciprocal;
+		var magMagIReciprocal = (magMagI + Atk.regSq.squared).reciprocal;
 		^Complex.new(  // explicit... slow otherwise!!
 			magI.real * magMagIReciprocal,
 			magI.imag * magMagIReciprocal
@@ -481,7 +481,7 @@ PUA[slot] : Array  {
 	instantA {
 		var i = this.instantI;
 		var wp = this.instantWp;
-		var wpReciprocal = (wp + FoaEval.reg.squared).reciprocal;
+		var wpReciprocal = (wp + Atk.regSq).reciprocal;
 		^i.collect({ |item|
 			Complex.new(  // explicit... slow otherwise!!
 				item.real * wpReciprocal,
@@ -494,7 +494,7 @@ PUA[slot] : Array  {
 	instantW {
 		var i = this.instantI;
 		var ws = this.instantWs;
-		var wsReciprocal = (ws + FoaEval.reg.squared).reciprocal;
+		var wsReciprocal = (ws + Atk.regSq).reciprocal;
 		^i.collect({ |item|
 			Complex.new(  // explicit... slow otherwise!!
 				item.real * wsReciprocal,
@@ -507,7 +507,7 @@ PUA[slot] : Array  {
 	instantN {
 		var i = this.instantI;
 		var magMagI = this.instantMagMagI;
-		var magMagIReciprocal = (magMagI + FoaEval.reg.squared).reciprocal;
+		var magMagIReciprocal = (magMagI + Atk.regSq).reciprocal;
 		^i.collect({ |item|
 			Complex.new(  // explicit... slow otherwise!!
 				item.real * magMagIReciprocal,
@@ -592,7 +592,7 @@ PUA[slot] : Array  {
 			)
 		);
 		integPaA = thisIntegP.instantA.real;
-		radius = ((speedOfSound / sampleRate) * (aA.squared.sum / ((aA * integPaA).sum + FoaEval.reg.squared)));
+		radius = ((speedOfSound / sampleRate) * (aA.squared.sum / ((aA * integPaA).sum + Atk.regSq)));
 
 		^negRadius.if({
 			radius
@@ -932,7 +932,7 @@ PUA[slot] : Array  {
 		^weights.isNil.if({
 			var i = this.totalI;
 			var wp = this.totalWp;
-			var wpReciprocal = (wp + FoaEval.reg.squared).reciprocal;
+			var wpReciprocal = (wp + Atk.regSq).reciprocal;
 			i * wpReciprocal
 		}, {
 			var a = this.instantA;
@@ -949,7 +949,7 @@ PUA[slot] : Array  {
 		^weights.isNil.if({
 			var i = this.totalI;
 			var ws = this.totalWs;
-			var wsReciprocal = (ws + FoaEval.reg.squared).reciprocal;
+			var wsReciprocal = (ws + Atk.regSq).reciprocal;
 			i * wsReciprocal
 		}, {
 			var w = this.instantW;
@@ -970,7 +970,7 @@ PUA[slot] : Array  {
 				i.real.squared.sum.sqrt,
 				i.imag.squared.sum.sqrt,
 			).magnitude;
-			var magMagIReciprocal = (magMagI + FoaEval.reg.squared).reciprocal;
+			var magMagIReciprocal = (magMagI + Atk.regSq).reciprocal;
 			i * magMagIReciprocal
 		}, {
 			var n = this.instantN;

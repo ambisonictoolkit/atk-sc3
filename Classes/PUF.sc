@@ -489,7 +489,7 @@ PUF[slot] : Array  {
 	stationaryMagMagA {
 		var magMagI = this.stationaryMagMagI;
 		var wp = this.stationaryWp;
-		var wpReciprocal = (wp + FoaEval.reg.squared).reciprocal;
+		var wpReciprocal = (wp + Atk.regSq).reciprocal;
 		^(magMagI * wpReciprocal)
 	}
 
@@ -497,7 +497,7 @@ PUF[slot] : Array  {
 	stationaryMagA {
 		var magI = this.stationaryMagI;
 		var wp = this.stationaryWp;
-		var wpReciprocal = (wp + FoaEval.reg.squared).reciprocal;
+		var wpReciprocal = (wp + Atk.regSq).reciprocal;
 		^Complex.new(  // explicit... slow otherwise!!
 			magI.real * wpReciprocal,
 			magI.imag * wpReciprocal
@@ -508,7 +508,7 @@ PUF[slot] : Array  {
 	stationaryMagMagW {
 		var magMagI = this.stationaryMagMagI;
 		var ws = this.stationaryWs;
-		var wsReciprocal = (ws + FoaEval.reg.squared).reciprocal;
+		var wsReciprocal = (ws + Atk.regSq).reciprocal;
 		^(magMagI * wsReciprocal)
 	}
 
@@ -516,7 +516,7 @@ PUF[slot] : Array  {
 	stationaryMagW {
 		var magI = this.stationaryMagI;
 		var ws = this.stationaryWs;
-		var wsReciprocal = (ws + FoaEval.reg.squared).reciprocal;
+		var wsReciprocal = (ws + Atk.regSq).reciprocal;
 		^Complex.new(  // explicit... slow otherwise!!
 			magI.real * wsReciprocal,
 			magI.imag * wsReciprocal
@@ -532,7 +532,7 @@ PUF[slot] : Array  {
 	stationaryMagN {
 		var magI = this.stationaryMagI;
 		var magMagI = this.stationaryMagMagI;
-		var magMagIReciprocal = (magMagI + FoaEval.reg.squared.squared).reciprocal;
+		var magMagIReciprocal = (magMagI + Atk.regSq.squared).reciprocal;
 		^Complex.new(  // explicit... slow otherwise!!
 			magI.real * magMagIReciprocal,
 			magI.imag * magMagIReciprocal
@@ -595,7 +595,7 @@ PUF[slot] : Array  {
 	stationaryA {
 		var i = this.stationaryI;
 		var wp = this.stationaryWp;
-		var wpReciprocal = (wp + FoaEval.reg.squared).reciprocal;
+		var wpReciprocal = (wp + Atk.regSq).reciprocal;
 		^i.collect({ |item|
 			Complex.new(  // explicit... slow otherwise!!
 				item.real * wpReciprocal,
@@ -608,7 +608,7 @@ PUF[slot] : Array  {
 	stationaryW {
 		var i = this.stationaryI;
 		var ws = this.stationaryWs;
-		var wsReciprocal = (ws + FoaEval.reg.squared).reciprocal;
+		var wsReciprocal = (ws + Atk.regSq).reciprocal;
 		^i.collect({ |item|
 			Complex.new(  // explicit... slow otherwise!!
 				item.real * wsReciprocal,
@@ -621,7 +621,7 @@ PUF[slot] : Array  {
 	stationaryN {
 		var i = this.stationaryI;
 		var magMagI = this.stationaryMagMagI;
-		var magMagIReciprocal = (magMagI + FoaEval.reg.squared).reciprocal;
+		var magMagIReciprocal = (magMagI + Atk.regSq).reciprocal;
 		^i.collect({ |item|
 			Complex.new(  // explicit... slow otherwise!!
 				item.real * magMagIReciprocal,
@@ -695,7 +695,7 @@ PUF[slot] : Array  {
 		var gamma = this.stationaryGamma.keep(rfftSize);  // real signal - just keep + freqs
 		var a = this.stationaryA.keep(rfftSize);  // admittance
 		var magAsquared = a.real.squared.sum;  // squared magnitude of active admittance
-		var magAsquaredReciprocal = (magAsquared + FoaEval.reg.squared).reciprocal;
+		var magAsquaredReciprocal = (magAsquared + Atk.regSq).reciprocal;
 		var magAR = (a.real * a.imag).sum * magAsquaredReciprocal;  // (scaled) magnitude of parallel reactive admittance
 		var radius;
 
@@ -844,7 +844,7 @@ PUF[slot] : Array  {
 	totalA {
 		var i = this.totalI;
 		var wp = this.totalWp;
-		var wpReciprocal = (wp + FoaEval.reg.squared).reciprocal;
+		var wpReciprocal = (wp + Atk.regSq).reciprocal;
 		var normFac = this.numFrames;
 		^(normFac * i * wpReciprocal)
 	}
@@ -853,7 +853,7 @@ PUF[slot] : Array  {
 	totalW {
 		var i = this.totalI;
 		var ws = this.totalWs;
-		var wsReciprocal = (ws + FoaEval.reg.squared).reciprocal;
+		var wsReciprocal = (ws + Atk.regSq).reciprocal;
 		var normFac = this.numFrames;
 		^(normFac * i * wsReciprocal)
 	}
@@ -976,7 +976,7 @@ PUF[slot] : Array  {
 		^weights.isNil.if({
 			var magMagI = this.totalMagMagI;
 			var wp = this.totalWp;
-			var wpReciprocal = (wp + FoaEval.reg.squared).reciprocal;
+			var wpReciprocal = (wp + Atk.regSq).reciprocal;
 			magMagI * wpReciprocal
 		}, {
 			this.stationaryMagMagA.wmean(weights)
@@ -988,7 +988,7 @@ PUF[slot] : Array  {
 		^weights.isNil.if({
 			var magI = this.totalMagI;
 			var wp = this.totalWp;
-			var wpReciprocal = (wp + FoaEval.reg.squared).reciprocal;
+			var wpReciprocal = (wp + Atk.regSq).reciprocal;
 			magI * wpReciprocal
 		}, {
 			var magA = this.stationaryMagA;
@@ -1004,7 +1004,7 @@ PUF[slot] : Array  {
 		^weights.isNil.if({
 			var magMagI = this.totalMagMagI;
 			var ws = this.totalWs;
-			var wsReciprocal = (ws + FoaEval.reg.squared).reciprocal;
+			var wsReciprocal = (ws + Atk.regSq).reciprocal;
 			magMagI * wsReciprocal
 		}, {
 			this.stationaryMagMagW.wmean(weights)
@@ -1016,7 +1016,7 @@ PUF[slot] : Array  {
 		^weights.isNil.if({
 			var magI = this.totalMagI;
 			var ws = this.totalWs;
-			var wsReciprocal = (ws + FoaEval.reg.squared).reciprocal;
+			var wsReciprocal = (ws + Atk.regSq).reciprocal;
 			magI * wsReciprocal
 		}, {
 			var magW = this.stationaryMagW;
@@ -1037,7 +1037,7 @@ PUF[slot] : Array  {
 		^weights.isNil.if({
 			var magI = this.totalMagI;
 			var magMagI = this.totalMagMagI;
-			var magMagIReciprocal = (magMagI + FoaEval.reg.squared).reciprocal;
+			var magMagIReciprocal = (magMagI + Atk.regSq).reciprocal;
 			magI * magMagIReciprocal
 		}, {
 			var magN = this.stationaryMagN;
@@ -1106,7 +1106,7 @@ PUF[slot] : Array  {
 				i.real.squared.sum.sqrt,
 				i.imag.squared.sum.sqrt,
 			).magnitude;
-			var magMagIReciprocal = (magMagI + FoaEval.reg.squared).reciprocal;
+			var magMagIReciprocal = (magMagI + Atk.regSq).reciprocal;
 			i * magMagIReciprocal
 		}, {
 			var n = this.stationaryN;

@@ -8,60 +8,60 @@ PVFrame[slot] : Array {
 		^super.fill(array.size, { |i| array[i] })
 	}
 
-	/* Component access */
+	/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	/  Component Access			*/
 
 	pressure { ^this[0] }
 	p 		 { ^this[0] }
 	velocity { ^this[1..3] }
 	v		 { ^this[1..3] }
 
-	/* Energetic quantities */
+	/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	/  Energetic quantities		*/
 
-	// potential energy
-	wpot { // alt: wp, ep?
+	// Potential energy
+	wpot {
 		var p = this.pressure;
 		// = (p * p.conj), returns real 		// TODO: may not be needed with complex primitive
 		^p.real.squared + p.imag.squared
 	}
 
 	// Kinetic energy
-	wkin { // alt: wk?
+	wkin {
 		var v = this.velocity;
-		^(
-			// = (v * v.conj), returns real 	// TODO: shortcut may not be needed with complex primitive
+		^(	// = (v * v.conj), returns real 	// TODO: shortcut may not be needed with complex primitive
 			v.real.squared + v.imag.squared
 		).sum
 	}
 
 	// Potential & kinetic energy mean
-	wpkmean { // alt: wm?
+	wpkmean {
 		// [this.wpot, this.wkin].mean // slower
 		^(this.wpot + this.wkin) / 2
 	}
 
 	// Potential & kinetic energy difference
-	wpkdiff { // alt: wd?
+	wpkdiff {
 		// TODO: .mean or .sum?
 		// [this.wpot, this.wkin.neg].mean // slower
 		^(this.wpot - this.wkin) / 2
 	}
 
-
-	/* Aggregate quantities */
-
 	// Energy density (Heyser)
-	wdens { // alt: ?
+	wdens {
 		^this.wpkmean - this.magIr
 	}
 
-	// synonyms 								// TODO: revisit
+	// Synonyms 								// TODO: revisit
 	wp { ^this.wpot }
-	wv { ^this.wkin }		// wu? wk?
-	ws { ^this.wpkmean }	// wm?
+	wv { ^this.wkin }	 // wu? wk?
+	ws { ^this.wpkmean } // wm?
 	wd { ^this.wpkdiff }
 	wh { ^this.wdens }
 
-	/* Aggregate quantities: intensimetric */
+
+	/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	/  Aggregate quantities: intensimetric */
 
 	// TODO: this varies over a block in the freq-domain version (PVf)
 	intensity {
@@ -72,22 +72,26 @@ PVFrame[slot] : Array {
 
 	// NOTE: perform this with the block when possible
 	admittance {
-		var i = this.intensity;
-		var wpot = this.wpot;
-		var wpotReg = wpot + FoaEval.reg.squared;
-
 		^AdmittanceFrame.newFromArray(
-			i.collect({ |i_n|
-				Complex.new(  // explicit... slow otherwise!!		// TODO: test to confirm
-					i_n.real / wpotReg,
-					i_n.imag / wpotReg
-				)
-			})
+			this.intensity / (this.wpot + Atk.regSq)
 		)
+		// var i = this.intensity;
+		// var wpot = this.wpot;
+		// var wpotReg = wpot + Atk.regSq;
+		//
+		// ^AdmittanceFrame.newFromArray(
+		// 	i.collect({ |i_n|
+		// 		Complex.new(  // explicit... slow otherwise!!		// TODO: test to confirm
+		// 			i_n.real / wpotReg,
+		// 			i_n.imag / wpotReg
+		// 		)
+		// 	})
+		// )
 	}
 
 
-	/* Magnitudes */
+	/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	/  Magnitudes	*/
 
 	magIa { ^this.intensity.magA }
 	magIr { ^this.intensity.magR }
@@ -98,12 +102,13 @@ PVFrame[slot] : Array {
 	magIar { ^sqrt(this.wpot * this.wkin) } // = Complex(this.magIa, this.magIr).magnitude
 	magAar {
 		var a = this.admittance;
-		^hypot(a.magA, a.magR)		// = Complex(this.magAa, this.magAr).magnitude
+		^hypot(a.magA, a.magR)				// = Complex(this.magAa, this.magAr).magnitude
 	}
 
-	/* Utils */
+	/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	/  Utils	*/
 
-	// posting: standard return
+	// Posting: standard return
 	printOn { |stream|
 		if (stream.atLimit) { ^this };
 		stream << this.class.name << "[ " ;
@@ -112,7 +117,7 @@ PVFrame[slot] : Array {
 	}
 }
 
-// Frame representing a spatial 3-vector (components can be complex)
+// Frame representing a spatial 3-vector (components can be Complex)
 CartesianFrame[slot] : Array {
 
 	*newClear {
@@ -120,8 +125,7 @@ CartesianFrame[slot] : Array {
 	}
 
 	*newFromArray { |array|
-		// TODO: check size
-		^super.fill(array.size, { |i| array[i] })
+		^super.fill(array.size, { |i| array[i] })		// TODO: check size
 	}
 
 	x { ^this[0] }
@@ -150,7 +154,8 @@ IntensityFrame[slot] : CartesianFrame {
 	// amag, rmag? aMag, rMag? maga, magr? activeMag, reactiveMag?
 	magA  { ^this.active.vmag }
 	magR  { ^this.reactive.vmag }
-	// This is equivalent to PVFrame's (wpot * wkin).sqrt
+
+	// This is equivalent to PVFrame's magIar = (wpot * wkin).sqrt
 	magAR { ^hypot(this.magA, this.magR) } // = Complex(this.magA, this.magR).magnitude
 }
 
@@ -163,17 +168,18 @@ AdmittanceFrame[slot] : IntensityFrame {
 
 
 /*
-Includes utilities for 2-D arrays, viewed as frames of vectors
-where dim 1 is the numFrames, dim 2 is numComponents.
-e.g. Cartesian components (intensity)  : [ numFrames, 3 ], or
-	 SH components (pressure-velocity) : [ numFrames, 4 ]
+/	Includes utilities for 2-D arrays, viewed as frames
+/	(e.g. of time or frequency) comprised of multi-channel/multi-component vectors
+/	where dim 1 is the frame index, dim 2 is the component index.
+/	E.g. Cartesian component (intensity) blocks,  shape: [ numFrames, 3 ], or
+/		 Pressure-velocity frame blocks,    	  shape: [ numFrames, 4 ]
 */
 FrameBlock[slot] : Array {
 
 	numFrames     { ^this.size } 			// shape[0]
 	numComponents { ^this.shape[1] }
 
-	vmag   { ^this.collect(_.vmag) }		// vector magnitude
+	vmag   { ^this.collect(_.vmag) }		// vector magnitude, specific to concept of "frame"
 	l2norm { ^this.collect(_.l2norm) }		// vector magnitude
 	cmag   { ^this.performUnaryOp('cmag') }	// complex magnitude
 
@@ -201,8 +207,7 @@ PVBlock[slot] : FrameBlock {
 		^super.fill(blockSize, { PVFrame.newClear })
 	}
 
-	// 													TODO: check dimensions, now assumes nFrm x 4
-	// Construct from an 2D array shape: [nFrames, 4]
+	// Construct from an 2D array shape: [nFrames, 4]		TODO: check dimensions, now assumes nFrm x 4
 	*newFromPVArray { |pvArray|
 		var blockSize = pvArray.shape[0];
 
@@ -216,8 +221,8 @@ PVBlock[slot] : FrameBlock {
 		^super.fill(pvFrames.size, { |i| pvFrames[i] })
 	}
 
-
-	/* Component access */
+	/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	/  Component access		*/
 
 	// NOTE: Collecting is faster than, e.g., `.performUnaryOp('p')`
 	pressure { ^this.collect(_[0]) }
@@ -227,11 +232,11 @@ PVBlock[slot] : FrameBlock {
 	p 		 { ^this.collect(_[0]) }
 	v		 { ^this.collect(_[1..3]) }
 
-
-	/* Frame-wise quantities */
+	/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	/  Frame-wise quantities	*/
 
 	// NOTE: Dispatching with with `performUnaryOp` seems to speed
-	//       up calculation of aggregate quantities.
+	// up calculation of aggregate quantities.
 	wpot 	{ ^this.performUnaryOp('wpot') }
 	wkin 	{ ^this.performUnaryOp('wkin') }
 	wpkmean { ^this.performUnaryOp('wpkmean') }
@@ -245,15 +250,18 @@ PVBlock[slot] : FrameBlock {
 	wd { ^this.performUnaryOp('wpkdiff') }
 	wh { ^this.performUnaryOp('wdens') }
 
+
+	/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	/  Aggregate quantities		*/
+
 	// NOTE: Use CCBlock for efficiency if accessing these quantities
-	//       multiple times, e.g. for higher level quantities using intensity
+	// multiple times, e.g. for higher level quantities using intensity
 	intensity  { ^IntensityBlock.newFromPVBlock(this) }
 	admittance { ^AdmittanceBlock.newFromPVBlock(this) }
 
 
-	/* Aggregate quantities */
-
-	/* Magnitudes */
+	/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	/  Magnitudes		*/
 
 	magIa { ^this.performUnaryOp('magIa') }
 	magIr { ^this.performUnaryOp('magIr') }
@@ -262,7 +270,8 @@ PVBlock[slot] : FrameBlock {
 	magIar { ^this.performUnaryOp('magIar') }
 	magAar { ^this.performUnaryOp('magAar') }
 
-	/* Total Quantities */
+	/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	/  Total Quantities		*/
 
 	totalWp {
 		^this.wp.sum
@@ -310,16 +319,6 @@ AdmittanceBlock[slot] : IntensityBlock {
 		})
 	}
 
-	// TODO: revisit — faster?
-	// *newFromPVBlock { |pvBlock|
-	// 	var intensity = pvBlock.performUnaryOp('intensity');
-	// 	var wpReg = pvBlock.wp + FoaEval.reg.squared;
-	//
-	// 	^super.fill(pvBlock.numFrames, { |i|
-	// 		intensity[i] / wpReg[i]
-	// 	})
-	// }
-
 	admittance { ^this }
 }
 
@@ -354,7 +353,7 @@ CCBlock {
 		// 	aBlock = AdmittanceBlock.newFromIntensiyBlock(this.iBlock);
 		// }
 		var i = this.intensity;
-		var wpReg = this.wp + FoaEval.reg.squared;
+		var wpReg = this.wp + Atk.regSq;
 
 		^aBlock ?? { aBlock = (i / wpReg) }
 		// i.collect({ |i_n|

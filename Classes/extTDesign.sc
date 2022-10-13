@@ -67,13 +67,16 @@
 
 		// catch no designs
 		hoaDesign ?? {
+			// set minT for the reported error
 			minT = switch(optimize,
 				\energy, { 2 * order },      // energy
 				\spreadE, { 2 * order + 1 }  // energy spread
 			);
-
-			"[TDesign:-init] No t-designs found in TDesignLib.lib matching "
-			"nPnts %, t >= %, dim %. For optimize %, minimum numChans is %.".format(numChans, minT, 3, optimize, designs.first[\numPoints]).throw
+			format(
+				"[TDesign:-init] No t-designs found in TDesignLib.lib matching "
+				"nPnts %, t >= %, dim %. For optimize %, minimum numChans is %.",
+				numChans, minT, 3, optimize, designs.first[\numPoints]
+			).throw
 		};
 
 		^super.new.init(hoaDesign[\numPoints], hoaDesign[\t], 3);

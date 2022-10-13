@@ -133,6 +133,10 @@ HoaDegree {
 	}
 
 	size {
+		^this.numSH
+	}
+
+	numSH { 						// TODO: numM? numm?
 		^((2 * this.degree) + 1)
 	}
 }

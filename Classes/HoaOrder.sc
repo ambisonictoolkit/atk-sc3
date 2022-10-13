@@ -508,6 +508,10 @@ HoaOrder {
 	}
 
 	size {
+		^this.numSH
+	}
+
+	numSH {								// TODO: numLM? numlm?
 		^(this.order + 1).squared
 	}
 }

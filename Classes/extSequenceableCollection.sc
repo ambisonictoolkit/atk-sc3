@@ -5,7 +5,7 @@
 	/  E.g., summation happens across dimension 2 ("columns").
 	*/
 
-	// Vector manitude, L2-norm, Euclidean distatnce
+	// Vector manitude, L2-norm, Euclidean distance
 	vmag    { ^this.squared.sum.sqrt }
 	l2norm  { ^this.squared.sum.sqrt }
 	// L1-norm, "taxicab" norm

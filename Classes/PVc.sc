@@ -149,8 +149,8 @@ PVc[slot] : Array {
 	//-----------------------
 	// INTENSITY - magnitudes
 
-	// Magnitude of Complex Intensity Component Magnitudes
-	magIMag {
+	// Magnitude of Magnitude of Complex Intesity
+	magMagI {
 		var wp = this.wp;
 		var wu = this.wu;
 
@@ -158,7 +158,7 @@ PVc[slot] : Array {
 	}
 
 	// Magnitude of Complex Intensity
-	magI {
+	magI { // now .magIa -OR- .magIr
 		var i = this.intensity;
 
 		^Complex.new(
@@ -168,7 +168,7 @@ PVc[slot] : Array {
 	}
 
 	// Magnitude of Magnitude of Complex Admittance
-	magMagA {
+	magMagA { // now .cvmagI
 		var magMagI = this.magMagI;
 		var wp = this.wp;
 

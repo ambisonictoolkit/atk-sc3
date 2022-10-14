@@ -4,6 +4,15 @@ PVFrame[slot] : Array {
 		^super.fill(4, { Complex(0, 0) })
 	}
 
+	*newRand {
+		^super.fill(4,
+			{ |i|
+				var weight = if (i==0) { 3.sqrt/3 } { 1.0 };
+				Polar(weight.rand, 2pi.rand).asComplex
+			}
+		)
+	}
+
 	*newFromArray { |array|
 		^super.fill(array.size, { |i| array[i] })
 	}
@@ -93,16 +102,36 @@ PVFrame[slot] : Array {
 	/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	/  Magnitudes	*/
 
-	magIa { ^this.intensity.magA }
-	magIr { ^this.intensity.magR }
-	magAa { ^this.admittance.magA }
-	magAr { ^this.admittance.magR }
+	magIa { ^this.intensity.activeMag }
+	magIr { ^this.intensity.reactiveMag }
 
-	// Equivalent to the Intensity/AdmittanceFrame's magAR = hypot(magA, magR)
-	magIar { ^sqrt(this.wpot * this.wkin) } // = Complex(this.magIa, this.magIr).magnitude
-	magAar {
+	magAa { ^this.admittance.activeMag }
+	magAr { ^this.admittance.reactiveMag }
+
+	magWa {
+		^this.magIa / (this.wpkmean + Atk.regSq)
+	}
+	magWr {
+		^this.magIr / (this.wpkmean + Atk.regSq)
+	}
+
+	// Complex vector magnitudes 			// TODO Rename? magIcv? magIc? magIt (total)?
+	cvmagI {
+		^sqrt(this.wpot * this.wkin)
+		// Equivalent to:
+		// = this.intensity.cmag.vmag
+		// = Complex(this.magIa, this.magIr).magnitude
+		// = IntensityFrame:-arMag = hypot(activeMag, reactiveMag)
+	}
+	cvmagA {
 		var a = this.admittance;
-		^hypot(a.magA, a.magR)				// = Complex(this.magAa, this.magAr).magnitude
+		^hypot(a.activeMag, a.reactiveMag)
+		// Equivalent to:
+		// = a.cmag.vmag
+		// = Complex(this.magAa, this.magAr).magnitude
+	}
+	cvmagW {
+		^this.cvmagI / (this.wpkmean + Atk.regSq)
 	}
 
 	/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -154,11 +183,17 @@ IntensityFrame[slot] : CartesianFrame {
 	reactive { ^this.imag }
 
 	// amag, rmag? aMag, rMag? maga, magr? activeMag, reactiveMag?
-	magA  { ^this.active.vmag }
-	magR  { ^this.reactive.vmag }
+	activeMag   { ^this.real.vmag }
+	reactiveMag { ^this.imag.vmag }
 
-	// This is equivalent to PVFrame's magIar = (wpot * wkin).sqrt
-	magAR { ^hypot(this.magA, this.magR) } // = Complex(this.magA, this.magR).magnitude
+	// Complex vector mag
+	cvmag {
+		^hypot(this.activeMag, this.reactiveMag)
+		// Equivalent to:
+		// = this.cmag.vmag
+		// = Complex(this.activeMag, this.reactiveMag).magnitude
+		// = PVFrame:-cvmagI = (wpot * wkin).sqrt
+	}
 }
 
 
@@ -171,20 +206,22 @@ AdmittanceFrame[slot] : IntensityFrame {
 
 
 /*
-/	Includes utilities for 2-D arrays, viewed as frames
-/	(e.g. of time or frequency) comprised of multi-channel/multi-component vectors
+/	FrameBlock: Utilities for 2-D arrays, viewed as blocks of frames
+/	(e.g. component vectors organized in "rows" of time or frequency)
 /	where dim 1 is the frame index, dim 2 is the component index.
-/	E.g. Cartesian component (intensity) blocks,  shape: [ numFrames, 3 ], or
-/		 Pressure-velocity frame blocks,    	  shape: [ numFrames, 4 ]
+/	E.g. IntensityBlock : a block of cartesian component frames, shape: [ numFrames, 3 ]
+/		 PVBlock        : pressure-velocity frame blocks, shape: [ numFrames, 4 ]
 */
 FrameBlock[slot] : Array {
 
 	numFrames     { ^this.size } // shape[0]
 	numComponents { ^this.shape[1] }
 
-	vmag   { ^this.collect(_.vmag) }		// vector magnitude, specific to concept of "frame"
-	l2norm { ^this.collect(_.l2norm) }		// vector magnitude
-	cmag   { ^this.performUnaryOp('cmag') }	// complex magnitude
+	// Synonymouse vector magnitudes, calculates vector magnitude of
+	// the frame components ("rows")
+	vmag   { ^this.collect(_.vmag) }
+	l2norm { ^this.collect(_.l2norm) }
+
 
 	/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	/  Posting		*/
@@ -210,6 +247,10 @@ PVBlock[slot] : FrameBlock {
 
 	*newClear { |blockSize|
 		^super.fill(blockSize, { PVFrame.newClear })
+	}
+
+	*newRand { |blockSize|
+		^super.fill(blockSize, { PVFrame.newRand })
 	}
 
 	// Construct from an 2D array shape: [nFrames, 4]		TODO: check dimensions, now assumes nFrm x 4
@@ -273,10 +314,11 @@ PVBlock[slot] : FrameBlock {
 	magIr { ^this.performUnaryOp('magIr') }
 	magAa { ^this.performUnaryOp('magAa') }
 	magAr { ^this.performUnaryOp('magAr') }
-	magIar { ^this.performUnaryOp('magIar') }
-	magAar { ^this.performUnaryOp('magAar') }
+	cvmagI { ^this.performUnaryOp('cvmagI') }
+	cvmagA { ^this.performUnaryOp('cvmagA') }
 
-	/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+	/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	/  Total Quantities		*/
 
 	totalWp {
@@ -306,12 +348,13 @@ IntensityBlock[slot] : CartesianBlock {
 
 	intensity 	{ ^this }
 
-	// dispatch messages to the frames
+	// 'perform' ops: dispatch methods to the frames
 	active   	{ ^this.performUnaryOp('active') }
 	reactive 	{ ^this.performUnaryOp('reactive') }
-	magA		{ ^this.performUnaryOp('magA') } // aMag? activeMag
-	magR		{ ^this.performUnaryOp('magR') } // rMag? reactiveMag
-	magAR		{ ^this.performUnaryOp('magAR') } // arMag? magI?
+
+	activeMag	{ ^this.performUnaryOp('activeMag') }
+	reactiveMag	{ ^this.performUnaryOp('reactiveMag') }
+	cvmag		{ ^this.performUnaryOp('cvmag') }
 }
 
 

@@ -8,7 +8,7 @@ PVFrame[slot] : Array {
 		^super.fill(array.size, { |i| array[i] })
 	}
 
-	/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	/  Component Access			*/
 
 	pressure { ^this[0] }
@@ -16,7 +16,7 @@ PVFrame[slot] : Array {
 	velocity { ^this[1..3] }
 	v		 { ^this[1..3] }
 
-	/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	/  Energetic quantities		*/
 
 	// Potential energy
@@ -60,7 +60,7 @@ PVFrame[slot] : Array {
 	wh { ^this.wdens }
 
 
-	/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	/  Aggregate quantities: intensimetric */
 
 	// TODO: this varies over a block in the freq-domain version (PVf)
@@ -81,7 +81,7 @@ PVFrame[slot] : Array {
 		//
 		// ^AdmittanceFrame.newFromArray(
 		// 	i.collect({ |i_n|
-		// 		Complex.new(  // explicit... slow otherwise!!		// TODO: test to confirm
+		// 		Complex.new(  // explicit... slow otherwise!!	// TODO: test to confirm
 		// 			i_n.real / wpotReg,
 		// 			i_n.imag / wpotReg
 		// 		)
@@ -90,7 +90,7 @@ PVFrame[slot] : Array {
 	}
 
 
-	/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	/  Magnitudes	*/
 
 	magIa { ^this.intensity.magA }
@@ -105,7 +105,7 @@ PVFrame[slot] : Array {
 		^hypot(a.magA, a.magR)				// = Complex(this.magAa, this.magAr).magnitude
 	}
 
-	/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	/  Utils	*/
 
 	// Posting: standard return
@@ -117,6 +117,7 @@ PVFrame[slot] : Array {
 	}
 }
 
+
 // Frame representing a spatial 3-vector (components can be Complex)
 CartesianFrame[slot] : Array {
 
@@ -125,14 +126,14 @@ CartesianFrame[slot] : Array {
 	}
 
 	*newFromArray { |array|
-		^super.fill(array.size, { |i| array[i] })		// TODO: check size
+		^super.fill(array.size, { |i| array[i] })		// TODO: check size?
 	}
 
 	x { ^this[0] }
 	y { ^this[1] }
 	z { ^this[2] }
 
-	// posting: standard return
+	// Posting: standard return
 	printOn { |stream|
 		if (stream.atLimit) { ^this };
 		stream << this.class.name << "[ " ;
@@ -141,6 +142,7 @@ CartesianFrame[slot] : Array {
 	}
 
 }
+
 
 IntensityFrame[slot] : CartesianFrame {
 
@@ -159,6 +161,7 @@ IntensityFrame[slot] : CartesianFrame {
 	magAR { ^hypot(this.magA, this.magR) } // = Complex(this.magA, this.magR).magnitude
 }
 
+
 AdmittanceFrame[slot] : IntensityFrame {
 
 	*newFromPVFrame { |pvFrame|
@@ -176,22 +179,24 @@ AdmittanceFrame[slot] : IntensityFrame {
 */
 FrameBlock[slot] : Array {
 
-	numFrames     { ^this.size } 			// shape[0]
+	numFrames     { ^this.size } // shape[0]
 	numComponents { ^this.shape[1] }
 
 	vmag   { ^this.collect(_.vmag) }		// vector magnitude, specific to concept of "frame"
 	l2norm { ^this.collect(_.l2norm) }		// vector magnitude
 	cmag   { ^this.performUnaryOp('cmag') }	// complex magnitude
 
-	// posting: standard return
+	/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	/  Posting		*/
+
+	// Standard return
 	printOn { |stream|
 		if (stream.atLimit) { ^this };
 		stream << this.class.name << "[ ";
 		this.printItemsOn(stream);
 		stream << " ]";
 	}
-
-	// posting: nicer format for posting full block
+	// Nicer format for posting full block on demand
 	post {
 		"%[ (size: %)\n".postf(this.class.name, this.size);
 		this.do{ |frm, i| "\t".post; frm.postln };
@@ -221,18 +226,19 @@ PVBlock[slot] : FrameBlock {
 		^super.fill(pvFrames.size, { |i| pvFrames[i] })
 	}
 
-	/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+	/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	/  Component access		*/
 
 	// NOTE: Collecting is faster than, e.g., `.performUnaryOp('p')`
 	pressure { ^this.collect(_[0]) }
 	velocity { ^this.collect(_[1..3]) }
-
 	// synonyms
-	p 		 { ^this.collect(_[0]) }
-	v		 { ^this.collect(_[1..3]) }
+	p	{ ^this.collect(_[0]) }
+	v	{ ^this.collect(_[1..3]) }
 
-	/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+	/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	/  Frame-wise quantities	*/
 
 	// NOTE: Dispatching with with `performUnaryOp` seems to speed
@@ -251,7 +257,7 @@ PVBlock[slot] : FrameBlock {
 	wh { ^this.performUnaryOp('wdens') }
 
 
-	/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	/  Aggregate quantities		*/
 
 	// NOTE: Use CCBlock for efficiency if accessing these quantities
@@ -260,7 +266,7 @@ PVBlock[slot] : FrameBlock {
 	admittance { ^AdmittanceBlock.newFromPVBlock(this) }
 
 
-	/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	/  Magnitudes		*/
 
 	magIa { ^this.performUnaryOp('magIa') }

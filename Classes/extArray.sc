@@ -70,8 +70,13 @@
 		^theta
 	}
 
+	/* Array as Cartesian 3-vector */
 	x { ^this[0] }
 	y { ^this[1] }
 	z { ^this[2] }
+	rho      { ^(this.x.squared + this.y.squared + this.z.squared).sqrt }
+	theta    { ^atan2(this.y, this.x) }
+	phi      { ^atan2(this.z, (this.x.squared + this.y.squared).sqrt) }
+	thetaPhi { ^[this.theta, this.phi] }
 
 }

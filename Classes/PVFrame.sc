@@ -121,7 +121,7 @@ PVFrame[slot] : Array {
 		// Equivalent to:
 		// = this.intensity.cmag.vmag
 		// = Complex(this.magIa, this.magIr).magnitude
-		// = IntensityFrame:-arMag = hypot(activeMag, reactiveMag)
+		// = IntensityFrame:-cvmag = hypot(activeMag, reactiveMag)
 	}
 	cvmagA {
 		var a = this.admittance;
@@ -132,6 +132,38 @@ PVFrame[slot] : Array {
 	}
 	cvmagW {
 		^this.cvmagI / (this.wpkmean + Atk.regSq)
+	}
+
+	/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	/  Indicators: analyzed quantities		*/
+
+	// Alpha: Active-Reactive Soundfield Balance Angle
+	alpha {
+		var i = this.intensity;
+		^atan2(i.activeMag, i.reactiveMag)
+	}
+
+	// Beta: Potential-Kinetic Soundfield Balance Angle
+	beta {
+		^atan2(this.wpkdiff, this.cvmagI)
+	}
+
+	// Gamma: Active-Reactive Vector Alignment Angle
+	gamma {
+		var i = this.intensity;
+		var cosFac = (i.active * i.reactive).sum;
+		var sinFac = ((i.activeMag * i.reactiveMag).squared - cosFac.squared).abs.sqrt;  // -abs for numerical precision errors
+
+		^atan2(sinFac, cosFac)
+	}
+
+	// Mu: Active Admittance Balance Angle
+	mu {
+		var magAa = this.magAa;
+
+		// ^(2 * magAa.atan).tan.reciprocal.atan  // the double angle form
+		// ^atan2((1 - magAa.squared) / 2, magAa)
+		^atan2(1 - magAa.squared, 2 * magAa)
 	}
 
 	/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -162,6 +194,8 @@ CartesianFrame[slot] : Array {
 	y { ^this[1] }
 	z { ^this[2] }
 
+	// theta, phi, thetaPhi { // inherited from extArray
+
 	// Posting: standard return
 	printOn { |stream|
 		if (stream.atLimit) { ^this };
@@ -189,10 +223,51 @@ IntensityFrame[slot] : CartesianFrame {
 	// Complex vector mag
 	cvmag {
 		^hypot(this.activeMag, this.reactiveMag)
-		// Equivalent to:
-		// = this.cmag.vmag
-		// = Complex(this.activeMag, this.reactiveMag).magnitude
-		// = PVFrame:-cvmagI = (wpot * wkin).sqrt
+		/* Equivalent to:
+		/  = this.cmag.vmag
+		/  = Complex(this.activeMag, this.reactiveMag).magnitude
+		/  = PVFrame:-cvmagI = (wpot * wkin).sqrt */
+	}
+
+	unitNorm {
+		^this / (this.cvmag + Atk.regSq)
+	}
+
+	/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	/  Indicators: analyzed quantities		*/
+
+	// Alpha: Active-Reactive Soundfield Balance Angle
+	alpha {
+		var magI = this.magI;
+		^atan2(this.activeMag, this.reactiveMag)
+	}
+
+	// beta { // needs the pressure-velocity components
+
+	// Gamma: Active-Reactive Vector Alignment Angle
+	gamma {
+		var cosFac = (this.active * this.reactive).sum;
+		var sinFac = ((this.activeMag * this.reactiveMag).squared - cosFac.squared).abs.sqrt;  // -abs for numerical precision errors
+
+		^atan2(sinFac, cosFac)
+	}
+
+	// Mu: Active Admittance Balance Angle
+	// 	   NOTE: requires calculation of admittance on demand
+	mu {
+		^AdmittanceFrame.newFromPVFrame(this).mu;
+	}
+
+	// Incidence Angle: active
+	activeThetaPhi {
+		// var theta = atan2(ia.y, ia.x);
+		// var phi   = atan2(ia.z, (ia.x.squared + ia.y.squared).sqrt);
+		// ^[ theta, phi ]
+		^this.active.thetaPhi
+	}
+	// Incidence Angle: reactive
+	reactiveThetaPhi {
+		^this.reactive.thetaPhi
 	}
 }
 
@@ -202,6 +277,21 @@ AdmittanceFrame[slot] : IntensityFrame {
 	*newFromPVFrame { |pvFrame|
 		^pvFrame.admittance
 	}
+
+	/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	/  Indicators: analyzed quantities		*/
+
+	// Mu: Active Admittance Balance Angle
+	mu {
+		var activeMag = this.activeMag;
+
+		// ^(2 * magAa.atan).tan.reciprocal.atan  // the double angle form
+		// ^atan2((1 - magAa.squared) / 2, magAa)
+		^atan2(1 - activeMag.squared, 2 * activeMag)
+	}
+	// alpha { // needs the intensity components
+	// beta  { // needs the pressure-velocity components
+	// gamma { // needs the intensity components
 }
 
 

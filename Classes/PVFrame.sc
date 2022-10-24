@@ -31,15 +31,15 @@ PVFrame[slot] : Array {
 	// Potential energy
 	wpot {
 		var p = this.pressure;
-		// = (p * p.conj), returns real 		// TODO: may not be needed with complex primitive
-		^p.real.squared + p.imag.squared
+		// = (p * p.conj), returns real
+		^p.real.squared + p.imag.squared		// TODO: may not be needed with complex primitive
 	}
 
 	// Kinetic energy
 	wkin {
 		var v = this.velocity;
-		^(	// = (v * v.conj), returns real 	// TODO: shortcut may not be needed with complex primitive
-			v.real.squared + v.imag.squared
+		^(	// = (v * v.conj), returns real
+			v.real.squared + v.imag.squared		// TODO: may not be needed with complex primitive
 		).sum
 	}
 
@@ -70,7 +70,7 @@ PVFrame[slot] : Array {
 
 
 	/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	/  Aggregate quantities: intensimetric */
+	/  Aggregate intensimetric quantities */
 
 	// TODO: this varies over a block in the freq-domain version (PVf)
 	intensity {
@@ -102,36 +102,46 @@ PVFrame[slot] : Array {
 	/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	/  Magnitudes	*/
 
+	// Intensity
 	magIa { ^this.intensity.activeMag }
 	magIr { ^this.intensity.reactiveMag }
+	magIaNorm { ^this.magIa / (this.magIcv + Atk.regSq) } // TODO: should this be normalized by magIa instead?
+	magIrNorm { ^this.magIr / (this.magIcv + Atk.regSq) } // TODO: should this be normalized by magIr instead?
 
+	// Admittance
 	magAa { ^this.admittance.activeMag }
 	magAr { ^this.admittance.reactiveMag }
+	magAaNorm { ^this.magAa / (this.magAcv + Atk.regSq) } // TODO: should this be normalized by magAa instead?
+	magArNorm { ^this.magAr / (this.magAcv + Atk.regSq) } // TODO: should this be normalized by magAr instead?
 
-	magWa {
-		^this.magIa / (this.wpkmean + Atk.regSq)
-	}
-	magWr {
-		^this.magIr / (this.wpkmean + Atk.regSq)
-	}
 
-	// Complex vector magnitudes 			// TODO Rename? magIcv? magIc? magIt (total)?
-	cvmagI {
+	// Energy
+	magWa { ^this.magIa / (this.wpkmean + Atk.regSq) }
+	magWr { ^this.magIr / (this.wpkmean + Atk.regSq) }
+	magWaNorm { ^this.magWa / (this.magWcv + Atk.regSq) } // TODO: should this be normalized by magWa instead?
+	magWrNorm { ^this.magWr / (this.magWcv + Atk.regSq) } // TODO: should this be normalized by magWr instead?
+
+	// "Complex vector magnitudes" 			// TODO Rename? magIcv? magIc? magIt (total)?
+	magIcv {
 		^sqrt(this.wpot * this.wkin)
 		// Equivalent to:
 		// = this.intensity.cmag.vmag
 		// = Complex(this.magIa, this.magIr).magnitude
 		// = IntensityFrame:-cvmag = hypot(activeMag, reactiveMag)
 	}
-	cvmagA {
+	magAcv {
 		var a = this.admittance;
 		^hypot(a.activeMag, a.reactiveMag)
 		// Equivalent to:
 		// = a.cmag.vmag
 		// = Complex(this.magAa, this.magAr).magnitude
 	}
-	cvmagW {
-		^this.cvmagI / (this.wpkmean + Atk.regSq)
+	magWcv {
+		^this.magIcv / (this.wpkmean + Atk.regSq)
+	}
+
+	magIcvNorm {
+		^Array.fill(this.numFrames, { 1.0 })
 	}
 
 	/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -145,7 +155,7 @@ PVFrame[slot] : Array {
 
 	// Beta: Potential-Kinetic Soundfield Balance Angle
 	beta {
-		^atan2(this.wpkdiff, this.cvmagI)
+		^atan2(this.wpkdiff, this.magIcv)
 	}
 
 	// Gamma: Active-Reactive Vector Alignment Angle
@@ -220,13 +230,13 @@ IntensityFrame[slot] : CartesianFrame {
 	activeMag   { ^this.real.vmag }
 	reactiveMag { ^this.imag.vmag }
 
-	// Complex vector mag
+	// "Complex vector mag"
 	cvmag {
 		^hypot(this.activeMag, this.reactiveMag)
 		/* Equivalent to:
 		/  = this.cmag.vmag
 		/  = Complex(this.activeMag, this.reactiveMag).magnitude
-		/  = PVFrame:-cvmagI = (wpot * wkin).sqrt */
+		/  = PVFrame:-magIcv = (wpot * wkin).sqrt */
 	}
 
 	unitNorm {
@@ -242,7 +252,7 @@ IntensityFrame[slot] : CartesianFrame {
 		^atan2(this.activeMag, this.reactiveMag)
 	}
 
-	// beta { // needs the pressure-velocity components
+	// beta { // use PVFrame: needs the pressure-velocity components
 
 	// Gamma: Active-Reactive Vector Alignment Angle
 	gamma {
@@ -263,11 +273,11 @@ IntensityFrame[slot] : CartesianFrame {
 		// var theta = atan2(ia.y, ia.x);
 		// var phi   = atan2(ia.z, (ia.x.squared + ia.y.squared).sqrt);
 		// ^[ theta, phi ]
-		^this.active.thetaPhi
+		^this.real.thetaPhi
 	}
 	// Incidence Angle: reactive
 	reactiveThetaPhi {
-		^this.reactive.thetaPhi
+		^this.imag.thetaPhi
 	}
 }
 
@@ -289,9 +299,9 @@ AdmittanceFrame[slot] : IntensityFrame {
 		// ^atan2((1 - magAa.squared) / 2, magAa)
 		^atan2(1 - activeMag.squared, 2 * activeMag)
 	}
-	// alpha { // needs the intensity components
-	// beta  { // needs the pressure-velocity components
-	// gamma { // needs the intensity components
+	// alpha { // use IntensityFrame: needs the intensity components
+	// beta  { // use PVFrame: needs the pressure-velocity components
+	// gamma { // use IntensityFrame: needs the intensity components
 }
 
 
@@ -357,7 +367,6 @@ PVBlock[slot] : FrameBlock {
 		^super.fill(pvFrames.size, { |i| pvFrames[i] })
 	}
 
-
 	/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	/  Component access		*/
 
@@ -368,25 +377,25 @@ PVBlock[slot] : FrameBlock {
 	p	{ ^this.collect(_[0]) }
 	v	{ ^this.collect(_[1..3]) }
 
-
 	/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	/  Frame-wise quantities	*/
 
-	// NOTE: Dispatching with with `performUnaryOp` seems to speed
-	// up calculation of aggregate quantities.
+	// Note: Dispatching with with `performUnaryOp` seems to speed
+	//       up calculation of aggregate quantities.
 	wpot 	{ ^this.performUnaryOp('wpot') }
+	wp      { ^this.performUnaryOp('wpot') }
+
 	wkin 	{ ^this.performUnaryOp('wkin') }
+	wv      { ^this.performUnaryOp('wkin') } 	// wu? wk?
+
 	wpkmean { ^this.performUnaryOp('wpkmean') }
+	ws      { ^this.performUnaryOp('wpkmean') }	// wm?
+
 	wpkdiff { ^this.performUnaryOp('wpkdiff') }
+	wd      { ^this.performUnaryOp('wpkdiff') }
+
 	wdens 	{ ^this.performUnaryOp('wdens') }
-
-	// synonyms												TODO: revisit
-	wp { ^this.performUnaryOp('wpot') }
-	wv { ^this.performUnaryOp('wkin') } 	// wu? wk?
-	ws { ^this.performUnaryOp('wpkmean') }	// wm?
-	wd { ^this.performUnaryOp('wpkdiff') }
-	wh { ^this.performUnaryOp('wdens') }
-
+	wh      { ^this.performUnaryOp('wdens') }
 
 	/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	/  Aggregate quantities		*/
@@ -396,24 +405,149 @@ PVBlock[slot] : FrameBlock {
 	intensity  { ^IntensityBlock.newFromPVBlock(this) }
 	admittance { ^AdmittanceBlock.newFromPVBlock(this) }
 
-
 	/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	/  Magnitudes		*/
 
-	magIa { ^this.performUnaryOp('magIa') }
-	magIr { ^this.performUnaryOp('magIr') }
-	magAa { ^this.performUnaryOp('magAa') }
-	magAr { ^this.performUnaryOp('magAr') }
-	cvmagI { ^this.performUnaryOp('cvmagI') }
-	cvmagA { ^this.performUnaryOp('cvmagA') }
-
+	magIa  { ^this.performUnaryOp('magIa') }
+	magIr  { ^this.performUnaryOp('magIr') }
+	magAa  { ^this.performUnaryOp('magAa') }
+	magAr  { ^this.performUnaryOp('magAr') }
+	magWa  { ^this.performUnaryOp('magWa') }
+	magWr  { ^this.performUnaryOp('magWr') }
+	magIcv { ^this.performUnaryOp('magIcv') }
+	magAcv { ^this.performUnaryOp('magAcv') }
+	magWcv { ^this.performUnaryOp('magWcv') }
 
 	/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	/  Total Quantities		*/
+	/  Total (sum) measures	*/
 
-	totalWp {
-		^this.wp.sum
+	blockNorm { this.subclassResponsibility }
+
+	totalWpot    { ^this.blockNorm * this.wpot.sum }
+	totalWkin    { ^this.blockNorm * this.wkin.sum }
+	totalWpkmean { ^this.blockNorm * this.wpkmean.sum }
+	totalWpkdiff { ^this.blockNorm * this.wpkdiff.sum }
+	totalWdens   { ^this.blockNorm * this.wdens.sum }
+
+	totalMagIa  { ^this.blockNorm * this.magIa.sum }
+	totalMagIr  { ^this.blockNorm * this.magIr.sum }
+	totalmagIcv { ^this.blockNorm * this.magIcv.sum }
+
+	totalMagAa  { ^this.totalMagIa  / (this.wpot.mean + Atk.regSq) }
+	totalMagAr  { ^this.totalMagIr  / (this.wpot.mean + Atk.regSq) }
+	totalMagAcv { ^this.totalmagIcv / (this.wpot.mean + Atk.regSq) }
+	// or?: totalMagAcv { ^this.magIcv.sum / (this.wpot.mean + Atk.regSq) }
+
+	totalMagWa  { ^this.totalMagIa  / (this.wpkmean.mean + Atk.regSq) }
+	totalMagWr  { ^this.totalMagIr  / (this.wpkmean.mean + Atk.regSq) }
+	totalMagWcv { ^this.totalmagIcv / (this.wpkmean.mean + Atk.regSq) }
+	// or?: totalMagAcv { ^this.magWcv.sum / (this.wpot.mean + Atk.regSq) }
+
+	// TODO: should these be normalized by the avg magnitude over the frame?
+	//       and: subclass for different normalization for time vs. freq domain frame?
+	totalMagIaNorm { ^this.totalMagIa / (this.magIcv.mean + Atk.regSq) }
+	totalMagIrNorm { ^this.totalMagIr / (this.magIcv.mean + Atk.regSq) }
+	totalMagAaNorm { ^this.totalMagAa / (this.magAcv.mean + Atk.regSq) }
+	totalMagArNorm { ^this.totalMagAr / (this.magAcv.mean + Atk.regSq) }
+	totalMagWaNorm { ^this.totalMagWa / (this.magWcv.mean + Atk.regSq) }
+	totalMagWrNorm { ^this.totalMagWr / (this.magWcv.mean + Atk.regSq) }
+
+	totalIa { ^this.blockNorm * this.intensity.active.sum }
+	totalIr { ^this.blockNorm * this.intensity.reactive.sum }
+	totalAa { ^this.numFrames * this.totalIa / (this.totalWpot + Atk.regSq) }
+	totalAr { ^this.numFrames * this.totalIr / (this.totalWpot + Atk.regSq) }
+	totalWa { ^this.numFrames * this.totalIa / (this.totalWpkmean + Atk.regSq) }
+	totalWr { ^this.numFrames * this.totalIr / (this.totalWpkmean + Atk.regSq) }
+
+	totalIaNorm { ^this.numFrames * this.avgIaNorm }
+	totalIrNorm { ^this.numFrames * this.avgIrNorm }
+	totalAaNorm { ^this.numFrames * this.avgAaNorm }
+	totalArNorm { ^this.numFrames * this.avgArNorm }
+	totalWaNorm { ^this.numFrames * this.avgWaNorm }
+	totalWrNorm { ^this.numFrames * this.avgWrNorm }
+
+	/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	/  Mean (avg) measures	*/
+
+	prBlockAvg { |quantity, weights|
+		^if(weights.isNil, {
+			// == this.totalWxxx / numFrames
+			(this.blockNorm * quantity.sum) / this.numFrames
+		}, {
+			quantity.wmean(weights)
+		})
 	}
+
+	avgWpot    { |weights = nil| ^this.prBlockAvg(this.wpot, weights) }
+	avgWkin    { |weights = nil| ^this.prBlockAvg(this.wkin, weights) }
+	avgWpkmean { |weights = nil| ^this.prBlockAvg(this.wpkmean, weights) }
+	avgWpkdiff { |weights = nil| ^this.prBlockAvg(this.wpkdiff, weights) }
+	avgWdens   { |weights = nil| ^this.prBlockAvg(this.wdens, weights) }
+
+	avgMagIa  { |weights = nil| ^this.prBlockAvg(this.magIa, weights) }
+	avgMagIr  { |weights = nil| ^this.prBlockAvg(this.magIr, weights) }
+	avgMagIcv { |weights = nil| ^this.prBlockAvg(this.magIcv, weights) }
+
+	// TODO: below averages should be confirmed and refactored
+
+	avgMagAa  { |weights = nil|
+		^if(weights.isNil,
+			{ this.magIa.sum / (this.wp.sum + Atk.regSq)},
+			{ this.magAa.wmean(weights) }
+		)
+	}
+	avgMagAr  { |weights = nil|
+		^if(weights.isNil,
+			{ this.magIr.sum / (this.wp.sum + Atk.regSq)},
+			{ this.magAr.wmean(weights) }
+		)
+	}
+	avgMagAcv { |weights = nil| ^this.prBlockAvg(this.magAcv, weights) }
+
+	avgMagWa  { |weights = nil|
+		^if(weights.isNil,
+			{ this.totalMagWa / this.numFrames },
+			{ this.magWa.wmean(weights) }
+		)
+	}
+	avgMagWr  { |weights = nil|
+		^if(weights.isNil,
+			{ this.totalMagWr / this.numFrames },
+			{ this.magWr.wmean(weights) }
+		)
+	}
+	avgMagWcv { |weights = nil| ^this.prBlockAvg(this.magWcv, weights) }
+
+	avgMagIaNorm  { |weights = nil|
+		^if(weights.isNil,
+			{ this.totalMagIa / this.numFrames },
+			{ this.magIaNorm.wmean(weights) }	// TODO: check accumulating regularization
+		)
+	}
+	avgMagIrNorm  { |weights = nil|
+		^if(weights.isNil,
+			{ this.totalMagIr / this.numFrames },
+			{ this.magIrNorm.wmean(weights) }	// TODO: check accumulating regularization
+		)
+	}
+	avgMagIcvNorm { |weights = nil|
+		^if(weights.isNil,
+			{ 1.0 }, 							// TODO: don't assume?
+			{ this.magIcvNorm.wmean(weights) }
+		)
+	}
+}
+
+
+PVFBlock[slot] : PVBlock {
+
+	blockNorm { ^2 / this.numFrames }
+}
+
+
+PVABlock[slot] : PVBlock {
+
+	blockNorm { ^1 }
 }
 
 
@@ -425,6 +559,7 @@ CartesianBlock[slot] : FrameBlock {
 	z { ^this.collect(_[2]) }
 
 }
+
 
 IntensityBlock[slot] : CartesianBlock {
 
@@ -438,7 +573,7 @@ IntensityBlock[slot] : CartesianBlock {
 
 	intensity 	{ ^this }
 
-	// 'perform' ops: dispatch methods to the frames
+	// dispatch methods to the frames
 	active   	{ ^this.performUnaryOp('active') }
 	reactive 	{ ^this.performUnaryOp('reactive') }
 

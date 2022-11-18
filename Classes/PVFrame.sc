@@ -97,6 +97,20 @@ PVFrame[slot] : Array {
 		// )
 	}
 
+	// TODO: add EnergyFrame/Block
+	energy {
+		var i = this.intensity;
+		var ws = this.ws;
+		var wsDenom = ws + Atk.regSq;
+
+		^i.collect({ |i_n|
+			Complex.new(  // explicit... slow otherwise!!
+				i_n.real / wsDenom,
+				i_n.imag / wsDenom
+			)
+		})
+	}
+
 
 	/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	/  Magnitudes
@@ -111,6 +125,7 @@ PVFrame[slot] : Array {
 	magI  { ^this.intensity.magnitude   }
 	magIa { ^this.intensity.activeMag   }
 	magIr { ^this.intensity.reactiveMag }
+
 	/* "Complex vector magnitude"
 	/  Equivalent to:
 	/    = this.intensity.cmag.vmag
@@ -118,6 +133,7 @@ PVFrame[slot] : Array {
 	/    = IntensityFrame:-cvmag = hypot(activeMag, reactiveMag)
 	*/
 	magIcv { ^sqrt(this.wpot * this.wkin) } // local calc 		// TODO Rename? magIcv? magIc? magIt (total)?
+
 	// Magnitudes normalized by cvmag
 	magINorm  { ^this.intensity.magNorm         }
 	magIaNorm { ^this.intensity.activeMagNorm   }
@@ -186,7 +202,9 @@ CartesianFrame[slot] : Array {
 	x { ^this[0] }
 	y { ^this[1] }
 	z { ^this[2] }
-	// theta, phi, thetaPhi: inherited from extArray
+	/*
+	/	theta, phi, thetaPhi: inherited from extArray
+	*/
 
 	// Posting: standard return
 	printOn { |stream|
@@ -203,7 +221,9 @@ AbstractIntensityFrame[slot] : CartesianFrame {
 	active   { ^this.real }
 	reactive { ^this.imag }
 
+	// "legacy"
 	magnitude   { ^Complex(this.activeMag, this.reactiveMag) }
+
 	activeMag   { ^this.real.vmag } // TODO: amag, rmag? aMag, rMag? maga, magr? activeMag, reactiveMag?
 	reactiveMag { ^this.imag.vmag }
 	cvmag       {
@@ -218,8 +238,8 @@ AbstractIntensityFrame[slot] : CartesianFrame {
 	// TODO: both active and reactive are scaled by the "complex" vector magnitude
 	// 	     Is there a use for active / active.vmag and reactive / reactive.vmag ?
 	// 		 Rename to unitCVNorm?
-	unitNorm         { ^this / (this.cvmag + Atk.regSq) }
-	activeUnitNorm   { ^this.active / (this.cvmag + Atk.regSq) }
+	unitNorm         { ^this          / (this.cvmag + Atk.regSq) }
+	activeUnitNorm   { ^this.active   / (this.cvmag + Atk.regSq) }
 	reactiveUnitNorm { ^this.reactive / (this.cvmag + Atk.regSq) }
 
 	magNorm {
@@ -255,7 +275,9 @@ AbstractIntensityFrame[slot] : CartesianFrame {
 		^atan2(this.activeMag, this.reactiveMag)
 	}
 
-	// Beta: use PVFrame:-beta, needs the pressure-velocity components
+	/*
+	/  Beta: use PVFrame:-beta, needs the pressure-velocity components
+	*/
 
 	// Gamma: Active-Reactive Vector Alignment Angle
 	gamma {
@@ -292,7 +314,7 @@ IntensityFrame[slot] : AbstractIntensityFrame {
 	/  Indicators: analyzed quantities */
 
 	// Mu: Active Admittance Balance Angle
-	// Note - requires calculation of admittance on demand
+	// 	   Note - requires calculation of admittance on demand
 	mu { ^AdmittanceFrame.newFromPVFrame(this).mu }
 }
 

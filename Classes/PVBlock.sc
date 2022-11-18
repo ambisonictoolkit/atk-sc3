@@ -18,11 +18,11 @@ FrameBlock[slot] : Array {
 
 	// Synonymous vector magnitudes.
 	// Calculates vector magnitude of the frame components ("rows").
-	vmag   { ^this.collect(_.vmag)   }
-	l2norm { ^this.collect(_.l2norm) }
+	vmag   { ^this.collect(_.vmag) }
+	l2norm { ^this.collect(_.vmag) }
 
 	// Weighted mean of each component across frames/"columns" of the block
-	prwmeanCol { |dataBlock, weights|
+	prwmean { |dataBlock, weights|
 		^dataBlock.flop.collect(_.wmean(weights))
 	}
 
@@ -100,39 +100,6 @@ PVBlock[slot] : FrameBlock {
 	wdens 	{ ^this.performUnaryOp('wdens') }
 	wh      { ^this.performUnaryOp('wdens') }
 
-	/* Magnitudes
-	/
-	/  Note - these are largely for convenience, and will
-	/  calculate the intensity/admittance for each frame
-	/  on each method call. For multiple calls, call on
-	/  IntensityBlock directly to avoid recalculations. */
-
-	// Intensity
-	magI      { ^this.performUnaryOp('magI')      }
-	magIa     { ^this.performUnaryOp('magIa')     }
-	magIr     { ^this.performUnaryOp('magIr')     }
-	magIcv    { ^this.performUnaryOp('magIcv')    } // local calc
-	magINorm  { ^this.performUnaryOp('magINorm')  }
-	magIaNorm { ^this.performUnaryOp('magIaNorm') }
-	magIrNorm { ^this.performUnaryOp('magIrNorm') }
-
-	// Admittance
-	magA      { ^this.performUnaryOp('magA')      }
-	magAa     { ^this.performUnaryOp('magAa')     }
-	magAr     { ^this.performUnaryOp('magAr')     }
-	magAcv    { ^this.performUnaryOp('magAcv')    }
-	magANorm  { ^this.performUnaryOp('magANorm')  }
-	magAaNorm { ^this.performUnaryOp('magAaNorm') }
-	magArNorm { ^this.performUnaryOp('magArNorm') }
-
-	// Energy
-	magW      { ^this.performUnaryOp('magW')      }
-	magWa     { ^this.performUnaryOp('magWa')     }
-	magWr     { ^this.performUnaryOp('magWr')     }
-	magWcv    { ^this.performUnaryOp('magWcv')    }
-	magWNorm  { ^this.performUnaryOp('magWNorm')  }
-	magWaNorm { ^this.performUnaryOp('magWaNorm') }
-	magWrNorm { ^this.performUnaryOp('magWrNorm') }
 
 	/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	/  Aggregate quantities
@@ -144,9 +111,52 @@ PVBlock[slot] : FrameBlock {
 	intensity  { ^IntensityBlock.newFromPVBlock(this)  }
 	admittance { ^AdmittanceBlock.newFromPVBlock(this) }
 
-	/* Total (sum) measures	*/
+	/*
+	/	Magnitudes
+	*/
+
+	//	Energy
+
+	magW      { ^this.performUnaryOp('magW')      }
+	magWa     { ^this.performUnaryOp('magWa')     }
+	magWr     { ^this.performUnaryOp('magWr')     }
+	magWcv    { ^this.performUnaryOp('magWcv')    }
+	magWNorm  { ^this.performUnaryOp('magWNorm')  }
+	magWaNorm { ^this.performUnaryOp('magWaNorm') }
+	magWrNorm { ^this.performUnaryOp('magWrNorm') }
+
+	/* Intensity/Admittance magnitudes are largely here for
+	/  convenience and will calculate the intensity/admittance
+	/  for each block on each method call. For multiple calls,
+	/  call on IntensityBlock directly to avoid recalculations. */
+
+	//	Intensity
+
+	magI      { ^this.intensity.magnitude       }
+	magIa     { ^this.intensity.activeMag       }
+	magIr     { ^this.intensity.reactiveMag     }
+	magIcv    { ^this.performUnaryOp('magIcv')  } // local calc—no intensity needed
+	magINorm  { ^this.intensity.magNorm         }
+	magIaNorm { ^this.intensity.activeMagNorm   }
+	magIrNorm { ^this.intensity.reactiveMagNorm }
+
+	//	Admittance
+
+	magA      { ^this.admittance.magnitude       }
+	magAa     { ^this.admittance.activeMag       }
+	magAr     { ^this.admittance.reactiveMag     }
+	magAcv    { ^this.admittance.cvmag           }
+	magANorm  { ^this.admittance.magNorm         }
+	magAaNorm { ^this.admittance.activeMagNorm   }
+	magArNorm { ^this.admittance.reactiveMagNorm }
+
+	/*
+	/	Total (sum) measures
+	*/
 
 	blockNorm { this.subclassResponsibility }
+
+	//	Energy
 
 	totalWpot    { ^this.blockNorm * this.wpot.sum    }
 	totalWkin    { ^this.blockNorm * this.wkin.sum    }
@@ -154,31 +164,49 @@ PVBlock[slot] : FrameBlock {
 	totalWpkdiff { ^this.blockNorm * this.wpkdiff.sum }
 	totalWdens   { ^this.blockNorm * this.wdens.sum   }
 
-	totalI  { ^this.blockNorm * this.intensity.sum          }
-	totalIa { ^this.blockNorm * this.intensity.active.sum   }
-	totalIr { ^this.blockNorm * this.intensity.reactive.sum }
+	/* TODO:
+	/	In general, the total & average quantities need to be revisited
+	/   wrt their assumptions about whether the total refers to the assumed
+	/   total of that *single* bin extrapolated across the frequency frame (all bins),
+	/	OR - total of energy of the (time) frame, assuming a monofrequent analytic signal */
+
+	/* Intensity/Admittance magnitudes are largely here for
+	/  convenience and will calculate the intensity/admittance
+	/  for each block on each method call. For multiple calls,
+	/  call on IntensityBlock directly to avoid recalculations. */
+	//	Intensity
+	totalI  { ^this.intensity.total         }
+	totalIa { ^this.intensity.totalActive   }
+	totalIr { ^this.intensity.totalReactive }
+	//	Admittance
+	// Note: admitttance is intensity / (wpot + reg),
+	// so need to break out the calculation here to avoid accumulating
+	// the regularization 													TODO: confirm
 	totalA  { ^this.numFrames * this.totalI  / (this.totalWpot + Atk.regSq) }
 	totalAa { ^this.numFrames * this.totalIa / (this.totalWpot + Atk.regSq) }
 	totalAr { ^this.numFrames * this.totalIr / (this.totalWpot + Atk.regSq) }
+
 	totalW  { ^this.numFrames * this.totalI  / (this.totalWpkmean + Atk.regSq) }
 	totalWa { ^this.numFrames * this.totalIa / (this.totalWpkmean + Atk.regSq) }
 	totalWr { ^this.numFrames * this.totalIr / (this.totalWpkmean + Atk.regSq) }
 
-	totalINorm  { ^this.numFrames * this.avgINorm  }	// TODO: revisit "total" quantity, conceptually
-	// e.g. why is it not this.performUnaryOp('unitNorm').sum ?
-	totalIaNorm { ^this.numFrames * this.avgIaNorm }
-	totalIrNorm { ^this.numFrames * this.avgIrNorm }
-	totalANorm  { ^this.numFrames * this.avgANorm  }
-	totalAaNorm { ^this.numFrames * this.avgAaNorm }
-	totalArNorm { ^this.numFrames * this.avgArNorm }
-	totalWNorm  { ^this.numFrames * this.avgWNorm  }
-	totalWaNorm { ^this.numFrames * this.avgWaNorm }
-	totalWrNorm { ^this.numFrames * this.avgWrNorm }
+	totalINorm  { ^this.intensity.avgUnitNorm }
+	totalIaNorm { ^this.intensity.avgActiveUnitNorm }
+	totalIrNorm { ^this.intensity.avgReactiveUnitNorm }
 
-	totalMagI   { ^this.blockNorm * this.magI.sum   }
-	totalMagIa  { ^this.blockNorm * this.magIa.sum  }
-	totalMagIr  { ^this.blockNorm * this.magIr.sum  }
-	totalMagIcv { ^this.blockNorm * this.magIcv.sum }
+	totalANorm  { ^this.admittance.avgUnitNorm }
+	totalAaNorm { ^this.admittance.avgActiveUnitNorm }
+	totalArNorm { ^this.admittance.avgReactiveUnitNorm }
+
+	// Not yet defined...
+	// totalWNorm  { ^this.numFrames * this.avgWNorm  }
+	// totalWaNorm { ^this.numFrames * this.avgWaNorm }
+	// totalWrNorm { ^this.numFrames * this.avgWrNorm }
+
+	totalMagI   { ^this.intensity.totalMag }
+	totalMagIa  { ^this.intensity.totalActiveMag }
+	totalMagIr  { ^this.intensity.totalReactiveMag }
+	totalMagIcv { ^this.intensity.totalcvmag }
 
 	totalMagA   { ^this.totalMagI   / (this.wpot.mean + Atk.regSq) }
 	totalMagAa  { ^this.totalMagIa  / (this.wpot.mean + Atk.regSq) }
@@ -204,7 +232,11 @@ PVBlock[slot] : FrameBlock {
 	totalMagWaNorm { ^this.totalMagWa / (this.magWcv.mean + Atk.regSq) }
 	totalMagWrNorm { ^this.totalMagWr / (this.magWcv.mean + Atk.regSq) }
 
-	/* Average (mean) measures */
+	/*
+	/	Average (mean) measures
+	*/
+
+	//	Energetic means
 
 	avgWpot    { |weights = nil| ^this.prBlockAvg(this.wpot, weights)    }
 	avgWkin    { |weights = nil| ^this.prBlockAvg(this.wkin, weights)    }
@@ -212,79 +244,83 @@ PVBlock[slot] : FrameBlock {
 	avgWpkdiff { |weights = nil| ^this.prBlockAvg(this.wpkdiff, weights) }
 	avgWdens   { |weights = nil| ^this.prBlockAvg(this.wdens, weights)   }
 
-	avgI { |weights = nil|
-		^weights.isNil.if(
-			{ this.totalI / this.numFrames },
-			{ this.prwmeanCol(this.intensity, weights) }
-		)
-	}
-	avgIa { |weights = nil|
-		^weights.isNil.if(
-			{ this.totalIa / this.numFrames },
-			{ this.prwmeanCol(this.intensity.active, weights) }
-		)
-	}
-	avgIr { |weights = nil|
-		^weights.isNil.if(
-			{ this.totalIr / this.numFrames },
-			{ this.prwmeanCol(this.intensity.reactive, weights) }
-		)
-	}
-	avgA { |weights = nil|
-		^weights.isNil.if(
-			{ this.totalA / this.numFrames },
-			{ this.prwmeanCol(this.admittance, weights) }
-		)
-	}
-	avgAa { |weights = nil|
-		^weights.isNil.if(
-			{ this.totalAa / this.numFrames },
-			{ this.prwmeanCol(this.admittance.active, weights) }
-		)
-	}
-	avgAr { |weights = nil|
-		^weights.isNil.if(
-			{ this.totalAr / this.numFrames },
-			{ this.prwmeanCol(this.admittance.reactive, weights) }
-		)
-	}
-	avgW { |weights = nil|
-		^weights.isNil.if(
-			{ this.totalW / this.numFrames },
-			{ this.prwmeanCol(this.energy, weights) }
-		)
-	}
-	avgWa { |weights = nil|
-		^weights.isNil.if(
-			{ this.totaWa / this.numFrames },
-			{ this.prwmeanCol(this.energy.active, weights) }
-		)
-	}
-	avgWr { |weights = nil|
-		^weights.isNil.if(
-			{ this.totalWr / this.numFrames },
-			{ this.prwmeanCol(this.energy.reactive, weights) }
-		)
-	}
+	//	Intensimetric means
 
-	avgINorm { |weights = nil|
-		^weights.isNil.if(
-			{ this.intensity.unitNorm.sum / this.numFrames },
-			{ this.prwmeanCol(this.intensity.unitNorm, weights) }
-		)
-	}
-	avgIaNorm { |weights = nil|
-		^weights.isNil.if(
-			{ this.intensity.activeUnitNorm.sum / this.numFrames },
-			{ this.prwmeanCol(this.intensity.activeUnitNorm, weights) }
-		)
-	}
-	avgIrNorm { |weights = nil|
-		^weights.isNil.if(
-			{ this.intensity.reactiveUnitNorm.sum / this.numFrames },
-			{ this.prwmeanCol(this.intensity.reactiveUnitNorm, weights) }
-		)
-	}
+	// avgI { |weights = nil|
+	// 	^weights.isNil.if(
+	// 		{ this.totalI / this.numFrames },
+	// 		{ this.prwmean(this.intensity, weights) }
+	// 	)
+	// }
+	// avgIa { |weights = nil|
+	// 	^weights.isNil.if(
+	// 		{ this.totalIa / this.numFrames },
+	// 		{ this.prwmean(this.intensity.active, weights) }
+	// 	)
+	// }
+	// avgIr { |weights = nil|
+	// 	^weights.isNil.if(
+	// 		{ this.totalIr / this.numFrames },
+	// 		{ this.prwmean(this.intensity.reactive, weights) }
+	// 	)
+	// }
+	// avgA { |weights = nil|
+	// 	^weights.isNil.if(
+	// 		{ this.totalA / this.numFrames },
+	// 		{ this.prwmean(this.admittance, weights) }
+	// 	)
+	// }
+	// avgAa { |weights = nil|
+	// 	^weights.isNil.if(
+	// 		{ this.totalAa / this.numFrames },
+	// 		{ this.prwmean(this.admittance.active, weights) }
+	// 	)
+	// }
+	// avgAr { |weights = nil|
+	// 	^weights.isNil.if(
+	// 		{ this.totalAr / this.numFrames },
+	// 		{ this.prwmean(this.admittance.reactive, weights) }
+	// 	)
+	// }
+	// avgW { |weights = nil|
+	// 	^weights.isNil.if(
+	// 		{ this.totalW / this.numFrames },
+	// 		{ this.prwmean(this.energy, weights) }
+	// 	)
+	// }
+	// avgWa { |weights = nil|
+	// 	^weights.isNil.if(
+	// 		{ this.totaWa / this.numFrames },
+	// 		{ this.prwmean(this.energy.active, weights) }
+	// 	)
+	// }
+	// avgWr { |weights = nil|
+	// 	^weights.isNil.if(
+	// 		{ this.totalWr / this.numFrames },
+	// 		{ this.prwmean(this.energy.reactive, weights) }
+	// 	)
+	// }
+
+	// avgINorm { |weights = nil|
+	// 	^weights.isNil.if(
+	// 		{ this.intensity.unitNorm.sum / this.numFrames },
+	// 		{ this.prwmean(this.intensity.unitNorm, weights) }
+	// 	)
+	// }
+	// avgIaNorm { |weights = nil|
+	// 	^weights.isNil.if(
+	// 		{ this.intensity.activeUnitNorm.sum / this.numFrames },
+	// 		{ this.prwmean(this.intensity.activeUnitNorm, weights) }
+	// 	)
+	// }
+	// avgIrNorm { |weights = nil|
+	// 	^weights.isNil.if(
+	// 		{ this.intensity.reactiveUnitNorm.sum / this.numFrames },
+	// 		{ this.prwmean(this.intensity.reactiveUnitNorm, weights) }
+	// 	)
+	// }
+
+	//	Magnitude means
 
 	avgMagI   { |weights = nil| ^this.prBlockAvg(this.magI, weights)   }
 	avgMagIa  { |weights = nil| ^this.prBlockAvg(this.magIa, weights)  }
@@ -410,7 +446,15 @@ PVBlock[slot] : FrameBlock {
 		)
 	}
 
-	/* Helpers */
+	/*	Soundfield Indicator means */
+
+	// Alpha
+	avgAlpha { |weights = nil|
+		^this.intensity.avgAlpha(weights)
+	}
+
+	/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	/  Helpers */
 
 	// Average over the block, 1D quantities
 	prBlockAvg { |quantity, weights|
@@ -461,6 +505,7 @@ AbstractIntensityBlock[slot] : CartesianBlock {
 	// Note - performUnaryOp to dispatch methods to the frames
 
 	/* Components */
+
 	active           { ^this.performUnaryOp('active')   }
 	reactive 	     { ^this.performUnaryOp('reactive') }
 
@@ -469,23 +514,86 @@ AbstractIntensityBlock[slot] : CartesianBlock {
 	reactiveUnitNorm { ^this.performUnaryOp('reactiveUnitNorm') }
 
 	/* Magnitudes */
-	activeMag	     { ^this.performUnaryOp('activeMag')   }
-	reactiveMag	     { ^this.performUnaryOp('reactiveMag') }
-	cvmag		     { ^this.performUnaryOp('cvmag')       }
 
-	magNorm	         { ^this.performUnaryOp('unitNorm')         }
-	activeMagNorm    { ^this.performUnaryOp('activeUnitNorm')   }
-	reactiveMagNorm  { ^this.performUnaryOp('reactiveUnitNorm') }
+	activeMag   { ^this.performUnaryOp('activeMag')   }
+	reactiveMag { ^this.performUnaryOp('reactiveMag') }
+	cvmag		{ ^this.performUnaryOp('cvmag')       }
+
+	magNorm	        { ^this.performUnaryOp('unitNorm')         }
+	activeMagNorm   { ^this.performUnaryOp('activeUnitNorm')   }
+	reactiveMagNorm { ^this.performUnaryOp('reactiveUnitNorm') }
+
+	/* Totals (sums) */
+
+	// Base quantity totals
+
+	totalUnitNorm     { ^this.numFrames * this.avgUnitNorm         }	// TODO: revisit "total" quantity, conceptually
+	totalActiveNorm   { ^this.numFrames * this.avgActiveUnitNorm   }
+	totalReactiveNorm { ^this.numFrames * this.avgReactiveUnitNorm }
+
+	total         { ^this.subclassResponsibility }
+	totalActive   { ^this.subclassResponsibility }
+	totalReactive { ^this.subclassResponsibility }
+
+	totalMag         { ^this.subclassResponsibility }
+	totalActiveMag   { ^this.subclassResponsibility }
+	totalReactiveMag { ^this.subclassResponsibility }
+	totalcvmag       { ^this.subclassResponsibility }
+
+	/* Averages (means) */
+	avgerage { |weights = nil|
+		^weights.isNil.if(
+			{ this.total / this.numFrames },
+			{ this.prwmean(this, weights) }
+		)
+	}
+	avgActive { |weights = nil|
+		^weights.isNil.if(
+			{ this.totalActive / this.numFrames },
+			{ this.prwmean(this.active, weights) }
+		)
+	}
+	avgReactive { |weights = nil|
+		^weights.isNil.if(
+			{ this.totalReactive / this.numFrames },
+			{ this.prwmean(this.reactive, weights) }
+		)
+	}
 
 	/* Indicators */
-	// beta: use PBBlock:-beta, needs the pressure-velocity components
+
 	alpha { ^this.performUnaryOp('alpha') }
+	// beta: use PBBlock:-beta, needs the pressure-velocity components
 	gamma { ^this.performUnaryOp('gamma') }
 	mu    { ^this.performUnaryOp('mu')    } // calling from IntensityBlock will recalculate Admittance
 
-	/* Incidence */
 	activeThetaPhi   { ^this.performUnaryOp('activeThetaPhi')   }
 	reactiveThetaPhi { ^this.performUnaryOp('reactiveThetaPhi') }
+
+	/*
+	/	Averages (means)
+	*/
+
+	//	Normalized vector averages
+
+	avgUnitNorm { |weights = nil|
+		^weights.isNil.if(
+			{ this.unitNorm.sum / this.numFrames },
+			{ this.prwmean(this.unitNorm, weights) }
+		)
+	}
+	avgActiveUnitNorm { |weights = nil|
+		^weights.isNil.if(
+			{ this.activeUnitNorm.sum / this.numFrames },
+			{ this.prwmean(this.activeUnitNorm, weights) }
+		)
+	}
+	avgReactiveUnitNorm { |weights = nil|
+		^weights.isNil.if(
+			{ this.reactiveUnitNorm.sum / this.numFrames },
+			{ this.prwmean(this.reactiveUnitNorm, weights) }
+		)
+	}
 }
 
 IntensityBlock[slot] : AbstractIntensityBlock {
@@ -502,21 +610,25 @@ IntensityBlock[slot] : AbstractIntensityBlock {
 
 	// TODO:  admittance { ^ }
 
-	/* Magnitudes
-	/
-	/  Note - these are largely for convenience, and will
-	/  calculate the intensity/admittance for each frame
-	/  on each method call. For multiple calls, call on
-	/  IntensityBlock directly to avoid recalculations. */
+	total         { ^this.blockNorm * this.sum          }
+	totalActive   { ^this.blockNorm * this.active.sum   }
+	totalReactive { ^this.blockNorm * this.reactive.sum }
 
-	// Intensity
-	magI      { ^this.performUnaryOp('magI')      }
-	magIa     { ^this.performUnaryOp('magIa')     }
-	magIr     { ^this.performUnaryOp('magIr')     }
-	magIcv    { ^this.performUnaryOp('magIcv')    } // local calc
-	magINorm  { ^this.performUnaryOp('magINorm')  }
-	magIaNorm { ^this.performUnaryOp('magIaNorm') }
-	magIrNorm { ^this.performUnaryOp('magIrNorm') }
+	totalMag         { ^this.blockNorm * this.magnitude.sum   }
+	totalActiveMag   { ^this.blockNorm * this.activeMag.sum  }
+	totalReactiveMag { ^this.blockNorm * this.reactiveMag.sum  }
+	totalcvmag       { ^this.blockNorm * this.cvmag.sum }
+
+	/*
+	/	Averages (means)
+	*/
+
+	//	Indicator averages
+
+	avgAlpha { |weights = nil|
+		var avgMagI = this.avgMagI(weights);
+		^atan2(this.avgMagIa, magIa)
+	}
 }
 
 
@@ -532,7 +644,59 @@ AdmittanceBlock[slot] : AbstractIntensityBlock {
 
 	admittance { ^this }
 
-	// TODO:  intensity { ^ }
+	// intensity { ^ }				// TODO
+
+	// TODO: see PVBLock totalA, totalAa, totalAr
+	// total         { ^ }
+	// totalActive   { ^ }
+	// totalReactive { ^ }
+
+	// totalMag         { ^ }
+	// totalActiveMag   { ^ }
+	// totalReactiveMag { ^ }
+	// totalcvmag       { ^ }
+
+	/*
+	/	Averages (means)
+	*/
+
+	//	Indicator averages			// TODO
+	avgMu { |weights = nil|
+	}
+}
+
+
+EnergyBlock[slot] : AbstractIntensityBlock {
+
+	*newFromPVBlock { |pvBlock|
+		var energy = pvBlock.performUnaryOp('energy');
+
+		^super.fill(pvBlock.numFrames, { |i|
+			energy[i]
+		})
+	}
+
+	energy { ^this }
+
+	// intensity { ^ }				// TODO
+
+	// TODO: see PVBLock totalA, totalAa, totalAr
+	// total         { ^ }
+	// totalActive   { ^ }
+	// totalReactive { ^ }
+
+	// totalMag         { ^ }
+	// totalActiveMag   { ^ }
+	// totalReactiveMag { ^ }
+	// totalcvmag       { ^ }
+
+	/*
+	/	Averages (means)
+	*/
+
+	//	Indicator averages			// TODO
+	avgMu { |weights = nil|
+	}
 }
 
 
@@ -565,10 +729,11 @@ CCBlock {
 		// ^aBlock ?? {
 		// 	aBlock = AdmittanceBlock.newFromIntensiyBlock(this.iBlock);
 		// }
-		var i = this.intensity;
-		var wpReg = this.wp + Atk.regSq;
+		var wp_reg = this.wp + Atk.regSq;
 
-		^aBlock ?? { aBlock = (i / wpReg) }
+		^aBlock ?? {
+			aBlock = this.intensity / wp_reg
+		}
 		// i.collect({ |i_n|
 		// 	Complex.new(  // explicit... slow otherwise!!
 		// 		i_n.real / wpReg,

@@ -16,7 +16,7 @@ FrameBlock[slot] : Array {
 	numFrames     { ^this.size     } // shape[0]
 	numComponents { ^this.shape[1] }
 
-	// Synonymous vector magnitudes.
+	// Synonymous vector magnitudes
 	// Calculates vector magnitude of the frame components ("rows").
 	vmag   { ^this.collect(_.vmag) }
 	l2norm { ^this.collect(_.vmag) }
@@ -70,6 +70,7 @@ PVBlock[slot] : FrameBlock {
 		^super.fill(pvFrames.size, { |i| pvFrames[i] })
 	}
 
+
 	/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	/  Component access	 */
 
@@ -78,6 +79,7 @@ PVBlock[slot] : FrameBlock {
 	p	     { ^this.collect(_[0]) }
 	velocity { ^this.collect(_[1..3]) }
 	v	     { ^this.collect(_[1..3]) }
+
 
 	/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	/  Framewise quantities
@@ -110,6 +112,7 @@ PVBlock[slot] : FrameBlock {
 
 	intensity  { ^IntensityBlock.newFromPVBlock(this)  }
 	admittance { ^AdmittanceBlock.newFromPVBlock(this) }
+
 
 	/*
 	/	Magnitudes
@@ -149,6 +152,7 @@ PVBlock[slot] : FrameBlock {
 	magANorm  { ^this.admittance.magNorm         }
 	magAaNorm { ^this.admittance.activeMagNorm   }
 	magArNorm { ^this.admittance.reactiveMagNorm }
+
 
 	/*
 	/	Total (sum) measures
@@ -231,6 +235,7 @@ PVBlock[slot] : FrameBlock {
 	totalMagWNorm  { ^this.totalMagW  / (this.magWcv.mean + Atk.regSq) }
 	totalMagWaNorm { ^this.totalMagWa / (this.magWcv.mean + Atk.regSq) }
 	totalMagWrNorm { ^this.totalMagWr / (this.magWcv.mean + Atk.regSq) }
+
 
 	/*
 	/	Average (mean) measures
@@ -625,10 +630,10 @@ IntensityBlock[slot] : AbstractIntensityBlock {
 
 	//	Indicator averages
 
-	avgAlpha { |weights = nil|
-		var avgMagI = this.avgMagI(weights);
-		^atan2(this.avgMagIa, magIa)
-	}
+	// avgAlpha { |weights = nil|
+	// 	var avgMagI = this.avgMagI(weights);
+	// 	^atan2(this.avgMagIa, magIa)
+	// }
 }
 
 

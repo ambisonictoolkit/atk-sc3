@@ -17,6 +17,7 @@ PVFrame[slot] : Array {
 		^super.fill(4, { |i| array[i] })
 	}
 
+
 	/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	/  Component Access  */
 
@@ -24,6 +25,7 @@ PVFrame[slot] : Array {
 	p 		 { ^this[0] }
 	velocity { ^this[1..3] }
 	v		 { ^this[1..3] }
+
 
 	/* ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	/  Energetic quantities  */
@@ -129,10 +131,10 @@ PVFrame[slot] : Array {
 	/* "Complex vector magnitude"
 	/  Equivalent to:
 	/    = this.intensity.cmag.vmag
-	/    = magnitude(Complex(magIa, magIr))
+	/    = Complex(magIa, magIr).magnitude
 	/    = IntensityFrame:-cvmag = hypot(activeMag, reactiveMag)
 	*/
-	magIcv { ^sqrt(this.wpot * this.wkin) } // local calc 		// TODO Rename? magIcv? magIc? magIt (total)?
+	magIcv { ^sqrt(this.wpot * this.wkin) } // equivalent calc with local vars for efficiency 		// TODO Rename? magIcv? magIc? magIt (total)?
 
 	// Magnitudes normalized by cvmag
 	magINorm  { ^this.intensity.magNorm         }

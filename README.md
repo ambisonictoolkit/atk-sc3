@@ -192,11 +192,11 @@ SuperCollider, please create an issue in the
 [atk-sc3 issue tracker](https://github.com/ambisonictoolkit/atk-sc3/issues).
 
 Experienced users and the developers are active participants on
-the [sc-users mailing list](http://www.beast.bham.ac.uk/research/sc_mailing_lists.shtml).
+the [SuperCollider Forum](https://scsynth.org/).
 Questions posted here are usually answered fairly quickly.
 
-An archive of this list can be searched from
-[this page](http://www.listarc.bham.ac.uk/lists/sc-users/search/).
+The archives of the now closed SuperCollider mailing lists (2002 - 20021) may be
+searched via [this page](https://listarc.cal.bham.ac.uk/).
 
 If need be, the developers can be contacted directly via
 [this address](info@ambisonictoolkit.net).
@@ -207,16 +207,34 @@ If need be, the developers can be contacted directly via
 List of Changes
 ---------------
 
+Version 5.0.7
+
+* New features:
+    * Tests: TestWaveNumber
+
+*  Refactoring:
+    * refactor for clarity: WaveNumber: -distWeights, -ctrlWeights, etc.
+
+* Issue fixes:
+    * fix: WaveNumber: -wn
+
+* Documentation Updates:
+    * list explicit formulae & clarifying comments: HoaOrder, HoaRadius, WaveNumber
+    * clarifying comments: TDesign: *newHoa
+
+
 Version 5.0.6
 
 * Issue fixes:
     * fix: Atk.downloadMatrices with wrong url issue (Issue #116)
     * fix: AtkMatrix:*getAtkOpPath : Throw error only if requested path is not a user extension
 
+
 Version 5.0.5
 
 * Issue fixes:
     * fix: refactor mosl.txt to use JSFX comment char #
+
 
 Version 5.0.4
 
@@ -227,6 +245,7 @@ Version 5.0.4
 
 * Issue fixes:
     * fix: broken links ABCs-of-the-ATK
+
 
 Version 5.0.3
 
@@ -444,6 +463,9 @@ are copyright the Ambisonic Toolkit Community and Joseph Anderson,
 
 Contributors
 ------------
+
+Version 5.0.7
+*  Michael McCrea (@mtmccrea)
 
 Version 5.0.6
 *  Michael McCrea (@mtmccrea)

@@ -583,21 +583,21 @@ HoaRTT : HoaUGen {
 
 		mK = this.getJKMatrix(\k, n);   // "K" matrix: swap Z<>X axes
 		mJ = this.getJKMatrix(\j, n);   // "J" matrix: swap Z<>Y axes
-		mJK = this.getJKMatrix(\jk, n); // combine (J * K)
+		mJK = this.getJKMatrix(\jk, n); // (J * K): Z<>X then Y<>Z in one operation
 
 		// rotate : Z(rotate)
 		hoa  = HoaRotate.ar(in, rotate, n);
 
-		// tilt : K -> Z(tilt) ->
-		hoa = HoaUGen.mixMatrix(hoa, mK);
+		// tilt : K -> Z(tilt)
+		hoa = HoaUGen.mixMatrix(hoa, mK); // swap swap X<>Z axes
 		hoa = HoaRotate.ar(hoa, tilt.neg, n); // tilt.neg: see note in HoaTilt
 
-		// combine (J * K)
+		// (J * K): restore Z<>X and then swap Y<>Z in one operation
 		hoa = HoaUGen.mixMatrix(hoa, mJK);
 
 		// tumble : -> Z(pitch) -> J
 		hoa = HoaRotate.ar(hoa, tumble, n);
-		^HoaUGen.mixMatrix(hoa, mJ);
+		^HoaUGen.mixMatrix(hoa, mJ); // restore Z<>Y
 	}
 }
 
@@ -615,18 +615,18 @@ HoaYPR : HoaUGen {
 
 		mK = this.getJKMatrix(\k, n);    // "K" matrix: swap Z<>X axes
 		mJ = this.getJKMatrix(\j, n);    // "J" matrix: swap Z<>Y axes
-		mJK = this.getJKMatrix(\jk, n);  // combine (J * K)
+		mJK = this.getJKMatrix(\jk, n);  // (J * K): Z<>X then Y<>Z in one operation
 
-		// roll (tilt) : K -> Z(tilt) ->
-		hoa = HoaUGen.mixMatrix(in, mK);
+		// roll (tilt) : K -> Z(tilt)
+		hoa = HoaUGen.mixMatrix(in, mK); // swap swap X<>Z axes
 		hoa = HoaRotate.ar(hoa, roll.neg, n); // roll.neg: see note in HoaTilt
 
-		// combine (J * K)
+		// (J * K): restore Z<>X and then swap Y<>Z in one operation
 		hoa = HoaUGen.mixMatrix(hoa, mJK);
 
 		// pitch (tumble) : -> Z(tumble) -> J
 		hoa = HoaRotate.ar(hoa, pitch, n);
-		hoa = HoaUGen.mixMatrix(hoa, mJ);
+		hoa = HoaUGen.mixMatrix(hoa, mJ); // restore Z<>Y
 
 		// yaw (rotate)
 		^HoaRotate.ar(hoa, yaw, n);

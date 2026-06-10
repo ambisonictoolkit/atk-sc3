@@ -51,15 +51,21 @@
 HoaMatrix : AtkMatrix {
 
 	var <directions;
+	var <>order;			// order for this matrix
+
+	// call by subclass, only
+	*new { |kind, order|
+		^super.new(kind).order_(order)
+	}
 
 	// call by subclass, only
 	*newFromMatrix { |matrix, directions = ([[0, 0]]), order = (AtkHoa.defaultOrder)|
-		^super.new(\fromMatrix, order).initDirections(directions).initFromMatrix(matrix)
+		^super.new(\fromMatrix).order_(order).initDirections(directions).initFromMatrix(matrix)
 	}
 
 	// call by subclass, only
 	*newFromFile { |filePathOrName, searchExtensions = true, order = (AtkHoa.defaultOrder)|
-		^super.new(\fromFile, order).initFromFile(filePathOrName, searchExtensions)
+		^super.new(\fromFile).order_(order).initFromFile(filePathOrName, searchExtensions)
 	}
 
 	initDirections { |argDirections|

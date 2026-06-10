@@ -60,25 +60,12 @@ AtkMatrix {
 	var <kind;
 
 	var <matrix;
-	var <order;			// order for this matrix
 	var <filePath;		// matrices from files only
 	var <fileParse;		// data parsed from YAML file
 
 	// call by subclass, only
-	*new { |kind, order|
-		^super.newCopyArgs(kind).init(order)
-	}
-
-	/*
-	Add a warning against calling directly.
-	*/
-	init { |argOrder|
-		if(this.set == \FOA, {
-			order = 1
-		}, {
-			// resolve HOA
-			order = argOrder ?? { AtkHoa.defaultOrder }
-		})
+	*new { |kind|
+		^super.newCopyArgs(kind)
 	}
 
 	// For subclasses of AtkMatrix

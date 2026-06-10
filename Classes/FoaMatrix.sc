@@ -174,10 +174,11 @@ FoaSpeakerMatrix {
 
 FoaMatrix : AtkMatrix {
 	var <>dirChannels;  // setter added for matrix-to-file & file-to-matrix support
+	var <order = 1;
 
 	// most typically called by subclass
 	*new { |kind|
-		^super.new(kind).init
+		^super.new(kind)
 	}
 
 	*newFromMatrix { |matrix, directions|

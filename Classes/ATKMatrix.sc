@@ -52,6 +52,7 @@ superclass of:
 
 FoaMatrix
 HoaMatrix
+CartesianMatrix
 
 */
 
@@ -81,14 +82,14 @@ AtkMatrix {
 
 		if(PathName(pn.parentPath).isFolder.not, { // check for an enclosing folder
 			// ... no enclosing folder found so assumed
-			// to be relative to extensions/matrices/'type' directory
+			// to be relative to extensions/matrices/'set'/'type' directory
 
 			Atk.checkSet(this.set);
 
 			// This is only needed for relative file paths in user-matrices directory
-			if([\encoder, \decoder, \xformer].includes(this.type).not, {
+			if([\encoder, \decoder, \xformer, \directions].includes(this.type).not, {
 				Error(
-					"'type' argument must be 'encoder', 'decoder', or 'xformer'"
+					"'type' argument must be 'encoder', 'decoder', 'xformer', or 'directions'"
 				).errorString.postln;
 				this.halt
 			});
@@ -202,13 +203,13 @@ AtkMatrix {
 	/*
 	methods deferred to subclasses:
 
-	-set                 : FoaMatrix, HoaMatrix
-	-type               : FoaMatrix, HoaMatrix
-	-numChannels : FoaMatrix, HoaMatrix
-	-dim                : FoaMatrix, HoaMatrix
+	-set                 : FoaMatrix, HoaMatrix, CartesianMatrix
+	-type               : FoaMatrix, HoaMatrix, CartesianMatrix
+	-numChannels : FoaMatrix, HoaMatrix, CartesianMatrix
+	-dim                : FoaMatrix, HoaMatrix, CartesianMatrix
 	-dirInputs        : FoaMatrix
-	-dirOutputs     : FoaMatrix
-	-directions      : FoaMatrix, HoaMatrix
+	-dirOutputs     : FoaMatrix, CartesianMatrix
+	-directions      : FoaMatrix, HoaMatrix, CartesianMatrix
 
 	*/
 

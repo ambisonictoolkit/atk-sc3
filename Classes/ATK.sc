@@ -121,7 +121,7 @@ Atk {
 		sets = [
 			\FOA, \HOA1, \HOA2, \HOA3, \HOA4, \HOA5,
 			\HOA6, \HOA7, \HOA8, \HOA9, \HOA10, \HOA11,
-			\HOA12, \HOA13, \HOA14, \HOA15
+			\HOA12, \HOA13, \HOA14, \HOA15, \CARTESIAN
 		];
 
 		this.checkSupportDirsExist;
@@ -451,8 +451,8 @@ Atk {
 		^subPath
 	}
 
-	//  set: \FOA, \HOA1, \HOA2, etc
-	//  type: \decoder(s), \encoder(s), \xformer(s)
+	//  set: \FOA, \HOA1, \HOA2, etc., \CARTESIAN
+	//  type: \decoder(s), \encoder(s), \xformer(s), \directions(s)
 	//  op: \matrices, \kernels
 	*getExtensionSubPath { |set, type, op|
 		var subPath, typePath, fullPath;
@@ -467,10 +467,12 @@ Atk {
 				\decoders, { "decoders" },
 				\encoders, { "encoders" },
 				\xformers, { "xformers" },
+				\directions, { "directions" },
 				// include singular
 				\decoder, { "decoders" },
 				\encoder, { "encoders" },
-				\xformer, { "xformers" }
+				\xformer, { "xformers" },
+				\direction, { "directions" }
 			)
 		);
 
@@ -495,10 +497,12 @@ Atk {
 				\decoders, { "decoders" },
 				\encoders, { "encoders" },
 				\xformers, { "xformers" },
+				\directions, { "directions" },
 				// include singular
 				\decoder, { "decoders" },
 				\encoder, { "encoders" },
-				\xformer, { "xformers" }
+				\xformer, { "xformers" },
+				\direction, { "directions" }
 			)
 		);
 
@@ -509,7 +513,7 @@ Atk {
 
 	// shortcuts for matrices and kernels, aka 'ops'
 	*getMatrixExtensionSubPath { |set, type|
-		type ?? { Error("Unspecified matrix type. Please specify 'encoder', 'decoder', or 'xformer'.").errorString.postln; ^nil };
+		type ?? { Error("Unspecified matrix type. Please specify 'encoder', 'decoder', 'xformer', or 'directions'.").errorString.postln; ^nil };
 		^Atk.getExtensionSubPath(set, type, \matrices);
 	}
 
@@ -519,7 +523,7 @@ Atk {
 	}
 
 	*getAtkMatrixSubPath { |set, type|
-		type ?? { Error("Unspecified matrix type. Please specify 'encoder', 'decoder', or 'xformer'.").errorString.postln; ^nil };
+		type ?? { Error("Unspecified matrix type. Please specify 'encoder', 'decoder', 'xformer', or 'directions'.").errorString.postln; ^nil };
 		^Atk.getAtkOpSubPath(set, type, \matrices);
 	}
 

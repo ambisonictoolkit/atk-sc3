@@ -89,7 +89,7 @@ CartesianMatrix : AtkMatrix {
 	size { ^matrix.rows }
 	numChannels { ^this.size }
 
-	/* TODO: return radians from cartesian directions */
+	/* Return radians from cartesian directions */
 	directions {
 		var dirs = Array.newClear(this.size);
 		var sph;
@@ -307,7 +307,7 @@ CartesianMatrix : AtkMatrix {
 		wrAtt.(\type);
 		wrAtt.(\kind);
 		wrAtt.(\dim);
-		wrAttArr.(\directions);
+		//wrAttArr.(\directions); // don't write directions, it's redundant with matrix of directional coords
 		wrAttArr.(\matrix);
 
 		wr.close;

@@ -61,6 +61,7 @@ CartesianMatrix : AtkMatrix {
 		^super.new(\fromFile).initFromFile(filePathOrName, searchExtensions)
 	}
 
+	// TODO
 /*	initDirections { |argDirections|
 		directions = if(argDirections == nil, {
 			(this.order.asHoaOrder.size).collect({ inf })
@@ -108,7 +109,6 @@ CartesianMatrix : AtkMatrix {
 	coords { ^matrix.asArray }
 	points { ^this.coords }
 
-	/* TODO */
 	initFromMatrix { |aMatrix|
 
 		// set instance matrix
@@ -247,6 +247,9 @@ CartesianMatrix : AtkMatrix {
 			).throw
 		})
 	}*/
+
+	// TODO
+	visualize {}
 
 	// separate YML writer for Cartesian
 	prWriteMatrixToYML { |pn, note, attributeDictionary|

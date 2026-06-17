@@ -1,6 +1,6 @@
 (
           \name: "atk-sc3",
-       \summary: "A comprehensive set of tools for working with First Order Ambisonic soundfields.",
+       \summary: "A comprehensive set of tools for working with Higher Order Ambisonic soundfields.",
         \author: "Joseph Anderson, Josh Parmenter, Michael McCrea, & the Ambisonic Toolkit Community",
      \copyright: "Ambisonic Toolkit Community, Joseph Anderson, Josh Parmenter, and Michael McCrea 2011, 2016-18",
        \license: "GPL",
